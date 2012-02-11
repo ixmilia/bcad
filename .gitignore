@@ -1,0 +1,6 @@
+# ignore VS
+*.suo
+[Bb]in/
+[Dd]ebug/
+[Oo]bj/
+[Rr]elease

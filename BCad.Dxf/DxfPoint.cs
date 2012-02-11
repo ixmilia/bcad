@@ -1,0 +1,67 @@
+﻿using System;
+
+namespace BCad
+{
+    public class DxfPoint
+    {
+        public double X;
+        public double Y;
+        public double Z;
+
+        public DxfPoint()
+            : this(0, 0, 0)
+        {
+        }
+
+        public DxfPoint(double x, double y, double z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0},{1},{2})", X, Y, Z);
+        }
+
+        public static bool operator ==(DxfPoint a, DxfPoint b)
+        {
+            if (Object.ReferenceEquals(a, b))
+                return true;
+            if (((object)a) == null || ((object)b) == null)
+                return false;
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+        }
+
+        public static bool operator !=(DxfPoint a, DxfPoint b)
+        {
+            return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is DxfPoint)
+                return this == (DxfPoint)obj;
+            return false;
+        }
+    }
+
+    public class DxfVector : DxfPoint
+    {
+        public DxfVector()
+            : base()
+        {
+        }
+
+        public DxfVector(double x, double y, double z)
+            : base(x, y, z)
+        {
+        }
+    }
+}
