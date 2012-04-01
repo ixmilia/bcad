@@ -59,6 +59,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="OrthographicView.cs" />
+    <Compile Include="UndoRedoService.cs" />
     <Compile Include="WpfView.xaml.cs">
       <DependentUpon>WpfView.xaml</DependentUpon>
     </Compile>

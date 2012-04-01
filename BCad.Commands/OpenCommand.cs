@@ -18,6 +18,9 @@ namespace BCad.Commands
         [Import]
         public IWorkspace Workspace { get; set; }
 
+        [Import]
+        public IUndoRedoService UndoRedoService { get; set; }
+
         [ImportMany]
         public IEnumerable<IFileReader> FileReaders { get; set; }
 
@@ -54,6 +57,7 @@ namespace BCad.Commands
             if (reader == null) // invalid file selected
                 throw new Exception("Unknown file extension " + extension);
             var file = new FileStream(filename, FileMode.Open);
+            UndoRedoService.ClearHistory();
             Workspace.Document = reader.ReadFile(filename, file);
             return true;
         }

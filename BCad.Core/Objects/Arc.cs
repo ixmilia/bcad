@@ -9,17 +9,24 @@ namespace BCad.Objects
 {
     public class Arc : IObject, IPrimitive
     {
-        public Point Center { get; private set; }
+        private readonly Point center;
+        private readonly Vector normal;
+        private readonly double radius;
+        private readonly double startAngle;
+        private readonly double endAngle;
+        private readonly Color color;
 
-        public Vector Normal { get; private set; }
+        public Point Center { get { return center; } }
 
-        public double Radius { get; private set; }
+        public Vector Normal { get { return normal; } }
 
-        public double StartAngle { get; private set; }
+        public double Radius { get { return radius; } }
 
-        public double EndAngle { get; private set; }
+        public double StartAngle { get { return startAngle; } }
 
-        public Color Color { get; private set; }
+        public double EndAngle { get { return endAngle; } }
+
+        public Color Color { get { return color; } }
 
         private readonly double startAngleRadians;
 
@@ -27,12 +34,12 @@ namespace BCad.Objects
 
         public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, Color color)
         {
-            Center = center;
-            Radius = radius;
-            StartAngle = startAngle;
-            EndAngle = endAngle;
-            Normal = normal;
-            Color = color;
+            this.center = center;
+            this.radius = radius;
+            this.startAngle = startAngle;
+            this.endAngle = endAngle;
+            this.normal = normal;
+            this.color = color;
 
             // shortcut values
             startAngleRadians = startAngle * Math.PI / 180.0;

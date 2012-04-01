@@ -9,20 +9,25 @@ namespace BCad.Objects
 {
     public class Circle : IObject, IPrimitive
     {
-        public Point Center { get; private set; }
+        private readonly Point center;
+        private readonly Vector normal;
+        private readonly double radius;
+        private readonly Color color;
 
-        public Vector Normal { get; private set; }
+        public Point Center { get { return center; } }
 
-        public double Radius { get; private set; }
+        public Vector Normal { get { return normal; } }
 
-        public Color Color { get; private set; }
+        public double Radius { get { return radius; } }
+
+        public Color Color { get { return color; } }
 
         public Circle(Point center, double radius, Vector normal, Color color)
         {
-            Center = center;
-            Radius = radius;
-            Normal = normal;
-            Color = color;
+            this.center = center;
+            this.radius = radius;
+            this.normal = normal;
+            this.color = color;
         }
 
         public IEnumerable<IPrimitive> GetPrimitives()

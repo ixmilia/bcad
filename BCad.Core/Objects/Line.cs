@@ -9,17 +9,21 @@ namespace BCad.Objects
 {
     public class Line : IObject, IPrimitive
     {
-        public Point P1 { get; private set; }
+        private readonly Point p1;
+        private readonly Point p2;
+        private readonly Color color;
 
-        public Point P2 { get; private set; }
+        public Point P1 { get { return p1; } }
 
-        public Color Color { get; private set; }
+        public Point P2 { get { return p2; } }
+
+        public Color Color { get { return color; } }
 
         public Line(Point p1, Point p2, Color color)
         {
-            P1 = p1;
-            P2 = p2;
-            Color = color;
+            this.p1 = p1;
+            this.p2 = p2;
+            this.color = color;
         }
 
         public IEnumerable<IPrimitive> GetPrimitives()

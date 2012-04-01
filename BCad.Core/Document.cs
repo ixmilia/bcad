@@ -11,11 +11,15 @@ namespace BCad
 {
     public class Document
     {
-        public Dictionary<string, Layer> Layers { get; private set; }
+        private readonly Dictionary<string, Layer> layers;
+        private readonly string fileName;
+        private readonly bool isDirty;
 
-        public string FileName { get; private set; }
+        public Dictionary<string, Layer> Layers { get { return layers; } }
 
-        public bool IsDirty { get; private set; }
+        public string FileName { get { return fileName; } }
+
+        public bool IsDirty { get { return isDirty; } }
 
         public Document()
             : this(null)
@@ -38,9 +42,9 @@ namespace BCad
                 throw new ArgumentNullException("layers");
             if (!layers.Any())
                 throw new ArgumentException("At least one layer must be specified.");
-            FileName = fileName;
-            IsDirty = isDirty;
-            Layers = new Dictionary<string, Layer>(layers); // TODO: read only dictionary
+            this.fileName = fileName;
+            this.isDirty = isDirty;
+            this.layers = new Dictionary<string, Layer>(layers);
         }
 
         /// <summary>
@@ -73,6 +77,8 @@ namespace BCad
         {
             if (!LayerExists(layer))
                 throw new ArgumentException("The document does not contain the specified layer");
+            if (this.Layers.Count == 1)
+                throw new NotSupportedException("The last layer cannot be removed");
             var newLayers = new Dictionary<string, Layer>(this.Layers);
             newLayers.Remove(layer.Name);
             return this.Update(layers: newLayers);

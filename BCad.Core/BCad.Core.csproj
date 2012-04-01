@@ -77,6 +77,7 @@
     <Compile Include="FileHandlers\IFileWriter.cs" />
     <Compile Include="ICommandManager.cs" />
     <Compile Include="DocumentEventDelegates.cs" />
+    <Compile Include="IUndoRedoService.cs" />
     <Compile Include="IUserConsole.cs" />
     <Compile Include="IUserConsoleFactory.cs" />
     <Compile Include="IView.cs" />

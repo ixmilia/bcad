@@ -18,6 +18,9 @@ namespace BCad.Commands
         [Import]
         public IWorkspace Workspace { get; set; }
 
+        [Import]
+        public IUndoRedoService UndoRedoService { get; set; }
+
         public bool Execute(params object[] parameters)
         {
             Point center = Point.Origin;
@@ -96,6 +99,7 @@ namespace BCad.Commands
                 }
             }
 
+            UndoRedoService.SetSnapshot();
             Workspace.AddToCurrentLayer(new Circle(center, radius, -Workspace.View.Sight, Color.Default));
             return true;
         }

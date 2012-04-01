@@ -9,11 +9,15 @@ namespace BCad
 {
     public class Layer
     {
-        public string Name { get; private set; }
+        private readonly string name;
+        private readonly Color color;
+        private readonly ReadOnlyCollection<IObject> objects;
 
-        public Color Color { get; private set; }
+        public string Name { get { return name; } }
 
-        public ReadOnlyCollection<IObject> Objects { get; private set; }
+        public Color Color { get { return color; } }
+
+        public ReadOnlyCollection<IObject> Objects { get { return objects; } }
 
         public Layer(string name, Color color)
             : this(name, color, new IObject[0])
@@ -22,9 +26,9 @@ namespace BCad
 
         public Layer(string name, Color color, IEnumerable<IObject> objects)
         {
-            Name = name;
-            Color = color;
-            Objects = new ReadOnlyCollection<IObject>(objects.ToList());
+            this.name = name;
+            this.color = color;
+            this.objects = new ReadOnlyCollection<IObject>(objects.ToList());
         }
 
         /// <summary>
