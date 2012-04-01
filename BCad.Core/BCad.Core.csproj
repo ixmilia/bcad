@@ -69,6 +69,7 @@
     <Compile Include="EventArguments\ViewPortChangedEventArgs.cs" />
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
+    <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileReaderAttribute.cs" />
     <Compile Include="FileHandlers\ExportFileWriterAttribute.cs" />
@@ -95,7 +96,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnapPoints\MidPoint.cs" />
     <Compile Include="UserDirective.cs" />
-    <Compile Include="Utilities\ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="SnapPoints\SnapPointIcons.xaml">
