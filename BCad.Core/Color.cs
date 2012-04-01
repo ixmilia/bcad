@@ -7,24 +7,20 @@ using Media = System.Windows.Media;
 
 namespace BCad
 {
-    public struct Color
+    public class Color
     {
-        public byte Value { get; set; }
+        private readonly byte value;
+
+        public byte Value { get { return value; } }
 
         public bool IsAuto
         {
             get { return Value == 0; }
         }
 
-        public void SetAuto()
-        {
-            Value = 0;
-        }
-
         public Color(byte value)
-            : this()
         {
-            Value = value;
+            this.value = value;
         }
 
         public Drawing.Color ToDrawingColor()

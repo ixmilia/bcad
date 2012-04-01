@@ -14,8 +14,8 @@ namespace BCad
     public interface IView
     {
         event ViewPortChangedEvent ViewPortChanged;
-        void UpdateView(Point? viewPoint = null, Vector? sight = null, Vector? up = null,
-            double? viewWidth = null, Point? bottomLeft = null);
+        void UpdateView(Point viewPoint = null, Vector sight = null, Vector up = null,
+            double? viewWidth = null, Point bottomLeft = null);
         Point ViewPoint { get; }
         Vector Sight { get; }
         Vector Up { get; }

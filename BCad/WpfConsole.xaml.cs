@@ -95,8 +95,8 @@ namespace BCad
             {
                 case InputType.Point:
                     var point = ParsePoint(inputLine.Text);
-                    if (point.HasValue)
-                        value = point.Value;
+                    if (point != null)
+                        value = point;
                     else
                         value = inputLine.Text; // directive
                     break;
@@ -119,13 +119,13 @@ namespace BCad
 
         private static Regex relativeAngle = new Regex(string.Format("^{0}<{0}$", Point.NumberPattern), RegexOptions.Compiled);
 
-        private Point? ParsePoint(string text)
+        private Point ParsePoint(string text)
         {
             // if only 2 coordinates given
             if (text.Count(c => c == ',') == 1)
                 text += ",0";
 
-            Point? p;
+            Point p;
             if (numberPattern.IsMatch(text))
             {
                 // length on current vector

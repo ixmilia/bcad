@@ -27,7 +27,7 @@ namespace BCad.Commands
                 if (current.Cancel) break;
                 if (current.HasValue)
                 {
-                    Workspace.Document.AddObject(new Line(last, current.Value, Color.Default, Workspace.Document.CurrentLayer));
+                    Workspace.AddToCurrentLayer(new Line(last, current.Value, Color.Default));
                     last = current.Value;
                     if (last == first) break; // closed
                 }
@@ -36,7 +36,7 @@ namespace BCad.Commands
                     if (current.Directive == "c")
                     {
                         if (last != first)
-                            Workspace.Document.AddObject(new Line(last, first, Color.Default, Workspace.Document.CurrentLayer));
+                            Workspace.AddToCurrentLayer(new Line(last, first, Color.Default));
                         break;
                     }
                 }

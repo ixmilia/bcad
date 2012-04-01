@@ -7,31 +7,19 @@ using System.Windows.Media.Media3D;
 
 namespace BCad
 {
-    public struct Point
+    public class Point
     {
-        private Point3D point;
+        private readonly Point3D point;
 
-        public double X
-        {
-            get { return point.X; }
-            set { point.X = value; }
-        }
+        public double X { get { return point.X; } }
 
-        public double Y
-        {
-            get { return point.Y; }
-            set { point.Y = value; }
-        }
+        public double Y { get { return point.Y; } }
 
-        public double Z
-        {
-            get { return point.Z; }
-            set { point.Z = value; }
-        }
+        public double Z { get { return point.Z; } }
 
         public Point(double x, double y, double z)
         {
-            point = new Point3D(x, y, z);
+            this.point = new Point3D(x, y, z);
         }
 
         public Point(System.Windows.Point point)
@@ -142,27 +130,15 @@ namespace BCad
         }
     }
 
-    public struct Vector
+    public class Vector
     {
-        private Vector3D vector;
+        private readonly Vector3D vector;
 
-        public double X
-        {
-            get { return vector.X; }
-            set { vector.X = value; }
-        }
+        public double X { get { return vector.X; } }
 
-        public double Y
-        {
-            get { return vector.Y; }
-            set { vector.Y = value; }
-        }
+        public double Y { get { return vector.Y; } }
 
-        public double Z
-        {
-            get { return vector.Z; }
-            set { vector.Z = value; }
-        }
+        public double Z { get { return vector.Z; } }
 
         public double LengthSquared
         {
@@ -176,12 +152,12 @@ namespace BCad
 
         public Vector(double x, double y, double z)
         {
-            vector = new Vector3D(x, y, z);
+            this.vector = new Vector3D(x, y, z);
         }
 
         public void Normalize()
         {
-            vector.Normalize();
+            this.vector.Normalize();
         }
 
         public Vector Cross(Vector v)

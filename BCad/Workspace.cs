@@ -28,6 +28,26 @@ namespace BCad
                     return;
                 document = value;
                 OnDocumentChanged(new DocumentChangedEventArgs(document));
+                if (document.Layers.ContainsKey("Default"))
+                    CurrentLayer = document.Layers["Default"];
+                else
+                    CurrentLayer = document.Layers.Values.First();
+            }
+        }
+
+        private Layer currentLayer;
+
+        public Layer CurrentLayer
+        {
+            get { return currentLayer; }
+            set
+            {
+                var args = new LayerChangingEventArgs(currentLayer, value);
+                OnCurrentLayerChanging(args);
+                if (args.Cancel)
+                    return;
+                currentLayer = value;
+                OnCurrentLayerChanged(new LayerChangedEventArgs(currentLayer));
             }
         }
 
@@ -60,10 +80,26 @@ namespace BCad
                 DocumentChanged(this, e);
         }
 
+        public event CurrentLayerChangingEventHandler CurrentLayerChanging;
+
+        protected virtual void OnCurrentLayerChanging(LayerChangingEventArgs e)
+        {
+            if (CurrentLayerChanging != null)
+                CurrentLayerChanging(this, e);
+        }
+
+        public event CurrentLayerChangedEventHandler CurrentLayerChanged;
+
+        protected virtual void OnCurrentLayerChanged(LayerChangedEventArgs e)
+        {
+            if (CurrentLayerChanged != null)
+                CurrentLayerChanged(this, e);
+        }
+
         public UnsavedChangesResult PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
-            if (Document.Dirty)
+            if (Document.IsDirty)
             {
                 string filename = Document.FileName ?? "(Untitled)";
                 var dialog = MessageBox.Show(string.Format("Save changes to '{0}'?", filename),

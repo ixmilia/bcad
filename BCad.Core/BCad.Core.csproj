@@ -53,11 +53,12 @@
     <Compile Include="EventArguments\AbstractLayerEventArgs.cs" />
     <Compile Include="EventArguments\AbstractObjectEventArgs.cs" />
     <Compile Include="EventArguments\CommandEventArgs.cs" />
-    <Compile Include="EventArguments\CurrentLayerChangedEventArgs.cs" />
     <Compile Include="EventArguments\DocumentChangedEventArgs.cs" />
     <Compile Include="EventArguments\DocumentChangingEventArgs.cs" />
     <Compile Include="EventArguments\DocumentDetailsChangedEventArgs.cs" />
     <Compile Include="EventArguments\LayerAddedEventArgs.cs" />
+    <Compile Include="EventArguments\LayerChangedEventArgs.cs" />
+    <Compile Include="EventArguments\LayerChangingEventArgs.cs" />
     <Compile Include="EventArguments\LayerRemovedEventArgs.cs" />
     <Compile Include="EventArguments\LayerUpdatedEventArgs.cs" />
     <Compile Include="EventArguments\ObjectAddedEventArgs.cs" />
@@ -67,6 +68,8 @@
     <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
     <Compile Include="EventArguments\ViewPortChangedEventArgs.cs" />
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
+    <Compile Include="Extensions\DocumentExtensions.cs" />
+    <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileReaderAttribute.cs" />
     <Compile Include="FileHandlers\ExportFileWriterAttribute.cs" />
     <Compile Include="FileHandlers\IFileReader.cs" />

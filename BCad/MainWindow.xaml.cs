@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,6 +42,11 @@ namespace BCad
 
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
+            Workspace.DocumentChanging += Workspace_DocumentChanging;
+            Workspace.DocumentChanged += Workspace_DocumentChanged;
+            Workspace.CurrentLayerChanging += Workspace_CurrentLayerChanging;
+            Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
+
             Workspace.Document = new Document();
             var console = UserConsoleFactory.Generate();
             this.inputPanel.Content = console;
@@ -57,39 +63,39 @@ namespace BCad
                 viewWidth: 300.0,
                 bottomLeft: new Point(-10, -10, 0));
 
-            Workspace.DocumentChanging += Workspace_DocumentChanging;
-            Workspace.DocumentChanged += Workspace_DocumentChanged;
-            Workspace.Document.DocumentDetailsChanged += Document_DocumentDetailsChanged;
-
             SetTitle(Workspace.Document);
         }
 
         private void Workspace_DocumentChanging(object sender, DocumentChangingEventArgs e)
         {
-            e.OldDocument.DocumentDetailsChanged -= Document_DocumentDetailsChanged;
         }
 
         private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
-            e.Document.DocumentDetailsChanged += Document_DocumentDetailsChanged;
-            e.Document.CurrentLayerChanged += Document_CurrentLayerChanged;
+            this.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    this.currentLayer.Items.Clear();
+                    foreach (var layer in e.Document.Layers.Values.OrderBy(l => l.Name))
+                    {
+                        this.currentLayer.Items.Add(layer);
+                    }
+                    this.currentLayer.SelectedIndex = 0;
+                }));
         }
 
-        void Document_CurrentLayerChanged(object sender, CurrentLayerChangedEventArgs e)
+        private void Workspace_CurrentLayerChanging(object sender, LayerChangingEventArgs e)
         {
-            // TODO: set current layer
         }
 
-        private void Document_DocumentDetailsChanged(object sender, DocumentDetailsChangedEventArgs e)
+        private void Workspace_CurrentLayerChanged(object sender, LayerChangedEventArgs e)
         {
-            SetTitle(e.Document);
         }
 
         private void SetTitle(Document document)
         {
-            string filename = document.FileName == null ? "Untitled" : Path.GetFileName(document.FileName);
+            string filename = document.FileName == null ? "(Untitled)" : Path.GetFileName(document.FileName);
             Dispatcher.BeginInvoke((Action)(() =>
-                this.Title = string.Format("BCad [{0}]{1}", filename, document.Dirty ? " *" : "")));
+                this.Title = string.Format("BCad [{0}]{1}", filename, document.IsDirty ? " *" : "")));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

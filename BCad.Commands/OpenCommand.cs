@@ -54,9 +54,7 @@ namespace BCad.Commands
             if (reader == null) // invalid file selected
                 throw new Exception("Unknown file extension " + extension);
             var file = new FileStream(filename, FileMode.Open);
-            Workspace.Document = reader.ReadFile(file);
-            Workspace.Document.FileName = filename;
-            Workspace.Document.Dirty = false;
+            Workspace.Document = reader.ReadFile(filename, file);
             return true;
         }
 

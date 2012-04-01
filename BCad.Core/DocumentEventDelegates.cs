@@ -17,7 +17,5 @@ namespace BCad
 
     public delegate void LayerUpdatedEventHandler(object sender, LayerUpdatedEventArgs e);
 
-    public delegate void CurrentLayerChangedEventHandler(object sender, CurrentLayerChangedEventArgs e);
-
     public delegate void DocumentDetailsChangedEventHandler(object sender, DocumentDetailsChangedEventArgs e);
 }

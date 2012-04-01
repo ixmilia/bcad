@@ -40,7 +40,7 @@ namespace BCad
                 Icon = icon;
             }
 
-            public static TransformedSnapPoint FromView(IView view, double scale, SnapPoint snapPoint)
+            public static TransformedSnapPoint FromView(IView view, double scale, SnapPoint snapPoint, IObject source)
             {
                 var controlPoint = view.WorldToControl(snapPoint.Point).ToWindowsPoint();
                 var geom = snapPoint.Icon;
@@ -50,6 +50,7 @@ namespace BCad
                 i.Source = di;
                 i.Stretch = Stretch.None;
                 i.LayoutTransform = new ScaleTransform(scale, scale);
+                i.Tag = source;
                 Canvas.SetLeft(i, controlPoint.X - geom.Bounds.Width * scale / 2.0);
                 Canvas.SetTop(i, controlPoint.Y - geom.Bounds.Height * scale / 2.0);
                 return new TransformedSnapPoint(controlPoint, snapPoint.Point, i);
@@ -92,7 +93,6 @@ namespace BCad
         {
             UserConsole.RubberBandGeneratorChanged += UserConsole_RubberBandGeneratorChanged;
             View.ViewPortChanged += TransformationMatrixChanged;
-            PopulateDocumentEvents(Workspace.Document);
             Workspace.DocumentChanging += DocumentChanging;
             Workspace.DocumentChanged += DocumentChanged;
         }
@@ -104,70 +104,23 @@ namespace BCad
 
         private void TransformationMatrixChanged(object sender, ViewPortChangedEventArgs e)
         {
-            DrawObjects();
-        }
-
-        private void ObjectAdded(object sender, ObjectAddedEventArgs e)
-        {
-            Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    DrawObject(e.Object);
-                    AddObjectSnapPoints(e.Object);
-                }));
-        }
-
-        private void ObjectRemoved(object sender, ObjectRemovedEventArgs e)
-        {
-            // TODO: redraw world
-        }
-
-        private void LayerUpdated(object sender, LayerUpdatedEventArgs e)
-        {
-            // TODO: redraw objects if layer changed
-        }
-
-        private void LayerRemoved(object sender, LayerRemovedEventArgs e)
-        {
-            // TODO: remove layer objects
+            Dispatcher.BeginInvoke((Action)(() => DrawObjects()));
         }
 
         private void DocumentChanging(object sender, DocumentChangingEventArgs e)
         {
-            ClearDocumentEvents(e.OldDocument);
         }
 
         private void DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
-            Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    PopulateDocumentEvents(e.Document);
-                    DrawObjects();
-                }));
-        }
-
-        private void ClearDocumentEvents(Document document)
-        {
-            document.ObjectAdded -= ObjectAdded;
-            document.ObjectRemoved -= ObjectRemoved;
-            document.LayerUpdated -= LayerUpdated;
-            document.LayerRemoved -= LayerRemoved;
-            // don't care about layer added
-        }
-
-        public void PopulateDocumentEvents(Document document)
-        {
-            document.ObjectAdded += ObjectAdded;
-            document.ObjectRemoved += ObjectRemoved;
-            document.LayerUpdated += LayerUpdated;
-            document.LayerRemoved += LayerRemoved;
-            // don't care about layer added
+            Dispatcher.BeginInvoke((Action)(() => DrawObjects()));
         }
 
         private void AddObjectSnapPoints(IObject obj)
         {
             foreach (var sp in obj.GetSnapPoints())
             {
-                snapPoints.Add(TransformedSnapPoint.FromView(View, snapPointSize, sp));
+                snapPoints.Add(TransformedSnapPoint.FromView(View, snapPointSize, sp, obj));
             }
         }
 
@@ -175,7 +128,7 @@ namespace BCad
         {
             objects.Children.Clear();
             snapPoints.Clear();
-            foreach (var layer in Workspace.Document.Layers)
+            foreach (var layer in Workspace.Document.Layers.Values)
             {
                 foreach (var obj in layer.Objects)
                 {

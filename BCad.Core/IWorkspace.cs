@@ -10,6 +10,10 @@ namespace BCad
 
     public delegate void DocumentChangedEventHandler(object sender, DocumentChangedEventArgs e);
 
+    public delegate void CurrentLayerChangingEventHandler(object sender, LayerChangingEventArgs e);
+
+    public delegate void CurrentLayerChangedEventHandler(object sender, LayerChangedEventArgs e);
+
     public enum UnsavedChangesResult
     {
         Saved,
@@ -20,9 +24,12 @@ namespace BCad
     public interface IWorkspace
     {
         Document Document { get; set; }
+        Layer CurrentLayer { get; set; }
         IView View { get; }
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;
+        event CurrentLayerChangingEventHandler CurrentLayerChanging;
+        event CurrentLayerChangedEventHandler CurrentLayerChanged;
         UnsavedChangesResult PromptForUnsavedChanges();
     }
 }

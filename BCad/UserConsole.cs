@@ -21,7 +21,7 @@ namespace BCad
         public UserConsole()
         {
             PrimitiveGenerator = null;
-            LastPoint = new Point();
+            LastPoint = Point.Origin;
             Reset();
         }
 

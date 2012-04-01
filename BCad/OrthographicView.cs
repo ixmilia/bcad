@@ -17,24 +17,26 @@ namespace BCad
         public OrthographicView()
         {
             BottomLeft = Point.Origin;
+            ViewPoint = Point.Origin;
             Sight = Vector.ZAxis;
+            Up = Vector.YAxis;
             cursorMove = new MouseEventHandler(OnControlMouseMove);
             sizeChanged = new SizeChangedEventHandler(OnControlSizeChanged);
         }
 
-        public void UpdateView(Point? viewPoint = null, Vector? sight = null, Vector? up = null,
-            double? viewWidth = null, Point? bottomLeft = null)
+        public void UpdateView(Point viewPoint = null, Vector sight = null, Vector up = null,
+            double? viewWidth = null, Point bottomLeft = null)
         {
-            if (viewPoint.HasValue)
-                ViewPoint = viewPoint.Value;
-            if (sight.HasValue)
-                Sight = sight.Value;
-            if (up.HasValue)
-                Up = up.Value;
+            if (viewPoint != null)
+                ViewPoint = viewPoint;
+            if (sight != null)
+                Sight = sight;
+            if (up != null)
+                Up = up;
             if (viewWidth.HasValue)
                 ViewWidth = viewWidth.Value;
-            if (bottomLeft.HasValue)
-                BottomLeft = bottomLeft.Value;
+            if (bottomLeft != null)
+                BottomLeft = bottomLeft;
             OnViewPortChanged(new ViewPortChangedEventArgs(this));
         }
 

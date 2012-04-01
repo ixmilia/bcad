@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using BCad.Objects;
@@ -12,19 +13,7 @@ namespace BCad
 
         public Color Color { get; private set; }
 
-        public IEnumerable<IObject> Objects { get { return objects; } }
-
-        public Layer Update(string name = null, Color? color = null, IEnumerable<IObject> objects = null)
-        {
-            return new Layer(
-                name != null ? name : this.Name,
-                color != null ? color.Value : this.Color,
-                objects != null ? objects : this.Objects);
-        }
-
-        private HashSet<IObject> objects = new HashSet<IObject>();
-
-        private int hashCode = 0;
+        public ReadOnlyCollection<IObject> Objects { get; private set; }
 
         public Layer(string name, Color color)
             : this(name, color, new IObject[0])
@@ -35,31 +24,49 @@ namespace BCad
         {
             Name = name;
             Color = color;
-            this.objects = new HashSet<IObject>(objects);
-            hashCode = Name.GetHashCode() ^ Color.GetHashCode();
+            Objects = new ReadOnlyCollection<IObject>(objects.ToList());
         }
 
-        internal void AddObject(IObject obj)
+        /// <summary>
+        /// Returns true if the layer contains the specified object.
+        /// </summary>
+        /// <param name="obj">The object to find.</param>
+        /// <returns>True if the object was found, false otherwise.</returns>
+        public bool ObjectExists(IObject obj)
         {
-            if (objects.Contains(obj))
-                throw new ArgumentException("Duplicate object specified");
-            if (obj.Layer != this)
-                throw new ArgumentException("Improper layer specified");
-            objects.Add(obj);
+            return this.Objects.Any(o => o == obj);
         }
 
-        internal void RemoveObject(IObject obj)
+        public Layer Add(IObject obj)
         {
-            if (!objects.Contains(obj))
-                throw new ArgumentException("Layer does not contain the object");
-            if (obj.Layer != this)
-                throw new ArgumentException("Improper layer specified");
-            objects.Remove(obj);
+            return this.Update(objects: this.Objects.Concat(new[] { obj }));
         }
 
-        public override int GetHashCode()
+        public Layer Remove(IObject obj)
         {
-            return hashCode;
+            if (!this.ObjectExists(obj))
+                throw new ArgumentException("The layer does not contain the specified object.");
+            return this.Update(objects: this.Objects.Except(new[] { obj }));
+        }
+
+        public Layer Replace(IObject oldObject, IObject newObject)
+        {
+            if (!this.ObjectExists(oldObject))
+                throw new ArgumentException("The layer does not contain the specified object.");
+            return this.Update(objects: this.Objects.Except(new[] { oldObject }).Concat(new[] { newObject }));
+        }
+
+        public Layer Update(string name = null, Color color = null, IEnumerable<IObject> objects = null)
+        {
+            return new Layer(
+                name ?? this.Name,
+                color ?? this.Color,
+                objects ?? this.Objects);
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
         }
     }
 }

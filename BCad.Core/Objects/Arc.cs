@@ -11,52 +11,21 @@ namespace BCad.Objects
     {
         public Point Center { get; private set; }
 
-        public Layer Layer { get; private set; }
+        public Vector Normal { get; private set; }
 
-        private int hashCode;
+        public double Radius { get; private set; }
 
-        public Vector Normal
-        {
-            get { return normal; }
-            set
-            {
-                value.Normalize();
-                if (value != Vector.XAxis && value != Vector.YAxis && value != Vector.ZAxis)
-                    throw new Exception("The normal vector must be a major axis.");
-                normal = value;
-            }
-        }
+        public double StartAngle { get; private set; }
 
-        public double Radius { get; set; }
+        public double EndAngle { get; private set; }
 
-        public double StartAngle
-        {
-            get { return startAngle; }
-            set
-            {
-                startAngle = value;
-                startAngleRadians = startAngle * Math.PI / 180.0;
-            }
-        }
+        public Color Color { get; private set; }
 
-        public double EndAngle
-        {
-            get { return endAngle; }
-            set
-            {
-                endAngle = value;
-                endAngleRadians = endAngle * Math.PI / 180.0;
-            }
-        }
+        private readonly double startAngleRadians;
 
-        public Color Color { get; set; }
+        private readonly double endAngleRadians;
 
         public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, Color color)
-            : this(center, radius, startAngle, endAngle, normal, color, null)
-        {
-        }
-
-        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, Color color, Layer layer)
         {
             Center = center;
             Radius = radius;
@@ -64,15 +33,11 @@ namespace BCad.Objects
             EndAngle = endAngle;
             Normal = normal;
             Color = color;
-            Layer = layer;
-            hashCode = Center.GetHashCode() ^ Normal.GetHashCode() ^ Radius.GetHashCode() ^ StartAngle.GetHashCode() ^ EndAngle.GetHashCode();
-        }
 
-        private Vector normal = Vector.ZAxis;
-        private double startAngle = 0.0;
-        private double endAngle = 0.0;
-        private double startAngleRadians = 0.0;
-        private double endAngleRadians = 0.0;
+            // shortcut values
+            startAngleRadians = startAngle * Math.PI / 180.0;
+            endAngleRadians = endAngle * Math.PI / 180.0;
+        }
 
         public Point EndPoint1
         {
@@ -94,9 +59,9 @@ namespace BCad.Objects
         {
             get
             {
-                double angleBetween = endAngle - startAngle;
+                double angleBetween = EndAngle - StartAngle;
                 if (angleBetween < 0.0) angleBetween += 360.0;
-                double angle = startAngle + (angleBetween / 2.0);
+                double angle = StartAngle + (angleBetween / 2.0);
                 double aRad = angle * Math.PI / 180.0;
                 return PointFromRadians(aRad);
             }
@@ -104,7 +69,7 @@ namespace BCad.Objects
 
         private Point PointFromRadians(double rad)
         {
-            Point p = new Point();
+            Point p = Point.Origin;
             if (Normal == Vector.ZAxis)
                 p = new Point(Center.X + Math.Cos(rad) * Radius, Center.Y + Math.Sin(rad) * Radius, Center.Z);
             else if (Normal == Vector.YAxis)
@@ -129,9 +94,15 @@ namespace BCad.Objects
             yield return new MidPoint(MidPoint);
         }
 
-        public override int GetHashCode()
+        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color color = null)
         {
-            return hashCode;
+            return new Arc(
+                center ?? this.Center,
+                radius ?? this.Radius,
+                startAngle ?? this.StartAngle,
+                endAngle ?? this.EndAngle,
+                normal ?? this.Normal,
+                color ?? this.Color);
         }
     }
 }

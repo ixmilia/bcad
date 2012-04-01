@@ -20,7 +20,7 @@ namespace BCad.Commands
 
         public bool Execute(params object[] parameters)
         {
-            Point center = new Point();
+            Point center = Point.Origin;
             double radius = 0.0;
 
             var cen = UserConsole.GetPoint(new UserDirective("Select center, [ttr], or [3]-point", "ttr", "3"));
@@ -96,7 +96,7 @@ namespace BCad.Commands
                 }
             }
 
-            Workspace.Document.AddObject(new Circle(center, radius, -Workspace.View.Sight, Color.Default, Workspace.Document.CurrentLayer));
+            Workspace.AddToCurrentLayer(new Circle(center, radius, -Workspace.View.Sight, Color.Default));
             return true;
         }
 

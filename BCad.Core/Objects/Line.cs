@@ -15,22 +15,11 @@ namespace BCad.Objects
 
         public Color Color { get; private set; }
 
-        public Layer Layer { get; private set; }
-
-        private int hashCode;
-
         public Line(Point p1, Point p2, Color color)
-            : this(p1, p2, color, null)
-        {
-        }
-
-        public Line(Point p1, Point p2, Color color, Layer layer)
         {
             P1 = p1;
             P2 = p2;
             Color = color;
-            Layer = layer;
-            hashCode = P1.GetHashCode() ^ P2.GetHashCode() ^ Color.GetHashCode() ^ Layer.GetHashCode();
         }
 
         public IEnumerable<IPrimitive> GetPrimitives()
@@ -45,9 +34,12 @@ namespace BCad.Objects
             yield return new MidPoint(((P1 + P2) / 2.0).ToPoint());
         }
 
-        public override int GetHashCode()
+        public Line Update(Point p1 = null, Point p2 = null, Color color = null)
         {
-            return hashCode;
+            return new Line(
+                p1 ?? this.P1,
+                p2 ?? this.P2,
+                color ?? this.Color);
         }
     }
 }

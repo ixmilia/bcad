@@ -20,58 +20,64 @@ namespace BCad.Commands.FileHandlers
 
         public const string FileExtension = ".dxf";
 
-        public Document ReadFile(Stream stream)
+        public Document ReadFile(string fileName, Stream stream)
         {
-            var doc = new Document();
             var file = new DxfFile(stream);
+            var layers = new Dictionary<string, Layer>()
+            {
+                { "Default", new Layer("Default", Color.Auto) } // ensure a default layer
+            };
 
             foreach (var layer in file.Layers)
             {
-                if (layer.Name != "0")
-                {
-                    // default layer is already added
-                    var newLayer = new Layer(layer.Name, layer.Color.ToColor());
-                    doc.AddLayer(newLayer);
-                }
+                // remap layer 0 to Default and add to the collection
+                var newName = layer.Name == "0" ? "Default" : layer.Name;
+                layers[newName] = new Layer(newName, layer.Color.ToColor());
             }
 
             foreach (var item in file.Entities)
             {
                 Layer layer = null;
 
-                if (item.Layer == null || item.Layer == "0")
-                    layer = doc.DefaultLayer;
+                // remap layer 0 to Default and ensure the layer exists
+                string objectLayer = (item.Layer == null || item.Layer == "0") ? "Default" : item.Layer;
+                if (layers.ContainsKey(objectLayer))
+                    layer = layers[objectLayer];
                 else
-                    layer = doc.GetLayerByName(item.Layer);
-                if (layer == null)
                 {
-                    layer = new Layer(item.Layer, Color.Default);
-                    doc.AddLayer(layer);
+                    // add the layer if previously undefined
+                    layer = new Layer(objectLayer, Color.Auto);
+                    layers[objectLayer] = layer;
                 }
 
+                // create the object
                 IObject obj = null;
                 if (item is DxfLine)
-                    obj = ((DxfLine)item).ToLine(layer);
+                    obj = ((DxfLine)item).ToLine();
                 else if (item is DxfCircle)
-                    obj = ((DxfCircle)item).ToCircle(layer);
+                    obj = ((DxfCircle)item).ToCircle();
                 else if (item is DxfArc)
-                    obj = ((DxfArc)item).ToArc(layer);
+                    obj = ((DxfArc)item).ToArc();
 
+                // add the object to the appropriate layer
                 if (obj != null)
-                    doc.AddObject(obj);
+                {
+                    layer = layer.Add(obj);
+                    layers[objectLayer] = layer;
+                }
             }
 
-            return doc;
+            return new Document(Path.GetFullPath(fileName), layers);
         }
 
         public void WriteFile(Document document, Stream stream)
         {
             var file = new DxfFile();
 
-            foreach (var layer in document.Layers)
+            foreach (var layer in document.Layers.Values)
             {
                 string layerName = layer.Name;
-                if (layer == document.DefaultLayer)
+                if (layerName == "Default")
                     layerName = "0";
                 file.Layers.Add(new DxfLayer(layerName, layer.Color.ToDxfColor()));
                 foreach (var item in layer.Objects)
@@ -131,19 +137,19 @@ namespace BCad.Commands.FileHandlers
             return new DxfVector(vector.X, vector.Y, vector.Z);
         }
 
-        public static Line ToLine(this DxfLine line, Layer layer)
+        public static Line ToLine(this DxfLine line)
         {
-            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor(), layer);
+            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor());
         }
 
-        public static Circle ToCircle(this DxfCircle circle, Layer layer)
+        public static Circle ToCircle(this DxfCircle circle)
         {
-            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor(), layer);
+            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor());
         }
 
-        public static Arc ToArc(this DxfArc arc, Layer layer)
+        public static Arc ToArc(this DxfArc arc)
         {
-            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor(), layer);
+            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor());
         }
 
         public static DxfLine ToDxfLine(this Line line)

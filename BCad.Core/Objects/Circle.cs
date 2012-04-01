@@ -17,23 +17,12 @@ namespace BCad.Objects
 
         public Color Color { get; private set; }
 
-        public Layer Layer { get; private set; }
-
-        private int hashCode;
-
         public Circle(Point center, double radius, Vector normal, Color color)
-            : this(center, radius, normal, color, null)
-        {
-        }
-
-        public Circle(Point center, double radius, Vector normal, Color color, Layer layer)
         {
             Center = center;
             Radius = radius;
             Normal = normal;
             Color = color;
-            Layer = layer;
-            hashCode = Center.GetHashCode() ^ Normal.GetHashCode() ^ Radius.GetHashCode() ^ Color.GetHashCode() ^ Layer.GetHashCode();
         }
 
         public IEnumerable<IPrimitive> GetPrimitives()
@@ -89,9 +78,13 @@ namespace BCad.Objects
             }
         }
 
-        public override int GetHashCode()
+        public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color color = null)
         {
-            return hashCode;
+            return new Circle(
+                center ?? this.Center,
+                radius ?? this.Radius,
+                normal ?? this.Normal,
+                color ?? this.Color);
         }
     }
 }
