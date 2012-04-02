@@ -14,7 +14,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <ComboBox Name="currentLayer" />
+            <ComboBox Name="currentLayer" Width="250" />
         </Grid>
         <UserControl Grid.Row="1" Name="viewPanel" />
         <UserControl Grid.Row="2" Name="inputPanel" Height="100" />

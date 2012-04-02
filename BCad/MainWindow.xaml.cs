@@ -47,6 +47,8 @@ namespace BCad
             Workspace.CurrentLayerChanging += Workspace_CurrentLayerChanging;
             Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
 
+            var w = new Window();
+
             Workspace.Document = new Document();
             var console = UserConsoleFactory.Generate();
             this.inputPanel.Content = console;
