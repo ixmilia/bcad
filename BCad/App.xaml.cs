@@ -22,6 +22,7 @@ namespace BCad
         public App()
         {
             //base.OnStartup(e);
+            this.ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
 
             var catalog = new AggregateCatalog(
                     new AssemblyCatalog(Assembly.GetExecutingAssembly()),

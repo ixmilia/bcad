@@ -9,6 +9,8 @@ using System.Threading;
 using System.Windows;
 using BCad.Commands;
 using BCad.EventArguments;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace BCad
 {
@@ -69,8 +71,13 @@ namespace BCad
         [Import]
         public IControlFactory ControlFactory { get; private set; }
 
+        public ISettingsManager SettingsManager { get; private set; }
+
         public Workspace()
         {
+            var serializer = new XmlSerializer(typeof(SettingsManager));
+            var stream = new FileStream("BCad.configxml", FileMode.Open);
+            this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
         }
 
         public event DocumentChangingEventHandler DocumentChanging;

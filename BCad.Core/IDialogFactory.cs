@@ -4,6 +4,6 @@ namespace BCad
 {
     public interface IDialogFactory
     {
-        bool? ShowDialog(Type type);
+        bool? ShowDialog(string id);
     }
 }

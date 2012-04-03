@@ -72,10 +72,6 @@
       <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
       <Name>BCad.Dxf</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BCad.UI\BCad.UI.csproj">
-      <Project>{D577269F-EA58-4EA1-A97D-A1A3FC9259B2}</Project>
-      <Name>BCad.UI</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

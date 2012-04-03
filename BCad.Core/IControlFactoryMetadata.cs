@@ -4,6 +4,6 @@ namespace BCad
 {
     public interface IControlFactoryMetadata
     {
-        Type Type { get; }
+        string ControlId { get; }
     }
 }

@@ -3,7 +3,7 @@
 namespace BCad.UI
 {
     [Export(typeof(IControlFactory))]
-    [ExportMetadata("Type", typeof(LayerManager))]
+    [ExportMetadata("ControlId", "Default")]
     internal class LayerManagerControlFactory : IControlFactory
     {
         [Import]

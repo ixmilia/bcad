@@ -81,6 +81,7 @@
     <Compile Include="IControlFactory.cs" />
     <Compile Include="IControlFactoryMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
+    <Compile Include="ISettingsManager.cs" />
     <Compile Include="IUndoRedoService.cs" />
     <Compile Include="IUserConsole.cs" />
     <Compile Include="IUserConsoleFactory.cs" />

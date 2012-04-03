@@ -32,6 +32,7 @@ namespace BCad
         IDialogFactory DialogFactory { get; }
         ICommandManager CommandManager { get; }
         IControlFactory ControlFactory { get; }
+        ISettingsManager SettingsManager { get; }
         
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;

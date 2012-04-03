@@ -107,10 +107,6 @@ namespace BCad
                 e.Cancel = true;
                 return;
             }
-
-            // without this the application never closes.  why?
-            //Environment.Exit(0);
-            //Application.Current.Shutdown();
         }
     }
 
