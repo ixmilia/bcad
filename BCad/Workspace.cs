@@ -60,6 +60,15 @@ namespace BCad
         [Import]
         public IView View { get; private set; }
 
+        [Import]
+        public IUndoRedoService UndoRedoService { get; private set; }
+
+        [Import]
+        public IDialogFactory DialogFactory { get; private set; }
+
+        [Import]
+        public IControlFactory ControlFactory { get; private set; }
+
         public Workspace()
         {
         }

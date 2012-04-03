@@ -6,15 +6,22 @@ using System.Windows;
 
 namespace BCad.UI
 {
-    public class BCadDialog<TResult> : Window
+    public class BCadDialog<TResult> : Window where TResult : class
     {
-        public BCadDialog()
+        public BCadControl<TResult> Control { get; private set; }
+
+        public BCadDialog(BCadControl<TResult> control)
         {
+            this.Control = control;
+            this.Content = control;
         }
 
-        public TResult ShowDialogResult()
+        public BCadDialogResult<TResult> GetDialogResult()
         {
-            return default(TResult);
+            if (this.ShowDialog() == true)
+                return new BCadDialogResult<TResult>(this.Control.Result);
+            else
+                return new BCadDialogResult<TResult>();
         }
     }
 }

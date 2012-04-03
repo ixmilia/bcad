@@ -25,7 +25,14 @@ namespace BCad
     {
         Document Document { get; set; }
         Layer CurrentLayer { get; set; }
+
+        IUserConsole UserConsole { get; }
         IView View { get; }
+        IUndoRedoService UndoRedoService { get; }
+        IDialogFactory DialogFactory { get; }
+        ICommandManager CommandManager { get; }
+        IControlFactory ControlFactory { get; }
+        
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;
         event CurrentLayerChangingEventHandler CurrentLayerChanging;

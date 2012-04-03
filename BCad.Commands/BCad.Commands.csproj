@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -37,11 +37,13 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CopyCommand.cs" />
@@ -50,6 +52,7 @@
     <Compile Include="DrawCircleCommand.cs" />
     <Compile Include="DrawLineCommand.cs" />
     <Compile Include="FileHandlers\DxfFileHandler.cs" />
+    <Compile Include="LayersCommand.cs" />
     <Compile Include="MoveCommand.cs" />
     <Compile Include="OpenCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,6 +71,10 @@
     <ProjectReference Include="..\BCad.Dxf\BCad.Dxf.csproj">
       <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
       <Name>BCad.Dxf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BCad.UI\BCad.UI.csproj">
+      <Project>{D577269F-EA58-4EA1-A97D-A1A3FC9259B2}</Project>
+      <Name>BCad.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

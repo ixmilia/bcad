@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -18,11 +19,40 @@ namespace BCad.UI
     /// <summary>
     /// Interaction logic for LayerManager.xaml
     /// </summary>
-    public partial class LayerManager : BCadControl<Document>
+    public partial class LayerManager : BCadControl
     {
-        public LayerManager()
+        public IWorkspace Workspace { get; private set; }
+
+        // TODO: how to make designer not suck?
+        //public LayerManager()
+        //{
+        //    InitializeComponent();
+        //}
+
+        public LayerManager(IWorkspace workspace)
         {
             InitializeComponent();
+
+            this.Workspace = workspace;
+        }
+
+        public override void Initialize()
+        {
+            this.layerList.Items.Clear();
+            foreach (var layer in this.Workspace.Document.Layers.Values.OrderBy(l => l.Name))
+            {
+                this.layerList.Items.Add(layer);
+            }
+        }
+
+        public override void Commit()
+        {
+            //throw new NotImplementedException();
+        }
+
+        public override void Cancel()
+        {
+            //throw new NotImplementedException();
         }
     }
 }

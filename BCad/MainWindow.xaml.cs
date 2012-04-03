@@ -103,7 +103,14 @@ namespace BCad
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
+            {
                 e.Cancel = true;
+                return;
+            }
+
+            // without this the application never closes.  why?
+            //Environment.Exit(0);
+            //Application.Current.Shutdown();
         }
     }
 

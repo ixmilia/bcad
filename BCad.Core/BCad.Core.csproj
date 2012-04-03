@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -49,6 +49,7 @@
     <Compile Include="Color.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
     <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="DialogFactory.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="EventArguments\AbstractLayerEventArgs.cs" />
     <Compile Include="EventArguments\AbstractObjectEventArgs.cs" />
@@ -77,6 +78,9 @@
     <Compile Include="FileHandlers\IFileWriter.cs" />
     <Compile Include="ICommandManager.cs" />
     <Compile Include="DocumentEventDelegates.cs" />
+    <Compile Include="IControlFactory.cs" />
+    <Compile Include="IControlFactoryMetadata.cs" />
+    <Compile Include="IDialogFactory.cs" />
     <Compile Include="IUndoRedoService.cs" />
     <Compile Include="IUserConsole.cs" />
     <Compile Include="IUserConsoleFactory.cs" />
@@ -96,12 +100,21 @@
     <Compile Include="Primitives.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnapPoints\MidPoint.cs" />
+    <Compile Include="UI\BCadControl.cs" />
     <Compile Include="UI\BCadControl`1.cs" />
+    <Compile Include="UI\BCadDialog.xaml.cs">
+      <DependentUpon>BCadDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\BCadDialogResult.cs" />
     <Compile Include="UI\BCadDialog`1.cs" />
     <Compile Include="UserDirective.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="SnapPoints\SnapPointIcons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\BCadDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
