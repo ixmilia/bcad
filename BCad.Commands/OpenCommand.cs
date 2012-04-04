@@ -9,6 +9,7 @@ using BCad.Dxf.Entities;
 using BCad.FileHandlers;
 using BCad.Objects;
 using Microsoft.Win32;
+using System.Windows;
 
 namespace BCad.Commands
 {
@@ -47,8 +48,11 @@ namespace BCad.Commands
                 var dialog = new OpenFileDialog();
                 dialog.DefaultExt = FileReaders.First().Extensions().First();
                 dialog.Filter = filter;
-                if (!(dialog.ShowDialog() == true))
+                var result = dialog.ShowDialog();
+                Workspace.Focus();
+                if (result != true)
                     return false;
+
                 filename = dialog.FileName;
             }
 

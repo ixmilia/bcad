@@ -4,18 +4,31 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core"
-                mc:Ignorable="d"
-                d:DesignHeight="300" d:DesignWidth="300">
+                mc:Ignorable="d" Width="400" Height="300"
+                d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Label Grid.Row="0">foo</Label>
+        <Grid Grid.Row="0">
+            <Label>Layers</Label>
+        </Grid>
         <ListBox Grid.Row="1" Name="layerList">
             
         </ListBox>
-        <Button Grid.Row="2">bar</Button>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Margin="3" Click="Add_Click">
+                <Label Margin="3">Add</Label>
+            </Button>
+            <Button Grid.Column="1" Margin="3" Click="Remove_Click">
+                <Label Margin="3">Remove</Label>
+            </Button>
+        </Grid>
     </Grid>
 </ui:BCadControl>

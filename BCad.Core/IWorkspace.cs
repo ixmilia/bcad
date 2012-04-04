@@ -39,5 +39,7 @@ namespace BCad
         event CurrentLayerChangingEventHandler CurrentLayerChanging;
         event CurrentLayerChangedEventHandler CurrentLayerChanged;
         UnsavedChangesResult PromptForUnsavedChanges();
+
+        void Focus();
     }
 }

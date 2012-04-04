@@ -1,18 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using BCad.UI;
 
 namespace BCad.UI
 {
@@ -23,17 +12,26 @@ namespace BCad.UI
     {
         public IWorkspace Workspace { get; private set; }
 
-        // TODO: how to make designer not suck?
-        //public LayerManager()
-        //{
-        //    InitializeComponent();
-        //}
+        private Document updatedDocument;
+
+        [Obsolete("Default constructor is for WPF designer only")]
+        public LayerManager()
+        {
+            if (DesignerProperties.GetIsInDesignMode(this))
+            {
+                InitializeComponent();
+            }
+            else
+            {
+                throw new Exception("Default constructor is for WPF designer only");
+            }
+        }
 
         public LayerManager(IWorkspace workspace)
         {
             InitializeComponent();
-
             this.Workspace = workspace;
+            this.updatedDocument = this.Workspace.Document;
         }
 
         public override void Initialize()
@@ -47,12 +45,22 @@ namespace BCad.UI
 
         public override void Commit()
         {
-            //throw new NotImplementedException();
+            this.Workspace.Document = this.updatedDocument;
         }
 
         public override void Cancel()
         {
-            //throw new NotImplementedException();
+            // do nothing (changes are uncommitted)
+        }
+
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Remove_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

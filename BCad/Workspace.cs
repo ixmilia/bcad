@@ -144,5 +144,10 @@ namespace BCad
 
             return result;
         }
+
+        public void Focus()
+        {
+            Application.Current.Dispatcher.Invoke((Action)(() => Application.Current.MainWindow.Focus()));
+        }
     }
 }

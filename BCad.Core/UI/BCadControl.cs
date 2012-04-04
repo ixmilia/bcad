@@ -1,13 +1,21 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.ComponentModel;
+using System.Windows.Controls;
 
 namespace BCad.UI
 {
-    public abstract class BCadControl : UserControl
+    public class BCadControl : UserControl
     {
-        public abstract void Initialize();
+        public virtual void Initialize()
+        {
+        }
 
-        public abstract void Commit();
+        public virtual void Commit()
+        {
+        }
 
-        public abstract void Cancel();
+        public virtual void Cancel()
+        {
+        }
     }
 }

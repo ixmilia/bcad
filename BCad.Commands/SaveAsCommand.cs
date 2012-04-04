@@ -62,8 +62,11 @@ namespace BCad.Commands
             var dialog = new SaveFileDialog();
             dialog.DefaultExt = FileWriters.First().Extensions().First();
             dialog.Filter = filter;
-            if (!(dialog.ShowDialog() == true))
+            var result = dialog.ShowDialog();
+            Workspace.Focus();
+            if (result != true)
                 return null;
+
             return dialog.FileName;
         }
     }
