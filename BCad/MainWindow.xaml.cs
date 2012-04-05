@@ -91,6 +91,26 @@ namespace BCad
 
         private void Workspace_CurrentLayerChanged(object sender, LayerChangedEventArgs e)
         {
+            if (!ignoreLayerChangeEvent)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        var currentName = ((Layer)this.currentLayer.SelectedItem).Name;
+                        bool layerSet = false;
+                        foreach (var layer in this.currentLayer.Items.OfType<Layer>())
+                        {
+                            if (layer.Name == currentName)
+                            {
+                                this.currentLayer.SelectedItem = layer;
+                                layerSet = true;
+                                break;
+                            }
+                        }
+
+                        if (!layerSet)
+                            this.currentLayer.SelectedIndex = 0;
+                    }));
+            }
         }
 
         private void SetTitle(Document document)
@@ -107,6 +127,15 @@ namespace BCad
                 e.Cancel = true;
                 return;
             }
+        }
+
+        private bool ignoreLayerChangeEvent = false;
+
+        private void currentLayer_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ignoreLayerChangeEvent = true;
+            Workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
+            ignoreLayerChangeEvent = false;
         }
     }
 

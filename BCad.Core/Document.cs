@@ -94,7 +94,7 @@ namespace BCad
         {
             if (!LayerExists(oldLayer))
                 throw new ArgumentException("The document does not contain the specified layer");
-            var newLayers = new Dictionary<string, Layer>();
+            var newLayers = new Dictionary<string, Layer>(this.Layers);
             newLayers.Remove(oldLayer.Name);
             newLayers.Add(newLayer.Name, newLayer);
             return this.Update(layers: newLayers);

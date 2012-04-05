@@ -109,6 +109,7 @@
     <Compile Include="UI\BCadDialogResult.cs" />
     <Compile Include="UI\BCadDialog`1.cs" />
     <Compile Include="UserDirective.cs" />
+    <Compile Include="Utilities\StringUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="SnapPoints\SnapPointIcons.xaml">

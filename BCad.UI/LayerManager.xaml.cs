@@ -4,6 +4,9 @@ using System.Linq;
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
+using BCad.Utilities;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace BCad.UI
 {
@@ -16,6 +19,8 @@ namespace BCad.UI
 
         private ObservableCollection<MutableLayer> layers = new ObservableCollection<MutableLayer>();
         private ObservableCollection<Color> availableColors = new ObservableCollection<Color>();
+        private List<MutableLayer> addedLayers = new List<MutableLayer>();
+        private List<MutableLayer> removedLayers = new List<MutableLayer>();
 
         public ObservableCollection<MutableLayer> Layers
         {
@@ -62,12 +67,18 @@ namespace BCad.UI
         public override void Commit()
         {
             var doc = workspace.Document;
-            foreach (var layer in this.layers)
-            {
-                doc = doc.Replace(layer.DrawingLayer, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
-            }
 
-            // TODO: need to track added/deleted layers
+            // update existing layers
+            foreach (var layer in this.layers.Where(l => !this.addedLayers.Contains(l) && !this.removedLayers.Contains(l)))
+                doc = doc.Replace(layer.DrawingLayer, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
+
+            // remove deleted layers
+            foreach (var layer in this.removedLayers)
+                doc = doc.Remove(layer.DrawingLayer);
+
+            // add new layers
+            foreach (var layer in this.addedLayers)
+                doc = doc.Add(layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
 
             workspace.Document = doc;
         }
@@ -79,12 +90,29 @@ namespace BCad.UI
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var layer = new MutableLayer(
+                new Layer(StringUtilities.NextUniqueName("NewLayer", workspace.Document.Layers.Keys), Color.Auto));
+            this.layers.Add(layer);
+            this.addedLayers.Add(layer);
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var removed = this.layerList.SelectedItem as MutableLayer;
+            if (removed != null)
+            {
+                if (this.layers.Count == 1)
+                    Debug.Fail("Cannot remove the last layer");
+
+                if (!this.addedLayers.Remove(removed))
+                {
+                    if (!this.layers.Remove(removed))
+                    {
+                        Debug.Fail("Layer could not be found");
+                    }
+                    this.removedLayers.Add(removed);
+                }
+            }
         }
     }
 

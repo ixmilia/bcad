@@ -6,8 +6,7 @@
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core"
                 xmlns:local="clr-namespace:BCad.UI"
                 Name="mainControl"
-                mc:Ignorable="d" Width="400" Height="300"
-                d:DesignHeight="300" d:DesignWidth="400">
+                mc:Ignorable="d" Width="480" Height="300">
     <ui:BCadControl.Resources>
         <local:BoolToVisibilityConverter x:Key="boolToVis" />
 
@@ -51,7 +50,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ListView Grid.Row="0" ItemsSource="{Binding ElementName=mainControl, Path=Layers}">
+        <ListView Grid.Row="0" ItemsSource="{Binding ElementName=mainControl, Path=Layers}" Name="layerList">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -59,7 +58,7 @@
             </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="200" Header="Name">
+                    <GridViewColumn Width="240" Header="Name">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -69,7 +68,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="60" Header="Color">
+                    <GridViewColumn Width="90" Header="Color">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -82,6 +81,13 @@
                                               Style="{StaticResource GridEditStyle}">
                                     </ComboBox>
                                 </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="60" Header="Visible">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="True" HorizontalAlignment="Center" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

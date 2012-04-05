@@ -46,6 +46,8 @@ namespace BCad
             get { return currentLayer; }
             set
             {
+                if (currentLayer == value)
+                    return;
                 var args = new LayerChangingEventArgs(currentLayer, value);
                 OnCurrentLayerChanging(args);
                 if (args.Cancel)
