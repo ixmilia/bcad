@@ -88,5 +88,16 @@ namespace BCad
             var updatedDocument = workspace.Document.Remove(layer, obj);
             workspace.Document = updatedDocument;
         }
+
+        /// <summary>
+        /// Sets the current layer by name.
+        /// </summary>
+        /// <param name="workspace">The workspace containing the document.</param>
+        /// <param name="layerName">The name of the desired current layer.</param>
+        public static void SetCurrentLayer(this IWorkspace workspace, string layerName)
+        {
+            var layer = workspace.Document.Layers[layerName];
+            workspace.CurrentLayer = layer;
+        }
     }
 }
