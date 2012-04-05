@@ -15,10 +15,16 @@ namespace BCad.UI
         private IWorkspace workspace;
 
         private ObservableCollection<MutableLayer> layers = new ObservableCollection<MutableLayer>();
+        private ObservableCollection<Color> availableColors = new ObservableCollection<Color>();
 
         public ObservableCollection<MutableLayer> Layers
         {
             get { return this.layers; }
+        }
+
+        public ObservableCollection<Color> AvailableColors
+        {
+            get { return this.availableColors; }
         }
 
         [Obsolete("Default constructor is for WPF designer only")]
@@ -36,8 +42,12 @@ namespace BCad.UI
 
         public LayerManager(IWorkspace workspace)
         {
-            InitializeComponent();
             this.workspace = workspace;
+
+            for (byte i = 0; i <= 9; i++)
+                availableColors.Add(new Color(i));
+
+            InitializeComponent();
         }
 
         public override void Initialize()
@@ -56,6 +66,8 @@ namespace BCad.UI
             {
                 doc = doc.Replace(layer.DrawingLayer, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
             }
+
+            // TODO: need to track added/deleted layers
 
             workspace.Document = doc;
         }

@@ -23,18 +23,34 @@ namespace BCad
             this.value = value;
         }
 
-        public Drawing.Color ToDrawingColor()
+        public string DisplayValue
         {
-            return Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
+            get
+            {
+                if (IsAuto)
+                    return "Auto";
+                return Value.ToString();
+            }
         }
 
-        public Media.Color ToMediaColor()
+        public Drawing.Color DrawingColor
         {
-            int val = RgbValues[Value];
-            byte r = (byte)((val & 0xFF0000) >> 16);
-            byte g = (byte)((val & 0x00FF00) >> 8);
-            byte b = (byte)(val & 0x0000FF);
-            return Media.Color.FromRgb(r, g, b);
+            get
+            {
+                return Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
+            }
+        }
+
+        public Media.Color MediaColor
+        {
+            get
+            {
+                int val = RgbValues[Value];
+                byte r = (byte)((val & 0xFF0000) >> 16);
+                byte g = (byte)((val & 0x00FF00) >> 8);
+                byte b = (byte)(val & 0x0000FF);
+                return Media.Color.FromRgb(r, g, b);
+            }
         }
 
         public override int GetHashCode()
@@ -42,7 +58,7 @@ namespace BCad
             return RgbValues[Value];
         }
 
-        public static Color Default { get { return White; } }
+        public static Color Default { get { return Auto; } }
 
         public static Color Auto { get { return new Color(0); } }
         public static Color Red { get { return new Color(1); } }

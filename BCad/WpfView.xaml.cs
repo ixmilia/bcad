@@ -132,45 +132,48 @@ namespace BCad
             {
                 foreach (var obj in layer.Objects)
                 {
-                    DrawObject(obj);
+                    DrawObject(obj, layer.Color);
                     AddObjectSnapPoints(obj);
                 }
             }
         }
 
-        private void DrawObject(IObject obj)
+        private void DrawObject(IObject obj, Color layerColor)
         {
             foreach (var p in obj.GetPrimitives())
             {
-                DrawPrimitive(objects, p, true);
+                DrawPrimitive(objects, p, layerColor, true);
             }
         }
 
-        private void DrawPrimitive(Canvas canvas, IPrimitive primitive, bool saveObject = false)
+        private void DrawPrimitive(Canvas canvas, IPrimitive primitive, Color layerColor, bool saveObject = false)
         {
             if (primitive is Line)
-                Draw(canvas, (Line)primitive, saveObject);
+                Draw(canvas, (Line)primitive, layerColor, saveObject);
             else if (primitive is Circle)
-                Draw(canvas, (Circle)primitive, saveObject);
+                Draw(canvas, (Circle)primitive, layerColor, saveObject);
             else if (primitive is Arc)
-                Draw(canvas, (Arc)primitive, saveObject);
+                Draw(canvas, (Arc)primitive, layerColor, saveObject);
             else
                 Debug.Fail("Unsupported primitive " + primitive.GetType().FullName);
         }
 
-        private System.Windows.Media.Color GetAutoColor(Color color)
+        private System.Windows.Media.Color GetAutoColor(Color itemColor, Color layerColor)
         {
             // TODO: find better method than inverting color; grays will look the same
-            if (!color.IsAuto)
-                return color.ToMediaColor();
-            var mc = color.ToMediaColor();
+            if (!itemColor.IsAuto)
+                return itemColor.MediaColor;
+            // otherwise it is auto
+            if (!layerColor.IsAuto)
+                return layerColor.MediaColor;
+            var mc = itemColor.MediaColor;
             var r = mc.R;
             var g = mc.G;
             var b = mc.B;
             return System.Windows.Media.Color.FromRgb((byte)(255 - r), (byte)(255 - g), (byte)(255 - b));
         }
 
-        private void Draw(Canvas canvas, Line l, bool saveObject)
+        private void Draw(Canvas canvas, Line l, Color layerColor, bool saveObject)
         {
             var p1 = View.WorldToControl(l.P1).ToPoint3D();
             var p2 = View.WorldToControl(l.P2).ToPoint3D();
@@ -180,7 +183,7 @@ namespace BCad
                 Y1 = p1.Y,
                 X2 = p2.X,
                 Y2 = p2.Y,
-                Stroke = new SolidColorBrush(GetAutoColor(l.Color)),
+                Stroke = new SolidColorBrush(GetAutoColor(l.Color, layerColor)),
                 StrokeThickness = 1.0
             };
             if (saveObject)
@@ -188,7 +191,7 @@ namespace BCad
             canvas.Children.Add(line);
         }
 
-        private void Draw(Canvas canvas, Circle c, bool saveObject)
+        private void Draw(Canvas canvas, Circle c, Color layerColor, bool saveObject)
         {
             // TODO: proper rendering
             var topLeft = (c.Center + new Vector(-c.Radius, c.Radius, 0)).ToPoint();
@@ -202,7 +205,7 @@ namespace BCad
             {
                 Width = size,
                 Height = size,
-                Stroke = new SolidColorBrush(GetAutoColor(c.Color)),
+                Stroke = new SolidColorBrush(GetAutoColor(c.Color, layerColor)),
                 StrokeThickness = 1.0
             };
             if (saveObject)
@@ -212,7 +215,7 @@ namespace BCad
             canvas.Children.Add(e);
         }
 
-        private void Draw(Canvas canvas, Arc a, bool saveObject)
+        private void Draw(Canvas canvas, Arc a, Color layerColor, bool saveObject)
         {
             var angleBetween = a.EndAngle - a.StartAngle;
             if (angleBetween < 0.0) angleBetween += 360.0;
@@ -227,7 +230,7 @@ namespace BCad
                         new ArcSegment(View.WorldToControl(a.EndPoint2).ToWindowsPoint(), new Size(radius, radius), 0.0, largeArc, SweepDirection.Counterclockwise, true)
                     }, false)
                 }),
-                Stroke = new SolidColorBrush(GetAutoColor(a.Color)),
+                Stroke = new SolidColorBrush(GetAutoColor(a.Color, layerColor)),
                 StrokeThickness = 1.0
             };
             if (saveObject)
@@ -292,7 +295,7 @@ namespace BCad
             if (gen != null)
             {
                 foreach (var prim in gen(modelPoint))
-                    DrawPrimitive(rubber, prim);
+                    DrawPrimitive(rubber, prim, Color.Auto);
             }
         }
 
