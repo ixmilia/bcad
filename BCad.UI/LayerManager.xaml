@@ -4,30 +4,76 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core"
+                xmlns:local="clr-namespace:BCad.UI"
+                Name="mainControl"
                 mc:Ignorable="d" Width="400" Height="300"
                 d:DesignHeight="300" d:DesignWidth="400">
+    <ui:BCadControl.Resources>
+        <local:BoolToVisibilityConverter x:Key="boolToVis" />
+
+        <Style TargetType="{x:Type TextBlock}" x:Key="GridBlockStyle">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Visibility"
+                    Value="{Binding Path=IsSelected,
+                                    RelativeSource={RelativeSource FindAncestor,
+                                        AncestorType={x:Type ListViewItem}},
+                                    Converter={StaticResource boolToVis},
+                                    ConverterParameter=False}" />
+        </Style>
+
+        <Style TargetType="{x:Type FrameworkElement}" x:Key="GridEditStyle">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Visibility"
+                    Value="{Binding Path=IsSelected,
+                                    RelativeSource={RelativeSource FindAncestor,
+                                        AncestorType={x:Type ListViewItem}},
+                                    Converter={StaticResource boolToVis},
+                                    ConverterParameter=True}" />
+        </Style>
+    </ui:BCadControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Label>Layers</Label>
-        </Grid>
-        <ListBox Grid.Row="1" Name="layerList">
-            
-        </ListBox>
-        <Grid Grid.Row="2">
+        <ListView Grid.Row="0" ItemsSource="{Binding ElementName=mainControl, Path=Layers}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="200" Header="Name">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource GridBlockStyle}" />
+                                    <TextBox Text="{Binding Name}" Style="{StaticResource GridEditStyle}" />
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="60" Header="Color">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Color}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Margin="3" Click="Add_Click">
-                <Label Margin="3">Add</Label>
+                <Label Margin="3,0">Add</Label>
             </Button>
             <Button Grid.Column="1" Margin="3" Click="Remove_Click">
-                <Label Margin="3">Remove</Label>
+                <Label Margin="3,0">Remove</Label>
             </Button>
         </Grid>
     </Grid>

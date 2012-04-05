@@ -18,8 +18,12 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="1" Click="OK_Click">OK</Button>
-            <Button Grid.Column="2" Click="Cancel_Click">Cancel</Button>
+            <Button Grid.Column="1" Click="OK_Click">
+                <Label Margin="3,0">OK</Label>
+            </Button>
+            <Button Grid.Column="2" Click="Cancel_Click">
+                <Label Margin="3,0">Cancel</Label>
+            </Button>
         </Grid>
     </Grid>
 </Window>

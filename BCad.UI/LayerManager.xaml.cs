@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Collections.ObjectModel;
+using System.Windows.Data;
 
 namespace BCad.UI
 {
@@ -10,9 +12,14 @@ namespace BCad.UI
     /// </summary>
     public partial class LayerManager : BCadControl
     {
-        public IWorkspace Workspace { get; private set; }
+        private IWorkspace workspace;
 
-        private Document updatedDocument;
+        private ObservableCollection<MutableLayer> layers = new ObservableCollection<MutableLayer>();
+
+        public ObservableCollection<MutableLayer> Layers
+        {
+            get { return this.layers; }
+        }
 
         [Obsolete("Default constructor is for WPF designer only")]
         public LayerManager()
@@ -30,22 +37,27 @@ namespace BCad.UI
         public LayerManager(IWorkspace workspace)
         {
             InitializeComponent();
-            this.Workspace = workspace;
-            this.updatedDocument = this.Workspace.Document;
+            this.workspace = workspace;
         }
 
         public override void Initialize()
         {
-            this.layerList.Items.Clear();
-            foreach (var layer in this.Workspace.Document.Layers.Values.OrderBy(l => l.Name))
+            this.layers.Clear();
+            foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
             {
-                this.layerList.Items.Add(layer);
+                this.layers.Add(new MutableLayer(layer));
             }
         }
 
         public override void Commit()
         {
-            this.Workspace.Document = this.updatedDocument;
+            var doc = workspace.Document;
+            foreach (var layer in this.layers)
+            {
+                doc = doc.Replace(layer.DrawingLayer, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
+            }
+
+            workspace.Document = doc;
         }
 
         public override void Cancel()
@@ -55,12 +67,63 @@ namespace BCad.UI
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-
+            throw new NotImplementedException();
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
         {
+            throw new NotImplementedException();
+        }
+    }
 
+    public class MutableLayer : DependencyObject
+    {
+        public MutableLayer(Layer layer)
+        {
+            this.DrawingLayer = layer;
+            this.Name = layer.Name;
+            this.Color = layer.Color;
+        }
+
+        public Layer DrawingLayer { get; private set; }
+
+        public string Name
+        {
+            get { return (string)GetValue(MyPropertyProperty); }
+            set { SetValue(MyPropertyProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MyPropertyProperty =
+            DependencyProperty.Register("Name", typeof(string), typeof(MutableLayer), new UIPropertyMetadata(string.Empty));
+
+        public Color Color
+        {
+            get { return (Color)GetValue(ColorProperty); }
+            set { SetValue(ColorProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Color.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ColorProperty =
+            DependencyProperty.Register("Color", typeof(Color), typeof(MutableLayer), new UIPropertyMetadata(Color.Auto));
+    }
+
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType,
+            object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool param = bool.Parse(parameter as string);
+            bool val = (bool)value;
+
+            return val == param ?
+              Visibility.Visible : Visibility.Hidden;
+        }
+
+        public object ConvertBack(object value, Type targetType,
+            object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

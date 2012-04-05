@@ -24,6 +24,8 @@ namespace BCad
             get { return document; }
             set
             {
+                if (document == value)
+                    return;
                 var args = new DocumentChangingEventArgs(document, value);
                 OnDocumentChanging(args);
                 if (args.Cancel)
