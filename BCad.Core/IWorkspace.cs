@@ -33,6 +33,8 @@ namespace BCad
         ICommandManager CommandManager { get; }
         IControlFactory ControlFactory { get; }
         ISettingsManager SettingsManager { get; }
+
+        void LoadSettings(string path);
         
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;

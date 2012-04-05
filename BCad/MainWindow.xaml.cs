@@ -13,7 +13,7 @@ namespace BCad
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IPartImportsSatisfiedNotification
     {
         public MainWindow()
         {
@@ -39,6 +39,11 @@ namespace BCad
 
         [Import]
         public ICommandManager CommandManager { get; set; }
+
+        public void OnImportsSatisfied()
+        {
+            Workspace.LoadSettings("BCad.configxml");
+        }
 
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {

@@ -79,8 +79,12 @@ namespace BCad
 
         public Workspace()
         {
+        }
+
+        public void LoadSettings(string path)
+        {
             var serializer = new XmlSerializer(typeof(SettingsManager));
-            var stream = new FileStream("BCad.configxml", FileMode.Open);
+            var stream = new FileStream(path, FileMode.Open);
             this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
         }
 
