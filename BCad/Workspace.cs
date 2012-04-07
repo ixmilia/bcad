@@ -30,12 +30,21 @@ namespace BCad
                 OnDocumentChanging(args);
                 if (args.Cancel)
                     return;
+
+                // ensure the same layer is selected after the change if possible
+                var currentLayerName = CurrentLayer == null ? null : CurrentLayer.Name;
+
+                // change the value and fire events
                 document = value;
                 OnDocumentChanged(new DocumentChangedEventArgs(document));
-                if (document.Layers.ContainsKey("Default"))
-                    CurrentLayer = document.Layers["Default"];
+
+                // reset the current layer
+                if (currentLayerName != null && document.Layers.ContainsKey(currentLayerName))
+                    this.CurrentLayer = document.Layers[currentLayerName];
+                else if (document.Layers.ContainsKey("Default"))
+                    this.CurrentLayer = document.Layers["Default"];
                 else
-                    CurrentLayer = document.Layers.Values.First();
+                    this.CurrentLayer = document.Layers.Values.First();
             }
         }
 

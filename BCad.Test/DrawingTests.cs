@@ -14,7 +14,7 @@ namespace BCad.Test
             Assert.Equal(1, workspace.GetLayer("Other").Objects.Count);
         }
 
-        [Fact(Skip = "Current layer switches after drawing")]
+        [Fact]
         public void CurrentLayerStillSetAfterDrawingTest()
         {
             var workspace = TestHost.CreateWorkspace("Other");

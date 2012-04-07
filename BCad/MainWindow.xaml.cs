@@ -86,7 +86,7 @@ namespace BCad
                     {
                         this.currentLayer.Items.Add(layer);
                     }
-                    this.currentLayer.SelectedIndex = 0;
+                    this.currentLayer.SelectedItem = Workspace.CurrentLayer;
                 }));
         }
 
@@ -96,26 +96,12 @@ namespace BCad
 
         private void Workspace_CurrentLayerChanged(object sender, LayerChangedEventArgs e)
         {
-            if (!ignoreLayerChangeEvent)
-            {
-                this.Dispatcher.BeginInvoke((Action)(() =>
-                    {
-                        var currentName = ((Layer)this.currentLayer.SelectedItem).Name;
-                        bool layerSet = false;
-                        foreach (var layer in this.currentLayer.Items.OfType<Layer>())
-                        {
-                            if (layer.Name == currentName)
-                            {
-                                this.currentLayer.SelectedItem = layer;
-                                layerSet = true;
-                                break;
-                            }
-                        }
-
-                        if (!layerSet)
-                            this.currentLayer.SelectedIndex = 0;
-                    }));
-            }
+            this.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    ignoreLayerChangeEvent = true;
+                    this.currentLayer.SelectedItem = Workspace.CurrentLayer;
+                    ignoreLayerChangeEvent = false;
+                }));
         }
 
         private void SetTitle(Document document)
@@ -138,9 +124,10 @@ namespace BCad
 
         private void currentLayer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ignoreLayerChangeEvent = true;
-            Workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
-            ignoreLayerChangeEvent = false;
+            if (!ignoreLayerChangeEvent && this.currentLayer.SelectedItem != null)
+            {
+                Workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
+            }
         }
     }
 
