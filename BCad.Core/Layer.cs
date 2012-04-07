@@ -60,7 +60,7 @@ namespace BCad
             return this.Update(objects: this.Objects.Except(new[] { oldObject }).Concat(new[] { newObject }));
         }
 
-        public Layer Update(string name = null, Color color = null, IEnumerable<IObject> objects = null)
+        public Layer Update(string name = null, Color? color = null, IEnumerable<IObject> objects = null)
         {
             return new Layer(
                 name ?? this.Name,

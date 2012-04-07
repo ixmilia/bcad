@@ -83,7 +83,7 @@ namespace BCad.Objects
             }
         }
 
-        public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color color = null)
+        public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)
         {
             return new Circle(
                 center ?? this.Center,

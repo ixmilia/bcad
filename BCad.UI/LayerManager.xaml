@@ -87,7 +87,7 @@
                     <GridViewColumn Width="60" Header="Visible">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="True" HorizontalAlignment="Center" />
+                                <TextBlock>TODO</TextBlock>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

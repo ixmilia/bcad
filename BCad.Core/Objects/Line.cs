@@ -38,7 +38,7 @@ namespace BCad.Objects
             yield return new MidPoint(((P1 + P2) / 2.0).ToPoint());
         }
 
-        public Line Update(Point p1 = null, Point p2 = null, Color color = null)
+        public Line Update(Point p1 = null, Point p2 = null, Color? color = null)
         {
             return new Line(
                 p1 ?? this.P1,

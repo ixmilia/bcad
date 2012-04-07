@@ -101,7 +101,7 @@ namespace BCad.Objects
             yield return new MidPoint(MidPoint);
         }
 
-        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color color = null)
+        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
         {
             return new Arc(
                 center ?? this.Center,

@@ -67,19 +67,27 @@ namespace BCad.UI
         public override void Commit()
         {
             var doc = workspace.Document;
+            var updatedLayers = new Dictionary<string, Layer>(doc.Layers);
 
             // update existing layers
-            foreach (var layer in this.layers.Where(l => !this.addedLayers.Contains(l) && !this.removedLayers.Contains(l)))
-                doc = doc.Replace(layer.DrawingLayer, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
+            foreach (var layer in from l in this.layers
+                                  where l.IsChanged
+                                     && !this.addedLayers.Contains(l)
+                                     && !this.removedLayers.Contains(l)
+                                  select l)
+            {
+                updatedLayers[layer.Name] = layer.DrawingLayer.Update(name: layer.Name, color: layer.Color);
+            }
 
             // remove deleted layers
             foreach (var layer in this.removedLayers)
-                doc = doc.Remove(layer.DrawingLayer);
+                updatedLayers.Remove(layer.Name);
 
             // add new layers
             foreach (var layer in this.addedLayers)
-                doc = doc.Add(layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
+                updatedLayers.Add(layer.Name, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
 
+            doc = doc.Update(layers: updatedLayers);
             workspace.Document = doc;
         }
 
@@ -127,6 +135,14 @@ namespace BCad.UI
 
         public Layer DrawingLayer { get; private set; }
 
+        public bool IsChanged
+        {
+            get
+            {
+                return this.Name != this.Name || this.Color != this.Color;
+            }
+        }
+
         public string Name
         {
             get { return (string)GetValue(MyPropertyProperty); }
@@ -145,7 +161,7 @@ namespace BCad.UI
 
         // Using a DependencyProperty as the backing store for Color.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorProperty =
-            DependencyProperty.Register("Color", typeof(Color), typeof(MutableLayer), new UIPropertyMetadata(Color.Auto));
+            DependencyProperty.Register("Color", typeof(Color), typeof(MutableLayer), new UIPropertyMetadata(default(Color)));
     }
 
     public class BoolToVisibilityConverter : IValueConverter

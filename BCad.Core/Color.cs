@@ -7,7 +7,7 @@ using Media = System.Windows.Media;
 
 namespace BCad
 {
-    public class Color
+    public struct Color
     {
         private readonly byte value;
 
@@ -15,7 +15,7 @@ namespace BCad
 
         public bool IsAuto
         {
-            get { return Value == 0; }
+            get { return this.Value == 0; }
         }
 
         public Color(byte value)
@@ -25,12 +25,7 @@ namespace BCad
 
         public string DisplayValue
         {
-            get
-            {
-                if (IsAuto)
-                    return "Auto";
-                return Value.ToString();
-            }
+            get { return this.IsAuto ? "Auto" : this.Value.ToString(); }
         }
 
         public Drawing.Color DrawingColor
@@ -56,6 +51,28 @@ namespace BCad
         public override int GetHashCode()
         {
             return RgbValues[Value];
+        }
+
+        public static bool operator ==(Color a, Color b)
+        {
+            return a.Value == b.Value;
+        }
+
+        public static bool operator !=(Color a, Color b)
+        {
+            return a.Value != b.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Color)
+            {
+                return this == (Color)obj;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static Color Default { get { return Auto; } }
