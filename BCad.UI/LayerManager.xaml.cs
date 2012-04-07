@@ -19,8 +19,6 @@ namespace BCad.UI
 
         private ObservableCollection<MutableLayer> layers = new ObservableCollection<MutableLayer>();
         private ObservableCollection<Color> availableColors = new ObservableCollection<Color>();
-        private List<MutableLayer> addedLayers = new List<MutableLayer>();
-        private List<MutableLayer> removedLayers = new List<MutableLayer>();
 
         public ObservableCollection<MutableLayer> Layers
         {
@@ -67,28 +65,20 @@ namespace BCad.UI
         public override void Commit()
         {
             var doc = workspace.Document;
-            var updatedLayers = new Dictionary<string, Layer>(doc.Layers);
 
-            // update existing layers
-            foreach (var layer in from l in this.layers
-                                  where l.IsChanged
-                                     && !this.addedLayers.Contains(l)
-                                     && !this.removedLayers.Contains(l)
-                                  select l)
+            if (this.layers.Where(layer => layer.IsDirty).Any())
             {
-                updatedLayers[layer.Name] = layer.DrawingLayer.Update(name: layer.Name, color: layer.Color);
+                // found changes, need to update
+                var newLayers = new Dictionary<string, Layer>();
+                foreach (var layer in from layer in this.layers
+                                      select layer.GetUpdatedLayer())
+                {
+                    newLayers.Add(layer.Name, layer);
+                }
+
+                doc = doc.Update(layers: newLayers);
+                workspace.Document = doc;
             }
-
-            // remove deleted layers
-            foreach (var layer in this.removedLayers)
-                updatedLayers.Remove(layer.Name);
-
-            // add new layers
-            foreach (var layer in this.addedLayers)
-                updatedLayers.Add(layer.Name, layer.DrawingLayer.Update(name: layer.Name, color: layer.Color));
-
-            doc = doc.Update(layers: updatedLayers);
-            workspace.Document = doc;
         }
 
         public override void Cancel()
@@ -98,10 +88,8 @@ namespace BCad.UI
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            var layer = new MutableLayer(
-                new Layer(StringUtilities.NextUniqueName("NewLayer", workspace.Document.Layers.Keys), Color.Auto));
-            this.layers.Add(layer);
-            this.addedLayers.Add(layer);
+            this.layers.Add(new MutableLayer(
+                StringUtilities.NextUniqueName("NewLayer", workspace.Document.Layers.Keys), Color.Auto));
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
@@ -112,13 +100,9 @@ namespace BCad.UI
                 if (this.layers.Count == 1)
                     Debug.Fail("Cannot remove the last layer");
 
-                if (!this.addedLayers.Remove(removed))
+                if (!this.layers.Remove(removed))
                 {
-                    if (!this.layers.Remove(removed))
-                    {
-                        Debug.Fail("Layer could not be found");
-                    }
-                    this.removedLayers.Add(removed);
+                    Debug.Fail("Layer could not be found");
                 }
             }
         }
@@ -133,13 +117,38 @@ namespace BCad.UI
             this.Color = layer.Color;
         }
 
+        public MutableLayer(string name, Color color)
+        {
+            this.DrawingLayer = null;
+            this.Name = name;
+            this.Color = color;
+        }
+
         public Layer DrawingLayer { get; private set; }
 
-        public bool IsChanged
+        public bool IsDirty
         {
             get
             {
-                return this.Name != this.Name || this.Color != this.Color;
+                return this.DrawingLayer == null
+                    ? true
+                    : this.Name != this.DrawingLayer.Name || this.Color != this.DrawingLayer.Color;
+            }
+        }
+
+        public Layer GetUpdatedLayer()
+        {
+            if (this.DrawingLayer == null)
+            {
+                return new Layer(this.Name, this.Color);
+            }
+            else if (this.IsDirty)
+            {
+                return this.DrawingLayer.Update(name: this.Name, color: this.Color);
+            }
+            else
+            {
+                return this.DrawingLayer;
             }
         }
 
