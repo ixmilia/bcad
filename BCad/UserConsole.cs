@@ -13,16 +13,26 @@ using BCad.Objects;
 namespace BCad
 {
     [Export(typeof(IUserConsole))]
-    internal class UserConsole : IUserConsole
+    internal class UserConsole : IUserConsole, IPartImportsSatisfiedNotification
     {
         [Import]
-        public ICommandManager CommandManager { get; set; }
+        public IWorkspace Workspace { get; set; }
 
         public UserConsole()
         {
             PrimitiveGenerator = null;
             LastPoint = Point.Origin;
             Reset();
+        }
+
+        public void OnImportsSatisfied()
+        {
+            Workspace.CommandExecuted += Workspace_CommandExecuted;
+        }
+
+        void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        {
+            SetPrompt("Command");
         }
 
         public void WriteLine(string text)
@@ -165,10 +175,10 @@ namespace BCad
                 if (DesiredInputType == InputType.Command)
                 {
                     if (value == null && lastCommand != null)
-                        ExecuteCommand(lastCommand);
+                        Workspace.ExecuteCommand(lastCommand);
                     else if (value is string)
                     {
-                        ExecuteCommand((string)value);
+                        Workspace.ExecuteCommand((string)value);
                         lastCommand = (string)value;
                     }
                     OnValueReceived(new ValueReceivedEventArgs(lastCommand, InputType.Command));
@@ -235,27 +245,6 @@ namespace BCad
 
         public InputType DesiredInputType { get; private set; }
 
-        private void ExecuteCommand(string commandAlias)
-        {
-            Debug.Assert(commandAlias != null, "Null command not supported");
-            var command = CommandManager.GetCommand(commandAlias);
-            if (command == null)
-            {
-                WriteLine("Command {0} not found", commandAlias);
-            }
-            else
-            {
-                WriteLine(command.DisplayName);
-                ThreadPool.QueueUserWorkItem((_) =>
-                {
-                    OnCommandExecuting(new CommandExecutingEventArgs(command));
-                    command.Execute();
-                    OnCommandExecuted(new CommandExecutedEventArgs(command));
-                    SetPrompt("Command");
-                });
-            }
-        }
-
         private void SetPrompt(string prompt)
         {
             OnPromptChanged(new PromptChangedEventArgs(prompt));
@@ -297,22 +286,6 @@ namespace BCad
         {
             if (RubberBandGeneratorChanged != null)
                 RubberBandGeneratorChanged(this, e);
-        }
-
-        public event CommandExecutingEventHandler CommandExecuting;
-
-        protected virtual void OnCommandExecuting(CommandExecutingEventArgs e)
-        {
-            if (CommandExecuting != null)
-                CommandExecuting(this, e);
-        }
-
-        public event CommandExecutedEventHandler CommandExecuted;
-
-        protected virtual void OnCommandExecuted(CommandExecutedEventArgs e)
-        {
-            if (CommandExecuted != null)
-                CommandExecuted(this, e);
         }
     }
 }

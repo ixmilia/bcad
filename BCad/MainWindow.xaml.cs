@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BCad.EventArguments;
+using System.Collections.Generic;
 
 namespace BCad
 {
@@ -40,6 +41,9 @@ namespace BCad
         [Import]
         public ICommandManager CommandManager { get; set; }
 
+        [ImportMany]
+        public IEnumerable<Lazy<ToolBar>> ToolBars { get; set; }
+
         public void OnImportsSatisfied()
         {
             Workspace.LoadSettings("BCad.configxml");
@@ -47,14 +51,11 @@ namespace BCad
 
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
-            Workspace.DocumentChanging += Workspace_DocumentChanging;
-            Workspace.DocumentChanged += Workspace_DocumentChanged;
-            Workspace.CurrentLayerChanging += Workspace_CurrentLayerChanging;
-            Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
+            foreach (var toolbar in ToolBars)
+            {
+                this.toolbarTray.ToolBars.Add(toolbar.Value);
+            }
 
-            var w = new Window();
-
-            Workspace.Document = new Document();
             var console = UserConsoleFactory.Generate();
             this.inputPanel.Content = console;
             FocusHelper.Focus(this.inputPanel.Content as UserControl);
@@ -73,37 +74,6 @@ namespace BCad
             SetTitle(Workspace.Document);
         }
 
-        private void Workspace_DocumentChanging(object sender, DocumentChangingEventArgs e)
-        {
-        }
-
-        private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
-        {
-            this.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    this.currentLayer.Items.Clear();
-                    foreach (var layer in e.Document.Layers.Values.OrderBy(l => l.Name))
-                    {
-                        this.currentLayer.Items.Add(layer);
-                    }
-                    this.currentLayer.SelectedItem = Workspace.CurrentLayer;
-                }));
-        }
-
-        private void Workspace_CurrentLayerChanging(object sender, LayerChangingEventArgs e)
-        {
-        }
-
-        private void Workspace_CurrentLayerChanged(object sender, LayerChangedEventArgs e)
-        {
-            this.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    ignoreLayerChangeEvent = true;
-                    this.currentLayer.SelectedItem = Workspace.CurrentLayer;
-                    ignoreLayerChangeEvent = false;
-                }));
-        }
-
         private void SetTitle(Document document)
         {
             string filename = document.FileName == null ? "(Untitled)" : Path.GetFileName(document.FileName);
@@ -117,16 +87,6 @@ namespace BCad
             {
                 e.Cancel = true;
                 return;
-            }
-        }
-
-        private bool ignoreLayerChangeEvent = false;
-
-        private void currentLayer_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!ignoreLayerChangeEvent && this.currentLayer.SelectedItem != null)
-            {
-                Workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
             }
         }
     }

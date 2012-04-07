@@ -4,18 +4,31 @@
         Title="BCad" Height="600" Width="800"
         FocusManager.FocusedElement="{Binding ElementName=inputPanel}"
         Loaded="MainWindowLoaded" Closing="Window_Closing">
+    <Window.Resources>
+        <DataTemplate x:Key="LayerTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="TODO: VIS" />
+                <Rectangle Grid.Column="1" Margin="1" Width="15" Height="15">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding Path=Color.MediaColor}" />
+                    </Rectangle.Fill>
+                </Rectangle>
+                <TextBlock Grid.Column="2" Text="{Binding Name}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ComboBox Name="currentLayer" Width="250" SelectionChanged="currentLayer_SelectionChanged" />
-        </Grid>
+        <ToolBarTray Grid.Row="0" Name="toolbarTray" />
         <UserControl Grid.Row="1" Name="viewPanel" />
         <UserControl Grid.Row="2" Name="inputPanel" Height="100" />
     </Grid>

@@ -14,6 +14,10 @@ namespace BCad
 
     public delegate void CurrentLayerChangedEventHandler(object sender, LayerChangedEventArgs e);
 
+    public delegate void CommandExecutingEventHandler(object sender, CommandExecutingEventArgs e);
+
+    public delegate void CommandExecutedEventHandler(object sender, CommandExecutedEventArgs e);
+
     public enum UnsavedChangesResult
     {
         Saved,
@@ -35,11 +39,14 @@ namespace BCad
         ISettingsManager SettingsManager { get; }
 
         void LoadSettings(string path);
+        void ExecuteCommand(string commandName, params object[] parameters);
         
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;
         event CurrentLayerChangingEventHandler CurrentLayerChanging;
         event CurrentLayerChangedEventHandler CurrentLayerChanged;
+        event CommandExecutingEventHandler CommandExecuting;
+        event CommandExecutedEventHandler CommandExecuted;
         UnsavedChangesResult PromptForUnsavedChanges();
 
         void Focus();

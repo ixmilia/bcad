@@ -26,10 +26,6 @@ namespace BCad
 
     public delegate void RubberBandGeneratorChangedEventHandler(object sender, RubberBandGeneratorChangedEventArgs e);
 
-    public delegate void CommandExecutingEventHandler(object sender, CommandExecutingEventArgs e);
-
-    public delegate void CommandExecutedEventHandler(object sender, CommandExecutedEventArgs e);
-
     public delegate IEnumerable<IPrimitive> RubberBandGenerator(Point point);
 
     public interface IUserConsole
@@ -57,10 +53,6 @@ namespace BCad
         event ValueReceivedEventHandler ValueReceived;
 
         event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;
-
-        event CommandExecutingEventHandler CommandExecuting;
-
-        event CommandExecutedEventHandler CommandExecuted;
 
         void Reset();
     }

@@ -11,13 +11,14 @@ using BCad.Commands;
 using BCad.EventArguments;
 using System.Xml.Serialization;
 using System.IO;
+using System.Diagnostics;
 
 namespace BCad
 {
     [Export(typeof(IWorkspace))]
     internal class Workspace : IWorkspace
     {
-        private Document document;
+        private Document document = new Document();
 
         public Document Document
         {
@@ -52,7 +53,12 @@ namespace BCad
 
         public Layer CurrentLayer
         {
-            get { return currentLayer; }
+            get
+            {
+                if (currentLayer == null)
+                    currentLayer = document.Layers.First().Value;
+                return currentLayer;
+            }
             set
             {
                 if (currentLayer == value)
@@ -95,6 +101,42 @@ namespace BCad
             var serializer = new XmlSerializer(typeof(SettingsManager));
             var stream = new FileStream(path, FileMode.Open);
             this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
+        }
+
+        public void ExecuteCommand(string commandName, params object[] args)
+        {
+            Debug.Assert(commandName != null, "Null command not supported");
+            ThreadPool.QueueUserWorkItem((_) =>
+                {
+                    var command = CommandManager.GetCommand(commandName);
+                    if (command == null)
+                    {
+                        UserConsole.WriteLine("Command {0} not found", commandName);
+                    }
+                    else
+                    {
+                        UserConsole.WriteLine(command.DisplayName);
+                        OnCommandExecuting(new CommandExecutingEventArgs(command));
+                        command.Execute();
+                        OnCommandExecuted(new CommandExecutedEventArgs(command));
+                    }
+                });
+        }
+
+        public event CommandExecutingEventHandler CommandExecuting;
+
+        protected virtual void OnCommandExecuting(CommandExecutingEventArgs e)
+        {
+            if (CommandExecuting != null)
+                CommandExecuting(this, e);
+        }
+
+        public event CommandExecutedEventHandler CommandExecuted;
+
+        protected virtual void OnCommandExecuted(CommandExecutedEventArgs e)
+        {
+            if (CommandExecuted != null)
+                CommandExecuted(this, e);
         }
 
         public event DocumentChangingEventHandler DocumentChanging;
