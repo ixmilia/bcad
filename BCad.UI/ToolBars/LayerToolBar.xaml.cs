@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel.Composition;
 
-namespace BCad.UI
+namespace BCad.UI.ToolBars
 {
     /// <summary>
     /// Interaction logic for LayerToolBar.xaml
@@ -68,7 +68,8 @@ namespace BCad.UI
 
         private void currentLayer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
+            if (listenToChangeEvent)
+                Workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
         }
 
         private void Layers_Click(object sender, RoutedEventArgs e)

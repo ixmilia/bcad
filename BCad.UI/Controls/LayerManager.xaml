@@ -1,4 +1,4 @@
-﻿<ui:BCadControl x:Class="BCad.UI.LayerManager"
+﻿<ui:BCadControl x:Class="BCad.UI.Controls.LayerManager"
                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -38,7 +38,7 @@
                 </Grid.ColumnDefinitions>
                 <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
                     <Rectangle.Fill>
-                        <SolidColorBrush Color="{Binding MediaColor}" />
+                        <SolidColorBrush x:Name="unused" Color="{Binding MediaColor}" />
                     </Rectangle.Fill>
                 </Rectangle>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayValue}" Margin="1" />

@@ -49,7 +49,6 @@ namespace BCad.Commands
                 dialog.DefaultExt = FileReaders.First().Extensions().First();
                 dialog.Filter = filter;
                 var result = dialog.ShowDialog();
-                Workspace.Focus();
                 if (result != true)
                     return false;
 

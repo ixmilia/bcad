@@ -30,14 +30,7 @@ namespace BCad
         Document Document { get; set; }
         Layer CurrentLayer { get; set; }
 
-        IUserConsole UserConsole { get; }
-        IView View { get; }
-        IUndoRedoService UndoRedoService { get; }
-        IDialogFactory DialogFactory { get; }
-        ICommandManager CommandManager { get; }
-        IControlFactory ControlFactory { get; }
         ISettingsManager SettingsManager { get; }
-
         void LoadSettings(string path);
         void ExecuteCommand(string commandName, params object[] parameters);
         
@@ -48,7 +41,5 @@ namespace BCad
         event CommandExecutingEventHandler CommandExecuting;
         event CommandExecutedEventHandler CommandExecuted;
         UnsavedChangesResult PromptForUnsavedChanges();
-
-        void Focus();
     }
 }

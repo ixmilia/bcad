@@ -26,7 +26,6 @@ namespace BCad.UI
             InitializeComponent();
 
             this.Control = control;
-            this.Control.Initialize();
             this.controlSurface.Content = this.Control;
         }
 

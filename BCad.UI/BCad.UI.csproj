@@ -50,29 +50,31 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="DrawToolbar.xaml">
+    <Page Include="ToolBars\DrawToolBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LayerManager.xaml">
+    <Page Include="Controls\LayerManager.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="DrawToolbar.xaml.cs">
-      <DependentUpon>DrawToolbar.xaml</DependentUpon>
+    <Compile Include="BoolToVisibilityConverter.cs" />
+    <Compile Include="Controls\MutableLayer.cs" />
+    <Compile Include="ToolBars\DrawToolBar.xaml.cs">
+      <DependentUpon>DrawToolBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LayerManager.xaml.cs">
+    <Compile Include="Controls\LayerManager.xaml.cs">
       <DependentUpon>LayerManager.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="LayerToolBar.xaml">
+    <Page Include="ToolBars\LayerToolBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LayerManagerControlFactory.cs" />
-    <Compile Include="LayerToolBar.xaml.cs">
+    <Compile Include="ToolBars\LayerToolBar.xaml.cs">
       <DependentUpon>LayerToolBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -104,6 +106,7 @@
       <Name>BCad.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -21,6 +21,9 @@ namespace BCad.Commands
         [Import]
         public IUndoRedoService UndoRedoService { get; set; }
 
+        [Import]
+        public IView View { get; set; }
+
         public bool Execute(params object[] parameters)
         {
             Point center = Point.Origin;
@@ -41,7 +44,7 @@ namespace BCad.Commands
                             return new IPrimitive[]
                             {
                                 new Line(center, p, Color.Default),
-                                new Circle(center, (p - center).Length, -Workspace.View.Sight, Color.Default)
+                                new Circle(center, (p - center).Length, -View.Sight, Color.Default)
                             };
                         });
                         if (rad.Cancel) return false;
@@ -66,7 +69,7 @@ namespace BCad.Commands
                             return new IPrimitive[]
                             {
                                 new Line(center, p, Color.Default),
-                                new Circle(center, (p - center).Length / 2.0, -Workspace.View.Sight, Color.Default)
+                                new Circle(center, (p - center).Length / 2.0, -View.Sight, Color.Default)
                             };
                         });
                         if (diameter.Cancel) return false;
@@ -100,7 +103,7 @@ namespace BCad.Commands
             }
 
             UndoRedoService.SetSnapshot();
-            Workspace.AddToCurrentLayer(new Circle(center, radius, -Workspace.View.Sight, Color.Default));
+            Workspace.AddToCurrentLayer(new Circle(center, radius, -View.Sight, Color.Default));
             return true;
         }
 

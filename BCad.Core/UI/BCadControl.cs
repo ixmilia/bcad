@@ -6,10 +6,6 @@ namespace BCad.UI
 {
     public class BCadControl : UserControl
     {
-        public virtual void Initialize()
-        {
-        }
-
         public virtual void Commit()
         {
         }

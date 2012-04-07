@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows;
-using BCad.Commands;
-using BCad.EventArguments;
 using System.Xml.Serialization;
-using System.IO;
-using System.Diagnostics;
+using BCad.EventArguments;
 
 namespace BCad
 {
@@ -25,6 +21,8 @@ namespace BCad
             get { return document; }
             set
             {
+                if (value == null)
+                    throw new NotSupportedException("Null document not allowed.");
                 if (document == value)
                     return;
                 var args = new DocumentChangingEventArgs(document, value);
@@ -32,15 +30,15 @@ namespace BCad
                 if (args.Cancel)
                     return;
 
-                // ensure the same layer is selected after the change if possible
-                var currentLayerName = CurrentLayer == null ? null : CurrentLayer.Name;
+                // ensure the same layer is selected after the change
+                var currentLayerName = CurrentLayer.Name;
 
                 // change the value and fire events
                 document = value;
                 OnDocumentChanged(new DocumentChangedEventArgs(document));
 
                 // reset the current layer
-                if (currentLayerName != null && document.Layers.ContainsKey(currentLayerName))
+                if (document.Layers.ContainsKey(currentLayerName))
                     this.CurrentLayer = document.Layers[currentLayerName];
                 else if (document.Layers.ContainsKey("Default"))
                     this.CurrentLayer = document.Layers["Default"];
@@ -61,6 +59,10 @@ namespace BCad
             }
             set
             {
+                if (value == null)
+                    throw new NotSupportedException("Null layer not allowed.");
+                if (!document.Layers.ContainsValue(value))
+                    throw new NotSupportedException("Specified layer is not part of the current document.");
                 if (currentLayer == value)
                     return;
                 var args = new LayerChangingEventArgs(currentLayer, value);
@@ -73,22 +75,10 @@ namespace BCad
         }
 
         [Import]
-        public IUserConsole UserConsole { get; private set; }
+        private IUserConsole UserConsole = null;
 
         [Import]
-        public ICommandManager CommandManager { get; private set; }
-
-        [Import]
-        public IView View { get; private set; }
-
-        [Import]
-        public IUndoRedoService UndoRedoService { get; private set; }
-
-        [Import]
-        public IDialogFactory DialogFactory { get; private set; }
-
-        [Import]
-        public IControlFactory ControlFactory { get; private set; }
+        private ICommandManager CommandManager = null;
 
         public ISettingsManager SettingsManager { get; private set; }
 

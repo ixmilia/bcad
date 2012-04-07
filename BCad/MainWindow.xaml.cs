@@ -47,6 +47,29 @@ namespace BCad
         public void OnImportsSatisfied()
         {
             Workspace.LoadSettings("BCad.configxml");
+            Workspace.CommandExecuted += Workspace_CommandExecuted;
+            Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
+            Workspace.DocumentChanged += Workspace_DocumentChanged;
+        }
+
+        private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
+        {
+            TakeFocus();
+        }
+
+        private void Workspace_CurrentLayerChanged(object sender, LayerChangedEventArgs e)
+        {
+            TakeFocus();
+        }
+
+        private void TakeFocus()
+        {
+            this.Dispatcher.BeginInvoke((Action)(() => FocusHelper.Focus(this.inputPanel.Content as UserControl)));
+        }
+
+        void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        {
+            TakeFocus();
         }
 
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
@@ -58,7 +81,7 @@ namespace BCad
 
             var console = UserConsoleFactory.Generate();
             this.inputPanel.Content = console;
-            FocusHelper.Focus(this.inputPanel.Content as UserControl);
+            TakeFocus();
             UserConsole.Reset();
 
             var view = ViewFactory.Generate();

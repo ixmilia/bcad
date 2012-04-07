@@ -1,4 +1,4 @@
-﻿<ToolBar x:Class="BCad.UI.LayerToolBar"
+﻿<ToolBar x:Class="BCad.UI.ToolBars.LayerToolBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -16,7 +16,7 @@
                 <TextBlock Grid.Column="0" Text="TODO: VIS" />
                 <Rectangle Grid.Column="1" Margin="1" Width="15" Height="15">
                     <Rectangle.Fill>
-                        <SolidColorBrush Color="{Binding Path=Color.MediaColor}" />
+                        <SolidColorBrush x:Name="unused" Color="{Binding Path=Color.MediaColor}" />
                     </Rectangle.Fill>
                 </Rectangle>
                 <TextBlock Grid.Column="2" Text="{Binding Name}" />

@@ -13,18 +13,18 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel.Composition;
 
-namespace BCad.UI
+namespace BCad.UI.ToolBars
 {
     /// <summary>
     /// Interaction logic for DrawToolbar.xaml
     /// </summary>
     [ExportToolbar]
-    public partial class DrawToolbar : ToolBar
+    public partial class DrawToolBar : ToolBar
     {
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        public DrawToolbar()
+        public DrawToolBar()
         {
             InitializeComponent();
         }

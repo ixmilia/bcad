@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml.Linq;
+using BCad.EventArguments;
 
 namespace BCad
 {
@@ -21,6 +22,14 @@ namespace BCad
             //    var xml = XDocument.Load(fileName).Root;
             //    SetValue(xml, "LayerDialogId", ref layerDialogId);
             //}
+        }
+
+        public event SettingsChangedEventHandler SettingsChanged;
+
+        protected void OnSettingsChanged()
+        {
+            if (SettingsChanged != null)
+                SettingsChanged(this, new SettingsChangedEventArgs(this));
         }
 
         //private static void SetValue(XElement xml, string elementName, ref string container)
