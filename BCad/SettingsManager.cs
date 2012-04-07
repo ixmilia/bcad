@@ -13,9 +13,11 @@ namespace BCad
     {
         public string LayerDialogId { get; set; }
 
+        public string ViewControlId { get; set; }
+
         public SettingsManager()
         {
-            //LoadDefaults();
+            LoadDefaults();
 
             //if (File.Exists(fileName))
             //{
@@ -39,9 +41,10 @@ namespace BCad
         //        container = element.Value;
         //}
 
-        //public void LoadDefaults()
-        //{
-        //    layerDialogId = "Default";
-        //}
+        private void LoadDefaults()
+        {
+            LayerDialogId = "Default";
+            ViewControlId = "Default";
+        }
     }
 }

@@ -50,6 +50,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Views\WpfViewControl.xaml.cs">
+      <DependentUpon>WpfViewControl.xaml</DependentUpon>
+    </Compile>
     <Page Include="ToolBars\DrawToolBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -68,6 +71,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ToolBars\LayerToolBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\WpfViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

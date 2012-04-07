@@ -18,12 +18,13 @@ using BCad.EventArguments;
 using BCad.Objects;
 using BCad.SnapPoints;
 
-namespace BCad
+namespace BCad.UI.Views
 {
     /// <summary>
     /// Interaction logic for WpfView.xaml
     /// </summary>
-    public partial class WpfView : UserControl, IPartImportsSatisfiedNotification
+    [ExportViewControl("Default")]
+    public partial class WpfViewControl : UserControl, IPartImportsSatisfiedNotification
     {
         private class TransformedSnapPoint
         {
@@ -57,7 +58,7 @@ namespace BCad
             }
         }
 
-        public WpfView()
+        public WpfViewControl()
         {
             InitializeComponent();
         }

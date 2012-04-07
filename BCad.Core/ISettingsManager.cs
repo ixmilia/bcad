@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BCad.EventArguments;
+﻿using BCad.EventArguments;
 
 namespace BCad
 {
@@ -11,6 +7,7 @@ namespace BCad
     public interface ISettingsManager
     {
         string LayerDialogId { get; }
+        string ViewControlId { get; }
         event SettingsChangedEventHandler SettingsChanged;
     }
 }

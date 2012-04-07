@@ -33,9 +33,6 @@ namespace BCad
         public IUserConsoleFactory UserConsoleFactory { get; set; }
 
         [Import]
-        public IViewFactory ViewFactory { get; set; }
-
-        [Import]
         public IView View { get; set; }
 
         [Import]
@@ -43,6 +40,9 @@ namespace BCad
 
         [ImportMany]
         public IEnumerable<Lazy<ToolBar>> ToolBars { get; set; }
+
+        [ImportMany]
+        public IEnumerable<Lazy<UserControl, IViewControlMetadata>> Views { get; set; }
 
         public void OnImportsSatisfied()
         {
@@ -84,7 +84,7 @@ namespace BCad
             TakeFocus();
             UserConsole.Reset();
 
-            var view = ViewFactory.Generate();
+            var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
             this.viewPanel.Content = view;
             View.RegisteredControl = view;
 

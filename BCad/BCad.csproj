@@ -62,11 +62,7 @@
     <Compile Include="OrthographicView.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="UndoRedoService.cs" />
-    <Compile Include="WpfView.xaml.cs">
-      <DependentUpon>WpfView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="RenderedViewFactory.cs" />
     <Compile Include="UserConsole.cs" />
     <Compile Include="WpfConsole.xaml.cs">
       <DependentUpon>WpfConsole.xaml</DependentUpon>
@@ -87,10 +83,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="WpfConsole.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="WpfView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -87,7 +87,7 @@
     <Compile Include="IUserConsole.cs" />
     <Compile Include="IUserConsoleFactory.cs" />
     <Compile Include="IView.cs" />
-    <Compile Include="IViewFactory.cs" />
+    <Compile Include="IViewControlMetadata.cs" />
     <Compile Include="IWorkspace.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Objects\Arc.cs" />
@@ -111,6 +111,7 @@
     <Compile Include="UI\BCadDialog`1.cs" />
     <Compile Include="UI\ExportControlFactoryAttribute.cs" />
     <Compile Include="UI\ExportToolbarAttribute.cs" />
+    <Compile Include="UI\ExportViewControlAttribute.cs" />
     <Compile Include="UserDirective.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
   </ItemGroup>
