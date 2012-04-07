@@ -87,7 +87,7 @@
                     <GridViewColumn Width="60" Header="Visible">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock>TODO</TextBlock>
+                                <CheckBox IsChecked="{Binding IsVisible}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

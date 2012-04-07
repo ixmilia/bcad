@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Collections.ObjectModel;
 using System.Windows.Data;
 using BCad.Utilities;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace BCad.UI
 {
@@ -115,6 +115,7 @@ namespace BCad.UI
             this.DrawingLayer = layer;
             this.Name = layer.Name;
             this.Color = layer.Color;
+            this.IsVisible = layer.IsVisible;
         }
 
         public MutableLayer(string name, Color color)
@@ -122,6 +123,7 @@ namespace BCad.UI
             this.DrawingLayer = null;
             this.Name = name;
             this.Color = color;
+            this.IsVisible = true;
         }
 
         public Layer DrawingLayer { get; private set; }
@@ -132,7 +134,9 @@ namespace BCad.UI
             {
                 return this.DrawingLayer == null
                     ? true
-                    : this.Name != this.DrawingLayer.Name || this.Color != this.DrawingLayer.Color;
+                    : this.Name != this.DrawingLayer.Name ||
+                      this.Color != this.DrawingLayer.Color ||
+                      this.IsVisible != this.DrawingLayer.IsVisible;
             }
         }
 
@@ -144,7 +148,7 @@ namespace BCad.UI
             }
             else if (this.IsDirty)
             {
-                return this.DrawingLayer.Update(name: this.Name, color: this.Color);
+                return this.DrawingLayer.Update(name: this.Name, color: this.Color, isVisible: this.IsVisible ?? false);
             }
             else
             {
@@ -171,6 +175,16 @@ namespace BCad.UI
         // Using a DependencyProperty as the backing store for Color.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorProperty =
             DependencyProperty.Register("Color", typeof(Color), typeof(MutableLayer), new UIPropertyMetadata(default(Color)));
+
+        public bool? IsVisible
+        {
+            get { return (bool?)GetValue(IsVisibleProperty); }
+            set { SetValue(IsVisibleProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsVisible.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsVisibleProperty =
+            DependencyProperty.Register("IsVisible", typeof(bool?), typeof(MutableLayer), new UIPropertyMetadata(null));
     }
 
     public class BoolToVisibilityConverter : IValueConverter

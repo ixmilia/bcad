@@ -128,7 +128,7 @@ namespace BCad
         {
             objects.Children.Clear();
             snapPoints.Clear();
-            foreach (var layer in Workspace.Document.Layers.Values)
+            foreach (var layer in Workspace.Document.Layers.Values.Where(l => l.IsVisible))
             {
                 foreach (var obj in layer.Objects)
                 {

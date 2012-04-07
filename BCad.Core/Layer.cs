@@ -11,11 +11,14 @@ namespace BCad
     {
         private readonly string name;
         private readonly Color color;
+        private readonly bool isVisible;
         private readonly ReadOnlyCollection<IObject> objects;
 
         public string Name { get { return name; } }
 
         public Color Color { get { return color; } }
+
+        public bool IsVisible { get { return isVisible; } }
 
         public ReadOnlyCollection<IObject> Objects { get { return objects; } }
 
@@ -25,9 +28,15 @@ namespace BCad
         }
 
         public Layer(string name, Color color, IEnumerable<IObject> objects)
+            : this(name, color, true, objects)
+        {
+        }
+
+        public Layer(string name, Color color, bool isVisible, IEnumerable<IObject> objects)
         {
             this.name = name;
             this.color = color;
+            this.isVisible = isVisible;
             this.objects = new ReadOnlyCollection<IObject>(objects.ToList());
         }
 
@@ -60,11 +69,12 @@ namespace BCad
             return this.Update(objects: this.Objects.Except(new[] { oldObject }).Concat(new[] { newObject }));
         }
 
-        public Layer Update(string name = null, Color? color = null, IEnumerable<IObject> objects = null)
+        public Layer Update(string name = null, Color? color = null, bool? isVisible = null, IEnumerable<IObject> objects = null)
         {
             return new Layer(
                 name ?? this.Name,
                 color ?? this.Color,
+                isVisible ?? this.isVisible,
                 objects ?? this.Objects);
         }
 
