@@ -89,7 +89,7 @@ namespace BCad.UI
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             this.layers.Add(new MutableLayer(
-                StringUtilities.NextUniqueName("NewLayer", workspace.Document.Layers.Keys), Color.Auto));
+                StringUtilities.NextUniqueName("NewLayer", this.layers.Select(l => l.Name)), Color.Auto));
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
