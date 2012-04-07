@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using BCad.Utilities;
+using System.Collections.Specialized;
 
 namespace BCad.UI.Controls
 {
@@ -38,15 +39,9 @@ namespace BCad.UI.Controls
         public LayerManager(IWorkspace workspace)
         {
             this.workspace = workspace;
-
-            if (!DesignerProperties.GetIsInDesignMode(this))
-            {
-                this.layers.Clear();
-                foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
-                {
-                    this.layers.Add(new MutableLayer(layer));
-                }
-            }
+            this.layers.Clear();
+            foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
+                this.layers.Add(new MutableLayer(layer));
 
             for (byte i = 0; i <= 9; i++)
                 availableColors.Add(new Color(i));
@@ -58,7 +53,8 @@ namespace BCad.UI.Controls
         {
             var doc = workspace.Document;
 
-            if (this.layers.Where(layer => layer.IsDirty).Any())
+            if (this.layers.Where(layer => layer.IsDirty).Any() ||
+                this.layers.Count != doc.Layers.Count)
             {
                 // found changes, need to update
                 var newLayers = new Dictionary<string, Layer>();
