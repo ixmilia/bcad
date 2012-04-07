@@ -2,4 +2,5 @@
 <SettingsManager>
   <LayerDialogId>Default</LayerDialogId>
   <ViewControlId>Default</ViewControlId>
+  <ConsoleControlId>Default</ConsoleControlId>
 </SettingsManager>

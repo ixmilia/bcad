@@ -8,6 +8,7 @@ namespace BCad
     {
         string LayerDialogId { get; }
         string ViewControlId { get; }
+        string ConsoleControlId { get; }
         event SettingsChangedEventHandler SettingsChanged;
     }
 }

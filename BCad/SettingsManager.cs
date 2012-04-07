@@ -15,6 +15,8 @@ namespace BCad
 
         public string ViewControlId { get; set; }
 
+        public string ConsoleControlId { get; set; }
+
         public SettingsManager()
         {
             LoadDefaults();
@@ -45,6 +47,7 @@ namespace BCad
         {
             LayerDialogId = "Default";
             ViewControlId = "Default";
+            ConsoleControlId = "Default";
         }
     }
 }

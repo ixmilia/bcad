@@ -24,7 +24,7 @@ namespace BCad.UI.Views
     /// Interaction logic for WpfView.xaml
     /// </summary>
     [ExportViewControl("Default")]
-    public partial class WpfViewControl : UserControl, IPartImportsSatisfiedNotification
+    public partial class WpfViewControl : ViewControl, IPartImportsSatisfiedNotification
     {
         private class TransformedSnapPoint
         {

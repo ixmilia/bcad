@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BCad.EventArguments;
-using System.Collections.Generic;
+using BCad.UI;
 
 namespace BCad
 {
@@ -24,25 +25,22 @@ namespace BCad
         }
 
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         [Import]
-        public IUserConsole UserConsole { get; set; }
+        private IUserConsole UserConsole = null;
 
         [Import]
-        public IUserConsoleFactory UserConsoleFactory { get; set; }
-
-        [Import]
-        public IView View { get; set; }
-
-        [Import]
-        public ICommandManager CommandManager { get; set; }
+        private IView View = null;
 
         [ImportMany]
-        public IEnumerable<Lazy<ToolBar>> ToolBars { get; set; }
+        private IEnumerable<Lazy<ToolBar>> ToolBars = null;
 
         [ImportMany]
-        public IEnumerable<Lazy<UserControl, IViewControlMetadata>> Views { get; set; }
+        private IEnumerable<Lazy<ViewControl, IViewControlMetadata>> Views = null;
+
+        [ImportMany]
+        private IEnumerable<Lazy<ConsoleControl, IConsoleMetadata>> Consoles = null;
 
         public void OnImportsSatisfied()
         {
@@ -79,7 +77,7 @@ namespace BCad
                 this.toolbarTray.ToolBars.Add(toolbar.Value);
             }
 
-            var console = UserConsoleFactory.Generate();
+            var console = Consoles.First(c => c.Metadata.ControlId == Workspace.SettingsManager.ConsoleControlId).Value;
             this.inputPanel.Content = console;
             TakeFocus();
             UserConsole.Reset();

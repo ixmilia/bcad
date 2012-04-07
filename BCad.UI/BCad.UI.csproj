@@ -50,9 +50,16 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Consoles\InputConsole.xaml.cs">
+      <DependentUpon>InputConsole.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\WpfViewControl.xaml.cs">
       <DependentUpon>WpfViewControl.xaml</DependentUpon>
     </Compile>
+    <Page Include="Consoles\InputConsole.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ToolBars\DrawToolBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

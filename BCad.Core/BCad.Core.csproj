@@ -79,6 +79,7 @@
     <Compile Include="FileHandlers\IFileWriter.cs" />
     <Compile Include="ICommandManager.cs" />
     <Compile Include="DocumentEventDelegates.cs" />
+    <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IControlFactory.cs" />
     <Compile Include="IControlFactoryMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
@@ -109,9 +110,12 @@
     </Compile>
     <Compile Include="UI\BCadDialogResult.cs" />
     <Compile Include="UI\BCadDialog`1.cs" />
+    <Compile Include="UI\ConsoleControl.cs" />
+    <Compile Include="UI\ExportConsoleAttribute.cs" />
     <Compile Include="UI\ExportControlFactoryAttribute.cs" />
     <Compile Include="UI\ExportToolbarAttribute.cs" />
     <Compile Include="UI\ExportViewControlAttribute.cs" />
+    <Compile Include="UI\ViewControl.cs" />
     <Compile Include="UserDirective.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
   </ItemGroup>

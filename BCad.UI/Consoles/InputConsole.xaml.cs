@@ -1,30 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using BCad.EventArguments;
-using BCad.Objects;
 
-namespace BCad
+namespace BCad.UI.Consoles
 {
     /// <summary>
-    /// Interaction logic for UserConsole.xaml
+    /// Interaction logic for InputConsole.xaml
     /// </summary>
-    public partial class WpfConsole : UserControl, IPartImportsSatisfiedNotification
+    [ExportConsole("Default")]
+    public partial class InputConsole : ConsoleControl, IPartImportsSatisfiedNotification
     {
-        public WpfConsole()
+        public InputConsole()
         {
             InitializeComponent();
             //inputLine.AddHandler(TextBox.KeyDownEvent, new KeyEventHandler(InputKeyDown), true);
@@ -44,10 +35,10 @@ namespace BCad
         private void HandleLineWritten(object sender, WriteLineEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    history.AppendText(e.Line + Environment.NewLine);
-                    history.ScrollToEnd();
-                }));
+            {
+                history.AppendText(e.Line + Environment.NewLine);
+                history.ScrollToEnd();
+            }));
         }
 
         public UserControl Control { get { return this; } }
@@ -69,7 +60,7 @@ namespace BCad
                 case Key.Space:
                     if (UserConsole.DesiredInputType != InputType.Text)
                         e.Handled = true;
-                        SubmitValue();
+                    SubmitValue();
                     break;
                 case Key.Escape:
                     SubmitCancel();
