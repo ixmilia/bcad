@@ -6,9 +6,12 @@ namespace BCad.Test
     public class TestHost
     {
         [Import]
-        public IWorkspace Workspace { get; set; }
+        public IWorkspace Workspace { get; private set; }
 
-        public TestHost()
+        [Import]
+        public IInputService InputService { get; private set; }
+
+        private TestHost()
         {
             var catalog = new AggregateCatalog(
                     new AssemblyCatalog("BCad.exe"),
@@ -23,17 +26,17 @@ namespace BCad.Test
             Workspace.Document = new Document();
         }
 
-        public static IWorkspace CreateWorkspace()
+        public static TestHost CreateHost()
         {
-            return new TestHost().Workspace;
+            return new TestHost();
         }
 
-        public static IWorkspace CreateWorkspace(params string[] layerNames)
+        public static TestHost CreateHost(params string[] layerNames)
         {
-            var workspace = CreateWorkspace();
+            var host = CreateHost();
             foreach (string layer in layerNames)
-                workspace.Add(new Layer(layer, Color.Auto));
-            return workspace;
+                host.Workspace.Add(new Layer(layer, Color.Auto));
+            return host;
         }
     }
 }

@@ -71,6 +71,7 @@
     <Compile Include="EventArguments\ViewPortChangedEventArgs.cs" />
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileReaderAttribute.cs" />

@@ -11,9 +11,9 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Canvas Name="objects" Background="Black" />
-        <Canvas Name="rubber" Background="Transparent" />
-        <Canvas Name="snap" Background="Transparent" />
+        <Canvas Name="objects" Background="Black" ClipToBounds="True" />
+        <Canvas Name="rubber" Background="Transparent" ClipToBounds="True" />
+        <Canvas Name="snap" Background="Transparent" ClipToBounds="True" />
         <Canvas Name="clicker" Background="White" Opacity="0.001" PreviewMouseDown="Canvas_MouseDown" PreviewMouseMove="canvas_MouseMove" PreviewMouseUp="canvas_MouseUp" PreviewMouseWheel="canvas_MouseWheel" />
         <!--
         <Grid Grid.Row="1">

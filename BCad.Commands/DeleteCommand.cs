@@ -13,9 +13,6 @@ namespace BCad.Commands
         [Import]
         private IInputService InputService = null;
 
-        [Import]
-        private IWorkspace Workspace = null;
-
         public bool Execute(params object[] parameters)
         {
             var input = InputService.GetObject(new UserDirective("Select objects"));
