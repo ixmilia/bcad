@@ -12,13 +12,13 @@ using BCad.Objects;
 
 namespace BCad
 {
-    [Export(typeof(IUserConsole))]
-    internal class UserConsole : IUserConsole, IPartImportsSatisfiedNotification
+    [Export(typeof(IInputService))]
+    internal class InputService : IInputService, IPartImportsSatisfiedNotification
     {
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
-        public UserConsole()
+        public InputService()
         {
             PrimitiveGenerator = null;
             LastPoint = Point.Origin;

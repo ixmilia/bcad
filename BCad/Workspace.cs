@@ -75,7 +75,7 @@ namespace BCad
         }
 
         [Import]
-        private IUserConsole UserConsole = null;
+        private IInputService InputService = null;
 
         [Import]
         private ICommandManager CommandManager = null;
@@ -101,11 +101,11 @@ namespace BCad
                     var command = CommandManager.GetCommand(commandName);
                     if (command == null)
                     {
-                        UserConsole.WriteLine("Command {0} not found", commandName);
+                        InputService.WriteLine("Command {0} not found", commandName);
                     }
                     else
                     {
-                        UserConsole.WriteLine(command.DisplayName);
+                        InputService.WriteLine(command.DisplayName);
                         OnCommandExecuting(new CommandExecutingEventArgs(command));
                         command.Execute();
                         OnCommandExecuted(new CommandExecutedEventArgs(command));

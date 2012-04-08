@@ -23,8 +23,8 @@ namespace BCad.UI.Consoles
 
         public void OnImportsSatisfied()
         {
-            UserConsole.PromptChanged += HandlePromptChanged;
-            UserConsole.LineWritten += HandleLineWritten;
+            InputService.PromptChanged += HandlePromptChanged;
+            InputService.LineWritten += HandleLineWritten;
         }
 
         private void HandlePromptChanged(object sender, PromptChangedEventArgs e)
@@ -44,10 +44,10 @@ namespace BCad.UI.Consoles
         public UserControl Control { get { return this; } }
 
         [Import]
-        public IUserConsole UserConsole { get; set; }
+        private IInputService InputService = null;
 
         [Import]
-        public IView View { get; set; }
+        private IView View = null;
 
         private void InputKeyDown(object sender, KeyEventArgs e)
         {
@@ -58,7 +58,7 @@ namespace BCad.UI.Consoles
                     SubmitValue();
                     break;
                 case Key.Space:
-                    if (UserConsole.DesiredInputType != InputType.Text)
+                    if (InputService.DesiredInputType != InputType.Text)
                         e.Handled = true;
                     SubmitValue();
                     break;
@@ -72,17 +72,17 @@ namespace BCad.UI.Consoles
 
         private void SubmitCancel()
         {
-            UserConsole.Cancel();
+            InputService.Cancel();
 
             inputLine.Text = string.Empty;
         }
 
         private void SubmitValue()
         {
-            if (UserConsole.DesiredInputType == InputType.Object)
+            if (InputService.DesiredInputType == InputType.Object)
                 return; // doesn't make sense
             object value = null;
-            switch (UserConsole.DesiredInputType)
+            switch (InputService.DesiredInputType)
             {
                 case InputType.Point:
                     var point = ParsePoint(inputLine.Text);
@@ -99,7 +99,7 @@ namespace BCad.UI.Consoles
                     value = string.IsNullOrEmpty(inputLine.Text) ? null : inputLine.Text;
                     break;
             }
-            UserConsole.PushValue(value);
+            InputService.PushValue(value);
 
             inputLine.Text = string.Empty;
         }
@@ -121,24 +121,24 @@ namespace BCad.UI.Consoles
             {
                 // length on current vector
                 var length = double.Parse(text);
-                var vec = View.GetCursorPoint() - UserConsole.LastPoint;
+                var vec = View.GetCursorPoint() - InputService.LastPoint;
                 if (vec.LengthSquared == 0.0)
                 {
                     // if no change report the last point
-                    p = UserConsole.LastPoint;
+                    p = InputService.LastPoint;
                 }
                 else
                 {
                     vec.Normalize();
                     vec *= length;
-                    p = (UserConsole.LastPoint + vec).ToPoint();
+                    p = (InputService.LastPoint + vec).ToPoint();
                 }
             }
             else if (relativePoint.IsMatch(text))
             {
                 // offset from last point
                 var offset = Point.Parse(text.Substring(1));
-                p = (UserConsole.LastPoint + offset).ToPoint();
+                p = (InputService.LastPoint + offset).ToPoint();
             }
             else if (relativeAngle.IsMatch(text))
             {
@@ -148,7 +148,7 @@ namespace BCad.UI.Consoles
                 var angle = double.Parse(parts[1]);
                 var radians = angle * Math.PI / 180.0;
                 var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
-                p = (UserConsole.LastPoint + offset).ToPoint();
+                p = (InputService.LastPoint + offset).ToPoint();
             }
             else if (Point.PointPattern.IsMatch(text))
             {

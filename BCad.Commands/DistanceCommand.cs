@@ -11,23 +11,23 @@ namespace BCad.Commands
     internal class DistanceCommand : ICommand
     {
         [Import]
-        public IUserConsole UserConsole { get; set; }
+        private IInputService InputService = null;
 
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         public bool Execute(params object[] parameters)
         {
-            var start = UserConsole.GetPoint(new UserDirective("Distance from"));
+            var start = InputService.GetPoint(new UserDirective("Distance from"));
             if (start.Cancel) return false;
             var first = start.Value;
-            var end = UserConsole.GetPoint(new UserDirective("Distance to"), (p) =>
+            var end = InputService.GetPoint(new UserDirective("Distance to"), (p) =>
                 {
                     return new[] { new Line(first, p, Color.Default) };
                 });
             if (end.Cancel) return false;
             var between = end.Value - first;
-            UserConsole.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
+            InputService.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
                 between.Length, Math.Abs(between.X), Math.Abs(between.Y), Math.Abs(between.Z));
             return true;
         }

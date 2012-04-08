@@ -64,13 +64,13 @@ namespace BCad.UI.Views
         }
 
         [Import]
-        public IView View { get; set; }
+        private IView View = null;
 
         [Import]
-        public IUserConsole UserConsole { get; set; }
+        private IInputService InputService = null;
 
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         private bool panning = false;
 
@@ -92,7 +92,7 @@ namespace BCad.UI.Views
 
         public void OnImportsSatisfied()
         {
-            UserConsole.RubberBandGeneratorChanged += UserConsole_RubberBandGeneratorChanged;
+            InputService.RubberBandGeneratorChanged += UserConsole_RubberBandGeneratorChanged;
             View.ViewPortChanged += TransformationMatrixChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.DocumentChanging += DocumentChanging;
@@ -253,17 +253,17 @@ namespace BCad.UI.Views
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
-                    switch (UserConsole.DesiredInputType)
+                    switch (InputService.DesiredInputType)
                     {
                         case InputType.Point:
                             if (sp != null)
                             {
-                                UserConsole.PushValue(sp.WorldPoint);
+                                InputService.PushValue(sp.WorldPoint);
                             }
                             else
                             {
                                 var worldPoint = View.ControlToWorld(p);
-                                UserConsole.PushValue(worldPoint);
+                                InputService.PushValue(worldPoint);
                             }
                             break;
                         case InputType.Object:
@@ -275,7 +275,7 @@ namespace BCad.UI.Views
                                        select o).FirstOrDefault();
                             if (obj != null)
                             {
-                                UserConsole.PushValue(obj);
+                                InputService.PushValue(obj);
                             }
                             break;
                     }
@@ -285,10 +285,10 @@ namespace BCad.UI.Views
                     lastPoint = p;
                     break;
                 case MouseButton.Right:
-                    if (UserConsole.DesiredInputType == InputType.Command)
-                        UserConsole.PushValue(null);
+                    if (InputService.DesiredInputType == InputType.Command)
+                        InputService.PushValue(null);
                     else
-                        UserConsole.Cancel();
+                        InputService.Cancel();
                     break;
             }
             DrawSnapPoints(sp);
@@ -298,7 +298,7 @@ namespace BCad.UI.Views
         private void DrawRubberBandObjects(Point modelPoint)
         {
             rubber.Children.Clear();
-            var gen = UserConsole.PrimitiveGenerator;
+            var gen = InputService.PrimitiveGenerator;
             if (gen != null)
             {
                 foreach (var prim in gen(modelPoint))
@@ -309,7 +309,7 @@ namespace BCad.UI.Views
         private void DrawSnapPoints(TransformedSnapPoint snapPoint)
         {
             snap.Children.Clear();
-            if (UserConsole.DesiredInputType != InputType.Point)
+            if (InputService.DesiredInputType != InputType.Point)
                 return;
             if (snapPoint == null)
                 return;

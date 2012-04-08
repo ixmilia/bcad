@@ -11,19 +11,19 @@ namespace BCad.Commands
     internal class DeleteCommand : ICommand
     {
         [Import]
-        public IUserConsole UserConsole { get; set; }
+        private IInputService InputService = null;
 
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         public bool Execute(params object[] parameters)
         {
-            var input = UserConsole.GetObject(new UserDirective("Select objects"));
+            var input = InputService.GetObject(new UserDirective("Select objects"));
             if (input.Cancel) return false;
 
             var objects = new List<IObject>();
             objects.Add(input.Value);
-            UserConsole.WriteLine("Found object: {0}", input.Value.ToString());
+            InputService.WriteLine("Found object: {0}", input.Value.ToString());
 
             return true;
         }

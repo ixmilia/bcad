@@ -28,7 +28,7 @@ namespace BCad
 
     public delegate IEnumerable<IPrimitive> RubberBandGenerator(Point point);
 
-    public interface IUserConsole
+    public interface IInputService
     {
         RubberBandGenerator PrimitiveGenerator { get; }
 

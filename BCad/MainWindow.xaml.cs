@@ -28,7 +28,7 @@ namespace BCad
         private IWorkspace Workspace = null;
 
         [Import]
-        private IUserConsole UserConsole = null;
+        private IInputService InputService = null;
 
         [Import]
         private IView View = null;
@@ -80,7 +80,7 @@ namespace BCad
             var console = Consoles.First(c => c.Metadata.ControlId == Workspace.SettingsManager.ConsoleControlId).Value;
             this.inputPanel.Content = console;
             TakeFocus();
-            UserConsole.Reset();
+            InputService.Reset();
 
             var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
             this.viewPanel.Content = view;

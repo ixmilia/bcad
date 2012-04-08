@@ -13,23 +13,23 @@ namespace BCad.Commands
     internal class DrawCircleCommand : ICommand
     {
         [Import]
-        public IUserConsole UserConsole { get; set; }
+        private IInputService InputService = null;
 
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         [Import]
-        public IUndoRedoService UndoRedoService { get; set; }
+        private IUndoRedoService UndoRedoService = null;
 
         [Import]
-        public IView View { get; set; }
+        private IView View = null;
 
         public bool Execute(params object[] parameters)
         {
             Point center = Point.Origin;
             double radius = 0.0;
 
-            var cen = UserConsole.GetPoint(new UserDirective("Select center, [ttr], or [3]-point", "ttr", "3"));
+            var cen = InputService.GetPoint(new UserDirective("Select center, [ttr], or [3]-point", "ttr", "3"));
             if (cen.Cancel) return false;
             if (cen.HasValue)
             {
@@ -39,7 +39,7 @@ namespace BCad.Commands
                 {
                     if (getRadius)
                     {
-                        var rad = UserConsole.GetPoint(new UserDirective("Enter radius or [d]iameter", "d"), (p) =>
+                        var rad = InputService.GetPoint(new UserDirective("Enter radius or [d]iameter", "d"), (p) =>
                         {
                             return new IPrimitive[]
                             {
@@ -64,7 +64,7 @@ namespace BCad.Commands
                     }
                     else // get diameter
                     {
-                        var diameter = UserConsole.GetPoint(new UserDirective("Enter diameter or [r]adius", "r"), (p) =>
+                        var diameter = InputService.GetPoint(new UserDirective("Enter diameter or [r]adius", "r"), (p) =>
                         {
                             return new IPrimitive[]
                             {
