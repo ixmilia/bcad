@@ -94,8 +94,14 @@ namespace BCad.UI.Views
         {
             UserConsole.RubberBandGeneratorChanged += UserConsole_RubberBandGeneratorChanged;
             View.ViewPortChanged += TransformationMatrixChanged;
+            Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.DocumentChanging += DocumentChanging;
             Workspace.DocumentChanged += DocumentChanged;
+        }
+
+        void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        {
+            this.Dispatcher.BeginInvoke((Action)(() => this.snap.Children.Clear()));
         }
 
         void UserConsole_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
