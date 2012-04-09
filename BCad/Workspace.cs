@@ -108,12 +108,7 @@ namespace BCad
         public bool ExecuteCommand(string commandName, params object[] args)
         {
             Debug.Assert(commandName != null, "Null command not supported");
-            var commands = from c in Commands
-                           let data = c.Metadata
-                           where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                              || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
-                           select c.Value;
-            var command = commands.SingleOrDefault();
+            var command = GetCommand(commandName);
             if (command == null)
             {
                 InputService.WriteLine("Command {0} not found", commandName);
@@ -130,11 +125,7 @@ namespace BCad
 
         public bool ExecuteCommand(Key key, ModifierKeys modifier)
         {
-            var commands = from c in Commands
-                           let data = c.Metadata
-                           where data.Key == key && data.Modifier == modifier
-                           select c.Value;
-            var command = commands.SingleOrDefault();
+            var command = GetCommand(key, modifier);
             if (command == null)
             {
                 InputService.WriteLine("Command shortcut not found matching {0} {1}", key, modifier);
@@ -151,19 +142,31 @@ namespace BCad
 
         public bool CommandExists(string commandName)
         {
-            return (from c in Commands
-                    let data = c.Metadata
-                    where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                       || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
-                    select c).Any();
+            return GetCommand(commandName) != null;
         }
 
         public bool CommandExists(Key key, ModifierKeys modifier)
         {
-            return (from c in Commands
-                    let data = c.Metadata
-                    where data.Key == key && data.Modifier == modifier
-                    select c).Any();
+            return GetCommand(key, modifier) != null;
+        }
+
+        private BCad.Commands.ICommand GetCommand(string commandName)
+        {
+            var command = (from c in Commands
+                           let data = c.Metadata
+                           where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                              || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
+                           select c).SingleOrDefault();
+            return command == null ? null : command.Value;
+        }
+
+        private BCad.Commands.ICommand GetCommand(Key key, ModifierKeys modifier)
+        {
+            var command = (from c in Commands
+                           let data = c.Metadata
+                           where data.Key == key && data.Modifier == modifier
+                           select c).SingleOrDefault();
+            return command == null ? null : command.Value;
         }
 
         public event CommandExecutingEventHandler CommandExecuting;
