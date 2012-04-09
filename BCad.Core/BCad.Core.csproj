@@ -49,6 +49,7 @@
     <Compile Include="Color.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
     <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\ICommandMetadata.cs" />
     <Compile Include="DialogFactory.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="EventArguments\AbstractLayerEventArgs.cs" />
@@ -78,7 +79,6 @@
     <Compile Include="FileHandlers\ExportFileWriterAttribute.cs" />
     <Compile Include="FileHandlers\IFileReader.cs" />
     <Compile Include="FileHandlers\IFileWriter.cs" />
-    <Compile Include="ICommandManager.cs" />
     <Compile Include="DocumentEventDelegates.cs" />
     <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IControlFactory.cs" />

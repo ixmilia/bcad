@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.Composition;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Redo", "redo", "re")]
+    [ExportCommand("Edit.Redo", ModifierKeys.Control, Key.Y, "redo", "re")]
     internal class RedoCommandCommand : ICommand
     {
         [Import]

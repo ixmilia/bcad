@@ -17,6 +17,8 @@ namespace BCad
 
         public string ConsoleControlId { get; set; }
 
+        public bool OrthoganalLines { get; set; }
+
         public SettingsManager()
         {
             LoadDefaults();
@@ -48,6 +50,7 @@ namespace BCad
             LayerDialogId = "Default";
             ViewControlId = "Default";
             ConsoleControlId = "Default";
+            OrthoganalLines = false;
         }
     }
 }

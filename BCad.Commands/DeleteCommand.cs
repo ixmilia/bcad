@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
+using System.Windows.Input;
 using BCad.Objects;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Object.Delete", "delete", "d", "del")]
+    [ExportCommand("Object.Delete", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
     internal class DeleteCommand : ICommand
     {
         [Import]

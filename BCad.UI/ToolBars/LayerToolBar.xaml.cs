@@ -74,7 +74,7 @@ namespace BCad.UI.ToolBars
 
         private void Layers_Click(object sender, RoutedEventArgs e)
         {
-            Workspace.ExecuteCommand("Edit.Layers");
+            Workspace.ExecuteCommandAsync("Edit.Layers");
         }
     }
 }

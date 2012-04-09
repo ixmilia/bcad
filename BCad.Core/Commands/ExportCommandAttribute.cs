@@ -1,22 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
+    [MetadataAttribute]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ExportCommandAttribute : ExportAttribute
     {
-        public string Name { get; private set; }
-
-        public IEnumerable<string> CommandAliases { get; private set; }
-
         public ExportCommandAttribute(string name, params string[] aliases)
+            : this(name, ModifierKeys.None, Key.None, aliases)
+        {
+        }
+
+        public ExportCommandAttribute(string name, ModifierKeys modifier, Key key, params string[] aliases)
             : base(typeof(ICommand))
         {
-            Name = name;
-            CommandAliases = aliases ?? new string[0];
+            this.Name = name;
+            this.Modifier = modifier;
+            this.Key = key;
+            this.CommandAliases = aliases ?? new string[0];
         }
+
+        public string Name { get; set; }
+
+        public IEnumerable<string> CommandAliases { get; set; }
+
+        public ModifierKeys Modifier { get; set; }
+
+        public Key Key { get; set; }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.Composition;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Undo", "undo", "u")]
+    [ExportCommand("Edit.Undo", ModifierKeys.Control, Key.Z, "undo", "u")]
     internal class UndoCommandCommand : ICommand
     {
         [Import]

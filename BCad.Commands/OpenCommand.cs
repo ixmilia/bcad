@@ -10,10 +10,11 @@ using BCad.FileHandlers;
 using BCad.Objects;
 using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Open", "open", "o")]
+    [ExportCommand("File.Open", ModifierKeys.Control, Key.O, "open", "o")]
     internal class OpenCommand : ICommand
     {
         [Import]

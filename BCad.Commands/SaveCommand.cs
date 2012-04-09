@@ -1,19 +1,17 @@
 ﻿using System.ComponentModel.Composition;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Save", "save", "s")]
+    [ExportCommand("File.Save", ModifierKeys.Control, Key.S, "save", "s")]
     internal class SaveCommand : ICommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        [Import]
-        public ICommandManager CommandManager { get; set; }
-
         public bool Execute(params object[] param)
         {
-            return CommandManager.ExecuteCommand("File.SaveAs", Workspace.Document.FileName);
+            return Workspace.ExecuteCommand("File.SaveAs", Workspace.Document.FileName);
         }
 
         public string DisplayName

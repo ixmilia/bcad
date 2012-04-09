@@ -3,4 +3,5 @@
   <LayerDialogId>Default</LayerDialogId>
   <ViewControlId>Default</ViewControlId>
   <ConsoleControlId>Default</ConsoleControlId>
+  <Ortho>false</Ortho>
 </SettingsManager>

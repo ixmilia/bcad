@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BCad.EventArguments;
+using System.Windows.Input;
 
 namespace BCad
 {
@@ -32,7 +33,12 @@ namespace BCad
 
         ISettingsManager SettingsManager { get; }
         void LoadSettings(string path);
-        void ExecuteCommand(string commandName, params object[] parameters);
+        bool ExecuteCommand(string commandName, params object[] parameters);
+        void ExecuteCommandAsync(string commandName, params object[] parameters);
+        bool ExecuteCommand(Key key, ModifierKeys modifier);
+        void ExecuteCommandAsync(Key key, ModifierKeys modifier);
+        bool CommandExists(string commandName);
+        bool CommandExists(Key key, ModifierKeys modifier);
         
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;

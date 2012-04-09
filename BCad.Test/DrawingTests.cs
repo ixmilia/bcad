@@ -12,7 +12,7 @@ namespace BCad.Test
 
         private void ExecuteAndPush(string commandName, params object[] args)
         {
-            Workspace.ExecuteCommand(commandName);
+            Workspace.ExecuteCommandAsync(commandName);
             foreach (var arg in args)
                 InputService.PushValue(arg);
             Assert.Equal(InputType.Command, InputService.DesiredInputType);

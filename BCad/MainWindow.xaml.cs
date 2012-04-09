@@ -48,6 +48,8 @@ namespace BCad
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
             Workspace.DocumentChanged += Workspace_DocumentChanged;
+
+            // TODO: add command bindings tied to keyboard shortcuts
         }
 
         private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
@@ -109,6 +111,20 @@ namespace BCad
                 e.Cancel = true;
                 return;
             }
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            var modifier = ModifierKeys.None;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                modifier |= ModifierKeys.Control;
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                modifier |= ModifierKeys.Shift;
+            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+                modifier |= ModifierKeys.Alt;
+
+            if (Workspace.CommandExists(e.Key, modifier))
+                Workspace.ExecuteCommandAsync(e.Key, modifier);
         }
     }
 

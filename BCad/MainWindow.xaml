@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="BCad" Height="600" Width="800"
         FocusManager.FocusedElement="{Binding ElementName=inputPanel}"
+        KeyDown="Window_KeyDown"
         Loaded="MainWindowLoaded" Closing="Window_Closing">
     <Window.Resources>
         <DataTemplate x:Key="LayerTemplate">
@@ -30,6 +31,6 @@
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0" Name="toolbarTray" />
         <UserControl Grid.Row="1" Name="viewPanel" />
-        <UserControl Grid.Row="2" Name="inputPanel" Height="100" />
+        <UserControl Grid.Row="2" Name="inputPanel" />
     </Grid>
 </Window>

@@ -8,6 +8,9 @@ using System.Threading;
 using System.Windows;
 using System.Xml.Serialization;
 using BCad.EventArguments;
+using BCad.Commands;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace BCad
 {
@@ -77,8 +80,8 @@ namespace BCad
         [Import]
         private IInputService InputService = null;
 
-        [Import]
-        private ICommandManager CommandManager = null;
+        [ImportMany]
+        private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
         public ISettingsManager SettingsManager { get; private set; }
 
@@ -93,24 +96,74 @@ namespace BCad
             this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
         }
 
-        public void ExecuteCommand(string commandName, params object[] args)
+        private bool Execute(BCad.Commands.ICommand command, params object[] args)
+        {
+            OnCommandExecuting(new CommandExecutingEventArgs(command));
+            InputService.WriteLine(command.DisplayName);
+            bool result = command.Execute(args);
+            OnCommandExecuted(new CommandExecutedEventArgs(command));
+            return result;
+        }
+
+        public bool ExecuteCommand(string commandName, params object[] args)
         {
             Debug.Assert(commandName != null, "Null command not supported");
-            ThreadPool.QueueUserWorkItem((_) =>
-                {
-                    var command = CommandManager.GetCommand(commandName);
-                    if (command == null)
-                    {
-                        InputService.WriteLine("Command {0} not found", commandName);
-                    }
-                    else
-                    {
-                        InputService.WriteLine(command.DisplayName);
-                        OnCommandExecuting(new CommandExecutingEventArgs(command));
-                        command.Execute();
-                        OnCommandExecuted(new CommandExecutedEventArgs(command));
-                    }
-                });
+            var commands = from c in Commands
+                           let data = c.Metadata
+                           where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                              || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
+                           select c.Value;
+            var command = commands.SingleOrDefault();
+            if (command == null)
+            {
+                InputService.WriteLine("Command {0} not found", commandName);
+                return false;
+            }
+
+            return Execute(command);
+        }
+
+        public void ExecuteCommandAsync(string commandName, params object[] args)
+        {
+            ThreadPool.QueueUserWorkItem(_ => ExecuteCommand(commandName, args));
+        }
+
+        public bool ExecuteCommand(Key key, ModifierKeys modifier)
+        {
+            var commands = from c in Commands
+                           let data = c.Metadata
+                           where data.Key == key && data.Modifier == modifier
+                           select c.Value;
+            var command = commands.SingleOrDefault();
+            if (command == null)
+            {
+                InputService.WriteLine("Command shortcut not found matching {0} {1}", key, modifier);
+                return false;
+            }
+
+            return Execute(command);
+        }
+
+        public void ExecuteCommandAsync(Key key, ModifierKeys modifier)
+        {
+            ThreadPool.QueueUserWorkItem(_ => ExecuteCommand(key, modifier));
+        }
+
+        public bool CommandExists(string commandName)
+        {
+            return (from c in Commands
+                    let data = c.Metadata
+                    where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                       || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
+                    select c).Any();
+        }
+
+        public bool CommandExists(Key key, ModifierKeys modifier)
+        {
+            return (from c in Commands
+                    let data = c.Metadata
+                    where data.Key == key && data.Modifier == modifier
+                    select c).Any();
         }
 
         public event CommandExecutingEventHandler CommandExecuting;
@@ -173,7 +226,7 @@ namespace BCad
                 switch (dialog)
                 {
                     case MessageBoxResult.Yes:
-                        if (CommandManager.ExecuteCommand("File.Save", Document.FileName))
+                        if (ExecuteCommand("File.Save", Document.FileName))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;
