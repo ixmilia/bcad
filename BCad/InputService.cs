@@ -175,10 +175,10 @@ namespace BCad
                 if (DesiredInputType == InputType.Command)
                 {
                     if (value == null && lastCommand != null)
-                        Workspace.ExecuteCommandAsync(lastCommand);
+                        Workspace.ExecuteCommand(lastCommand);
                     else if (value is string)
                     {
-                        Workspace.ExecuteCommandAsync((string)value);
+                        Workspace.ExecuteCommand((string)value);
                         lastCommand = (string)value;
                     }
                     OnValueReceived(new ValueReceivedEventArgs(lastCommand, InputType.Command));

@@ -33,12 +33,10 @@ namespace BCad
 
         ISettingsManager SettingsManager { get; }
         void LoadSettings(string path);
-        bool ExecuteCommand(string commandName, params object[] parameters);
-        void ExecuteCommandAsync(string commandName, params object[] parameters);
-        bool ExecuteCommand(Key key, ModifierKeys modifier);
-        void ExecuteCommandAsync(Key key, ModifierKeys modifier);
+        bool ExecuteCommandSynchronous(string commandName, params object[] parameters);
+        void ExecuteCommand(string commandName, params object[] parameters);
         bool CommandExists(string commandName);
-        bool CommandExists(Key key, ModifierKeys modifier);
+        bool CanExecute();
         
         event DocumentChangingEventHandler DocumentChanging;
         event DocumentChangedEventHandler DocumentChanged;

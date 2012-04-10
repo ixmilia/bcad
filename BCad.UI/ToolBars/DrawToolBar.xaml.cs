@@ -37,7 +37,7 @@ namespace BCad.UI.ToolBars
                 var command = button.Tag as string;
                 if (command != null)
                 {
-                    Workspace.ExecuteCommandAsync(command);
+                    Workspace.ExecuteCommand(command);
                 }
             }
         }

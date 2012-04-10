@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using BCad.Commands;
 using BCad.EventArguments;
 using BCad.UI;
 
@@ -42,6 +43,9 @@ namespace BCad
         [ImportMany]
         private IEnumerable<Lazy<ConsoleControl, IConsoleMetadata>> Consoles = null;
 
+        [ImportMany]
+        private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
+
         public void OnImportsSatisfied()
         {
             Workspace.LoadSettings("BCad.configxml");
@@ -49,7 +53,13 @@ namespace BCad
             Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
             Workspace.DocumentChanged += Workspace_DocumentChanged;
 
-            // TODO: add command bindings tied to keyboard shortcuts
+            // add command bindings tied to keyboard shortcuts
+            foreach (var command in Commands.Select(c => c.Metadata))
+            {
+                this.InputBindings.Add(new InputBinding(
+                    new UserCommand(this.Workspace, command.Name),
+                    new KeyGesture(command.Key, command.Modifier)));
+            }
         }
 
         private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
@@ -111,20 +121,6 @@ namespace BCad
                 e.Cancel = true;
                 return;
             }
-        }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            var modifier = ModifierKeys.None;
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-                modifier |= ModifierKeys.Control;
-            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-                modifier |= ModifierKeys.Shift;
-            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
-                modifier |= ModifierKeys.Alt;
-
-            if (Workspace.CommandExists(e.Key, modifier))
-                Workspace.ExecuteCommandAsync(e.Key, modifier);
         }
     }
 

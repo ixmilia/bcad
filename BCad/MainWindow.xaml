@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="BCad" Height="600" Width="800"
         FocusManager.FocusedElement="{Binding ElementName=inputPanel}"
-        KeyDown="Window_KeyDown"
         Loaded="MainWindowLoaded" Closing="Window_Closing">
     <Window.Resources>
         <DataTemplate x:Key="LayerTemplate">

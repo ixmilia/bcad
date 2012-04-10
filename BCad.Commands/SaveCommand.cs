@@ -11,7 +11,7 @@ namespace BCad.Commands
 
         public bool Execute(params object[] param)
         {
-            return Workspace.ExecuteCommand("File.SaveAs", Workspace.Document.FileName);
+            return Workspace.ExecuteCommandSynchronous("File.SaveAs", Workspace.Document.FileName);
         }
 
         public string DisplayName

@@ -66,6 +66,7 @@
     <Compile Include="SettingsManager.cs" />
     <Compile Include="UndoRedoService.cs" />
     <Compile Include="InputService.cs" />
+    <Compile Include="UserCommand.cs" />
     <Compile Include="Workspace.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

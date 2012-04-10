@@ -85,6 +85,10 @@ namespace BCad
 
         public ISettingsManager SettingsManager { get; private set; }
 
+        private bool isExecuting = false;
+
+        private object executeGate = new object();
+
         public Workspace()
         {
         }
@@ -105,9 +109,16 @@ namespace BCad
             return result;
         }
 
-        public bool ExecuteCommand(string commandName, params object[] args)
+        public bool ExecuteCommandSynchronous(string commandName, params object[] args)
         {
             Debug.Assert(commandName != null, "Null command not supported");
+            lock (executeGate)
+            {
+                if (isExecuting)
+                    return false;
+                isExecuting = true;
+            }
+
             var command = GetCommand(commandName);
             if (command == null)
             {
@@ -115,39 +126,23 @@ namespace BCad
                 return false;
             }
 
-            return Execute(command);
-        }
-
-        public void ExecuteCommandAsync(string commandName, params object[] args)
-        {
-            ThreadPool.QueueUserWorkItem(_ => ExecuteCommand(commandName, args));
-        }
-
-        public bool ExecuteCommand(Key key, ModifierKeys modifier)
-        {
-            var command = GetCommand(key, modifier);
-            if (command == null)
+            var result = Execute(command);
+            lock (executeGate)
             {
-                InputService.WriteLine("Command shortcut not found matching {0} {1}", key, modifier);
-                return false;
+                isExecuting = false;
             }
 
-            return Execute(command);
+            return result;
         }
 
-        public void ExecuteCommandAsync(Key key, ModifierKeys modifier)
+        public void ExecuteCommand(string commandName, params object[] args)
         {
-            ThreadPool.QueueUserWorkItem(_ => ExecuteCommand(key, modifier));
+            ThreadPool.QueueUserWorkItem(_ => ExecuteCommandSynchronous(commandName, args));
         }
 
         public bool CommandExists(string commandName)
         {
             return GetCommand(commandName) != null;
-        }
-
-        public bool CommandExists(Key key, ModifierKeys modifier)
-        {
-            return GetCommand(key, modifier) != null;
         }
 
         private BCad.Commands.ICommand GetCommand(string commandName)
@@ -160,13 +155,9 @@ namespace BCad
             return command == null ? null : command.Value;
         }
 
-        private BCad.Commands.ICommand GetCommand(Key key, ModifierKeys modifier)
+        public bool CanExecute()
         {
-            var command = (from c in Commands
-                           let data = c.Metadata
-                           where data.Key == key && data.Modifier == modifier
-                           select c).SingleOrDefault();
-            return command == null ? null : command.Value;
+            return !this.isExecuting;
         }
 
         public event CommandExecutingEventHandler CommandExecuting;
@@ -229,7 +220,7 @@ namespace BCad
                 switch (dialog)
                 {
                     case MessageBoxResult.Yes:
-                        if (ExecuteCommand("File.Save", Document.FileName))
+                        if (ExecuteCommandSynchronous("File.Save", Document.FileName))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;
