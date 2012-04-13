@@ -211,6 +211,7 @@ namespace BCad
                                     pushedPoint = (Point)value;
                                     valueReceived = true;
                                     OnValueReceived(new ValueReceivedEventArgs(pushedPoint));
+                                    this.LastPoint = pushedPoint;
                                 }
                                 break;
                             case InputType.Object:

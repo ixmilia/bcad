@@ -11,13 +11,58 @@ namespace BCad
     [Serializable]
     public class SettingsManager : ISettingsManager
     {
-        public string LayerDialogId { get; set; }
+        private string layerDialogId = null;
+        private string viewControlId = null;
+        private string consoleControlId = null;
+        private bool orthoganalLines = false;
 
-        public string ViewControlId { get; set; }
+        public string LayerDialogId
+        {
+            get { return this.layerDialogId; }
+            set
+            {
+                if (this.layerDialogId == value)
+                    return;
+                this.layerDialogId = value;
+                OnSettingsChanged();
+            }
+        }
 
-        public string ConsoleControlId { get; set; }
+        public string ViewControlId
+        {
+            get { return this.viewControlId; }
+            set
+            {
+                if (this.viewControlId == value)
+                    return;
+                this.viewControlId = value;
+                OnSettingsChanged();
+            }
+        }
 
-        public bool OrthoganalLines { get; set; }
+        public string ConsoleControlId
+        {
+            get { return this.consoleControlId; }
+            set
+            {
+                if (this.consoleControlId == value)
+                    return;
+                this.consoleControlId = value;
+                OnSettingsChanged();
+            }
+        }
+
+        public bool OrthoganalLines
+        {
+            get { return this.orthoganalLines; }
+            set
+            {
+                if (this.orthoganalLines == value)
+                    return;
+                this.orthoganalLines = value;
+                OnSettingsChanged();
+            }
+        }
 
         public SettingsManager()
         {

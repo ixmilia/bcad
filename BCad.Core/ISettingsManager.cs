@@ -6,10 +6,10 @@ namespace BCad
 
     public interface ISettingsManager
     {
-        string LayerDialogId { get; }
-        string ViewControlId { get; }
-        string ConsoleControlId { get; }
-        bool OrthoganalLines { get; }
+        string LayerDialogId { get; set; }
+        string ViewControlId { get; set; }
+        string ConsoleControlId { get; set; }
+        bool OrthoganalLines { get; set; }
         event SettingsChangedEventHandler SettingsChanged;
     }
 }

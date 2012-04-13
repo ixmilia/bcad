@@ -42,6 +42,11 @@ namespace BCad
             return point;
         }
 
+        public Vector ToVector()
+        {
+            return new Vector(this.X, this.Y, this.Z);
+        }
+
         public static Point Parse(string text)
         {
             var parts = text.Split(",".ToCharArray(), 3);
@@ -223,6 +228,21 @@ namespace BCad
         public override int GetHashCode()
         {
             return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns the angle in the XY plane in degrees.
+        /// </summary>
+        public double ToAngle()
+        {
+            var angle = Math.Atan2(this.Y, this.X);
+            if (double.IsNaN(angle))
+                return double.NaN;
+
+            angle = angle * 180.0 / Math.PI;
+            // if > 0, quadrant 1 or 2
+            // else quadrant 3 or 4
+            return angle > 0 ? angle : 360.0 + angle;
         }
 
         public static Vector XAxis

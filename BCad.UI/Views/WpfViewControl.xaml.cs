@@ -17,6 +17,7 @@ using Shapes = System.Windows.Shapes;
 using BCad.EventArguments;
 using BCad.Objects;
 using BCad.SnapPoints;
+using System.Threading.Tasks;
 
 namespace BCad.UI.Views
 {
@@ -135,6 +136,7 @@ namespace BCad.UI.Views
         {
             objects.Children.Clear();
             snapPoints.Clear();
+
             foreach (var layer in Workspace.Document.Layers.Values.Where(l => l.IsVisible))
             {
                 foreach (var obj in layer.Objects)
@@ -250,6 +252,7 @@ namespace BCad.UI.Views
             var cursor = e.GetPosition(this);
             var p = new Point(cursor);
             var sp = ActiveSnapPoint(cursor);
+            var op = GetOrthPoint(View.ControlToWorld(p));
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
@@ -259,6 +262,10 @@ namespace BCad.UI.Views
                             if (sp != null)
                             {
                                 InputService.PushValue(sp.WorldPoint);
+                            }
+                            else if (op != null)
+                            {
+                                InputService.PushValue(op);
                             }
                             else
                             {
@@ -309,8 +316,6 @@ namespace BCad.UI.Views
         private void DrawSnapPoints(TransformedSnapPoint snapPoint)
         {
             snap.Children.Clear();
-            if (InputService.DesiredInputType != InputType.Point)
-                return;
             if (snapPoint == null)
                 return;
             snap.Children.Add(snapPoint.Icon);
@@ -324,6 +329,35 @@ namespace BCad.UI.Views
                          orderby dist
                          select sp;
             return points.FirstOrDefault();
+        }
+
+        private Point GetOrthPoint(Point cursor)
+        {
+            var last = InputService.LastPoint;
+            if (Workspace.SettingsManager.OrthoganalLines && last != null)
+            {
+                var dist = (last - cursor).Length;
+                var x = dist;
+                var y = 15; // TODO: settings.orthoDist
+                if (y == 0)
+                    return null;
+                var actualAngle = (cursor - last).ToAngle();
+                var snapAngleRange = new Vector(dist, y, 0).ToAngle();
+                foreach (var orthoAngle in new[] { 0.0, 90.0, 180.0, 270.0 }) // TODO: settings.orthoAngles
+                {
+                    if (actualAngle >= orthoAngle - snapAngleRange && actualAngle <= orthoAngle + snapAngleRange)
+                    {
+                        // return a point `dist` away from `last` at the appropriate angle
+                        var rad = orthoAngle * Math.PI / 180.0;
+                        var vector = new Vector(Math.Cos(rad), Math.Sin(rad), 0);
+                        vector.Normalize();
+                        vector = vector * dist;
+                        return (last + vector).ToPoint();
+                    }
+                }
+            }
+
+            return null;
         }
 
         private Point lastPoint;
@@ -348,11 +382,25 @@ namespace BCad.UI.Views
                 lastPoint = p;
             }
 
-            var sp = ActiveSnapPoint(point);
-            DrawSnapPoints(sp);
-            Point wp = (sp != null) ? sp.WorldPoint : View.ControlToWorld(new Point(point));
-            //coords.Content = worldPoint.ToString();
-            DrawRubberBandObjects(wp);
+            Point wp = null;
+            if (InputService.DesiredInputType == InputType.Point)
+            {
+                var cursor = new Point(point);
+                TransformedSnapPoint sp = ActiveSnapPoint(point);
+                DrawSnapPoints(sp);
+
+                if (sp != null)
+                {
+                    wp = sp.WorldPoint;
+                }
+                else
+                {
+                    wp = View.ControlToWorld(cursor);
+                    wp = GetOrthPoint(wp) ?? wp;
+                }
+
+                DrawRubberBandObjects(wp);
+            }
         }
 
         private void canvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -392,7 +440,8 @@ namespace BCad.UI.Views
             View.UpdateView(viewWidth: View.ViewWidth * scale, bottomLeft: (botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)).ToPoint());
 
             DrawRubberBandObjects(GetModelPoint(e));
-            DrawSnapPoints(ActiveSnapPoint(cursorPoint));
+            var sp = ActiveSnapPoint(cursorPoint);
+            DrawSnapPoints(sp);
         }
 
         private Point GetModelPoint(MouseEventArgs e)
