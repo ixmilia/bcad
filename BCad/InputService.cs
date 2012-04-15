@@ -61,6 +61,8 @@ namespace BCad
 
         public Point LastPoint { get; private set; }
 
+        public bool IsDrawing { get { return this.PrimitiveGenerator != null; } }
+
         private UserDirective currentDirective = null;
 
         public ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null)

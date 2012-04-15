@@ -55,7 +55,7 @@
     <Compile Include="LayersCommand.cs" />
     <Compile Include="MoveCommand.cs" />
     <Compile Include="OpenCommand.cs" />
-    <Compile Include="OrthoCommand.cs" />
+    <Compile Include="AngleSnapCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedoCommand.cs" />
     <Compile Include="RotateCommand.cs" />

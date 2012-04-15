@@ -160,9 +160,10 @@ namespace BCad
             this.vector = new Vector3D(x, y, z);
         }
 
-        public void Normalize()
+        public Vector Normalize()
         {
             this.vector.Normalize();
+            return this;
         }
 
         public Vector Cross(Vector v)

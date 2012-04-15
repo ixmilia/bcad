@@ -54,7 +54,10 @@ namespace BCad
             Workspace.DocumentChanged += Workspace_DocumentChanged;
 
             // add command bindings tied to keyboard shortcuts
-            foreach (var command in Commands.Select(c => c.Metadata))
+            foreach (var command in from c in Commands
+                                    where c.Metadata.Key != Key.None
+                                       || c.Metadata.Modifier != ModifierKeys.None
+                                    select c.Metadata)
             {
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),

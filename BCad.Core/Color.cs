@@ -28,13 +28,13 @@ namespace BCad
             get { return this.IsAuto ? "Auto" : this.Value.ToString(); }
         }
 
-        public Drawing.Color DrawingColor
-        {
-            get
-            {
-                return Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
-            }
-        }
+        //public Drawing.Color DrawingColor
+        //{
+        //    get
+        //    {
+        //        return Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
+        //    }
+        //}
 
         public Media.Color MediaColor
         {
@@ -78,15 +78,6 @@ namespace BCad
         public static Color Default { get { return Auto; } }
 
         public static Color Auto { get { return new Color(0); } }
-        public static Color Red { get { return new Color(1); } }
-        public static Color Yellow { get { return new Color(2); } }
-        public static Color Green { get { return new Color(3); } }
-        public static Color Cyan { get { return new Color(4); } }
-        public static Color Blue { get { return new Color(5); } }
-        public static Color Magenta { get { return new Color(6); } }
-        public static Color White { get { return new Color(7); } }
-        public static Color DarkGray { get { return new Color(8); } }
-        public static Color LightGray { get { return new Color(9); } }
 
         private static int[] RgbValues = new int[256]
         {

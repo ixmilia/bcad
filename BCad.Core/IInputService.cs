@@ -45,6 +45,7 @@ namespace BCad
         void PushValue(object value);
 
         InputType DesiredInputType { get; }
+        bool IsDrawing { get; }
 
         event PromptChangedEventHandler PromptChanged;
 

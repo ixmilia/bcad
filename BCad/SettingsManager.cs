@@ -14,7 +14,11 @@ namespace BCad
         private string layerDialogId = null;
         private string viewControlId = null;
         private string consoleControlId = null;
-        private bool orthoganalLines = false;
+        private double snapPointDist = 0.0;
+        private double snapPointSize = 0.0;
+        private bool angleSnap = false;
+        private double snapAngleDist = 0.0;
+        private double[] snapAngles = null;
 
         public string LayerDialogId
         {
@@ -52,14 +56,60 @@ namespace BCad
             }
         }
 
-        public bool OrthoganalLines
+        public double SnapPointDistance
         {
-            get { return this.orthoganalLines; }
+            get { return this.snapPointDist; }
             set
             {
-                if (this.orthoganalLines == value)
+                if (this.snapPointDist == value)
                     return;
-                this.orthoganalLines = value;
+                this.snapPointDist = value;
+                OnSettingsChanged();
+            }
+        }
+
+        public double SnapPointSize
+        {
+            get { return this.snapPointSize; }
+            set
+            {
+                if (this.snapPointSize == value)
+                    return;
+                this.snapPointSize = value;
+                OnSettingsChanged();
+            }
+        }
+
+        public bool AngleSnap
+        {
+            get { return this.angleSnap; }
+            set
+            {
+                if (this.angleSnap == value)
+                    return;
+                this.angleSnap = value;
+                OnSettingsChanged();
+            }
+        }
+
+        public double SnapAngleDistance
+        {
+            get { return this.snapAngleDist; }
+            set
+            {
+                if (this.snapAngleDist == value)
+                    return;
+                this.snapAngleDist = value;
+                OnSettingsChanged();
+            }
+        }
+
+        public double[] SnapAngles
+        {
+            get { return this.snapAngles; }
+            set
+            {
+                this.snapAngles = value;
                 OnSettingsChanged();
             }
         }
@@ -95,7 +145,11 @@ namespace BCad
             LayerDialogId = "Default";
             ViewControlId = "Default";
             ConsoleControlId = "Default";
-            OrthoganalLines = false;
+            SnapPointDistance = 15.0;
+            SnapPointSize = 15.0;
+            AngleSnap = true;
+            SnapAngleDistance = 15.0;
+            SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
         }
     }
 }
