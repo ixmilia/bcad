@@ -307,7 +307,7 @@ namespace BCad.UI.Views
         private void DrawSnapPoints(TransformedSnapPoint snapPoint)
         {
             snap.Children.Clear();
-            if (snapPoint == null || snapPoint.Icon == null)
+            if (snapPoint == null || snapPoint.Icon == null || InputService.DesiredInputType != InputType.Point)
                 return;
             snap.Children.Add(snapPoint.Icon);
         }

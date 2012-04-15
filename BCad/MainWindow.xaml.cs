@@ -46,9 +46,17 @@ namespace BCad
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
+        private string ConfigFile
+        {
+            get
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BCad.config");
+            }
+        }
+
         public void OnImportsSatisfied()
         {
-            Workspace.LoadSettings("BCad.configxml");
+            Workspace.LoadSettings(ConfigFile);
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
             Workspace.DocumentChanged += Workspace_DocumentChanged;
@@ -124,6 +132,8 @@ namespace BCad
                 e.Cancel = true;
                 return;
             }
+
+            Workspace.SaveSettings(ConfigFile);
         }
     }
 

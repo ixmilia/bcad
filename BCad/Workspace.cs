@@ -95,9 +95,30 @@ namespace BCad
 
         public void LoadSettings(string path)
         {
+            if (File.Exists(path))
+            {
+                try
+                {
+                    var serializer = new XmlSerializer(typeof(SettingsManager));
+                    var stream = new FileStream(path, FileMode.Open);
+                    this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
+                }
+                catch
+                {
+                    this.SettingsManager = new SettingsManager();
+                }
+            }
+            else
+            {
+                this.SettingsManager = new SettingsManager();
+            }
+        }
+
+        public void SaveSettings(string path)
+        {
             var serializer = new XmlSerializer(typeof(SettingsManager));
-            var stream = new FileStream(path, FileMode.Open);
-            this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
+            var stream = new FileStream(path, FileMode.Create);
+            serializer.Serialize(stream, this.SettingsManager);
         }
 
         private bool Execute(BCad.Commands.ICommand command, params object[] args)
