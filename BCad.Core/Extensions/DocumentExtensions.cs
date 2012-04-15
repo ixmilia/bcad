@@ -45,5 +45,38 @@ namespace BCad
             var updatedLayer = layer.Remove(obj);
             return document.Replace(layer, updatedLayer);
         }
+
+        /// <summary>
+        /// Removes the object from the document.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="obj">The object to remove.</param>
+        /// <returns>The new document with the object removed.</returns>
+        public static Document Remove(this Document document, IObject obj)
+        {
+            var layer = document.ContainingLayer(obj);
+            if (layer != null)
+            {
+                return document.Remove(layer, obj);
+            }
+
+            return document;
+        }
+
+        /// <summary>
+        /// Returns the layer that contains the specified object.
+        /// </summary>
+        /// <param name="obj">The object to find.</param>
+        /// <returns>The containing layer.</returns>
+        public static Layer ContainingLayer(this Document document, IObject obj)
+        {
+            foreach (var layer in document.Layers.Values)
+            {
+                if (layer.ObjectExists(obj))
+                    return layer;
+            }
+
+            return null;
+        }
     }
 }
