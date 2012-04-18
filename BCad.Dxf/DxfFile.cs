@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Sections;
@@ -13,14 +14,16 @@ namespace BCad.Dxf
 
         private DxfTablesSection tablesSection = new DxfTablesSection();
         private DxfEntitiesSection entitiesSection = new DxfEntitiesSection();
+        private DxfHeaderSection headerSection = new DxfHeaderSection();
 
         public List<DxfLayer> Layers { get { return tablesSection.Layers; } }
         public List<DxfEntity> Entities { get { return entitiesSection.Entities; } }
 
-        public IEnumerable<DxfSection> Sections
+        internal IEnumerable<DxfSection> Sections
         {
             get
             {
+                yield return headerSection;
                 yield return tablesSection;
                 yield return entitiesSection;
             }
@@ -31,41 +34,39 @@ namespace BCad.Dxf
             get { return tablesSection.Tables; }
         }
 
+        public string CurrentLayer
+        {
+            get { return headerSection.CurrentLayer; }
+            set { headerSection.CurrentLayer = value; }
+        }
+
         public DxfFile()
         {
         }
 
-        public DxfFile(string filename)
+        public static DxfFile Open(string path)
         {
-            Open(filename);
+            return Open(new FileStream(path, FileMode.Open));
         }
 
-        public DxfFile(Stream stream)
+        public static DxfFile Open(Stream stream)
         {
-            Open(stream);
-        }
-
-        private void Open(string filename)
-        {
-            var reader = new DxfReader(filename);
-            FromReader(reader);
-        }
-
-        private void Open(Stream stream)
-        {
+            var file = new DxfFile();
             var reader = new DxfReader(stream);
-            FromReader(reader);
-        }
-
-        private void FromReader(DxfReader reader)
-        {
             foreach (var sec in reader.Sections)
             {
                 if (sec is DxfTablesSection)
-                    tablesSection = (DxfTablesSection)sec;
+                    file.tablesSection = (DxfTablesSection)sec;
                 else if (sec is DxfEntitiesSection)
-                    entitiesSection = (DxfEntitiesSection)sec;
+                    file.entitiesSection = (DxfEntitiesSection)sec;
             }
+
+            return file;
+        }
+
+        public static DxfFile Parse(string[] lines)
+        {
+            throw new NotImplementedException();
         }
 
         public void Save(string filename, bool asText = true)

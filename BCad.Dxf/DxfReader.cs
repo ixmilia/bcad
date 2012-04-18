@@ -9,23 +9,61 @@ namespace BCad.Dxf
 {
     internal class DxfReader
     {
+        public Stream BaseStream { get; private set; }
+
+        private bool started = false;
+        private bool readText = false;
+        private string firstLine = null;
         private StreamReader textReader = null;
         private BinaryReader binReader = null;
-        private bool isOpen = false;
-        private Stream fileStream = null;
 
-        public DxfReader(string filename)
+        public DxfReader(Stream input)
         {
-            fileStream = new FileStream(filename, FileMode.Open);
-            Open();
+            this.BaseStream = input;
+            binReader = new BinaryReader(input);
         }
 
-        public DxfReader(Stream stream)
+        private string ReadLine()
         {
-            fileStream = stream;
-            Open();
+            if (firstLine != null)
+            {
+                string result = firstLine;
+                firstLine = null;
+                return result;
+            }
+
+            return textReader.ReadLine();
         }
 
+        private void Initialize()
+        {
+            // read first line char-by-char
+            var sb = new StringBuilder();
+            char c = binReader.ReadChar();
+            while (c != '\n')
+            {
+                sb.Append(c);
+                c = binReader.ReadChar();
+            }
+
+            // if sentinel, continue with binary reader
+            var line = sb.ToString();
+            if (line.StartsWith(DxfFile.BinarySentinel))
+            {
+                readText = false;
+                firstLine = null;
+            }
+            else
+            {
+                // otherwise, first line is data
+                readText = true;
+                firstLine = line;
+                textReader = new StreamReader(this.BaseStream);
+            }
+
+            started = true;
+        }
+   
         private DxfSimpleSection NextSection()
         {
             DxfSimpleSection sec = null;
@@ -54,22 +92,21 @@ namespace BCad.Dxf
         {
             get
             {
-                if (isOpen)
+                for (var sec = NextSection(); sec != null; sec = NextSection())
                 {
-                    for (var sec = NextSection(); sec != null; sec = NextSection())
+                    var sectionType = sec.SectionName.ToDxfSection();
+                    switch (sectionType)
                     {
-                        var sectionType = sec.SectionName.ToDxfSection();
-                        switch (sectionType)
-                        {
-                            case DxfSectionType.Entities:
-                                yield return new DxfEntitiesSection(sec.ValuePairs);
-                                break;
-                            case DxfSectionType.Tables:
-                                yield return new DxfTablesSection(sec.ValuePairs);
-                                break;
-                        }
+                        case DxfSectionType.Header:
+                            yield return new DxfHeaderSection(sec.ValuePairs);
+                            break;
+                        case DxfSectionType.Entities:
+                            yield return new DxfEntitiesSection(sec.ValuePairs);
+                            break;
+                        case DxfSectionType.Tables:
+                            yield return new DxfTablesSection(sec.ValuePairs);
+                            break;
                     }
-                    Close();
                 }
             }
         }
@@ -84,106 +121,46 @@ namespace BCad.Dxf
             return pair.Code == 0 && pair.StringValue == DxfSection.EndSectionText;
         }
 
-        private void Open()
-        {
-            // check for sentinel value
-            textReader = new StreamReader(fileStream);
-            string sentinel = textReader.ReadLine();
-            if (sentinel.StartsWith(DxfFile.BinarySentinel))
-            {
-                // use binary reader
-                textReader = null;
-                fileStream.Position = 0;
-                binReader = new BinaryReader(fileStream);
-                binReader.BaseStream.Seek(23, SeekOrigin.Begin);
-            }
-            else
-            {
-                // reset and use string reader
-                fileStream.Position = 0;
-                textReader = new StreamReader(fileStream);
-            }
-            isOpen = true;
-        }
-
-        private void Close()
-        {
-            if (textReader != null)
-            {
-                textReader.Close();
-                textReader.Dispose();
-                textReader = null;
-            }
-            if (binReader != null)
-            {
-                binReader.Close();
-                binReader.Dispose();
-                binReader = null;
-            }
-        }
-
-        private bool EndOfStream
-        {
-            get
-            {
-                if (textReader != null)
-                    return textReader.EndOfStream;
-                else if (binReader != null)
-                    return binReader.BaseStream.Position >= binReader.BaseStream.Length;
-                else
-                    throw new DxfReadException("No reader available");
-            }
-        }
-
-        private void ThrowIfEof()
-        {
-            if (EndOfStream)
-                throw new DxfReadException("Unexpected end of file");
-        }
-
         private int ReadCode()
         {
-            ThrowIfEof();
             int code = 0;
-            if (textReader != null)
+            if (!started)
+                Initialize();
+
+            if (readText)
             {
-                string line = textReader.ReadLine().Trim();
-                code = int.Parse(line);
+                code = int.Parse(ReadLine().Trim());
             }
-            else if (binReader != null)
+            else
             {
                 code = binReader.ReadByte();
                 if (code == 255)
                     code = binReader.ReadInt16();
             }
-            else
-            {
-                throw new DxfReadException("No reader available");
-            }
+
             return code;
         }
 
         private object ReadValue(Type expectedType)
         {
-            ThrowIfEof();
             object value = null;
-            if (textReader != null)
+            if (readText)
             {
-                string line = textReader.ReadLine();
+                string line = ReadLine().Trim(); ;
                 if (expectedType == typeof(short))
-                    value = short.Parse(line.Trim());
+                    value = short.Parse(line);
                 else if (expectedType == typeof(double))
-                    value = double.Parse(line.Trim());
+                    value = double.Parse(line);
                 else if (expectedType == typeof(string))
-                    value = line.Trim();
+                    value = line;
                 else if (expectedType == typeof(int))
-                    value = int.Parse(line.Trim());
+                    value = int.Parse(line);
                 else if (expectedType == typeof(long))
-                    value = long.Parse(line.Trim());
+                    value = long.Parse(line);
                 else
                     throw new DxfReadException("Reading type not supported " + expectedType);
             }
-            else if (binReader != null)
+            else
             {
                 if (expectedType == typeof(short))
                     value = binReader.ReadInt16();
@@ -203,10 +180,7 @@ namespace BCad.Dxf
                 else
                     throw new DxfReadException("Reading type not supported " + expectedType);
             }
-            else
-            {
-                throw new DxfReadException("No reader available");
-            }
+
             return value;
         }
 

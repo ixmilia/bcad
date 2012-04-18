@@ -9,6 +9,7 @@ using BCad.Dxf.Entities;
 using BCad.Dxf.Tables;
 using BCad.FileHandlers;
 using BCad.Objects;
+using System.ComponentModel.Composition;
 
 namespace BCad.Commands.FileHandlers
 {
@@ -17,12 +18,14 @@ namespace BCad.Commands.FileHandlers
     internal class DxfFileHandler : IFileReader, IFileWriter
     {
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
-
         public const string FileExtension = ".dxf";
+
+        [Import]
+        private IWorkspace Workspace = null;
 
         public Document ReadFile(string fileName, Stream stream)
         {
-            var file = new DxfFile(stream);
+            var file = DxfFile.Open(stream);
             var layers = new Dictionary<string, Layer>()
             {
                 { "Default", new Layer("Default", Color.Auto) } // ensure a default layer
@@ -73,6 +76,7 @@ namespace BCad.Commands.FileHandlers
         public void WriteFile(Document document, Stream stream)
         {
             var file = new DxfFile();
+            file.CurrentLayer = Workspace.CurrentLayer.Name;
 
             foreach (var layer in document.Layers.Values)
             {
