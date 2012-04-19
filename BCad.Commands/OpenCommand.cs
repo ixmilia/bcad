@@ -62,7 +62,13 @@ namespace BCad.Commands
                 throw new Exception("Unknown file extension " + extension);
             var file = new FileStream(filename, FileMode.Open);
             UndoRedoService.ClearHistory();
-            Workspace.Document = reader.ReadFile(filename, file);
+
+            Document document;
+            Layer currentLayer;
+            reader.ReadFile(filename, file, out document, out currentLayer);
+            Workspace.Document = document;
+            Workspace.CurrentLayer = currentLayer;
+
             return true;
         }
 

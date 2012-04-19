@@ -159,8 +159,8 @@ namespace BCad.Dxf
                 expected = typeof(short);
             else if (code == 1071)
                 expected = typeof(int);
-            //else
-            //    throw new DxfReadException("Unknown type code " + code);
+            else
+                throw new DxfReadException("Unknown type code " + code);
 
             return expected;
         }

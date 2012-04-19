@@ -12,9 +12,6 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        [Import]
-        private IUndoRedoService UndoRedoService = null;
-
         public bool Execute(params object[] parameters)
         {
             var input = InputService.GetPoint(new UserDirective("From"));
@@ -30,7 +27,6 @@ namespace BCad.Commands
                 if (current.Cancel) break;
                 if (current.HasValue)
                 {
-                    UndoRedoService.SetSnapshot();
                     Workspace.AddToCurrentLayer(new Line(last, current.Value, Color.Default));
                     last = current.Value;
                     if (last == first) break; // closed
@@ -41,7 +37,6 @@ namespace BCad.Commands
                     {
                         if (last != first)
                         {
-                            UndoRedoService.SetSnapshot();
                             Workspace.AddToCurrentLayer(new Line(last, first, Color.Default));
                         }
                         break;

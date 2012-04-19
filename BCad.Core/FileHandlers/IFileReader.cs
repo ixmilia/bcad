@@ -9,6 +9,6 @@ namespace BCad.FileHandlers
 {
     public interface IFileReader
     {
-        Document ReadFile(string fileName, Stream stream);
+        void ReadFile(string fileName, Stream stream, out Document document, out Layer currentLayer);
     }
 }

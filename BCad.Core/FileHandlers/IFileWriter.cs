@@ -8,6 +8,6 @@ namespace BCad.FileHandlers
 {
     public interface IFileWriter
     {
-        void WriteFile(Document document, Stream stream);
+        void WriteFile(IWorkspace workspace, Stream stream);
     }
 }

@@ -20,10 +20,7 @@ namespace BCad.Commands.FileHandlers
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
 
-        [Import]
-        private IWorkspace Workspace = null;
-
-        public Document ReadFile(string fileName, Stream stream)
+        public void ReadFile(string fileName, Stream stream, out Document document, out Layer currentLayer)
         {
             var file = DxfFile.Open(stream);
             var layers = new Dictionary<string, Layer>()
@@ -70,13 +67,17 @@ namespace BCad.Commands.FileHandlers
                 }
             }
 
-            return new Document(Path.GetFullPath(fileName), layers);
+            document = new Document(Path.GetFullPath(fileName), layers);
+            currentLayer = !string.IsNullOrEmpty(file.CurrentLayer)
+                ? layers.First(l => l.Key == file.CurrentLayer).Value
+                : layers.First().Value;
         }
 
-        public void WriteFile(Document document, Stream stream)
+        public void WriteFile(IWorkspace workspace, Stream stream)
         {
             var file = new DxfFile();
-            file.CurrentLayer = Workspace.CurrentLayer.Name;
+            file.CurrentLayer = workspace.CurrentLayer.Name;
+            var document = workspace.Document;
 
             foreach (var layer in document.Layers.Values)
             {

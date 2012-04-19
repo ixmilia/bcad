@@ -42,7 +42,7 @@ namespace BCad.Commands
             if (writer == null) // invalid file selected
                 throw new Exception("Unknown file extension " + extension);
             var file = new FileStream(filename, FileMode.Create);
-            writer.WriteFile(Workspace.Document, file);
+            writer.WriteFile(Workspace, file);
             Workspace.Document = Workspace.Document.Update(fileName: filename, isDirty: false);
             return true;
         }

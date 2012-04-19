@@ -19,9 +19,6 @@ namespace BCad.Commands
         private IWorkspace Workspace = null;
 
         [Import]
-        private IUndoRedoService UndoRedoService = null;
-
-        [Import]
         private IView View = null;
 
         public bool Execute(params object[] parameters)
@@ -102,7 +99,6 @@ namespace BCad.Commands
                 }
             }
 
-            UndoRedoService.SetSnapshot();
             Workspace.AddToCurrentLayer(new Circle(center, radius, -View.Sight, Color.Default));
             return true;
         }

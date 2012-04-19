@@ -37,6 +37,7 @@ namespace BCad
                 var currentLayerName = CurrentLayer.Name;
 
                 // change the value and fire events
+                UndoRedoService.SetSnapshot();
                 document = value;
                 OnDocumentChanged(new DocumentChangedEventArgs(document));
 
@@ -80,6 +81,9 @@ namespace BCad
         [Import]
         private IInputService InputService = null;
 
+        [Import]
+        private IUndoRedoService UndoRedoService = null;
+
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
@@ -100,8 +104,10 @@ namespace BCad
                 try
                 {
                     var serializer = new XmlSerializer(typeof(SettingsManager));
-                    var stream = new FileStream(path, FileMode.Open);
-                    this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
+                    using (var stream = new FileStream(path, FileMode.Open))
+                    {
+                        this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
+                    }
                 }
                 catch
                 {
@@ -117,8 +123,10 @@ namespace BCad
         public void SaveSettings(string path)
         {
             var serializer = new XmlSerializer(typeof(SettingsManager));
-            var stream = new FileStream(path, FileMode.Create);
-            serializer.Serialize(stream, this.SettingsManager);
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                serializer.Serialize(stream, this.SettingsManager);
+            }
         }
 
         private bool Execute(BCad.Commands.ICommand command, params object[] args)
