@@ -19,7 +19,7 @@
                         <SolidColorBrush x:Name="unused" Color="{Binding Path=Color.MediaColor}" />
                     </Rectangle.Fill>
                 </Rectangle>
-                <TextBlock Grid.Column="2" Text="{Binding Name}" />
+                <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="5,0" />
             </Grid>
         </DataTemplate>
     </ToolBar.Resources>
