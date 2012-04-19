@@ -23,24 +23,25 @@ namespace BCad.Commands.FileHandlers
         public void ReadFile(string fileName, Stream stream, out Document document, out Layer currentLayer)
         {
             var file = DxfFile.Open(stream);
-            var layers = new Dictionary<string, Layer>()
-            {
-                { "Default", new Layer("Default", Color.Auto) } // ensure a default layer
-            };
+            var layers = new Dictionary<string, Layer>();
 
             foreach (var layer in file.Layers)
             {
-                // remap layer 0 to Default and add to the collection
-                var newName = layer.Name == "0" ? "Default" : layer.Name;
-                layers[newName] = new Layer(newName, layer.Color.ToColor());
+                layers[layer.Name] = new Layer(layer.Name, layer.Color.ToColor());
+            }
+
+            // ensure at least one layer is present
+            if (!layers.Any())
+            {
+                layers.Add("Default", new Layer("Default", Color.Auto));
             }
 
             foreach (var item in file.Entities)
             {
                 Layer layer = null;
 
-                // remap layer 0 to Default and ensure the layer exists
-                string objectLayer = (item.Layer == null || item.Layer == "0") ? "Default" : item.Layer;
+                // objects without a layer go to 'Default'
+                string objectLayer = item.Layer == null ? "Default" : item.Layer;
                 if (layers.ContainsKey(objectLayer))
                     layer = layers[objectLayer];
                 else
@@ -81,10 +82,7 @@ namespace BCad.Commands.FileHandlers
 
             foreach (var layer in document.Layers.Values)
             {
-                string layerName = layer.Name;
-                if (layerName == "Default")
-                    layerName = "0";
-                file.Layers.Add(new DxfLayer(layerName, layer.Color.ToDxfColor()));
+                file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.Objects)
                 {
                     DxfEntity entity = null;
