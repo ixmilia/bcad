@@ -33,7 +33,7 @@ namespace BCad.Commands.FileHandlers
             // ensure at least one layer is present
             if (!layers.Any())
             {
-                layers.Add("Default", new Layer("Default", Color.Auto));
+                layers.Add("0", new Layer("0", Color.Auto));
             }
 
             foreach (var item in file.Entities)
@@ -41,7 +41,7 @@ namespace BCad.Commands.FileHandlers
                 Layer layer = null;
 
                 // objects without a layer go to 'Default'
-                string objectLayer = item.Layer == null ? "Default" : item.Layer;
+                string objectLayer = item.Layer == null ? "0" : item.Layer;
                 if (layers.ContainsKey(objectLayer))
                     layer = layers[objectLayer];
                 else

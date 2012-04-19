@@ -27,7 +27,7 @@ namespace BCad
         }
 
         public Document(string fileName)
-            : this(fileName, new Dictionary<string, Layer>() { {"Default", new Layer("Default", Color.Auto) } })
+            : this(fileName, new Dictionary<string, Layer>() { {"0", new Layer("0", Color.Auto) } })
         {
         }
 

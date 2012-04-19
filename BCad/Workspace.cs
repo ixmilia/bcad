@@ -44,8 +44,8 @@ namespace BCad
                 // reset the current layer
                 if (document.Layers.ContainsKey(currentLayerName))
                     this.CurrentLayer = document.Layers[currentLayerName];
-                else if (document.Layers.ContainsKey("Default"))
-                    this.CurrentLayer = document.Layers["Default"];
+                else if (document.Layers.ContainsKey("0"))
+                    this.CurrentLayer = document.Layers["0"];
                 else
                     this.CurrentLayer = document.Layers.Values.First();
             }

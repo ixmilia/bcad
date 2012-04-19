@@ -45,7 +45,7 @@ namespace BCad.Test
             ExecuteAndPush("Draw.Line",
                 new Point(1, 1, 1),
                 new Point(2, 3, 4));
-            VerifyContains("Default", new Line(new Point(1, 1, 1), new Point(2, 3, 4), Color.Auto));
+            VerifyContains("0", new Line(new Point(1, 1, 1), new Point(2, 3, 4), Color.Auto));
         }
     }
 }
