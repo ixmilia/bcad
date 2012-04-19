@@ -4,6 +4,7 @@ using System.IO;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
+using System.Diagnostics;
 
 namespace BCad.Dxf
 {
@@ -59,6 +60,10 @@ namespace BCad.Dxf
                     file.tablesSection = (DxfTablesSection)sec;
                 else if (sec is DxfEntitiesSection)
                     file.entitiesSection = (DxfEntitiesSection)sec;
+                else if (sec is DxfHeaderSection)
+                    file.headerSection = (DxfHeaderSection)sec;
+                else
+                    Debug.Fail("Unknown section: " + sec.GetType().Name);
             }
 
             return file;
