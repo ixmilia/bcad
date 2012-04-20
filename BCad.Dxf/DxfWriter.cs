@@ -99,7 +99,7 @@ namespace BCad.Dxf
         {
             if (textWriter != null)
             {
-                textWriter.WriteLine(code);
+                textWriter.WriteLine(code.ToString().PadLeft(3));
             }
             else if (binWriter != null)
             {

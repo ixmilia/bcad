@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Windows.Input;
+using BCad.FileHandlers;
 
 namespace BCad.Commands
 {
@@ -7,11 +9,14 @@ namespace BCad.Commands
     internal class SaveCommand : ICommand
     {
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
+
+        [ImportMany]
+        private IEnumerable<IFileWriter> FileWriters = null;
 
         public bool Execute(params object[] param)
         {
-            return Workspace.ExecuteCommandSynchronous("File.SaveAs", Workspace.Document.FileName);
+            return SaveAsCommand.Execute(Workspace, FileWriters, Workspace.Document.FileName);
         }
 
         public string DisplayName

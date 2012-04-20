@@ -13,37 +13,37 @@ namespace BCad.Commands
     internal class SaveAsCommand : ICommand
     {
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         [ImportMany]
-        public IEnumerable<IFileWriter> FileWriters { get; set; }
-
-        private IFileWriter WriterFromExtension(string extension)
-        {
-            return FileWriters.FirstOrDefault(r => r.Extensions().Contains(extension));
-        }
+        private IEnumerable<IFileWriter> FileWriters = null;
 
         public bool Execute(params object[] param)
         {
-            string filename;
-            if (param.Length > 0 && param[0] is string)
-                filename = (string)param[0];
-            else
+            string fileName = null;
+            if (param.Length == 1 && param[0] is string)
+                fileName = (string)param[0];
+            return Execute(Workspace, FileWriters, fileName);
+        }
+
+        public static bool Execute(IWorkspace workspace, IEnumerable<IFileWriter> fileWriters, string fileName)
+        {
+            if (fileName == null)
             {
-                filename = GetFilenameFromUser();
-                if (filename == null)
+                fileName = GetFilenameFromUser(fileWriters);
+                if (fileName == null)
                     return false;
             }
 
-            Debug.Assert(filename != null, "Filename should not be null");
+            Debug.Assert(fileName != null, "Filename should not be null");
 
-            var extension = Path.GetExtension(filename);
-            var writer = WriterFromExtension(extension);
+            var extension = Path.GetExtension(fileName);
+            var writer = WriterFromExtension(fileWriters, extension);
             if (writer == null) // invalid file selected
                 throw new Exception("Unknown file extension " + extension);
-            var file = new FileStream(filename, FileMode.Create);
-            writer.WriteFile(Workspace, file);
-            Workspace.Document = Workspace.Document.Update(fileName: filename, isDirty: false);
+            var file = new FileStream(fileName, FileMode.Create);
+            writer.WriteFile(workspace, file);
+            workspace.Document = workspace.Document.Update(fileName: fileName, isDirty: false);
             return true;
         }
 
@@ -52,15 +52,20 @@ namespace BCad.Commands
             get { return "SAVEAS"; }
         }
 
-        private string GetFilenameFromUser()
+        private static IFileWriter WriterFromExtension(IEnumerable<IFileWriter> fileWriters, string extension)
+        {
+            return fileWriters.FirstOrDefault(r => r.Extensions().Contains(extension));
+        }
+
+        private static string GetFilenameFromUser(IEnumerable<IFileWriter> fileWriters)
         {
             var filter = string.Join("|",
-                from w in FileWriters
+                from w in fileWriters
                 let exts = string.Join(";", w.Extensions().Select(x => "*" + x))
                 select string.Format("{0}|{1}", w.DisplayName(), exts));
 
             var dialog = new SaveFileDialog();
-            dialog.DefaultExt = FileWriters.First().Extensions().First();
+            dialog.DefaultExt = fileWriters.First().Extensions().First();
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != true)
