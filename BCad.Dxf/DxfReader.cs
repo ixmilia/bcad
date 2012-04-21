@@ -25,14 +25,21 @@ namespace BCad.Dxf
 
         private string ReadLine()
         {
+            string result;
             if (firstLine != null)
             {
-                string result = firstLine;
+                result = firstLine;
                 firstLine = null;
                 return result;
             }
 
-            return textReader.ReadLine();
+            result = textReader.ReadLine();
+            if (result == null)
+            {
+                throw new DxfReadException("Unexpected end of file");
+            }
+
+            return result;
         }
 
         private void Initialize()

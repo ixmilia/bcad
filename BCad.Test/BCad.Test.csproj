@@ -45,6 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DrawingTests.cs" />
+    <Compile Include="DxfTests\AbstractDxfTests.cs" />
+    <Compile Include="DxfTests\DxfEntityTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="PointTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,6 +57,10 @@
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
       <Project>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</Project>
       <Name>BCad.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BCad.Dxf\BCad.Dxf.csproj">
+      <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
+      <Name>BCad.Dxf</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

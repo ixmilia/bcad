@@ -22,7 +22,7 @@ namespace BCad.Commands.FileHandlers
 
         public void ReadFile(string fileName, Stream stream, out Document document, out Layer currentLayer)
         {
-            var file = DxfFile.Open(stream);
+            var file = DxfFile.Load(stream);
             var layers = new Dictionary<string, Layer>();
 
             foreach (var layer in file.Layers)

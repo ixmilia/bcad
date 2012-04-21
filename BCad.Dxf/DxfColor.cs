@@ -107,5 +107,20 @@ namespace BCad.Dxf
                 return c;
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is DxfColor)
+            {
+                return this.RawValue == ((DxfColor)obj).RawValue;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.RawValue.GetHashCode();
+        }
     }
 }

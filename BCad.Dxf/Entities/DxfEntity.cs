@@ -47,9 +47,9 @@ namespace BCad.Dxf.Entities
         protected void PopulateDefaultAndCommonValues(IEnumerable<DxfCodePair> pairs)
         {
             // set defaults
-            Handle = NextHandle();
-            Layer = "0";
-            Color = DxfColor.ByLayer;
+            Handle = null;
+            Layer = null;
+            Color = DxfColor.ByBlock;
 
             // read specifics
             foreach (var pair in pairs)
@@ -71,13 +71,6 @@ namespace BCad.Dxf.Entities
                         break;
                 }
             }
-        }
-
-        private static ulong nextHandle = 0;
-
-        private static string NextHandle()
-        {
-            return (nextHandle++).ToString("X16");
         }
 
         public static DxfEntity FromCodeValuePairs(IEnumerable<DxfCodePair> pairs)

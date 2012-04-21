@@ -45,12 +45,12 @@ namespace BCad.Dxf
         {
         }
 
-        public static DxfFile Open(string path)
+        public static DxfFile Load(string path)
         {
-            return Open(new FileStream(path, FileMode.Open));
+            return Load(new FileStream(path, FileMode.Open));
         }
 
-        public static DxfFile Open(Stream stream)
+        public static DxfFile Load(Stream stream)
         {
             var file = new DxfFile();
             var reader = new DxfReader(stream);
@@ -67,11 +67,6 @@ namespace BCad.Dxf
             }
 
             return file;
-        }
-
-        public static DxfFile Parse(string[] lines)
-        {
-            throw new NotImplementedException();
         }
 
         public void Save(string filename, bool asText = true)
