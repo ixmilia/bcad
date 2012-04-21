@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using BCad.Dxf;
-using Xunit;
 using BCad.Dxf.Entities;
+using Xunit;
 
 namespace BCad.Test.DxfTests
 {
@@ -48,10 +45,10 @@ AcDbEntity
 
         #endregion
 
-        #region Default value tests
+        #region Read default value tests
 
         [Fact]
-        public void DefaultLineTest()
+        public void ReadDefaultLineTest()
         {
             var line = (DxfLine)EmptyEntity("LINE");
             Assert.Equal(0.0, line.P1.X);
@@ -63,7 +60,7 @@ AcDbEntity
         }
 
         [Fact]
-        public void DefaultCircleTest()
+        public void ReadDefaultCircleTest()
         {
             var circle = (DxfCircle)EmptyEntity("CIRCLE");
             Assert.Equal(0.0, circle.Center.X);
@@ -76,7 +73,7 @@ AcDbEntity
         }
 
         [Fact]
-        public void DefaultArcTest()
+        public void ReadDefaultArcTest()
         {
             var arc = (DxfArc)EmptyEntity("ARC");
             Assert.Equal(0.0, arc.Center.X);
@@ -92,10 +89,10 @@ AcDbEntity
 
         #endregion
 
-        #region Specific value tests
+        #region Read specific value tests
 
         [Fact]
-        public void LineTest()
+        public void ReadLineTest()
         {
             var line = (DxfLine)Entity("LINE", @"
  10
@@ -120,7 +117,7 @@ AcDbEntity
         }
 
         [Fact]
-        public void CircleTest()
+        public void ReadCircleTest()
         {
             var circle = (DxfCircle)Entity("CIRCLE", @"
  10
@@ -148,7 +145,7 @@ AcDbEntity
         }
 
         [Fact]
-        public void ArcTest()
+        public void ReadArcTest()
         {
             var arc = (DxfArc)Entity("ARC", @"
  10
