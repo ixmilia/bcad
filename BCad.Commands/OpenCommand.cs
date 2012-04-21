@@ -31,14 +31,14 @@ namespace BCad.Commands
             return FileReaders.FirstOrDefault(r => r.Extensions().Contains(extension));
         }
 
-        public bool Execute(params object[] param)
+        public bool Execute(object arg)
         {
             if (Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
                 return false;
 
             string filename = null;
-            if (param.Length > 0 && param[0] is string)
-                filename = (string)param[0];
+            if (arg is string)
+                filename = (string)arg;
             if (filename == null)
             {
                 var filter = string.Join("|",
@@ -52,7 +52,6 @@ namespace BCad.Commands
                 var result = dialog.ShowDialog();
                 if (result != true)
                     return false;
-
                 filename = dialog.FileName;
             }
 
@@ -68,7 +67,6 @@ namespace BCad.Commands
             reader.ReadFile(filename, file, out document, out currentLayer);
             Workspace.Document = document;
             Workspace.CurrentLayer = currentLayer;
-
             return true;
         }
 

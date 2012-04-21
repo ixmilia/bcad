@@ -10,7 +10,7 @@ namespace BCad.Commands
     [ExportCommand("Object.Copy", ModifierKeys.Control, Key.C, "copy", "co")]
     internal class CopyCommand : ICommand
     {
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             throw new NotImplementedException();
         }

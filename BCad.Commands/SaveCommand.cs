@@ -14,7 +14,7 @@ namespace BCad.Commands
         [ImportMany]
         private IEnumerable<IFileWriter> FileWriters = null;
 
-        public bool Execute(params object[] param)
+        public bool Execute(object arg)
         {
             return SaveAsCommand.Execute(Workspace, FileWriters, Workspace.Document.FileName);
         }

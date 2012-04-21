@@ -12,7 +12,7 @@ namespace BCad.Commands
         [Import]
         private IInputService InputService = null;
 
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             Workspace.SettingsManager.AngleSnap = !Workspace.SettingsManager.AngleSnap;
             InputService.WriteLine("Angle snap is {0}", Workspace.SettingsManager.AngleSnap ? "on" : "off");

@@ -7,7 +7,7 @@ namespace BCad.Commands
 {
     public interface ICommand
     {
-        bool Execute(params object[] parameters);
+        bool Execute(object arg = null);
         string DisplayName { get; }
     }
 }

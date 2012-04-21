@@ -21,7 +21,7 @@ namespace BCad.Commands
         [Import]
         private IView View = null;
 
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             Point center = Point.Origin;
             double radius = 0.0;

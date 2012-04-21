@@ -14,7 +14,7 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             var directive = new UserDirective("Select object");
             var objects = new List<IObject>();

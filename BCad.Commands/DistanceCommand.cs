@@ -13,7 +13,7 @@ namespace BCad.Commands
         [Import]
         private IInputService InputService = null;
 
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             var start = InputService.GetPoint(new UserDirective("Distance from"));
             if (start.Cancel) return false;
@@ -26,6 +26,7 @@ namespace BCad.Commands
             var between = end.Value - first;
             InputService.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
                 between.Length, Math.Abs(between.X), Math.Abs(between.Y), Math.Abs(between.Z));
+
             return true;
         }
 

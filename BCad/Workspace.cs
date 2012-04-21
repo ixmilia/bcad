@@ -129,16 +129,16 @@ namespace BCad
             }
         }
 
-        private bool Execute(BCad.Commands.ICommand command, params object[] args)
+        private bool Execute(BCad.Commands.ICommand command, object arg)
         {
             OnCommandExecuting(new CommandExecutingEventArgs(command));
             InputService.WriteLine(command.DisplayName);
-            bool result = command.Execute(args);
+            bool result = command.Execute(arg);
             OnCommandExecuted(new CommandExecutedEventArgs(command));
             return result;
         }
 
-        public bool ExecuteCommandSynchronous(string commandName, params object[] args)
+        public bool ExecuteCommandSynchronous(string commandName, object arg)
         {
             Debug.Assert(commandName != null, "Null command not supported");
             lock (executeGate)
@@ -155,7 +155,7 @@ namespace BCad
                 return false;
             }
 
-            var result = Execute(command);
+            bool result = Execute(command, arg);
             lock (executeGate)
             {
                 isExecuting = false;
@@ -164,9 +164,9 @@ namespace BCad
             return result;
         }
 
-        public void ExecuteCommand(string commandName, params object[] args)
+        public void ExecuteCommand(string commandName, object arg)
         {
-            ThreadPool.QueueUserWorkItem(_ => ExecuteCommandSynchronous(commandName, args));
+            ThreadPool.QueueUserWorkItem(_ => ExecuteCommandSynchronous(commandName, arg));
         }
 
         public bool CommandExists(string commandName)

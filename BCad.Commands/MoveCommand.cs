@@ -9,7 +9,7 @@ namespace BCad.Commands
     [ExportCommand("Object.Move", "move", "mov", "m")]
     internal class MoveCommand : ICommand
     {
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             throw new NotImplementedException();
         }

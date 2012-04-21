@@ -9,7 +9,7 @@ namespace BCad.Commands
     [ExportCommand("Object.Rotate", "rotate", "rot", "r")]
     internal class RotateCommand : ICommand
     {
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             throw new NotImplementedException();
         }

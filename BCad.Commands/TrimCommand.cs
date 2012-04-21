@@ -9,7 +9,7 @@ namespace BCad.Commands
     [ExportCommand("Object.Trim", "trim", "tr", "t")]
     internal class TrimCommand : ICommand
     {
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             throw new NotImplementedException();
         }

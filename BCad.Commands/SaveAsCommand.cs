@@ -18,11 +18,11 @@ namespace BCad.Commands
         [ImportMany]
         private IEnumerable<IFileWriter> FileWriters = null;
 
-        public bool Execute(params object[] param)
+        public bool Execute(object arg)
         {
-            string fileName = null;
-            if (param.Length == 1 && param[0] is string)
-                fileName = (string)param[0];
+            string fileName = (arg is string && !string.IsNullOrEmpty((string)arg))
+                ? (string)arg
+                : null;
             return Execute(Workspace, FileWriters, fileName);
         }
 

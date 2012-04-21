@@ -9,13 +9,12 @@ namespace BCad.Commands
         [Import]
         public IUndoRedoService UndoRedoService { get; set; }
 
-        public bool Execute(params object[] param)
+        public bool Execute(object arg)
         {
             if (UndoRedoService.UndoHistorySize == 0)
                 return false;
 
             UndoRedoService.Undo();
-
             return true;
         }
 

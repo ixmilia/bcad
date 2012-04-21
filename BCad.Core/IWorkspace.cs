@@ -34,8 +34,8 @@ namespace BCad
         ISettingsManager SettingsManager { get; }
         void LoadSettings(string path);
         void SaveSettings(string path);
-        bool ExecuteCommandSynchronous(string commandName, params object[] parameters);
-        void ExecuteCommand(string commandName, params object[] parameters);
+        bool ExecuteCommandSynchronous(string commandName, object arg = null);
+        void ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
         bool CanExecute();
         

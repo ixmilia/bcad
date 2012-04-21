@@ -12,7 +12,7 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             var input = InputService.GetPoint(new UserDirective("From"));
             if (input.Cancel) return false;

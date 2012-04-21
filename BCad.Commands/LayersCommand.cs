@@ -12,10 +12,10 @@ namespace BCad.Commands
         [Import]
         public IDialogFactory DialogFactory { get; set; }
 
-        public bool Execute(params object[] parameters)
+        public bool Execute(object arg)
         {
             var result = DialogFactory.ShowDialog(Workspace.SettingsManager.LayerDialogId);
-            return true;
+            return result == true;
         }
 
         public string DisplayName
