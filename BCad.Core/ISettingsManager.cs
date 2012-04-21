@@ -15,6 +15,7 @@ namespace BCad
         bool AngleSnap { get; set; }
         double SnapAngleDistance { get; set; }
         double[] SnapAngles { get; set; }
+        KeyboardShortcut AngleSnapShortcut { get; set; }
         event SettingsChangedEventHandler SettingsChanged;
     }
 }

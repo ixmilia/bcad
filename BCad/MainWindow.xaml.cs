@@ -10,6 +10,7 @@ using System.Windows.Input;
 using BCad.Commands;
 using BCad.EventArguments;
 using BCad.UI;
+using System.Diagnostics;
 
 namespace BCad
 {
@@ -50,7 +51,14 @@ namespace BCad
         {
             get
             {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BCad.config");
+                if (Debugger.IsAttached)
+                {
+                    return "BCad.config";
+                }
+                else
+                {
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BCad.config");
+                }
             }
         }
 
@@ -61,7 +69,7 @@ namespace BCad
             Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
             Workspace.DocumentChanged += Workspace_DocumentChanged;
 
-            // add command bindings tied to keyboard shortcuts
+            // add keyboard shortcuts for command bindings
             foreach (var command in from c in Commands
                                     where c.Metadata.Key != Key.None
                                        || c.Metadata.Modifier != ModifierKeys.None
@@ -70,6 +78,15 @@ namespace BCad
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),
                     new KeyGesture(command.Key, command.Modifier)));
+            }
+
+            // add keyboard shortcuts for toggled settings
+            var settings = Workspace.SettingsManager;
+            if (settings.AngleSnapShortcut.HasValue)
+            {
+                this.InputBindings.Add(new InputBinding(
+                    new ToggleSettingsCommand(InputService, settings, "AngleSnap"),
+                    new KeyGesture(settings.AngleSnapShortcut.Key, settings.AngleSnapShortcut.Modifier)));
             }
         }
 

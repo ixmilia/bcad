@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Xml.Linq;
 using BCad.EventArguments;
+using System.Windows.Input;
 
 namespace BCad
 {
@@ -19,6 +20,7 @@ namespace BCad
         private bool angleSnap = false;
         private double snapAngleDist = 0.0;
         private double[] snapAngles = null;
+        private KeyboardShortcut angleSnapShortcut = null;
 
         public string LayerDialogId
         {
@@ -114,6 +116,16 @@ namespace BCad
             }
         }
 
+        public KeyboardShortcut AngleSnapShortcut
+        {
+            get { return this.angleSnapShortcut; }
+            set
+            {
+                this.angleSnapShortcut = value;
+                OnSettingsChanged();
+            }
+        }
+
         public SettingsManager()
         {
             LoadDefaults();
@@ -150,6 +162,7 @@ namespace BCad
             AngleSnap = true;
             SnapAngleDistance = 15.0;
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
+            AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
         }
     }
 }

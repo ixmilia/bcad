@@ -23,13 +23,12 @@ namespace BCad.Test.DxfTests
 0
 SECTION
 2
-{0}
-{1}
+{0}{1}
 0
 ENDSEC
 0
 EOF
-", sectionName, data.Trim()));
+", sectionName, string.IsNullOrWhiteSpace(data) ? null : "\r\n" + data.Trim()));
         }
     }
 }

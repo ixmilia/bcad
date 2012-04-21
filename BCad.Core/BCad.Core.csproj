@@ -91,6 +91,7 @@
     <Compile Include="IView.cs" />
     <Compile Include="IViewControlMetadata.cs" />
     <Compile Include="IWorkspace.cs" />
+    <Compile Include="KeyboardShortcut.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Objects\Arc.cs" />
     <Compile Include="Objects\Circle.cs" />
