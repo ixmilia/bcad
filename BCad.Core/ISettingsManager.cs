@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using BCad.EventArguments;
+using System.ComponentModel;
 
 namespace BCad
 {
     public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
 
-    public interface ISettingsManager
+    public interface ISettingsManager : INotifyPropertyChanged
     {
         string LayerDialogId { get; set; }
         string ViewControlId { get; set; }

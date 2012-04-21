@@ -6,15 +6,11 @@ namespace BCad
     public class ToggleSettingsCommand : ICommand
     {
         private ISettingsManager settingsManager = null;
-
-        private IInputService inputService = null;
-
         private Action toggle = null;
 
-        public ToggleSettingsCommand(IInputService inputService, ISettingsManager settingsManager, string settingName)
+        public ToggleSettingsCommand(ISettingsManager settingsManager, string settingName)
         {
             this.settingsManager = settingsManager;
-            this.inputService = inputService;
             var propInfo = typeof(ISettingsManager).GetProperty(settingName, typeof(bool));
             if (propInfo == null)
                 throw new NotSupportedException("Unable to find appropriate setting");
@@ -22,7 +18,6 @@ namespace BCad
                 {
                     bool previous = (bool)propInfo.GetValue(this.settingsManager, null);
                     propInfo.SetValue(this.settingsManager, !previous, null);
-                    inputService.WriteLine("{0} is {1}", settingName, (!previous) ? "on" : "off");
                 };
         }
 

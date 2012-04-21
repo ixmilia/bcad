@@ -6,6 +6,7 @@ using System.IO;
 using System.Xml.Linq;
 using BCad.EventArguments;
 using System.Windows.Input;
+using System.ComponentModel;
 
 namespace BCad
 {
@@ -32,7 +33,7 @@ namespace BCad
                 if (this.layerDialogId == value)
                     return;
                 this.layerDialogId = value;
-                OnSettingsChanged();
+                OnPropertyChanged("LayerDialogId");
             }
         }
 
@@ -44,7 +45,7 @@ namespace BCad
                 if (this.viewControlId == value)
                     return;
                 this.viewControlId = value;
-                OnSettingsChanged();
+                OnPropertyChanged("ViewControlId");
             }
         }
 
@@ -56,7 +57,7 @@ namespace BCad
                 if (this.consoleControlId == value)
                     return;
                 this.consoleControlId = value;
-                OnSettingsChanged();
+                OnPropertyChanged("ConsoleControlId");
             }
         }
 
@@ -68,7 +69,7 @@ namespace BCad
                 if (this.snapPointDist == value)
                     return;
                 this.snapPointDist = value;
-                OnSettingsChanged();
+                OnPropertyChanged("SnapPointDistance");
             }
         }
 
@@ -80,7 +81,7 @@ namespace BCad
                 if (this.snapPointSize == value)
                     return;
                 this.snapPointSize = value;
-                OnSettingsChanged();
+                OnPropertyChanged("SnapPointSize");
             }
         }
 
@@ -92,7 +93,7 @@ namespace BCad
                 if (this.angleSnap == value)
                     return;
                 this.angleSnap = value;
-                OnSettingsChanged();
+                OnPropertyChanged("AngleSnap");
             }
         }
 
@@ -104,7 +105,7 @@ namespace BCad
                 if (this.ortho == value)
                     return;
                 this.ortho = value;
-                OnSettingsChanged();
+                OnPropertyChanged("Ortho");
             }
         }
 
@@ -116,7 +117,7 @@ namespace BCad
                 if (this.snapAngleDist == value)
                     return;
                 this.snapAngleDist = value;
-                OnSettingsChanged();
+                OnPropertyChanged("SnapAngleDistance");
             }
         }
 
@@ -126,7 +127,7 @@ namespace BCad
             set
             {
                 this.snapAngles = value;
-                OnSettingsChanged();
+                OnPropertyChanged("SnapAngles");
             }
         }
 
@@ -136,7 +137,7 @@ namespace BCad
             set
             {
                 this.angleSnapShortcut = value;
-                OnSettingsChanged();
+                OnPropertyChanged("AngleSnapShortcut");
             }
         }
 
@@ -146,7 +147,7 @@ namespace BCad
             set
             {
                 this.orthoShortcut = value;
-                OnSettingsChanged();
+                OnPropertyChanged("OrthoShortcut");
             }
         }
 
@@ -167,6 +168,15 @@ namespace BCad
         {
             if (SettingsChanged != null)
                 SettingsChanged(this, new SettingsChangedEventArgs(this));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            OnSettingsChanged();
         }
 
         //private static void SetValue(XElement xml, string elementName, ref string container)

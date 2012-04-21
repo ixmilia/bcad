@@ -11,6 +11,9 @@ using BCad.Commands;
 using BCad.EventArguments;
 using BCad.UI;
 using System.Diagnostics;
+using System.Windows.Data;
+using System.Windows.Media;
+using System.ComponentModel;
 
 namespace BCad
 {
@@ -69,6 +72,16 @@ namespace BCad
             Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
             Workspace.DocumentChanged += Workspace_DocumentChanged;
 
+            // prepare status bar bindings
+            foreach (var x in new[] { new {TextBlock = this.orthoStatus, Path = "Ortho" },
+                                      new {TextBlock = this.angleSnapStatus, Path = "AngleSnap" }})
+            {
+                var binding = new Binding(x.Path);
+                binding.Source = Workspace.SettingsManager;
+                binding.Converter = new BoolToBrushConverter();
+                x.TextBlock.SetBinding(TextBlock.ForegroundProperty, binding);
+            }
+
             // add keyboard shortcuts for command bindings
             foreach (var command in from c in Commands
                                     where c.Metadata.Key != Key.None
@@ -81,26 +94,27 @@ namespace BCad
             }
 
             // add keyboard shortcuts for toggled settings
-            var settings = Workspace.SettingsManager;
             foreach (var setting in new[] {
-                                        new { Name = "AngleSnap", Shortcut = settings.AngleSnapShortcut },
-                                        new { Name = "Ortho", Shortcut = settings.OrthoShortcut } })
+                                        new { Name = "AngleSnap", Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
+                                        new { Name = "Ortho", Shortcut = Workspace.SettingsManager.OrthoShortcut } })
             {
                 if (setting.Shortcut.HasValue)
                 {
                     this.InputBindings.Add(new InputBinding(
-                        new ToggleSettingsCommand(InputService, settings, setting.Name),
+                        new ToggleSettingsCommand(Workspace.SettingsManager, setting.Name),
                         new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
                 }
             }
 
-            // setup the status bar
-            Workspace.SettingsManager.SettingsChanged += SettingsChanged;
+            // setup settings change event echo
+            Workspace.SettingsManager.PropertyChanged += new PropertyChangedEventHandler(SettingsManager_PropertyChanged);
         }
 
-        private void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //this.angleSnapStatus.Text = e.SettingsManager.AngleSnap ? "
+            var prop = typeof(ISettingsManager).GetProperty(e.PropertyName);
+            var value = prop.GetValue(Workspace.SettingsManager, null);
+            InputService.WriteLine("{0} is {1}", e.PropertyName, value);
         }
 
         private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
@@ -164,6 +178,40 @@ namespace BCad
             }
 
             Workspace.SaveSettings(ConfigFile);
+        }
+
+        private void StatusBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var textBlock = sender as TextBlock;
+            if (textBlock == null)
+                return;
+
+            var property = textBlock.Tag as string;
+            if (property == null)
+                return;
+
+            var propInfo = typeof(ISettingsManager).GetProperty(property);
+            if (propInfo == null)
+                return;
+
+            bool value = (bool)propInfo.GetValue(Workspace.SettingsManager, null);
+            propInfo.SetValue(Workspace.SettingsManager, !value, null);
+        }
+    }
+
+    public class BoolToBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool val = (bool)value;
+
+            return val ? Brushes.Black : Brushes.LightGray;
+        }
+
+        public object ConvertBack(object value, Type targetType,
+            object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 
