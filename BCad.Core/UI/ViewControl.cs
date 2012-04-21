@@ -2,7 +2,8 @@
 
 namespace BCad.UI
 {
-    public class ViewControl : UserControl
+    public abstract class ViewControl : UserControl
     {
+        public abstract Point GetCursorPoint();
     }
 }

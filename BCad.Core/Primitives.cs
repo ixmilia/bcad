@@ -162,8 +162,9 @@ namespace BCad
 
         public Vector Normalize()
         {
-            this.vector.Normalize();
-            return this;
+            var v = new Vector3D(this.X, this.Y, this.Z);
+            v.Normalize();
+            return new Vector(v.X, v.Y, v.Z);
         }
 
         public Vector Cross(Vector v)

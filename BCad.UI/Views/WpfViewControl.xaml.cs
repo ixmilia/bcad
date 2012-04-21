@@ -64,6 +64,15 @@ namespace BCad.UI.Views
             InitializeComponent();
         }
 
+        public override Point GetCursorPoint()
+        {
+            var cursor = Mouse.GetPosition(this);
+            var sp = GetActiveSnapPoint(cursor);
+            return sp != null
+                ? sp.WorldPoint
+                : View.ControlToWorld(new Point(cursor));
+        }
+
         [Import]
         private IView View = null;
 
@@ -103,7 +112,7 @@ namespace BCad.UI.Views
 
         void UserConsole_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
         {
-            Dispatcher.BeginInvoke((Action)(() => DrawRubberBandObjects(View.GetCursorPoint())));
+            Dispatcher.BeginInvoke((Action)(() => DrawRubberBandObjects(View.RegisteredControl.GetCursorPoint())));
         }
 
         private void TransformationMatrixChanged(object sender, ViewPortChangedEventArgs e)

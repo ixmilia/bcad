@@ -40,8 +40,7 @@ namespace BCad.Objects
             yield return new CenterPoint(Center);
             
             // compute quadrants with normal
-            var norm = Normal;
-            norm.Normalize();
+            var norm = Normal.Normalize();
 
             if (norm == Vector.ZAxis)
             {
@@ -68,13 +67,10 @@ namespace BCad.Objects
             {
                 // arbitrary normal.  find a point near center, not in the direction of the normal
                 var p = (Center + Vector.XAxis).ToPoint();
-                var other = p - Center;
-                other.Normalize();
+                var other = (p - Center).Normalize();
 
-                var axis1 = other.Cross(norm);
-                axis1.Normalize();
-                var axis2 = axis1.Cross(norm);
-                axis2.Normalize();
+                var axis1 = other.Cross(norm).Normalize();
+                var axis2 = axis1.Cross(norm).Normalize();
 
                 yield return new QuadrantPoint((Center + (axis1 * Radius)).ToPoint());
                 yield return new QuadrantPoint((Center + (axis1 * -Radius)).ToPoint());

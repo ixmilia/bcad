@@ -105,16 +105,6 @@ namespace BCad
                         new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
                 }
             }
-
-            // setup settings change event echo
-            Workspace.SettingsManager.PropertyChanged += new PropertyChangedEventHandler(SettingsManager_PropertyChanged);
-        }
-
-        void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var prop = typeof(ISettingsManager).GetProperty(e.PropertyName);
-            var value = prop.GetValue(Workspace.SettingsManager, null);
-            InputService.WriteLine("{0} is {1}", e.PropertyName, value);
         }
 
         private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)

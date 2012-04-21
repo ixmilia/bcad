@@ -121,7 +121,8 @@ namespace BCad.UI.Consoles
             {
                 // length on current vector
                 var length = double.Parse(text);
-                var vec = View.GetCursorPoint() - InputService.LastPoint;
+                var cursor = View.RegisteredControl.GetCursorPoint();
+                var vec = cursor - InputService.LastPoint;
                 if (vec.LengthSquared == 0.0)
                 {
                     // if no change report the last point
@@ -129,8 +130,7 @@ namespace BCad.UI.Consoles
                 }
                 else
                 {
-                    vec.Normalize();
-                    vec *= length;
+                    vec = vec.Normalize() * length;
                     p = (InputService.LastPoint + vec).ToPoint();
                 }
             }

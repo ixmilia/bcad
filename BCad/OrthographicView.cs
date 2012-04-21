@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using BCad.EventArguments;
+using BCad.UI;
 
 namespace BCad
 {
@@ -77,19 +78,9 @@ namespace BCad
 
         private System.Windows.Point cursorPoint = new System.Windows.Point();
 
-        public Point GetCursorPoint()
-        {
-            var p = Mouse.GetPosition(registeredControl);
-            return ControlToWorld(new Point(p));
-            //lock (pointGate)
-            //{
-            //    return ControlToWorld(new Point(cursorPoint));
-            //}
-        }
+        private ViewControl registeredControl = null;
 
-        private Control registeredControl = null;
-
-        public Control RegisteredControl
+        public ViewControl RegisteredControl
         {
             get { return registeredControl; }
             set

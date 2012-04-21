@@ -25,6 +25,8 @@ namespace BCad
         private KeyboardShortcut angleSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
 
+        internal IInputService InputService { get; set; }
+
         public string LayerDialogId
         {
             get { return this.layerDialogId; }
@@ -162,21 +164,34 @@ namespace BCad
             //}
         }
 
-        public event SettingsChangedEventHandler SettingsChanged;
-
-        protected void OnSettingsChanged()
-        {
-            if (SettingsChanged != null)
-                SettingsChanged(this, new SettingsChangedEventArgs(this));
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
+            switch (propertyName)
+            {
+                case "AngleSnap":
+                case "Ortho":
+                    WriteLine("{0} is {1}", propertyName, (bool)GetValue(propertyName) ? "on" : "off");
+                    break;
+                default:
+                    break;
+            }
+
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            OnSettingsChanged();
+        }
+
+        private void WriteLine(string text, params object[] args)
+        {
+            if (InputService != null)
+                InputService.WriteLine(text, args);
+        }
+
+        private object GetValue(string propertyName)
+        {
+            var prop = this.GetType().GetProperty(propertyName);
+            return prop.GetValue(this, null);
         }
 
         //private static void SetValue(XElement xml, string elementName, ref string container)
@@ -195,7 +210,7 @@ namespace BCad
             SnapPointSize = 15.0;
             AngleSnap = true;
             Ortho = false;
-            SnapAngleDistance = 15.0;
+            SnapAngleDistance = 30.0;
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
             AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F7);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);

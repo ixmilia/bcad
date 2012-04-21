@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using BCad.EventArguments;
+using BCad.UI;
 
 namespace BCad
 {
@@ -15,8 +16,7 @@ namespace BCad
         Vector Up { get; }
         double ViewWidth { get; }
         Point BottomLeft { get; }
-        Point GetCursorPoint();
-        Control RegisteredControl { get; set; }
+        ViewControl RegisteredControl { get; set; }
         Point ControlToWorld(Point point);
         Point WorldToControl(Point point);
     }

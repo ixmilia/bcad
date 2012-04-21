@@ -4,8 +4,6 @@ using System.ComponentModel;
 
 namespace BCad
 {
-    public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
-
     public interface ISettingsManager : INotifyPropertyChanged
     {
         string LayerDialogId { get; set; }
@@ -19,6 +17,5 @@ namespace BCad
         double[] SnapAngles { get; set; }
         KeyboardShortcut AngleSnapShortcut { get; set; }
         KeyboardShortcut OrthoShortcut { get; set; }
-        event SettingsChangedEventHandler SettingsChanged;
     }
 }

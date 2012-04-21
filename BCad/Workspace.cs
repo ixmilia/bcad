@@ -106,7 +106,9 @@ namespace BCad
                     var serializer = new XmlSerializer(typeof(SettingsManager));
                     using (var stream = new FileStream(path, FileMode.Open))
                     {
-                        this.SettingsManager = (SettingsManager)serializer.Deserialize(stream);
+                        var manager = (SettingsManager)serializer.Deserialize(stream);
+                        manager.InputService = this.InputService;
+                        this.SettingsManager = manager;
                     }
                 }
                 catch

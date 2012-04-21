@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Drawing = System.Drawing;
 using Media = System.Windows.Media;
+using System.Text.RegularExpressions;
 
 namespace BCad
 {
