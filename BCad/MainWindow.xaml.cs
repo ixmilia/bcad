@@ -82,12 +82,25 @@ namespace BCad
 
             // add keyboard shortcuts for toggled settings
             var settings = Workspace.SettingsManager;
-            if (settings.AngleSnapShortcut.HasValue)
+            foreach (var setting in new[] {
+                                        new { Name = "AngleSnap", Shortcut = settings.AngleSnapShortcut },
+                                        new { Name = "Ortho", Shortcut = settings.OrthoShortcut } })
             {
-                this.InputBindings.Add(new InputBinding(
-                    new ToggleSettingsCommand(InputService, settings, "AngleSnap"),
-                    new KeyGesture(settings.AngleSnapShortcut.Key, settings.AngleSnapShortcut.Modifier)));
+                if (setting.Shortcut.HasValue)
+                {
+                    this.InputBindings.Add(new InputBinding(
+                        new ToggleSettingsCommand(InputService, settings, setting.Name),
+                        new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
+                }
             }
+
+            // setup the status bar
+            Workspace.SettingsManager.SettingsChanged += SettingsChanged;
+        }
+
+        private void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        {
+            //this.angleSnapStatus.Text = e.SettingsManager.AngleSnap ? "
         }
 
         private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)

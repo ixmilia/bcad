@@ -5,6 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Button Click="Button_Click" Tag="Draw.Line">Line</Button>
-    <Button Click="Button_Click" Tag="Draw.Circle">Circle</Button>
+    <Button Click="Button_Click" Tag="Draw.Line">
+        <Path Stroke="Black" Data="M 0,15 L 15,0" />
+    </Button>
+    <Button Click="Button_Click" Tag="Draw.Circle">
+        <Path Stroke="Black">
+            <Path.Data>
+                <EllipseGeometry Center="7.5,7.5" RadiusX="7.5" RadiusY="7.5" />
+            </Path.Data>
+        </Path>
+    </Button>
 </ToolBar>

@@ -18,9 +18,11 @@ namespace BCad
         private double snapPointDist = 0.0;
         private double snapPointSize = 0.0;
         private bool angleSnap = false;
+        private bool ortho = false;
         private double snapAngleDist = 0.0;
         private double[] snapAngles = null;
         private KeyboardShortcut angleSnapShortcut = null;
+        private KeyboardShortcut orthoShortcut = null;
 
         public string LayerDialogId
         {
@@ -94,6 +96,18 @@ namespace BCad
             }
         }
 
+        public bool Ortho
+        {
+            get { return this.ortho; }
+            set
+            {
+                if (this.ortho == value)
+                    return;
+                this.ortho = value;
+                OnSettingsChanged();
+            }
+        }
+
         public double SnapAngleDistance
         {
             get { return this.snapAngleDist; }
@@ -122,6 +136,16 @@ namespace BCad
             set
             {
                 this.angleSnapShortcut = value;
+                OnSettingsChanged();
+            }
+        }
+
+        public KeyboardShortcut OrthoShortcut
+        {
+            get { return this.orthoShortcut; }
+            set
+            {
+                this.orthoShortcut = value;
                 OnSettingsChanged();
             }
         }
@@ -160,9 +184,11 @@ namespace BCad
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
             AngleSnap = true;
+            Ortho = false;
             SnapAngleDistance = 15.0;
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
-            AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
+            AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F7);
+            OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
         }
     }
 }

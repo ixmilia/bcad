@@ -27,9 +27,15 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="100" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0" Name="toolbarTray" />
         <UserControl Grid.Row="1" Name="viewPanel" />
         <UserControl Grid.Row="2" Name="inputPanel" />
+        <StatusBar Grid.Row="3">
+            <TextBlock Name="angleSnapStatus" Text="ANGLE SNAP" IsEnabled="True" />
+            <Separator />
+            <TextBlock Name="orthoStatus" Text="ORTHO" IsEnabled="False" />
+        </StatusBar>
     </Grid>
 </Window>

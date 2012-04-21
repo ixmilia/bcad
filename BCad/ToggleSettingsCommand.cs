@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
 
 namespace BCad
@@ -18,7 +15,9 @@ namespace BCad
         {
             this.settingsManager = settingsManager;
             this.inputService = inputService;
-            var propInfo = typeof(ISettingsManager).GetProperty(settingName);
+            var propInfo = typeof(ISettingsManager).GetProperty(settingName, typeof(bool));
+            if (propInfo == null)
+                throw new NotSupportedException("Unable to find appropriate setting");
             this.toggle = () =>
                 {
                     bool previous = (bool)propInfo.GetValue(this.settingsManager, null);
