@@ -68,10 +68,8 @@ namespace BCad.UI.Views
         public override Point GetCursorPoint()
         {
             var cursor = Mouse.GetPosition(this);
-            var sp = GetActiveSnapPoint(cursor);
-            return sp != null
-                ? sp.WorldPoint
-                : View.ControlToWorld(new Point(cursor));
+            var sp = GetActiveModelPoint(cursor);
+            return sp.WorldPoint;
         }
 
         [Import]
@@ -257,7 +255,7 @@ namespace BCad.UI.Views
         {
             var cursor = e.GetPosition(this);
             var p = new Point(cursor);
-            var sp = GetActiveSnapPoint(cursor);
+            var sp = GetActiveModelPoint(cursor);
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
@@ -367,7 +365,7 @@ namespace BCad.UI.Views
             snap.Children.Add(snapPoint.Icon);
         }
 
-        private TransformedSnapPoint GetActiveSnapPoint(System.Windows.Point cursor)
+        private TransformedSnapPoint GetActiveModelPoint(System.Windows.Point cursor)
         {
             return ActiveObjectSnapPoint(cursor)
                 ?? ActiveOrthoPoint(cursor)
@@ -465,12 +463,9 @@ namespace BCad.UI.Views
 
             if (InputService.DesiredInputType == InputType.Point)
             {
-                var sp = GetActiveSnapPoint(cursor);
-                var wp = sp != null
-                    ? sp.WorldPoint
-                    : View.ControlToWorld(point);
+                var sp = GetActiveModelPoint(cursor);
                 DrawSnapPoints(sp);
-                DrawRubberBandObjects(wp);
+                DrawRubberBandObjects(sp.WorldPoint);
             }
         }
 
@@ -485,7 +480,7 @@ namespace BCad.UI.Views
                     break;
             }
 
-            DrawRubberBandObjects(GetActiveSnapPoint(e.GetPosition(this)).WorldPoint);
+            DrawRubberBandObjects(GetActiveModelPoint(e.GetPosition(this)).WorldPoint);
         }
 
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -510,7 +505,7 @@ namespace BCad.UI.Views
             // set values
             View.UpdateView(viewWidth: View.ViewWidth * scale, bottomLeft: (botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)).ToPoint());
 
-            var sp = GetActiveSnapPoint(cursorPoint);
+            var sp = GetActiveModelPoint(cursorPoint);
             DrawRubberBandObjects(sp.WorldPoint);
             DrawSnapPoints(sp);
         }
