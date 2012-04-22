@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace BCad.Dxf.Tables
 {
@@ -23,7 +24,7 @@ namespace BCad.Dxf.Tables
 
         public override IEnumerable<DxfCodePair> GetTableValuePairs()
         {
-            foreach (var l in Layers)
+            foreach (var l in Layers.OrderBy(l => l.Name))
             {
                 yield return new DxfCodePair(0, DxfLayer.LayerText);
                 foreach (var p in l.ValuePairs)

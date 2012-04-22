@@ -47,7 +47,10 @@ namespace BCad.Dxf
 
         public static DxfFile Load(string path)
         {
-            return Load(new FileStream(path, FileMode.Open));
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                return Load(stream);
+            }
         }
 
         public static DxfFile Load(Stream stream)

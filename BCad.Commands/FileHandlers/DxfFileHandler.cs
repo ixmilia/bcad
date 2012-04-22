@@ -87,11 +87,11 @@ namespace BCad.Commands.FileHandlers
                 {
                     DxfEntity entity = null;
                     if (item is Line)
-                        entity = ((Line)item).ToDxfLine();
+                        entity = ((Line)item).ToDxfLine(layer);
                     else if (item is Circle)
-                        entity = ((Circle)item).ToDxfCircle();
+                        entity = ((Circle)item).ToDxfCircle(layer);
                     else if (item is Arc)
-                        entity = ((Arc)item).ToDxfArc();
+                        entity = ((Arc)item).ToDxfArc(layer);
 
                     if (entity != null)
                         file.Entities.Add(entity);
@@ -155,29 +155,32 @@ namespace BCad.Commands.FileHandlers
             return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor());
         }
 
-        public static DxfLine ToDxfLine(this Line line)
+        public static DxfLine ToDxfLine(this Line line, Layer layer)
         {
             return new DxfLine(line.P1.ToDxfPoint(), line.P2.ToDxfPoint())
             {
                 Color = line.Color.ToDxfColor(),
+                Layer = layer.Name
             };
         }
 
-        public static DxfCircle ToDxfCircle(this Circle circle)
+        public static DxfCircle ToDxfCircle(this Circle circle, Layer layer)
         {
             return new DxfCircle(circle.Center.ToDxfPoint(), circle.Radius)
             {
                 Color = circle.Color.ToDxfColor(),
-                Normal = circle.Normal.ToDxfVector()
+                Normal = circle.Normal.ToDxfVector(),
+                Layer = layer.Name
             };
         }
 
-        public static DxfArc ToDxfArc(this Arc arc)
+        public static DxfArc ToDxfArc(this Arc arc, Layer layer)
         {
             return new DxfArc(arc.Center.ToDxfPoint(), arc.Radius, arc.StartAngle, arc.EndAngle)
             {
                 Color = arc.Color.ToDxfColor(),
-                Normal = arc.Normal.ToDxfVector()
+                Normal = arc.Normal.ToDxfVector(),
+                Layer = layer.Name
             };
         }
     }
