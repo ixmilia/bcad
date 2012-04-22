@@ -323,8 +323,8 @@ namespace BCad.UI.Views
 
         private TransformedSnapPoint GetActiveSnapPoint(System.Windows.Point cursor)
         {
-            return ActiveAngleSnapPoint(cursor)
-                ?? ActiveObjectSnapPoint(cursor);
+            return ActiveObjectSnapPoint(cursor)
+                ?? ActiveAngleSnapPoint(cursor);
         }
 
         private TransformedSnapPoint ActiveObjectSnapPoint(System.Windows.Point cursor)

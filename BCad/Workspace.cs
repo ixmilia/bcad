@@ -251,6 +251,7 @@ namespace BCad
                 switch (dialog)
                 {
                     case MessageBoxResult.Yes:
+                        // TODO: can't execute another command
                         if (ExecuteCommandSynchronous("File.Save", Document.FileName))
                             result = UnsavedChangesResult.Saved;
                         else

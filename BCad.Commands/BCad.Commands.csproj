@@ -54,6 +54,7 @@
     <Compile Include="FileHandlers\DxfFileHandler.cs" />
     <Compile Include="LayersCommand.cs" />
     <Compile Include="MoveCommand.cs" />
+    <Compile Include="NewCommand.cs" />
     <Compile Include="OpenCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedoCommand.cs" />
