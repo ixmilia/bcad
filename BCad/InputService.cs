@@ -217,13 +217,10 @@ namespace BCad
                                 }
                                 break;
                             case InputType.Object:
-                                if (value is IObject)
-                                {
-                                    lastType = PushedValueType.Object;
-                                    pushedObject = (IObject)value;
-                                    valueReceived = true;
-                                    OnValueReceived(new ValueReceivedEventArgs(pushedObject));
-                                }
+                                lastType = PushedValueType.Object;
+                                pushedObject = value as IObject;
+                                valueReceived = true;
+                                OnValueReceived(new ValueReceivedEventArgs(pushedObject));
                                 break;
                             case InputType.Text:
                                 if (value is string)

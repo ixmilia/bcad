@@ -26,6 +26,11 @@ namespace BCad.Commands
                 input = InputService.GetObject(directive);
             }
 
+            if (input.Cancel)
+            {
+                return false;
+            }
+
             var doc = Workspace.Document;
             foreach (var obj in objects)
             {

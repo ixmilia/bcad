@@ -15,6 +15,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using Shapes = System.Windows.Shapes;
 using BCad.EventArguments;
+using BCad.Extensions;
 using BCad.Objects;
 using BCad.SnapPoints;
 using System.Threading.Tasks;
@@ -274,16 +275,66 @@ namespace BCad.UI.Views
                             }
                             break;
                         case InputType.Object:
-                            var obj = (from shape in objects.Children.OfType<Shapes.Shape>()
-                                       let result = VisualTreeHelper.HitTest(shape, cursor)
-                                       where result != null
-                                       let o = shape.Tag as IObject
-                                       where o != null
-                                       select o).FirstOrDefault();
-                            if (obj != null)
+                            double selectionDist = 2;
+                            IObject foundObject = null;
+                            foreach (var shape in objects.Children.OfType<Shapes.Shape>())
                             {
-                                InputService.PushValue(obj);
+                                if (shape is Shapes.Ellipse) // circle
+                                {
+                                    // if dist between centers <= sum of radii
+                                    var circle = (Shapes.Ellipse)shape;
+                                    var separation = (circle.Center() - p).LengthSquared;
+                                    var maxAllowed = (selectionDist + circle.Radius()) * (selectionDist + circle.Radius());
+                                    if (separation <= maxAllowed)
+                                    {
+                                        if (shape.Tag as IObject != null)
+                                        {
+                                            foundObject = (IObject)shape.Tag;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Debug.Fail("Shape's tag wasn't valid IObject");
+                                        }
+                                    }
+                                }
+                                else if (shape is Shapes.Line)
+                                {
+                                    // http://mathworld.wolfram.com/Circle-LineIntersection.html
+                                    var line = (Shapes.Line)shape;
+                                    var x1 = line.X1 - p.X;
+                                    var x2 = line.X2 - p.X;
+                                    var y1 = line.Y1 - p.Y;
+                                    var y2 = line.Y2 - p.Y;
+                                    var dx = x2 - x1;
+                                    var dy = y2 - y1;
+                                    var dr2 = dx * dx + dy * dy;
+                                    var D = x1 * y2 - x2 * y1;
+                                    var det = selectionDist * selectionDist * dr2 - D * D;
+                                    if (det >= 0)
+                                    {
+                                        if (shape.Tag as IObject != null)
+                                        {
+                                            foundObject = (IObject)shape.Tag;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Debug.Fail("Shape's tag wasn't valid IObject");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.Fail("Unknown object: " + shape.GetType().Name);
+                                }
                             }
+
+                            if (foundObject != null)
+                            {
+                                InputService.PushValue(foundObject);
+                            }
+
                             break;
                     }
                     break;

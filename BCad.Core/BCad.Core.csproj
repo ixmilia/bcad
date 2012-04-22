@@ -73,6 +73,7 @@
     <Compile Include="Extensions\DocumentExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
+    <Compile Include="Extensions\ShapeExtensions.cs" />
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileReaderAttribute.cs" />
     <Compile Include="FileHandlers\ExportFileWriterAttribute.cs" />
