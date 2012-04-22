@@ -11,6 +11,7 @@ namespace BCad
         string ConsoleControlId { get; set; }
         double SnapPointDistance { get; set; }
         double SnapPointSize { get; set; }
+        double ObjectSelectionRadius { get; set; }
         bool AngleSnap { get; set; }
         bool Ortho { get; set; }
         double SnapAngleDistance { get; set; }

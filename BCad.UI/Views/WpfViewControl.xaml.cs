@@ -275,7 +275,6 @@ namespace BCad.UI.Views
                             }
                             break;
                         case InputType.Object:
-                            double selectionDist = 2;
                             IObject foundObject = null;
                             foreach (var shape in objects.Children.OfType<Shapes.Shape>())
                             {
@@ -284,7 +283,9 @@ namespace BCad.UI.Views
                                     // if dist between centers <= sum of radii
                                     var circle = (Shapes.Ellipse)shape;
                                     var separation = (circle.Center() - p).LengthSquared;
-                                    var maxAllowed = (selectionDist + circle.Radius()) * (selectionDist + circle.Radius());
+                                    var maxAllowed =
+                                        (Workspace.SettingsManager.ObjectSelectionRadius + circle.Radius()) *
+                                        (Workspace.SettingsManager.ObjectSelectionRadius + circle.Radius());
                                     if (separation <= maxAllowed)
                                     {
                                         if (shape.Tag as IObject != null)
@@ -310,7 +311,9 @@ namespace BCad.UI.Views
                                     var dy = y2 - y1;
                                     var dr2 = dx * dx + dy * dy;
                                     var D = x1 * y2 - x2 * y1;
-                                    var det = selectionDist * selectionDist * dr2 - D * D;
+                                    var det = 
+                                        (Workspace.SettingsManager.ObjectSelectionRadius * Workspace.SettingsManager.ObjectSelectionRadius * dr2) -
+                                        (D * D);
                                     if (det >= 0)
                                     {
                                         if (shape.Tag as IObject != null)
