@@ -264,15 +264,7 @@ namespace BCad.UI.Views
                     switch (InputService.DesiredInputType)
                     {
                         case InputType.Point:
-                            if (sp != null)
-                            {
-                                InputService.PushValue(sp.WorldPoint);
-                            }
-                            else
-                            {
-                                var worldPoint = View.ControlToWorld(p);
-                                InputService.PushValue(worldPoint);
-                            }
+                            InputService.PushValue(sp.WorldPoint);
                             break;
                         case InputType.Object:
                             IObject foundObject = null;
@@ -353,7 +345,7 @@ namespace BCad.UI.Views
                     break;
             }
             DrawSnapPoints(sp);
-            DrawRubberBandObjects(GetModelPoint(e));
+            DrawRubberBandObjects(sp.WorldPoint);
         }
 
         private void DrawRubberBandObjects(Point modelPoint)
@@ -378,17 +370,48 @@ namespace BCad.UI.Views
         private TransformedSnapPoint GetActiveSnapPoint(System.Windows.Point cursor)
         {
             return ActiveObjectSnapPoint(cursor)
-                ?? ActiveAngleSnapPoint(cursor);
+                ?? ActiveOrthoPoint(cursor)
+                ?? ActiveAngleSnapPoint(cursor)
+                ?? new TransformedSnapPoint(cursor, View.ControlToWorld(new Point(cursor)));
         }
 
         private TransformedSnapPoint ActiveObjectSnapPoint(System.Windows.Point cursor)
         {
-            var points = from sp in snapPoints
-                         let dist = (sp.ControlPoint - cursor).Length
-                         where dist <= Workspace.SettingsManager.SnapPointDistance
-                         orderby dist
-                         select sp;
-            return points.FirstOrDefault();
+            if (Workspace.SettingsManager.PointSnap)
+            {
+                var points = from sp in snapPoints
+                             let dist = (sp.ControlPoint - cursor).Length
+                             where dist <= Workspace.SettingsManager.SnapPointDistance
+                             orderby dist
+                             select sp;
+                return points.FirstOrDefault();
+            }
+
+            return null;
+        }
+
+        private TransformedSnapPoint ActiveOrthoPoint(System.Windows.Point cursor)
+        {
+            if (InputService.IsDrawing && Workspace.SettingsManager.Ortho)
+            {
+                var last = View.WorldToControl(InputService.LastPoint);
+                var delta = new Point(cursor) - last;
+                Point control;
+                if (Math.Abs(delta.X) > Math.Abs(delta.Y))
+                {
+                    // horizontal ortho
+                    control = (last + new Vector(delta.X, 0, 0)).ToPoint();
+                }
+                else
+                {
+                    // vertical ortho
+                    control = (last + new Vector(0, delta.Y, 0)).ToPoint();
+                }
+
+                return new TransformedSnapPoint(control.ToWindowsPoint(), View.ControlToWorld(control));
+            }
+
+            return null;
         }
 
         private TransformedSnapPoint ActiveAngleSnapPoint(System.Windows.Point cursor)
@@ -462,7 +485,7 @@ namespace BCad.UI.Views
                     break;
             }
 
-            DrawRubberBandObjects(GetModelPoint(e));
+            DrawRubberBandObjects(GetActiveSnapPoint(e.GetPosition(this)).WorldPoint);
         }
 
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -487,15 +510,9 @@ namespace BCad.UI.Views
             // set values
             View.UpdateView(viewWidth: View.ViewWidth * scale, bottomLeft: (botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)).ToPoint());
 
-            DrawRubberBandObjects(GetModelPoint(e));
             var sp = GetActiveSnapPoint(cursorPoint);
+            DrawRubberBandObjects(sp.WorldPoint);
             DrawSnapPoints(sp);
-        }
-
-        private Point GetModelPoint(MouseEventArgs e)
-        {
-            var controlPoint = e.GetPosition(this);
-            return View.ControlToWorld(new Point(controlPoint));
         }
     }
 }

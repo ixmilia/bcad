@@ -34,6 +34,11 @@
         <UserControl Grid.Row="1" Name="viewPanel" />
         <UserControl Grid.Row="2" Name="inputPanel" />
         <StatusBar Grid.Row="3">
+            <TextBlock Name="pointSnapStatus"
+                       Text="POINT SNAP"
+                       MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
+                       Tag="PointSnap" />
+            <Separator />
             <TextBlock Name="angleSnapStatus"
                        Text="ANGLE SNAP"
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"

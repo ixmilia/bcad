@@ -73,8 +73,9 @@ namespace BCad
             Workspace.DocumentChanged += Workspace_DocumentChanged;
 
             // prepare status bar bindings
-            foreach (var x in new[] { new {TextBlock = this.orthoStatus, Path = "Ortho" },
-                                      new {TextBlock = this.angleSnapStatus, Path = "AngleSnap" }})
+            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = "Ortho" },
+                                      new { TextBlock = this.pointSnapStatus, Path = "PointSnap" },
+                                      new { TextBlock = this.angleSnapStatus, Path = "AngleSnap" }})
             {
                 var binding = new Binding(x.Path);
                 binding.Source = Workspace.SettingsManager;
@@ -96,6 +97,7 @@ namespace BCad
             // add keyboard shortcuts for toggled settings
             foreach (var setting in new[] {
                                         new { Name = "AngleSnap", Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
+                                        new { Name = "PointSnap", Shortcut = Workspace.SettingsManager.PointSnapShortcut },
                                         new { Name = "Ortho", Shortcut = Workspace.SettingsManager.OrthoShortcut } })
             {
                 if (setting.Shortcut.HasValue)

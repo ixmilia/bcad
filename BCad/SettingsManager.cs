@@ -19,11 +19,13 @@ namespace BCad
         private double snapPointDist = 0.0;
         private double snapPointSize = 0.0;
         private double objectSelectionRadius = 0.0;
+        private bool pointSnap = false;
         private bool angleSnap = false;
         private bool ortho = false;
         private double snapAngleDist = 0.0;
         private double[] snapAngles = null;
         private KeyboardShortcut angleSnapShortcut = null;
+        private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
 
         internal IInputService InputService { get; set; }
@@ -100,6 +102,18 @@ namespace BCad
             }
         }
 
+        public bool PointSnap
+        {
+            get { return this.pointSnap; }
+            set
+            {
+                if (this.pointSnap == value)
+                    return;
+                this.pointSnap = value;
+                OnPropertyChanged("PointSnap");
+            }
+        }
+
         public bool AngleSnap
         {
             get { return this.angleSnap; }
@@ -153,6 +167,16 @@ namespace BCad
             {
                 this.angleSnapShortcut = value;
                 OnPropertyChanged("AngleSnapShortcut");
+            }
+        }
+
+        public KeyboardShortcut PointSnapShortcut
+        {
+            get { return this.pointSnapShortcut; }
+            set
+            {
+                this.pointSnapShortcut = value;
+                OnPropertyChanged("PointSnapShortcut");
             }
         }
 
@@ -222,11 +246,13 @@ namespace BCad
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
             ObjectSelectionRadius = 2.0;
+            PointSnap = true;
             AngleSnap = true;
             Ortho = false;
             SnapAngleDistance = 30.0;
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
             AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F7);
+            PointSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F3);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
         }
     }
