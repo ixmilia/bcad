@@ -81,6 +81,7 @@
     <Compile Include="FileHandlers\IFileReader.cs" />
     <Compile Include="FileHandlers\IFileWriter.cs" />
     <Compile Include="DocumentEventDelegates.cs" />
+    <Compile Include="Helpers\NumberHelper.cs" />
     <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IControlFactory.cs" />
     <Compile Include="IControlFactoryMetadata.cs" />

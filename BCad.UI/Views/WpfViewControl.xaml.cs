@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using Shapes = System.Windows.Shapes;
 using BCad.EventArguments;
 using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Objects;
 using BCad.SnapPoints;
 using System.Threading.Tasks;
@@ -266,6 +267,7 @@ namespace BCad.UI.Views
                             break;
                         case InputType.Object:
                             IObject foundObject = null;
+                            var selectionRadius = Workspace.SettingsManager.ObjectSelectionRadius;
                             foreach (var shape in objects.Children.OfType<Shapes.Shape>())
                             {
                                 if (shape is Shapes.Ellipse) // circle
@@ -274,8 +276,8 @@ namespace BCad.UI.Views
                                     var circle = (Shapes.Ellipse)shape;
                                     var separation = (circle.Center() - p).LengthSquared;
                                     var maxAllowed =
-                                        (Workspace.SettingsManager.ObjectSelectionRadius + circle.Radius()) *
-                                        (Workspace.SettingsManager.ObjectSelectionRadius + circle.Radius());
+                                        (selectionRadius + circle.Radius()) *
+                                        (selectionRadius + circle.Radius());
                                     if (separation <= maxAllowed)
                                     {
                                         if (shape.Tag as IObject != null)
@@ -301,10 +303,10 @@ namespace BCad.UI.Views
                                     var dy = y2 - y1;
                                     var dr2 = dx * dx + dy * dy;
                                     var D = x1 * y2 - x2 * y1;
-                                    var det = 
-                                        (Workspace.SettingsManager.ObjectSelectionRadius * Workspace.SettingsManager.ObjectSelectionRadius * dr2) -
-                                        (D * D);
-                                    if (det >= 0)
+                                    var det = (selectionRadius * selectionRadius * dr2) - (D * D);
+                                    if (det >= 0)// &&
+                                        //NumberHelper.Between(p.X, line.X1, line.X2) &&
+                                        //NumberHelper.Between(p.Y, line.Y1, line.Y2))
                                     {
                                         if (shape.Tag as IObject != null)
                                         {

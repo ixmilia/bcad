@@ -154,6 +154,7 @@ namespace BCad
             if (command == null)
             {
                 InputService.WriteLine("Command {0} not found", commandName);
+                isExecuting = false;
                 return false;
             }
 
