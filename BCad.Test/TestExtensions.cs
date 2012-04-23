@@ -25,5 +25,16 @@ namespace BCad.Test
         {
             Assert.True(layer.Objects.Any(o => o.EquivalentTo(obj)));
         }
+
+        public static IEnumerable<IObject> GetObjects(this IWorkspace workspace)
+        {
+            foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
+            {
+                foreach (var obj in layer.Objects)
+                {
+                    yield return obj;
+                }
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace BCad
 {
     public enum InputType
     {
+        None,
         Command,
         Directive,
         Point,
@@ -21,6 +22,8 @@ namespace BCad
     public delegate void PromptChangedEventHandler(object sender, PromptChangedEventArgs e);
 
     public delegate void WriteLineEventHandler(object sender, WriteLineEventArgs e);
+
+    public delegate void ValueRequestedEventHandler(object sender, ValueRequestedEventArgs e);
 
     public delegate void ValueReceivedEventHandler(object sender, ValueReceivedEventArgs e);
 
@@ -50,6 +53,8 @@ namespace BCad
         event PromptChangedEventHandler PromptChanged;
 
         event WriteLineEventHandler LineWritten;
+
+        event ValueRequestedEventHandler ValueRequested;
 
         event ValueReceivedEventHandler ValueReceived;
 

@@ -63,6 +63,11 @@ namespace BCad.EventArguments
             }
         }
 
+        public ValueReceivedEventArgs()
+        {
+            InputType = InputType.None;
+        }
+
         public ValueReceivedEventArgs(Point point)
         {
             this.point = point;

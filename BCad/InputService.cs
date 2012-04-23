@@ -67,6 +67,7 @@ namespace BCad
 
         public ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Point));
             WaitFor(InputType.Point, directive, onCursorMove);
 
             ValueOrDirective<Point> result;
@@ -93,6 +94,7 @@ namespace BCad
 
         public ValueOrDirective<IObject> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Object));
             WaitFor(InputType.Object, directive, onCursorMove);
 
             ValueOrDirective<IObject> result;
@@ -204,33 +206,36 @@ namespace BCad
                     }
                     else
                     {
-                        switch (DesiredInputType)
+                        if (value == null)
                         {
-                            case InputType.Point:
-                                if (value is Point)
-                                {
+                            lastType = PushedValueType.None;
+                            valueReceived = true;
+                            OnValueReceived(new ValueReceivedEventArgs());
+                        }
+                        else
+                        {
+                            switch (DesiredInputType)
+                            {
+                                case InputType.Point:
                                     lastType = PushedValueType.Point;
-                                    pushedPoint = (Point)value;
+                                    pushedPoint = value as Point;
                                     valueReceived = true;
                                     OnValueReceived(new ValueReceivedEventArgs(pushedPoint));
                                     this.LastPoint = pushedPoint;
-                                }
-                                break;
-                            case InputType.Object:
-                                lastType = PushedValueType.Object;
-                                pushedObject = value as IObject;
-                                valueReceived = true;
-                                OnValueReceived(new ValueReceivedEventArgs(pushedObject));
-                                break;
-                            case InputType.Text:
-                                if (value is string)
-                                {
+                                    break;
+                                case InputType.Object:
+                                    lastType = PushedValueType.Object;
+                                    pushedObject = value as IObject;
+                                    valueReceived = true;
+                                    OnValueReceived(new ValueReceivedEventArgs(pushedObject));
+                                    break;
+                                case InputType.Text:
                                     lastType = PushedValueType.Directive;
-                                    pushedText = (string)value;
+                                    pushedText = value as string;
                                     valueReceived = true;
                                     OnValueReceived(new ValueReceivedEventArgs(pushedText, InputType.Text));
-                                }
-                                break;
+                                    break;
+                            }
                         }
                     }
                 }
@@ -270,6 +275,14 @@ namespace BCad
         {
             DesiredInputType = InputType.Command;
             SetPrompt("Command");
+        }
+
+        public event ValueRequestedEventHandler ValueRequested;
+
+        protected virtual void OnValueRequested(ValueRequestedEventArgs e)
+        {
+            if (ValueRequested != null)
+                ValueRequested(this, e);
         }
 
         public event ValueReceivedEventHandler ValueReceived;

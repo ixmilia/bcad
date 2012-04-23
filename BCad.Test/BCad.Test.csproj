@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractDrawingTests.cs" />
     <Compile Include="DrawingTests.cs" />
     <Compile Include="DxfTests\AbstractDxfTests.cs" />
     <Compile Include="DxfTests\DxfEntityTests.cs" />

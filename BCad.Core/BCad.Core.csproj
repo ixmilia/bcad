@@ -68,6 +68,7 @@
     <Compile Include="EventArguments\PromptChangedEventArgs.cs" />
     <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
     <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
+    <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />
     <Compile Include="EventArguments\ViewPortChangedEventArgs.cs" />
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
     <Compile Include="Extensions\DocumentExtensions.cs" />
