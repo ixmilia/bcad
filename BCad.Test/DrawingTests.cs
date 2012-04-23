@@ -80,5 +80,32 @@ namespace BCad.Test
             AwaitingCommand();
             Assert.False(Workspace.GetObjects().Any());
         }
+
+        [Fact]
+        public void DeleteCommandTest()
+        {
+            var line = Objects.Line();
+            Workspace.AddToCurrentLayer(line);
+            VerifyLayerContains("0", line);
+            Execute("Object.Delete");
+            Push(line);
+            Push(null);
+            WaitForCompletion();
+            VerifyLayerDoesNotContain("0", line);
+        }
+
+        [Fact]
+        public void DeleteCommandCancelTest()
+        {
+            var line = Objects.Line();
+            Workspace.AddToCurrentLayer(line);
+            VerifyLayerContains("0", line);
+            Execute("Object.Delete");
+            Push(line);
+            WaitForRequest();
+            Cancel();
+            WaitForCompletion();
+            VerifyLayerContains("0", line);
+        }
     }
 }

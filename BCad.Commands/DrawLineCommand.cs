@@ -31,16 +31,17 @@ namespace BCad.Commands
                     last = current.Value;
                     if (last == first) break; // closed
                 }
+                else if (current.Directive == "c")
+                {
+                    if (last != first)
+                    {
+                        Workspace.AddToCurrentLayer(new Line(last, first, Color.Default));
+                    }
+                    break;
+                }
                 else
                 {
-                    if (current.Directive == "c")
-                    {
-                        if (last != first)
-                        {
-                            Workspace.AddToCurrentLayer(new Line(last, first, Color.Default));
-                        }
-                        break;
-                    }
+                    return true;
                 }
             }
 

@@ -88,6 +88,12 @@ namespace BCad.Test
             Assert.True(x.Objects.Any(o => o.EquivalentTo(obj)));
         }
 
+        protected void VerifyLayerDoesNotContain(string layerName, IObject obj)
+        {
+            var x = Workspace.Document.Layers[layerName];
+            Assert.False(x.Objects.Any(o => o.EquivalentTo(obj)));
+        }
+
         public void Dispose()
         {
             if (valueRequested != null)

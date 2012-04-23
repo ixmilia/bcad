@@ -336,10 +336,7 @@ namespace BCad.UI.Views
                     lastPoint = p;
                     break;
                 case MouseButton.Right:
-                    if (InputService.DesiredInputType == InputType.Command)
-                        InputService.PushValue(null);
-                    else
-                        InputService.Cancel();
+                    InputService.PushValue(null);
                     break;
             }
             DrawSnapPoints(sp);

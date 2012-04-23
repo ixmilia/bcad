@@ -74,6 +74,9 @@ namespace BCad
             switch (lastType)
             {
                 case PushedValueType.None:
+                    result = new ValueOrDirective<Point>();
+                    break;
+                case PushedValueType.Cancel:
                     result = ValueOrDirective<Point>.GetCancel();
                     break;
                 case PushedValueType.Point:
@@ -101,6 +104,9 @@ namespace BCad
             switch (lastType)
             {
                 case PushedValueType.None:
+                    result = new ValueOrDirective<IObject>();
+                    break;
+                case PushedValueType.Cancel:
                     result = ValueOrDirective<IObject>.GetCancel();
                     break;
                 case PushedValueType.Object:
@@ -147,6 +153,7 @@ namespace BCad
         private enum PushedValueType
         {
             None,
+            Cancel,
             Point,
             Object,
             Directive
@@ -165,7 +172,7 @@ namespace BCad
         {
             lock (inputGate)
             {
-                lastType = PushedValueType.None;
+                lastType = PushedValueType.Cancel;
                 DesiredInputType = InputType.Command;
                 pushValueDone.Set();
             }
