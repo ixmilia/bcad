@@ -205,14 +205,11 @@ namespace BCad
 
         protected void OnPropertyChanged(string propertyName)
         {
-            switch (propertyName)
+            // if the property is a simple boolean
+            var info = this.GetType().GetProperty(propertyName);
+            if (info != null && info.PropertyType == typeof(bool))
             {
-                case "AngleSnap":
-                case "Ortho":
-                    WriteLine("{0} is {1}", propertyName, (bool)GetValue(propertyName) ? "on" : "off");
-                    break;
-                default:
-                    break;
+                WriteLine("{0} is {1}", propertyName, (bool)GetValue(propertyName) ? "on" : "off");
             }
 
             if (PropertyChanged != null)
