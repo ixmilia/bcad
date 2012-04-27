@@ -82,13 +82,13 @@ namespace BCad.Test
             WaitForCompletion();
         }
 
-        protected void VerifyLayerContains(string layerName, IObject obj)
+        protected void VerifyLayerContains(string layerName, Entity obj)
         {
             var x = Workspace.Document.Layers[layerName];
             Assert.True(x.Objects.Any(o => o.EquivalentTo(obj)));
         }
 
-        protected void VerifyLayerDoesNotContain(string layerName, IObject obj)
+        protected void VerifyLayerDoesNotContain(string layerName, Entity obj)
         {
             var x = Workspace.Document.Layers[layerName];
             Assert.False(x.Objects.Any(o => o.EquivalentTo(obj)));

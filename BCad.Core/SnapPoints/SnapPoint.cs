@@ -11,22 +11,7 @@ namespace BCad.SnapPoints
     {
         public Point Point { get; protected set; }
 
-        public abstract GeometryDrawing Icon { get; }
-
-        private static ResourceDictionary _resources = null;
-
-        protected static ResourceDictionary Resources
-        {
-            get
-            {
-                if (_resources == null)
-                {
-                    _resources = new ResourceDictionary();
-                    _resources.Source = new Uri("/BCad.Core;component/SnapPoints/SnapPointIcons.xaml", UriKind.RelativeOrAbsolute);
-                }
-                return _resources;
-            }
-        }
+        public abstract SnapPointKind Kind { get; }
 
         public SnapPoint(Point p)
         {

@@ -17,7 +17,7 @@ namespace BCad.Commands
         public bool Execute(object arg)
         {
             var directive = new UserDirective("Select object");
-            var objects = new List<IObject>();
+            var objects = new List<Entity>();
             var input = InputService.GetObject(directive);
             while (input.HasValue)
             {

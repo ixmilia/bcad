@@ -8,9 +8,9 @@ namespace BCad.EventArguments
 {
     public class AbstractObjectEventArgs : EventArgs
     {
-        public IObject Object { get; protected set; }
+        public Entity Object { get; protected set; }
 
-        public AbstractObjectEventArgs(IObject obj)
+        public AbstractObjectEventArgs(Entity obj)
         {
             Object = obj;
         }

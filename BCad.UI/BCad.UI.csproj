@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,9 +36,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\SlimDX SDK (January 2012)\Bin\net40\x86\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -53,6 +59,16 @@
   <ItemGroup>
     <Compile Include="Consoles\InputConsole.xaml.cs">
       <DependentUpon>InputConsole.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Direct3DControl.xaml.cs">
+      <DependentUpon>Direct3DControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Direct3DViewControl.xaml.cs">
+      <DependentUpon>Direct3DViewControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\IRenderEngine.cs" />
+    <Compile Include="Views\SlimDXViewControl.xaml.cs">
+      <DependentUpon>SlimDXViewControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WpfViewControl.xaml.cs">
       <DependentUpon>WpfViewControl.xaml</DependentUpon>
@@ -79,6 +95,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ToolBars\LayerToolBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Direct3DControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Direct3DViewControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SlimDXViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

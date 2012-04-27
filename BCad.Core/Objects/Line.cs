@@ -7,7 +7,7 @@ using BCad.SnapPoints;
 
 namespace BCad.Objects
 {
-    public class Line : IObject, IPrimitive
+    public class Line : Entity, IPrimitive
     {
         private readonly Point p1;
         private readonly Point p2;
@@ -26,16 +26,21 @@ namespace BCad.Objects
             this.color = color;
         }
 
-        public IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives()
         {
             yield return this;
         }
 
-        public IEnumerable<SnapPoint> GetSnapPoints()
+        public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             yield return new EndPoint(P1);
             yield return new EndPoint(P2);
             yield return new MidPoint(((P1 + P2) / 2.0).ToPoint());
+        }
+
+        public override EntityKind Kind
+        {
+            get { return EntityKind.Line; }
         }
 
         public Line Update(Point p1 = null, Point p2 = null, Color? color = null)

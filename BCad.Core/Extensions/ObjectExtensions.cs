@@ -8,7 +8,7 @@ namespace BCad.Extensions
 {
     public static class ObjectExtensions
     {
-        public static bool EquivalentTo(this Arc arc, IObject obj)
+        public static bool EquivalentTo(this Arc arc, Entity obj)
         {
             var other = obj as Arc;
             if (other != null)
@@ -24,7 +24,7 @@ namespace BCad.Extensions
             return false;
         }
 
-        public static bool EquivalentTo(this Circle circle, IObject obj)
+        public static bool EquivalentTo(this Circle circle, Entity obj)
         {
             var other = obj as Circle;
             if (other != null)
@@ -38,7 +38,7 @@ namespace BCad.Extensions
             return false;
         }
 
-        public static bool EquivalentTo(this Line line, IObject obj)
+        public static bool EquivalentTo(this Line line, Entity obj)
         {
             var other = obj as Line;
             if (other != null)
@@ -51,7 +51,7 @@ namespace BCad.Extensions
             return false;
         }
 
-        public static bool EquivalentTo(this IObject a, IObject b)
+        public static bool EquivalentTo(this Entity a, Entity b)
         {
             if (a is Arc)
                 return ((Arc)a).EquivalentTo(b);

@@ -8,7 +8,7 @@ namespace BCad.EventArguments
 {
     public class ObjectAddedEventArgs : AbstractObjectEventArgs
     {
-        public ObjectAddedEventArgs(IObject obj)
+        public ObjectAddedEventArgs(Entity obj)
             : base(obj)
         {
         }

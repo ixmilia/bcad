@@ -8,7 +8,7 @@ namespace BCad.EventArguments
         public InputType InputType { get; private set; }
 
         private Point point;
-        private IObject obj;
+        private Entity obj;
         private string text;
         private string directive;
         private string command;
@@ -23,7 +23,7 @@ namespace BCad.EventArguments
             }
         }
 
-        public IObject Object
+        public Entity Object
         {
             get
             {
@@ -74,7 +74,7 @@ namespace BCad.EventArguments
             InputType = InputType.Point;
         }
 
-        public ValueReceivedEventArgs(IObject obj)
+        public ValueReceivedEventArgs(Entity obj)
         {
             this.obj = obj;
             InputType = InputType.Object;

@@ -7,7 +7,7 @@ using BCad.SnapPoints;
 
 namespace BCad.Objects
 {
-    public class Arc : IObject, IPrimitive
+    public class Arc : Entity, IPrimitive
     {
         private readonly Point center;
         private readonly Vector normal;
@@ -88,17 +88,22 @@ namespace BCad.Objects
             return p;
         }
 
-        public IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives()
         {
             yield return this;
         }
 
-        public IEnumerable<SnapPoint> GetSnapPoints()
+        public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             yield return new CenterPoint(Center);
             yield return new EndPoint(EndPoint1);
             yield return new EndPoint(EndPoint2);
             yield return new MidPoint(MidPoint);
+        }
+
+        public override EntityKind Kind
+        {
+            get { return EntityKind.Arc; }
         }
 
         public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Media;
-
-namespace BCad.SnapPoints
+﻿namespace BCad.SnapPoints
 {
     public class EndPoint : SnapPoint
     {
@@ -13,12 +7,9 @@ namespace BCad.SnapPoints
         {
         }
 
-        public override GeometryDrawing Icon
+        public override SnapPointKind Kind
         {
-            get
-            {
-                return (GeometryDrawing)SnapPoint.Resources["EndPointIcon"];
-            }
+            get { return SnapPointKind.EndPoint; }
         }
     }
 }

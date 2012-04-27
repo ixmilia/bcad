@@ -37,7 +37,7 @@ namespace BCad
 
         ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
 
-        ValueOrDirective<IObject> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null);
+        ValueOrDirective<Entity> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null);
 
         Point LastPoint { get; }
 

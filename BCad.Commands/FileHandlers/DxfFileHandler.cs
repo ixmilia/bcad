@@ -52,7 +52,7 @@ namespace BCad.Commands.FileHandlers
                 }
 
                 // create the object
-                IObject obj = null;
+                Entity obj = null;
                 if (item is DxfLine)
                     obj = ((DxfLine)item).ToLine();
                 else if (item is DxfCircle)
@@ -91,7 +91,14 @@ namespace BCad.Commands.FileHandlers
                     else if (item is Circle)
                         entity = ((Circle)item).ToDxfCircle(layer);
                     else if (item is Arc)
-                        entity = ((Arc)item).ToDxfArc(layer);
+                    {
+                        // if start/end angles are a full circle, write it that way instead
+                        var arc = (Arc)item;
+                        if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
+                            entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
+                        else
+                            entity = ((Arc)item).ToDxfArc(layer);
+                    }
 
                     if (entity != null)
                         file.Entities.Add(entity);

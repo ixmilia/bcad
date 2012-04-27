@@ -7,7 +7,7 @@ using BCad.SnapPoints;
 
 namespace BCad.Objects
 {
-    public class Circle : IObject, IPrimitive
+    public class Circle : Entity, IPrimitive
     {
         private readonly Point center;
         private readonly Vector normal;
@@ -30,12 +30,12 @@ namespace BCad.Objects
             this.color = color;
         }
 
-        public IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives()
         {
             yield return this;
         }
 
-        public IEnumerable<SnapPoint> GetSnapPoints()
+        public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             yield return new CenterPoint(Center);
             
@@ -77,6 +77,11 @@ namespace BCad.Objects
                 yield return new QuadrantPoint((Center + (axis2 * Radius)).ToPoint());
                 yield return new QuadrantPoint((Center + (axis2 * -Radius)).ToPoint());
             }
+        }
+
+        public override EntityKind Kind
+        {
+            get { return EntityKind.Circle; }
         }
 
         public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)

@@ -44,10 +44,10 @@ namespace BCad.UI.Views
                 Icon = icon;
             }
 
-            public static TransformedSnapPoint FromView(IView view, double scale, SnapPoint snapPoint, IObject source)
+            public static TransformedSnapPoint FromView(IView view, double scale, SnapPoint snapPoint, Entity source)
             {
                 var controlPoint = view.WorldToControl(snapPoint.Point).ToWindowsPoint();
-                var geom = snapPoint.Icon;
+                var geom = GetIcon(snapPoint.Kind);
                 geom.Pen = new Pen(Brushes.Yellow, 0.2);
                 var di = new DrawingImage(geom);
                 var i = new Image();
@@ -58,6 +58,44 @@ namespace BCad.UI.Views
                 Canvas.SetLeft(i, controlPoint.X - geom.Bounds.Width * scale / 2.0);
                 Canvas.SetTop(i, controlPoint.Y - geom.Bounds.Height * scale / 2.0);
                 return new TransformedSnapPoint(controlPoint, snapPoint.Point, i);
+            }
+
+            private static GeometryDrawing GetIcon(SnapPointKind kind)
+            {
+                string name;
+                switch (kind)
+                {
+                    case SnapPointKind.Center:
+                        name = "CenterPointIcon";
+                        break;
+                    case SnapPointKind.EndPoint:
+                        name = "EndPointIcon";
+                        break;
+                    case SnapPointKind.MidPoint:
+                        name = "MidPointIcon";
+                        break;
+                    case SnapPointKind.Quadrant:
+                        name = "QuadrantPointIcon";
+                        break;
+                    default:
+                        throw new ArgumentException("kind");
+                }
+
+                return (GeometryDrawing)Resources[name];
+            }
+
+            private static ResourceDictionary _resources = null;
+            private static ResourceDictionary Resources
+            {
+                get
+                {
+                    if (_resources == null)
+                    {
+                        _resources = new ResourceDictionary();
+                        _resources.Source = new Uri("/BCad.Core;component/SnapPoints/SnapPointIcons.xaml", UriKind.Relative);
+                    }
+                    return _resources;
+                }
             }
         }
 
@@ -86,7 +124,7 @@ namespace BCad.UI.Views
 
         private List<TransformedSnapPoint> snapPoints = new List<TransformedSnapPoint>();
 
-        private Dictionary<IObject, IEnumerable<UIElement>> objectsToPrimitivesMap = new Dictionary<IObject, IEnumerable<UIElement>>();
+        private Dictionary<Entity, IEnumerable<UIElement>> objectsToPrimitivesMap = new Dictionary<Entity, IEnumerable<UIElement>>();
 
         private double Scale
         {
@@ -129,7 +167,7 @@ namespace BCad.UI.Views
             Dispatcher.BeginInvoke((Action)(() => DrawObjects()));
         }
 
-        private void AddObjectSnapPoints(IObject obj)
+        private void AddObjectSnapPoints(Entity obj)
         {
             foreach (var sp in obj.GetSnapPoints())
             {
@@ -152,7 +190,7 @@ namespace BCad.UI.Views
             }
         }
 
-        private void DrawObject(IObject obj, Color layerColor)
+        private void DrawObject(Entity obj, Color layerColor)
         {
             foreach (var p in obj.GetPrimitives())
             {
@@ -266,7 +304,7 @@ namespace BCad.UI.Views
                             InputService.PushValue(sp.WorldPoint);
                             break;
                         case InputType.Object:
-                            IObject foundObject = null;
+                            Entity foundObject = null;
                             var selectionRadius = Workspace.SettingsManager.ObjectSelectionRadius;
                             foreach (var shape in objects.Children.OfType<Shapes.Shape>())
                             {
@@ -280,9 +318,9 @@ namespace BCad.UI.Views
                                         (selectionRadius + circle.Radius());
                                     if (separation <= maxAllowed)
                                     {
-                                        if (shape.Tag as IObject != null)
+                                        if (shape.Tag as Entity != null)
                                         {
-                                            foundObject = (IObject)shape.Tag;
+                                            foundObject = (Entity)shape.Tag;
                                             break;
                                         }
                                         else
@@ -308,9 +346,9 @@ namespace BCad.UI.Views
                                         //NumberHelper.Between(p.X, line.X1, line.X2) &&
                                         //NumberHelper.Between(p.Y, line.Y1, line.Y2))
                                     {
-                                        if (shape.Tag as IObject != null)
+                                        if (shape.Tag as Entity != null)
                                         {
-                                            foundObject = (IObject)shape.Tag;
+                                            foundObject = (Entity)shape.Tag;
                                             break;
                                         }
                                         else

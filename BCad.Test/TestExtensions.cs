@@ -21,12 +21,12 @@ namespace BCad.Test
             workspace.Add(new Layer(layerName, Color.Auto));
         }
 
-        public static void VerifyContains(this Layer layer, IObject obj)
+        public static void VerifyContains(this Layer layer, Entity obj)
         {
             Assert.True(layer.Objects.Any(o => o.EquivalentTo(obj)));
         }
 
-        public static IEnumerable<IObject> GetObjects(this IWorkspace workspace)
+        public static IEnumerable<Entity> GetObjects(this IWorkspace workspace)
         {
             foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
             {

@@ -8,7 +8,7 @@ namespace BCad.EventArguments
 {
     public class ObjectRemovedEventArgs : AbstractObjectEventArgs
     {
-        public ObjectRemovedEventArgs(IObject obj)
+        public ObjectRemovedEventArgs(Entity obj)
             : base(obj)
         {
         }

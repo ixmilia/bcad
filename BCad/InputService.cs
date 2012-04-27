@@ -95,25 +95,25 @@ namespace BCad
             return result;
         }
 
-        public ValueOrDirective<IObject> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null)
+        public ValueOrDirective<Entity> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Object));
             WaitFor(InputType.Object, directive, onCursorMove);
 
-            ValueOrDirective<IObject> result;
+            ValueOrDirective<Entity> result;
             switch (lastType)
             {
                 case PushedValueType.None:
-                    result = new ValueOrDirective<IObject>();
+                    result = new ValueOrDirective<Entity>();
                     break;
                 case PushedValueType.Cancel:
-                    result = ValueOrDirective<IObject>.GetCancel();
+                    result = ValueOrDirective<Entity>.GetCancel();
                     break;
                 case PushedValueType.Object:
-                    result = new ValueOrDirective<IObject>(pushedObject);
+                    result = new ValueOrDirective<Entity>(pushedObject);
                     break;
                 case PushedValueType.Directive:
-                    result = new ValueOrDirective<IObject>(pushedDirective);
+                    result = new ValueOrDirective<Entity>(pushedDirective);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");
@@ -163,7 +163,7 @@ namespace BCad
         private PushedValueType lastType = PushedValueType.None;
         private Point pushedPoint = default(Point);
         private string pushedDirective = null;
-        private IObject pushedObject = null;
+        private Entity pushedObject = null;
         private string pushedText = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
         private string lastCommand = null;
@@ -232,7 +232,7 @@ namespace BCad
                                     break;
                                 case InputType.Object:
                                     lastType = PushedValueType.Object;
-                                    pushedObject = value as IObject;
+                                    pushedObject = value as Entity;
                                     valueReceived = true;
                                     OnValueReceived(new ValueReceivedEventArgs(pushedObject));
                                     break;
