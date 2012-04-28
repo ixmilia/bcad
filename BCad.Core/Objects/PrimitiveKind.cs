@@ -1,6 +1,6 @@
 ﻿namespace BCad.Objects
 {
-    public enum EntityKind
+    public enum PrimitiveKind
     {
         Arc,
         Circle,

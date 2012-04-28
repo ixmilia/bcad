@@ -15,6 +15,8 @@
         </Image>
         <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
         <Canvas Name="clicker" Background="White" Opacity="0.001"
-                PreviewMouseMove="clicker_PreviewMouseMove" />
+                MouseDown="clicker_MouseDown"
+                MouseUp="clicker_MouseUp"
+                MouseMove="clicker_PreviewMouseMove" />
     </Grid>
 </ui:ViewControl>

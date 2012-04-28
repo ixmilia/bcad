@@ -49,12 +49,9 @@ namespace BCad
             }
         }
 
-        public int IntColor
+        public int ToInt()
         {
-            get
-            {
-                return RgbValues[Value];
-            }
+            return RgbValues[Value];
         }
 
         public override int GetHashCode()

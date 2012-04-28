@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using BCad.SnapPoints;
 
 namespace BCad.Objects
@@ -19,8 +16,6 @@ namespace BCad.Objects
         {
             this.Id = nextId++;
         }
-
-        public abstract EntityKind Kind { get; }
 
         public override int GetHashCode()
         {

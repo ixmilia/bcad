@@ -150,7 +150,7 @@ namespace BCad.Dxf
         private void WriteDouble(double value)
         {
             if (textWriter != null)
-                textWriter.WriteLine(value.ToString("E"));
+                textWriter.WriteLine(value.ToString("E16"));
             else if (binWriter != null)
                 binWriter.Write(value);
         }

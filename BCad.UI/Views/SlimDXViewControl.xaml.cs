@@ -19,6 +19,8 @@ using System.Windows.Interop;
 //using SlimDX.Direct3D11;
 using BCad.Objects;
 using BCad.SnapPoints;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace BCad.UI.Views
 {
@@ -30,9 +32,9 @@ namespace BCad.UI.Views
     {
         private class TransformedSnapPoint
         {
-            public Point WorldPoint { get; private set; }
-            public Vector3 ControlPoint { get; set; }
-            public SnapPointKind Kind { get; private set; }
+            public Point WorldPoint;
+            public Vector3 ControlPoint;
+            public SnapPointKind Kind;
 
             public TransformedSnapPoint(Point worldPoint, Vector3 controlPoint, SnapPointKind kind)
             {
@@ -63,8 +65,8 @@ namespace BCad.UI.Views
 
         void SlimDXViewControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            pp.BackBufferWidth = (int)ActualWidth;
-            pp.BackBufferHeight = (int)ActualHeight;
+            //pp.BackBufferWidth = (int)ActualWidth;
+            //pp.BackBufferHeight = (int)ActualHeight;
             //device.Reset(pp);
         }
 
@@ -89,6 +91,9 @@ namespace BCad.UI.Views
 
             // set values
             View.UpdateView(viewWidth: View.ViewWidth * scale, bottomLeft: (botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)).ToPoint());
+            var cursor = GetActiveModelPoint(e.GetPosition(this).ToVector3());
+            DrawSnapPoint(cursor);
+            GenerateRubberBandLines(cursor.WorldPoint);
         }
 
         private Device device;
@@ -138,10 +143,11 @@ namespace BCad.UI.Views
             }
         }
 
+        [StructLayout(LayoutKind.Explicit)]
         struct LineVertex
         {
-            public Vector3 Position;
-            public int Color;
+            [FieldOffset(0)] public Vector3 Position;
+            [FieldOffset(12)] public int Color;
         }
 
         void Render()
@@ -155,6 +161,18 @@ namespace BCad.UI.Views
                     if (lineSet.Length > 0)
                         device.DrawUserPrimitives(PrimitiveType.LineStrip, lineSet.Length - 1, lineSet);
                 }
+
+                if (rubberBandLines != null)
+                {
+                    foreach (var prim in rubberBandLines)
+                    {
+                        if (prim != null && prim.Length > 0)
+                        {
+                            device.DrawUserPrimitives(PrimitiveType.LineStrip, prim.Length - 1, prim);
+                        }
+                    }
+                }
+
                 device.EndScene();
                 device.Present();
             }
@@ -162,7 +180,9 @@ namespace BCad.UI.Views
 
         public override Point GetCursorPoint()
         {
-            return Point.Origin;
+            var cursor = Mouse.GetPosition(this);
+            var sp = GetActiveModelPoint(cursor.ToVector3());
+            return sp.WorldPoint;
         }
 
         [Import]
@@ -171,16 +191,24 @@ namespace BCad.UI.Views
         [Import]
         private IView View = null;
 
+        [Import]
+        private IInputService InputService = null;
+
         public void OnImportsSatisfied()
         {
-            //InputService.RubberBandGeneratorChanged += UserConsole_RubberBandGeneratorChanged;
             View.ViewPortChanged += TransformationMatrixChanged;
-            //Workspace.CommandExecuted += Workspace_CommandExecuted;
-            //Workspace.DocumentChanging += DocumentChanging;
+            Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.DocumentChanged += DocumentChanged;
         }
 
+        void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        {
+            this.Dispatcher.BeginInvoke((Action)(() => this.snapLayer.Children.Clear()));
+            rubberBandLines = null;
+        }
+
         private Dictionary<uint, LineVertex[]> lines = new Dictionary<uint, LineVertex[]>();
+        private IEnumerable<LineVertex[]> rubberBandLines = null;
         private bool processingDocument = false;
         private TransformedSnapPoint[] snapPoints = new TransformedSnapPoint[0];
 
@@ -190,39 +218,19 @@ namespace BCad.UI.Views
             var sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             lines.Clear();
+            var red = System.Drawing.Color.Red.ToArgb();
             foreach (var layer in e.Document.Layers.Values)
             {
                 foreach (var entity in layer.Objects)
                 {
-                    switch (entity.Kind)
-                    {
-                        case EntityKind.Line:
-                            var line = (BCad.Objects.Line)entity;
-                            lines[entity.Id] = new[]
-                                {
-                                    new LineVertex() { Position = line.P1.ToVector3(), Color = line.Color.IntColor },
-                                    new LineVertex() { Position = line.P2.ToVector3(), Color = line.Color.IntColor }
-                                };
-                            break;
-                        case EntityKind.Circle:
-                            var circle = (BCad.Objects.Circle)entity;
-                            lines[entity.Id] = GenerateCurveSegments(circle.Center, circle.Radius, 0.0, 360.0, circle.Color.IntColor);
-                            break;
-                        case EntityKind.Arc:
-                            var arc = (BCad.Objects.Arc)entity;
-                            lines[entity.Id] = GenerateCurveSegments(arc.Center, arc.Radius, arc.StartAngle, arc.EndAngle, arc.Color.IntColor);
-                            break;
-                        default:
-                            System.Diagnostics.Debug.Fail("unsupported");
-                            break;
-                    }
+                    lines[entity.Id] = GenerateCurveSegments(entity).ToArray();
                 }
             }
-
 
             snapPoints = e.Document.Layers.Values.SelectMany(l => l.Objects.SelectMany(o => o.GetSnapPoints()))
                 .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
             UpdateSnapPoints(device.GetTransform(TransformState.Projection));
+            rubberBandLines = null;
             sw.Stop();
             var loadTime = sw.ElapsedMilliseconds;
             processingDocument = false;
@@ -232,21 +240,68 @@ namespace BCad.UI.Views
         private const double DegreesToRadians = Math.PI / 180.0;
         private const double TwoPI = Math.PI * 2.0;
 
-        private static LineVertex[] GenerateCurveSegments(Point center, double radius, double startAngle, double endAngle, int color)
+        private void GenerateRubberBandLines(Point worldPoint)
         {
-            startAngle = startAngle * DegreesToRadians;
-            endAngle = endAngle * DegreesToRadians;
-            var coveringAngle = endAngle - startAngle;
-            if (coveringAngle < 0.0) coveringAngle += TwoPI;
-            var segCount = Math.Max(3, (int)(coveringAngle / TwoPI * (double)FullCircleDrawingSegments));
-            var segments = new LineVertex[segCount];
-            var angleDelta = coveringAngle / (double)(segCount - 1);
-            var angle = startAngle;
-            for (int i = 0; i < segCount; i++, angle += angleDelta)
+            var generator = InputService.PrimitiveGenerator;
+            rubberBandLines = generator == null
+                ? null
+                : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p).ToArray());
+        }
+
+        private static IEnumerable<LineVertex> GenerateCurveSegments(Entity entity)
+        {
+            return entity.GetPrimitives().SelectMany(p => GeneratePrimitiveSegments(p));
+        }
+
+        private static IEnumerable<LineVertex> GeneratePrimitiveSegments(IPrimitive primitive)
+        {
+            LineVertex[] segments;
+            switch (primitive.Kind)
             {
-                var x = (float)(Math.Cos(angle) * radius + center.X);
-                var y = (float)(Math.Sin(angle) * radius + center.Y);
-                segments[i] = new LineVertex() { Position = new Vector3(x, y, 0.0f), Color = color };
+                case PrimitiveKind.Line:
+                    var line = (BCad.Objects.Line)primitive;
+                    segments = new[] {
+                        new LineVertex() { Position = line.P1.ToVector3(), Color = line.Color.ToInt() },
+                        new LineVertex() { Position = line.P2.ToVector3(), Color = line.Color.ToInt() }
+                    };
+                    break;
+                case PrimitiveKind.Arc:
+                case PrimitiveKind.Circle:
+                    double startAngle, endAngle, radius;
+                    Point center;
+                    if (primitive.Kind == PrimitiveKind.Arc)
+                    {
+                        var arc = (Arc)primitive;
+                        startAngle = arc.StartAngle;
+                        endAngle = arc.EndAngle;
+                        radius = arc.Radius;
+                        center = arc.Center;
+                    }
+                    else
+                    {
+                        var circle = (Circle)primitive;
+                        startAngle = 0.0;
+                        endAngle = 360.0;
+                        radius = circle.Radius;
+                        center = circle.Center;
+                    }
+                    startAngle *= DegreesToRadians;
+                    endAngle *= DegreesToRadians;
+                    var coveringAngle = endAngle - startAngle;
+                    if (coveringAngle < 0.0) coveringAngle += TwoPI;
+                    var segCount = Math.Max(3, (int)(coveringAngle / TwoPI * (double)FullCircleDrawingSegments));
+                    segments = new LineVertex[segCount];
+                    var angleDelta = coveringAngle / (double)(segCount - 1);
+                    var angle = startAngle;
+                    for (int i = 0; i < segCount; i++, angle += angleDelta)
+                    {
+                        var x = (float)(Math.Cos(angle) * radius + center.X);
+                        var y = (float)(Math.Sin(angle) * radius + center.Y);
+                        segments[i] = new LineVertex() { Position = new Vector3(x, y, 0.0f), Color = primitive.Color.ToInt() };
+                    }
+                    break;
+                default:
+                    throw new ArgumentException("entity.Kind");
             }
 
             return segments;
@@ -262,7 +317,7 @@ namespace BCad.UI.Views
             var matrix = SlimDX.Matrix.Identity
                 * SlimDX.Matrix.Translation((float)-View.BottomLeft.X, (float)-View.BottomLeft.Y, 0)
                 * SlimDX.Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
-                * SlimDX.Matrix.Scaling(2.0f / width, 2.0f / height, 0);
+                * SlimDX.Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
 
             device.SetTransform(TransformState.Projection, matrix);
 
@@ -276,18 +331,16 @@ namespace BCad.UI.Views
                 for (int i = 0; i < snapPoints.Length; i++)
                 {
                     var wp = snapPoints[i].WorldPoint.ToVector3();
-                    Vector3 cp;
                     Vector3.Project(
                         ref wp, // input
-                        0.0f, // x
-                        0.0f, // y
-                        (float)this.ActualWidth, // viewport width
-                        (float)this.ActualHeight, // viewport height
-                        0.0f, // z-min
-                        1.0f, // z-max
+                        device.Viewport.X, // x
+                        device.Viewport.Y, // y
+                        device.Viewport.Width, // viewport width
+                        device.Viewport.Height, // viewport height
+                        device.Viewport.MinZ, // z-min
+                        device.Viewport.MaxZ, // z-max
                         ref matrix, // transformation matrix
-                        out cp); // output
-                    snapPoints[i].ControlPoint = cp;
+                        out snapPoints[i].ControlPoint); // output
                 }
             }
         }
@@ -297,6 +350,9 @@ namespace BCad.UI.Views
             string name;
             switch (snapPoint.Kind)
             {
+                case SnapPointKind.None:
+                    name = null;
+                    break;
                 case SnapPointKind.Center:
                     name = "CenterPointIcon";
                     break;
@@ -312,6 +368,9 @@ namespace BCad.UI.Views
                 default:
                     throw new ArgumentException("snapPoint.Kind");
             }
+
+            if (name == null)
+                return null;
 
             var geometry = (GeometryDrawing)SnapPointResources[name];
             var scale = Workspace.SettingsManager.SnapPointSize;
@@ -343,25 +402,84 @@ namespace BCad.UI.Views
 
         private void clicker_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            snapLayer.Children.Clear();
-            TransformedSnapPoint snapPoint = null;
-            var cursor = new Point(e.GetPosition(this)).ToVector3();
-            var distSq = (float)(Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance);
-            var currentDist = distSq;
-            for (int i = 0; i < snapPoints.Length; i++)
+            if (InputService.DesiredInputType == InputType.Point)
             {
-                var dist = (cursor - snapPoints[i].ControlPoint).LengthSquared();
-                if (dist < currentDist)
-                {
-                    dist = currentDist;
-                    snapPoint = snapPoints[i];
-                }
+                var sp = GetActiveModelPoint(e.GetPosition(this).ToVector3());
+                GenerateRubberBandLines(sp.WorldPoint);
+                DrawSnapPoint(sp);
+            }
+        }
+
+        private void DrawSnapPoint(TransformedSnapPoint snapPoint)
+        {
+            snapLayer.Children.Clear();
+            if (snapPoint.Kind == SnapPointKind.None)
+                return;
+            snapLayer.Children.Add(GetSnapIcon(snapPoint));
+        }
+
+        private TransformedSnapPoint GetActiveModelPoint(Vector3 cursor)
+        {
+            return ActiveObjectSnapPoints(cursor)
+                ?? GetRawModelPoint(cursor);
+        }
+
+        private TransformedSnapPoint GetRawModelPoint(Vector3 cursor)
+        {
+            var world = device.GetTransform(TransformState.World);
+            var view = device.GetTransform(TransformState.View);
+            var projection = device.GetTransform(TransformState.Projection);
+            var matrix = projection * view * world;
+            var worldPoint = Vector3.Unproject(
+                cursor,
+                device.Viewport.X,
+                device.Viewport.Y,
+                device.Viewport.Width,
+                device.Viewport.Height,
+                device.Viewport.MinZ,
+                device.Viewport.MaxZ,
+                matrix);
+            return new TransformedSnapPoint(worldPoint.ToPoint(), cursor, SnapPointKind.None);
+        }
+
+        private TransformedSnapPoint ActiveObjectSnapPoints(Vector3 cursor)
+        {
+            if (Workspace.SettingsManager.PointSnap && InputService.DesiredInputType == InputType.Point)
+            {
+                var maxDistSq = (float)(Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance);
+                var points = from sp in snapPoints
+                             let dist = (cursor - sp.ControlPoint).LengthSquared()
+                             where dist <= maxDistSq
+                             orderby dist
+                             select sp;
+                return points.FirstOrDefault();
             }
 
-            if (snapPoint != null)
+            return null;
+        }
+
+        private void clicker_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var sp = GetActiveModelPoint(e.GetPosition(this).ToVector3());
+            switch (e.ChangedButton)
             {
-                snapLayer.Children.Add(GetSnapIcon(snapPoint));
+                case MouseButton.Left:
+                    switch (InputService.DesiredInputType)
+                    {
+                        case InputType.Point:
+                            InputService.PushValue(sp.WorldPoint);
+                            break;
+                    }
+                    break;
             }
+
+            GenerateRubberBandLines(sp.WorldPoint);
+        }
+
+        private void clicker_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var cursor = GetActiveModelPoint(e.GetPosition(this).ToVector3());
+            GenerateRubberBandLines(cursor.WorldPoint);
         }
     }
 
@@ -375,6 +493,11 @@ namespace BCad.UI.Views
         public static Vector3 ToVector3(this Vector vector)
         {
             return new Vector3((float)vector.X, (float)vector.Y, (float)vector.Z);
+        }
+
+        public static Vector3 ToVector3(this System.Windows.Point point)
+        {
+            return new Vector3((float)point.X, (float)point.Y, 0.0f);
         }
 
         public static Point ToPoint(this Vector3 vector)

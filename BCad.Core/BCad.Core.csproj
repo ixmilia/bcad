@@ -99,8 +99,8 @@
     <Compile Include="Objects\Arc.cs" />
     <Compile Include="Objects\Circle.cs" />
     <Compile Include="Objects\Entity.cs" />
-    <Compile Include="Objects\EntityKind.cs" />
     <Compile Include="Objects\IPrimitive.cs" />
+    <Compile Include="Objects\PrimitiveKind.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />

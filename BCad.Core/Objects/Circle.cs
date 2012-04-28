@@ -79,9 +79,9 @@ namespace BCad.Objects
             }
         }
 
-        public override EntityKind Kind
+        public PrimitiveKind Kind
         {
-            get { return EntityKind.Circle; }
+            get { return PrimitiveKind.Circle; }
         }
 
         public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)

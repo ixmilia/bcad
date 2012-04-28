@@ -101,9 +101,9 @@ namespace BCad.Objects
             yield return new MidPoint(MidPoint);
         }
 
-        public override EntityKind Kind
+        public PrimitiveKind Kind
         {
-            get { return EntityKind.Arc; }
+            get { return PrimitiveKind.Arc; }
         }
 
         public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)

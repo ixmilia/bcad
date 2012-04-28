@@ -2,6 +2,7 @@
 {
     public enum SnapPointKind
     {
+        None,
         Center,
         EndPoint,
         MidPoint,
