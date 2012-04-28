@@ -402,9 +402,20 @@ namespace BCad.UI.Views
 
         private void clicker_PreviewMouseMove(object sender, MouseEventArgs e)
         {
+            var cursor = e.GetPosition(this);
+            if (panning)
+            {
+                var delta = lastPanPoint - cursor;
+                var scale = View.ViewWidth / this.ActualWidth;
+                var dx = View.BottomLeft.X + delta.X * scale;
+                var dy = View.BottomLeft.Y - delta.Y * scale;
+                View.UpdateView(bottomLeft: new Point(dx, dy, View.BottomLeft.Z));
+                lastPanPoint = cursor;
+            }
+
             if (InputService.DesiredInputType == InputType.Point)
             {
-                var sp = GetActiveModelPoint(e.GetPosition(this).ToVector3());
+                var sp = GetActiveModelPoint(cursor.ToVector3());
                 GenerateRubberBandLines(sp.WorldPoint);
                 DrawSnapPoint(sp);
             }
@@ -458,8 +469,12 @@ namespace BCad.UI.Views
             return null;
         }
 
+        private bool panning = false;
+        private System.Windows.Point lastPanPoint = new System.Windows.Point();
+
         private void clicker_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            var cursor = e.GetPosition(this);
             var sp = GetActiveModelPoint(e.GetPosition(this).ToVector3());
             switch (e.ChangedButton)
             {
@@ -471,6 +486,10 @@ namespace BCad.UI.Views
                             break;
                     }
                     break;
+                case MouseButton.Middle:
+                    panning = true;
+                    lastPanPoint = cursor;
+                    break;
             }
 
             GenerateRubberBandLines(sp.WorldPoint);
@@ -478,8 +497,16 @@ namespace BCad.UI.Views
 
         private void clicker_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var cursor = GetActiveModelPoint(e.GetPosition(this).ToVector3());
-            GenerateRubberBandLines(cursor.WorldPoint);
+            var cursor = e.GetPosition(this);
+            switch (e.ChangedButton)
+            {
+                case MouseButton.Middle:
+                    panning = false;
+                    break;
+            }
+
+            var sp = GetActiveModelPoint(cursor.ToVector3());
+            GenerateRubberBandLines(sp.WorldPoint);
         }
     }
 
