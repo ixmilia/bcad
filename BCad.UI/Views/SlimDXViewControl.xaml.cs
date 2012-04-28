@@ -154,7 +154,7 @@ namespace BCad.UI.Views
         {
             if (d3dimage.IsFrontBufferAvailable && !processingDocument)
             {
-                device.Clear(ClearFlags.Target, System.Drawing.Color.CornflowerBlue.ToArgb(), 0, 0);
+                device.Clear(ClearFlags.Target, BackgroundColor, 0, 0);
                 device.BeginScene();
                 foreach (var lineSet in lines.Values)
                 {
@@ -257,12 +257,24 @@ namespace BCad.UI.Views
             return AutoColor;
         }
 
+        private int BackgroundColor
+        {
+            get
+            {
+                return 0x303030; // dark gray
+                //return 0x6495ED; // cornflower blue
+            }
+        }
+
         private int AutoColor
         {
             get
             {
-                // TODO: find better color
-                return 0xFFFFFF;
+                var brightness = System.Drawing.Color.FromArgb(BackgroundColor).GetBrightness();
+                if (brightness < 0.67)
+                    return 0xFFFFFF; // prefer white for 2/3rds of the range
+                else
+                    return 0x000000;
             }
         }
 
