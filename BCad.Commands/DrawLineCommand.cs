@@ -16,6 +16,7 @@ namespace BCad.Commands
         {
             var input = InputService.GetPoint(new UserDirective("From"));
             if (input.Cancel) return false;
+            if (!input.HasValue) return true;
             var first = input.Value;
             Point last = first;
             while (true)

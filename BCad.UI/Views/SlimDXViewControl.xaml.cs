@@ -124,6 +124,7 @@ namespace BCad.UI.Views
             device.VertexDeclaration = new VertexDeclaration(device, new[] {
                     new VertexElement(0, 0, DeclarationType.Float3, DeclarationMethod.Default, DeclarationUsage.Position, 0),
                     new VertexElement(0, 12, DeclarationType.Color, DeclarationMethod.Default, DeclarationUsage.Color, 0) });
+            device.SetRenderState(RenderState.Lighting, false);
 
             CompositionTarget.Rendering += OnRendering;
         }
@@ -143,11 +144,10 @@ namespace BCad.UI.Views
             }
         }
 
-        [StructLayout(LayoutKind.Explicit)]
         struct LineVertex
         {
-            [FieldOffset(0)] public Vector3 Position;
-            [FieldOffset(12)] public int Color;
+            public Vector3 Position;
+            public int Color;
         }
 
         void Render()
@@ -223,7 +223,7 @@ namespace BCad.UI.Views
             {
                 foreach (var entity in layer.Objects)
                 {
-                    lines[entity.Id] = GenerateCurveSegments(entity).ToArray();
+                    lines[entity.Id] = GenerateCurveSegments(entity, layer.Color).ToArray();
                 }
             }
 
@@ -245,15 +245,33 @@ namespace BCad.UI.Views
             var generator = InputService.PrimitiveGenerator;
             rubberBandLines = generator == null
                 ? null
-                : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p).ToArray());
+                : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p, AutoColor).ToArray());
         }
 
-        private static IEnumerable<LineVertex> GenerateCurveSegments(Entity entity)
+        private int GetDisplayColor(Color layerColor, Color primitiveColor)
         {
-            return entity.GetPrimitives().SelectMany(p => GeneratePrimitiveSegments(p));
+            if (!primitiveColor.IsAuto)
+                return primitiveColor.ToInt();
+            if (!layerColor.IsAuto)
+                return layerColor.ToInt();
+            return AutoColor;
         }
 
-        private static IEnumerable<LineVertex> GeneratePrimitiveSegments(IPrimitive primitive)
+        private int AutoColor
+        {
+            get
+            {
+                // TODO: find better color
+                return 0xFFFFFF;
+            }
+        }
+
+        private IEnumerable<LineVertex> GenerateCurveSegments(Entity entity, Color layerColor)
+        {
+            return entity.GetPrimitives().SelectMany(p => GeneratePrimitiveSegments(p, GetDisplayColor(layerColor, p.Color)));
+        }
+
+        private static IEnumerable<LineVertex> GeneratePrimitiveSegments(IPrimitive primitive, int color)
         {
             LineVertex[] segments;
             switch (primitive.Kind)
@@ -261,8 +279,8 @@ namespace BCad.UI.Views
                 case PrimitiveKind.Line:
                     var line = (BCad.Objects.Line)primitive;
                     segments = new[] {
-                        new LineVertex() { Position = line.P1.ToVector3(), Color = line.Color.ToInt() },
-                        new LineVertex() { Position = line.P2.ToVector3(), Color = line.Color.ToInt() }
+                        new LineVertex() { Position = line.P1.ToVector3(), Color = color },
+                        new LineVertex() { Position = line.P2.ToVector3(), Color = color }
                     };
                     break;
                 case PrimitiveKind.Arc:
@@ -297,7 +315,7 @@ namespace BCad.UI.Views
                     {
                         var x = (float)(Math.Cos(angle) * radius + center.X);
                         var y = (float)(Math.Sin(angle) * radius + center.Y);
-                        segments[i] = new LineVertex() { Position = new Vector3(x, y, 0.0f), Color = primitive.Color.ToInt() };
+                        segments[i] = new LineVertex() { Position = new Vector3(x, y, 0.0f), Color = color };
                     }
                     break;
                 default:
@@ -484,11 +502,17 @@ namespace BCad.UI.Views
                         case InputType.Point:
                             InputService.PushValue(sp.WorldPoint);
                             break;
+                        case InputType.Object:
+                            // TODO: object selection NYI
+                            break;
                     }
                     break;
                 case MouseButton.Middle:
                     panning = true;
                     lastPanPoint = cursor;
+                    break;
+                case MouseButton.Right:
+                    InputService.PushValue(null);
                     break;
             }
 
