@@ -7,6 +7,8 @@ using System.Xml.Linq;
 using BCad.EventArguments;
 using System.Windows.Input;
 using System.ComponentModel;
+using System.Xml.Serialization;
+using System.Globalization;
 
 namespace BCad
 {
@@ -27,6 +29,7 @@ namespace BCad
         private KeyboardShortcut angleSnapShortcut = null;
         private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
+        private int backgroundColor = 0;
 
         internal IInputService InputService { get; set; }
 
@@ -150,6 +153,7 @@ namespace BCad
             }
         }
 
+        [XmlIgnore]
         public double[] SnapAngles
         {
             get { return this.snapAngles; }
@@ -157,6 +161,20 @@ namespace BCad
             {
                 this.snapAngles = value;
                 OnPropertyChanged("SnapAngles");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName="SnapAngles")]
+        public string SnapAnglesString
+        {
+            get
+            {
+                return string.Join(";", SnapAngles);
+            }
+            set
+            {
+                SnapAngles = value.Split(';').Select(s => double.Parse(s.Trim())).ToArray();
             }
         }
 
@@ -187,6 +205,33 @@ namespace BCad
             {
                 this.orthoShortcut = value;
                 OnPropertyChanged("OrthoShortcut");
+            }
+        }
+
+        [XmlIgnore]
+        public int BackgroundColor
+        {
+            get { return this.backgroundColor; }
+            set
+            {
+                if (this.backgroundColor == value)
+                    return;
+                this.backgroundColor = value;
+                OnPropertyChanged("BackgroundColor");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName="BackgroundColor")]
+        public string BackgroundColorString
+        {
+            get
+            {
+                return string.Format("#{0:X}", BackgroundColor);
+            }
+            set
+            {
+                BackgroundColor = int.Parse(value.Substring(1), NumberStyles.HexNumber);
             }
         }
 
@@ -251,6 +296,8 @@ namespace BCad
             AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F7);
             PointSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F3);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
+            BackgroundColor = 0x303030; // dark gray
+            //BackgroundColor = 0x6495ED; // cornflower blue
         }
     }
 }

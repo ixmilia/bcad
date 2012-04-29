@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+using System.Xml.Serialization;
 
 namespace BCad
 {
     public class KeyboardShortcut
     {
+        [XmlAttribute]
         public ModifierKeys Modifier { get; set; }
 
+        [XmlAttribute]
         public Key Key { get; set; }
 
         public KeyboardShortcut()

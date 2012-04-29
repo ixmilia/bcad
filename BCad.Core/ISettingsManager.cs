@@ -20,5 +20,6 @@ namespace BCad
         KeyboardShortcut AngleSnapShortcut { get; set; }
         KeyboardShortcut PointSnapShortcut { get; set; }
         KeyboardShortcut OrthoShortcut { get; set; }
+        int BackgroundColor { get; set; }
     }
 }

@@ -21,6 +21,7 @@ using BCad.Objects;
 using BCad.SnapPoints;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace BCad.UI.Views
 {
@@ -154,7 +155,7 @@ namespace BCad.UI.Views
         {
             if (d3dimage.IsFrontBufferAvailable && !processingDocument)
             {
-                device.Clear(ClearFlags.Target, BackgroundColor, 0, 0);
+                device.Clear(ClearFlags.Target, backgroundColor, 0, 0);
                 device.BeginScene();
                 foreach (var lineSet in lines.Values)
                 {
@@ -199,6 +200,25 @@ namespace BCad.UI.Views
             View.ViewPortChanged += TransformationMatrixChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.DocumentChanged += DocumentChanged;
+            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+
+            // load settings
+            foreach (var setting in new[] { "BackgroundColor" })
+                SettingsManager_PropertyChanged(null, new PropertyChangedEventArgs(setting));
+        }
+
+        void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "BackgroundColor":
+                    this.backgroundColor = Workspace.SettingsManager.BackgroundColor;
+                    var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
+                    autoColor = brightness < 0.67 ? 0xFFFFFF : 0x000000;
+                    break;
+                default:
+                    break;
+            }
         }
 
         void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
@@ -245,7 +265,7 @@ namespace BCad.UI.Views
             var generator = InputService.PrimitiveGenerator;
             rubberBandLines = generator == null
                 ? null
-                : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p, AutoColor).ToArray());
+                : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p, autoColor).ToArray());
         }
 
         private int GetDisplayColor(Color layerColor, Color primitiveColor)
@@ -254,29 +274,11 @@ namespace BCad.UI.Views
                 return primitiveColor.ToInt();
             if (!layerColor.IsAuto)
                 return layerColor.ToInt();
-            return AutoColor;
+            return autoColor;
         }
 
-        private int BackgroundColor
-        {
-            get
-            {
-                return 0x303030; // dark gray
-                //return 0x6495ED; // cornflower blue
-            }
-        }
-
-        private int AutoColor
-        {
-            get
-            {
-                var brightness = System.Drawing.Color.FromArgb(BackgroundColor).GetBrightness();
-                if (brightness < 0.67)
-                    return 0xFFFFFF; // prefer white for 2/3rds of the range
-                else
-                    return 0x000000;
-            }
-        }
+        private int backgroundColor = 0x000000;
+        private int autoColor = 0xFFFFFF;
 
         private IEnumerable<LineVertex> GenerateCurveSegments(Entity entity, Color layerColor)
         {
