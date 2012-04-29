@@ -20,6 +20,7 @@ using BCad.Helpers;
 using BCad.Objects;
 using BCad.SnapPoints;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace BCad.UI.Views
 {
@@ -141,6 +142,22 @@ namespace BCad.UI.Views
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.DocumentChanging += DocumentChanging;
             Workspace.DocumentChanged += DocumentChanged;
+            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+
+            foreach (var setting in new[] { "BackgroundColor" })
+                SettingsManager_PropertyChanged(null, new PropertyChangedEventArgs(setting));
+        }
+
+        void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "BackgroundColor":
+                    this.objects.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
@@ -212,17 +229,16 @@ namespace BCad.UI.Views
 
         private System.Windows.Media.Color GetAutoColor(Color itemColor, Color layerColor)
         {
-            // TODO: find better method than inverting color; grays will look the same
             if (!itemColor.IsAuto)
                 return itemColor.MediaColor;
-            // otherwise it is auto
             if (!layerColor.IsAuto)
                 return layerColor.MediaColor;
-            var mc = itemColor.MediaColor;
-            var r = mc.R;
-            var g = mc.G;
-            var b = mc.B;
-            return System.Windows.Media.Color.FromRgb((byte)(255 - r), (byte)(255 - g), (byte)(255 - b));
+
+            var bg = Workspace.SettingsManager.BackgroundColor;
+            var color = System.Drawing.Color.FromArgb(bg.R, bg.G, bg.B);
+            return color.GetBrightness() < 0.67
+                ? Colors.White
+                : Colors.Black;
         }
 
         private void Draw(Canvas canvas, Line l, Color layerColor, bool saveObject)

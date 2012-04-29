@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using BCad.EventArguments;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using Media = System.Windows.Media;
 
 namespace BCad
 {
@@ -20,6 +19,6 @@ namespace BCad
         KeyboardShortcut AngleSnapShortcut { get; set; }
         KeyboardShortcut PointSnapShortcut { get; set; }
         KeyboardShortcut OrthoShortcut { get; set; }
-        int BackgroundColor { get; set; }
+        Media.Color BackgroundColor { get; set; }
     }
 }

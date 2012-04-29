@@ -212,7 +212,8 @@ namespace BCad.UI.Views
             switch (e.PropertyName)
             {
                 case "BackgroundColor":
-                    this.backgroundColor = Workspace.SettingsManager.BackgroundColor;
+                    var c = Workspace.SettingsManager.BackgroundColor;
+                    backgroundColor = (c.R << 16) | (c.G << 8) | c.B;
                     var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
                     autoColor = brightness < 0.67 ? 0xFFFFFF : 0x000000;
                     break;

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml.Linq;
-using BCad.EventArguments;
-using System.Windows.Input;
 using System.ComponentModel;
-using System.Xml.Serialization;
 using System.Globalization;
+using System.Linq;
+using System.Windows.Input;
+using System.Xml.Serialization;
+using Media = System.Windows.Media;
 
 namespace BCad
 {
@@ -29,7 +25,7 @@ namespace BCad
         private KeyboardShortcut angleSnapShortcut = null;
         private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
-        private int backgroundColor = 0;
+        private Media.Color backgroundColor = Media.Colors.Black;
 
         internal IInputService InputService { get; set; }
 
@@ -209,7 +205,7 @@ namespace BCad
         }
 
         [XmlIgnore]
-        public int BackgroundColor
+        public Media.Color BackgroundColor
         {
             get { return this.backgroundColor; }
             set
@@ -227,11 +223,16 @@ namespace BCad
         {
             get
             {
-                return string.Format("#{0:X}", BackgroundColor);
+                int c = (BackgroundColor.R << 16) | (BackgroundColor.G << 8) | BackgroundColor.B;
+                return string.Format("#{0:X}", c);
             }
             set
             {
-                BackgroundColor = int.Parse(value.Substring(1), NumberStyles.HexNumber);
+                int c = int.Parse(value.Substring(1), NumberStyles.HexNumber);
+                int r = (c & 0xFF0000) >> 16;
+                int g = (c & 0x00FF00) >> 8;
+                int b = (c & 0x0000FF);
+                BackgroundColor = Media.Color.FromRgb((byte)r, (byte)g, (byte)b);
             }
         }
 
@@ -296,7 +297,7 @@ namespace BCad
             AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F7);
             PointSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F3);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
-            BackgroundColor = 0x303030; // dark gray
+            BackgroundColor = Media.Colors.DarkSlateGray;
             //BackgroundColor = 0x6495ED; // cornflower blue
         }
     }
