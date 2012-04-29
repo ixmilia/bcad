@@ -69,8 +69,7 @@ namespace BCad
         {
             Workspace.LoadSettings(ConfigFile);
             Workspace.CommandExecuted += Workspace_CommandExecuted;
-            Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
-            Workspace.DocumentChanged += Workspace_DocumentChanged;
+            Workspace.PropertyChanged += Workspace_PropertyChanged;
 
             // prepare status bar bindings
             foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = "Ortho" },
@@ -109,14 +108,17 @@ namespace BCad
             }
         }
 
-        private void Workspace_DocumentChanged(object sender, DocumentChangedEventArgs e)
+        void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            TakeFocus();
-        }
-
-        private void Workspace_CurrentLayerChanged(object sender, LayerChangedEventArgs e)
-        {
-            TakeFocus();
+            switch (e.PropertyName)
+            {
+                case "CurrentLayer":
+                case "Document":
+                    TakeFocus();
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void TakeFocus()

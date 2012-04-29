@@ -199,12 +199,24 @@ namespace BCad.UI.Views
         {
             View.ViewPortChanged += TransformationMatrixChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
-            Workspace.DocumentChanged += DocumentChanged;
+            Workspace.PropertyChanged += Workspace_PropertyChanged;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
 
             // load settings
             foreach (var setting in new[] { "BackgroundColor" })
                 SettingsManager_PropertyChanged(null, new PropertyChangedEventArgs(setting));
+        }
+
+        void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Document":
+                    DocumentChanged(Workspace.Document);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -233,14 +245,14 @@ namespace BCad.UI.Views
         private bool processingDocument = false;
         private TransformedSnapPoint[] snapPoints = new TransformedSnapPoint[0];
 
-        private void DocumentChanged(object sender, DocumentChangedEventArgs e)
+        private void DocumentChanged(Document document)
         {
             processingDocument = true;
             var sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             lines.Clear();
             var red = System.Drawing.Color.Red.ToArgb();
-            foreach (var layer in e.Document.Layers.Values)
+            foreach (var layer in document.Layers.Values)
             {
                 foreach (var entity in layer.Objects)
                 {
@@ -248,7 +260,7 @@ namespace BCad.UI.Views
                 }
             }
 
-            snapPoints = e.Document.Layers.Values.SelectMany(l => l.Objects.SelectMany(o => o.GetSnapPoints()))
+            snapPoints = document.Layers.Values.SelectMany(l => l.Objects.SelectMany(o => o.GetSnapPoints()))
                 .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
             UpdateSnapPoints(device.GetTransform(TransformState.Projection));
             rubberBandLines = null;

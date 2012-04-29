@@ -16,7 +16,6 @@ using System.Windows.Navigation;
 using Shapes = System.Windows.Shapes;
 using BCad.EventArguments;
 using BCad.Extensions;
-using BCad.Helpers;
 using BCad.Objects;
 using BCad.SnapPoints;
 using System.Threading.Tasks;
@@ -140,12 +139,23 @@ namespace BCad.UI.Views
             InputService.RubberBandGeneratorChanged += UserConsole_RubberBandGeneratorChanged;
             View.ViewPortChanged += TransformationMatrixChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
-            Workspace.DocumentChanging += DocumentChanging;
-            Workspace.DocumentChanged += DocumentChanged;
+            Workspace.PropertyChanged += Workspace_PropertyChanged;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
 
             foreach (var setting in new[] { "BackgroundColor" })
                 SettingsManager_PropertyChanged(null, new PropertyChangedEventArgs(setting));
+        }
+
+        void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Document":
+                    Dispatcher.BeginInvoke((Action)(() => DrawObjects()));
+                    break;
+                default:
+                    break;
+            }
         }
 
         void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -171,15 +181,6 @@ namespace BCad.UI.Views
         }
 
         private void TransformationMatrixChanged(object sender, ViewPortChangedEventArgs e)
-        {
-            Dispatcher.BeginInvoke((Action)(() => DrawObjects()));
-        }
-
-        private void DocumentChanging(object sender, DocumentChangingEventArgs e)
-        {
-        }
-
-        private void DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() => DrawObjects()));
         }

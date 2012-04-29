@@ -4,17 +4,10 @@ using System.Linq;
 using System.Text;
 using BCad.EventArguments;
 using System.Windows.Input;
+using System.ComponentModel;
 
 namespace BCad
 {
-    public delegate void DocumentChangingEventHandler(object sender, DocumentChangingEventArgs e);
-
-    public delegate void DocumentChangedEventHandler(object sender, DocumentChangedEventArgs e);
-
-    public delegate void CurrentLayerChangingEventHandler(object sender, LayerChangingEventArgs e);
-
-    public delegate void CurrentLayerChangedEventHandler(object sender, LayerChangedEventArgs e);
-
     public delegate void CommandExecutingEventHandler(object sender, CommandExecutingEventArgs e);
 
     public delegate void CommandExecutedEventHandler(object sender, CommandExecutedEventArgs e);
@@ -26,7 +19,7 @@ namespace BCad
         Cancel
     }
 
-    public interface IWorkspace
+    public interface IWorkspace : INotifyPropertyChanging, INotifyPropertyChanged
     {
         Document Document { get; set; }
         Layer CurrentLayer { get; set; }
@@ -38,11 +31,6 @@ namespace BCad
         void ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
         bool CanExecute();
-        
-        event DocumentChangingEventHandler DocumentChanging;
-        event DocumentChangedEventHandler DocumentChanged;
-        event CurrentLayerChangingEventHandler CurrentLayerChanging;
-        event CurrentLayerChangedEventHandler CurrentLayerChanged;
         event CommandExecutingEventHandler CommandExecuting;
         event CommandExecutedEventHandler CommandExecuted;
         UnsavedChangesResult PromptForUnsavedChanges();

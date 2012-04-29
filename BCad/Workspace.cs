@@ -11,12 +11,29 @@ using BCad.EventArguments;
 using BCad.Commands;
 using System.Collections.Generic;
 using System.Windows.Input;
+using System.ComponentModel;
 
 namespace BCad
 {
     [Export(typeof(IWorkspace))]
     internal class Workspace : IWorkspace
     {
+        public event PropertyChangingEventHandler PropertyChanging;
+
+        protected void OnPropertyChanging(string propertyName)
+        {
+            if (PropertyChanging != null)
+                PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private Document document = new Document();
 
         public Document Document
@@ -28,10 +45,7 @@ namespace BCad
                     throw new NotSupportedException("Null document not allowed.");
                 if (document == value)
                     return;
-                var args = new DocumentChangingEventArgs(document, value);
-                OnDocumentChanging(args);
-                if (args.Cancel)
-                    return;
+                OnPropertyChanging("Document");
 
                 // ensure the same layer is selected after the change
                 var currentLayerName = CurrentLayer.Name;
@@ -39,7 +53,7 @@ namespace BCad
                 // change the value and fire events
                 UndoRedoService.SetSnapshot();
                 document = value;
-                OnDocumentChanged(new DocumentChangedEventArgs(document));
+                OnPropertyChanged("Document");
 
                 // reset the current layer
                 if (document.Layers.ContainsKey(currentLayerName))
@@ -69,12 +83,22 @@ namespace BCad
                     throw new NotSupportedException("Specified layer is not part of the current document.");
                 if (currentLayer == value)
                     return;
-                var args = new LayerChangingEventArgs(currentLayer, value);
-                OnCurrentLayerChanging(args);
-                if (args.Cancel)
-                    return;
+                OnPropertyChanging("CurrentLayer");
                 currentLayer = value;
-                OnCurrentLayerChanged(new LayerChangedEventArgs(currentLayer));
+                OnPropertyChanged("CurrentLayer");
+            }
+        }
+
+        private DrawingPlane drawingPlane = DrawingPlane.XY;
+
+        public DrawingPlane DrawingPlane
+        {
+            get { return drawingPlane; }
+            set
+            {
+                if (this.drawingPlane == value)
+                    return;
+                this.drawingPlane = value;
             }
         }
 
@@ -206,38 +230,6 @@ namespace BCad
         {
             if (CommandExecuted != null)
                 CommandExecuted(this, e);
-        }
-
-        public event DocumentChangingEventHandler DocumentChanging;
-
-        protected virtual void OnDocumentChanging(DocumentChangingEventArgs e)
-        {
-            if (DocumentChanging != null)
-                DocumentChanging(this, e);
-        }
-
-        public event DocumentChangedEventHandler DocumentChanged;
-
-        protected virtual void OnDocumentChanged(DocumentChangedEventArgs e)
-        {
-            if (DocumentChanged != null)
-                DocumentChanged(this, e);
-        }
-
-        public event CurrentLayerChangingEventHandler CurrentLayerChanging;
-
-        protected virtual void OnCurrentLayerChanging(LayerChangingEventArgs e)
-        {
-            if (CurrentLayerChanging != null)
-                CurrentLayerChanging(this, e);
-        }
-
-        public event CurrentLayerChangedEventHandler CurrentLayerChanged;
-
-        protected virtual void OnCurrentLayerChanged(LayerChangedEventArgs e)
-        {
-            if (CurrentLayerChanged != null)
-                CurrentLayerChanged(this, e);
         }
 
         public UnsavedChangesResult PromptForUnsavedChanges()

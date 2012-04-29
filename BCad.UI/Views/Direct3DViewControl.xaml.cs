@@ -33,8 +33,8 @@ namespace BCad.UI.Views
         //[Import]
         //private IInputService InputService = null;
 
-        [Import]
-        private IWorkspace Workspace = null;
+        //[Import]
+        //private IWorkspace Workspace = null;
 
         public void OnImportsSatisfied()
         {
@@ -42,12 +42,7 @@ namespace BCad.UI.Views
             //View.ViewPortChanged += TransformationMatrixChanged;
             //Workspace.CommandExecuted += Workspace_CommandExecuted;
             //Workspace.DocumentChanging += DocumentChanging;
-            Workspace.DocumentChanged += DocumentChanged;
-        }
-
-        private void DocumentChanged(object sender, DocumentChangedEventArgs e)
-        {
-            
+            //Workspace.DocumentChanged += DocumentChanged;
         }
 
         public override Point GetCursorPoint()

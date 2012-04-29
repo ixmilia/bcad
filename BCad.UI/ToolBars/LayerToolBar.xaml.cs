@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel.Composition;
+using System.ComponentModel;
 
 namespace BCad.UI.ToolBars
 {
@@ -34,11 +35,26 @@ namespace BCad.UI.ToolBars
         public void OnImportsSatisfied()
         {
             // subscribe to events
-            Workspace.DocumentChanged += Workspace_DocumentChanged;
-            Workspace.CurrentLayerChanged += Workspace_CurrentLayerChanged;
+            Workspace.PropertyChanged += Workspace_PropertyChanged;
 
             // populate the list
             PopulateDropDown();
+        }
+
+        void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "CurrentLayer":
+                    if (listenToChangeEvent)
+                        this.Dispatcher.BeginInvoke((Action)(() => this.currentLayer.SelectedItem = Workspace.CurrentLayer));
+                    break;
+                case "Document":
+                    this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown(true)));
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void PopulateDropDown(bool preserveCurrent = false)
@@ -53,17 +69,6 @@ namespace BCad.UI.ToolBars
             else
                 this.currentLayer.SelectedItem = Workspace.CurrentLayer;
             listenToChangeEvent = true;
-        }
-
-        private void Workspace_DocumentChanged(object sender, EventArguments.DocumentChangedEventArgs e)
-        {
-            this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown(true)));
-        }
-
-        private void Workspace_CurrentLayerChanged(object sender, EventArguments.LayerChangedEventArgs e)
-        {
-            if (listenToChangeEvent)
-                this.Dispatcher.BeginInvoke((Action)(() => this.currentLayer.SelectedItem = Workspace.CurrentLayer));
         }
 
         private void currentLayer_SelectionChanged(object sender, SelectionChangedEventArgs e)
