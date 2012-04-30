@@ -91,9 +91,6 @@ namespace BCad.UI.Consoles
                     else
                         value = inputLine.Text; // directive
                     break;
-                case InputType.Object:
-                    // TODO: submit object
-                    break;
                 case InputType.Command:
                 case InputType.Text:
                     value = string.IsNullOrEmpty(inputLine.Text) ? null : inputLine.Text;

@@ -41,7 +41,7 @@ namespace BCad.Commands
                             return new IPrimitive[]
                             {
                                 new Line(center, p, Color.Default),
-                                new Circle(center, (p - center).Length, View.Sight, Color.Default)
+                                new Circle(center, (p - center).Length, Workspace.DrawingPlaneNormal(), Color.Default)
                             };
                         });
                         if (rad.Cancel) return false;
@@ -66,7 +66,7 @@ namespace BCad.Commands
                             return new IPrimitive[]
                             {
                                 new Line(center, p, Color.Default),
-                                new Circle(center, (p - center).Length / 2.0, View.Sight, Color.Default)
+                                new Circle(center, (p - center).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default)
                             };
                         });
                         if (diameter.Cancel) return false;
@@ -99,7 +99,7 @@ namespace BCad.Commands
                 }
             }
 
-            Workspace.AddToCurrentLayer(new Circle(center, radius, View.Sight, Color.Default));
+            Workspace.AddToCurrentLayer(new Circle(center, radius, Workspace.DrawingPlaneNormal(), Color.Default));
             return true;
         }
 

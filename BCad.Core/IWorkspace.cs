@@ -23,6 +23,8 @@ namespace BCad
     {
         Document Document { get; set; }
         Layer CurrentLayer { get; set; }
+        DrawingPlane DrawingPlane { get; set; }
+        double DrawingPlaneOffset { get; set; }
 
         ISettingsManager SettingsManager { get; }
         void LoadSettings(string path);

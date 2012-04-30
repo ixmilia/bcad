@@ -16,7 +16,6 @@ using BCad.EventArguments;
 using SlimDX;
 using SlimDX.Direct3D9;
 using System.Windows.Interop;
-//using SlimDX.Direct3D11;
 using BCad.Objects;
 using BCad.SnapPoints;
 using System.Runtime.InteropServices;
@@ -52,14 +51,6 @@ namespace BCad.UI.Views
             MouseWheel += SlimDXViewControl_MouseWheel;
             mainImage.MouseWheel += SlimDXViewControl_MouseWheel;
             this.SizeChanged += new SizeChangedEventHandler(SlimDXViewControl_SizeChanged);
-
-            //lines = new[]
-            //{
-            //    new LineVertex() { Position = new Vector3(0, 0, 0), Color = 0 },
-            //    new LineVertex() { Position = new Vector3(100, 100, 0), Color = 0 },
-            //    //new LineVertex() { Position = new Vector3(0.5f, -0.5f, 0), Color = 0 },
-            //    //new LineVertex() { Position = new Vector3(0, 0, 0), Color = 0 },
-            //};
         }
 
         private PresentParameters pp = null;
@@ -256,7 +247,7 @@ namespace BCad.UI.Views
             {
                 foreach (var entity in layer.Objects)
                 {
-                    lines[entity.Id] = GenerateCurveSegments(entity, layer.Color).ToArray();
+                    lines[entity.Id] = GenerateEntitySegments(entity, layer.Color).ToArray();
                 }
             }
 
@@ -293,12 +284,12 @@ namespace BCad.UI.Views
         private int backgroundColor = 0x000000;
         private int autoColor = 0xFFFFFF;
 
-        private IEnumerable<LineVertex> GenerateCurveSegments(Entity entity, Color layerColor)
+        private IEnumerable<LineVertex> GenerateEntitySegments(Entity entity, Color layerColor)
         {
             return entity.GetPrimitives().SelectMany(p => GeneratePrimitiveSegments(p, GetDisplayColor(layerColor, p.Color)));
         }
 
-        private static IEnumerable<LineVertex> GeneratePrimitiveSegments(IPrimitive primitive, int color)
+        private IEnumerable<LineVertex> GeneratePrimitiveSegments(IPrimitive primitive, int color)
         {
             LineVertex[] segments;
             switch (primitive.Kind)
@@ -314,6 +305,7 @@ namespace BCad.UI.Views
                 case PrimitiveKind.Circle:
                     double startAngle, endAngle, radius;
                     Point center;
+                    Vector normal;
                     if (primitive.Kind == PrimitiveKind.Arc)
                     {
                         var arc = (Arc)primitive;
@@ -321,6 +313,7 @@ namespace BCad.UI.Views
                         endAngle = arc.EndAngle;
                         radius = arc.Radius;
                         center = arc.Center;
+                        normal = arc.Normal;
                     }
                     else
                     {
@@ -329,6 +322,7 @@ namespace BCad.UI.Views
                         endAngle = 360.0;
                         radius = circle.Radius;
                         center = circle.Center;
+                        normal = circle.Normal;
                     }
                     startAngle *= DegreesToRadians;
                     endAngle *= DegreesToRadians;
@@ -338,11 +332,22 @@ namespace BCad.UI.Views
                     segments = new LineVertex[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
+                    var transformation =
+                        SlimDX.Matrix.Scaling(new Vector3((float)radius))
+                        * SlimDX.Matrix.RotationZ(-(float)Math.Atan2(normal.Y, normal.X))
+                        * SlimDX.Matrix.RotationX(-(float)Math.Atan2(normal.Y, normal.Z))
+                        * SlimDX.Matrix.RotationY((float)Math.Atan2(normal.X, normal.Z))
+                        * SlimDX.Matrix.Translation(center.ToVector3());
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
-                        var x = (float)(Math.Cos(angle) * radius + center.X);
-                        var y = (float)(Math.Sin(angle) * radius + center.Y);
-                        segments[i] = new LineVertex() { Position = new Vector3(x, y, 0.0f), Color = color };
+                        var x = (float)Math.Cos(angle);
+                        var y = (float)Math.Sin(angle);
+                        var result = Vector3.Transform(new Vector3(x, y, 0.0f), transformation);
+                        segments[i] = new LineVertex()
+                        {
+                            Position = new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W),
+                            Color = color
+                        };
                     }
                     break;
                 default:
@@ -365,6 +370,7 @@ namespace BCad.UI.Views
                 * SlimDX.Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
 
             device.SetTransform(TransformState.Projection, matrix);
+            device.SetTransform(TransformState.View, SlimDX.Matrix.Scaling(1, 1, 0));
 
             UpdateSnapPoints(matrix);
         }
@@ -483,9 +489,9 @@ namespace BCad.UI.Views
         private TransformedSnapPoint GetRawModelPoint(Vector3 cursor)
         {
             var world = device.GetTransform(TransformState.World);
-            var view = device.GetTransform(TransformState.View);
+            //var view = device.GetTransform(TransformState.View);
             var projection = device.GetTransform(TransformState.Projection);
-            var matrix = projection * view * world;
+            var matrix = projection * world;
             var worldPoint = Vector3.Unproject(
                 cursor,
                 device.Viewport.X,

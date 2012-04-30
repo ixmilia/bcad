@@ -99,5 +99,31 @@ namespace BCad
             var layer = workspace.Document.Layers[layerName];
             workspace.CurrentLayer = layer;
         }
+
+        /// <summary>
+        /// Returns the normal to the current drawing plane.
+        /// </summary>
+        /// <param name="workspace">The workspace object.</param>
+        /// <returns>The normal to the current drawing plane.</returns>
+        public static Vector DrawingPlaneNormal(this IWorkspace workspace)
+        {
+            Vector normal = null;
+            switch (workspace.DrawingPlane)
+            {
+                case DrawingPlane.XY:
+                    normal = Vector.ZAxis;
+                    break;
+                case DrawingPlane.XZ:
+                    normal = Vector.YAxis;
+                    break;
+                case DrawingPlane.YZ:
+                    normal = Vector.XAxis;
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported drawing plane " + workspace.DrawingPlane);
+            }
+
+            return normal;
+        }
     }
 }

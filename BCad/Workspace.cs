@@ -18,6 +18,28 @@ namespace BCad
     [Export(typeof(IWorkspace))]
     internal class Workspace : IWorkspace
     {
+        public Workspace()
+        {
+        }
+
+        #region Events
+
+        public event CommandExecutingEventHandler CommandExecuting;
+
+        protected virtual void OnCommandExecuting(CommandExecutingEventArgs e)
+        {
+            if (CommandExecuting != null)
+                CommandExecuting(this, e);
+        }
+
+        public event CommandExecutedEventHandler CommandExecuted;
+
+        protected virtual void OnCommandExecuted(CommandExecutedEventArgs e)
+        {
+            if (CommandExecuted != null)
+                CommandExecuted(this, e);
+        }
+
         public event PropertyChangingEventHandler PropertyChanging;
 
         protected void OnPropertyChanging(string propertyName)
@@ -34,8 +56,11 @@ namespace BCad
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private Document document = new Document();
+        #endregion
 
+        #region Properties
+
+        private Document document = new Document();
         public Document Document
         {
             get { return document; }
@@ -66,7 +91,6 @@ namespace BCad
         }
 
         private Layer currentLayer;
-
         public Layer CurrentLayer
         {
             get
@@ -90,7 +114,6 @@ namespace BCad
         }
 
         private DrawingPlane drawingPlane = DrawingPlane.XY;
-
         public DrawingPlane DrawingPlane
         {
             get { return drawingPlane; }
@@ -98,9 +121,29 @@ namespace BCad
             {
                 if (this.drawingPlane == value)
                     return;
+                OnPropertyChanging("DrawingPlane");
                 this.drawingPlane = value;
+                OnPropertyChanged("DrawingPlane");
             }
         }
+
+        private double drawingPlaneOffset = 0.0;
+        public double DrawingPlaneOffset
+        {
+            get { return this.drawingPlaneOffset; }
+            set
+            {
+                if (this.drawingPlaneOffset == value)
+                    return;
+                OnPropertyChanging("DrawingPlaneOffset");
+                this.drawingPlaneOffset = value;
+                OnPropertyChanged("DrawingPlaneOffset");
+            }
+        }
+
+        #endregion
+
+        #region Imports
 
         [Import]
         private IInputService InputService = null;
@@ -111,15 +154,11 @@ namespace BCad
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
+        #endregion
+
+        #region IWorkspace implementation
+
         public ISettingsManager SettingsManager { get; private set; }
-
-        private bool isExecuting = false;
-
-        private object executeGate = new object();
-
-        public Workspace()
-        {
-        }
 
         public void LoadSettings(string path)
         {
@@ -201,35 +240,9 @@ namespace BCad
             return GetCommand(commandName) != null;
         }
 
-        private BCad.Commands.ICommand GetCommand(string commandName)
-        {
-            var command = (from c in Commands
-                           let data = c.Metadata
-                           where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                              || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
-                           select c).SingleOrDefault();
-            return command == null ? null : command.Value;
-        }
-
         public bool CanExecute()
         {
             return !this.isExecuting;
-        }
-
-        public event CommandExecutingEventHandler CommandExecuting;
-
-        protected virtual void OnCommandExecuting(CommandExecutingEventArgs e)
-        {
-            if (CommandExecuting != null)
-                CommandExecuting(this, e);
-        }
-
-        public event CommandExecutedEventHandler CommandExecuted;
-
-        protected virtual void OnCommandExecuted(CommandExecutedEventArgs e)
-        {
-            if (CommandExecuted != null)
-                CommandExecuted(this, e);
         }
 
         public UnsavedChangesResult PromptForUnsavedChanges()
@@ -270,5 +283,26 @@ namespace BCad
         {
             Application.Current.Dispatcher.Invoke((Action)(() => Application.Current.MainWindow.Focus()));
         }
+
+        #endregion
+
+        #region Privates
+
+        private bool isExecuting = false;
+
+        private object executeGate = new object();
+
+        private BCad.Commands.ICommand GetCommand(string commandName)
+        {
+            var command = (from c in Commands
+                           let data = c.Metadata
+                           where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                              || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
+                           select c).SingleOrDefault();
+            return command == null ? null : command.Value;
+        }
+
+        #endregion
+
     }
 }

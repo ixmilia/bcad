@@ -238,13 +238,10 @@ namespace BCad
         public double ToAngle()
         {
             var angle = Math.Atan2(this.Y, this.X);
-            if (double.IsNaN(angle))
-                return double.NaN;
-
             angle = angle * 180.0 / Math.PI;
             // if > 0, quadrant 1 or 2
             // else quadrant 3 or 4
-            return angle > 0 ? angle : 360.0 + angle;
+            return angle > 0.0 ? angle : 360.0 + angle;
         }
 
         public static Vector XAxis
