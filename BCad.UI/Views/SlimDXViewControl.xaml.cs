@@ -21,6 +21,7 @@ using BCad.SnapPoints;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Windows.Media.Media3D;
 
 namespace BCad.UI.Views
 {
@@ -340,9 +341,9 @@ namespace BCad.UI.Views
                         * SlimDX.Matrix.Translation(center.ToVector3());
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
-                        var x = (float)Math.Cos(angle);
-                        var y = (float)Math.Sin(angle);
-                        var result = Vector3.Transform(new Vector3(x, y, 0.0f), transformation);
+                        var result = Vector3.Transform(
+                            new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0.0f),
+                            transformation);
                         segments[i] = new LineVertex()
                         {
                             Position = new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W),
@@ -392,6 +393,7 @@ namespace BCad.UI.Views
                         device.Viewport.MaxZ, // z-max
                         ref matrix, // transformation matrix
                         out snapPoints[i].ControlPoint); // output
+                    snapPoints[i].ControlPoint.Z = 0.0f;
                 }
             }
         }
