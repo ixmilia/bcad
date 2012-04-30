@@ -213,6 +213,7 @@ namespace BCad.UI.Views
 
         void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            bool redraw = false;
             switch (e.PropertyName)
             {
                 case "BackgroundColor":
@@ -221,8 +222,21 @@ namespace BCad.UI.Views
                     var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
                     autoColor = brightness < 0.67 ? 0xFFFFFF : 0x000000;
                     break;
+                case "AngleSnap":
+                case "Ortho":
+                case "PointSnap":
+                    redraw = true;
+                    break;
                 default:
                     break;
+            }
+
+            if (redraw)
+            {
+                var cursor = Mouse.GetPosition(this);
+                var sp = GetActiveModelPoint(cursor.ToVector3());
+                GenerateRubberBandLines(sp.WorldPoint);
+                DrawSnapPoint(sp);
             }
         }
 
@@ -485,17 +499,24 @@ namespace BCad.UI.Views
         private TransformedSnapPoint GetActiveModelPoint(Vector3 cursor)
         {
             return ActiveObjectSnapPoints(cursor)
+                ?? GetOrthoPoint(cursor)
                 ?? GetRawModelPoint(cursor);
         }
 
         private TransformedSnapPoint GetRawModelPoint(Vector3 cursor)
+        {
+            var worldPoint = Unproject(cursor);
+            return new TransformedSnapPoint(worldPoint.ToPoint(), cursor, SnapPointKind.None);
+        }
+
+        private Vector3 Unproject(Vector3 point)
         {
             var world = device.GetTransform(TransformState.World);
             //var view = device.GetTransform(TransformState.View);
             var projection = device.GetTransform(TransformState.Projection);
             var matrix = projection * world;
             var worldPoint = Vector3.Unproject(
-                cursor,
+                point,
                 device.Viewport.X,
                 device.Viewport.Y,
                 device.Viewport.Width,
@@ -503,7 +524,54 @@ namespace BCad.UI.Views
                 device.Viewport.MinZ,
                 device.Viewport.MaxZ,
                 matrix);
-            return new TransformedSnapPoint(worldPoint.ToPoint(), cursor, SnapPointKind.None);
+            return worldPoint;
+        }
+
+        private TransformedSnapPoint GetOrthoPoint(Vector3 cursor)
+        {
+            if (InputService.IsDrawing && Workspace.SettingsManager.Ortho)
+            {
+                // if both are on the drawing plane
+                var last = InputService.LastPoint;
+                var current = Unproject(cursor).ToPoint();
+                var delta = current - last;
+                var offset = Workspace.DrawingPlaneOffset;
+                Point world;
+                switch (Workspace.DrawingPlane)
+                {
+                    case DrawingPlane.XY:
+                        if (offset != last.Z && offset != current.Z)
+                            return null;
+                        if (Math.Abs(delta.X) > Math.Abs(delta.Y))
+                            world = (last + new Vector(delta.X, 0.0, 0.0)).ToPoint();
+                        else
+                            world = (last + new Vector(0.0, delta.Y, 0.0)).ToPoint();
+                        break;
+                    case DrawingPlane.XZ:
+                        if (offset != last.Y && offset != current.Y)
+                            return null;
+                        if (Math.Abs(delta.X) > Math.Abs(delta.Z))
+                            world = (last + new Vector(delta.X, 0.0, 0.0)).ToPoint();
+                        else
+                            world = (last + new Vector(0.0, 0.0, delta.Z)).ToPoint();
+                        break;
+                    case DrawingPlane.YZ:
+                        if (offset != last.X && offset != current.X)
+                            return null;
+                        if (Math.Abs(delta.Y) > Math.Abs(delta.Z))
+                            world = (last + new Vector(0.0, delta.Y, 0.0)).ToPoint();
+                        else
+                            world = (last + new Vector(0.0, 0.0, delta.Z)).ToPoint();
+                        break;
+                    default:
+                        throw new NotSupportedException("Invalid drawing plane");
+                }
+
+                Debug.Assert(world != null, "should have returned null");
+                return new TransformedSnapPoint(world, cursor, SnapPointKind.None);
+            }
+
+            return null;
         }
 
         private TransformedSnapPoint ActiveObjectSnapPoints(Vector3 cursor)
