@@ -445,7 +445,7 @@ namespace BCad.UI.Views
 
             var geometry = (Media.GeometryDrawing)SnapPointResources[name];
             var scale = Workspace.SettingsManager.SnapPointSize;
-            geometry.Pen = new Media.Pen(Media.Brushes.Yellow, 0.2); // TODO: parameterize color
+            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(Workspace.SettingsManager.SnapPointColor), 0.2);
             var di = new Media.DrawingImage(geometry);
             var icon = new Image();
             icon.Source = di;
@@ -633,7 +633,6 @@ namespace BCad.UI.Views
                             InputService.PushValue(sp.WorldPoint);
                             break;
                         case InputType.Object:
-                            // TODO: parallelize this, seriously
                             var start = DateTime.UtcNow;
                             uint hitEntity = 0;
                             foreach (var entityId in lines.Keys)
@@ -671,6 +670,7 @@ namespace BCad.UI.Views
                                 if (hitEntity > 0)
                                     break;
                             }
+
                             if (hitEntity > 0)
                             {
                                 // found it

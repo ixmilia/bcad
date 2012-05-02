@@ -26,6 +26,7 @@ namespace BCad
         private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
         private Media.Color backgroundColor = Media.Colors.Black;
+        private Media.Color snapPointColor = Media.Colors.Yellow;
 
         internal IInputService InputService { get; set; }
 
@@ -161,7 +162,7 @@ namespace BCad
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName="SnapAngles")]
+        [XmlElement(ElementName = "SnapAngles")]
         public string SnapAnglesString
         {
             get
@@ -218,22 +219,38 @@ namespace BCad
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName="BackgroundColor")]
+        [XmlElement(ElementName = "BackgroundColor")]
         public string BackgroundColorString
         {
             get
             {
-                int c = (BackgroundColor.R << 16) | (BackgroundColor.G << 8) | BackgroundColor.B;
-                return string.Format("#{0:X}", c);
+                return BackgroundColor.ToColorString();
             }
             set
             {
-                int c = int.Parse(value.Substring(1), NumberStyles.HexNumber);
-                int r = (c & 0xFF0000) >> 16;
-                int g = (c & 0x00FF00) >> 8;
-                int b = (c & 0x0000FF);
-                BackgroundColor = Media.Color.FromRgb((byte)r, (byte)g, (byte)b);
+                BackgroundColor = value.ParseColor();
             }
+        }
+
+        [XmlIgnore]
+        public Media.Color SnapPointColor
+        {
+            get { return this.snapPointColor; }
+            set
+            {
+                if (this.snapPointColor == value)
+                    return;
+                this.snapPointColor = value;
+                OnPropertyChanged("SnapPointColor");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName = "SnapPointColor")]
+        public string SnapPointColorString
+        {
+            get { return SnapPointColor.ToColorString(); }
+            set { SnapPointColor = value.ParseColor(); }
         }
 
         public SettingsManager()
@@ -299,6 +316,7 @@ namespace BCad
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
             BackgroundColor = Media.Colors.DarkSlateGray;
             //BackgroundColor = 0x6495ED; // cornflower blue
+            SnapPointColor = Media.Colors.Yellow;
         }
     }
 }

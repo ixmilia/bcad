@@ -20,5 +20,6 @@ namespace BCad
         KeyboardShortcut PointSnapShortcut { get; set; }
         KeyboardShortcut OrthoShortcut { get; set; }
         Media.Color BackgroundColor { get; set; }
+        Media.Color SnapPointColor { get; set; }
     }
 }
