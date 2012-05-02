@@ -288,7 +288,7 @@ namespace BCad
             ConsoleControlId = "Default";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
-            ObjectSelectionRadius = 2.0;
+            ObjectSelectionRadius = 3.0;
             PointSnap = true;
             AngleSnap = true;
             Ortho = false;

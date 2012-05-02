@@ -70,6 +70,7 @@
     <Compile Include="FileHandlers\ExportFileWriterAttribute.cs" />
     <Compile Include="FileHandlers\IFileReader.cs" />
     <Compile Include="FileHandlers\IFileWriter.cs" />
+    <Compile Include="Helpers\MathHelper.cs" />
     <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IControlFactory.cs" />
     <Compile Include="IControlFactoryMetadata.cs" />

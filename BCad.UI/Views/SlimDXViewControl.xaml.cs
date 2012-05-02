@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel.Composition;
-using BCad.EventArguments;
-using SlimDX;
-using SlimDX.Direct3D9;
 using System.Windows.Interop;
+using BCad.EventArguments;
 using BCad.Objects;
 using BCad.SnapPoints;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Windows.Media.Media3D;
+using SlimDX;
+using SlimDX.Direct3D9;
+using Media = System.Windows.Media;
+using System.Threading.Tasks;
+using BCad.Helpers;
 
 namespace BCad.UI.Views
 {
@@ -106,9 +100,9 @@ namespace BCad.UI.Views
             };
             device = new Device(direct3d, 0, DeviceType.Hardware, hwnd.Handle, CreateFlags.HardwareVertexProcessing, pp);
 
-            device.SetTransform(TransformState.Projection, SlimDX.Matrix.Identity);
-            device.SetTransform(TransformState.View, SlimDX.Matrix.Identity);
-            device.SetTransform(TransformState.World, SlimDX.Matrix.Identity);
+            device.SetTransform(TransformState.Projection, Matrix.Identity);
+            device.SetTransform(TransformState.View, Matrix.Identity);
+            device.SetTransform(TransformState.World, Matrix.Identity);
 
             d3dimage.Lock();
             d3dimage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, device.GetBackBuffer(0, 0).ComPointer);
@@ -119,7 +113,7 @@ namespace BCad.UI.Views
                     new VertexElement(0, 12, DeclarationType.Color, DeclarationMethod.Default, DeclarationUsage.Color, 0) });
             device.SetRenderState(RenderState.Lighting, false);
 
-            CompositionTarget.Rendering += OnRendering;
+            Media.CompositionTarget.Rendering += OnRendering;
         }
 
         void OnRendering(object sender, EventArgs e)
@@ -250,20 +244,25 @@ namespace BCad.UI.Views
         private IEnumerable<LineVertex[]> rubberBandLines = null;
         private bool processingDocument = false;
         private TransformedSnapPoint[] snapPoints = new TransformedSnapPoint[0];
+        private Document document = null;
 
         private void DocumentChanged(Document document)
         {
             processingDocument = true;
+            this.document = document;
             var sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             lines.Clear();
             var red = System.Drawing.Color.Red.ToArgb();
             foreach (var layer in document.Layers.Values)
             {
+                // TODO: parallelize this.  requires `lines` to be concurrent dictionary
+                var start = DateTime.UtcNow;
                 foreach (var entity in layer.Objects)
                 {
                     lines[entity.Id] = GenerateEntitySegments(entity, layer.Color).ToArray();
                 }
+                var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
             }
 
             snapPoints = document.Layers.Values.SelectMany(l => l.Objects.SelectMany(o => o.GetSnapPoints()))
@@ -348,11 +347,12 @@ namespace BCad.UI.Views
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
                     var transformation =
-                        SlimDX.Matrix.Scaling(new Vector3((float)radius))
-                        * SlimDX.Matrix.RotationZ(-(float)Math.Atan2(normal.Y, normal.X))
-                        * SlimDX.Matrix.RotationX(-(float)Math.Atan2(normal.Y, normal.Z))
-                        * SlimDX.Matrix.RotationY((float)Math.Atan2(normal.X, normal.Z))
-                        * SlimDX.Matrix.Translation(center.ToVector3());
+                        Matrix.Scaling(new Vector3((float)radius))
+                        * Matrix.RotationZ(-(float)Math.Atan2(normal.Y, normal.X))
+                        * Matrix.RotationX(-(float)Math.Atan2(normal.Y, normal.Z))
+                        * Matrix.RotationY((float)Math.Atan2(normal.X, normal.Z))
+                        * Matrix.Translation(center.ToVector3());
+                    var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
                         var result = Vector3.Transform(
@@ -364,6 +364,7 @@ namespace BCad.UI.Views
                             Color = color
                         };
                     }
+                    var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                     break;
                 default:
                     throw new ArgumentException("entity.Kind");
@@ -379,37 +380,40 @@ namespace BCad.UI.Views
             
             var width = (float)View.ViewWidth;
             var height = (float)(View.ViewWidth * mainImage.ActualHeight / mainImage.ActualWidth);
-            var matrix = SlimDX.Matrix.Identity
-                * SlimDX.Matrix.Translation((float)-View.BottomLeft.X, (float)-View.BottomLeft.Y, 0)
-                * SlimDX.Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
-                * SlimDX.Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
+            var matrix = Matrix.Identity
+                * Matrix.Translation((float)-View.BottomLeft.X, (float)-View.BottomLeft.Y, 0)
+                * Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
+                * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
 
             device.SetTransform(TransformState.Projection, matrix);
-            device.SetTransform(TransformState.View, SlimDX.Matrix.Scaling(1, 1, 0));
+            device.SetTransform(TransformState.View, Matrix.Scaling(1, 1, 0));
 
             UpdateSnapPoints(matrix);
         }
 
-        private void UpdateSnapPoints(SlimDX.Matrix matrix)
+        private void UpdateSnapPoints(Matrix matrix)
         {
+            var start = DateTime.UtcNow;
             if (snapPoints.Length > 0)
             {
-                for (int i = 0; i < snapPoints.Length; i++)
-                {
-                    var wp = snapPoints[i].WorldPoint.ToVector3();
-                    Vector3.Project(
-                        ref wp, // input
-                        device.Viewport.X, // x
-                        device.Viewport.Y, // y
-                        device.Viewport.Width, // viewport width
-                        device.Viewport.Height, // viewport height
-                        device.Viewport.MinZ, // z-min
-                        device.Viewport.MaxZ, // z-max
-                        ref matrix, // transformation matrix
-                        out snapPoints[i].ControlPoint); // output
-                    snapPoints[i].ControlPoint.Z = 0.0f;
-                }
+                Parallel.For(0, snapPoints.Length,
+                    (i) =>
+                    {
+                        var wp = snapPoints[i].WorldPoint.ToVector3();
+                        Vector3.Project(
+                            ref wp, // input
+                            device.Viewport.X, // x
+                            device.Viewport.Y, // y
+                            device.Viewport.Width, // viewport width
+                            device.Viewport.Height, // viewport height
+                            device.Viewport.MinZ, // z-min
+                            device.Viewport.MaxZ, // z-max
+                            ref matrix, // transformation matrix
+                            out snapPoints[i].ControlPoint); // output
+                        snapPoints[i].ControlPoint.Z = 0.0f;
+                    });
             }
+            var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
         }
 
         private Image GetSnapIcon(TransformedSnapPoint snapPoint)
@@ -439,14 +443,14 @@ namespace BCad.UI.Views
             if (name == null)
                 return null;
 
-            var geometry = (GeometryDrawing)SnapPointResources[name];
+            var geometry = (Media.GeometryDrawing)SnapPointResources[name];
             var scale = Workspace.SettingsManager.SnapPointSize;
-            geometry.Pen = new Pen(Brushes.Yellow, 0.2);
-            var di = new DrawingImage(geometry);
+            geometry.Pen = new Media.Pen(Media.Brushes.Yellow, 0.2); // TODO: parameterize color
+            var di = new Media.DrawingImage(geometry);
             var icon = new Image();
             icon.Source = di;
-            icon.Stretch = Stretch.None;
-            icon.LayoutTransform = new ScaleTransform(scale, scale);
+            icon.Stretch = Media.Stretch.None;
+            icon.LayoutTransform = new Media.ScaleTransform(scale, scale);
             Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
             Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
             return icon;
@@ -505,26 +509,11 @@ namespace BCad.UI.Views
 
         private TransformedSnapPoint GetRawModelPoint(Vector3 cursor)
         {
-            var worldPoint = Unproject(cursor);
-            return new TransformedSnapPoint(worldPoint.ToPoint(), cursor, SnapPointKind.None);
-        }
-
-        private Vector3 Unproject(Vector3 point)
-        {
             var world = device.GetTransform(TransformState.World);
-            //var view = device.GetTransform(TransformState.View);
             var projection = device.GetTransform(TransformState.Projection);
             var matrix = projection * world;
-            var worldPoint = Vector3.Unproject(
-                point,
-                device.Viewport.X,
-                device.Viewport.Y,
-                device.Viewport.Width,
-                device.Viewport.Height,
-                device.Viewport.MinZ,
-                device.Viewport.MaxZ,
-                matrix);
-            return worldPoint;
+            var worldPoint = Unproject(cursor);
+            return new TransformedSnapPoint(worldPoint.ToPoint(), cursor, SnapPointKind.None);
         }
 
         private TransformedSnapPoint GetOrthoPoint(Vector3 cursor)
@@ -590,13 +579,51 @@ namespace BCad.UI.Views
             return null;
         }
 
+        private Vector3 Project(Vector3 point)
+        {
+            var world = device.GetTransform(TransformState.World);
+            var view = device.GetTransform(TransformState.View);
+            var projection = device.GetTransform(TransformState.Projection);
+            var matrix = projection * view * world;
+            var screenPoint = Vector3.Project(
+                point,
+                device.Viewport.X,
+                device.Viewport.Y,
+                device.Viewport.Width,
+                device.Viewport.Height,
+                device.Viewport.MinZ,
+                device.Viewport.MaxZ,
+                matrix);
+            return screenPoint;
+        }
+
+        private Vector3 Unproject(Vector3 point)
+        {
+            // not using view matrix because that scales z at 0 for display
+            var world = device.GetTransform(TransformState.World);
+            var projection = device.GetTransform(TransformState.Projection);
+            var matrix = projection * world;
+            var worldPoint = Vector3.Unproject(
+                point,
+                device.Viewport.X,
+                device.Viewport.Y,
+                device.Viewport.Width,
+                device.Viewport.Height,
+                device.Viewport.MinZ,
+                device.Viewport.MaxZ,
+                matrix);
+            return worldPoint;
+        }
+
         private bool panning = false;
         private System.Windows.Point lastPanPoint = new System.Windows.Point();
 
         private void clicker_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var cursor = e.GetPosition(this);
-            var sp = GetActiveModelPoint(e.GetPosition(this).ToVector3());
+            var cursorVector = cursor.ToVector3();
+            var sp = GetActiveModelPoint(cursorVector);
+            var selectionDist = Workspace.SettingsManager.ObjectSelectionRadius;
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
@@ -606,7 +633,52 @@ namespace BCad.UI.Views
                             InputService.PushValue(sp.WorldPoint);
                             break;
                         case InputType.Object:
-                            // TODO: object selection NYI
+                            // TODO: parallelize this, seriously
+                            var start = DateTime.UtcNow;
+                            uint hitEntity = 0;
+                            foreach (var entityId in lines.Keys)
+                            {
+                                var segments = lines[entityId];
+                                for (int i = 0; i < segments.Length - 1; i++)
+                                {
+                                    // translate line segment to screen coordinates
+                                    var p1 = Project(segments[i].Position);
+                                    var p2 = Project(segments[i + 1].Position);
+                                    // check that cursor is in expanded bounding box of line segment
+                                    var minx = Math.Min(p1.X, p2.X) - selectionDist;
+                                    var maxx = Math.Max(p1.X, p2.X) + selectionDist;
+                                    var miny = Math.Min(p1.Y, p2.Y) - selectionDist;
+                                    var maxy = Math.Max(p1.Y, p2.Y) + selectionDist;
+                                    if (MathHelper.Between(minx, maxx, cursor.X) && MathHelper.Between(miny, maxy, cursor.Y))
+                                    {
+                                        // in bounding rectangle, check distance to line
+                                        var x1 = p1.X - cursor.X;
+                                        var x2 = p2.X - cursor.X;
+                                        var y1 = p1.Y - cursor.Y;
+                                        var y2 = p2.Y - cursor.Y;
+                                        var dx = x2 - x1;
+                                        var dy = y2 - y1;
+                                        var dr2 = dx * dx + dy * dy;
+                                        var D = x1 * y2 - x2 * y1;
+                                        var det = (selectionDist * selectionDist * dr2) - (D * D);
+                                        if (det >= 0.0)
+                                        {
+                                            hitEntity = entityId;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (hitEntity > 0)
+                                    break;
+                            }
+                            if (hitEntity > 0)
+                            {
+                                // found it
+                                var ent = document.Layers.Values.SelectMany(l => l.Objects).FirstOrDefault(en => en.Id == hitEntity);
+                                Debug.Assert(ent != null, "hit object not in document");
+                                var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+                                InputService.PushValue(ent);
+                            }
                             break;
                     }
                     break;
