@@ -66,7 +66,7 @@ namespace BCad.UI.Views
             // center zoom operation on mouse
             var cursorPoint = e.GetPosition(this);
             var controlPoint = new Point(cursorPoint);
-            var cursorPos = View.ControlToWorld(controlPoint);
+            var cursorPos = Unproject(controlPoint.ToVector3()).ToPoint();
             var botLeft = View.BottomLeft;
 
             // find relative scales
@@ -504,6 +504,7 @@ namespace BCad.UI.Views
         {
             return ActiveObjectSnapPoints(cursor)
                 ?? GetOrthoPoint(cursor)
+                ?? GetAngleSnapPoint(cursor)
                 ?? GetRawModelPoint(cursor);
         }
 
@@ -514,6 +515,55 @@ namespace BCad.UI.Views
             var matrix = projection * world;
             var worldPoint = Unproject(cursor);
             return new TransformedSnapPoint(worldPoint.ToPoint(), cursor, SnapPointKind.None);
+        }
+
+        private TransformedSnapPoint GetAngleSnapPoint(Vector3 cursor)
+        {
+            if (InputService.IsDrawing && Workspace.SettingsManager.AngleSnap)
+            {
+                // get distance to last point
+                var last = InputService.LastPoint;
+                var current = Unproject(cursor).ToPoint();
+                var vector = current - last;
+                var dist = vector.Length;
+
+                // for each snap angle, find the point `dist` out on the angle vector
+                Func<double, Vector> snapVector = rad =>
+                    {
+                        Vector radVector = null;
+                        switch (Workspace.DrawingPlane)
+                        {
+                            case DrawingPlane.XY:
+                                radVector = new Vector(Math.Cos(rad), Math.Sin(rad), Workspace.DrawingPlaneOffset);
+                                break;
+                            case DrawingPlane.XZ:
+                                radVector = new Vector(Math.Cos(rad), Workspace.DrawingPlaneOffset, Math.Sin(rad));
+                                break;
+                            case DrawingPlane.YZ:
+                                radVector = new Vector(Workspace.DrawingPlaneOffset, Math.Cos(rad), Math.Sin(rad));
+                                break;
+                            default:
+                                Debug.Fail("invalid value for drawing plane");
+                                break;
+                        }
+
+                        return radVector.Normalize() * dist;
+                    };
+
+                var points = from sa in Workspace.SettingsManager.SnapAngles
+                             let rad = sa * Math.PI / 180.0
+                             let radVector = snapVector(rad)
+                             let snapPoint = (last + radVector).ToPoint()
+                             let di = (cursor - Project(snapPoint.ToVector3())).Length()
+                             where di <= Workspace.SettingsManager.SnapAngleDistance
+                             orderby di
+                             select new TransformedSnapPoint(snapPoint, Project(snapPoint.ToVector3()), SnapPointKind.None);
+
+                // return the closest one
+                return points.FirstOrDefault();
+            }
+
+            return null;
         }
 
         private TransformedSnapPoint GetOrthoPoint(Vector3 cursor)
