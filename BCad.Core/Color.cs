@@ -42,16 +42,17 @@ namespace BCad
             get
             {
                 int val = RgbValues[Value];
+                byte a = (byte)0xFF;
                 byte r = (byte)((val & 0xFF0000) >> 16);
                 byte g = (byte)((val & 0x00FF00) >> 8);
                 byte b = (byte)(val & 0x0000FF);
-                return Media.Color.FromRgb(r, g, b);
+                return Media.Color.FromArgb(a, r, g, b);
             }
         }
 
         public int ToInt()
         {
-            return RgbValues[Value];
+            return (0xFF << 24) | RgbValues[Value];
         }
 
         public override int GetHashCode()

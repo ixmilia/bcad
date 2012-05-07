@@ -94,7 +94,7 @@ namespace BCad.UI.Views
         private IInputService inputService = null;
         private IView view = null;
         private Matrix worldMatrix = Matrix.Identity;
-        private Matrix viewMatrix = Matrix.Identity;
+        private Matrix viewMatrix = Matrix.Scaling(1.0f, 1.0f, 0.0f);
         private Matrix projectionMatrix = Matrix.Identity;
         private TransformedSnapPoint[] snapPoints = new TransformedSnapPoint[0];
         private object documentGate = new object();
@@ -105,6 +105,7 @@ namespace BCad.UI.Views
         private IEnumerable<LineVertex[]> rubberBandLines = null;
         private bool panning = false;
         private System.Windows.Point lastPanPoint = new System.Windows.Point();
+        private bool lastGeneratorNonNull = false;
 
         #endregion
 
@@ -242,7 +243,7 @@ namespace BCad.UI.Views
                 sw.Start();
                 lines.Clear();
                 var red = System.Drawing.Color.Red.ToArgb();
-                foreach (var layer in document.Layers.Values)
+                foreach (var layer in document.Layers.Values.Where(l => l.IsVisible))
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
                     var start = DateTime.UtcNow;
@@ -268,21 +269,22 @@ namespace BCad.UI.Views
         {
             var width = (float)view.ViewWidth;
             var height = (float)(view.ViewWidth * this.ActualHeight / this.ActualWidth);
-            var matrix = Matrix.Identity
+            projectionMatrix = Matrix.Identity
                 * Matrix.Translation((float)-view.BottomLeft.X, (float)-view.BottomLeft.Y, 0)
                 * Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
                 * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
 
-            Device.SetTransform(TransformState.Projection, matrix);
-            Device.SetTransform(TransformState.View, Matrix.Scaling(1.0f, 1.0f, 0.0f));
-
-            UpdateSnapPoints(matrix);
+            Device.SetTransform(TransformState.Projection, projectionMatrix);
+            Device.SetTransform(TransformState.View, viewMatrix);
+            UpdateSnapPoints(projectionMatrix);
+            ForceRender();
         }
 
         void CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(() => this.snapLayer.Children.Clear()));
             rubberBandLines = null;
+            ForceRender();
         }
 
         #endregion
@@ -304,7 +306,13 @@ namespace BCad.UI.Views
             rubberBandLines = generator == null
                 ? null
                 : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p, autoColor).ToArray());
-            ForceRender();
+
+            if (generator != null || lastGeneratorNonNull)
+            {
+                ForceRender();
+            }
+
+            lastGeneratorNonNull = generator != null;
         }
 
         private IEnumerable<LineVertex> GenerateEntitySegments(Entity entity, Color layerColor)

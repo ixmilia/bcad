@@ -60,6 +60,7 @@
     <Compile Include="Consoles\InputConsole.xaml.cs">
       <DependentUpon>InputConsole.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Direct3DExtensions.cs" />
     <Compile Include="Views\Direct3DControl.xaml.cs">
       <DependentUpon>Direct3DControl.xaml</DependentUpon>
     </Compile>
@@ -67,12 +68,6 @@
       <DependentUpon>Direct3DViewControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\IRenderEngine.cs" />
-    <Compile Include="Views\SlimDXViewControl.xaml.cs">
-      <DependentUpon>SlimDXViewControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\WpfViewControl.xaml.cs">
-      <DependentUpon>WpfViewControl.xaml</DependentUpon>
-    </Compile>
     <Page Include="Consoles\InputConsole.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -103,14 +98,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Direct3DViewControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SlimDXViewControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\WpfViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

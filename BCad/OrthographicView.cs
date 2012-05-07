@@ -117,15 +117,5 @@ namespace BCad
 
         private Matrix3D transform = Matrix3D.Identity;
         private Matrix3D inverse = Matrix3D.Identity;
-
-        public Point ControlToWorld(Point point)
-        {
-            return new Point(inverse.Transform(point.ToPoint3D()));
-        }
-
-        public Point WorldToControl(Point point)
-        {
-            return new Point(transform.Transform(point.ToPoint3D()));
-        }
     }
 }

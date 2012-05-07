@@ -17,7 +17,5 @@ namespace BCad
         double ViewWidth { get; }
         Point BottomLeft { get; }
         ViewControl RegisteredControl { get; set; }
-        Point ControlToWorld(Point point);
-        Point WorldToControl(Point point);
     }
 }

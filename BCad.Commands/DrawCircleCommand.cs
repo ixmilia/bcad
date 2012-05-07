@@ -18,9 +18,6 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        [Import]
-        private IView View = null;
-
         public bool Execute(object arg)
         {
             Point center = Point.Origin;
@@ -51,6 +48,11 @@ namespace BCad.Commands
                         }
                         else // switch modes
                         {
+                            if (rad.Directive == null)
+                            {
+                                return false;
+                            }
+
                             switch (rad.Directive)
                             {
                                 case "d":
