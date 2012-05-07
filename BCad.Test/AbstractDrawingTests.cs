@@ -24,7 +24,7 @@ namespace BCad.Test
             InputService.ValueReceived += new ValueReceivedEventHandler((s, e) => valueReceived.Set());
         }
 
-        protected void Wait(ManualResetEvent manualResetEvent, int msTimeout = 100)
+        protected void Wait(ManualResetEvent manualResetEvent, int msTimeout = 500)
         {
             if (!manualResetEvent.WaitOne(msTimeout))
             {

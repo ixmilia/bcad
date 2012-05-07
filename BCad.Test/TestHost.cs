@@ -15,7 +15,6 @@ namespace BCad.Test
         {
             var catalog = new AggregateCatalog(
                     new AssemblyCatalog("BCad.exe"),
-                    new AssemblyCatalog("BCad.Commands.dll"),
                     new AssemblyCatalog("BCad.Core.dll"),
                     new AssemblyCatalog("BCad.UI.dll")
                     );

@@ -48,9 +48,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.cs" />
+    <Compile Include="Commands\CopyCommand.cs" />
+    <Compile Include="Commands\DeleteCommand.cs" />
+    <Compile Include="Commands\DistanceCommand.cs" />
+    <Compile Include="Commands\DrawCircleCommand.cs" />
+    <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
+    <Compile Include="Commands\FileHandlers\DxfFileHandler.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandMetadata.cs" />
+    <Compile Include="Commands\LayersCommand.cs" />
+    <Compile Include="Commands\MoveCommand.cs" />
+    <Compile Include="Commands\NewCommand.cs" />
+    <Compile Include="Commands\OpenCommand.cs" />
+    <Compile Include="Commands\RedoCommand.cs" />
+    <Compile Include="Commands\RotateCommand.cs" />
+    <Compile Include="Commands\SaveAsCommand.cs" />
+    <Compile Include="Commands\SaveCommand.cs" />
+    <Compile Include="Commands\TrimCommand.cs" />
+    <Compile Include="Commands\UndoCommand.cs" />
     <Compile Include="DialogFactory.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="DrawingPlane.cs" />
@@ -123,6 +139,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BCad.Dxf\BCad.Dxf.csproj">
+      <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
+      <Name>BCad.Dxf</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

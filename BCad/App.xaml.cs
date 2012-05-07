@@ -26,7 +26,6 @@ namespace BCad
 
             var catalog = new AggregateCatalog(
                     new AssemblyCatalog(Assembly.GetExecutingAssembly()),
-                    new AssemblyCatalog("BCad.Commands.dll"),
                     new AssemblyCatalog("BCad.Core.dll"),
                     new AssemblyCatalog("BCad.UI.dll")
                     );
