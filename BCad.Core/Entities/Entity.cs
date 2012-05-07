@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BCad.SnapPoints;
 
-namespace BCad.Objects
+namespace BCad.Entities
 {
     public abstract class Entity
     {

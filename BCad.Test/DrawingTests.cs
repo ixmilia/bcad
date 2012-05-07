@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using BCad.Objects;
+using BCad.Entities;
 using Xunit;
 
 namespace BCad.Test
@@ -11,8 +11,8 @@ namespace BCad.Test
         {
             Workspace.AddLayer("Other");
             Workspace.SetCurrentLayer("Other");
-            Workspace.AddToCurrentLayer(Objects.Line());
-            Assert.Equal(1, Workspace.GetLayer("Other").Objects.Count);
+            Workspace.AddToCurrentLayer(Entities.Line());
+            Assert.Equal(1, Workspace.GetLayer("Other").Entities.Count);
             Assert.Equal(Workspace.GetLayer("Other"), Workspace.CurrentLayer);
         }
 
@@ -38,7 +38,7 @@ namespace BCad.Test
             AwaitingPoint();
             Cancel();
             AwaitingCommand();
-            Assert.False(Workspace.GetObjects().Any());
+            Assert.False(Workspace.GetEntities().Any());
         }
 
         [Fact]
@@ -78,13 +78,13 @@ namespace BCad.Test
             AwaitingPoint();
             Cancel();
             AwaitingCommand();
-            Assert.False(Workspace.GetObjects().Any());
+            Assert.False(Workspace.GetEntities().Any());
         }
 
         [Fact]
         public void DeleteCommandTest()
         {
-            var line = Objects.Line();
+            var line = Entities.Line();
             Workspace.AddToCurrentLayer(line);
             VerifyLayerContains("0", line);
             Execute("Object.Delete");
@@ -97,7 +97,7 @@ namespace BCad.Test
         [Fact]
         public void DeleteCommandCancelTest()
         {
-            var line = Objects.Line();
+            var line = Entities.Line();
             Workspace.AddToCurrentLayer(line);
             VerifyLayerContains("0", line);
             Execute("Object.Delete");

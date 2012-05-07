@@ -8,7 +8,7 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BCad.EventArguments;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad
 {
@@ -95,7 +95,7 @@ namespace BCad
             return result;
         }
 
-        public ValueOrDirective<Entity> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null)
+        public ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Object));
             WaitFor(InputType.Object, directive, onCursorMove);
@@ -109,8 +109,8 @@ namespace BCad
                 case PushedValueType.Cancel:
                     result = ValueOrDirective<Entity>.GetCancel();
                     break;
-                case PushedValueType.Object:
-                    result = new ValueOrDirective<Entity>(pushedObject);
+                case PushedValueType.Entity:
+                    result = new ValueOrDirective<Entity>(pushedEntity);
                     break;
                 case PushedValueType.Directive:
                     result = new ValueOrDirective<Entity>(pushedDirective);
@@ -132,7 +132,7 @@ namespace BCad
             lastType = PushedValueType.None;
             pushedPoint = default(Point);
             pushedText = null;
-            pushedObject = null;
+            pushedEntity = null;
             pushedDirective = null;
             PrimitiveGenerator = onCursorMove;
             pushValueDone.Reset();
@@ -144,7 +144,7 @@ namespace BCad
             lastType = PushedValueType.None;
             pushedPoint = default(Point);
             pushedText = null;
-            pushedObject = null;
+            pushedEntity = null;
             pushedDirective = null;
             PrimitiveGenerator = null;
             currentDirective = null;
@@ -155,7 +155,7 @@ namespace BCad
             None,
             Cancel,
             Point,
-            Object,
+            Entity,
             Directive
         }
 
@@ -163,7 +163,7 @@ namespace BCad
         private PushedValueType lastType = PushedValueType.None;
         private Point pushedPoint = default(Point);
         private string pushedDirective = null;
-        private Entity pushedObject = null;
+        private Entity pushedEntity = null;
         private string pushedText = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
         private string lastCommand = null;
@@ -231,10 +231,10 @@ namespace BCad
                                     this.LastPoint = pushedPoint;
                                     break;
                                 case InputType.Object:
-                                    lastType = PushedValueType.Object;
-                                    pushedObject = value as Entity;
+                                    lastType = PushedValueType.Entity;
+                                    pushedEntity = value as Entity;
                                     valueReceived = true;
-                                    OnValueReceived(new ValueReceivedEventArgs(pushedObject));
+                                    OnValueReceived(new ValueReceivedEventArgs(pushedEntity));
                                     break;
                                 case InputType.Text:
                                     lastType = PushedValueType.Directive;

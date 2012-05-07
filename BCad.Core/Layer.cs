@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad
 {
@@ -12,7 +12,7 @@ namespace BCad
         private readonly string name;
         private readonly Color color;
         private readonly bool isVisible;
-        private readonly ReadOnlyCollection<Entity> objects;
+        private readonly ReadOnlyCollection<Entity> entities;
 
         public string Name { get { return name; } }
 
@@ -20,62 +20,62 @@ namespace BCad
 
         public bool IsVisible { get { return isVisible; } }
 
-        public ReadOnlyCollection<Entity> Objects { get { return objects; } }
+        public ReadOnlyCollection<Entity> Entities { get { return entities; } }
 
         public Layer(string name, Color color)
             : this(name, color, new Entity[0])
         {
         }
 
-        public Layer(string name, Color color, IEnumerable<Entity> objects)
-            : this(name, color, true, objects)
+        public Layer(string name, Color color, IEnumerable<Entity> entities)
+            : this(name, color, true, entities)
         {
         }
 
-        public Layer(string name, Color color, bool isVisible, IEnumerable<Entity> objects)
+        public Layer(string name, Color color, bool isVisible, IEnumerable<Entity> entities)
         {
             this.name = name;
             this.color = color;
             this.isVisible = isVisible;
-            this.objects = new ReadOnlyCollection<Entity>(objects.ToList());
+            this.entities = new ReadOnlyCollection<Entity>(entities.ToList());
         }
 
         /// <summary>
         /// Returns true if the layer contains the specified object.
         /// </summary>
-        /// <param name="obj">The object to find.</param>
+        /// <param name="entity">The object to find.</param>
         /// <returns>True if the object was found, false otherwise.</returns>
-        public bool ObjectExists(Entity obj)
+        public bool EntityExists(Entity entity)
         {
-            return this.Objects.Any(o => o == obj);
+            return this.Entities.Any(e => e == entity);
         }
 
-        public Layer Add(Entity obj)
+        public Layer Add(Entity entity)
         {
-            return this.Update(objects: this.Objects.Concat(new[] { obj }));
+            return this.Update(entities: this.Entities.Concat(new[] { entity }));
         }
 
-        public Layer Remove(Entity obj)
+        public Layer Remove(Entity entity)
         {
-            if (!this.ObjectExists(obj))
+            if (!this.EntityExists(entity))
                 throw new ArgumentException("The layer does not contain the specified object.");
-            return this.Update(objects: this.Objects.Except(new[] { obj }));
+            return this.Update(entities: this.Entities.Except(new[] { entity }));
         }
 
-        public Layer Replace(Entity oldObject, Entity newObject)
+        public Layer Replace(Entity oldEntity, Entity newEntity)
         {
-            if (!this.ObjectExists(oldObject))
+            if (!this.EntityExists(oldEntity))
                 throw new ArgumentException("The layer does not contain the specified object.");
-            return this.Update(objects: this.Objects.Except(new[] { oldObject }).Concat(new[] { newObject }));
+            return this.Update(entities: this.Entities.Except(new[] { oldEntity }).Concat(new[] { newEntity }));
         }
 
-        public Layer Update(string name = null, Color? color = null, bool? isVisible = null, IEnumerable<Entity> objects = null)
+        public Layer Update(string name = null, Color? color = null, bool? isVisible = null, IEnumerable<Entity> entities = null)
         {
             return new Layer(
                 name ?? this.Name,
                 color ?? this.Color,
                 isVisible ?? this.isVisible,
-                objects ?? this.Objects);
+                entities ?? this.Entities);
         }
 
         public override string ToString()

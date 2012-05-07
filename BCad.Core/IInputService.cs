@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BCad.EventArguments;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad
 {
@@ -37,7 +37,7 @@ namespace BCad
 
         ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
 
-        ValueOrDirective<Entity> GetObject(UserDirective directive, RubberBandGenerator onCursorMove = null);
+        ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
 
         Point LastPoint { get; }
 

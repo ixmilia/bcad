@@ -7,8 +7,8 @@ using BCad;
 using BCad.Dxf;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Tables;
+using BCad.Entities;
 using BCad.FileHandlers;
-using BCad.Objects;
 using System.ComponentModel.Composition;
 
 namespace BCad.Commands.FileHandlers
@@ -52,18 +52,18 @@ namespace BCad.Commands.FileHandlers
                 }
 
                 // create the object
-                Entity obj = null;
+                Entity entity = null;
                 if (item is DxfLine)
-                    obj = ((DxfLine)item).ToLine();
+                    entity = ((DxfLine)item).ToLine();
                 else if (item is DxfCircle)
-                    obj = ((DxfCircle)item).ToCircle();
+                    entity = ((DxfCircle)item).ToCircle();
                 else if (item is DxfArc)
-                    obj = ((DxfArc)item).ToArc();
+                    entity = ((DxfArc)item).ToArc();
 
                 // add the object to the appropriate layer
-                if (obj != null)
+                if (entity != null)
                 {
-                    layer = layer.Add(obj);
+                    layer = layer.Add(entity);
                     layers[objectLayer] = layer;
                 }
             }
@@ -83,7 +83,7 @@ namespace BCad.Commands.FileHandlers
             foreach (var layer in document.Layers.Values)
             {
                 file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
-                foreach (var item in layer.Objects)
+                foreach (var item in layer.Entities)
                 {
                     DxfEntity entity = null;
                     if (item is Line)

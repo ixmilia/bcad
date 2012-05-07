@@ -1,5 +1,5 @@
 ﻿using System;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad.EventArguments
 {
@@ -8,7 +8,7 @@ namespace BCad.EventArguments
         public InputType InputType { get; private set; }
 
         private Point point;
-        private Entity obj;
+        private Entity entity;
         private string text;
         private string directive;
         private string command;
@@ -23,13 +23,13 @@ namespace BCad.EventArguments
             }
         }
 
-        public Entity Object
+        public Entity Entity
         {
             get
             {
                 if (InputType != InputType.Object)
                     throw new Exception("Value was not an object");
-                return obj;
+                return entity;
             }
         }
 
@@ -74,9 +74,9 @@ namespace BCad.EventArguments
             InputType = InputType.Point;
         }
 
-        public ValueReceivedEventArgs(Entity obj)
+        public ValueReceivedEventArgs(Entity entity)
         {
-            this.obj = obj;
+            this.entity = entity;
             InputType = InputType.Object;
         }
 

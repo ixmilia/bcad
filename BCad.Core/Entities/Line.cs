@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Media;
+﻿using System.Collections.Generic;
 using BCad.SnapPoints;
 
-namespace BCad.Objects
+namespace BCad.Entities
 {
     public class Line : Entity, IPrimitive
     {

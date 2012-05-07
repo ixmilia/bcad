@@ -4,8 +4,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
+using BCad.Entities;
 using BCad.EventArguments;
-using BCad.Objects;
 
 namespace BCad
 {

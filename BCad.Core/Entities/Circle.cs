@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Media;
-using BCad.SnapPoints;
 using System.Windows.Media.Media3D;
+using BCad.SnapPoints;
 
-namespace BCad.Objects
+namespace BCad.Entities
 {
     public class Circle : Entity, IPrimitive
     {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using BCad.Entities;
 using BCad.Extensions;
-using BCad.Objects;
 using Xunit;
 
 namespace BCad.Test
@@ -82,16 +82,16 @@ namespace BCad.Test
             WaitForCompletion();
         }
 
-        protected void VerifyLayerContains(string layerName, Entity obj)
+        protected void VerifyLayerContains(string layerName, Entity entity)
         {
             var x = Workspace.Document.Layers[layerName];
-            Assert.True(x.Objects.Any(o => o.EquivalentTo(obj)));
+            Assert.True(x.Entities.Any(o => o.EquivalentTo(entity)));
         }
 
-        protected void VerifyLayerDoesNotContain(string layerName, Entity obj)
+        protected void VerifyLayerDoesNotContain(string layerName, Entity entity)
         {
             var x = Workspace.Document.Layers[layerName];
-            Assert.False(x.Objects.Any(o => o.EquivalentTo(obj)));
+            Assert.False(x.Entities.Any(o => o.EquivalentTo(entity)));
         }
 
         public void Dispose()

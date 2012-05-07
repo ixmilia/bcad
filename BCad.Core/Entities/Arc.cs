@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using BCad.SnapPoints;
-using System.Windows.Media.Media3D;
 
-namespace BCad.Objects
+namespace BCad.Entities
 {
     public class Arc : Entity, IPrimitive
     {

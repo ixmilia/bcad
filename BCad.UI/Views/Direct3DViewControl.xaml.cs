@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel.Composition;
+using BCad.Entities;
 using BCad.EventArguments;
-using SlimDX;
-using BCad.SnapPoints;
-using SlimDX.Direct3D9;
-using System.Diagnostics;
-using System.ComponentModel;
-using BCad.Objects;
-using System.Threading.Tasks;
-using Media = System.Windows.Media;
 using BCad.Helpers;
+using BCad.SnapPoints;
+using SlimDX;
+using SlimDX.Direct3D9;
+using Media = System.Windows.Media;
 
 namespace BCad.UI.Views
 {
@@ -247,14 +241,14 @@ namespace BCad.UI.Views
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
                     var start = DateTime.UtcNow;
-                    foreach (var entity in layer.Objects)
+                    foreach (var entity in layer.Entities)
                     {
                         lines[entity.Id] = GenerateEntitySegments(entity, layer.Color).ToArray();
                     }
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                 }
 
-                snapPoints = document.Layers.Values.SelectMany(l => l.Objects.SelectMany(o => o.GetSnapPoints()))
+                snapPoints = document.Layers.Values.SelectMany(l => l.Entities.SelectMany(o => o.GetSnapPoints()))
                     .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
                 UpdateSnapPoints(projectionMatrix);
                 rubberBandLines = null;
@@ -326,7 +320,7 @@ namespace BCad.UI.Views
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
-                    var line = (BCad.Objects.Line)primitive;
+                    var line = (BCad.Entities.Line)primitive;
                     segments = new[] {
                         new LineVertex() { Position = line.P1.ToVector3(), Color = color },
                         new LineVertex() { Position = line.P2.ToVector3(), Color = color }
@@ -658,7 +652,7 @@ namespace BCad.UI.Views
                             if (hitEntity > 0)
                             {
                                 // found it
-                                var ent = document.Layers.Values.SelectMany(l => l.Objects).FirstOrDefault(en => en.Id == hitEntity);
+                                var ent = document.Layers.Values.SelectMany(l => l.Entities).FirstOrDefault(en => en.Id == hitEntity);
                                 Debug.Assert(ent != null, "hit object not in document");
                                 var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                                 inputService.PushValue(ent);

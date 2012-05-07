@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad.Commands
 {

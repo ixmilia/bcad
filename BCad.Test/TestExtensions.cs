@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BCad;
+using BCad.Entities;
 using BCad.Extensions;
-using BCad.Objects;
 using Xunit;
 
 namespace BCad.Test
@@ -21,16 +21,16 @@ namespace BCad.Test
             workspace.Add(new Layer(layerName, Color.Auto));
         }
 
-        public static void VerifyContains(this Layer layer, Entity obj)
+        public static void VerifyContains(this Layer layer, Entity entity)
         {
-            Assert.True(layer.Objects.Any(o => o.EquivalentTo(obj)));
+            Assert.True(layer.Entities.Any(o => o.EquivalentTo(entity)));
         }
 
-        public static IEnumerable<Entity> GetObjects(this IWorkspace workspace)
+        public static IEnumerable<Entity> GetEntities(this IWorkspace workspace)
         {
             foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
             {
-                foreach (var obj in layer.Objects)
+                foreach (var obj in layer.Entities)
                 {
                     yield return obj;
                 }

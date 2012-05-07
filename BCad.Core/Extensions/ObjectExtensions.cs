@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad.Extensions
 {
     public static class ObjectExtensions
     {
-        public static bool EquivalentTo(this Arc arc, Entity obj)
+        public static bool EquivalentTo(this Arc arc, Entity entity)
         {
-            var other = obj as Arc;
+            var other = entity as Arc;
             if (other != null)
             {
                 return arc.Center == other.Center
@@ -24,9 +24,9 @@ namespace BCad.Extensions
             return false;
         }
 
-        public static bool EquivalentTo(this Circle circle, Entity obj)
+        public static bool EquivalentTo(this Circle circle, Entity entity)
         {
-            var other = obj as Circle;
+            var other = entity as Circle;
             if (other != null)
             {
                 return circle.Center == other.Center
@@ -38,9 +38,9 @@ namespace BCad.Extensions
             return false;
         }
 
-        public static bool EquivalentTo(this Line line, Entity obj)
+        public static bool EquivalentTo(this Line line, Entity entity)
         {
-            var other = obj as Line;
+            var other = entity as Line;
             if (other != null)
             {
                 return line.Color == other.Color

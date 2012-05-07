@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad.Test
 {
-    public static class Objects
+    public static class Entities
     {
         public static Line Line()
         {

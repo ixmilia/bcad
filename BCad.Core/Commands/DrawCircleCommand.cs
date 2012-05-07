@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using BCad;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad.Commands
 {

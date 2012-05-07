@@ -8,7 +8,7 @@ using System.Reflection;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using BCad;
-using BCad.Objects;
+using BCad.Entities;
 
 namespace BCad
 {
