@@ -85,8 +85,11 @@ namespace BCad.UI.Views
 
         private Device device;
 
-        void WindowLoaded(object sender, RoutedEventArgs e)
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        //protected override void OnInitialized(EventArgs e)
         {
+            base.OnInitialized(e);
+
             var hwnd = new HwndSource(0, 0, 0, 0, 0, "test", IntPtr.Zero);
             var direct3d = new Direct3D();
             pp = new PresentParameters()

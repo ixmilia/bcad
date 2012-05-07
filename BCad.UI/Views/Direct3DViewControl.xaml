@@ -4,10 +4,17 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core"
-                xmlns:views="clr-namespace:BCad.UI.Views;assembly=BCad.UI"
-                mc:Ignorable="d" 
+                xmlns:views="clr-namespace:BCad.UI.Views"
+                mc:Ignorable="d"
                 d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <!--views:Direct3DControl x:Name="objects" /-->
+        <views:Direct3DControl x:Name="content" />
+        <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
+        <Canvas Name="clicker"
+                Background="White"
+                Opacity="0.001"
+                MouseDown="OnMouseDown"
+                MouseUp="OnMouseUp"
+                MouseMove="OnMouseMove" />
     </Grid>
 </ui:ViewControl>

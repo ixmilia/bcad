@@ -87,6 +87,9 @@ namespace BCad.UI.Views
         CreateFlags _createFlags = CreateFlags.Multithreaded | CreateFlags.FpuPreserve;
         private PresentParameters _presentParameters;
 
+        // other settings
+        private int clearColor = 0;
+
         private bool _sizeChanged;
         #endregion
 
@@ -131,6 +134,23 @@ namespace BCad.UI.Views
             get;
             private set;
         }
+
+        public System.Windows.Media.Color ClearColor
+        {
+            get
+            {
+                var a = (byte)((clearColor >> 24) & 0xFF);
+                var r = (byte)((clearColor >> 16) & 0xFF);
+                var g = (byte)((clearColor >> 8) & 0xFF);
+                var b = (byte)(clearColor & 0xFF);
+                return System.Windows.Media.Color.FromArgb(a, r, g, b);
+            }
+            set
+            {
+                clearColor = (value.A << 24) | (value.R << 16) | (value.G << 8) | (value.B);
+            }
+        }
+
         #endregion
 
         #region Events
@@ -340,15 +360,15 @@ namespace BCad.UI.Views
             OnDeviceCreated(EventArgs.Empty);
             OnDeviceReset(EventArgs.Empty);
 
-            {
-                // is it the case that someone else is nulling these out on us?  seems so
-                // this means we need to be careful not to let multiple copies of the delegate get onto the list
-                // not sure what else we can do here...
-                CompositionTarget.Rendering -= OnRendering;
-                d3dimage.IsFrontBufferAvailableChanged -= OnIsFrontBufferAvailableChanged;
-                CompositionTarget.Rendering += OnRendering;
-                d3dimage.IsFrontBufferAvailableChanged += OnIsFrontBufferAvailableChanged;
-            }
+            //{
+            //    // is it the case that someone else is nulling these out on us?  seems so
+            //    // this means we need to be careful not to let multiple copies of the delegate get onto the list
+            //    // not sure what else we can do here...
+            //    CompositionTarget.Rendering -= OnRendering;
+            //    d3dimage.IsFrontBufferAvailableChanged -= OnIsFrontBufferAvailableChanged;
+            CompositionTarget.Rendering += OnRendering;
+            d3dimage.IsFrontBufferAvailableChanged += OnIsFrontBufferAvailableChanged;
+            //}
 
             d3dimage.Lock();
             _backBufferSurface = Device.GetBackBuffer(0, 0);
@@ -489,7 +509,7 @@ namespace BCad.UI.Views
                             throw new Direct3D9Exception("Device.TestCooperativeLevel() failed");
                         }
 
-                        Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, new Color4(System.Drawing.Color.Black), 1, 0);
+                        Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, clearColor, 1, 0);
                         Device.BeginScene();
 
                         try
