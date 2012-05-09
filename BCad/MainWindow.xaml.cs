@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using BCad.Commands;
 using BCad.EventArguments;
 using BCad.UI;
-using System.Diagnostics;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.ComponentModel;
+using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, IPartImportsSatisfiedNotification
+    public partial class MainWindow : RibbonWindow, IPartImportsSatisfiedNotification
     {
         public MainWindow()
         {
@@ -39,7 +40,7 @@ namespace BCad
         private IView View = null;
 
         [ImportMany]
-        private IEnumerable<Lazy<ToolBar>> ToolBars = null;
+        private IEnumerable<RibbonTab> RibbonTabs = null; // TODO: import lazily and sort by name
 
         [ImportMany]
         private IEnumerable<Lazy<ViewControl, IViewControlMetadata>> Views = null;
@@ -50,24 +51,8 @@ namespace BCad
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
-        private string ConfigFile
-        {
-            get
-            {
-                if (Debugger.IsAttached)
-                {
-                    return "BCad.config";
-                }
-                else
-                {
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BCad.config");
-                }
-            }
-        }
-
         public void OnImportsSatisfied()
         {
-            Workspace.LoadSettings(ConfigFile);
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.PropertyChanged += Workspace_PropertyChanged;
 
@@ -133,16 +118,20 @@ namespace BCad
 
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
-            foreach (var toolbar in ToolBars)
+            // prepare ribbon
+            // TODO: order as specified in settings
+            foreach (var tab in RibbonTabs)
             {
-                this.toolbarTray.ToolBars.Add(toolbar.Value);
+                this.ribbon.Items.Add(tab);
             }
 
+            // prepare user console
             var console = Consoles.First(c => c.Metadata.ControlId == Workspace.SettingsManager.ConsoleControlId).Value;
             this.inputPanel.Content = console;
             TakeFocus();
             InputService.Reset();
 
+            // prepare view control
             var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
             this.viewPanel.Content = view;
             View.RegisteredControl = view;
@@ -160,7 +149,7 @@ namespace BCad
         {
             string filename = document.FileName == null ? "(Untitled)" : Path.GetFileName(document.FileName);
             Dispatcher.BeginInvoke((Action)(() =>
-                this.Title = string.Format("BCad [{0}]{1}", filename, document.IsDirty ? " *" : "")));
+                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, document.IsDirty ? " *" : "")));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -171,7 +160,7 @@ namespace BCad
                 return;
             }
 
-            Workspace.SaveSettings(ConfigFile);
+            Workspace.SaveSettings();
         }
 
         private void StatusBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -43,8 +43,8 @@ namespace BCad.UI.Controls
             foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
                 this.layers.Add(new MutableLayer(layer));
 
-            for (byte i = 0; i <= 9; i++)
-                availableColors.Add(new Color(i));
+            for (int i = 0; i < 256; i++)
+                availableColors.Add(new Color((byte)i));
 
             InitializeComponent();
         }

@@ -105,6 +105,7 @@
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IPrimitive.cs" />
     <Compile Include="Entities\PrimitiveKind.cs" />
+    <Compile Include="RibbonCommands\RibbonCommands.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="UI\ConsoleControl.cs" />
     <Compile Include="UI\ExportConsoleAttribute.cs" />
     <Compile Include="UI\ExportControlFactoryAttribute.cs" />
-    <Compile Include="UI\ExportToolbarAttribute.cs" />
     <Compile Include="UI\ExportViewControlAttribute.cs" />
     <Compile Include="UI\ViewControl.cs" />
     <Compile Include="UserDirective.cs" />

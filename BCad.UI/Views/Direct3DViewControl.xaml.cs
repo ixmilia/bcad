@@ -645,6 +645,7 @@ namespace BCad.UI.Views
                                         }
                                     }
                                 }
+
                                 if (hitEntity > 0)
                                     break;
                             }

@@ -27,8 +27,7 @@ namespace BCad
         double DrawingPlaneOffset { get; set; }
 
         ISettingsManager SettingsManager { get; }
-        void LoadSettings(string path);
-        void SaveSettings(string path);
+        void SaveSettings();
         bool ExecuteCommandSynchronous(string commandName, object arg = null);
         void ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);

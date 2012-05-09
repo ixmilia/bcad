@@ -20,6 +20,7 @@ namespace BCad
     {
         public Workspace()
         {
+            LoadSettings(ConfigFile);
         }
 
         #region Events
@@ -160,7 +161,7 @@ namespace BCad
 
         public ISettingsManager SettingsManager { get; private set; }
 
-        public void LoadSettings(string path)
+        private void LoadSettings(string path)
         {
             if (File.Exists(path))
             {
@@ -185,10 +186,10 @@ namespace BCad
             }
         }
 
-        public void SaveSettings(string path)
+        public void SaveSettings()
         {
             var serializer = new XmlSerializer(typeof(SettingsManager));
-            using (var stream = new FileStream(path, FileMode.Create))
+            using (var stream = new FileStream(ConfigFile, FileMode.Create))
             {
                 serializer.Serialize(stream, this.SettingsManager);
             }
@@ -301,6 +302,8 @@ namespace BCad
                            select c).SingleOrDefault();
             return command == null ? null : command.Value;
         }
+
+        private const string ConfigFile = "BCad.config";
 
         #endregion
 
