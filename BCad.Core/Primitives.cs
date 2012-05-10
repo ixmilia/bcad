@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Media3D;
+using BCad.Helpers;
 
 namespace BCad
 {
@@ -237,8 +238,7 @@ namespace BCad
         /// </summary>
         public double ToAngle()
         {
-            var angle = Math.Atan2(this.Y, this.X);
-            angle = angle * 180.0 / Math.PI;
+            var angle = Math.Atan2(this.Y, this.X) * MathHelper.RadiansToDegrees;
             // if > 0, quadrant 1 or 2
             // else quadrant 3 or 4
             return angle > 0.0 ? angle : 360.0 + angle;

@@ -95,15 +95,15 @@ AcDbEntity
             Assert.Equal(0.0, el.Center.X);
             Assert.Equal(0.0, el.Center.Y);
             Assert.Equal(0.0, el.Center.Z);
-            Assert.Equal(0.0, el.MajorAxisEndPoint.X);
-            Assert.Equal(0.0, el.MajorAxisEndPoint.Y);
-            Assert.Equal(0.0, el.MajorAxisEndPoint.Z);
+            Assert.Equal(0.0, el.MajorAxis.X);
+            Assert.Equal(0.0, el.MajorAxis.Y);
+            Assert.Equal(0.0, el.MajorAxis.Z);
             Assert.Equal(0.0, el.Normal.X);
             Assert.Equal(0.0, el.Normal.Y);
             Assert.Equal(1.0, el.Normal.Z);
             Assert.Equal(1.0, el.MinorAxisRatio);
             Assert.Equal(0.0, el.StartParameter);
-            Assert.Equal(Math.PI * 2.0, el.EndParameter);
+            Assert.Equal(360.0, el.EndParameter);
         }
 
         #endregion
@@ -229,9 +229,9 @@ AcDbEntity
             Assert.Equal(11.0, el.Center.X);
             Assert.Equal(22.0, el.Center.Y);
             Assert.Equal(33.0, el.Center.Z);
-            Assert.Equal(44.0, el.MajorAxisEndPoint.X);
-            Assert.Equal(55.0, el.MajorAxisEndPoint.Y);
-            Assert.Equal(66.0, el.MajorAxisEndPoint.Z);
+            Assert.Equal(44.0, el.MajorAxis.X);
+            Assert.Equal(55.0, el.MajorAxis.Y);
+            Assert.Equal(66.0, el.MajorAxis.Z);
             Assert.Equal(77.0, el.Normal.X);
             Assert.Equal(88.0, el.Normal.Y);
             Assert.Equal(99.0, el.Normal.Z);

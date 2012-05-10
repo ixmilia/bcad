@@ -12,7 +12,7 @@ namespace BCad.Dxf.Entities
 
         public DxfPoint Center { get; set; }
 
-        public DxfPoint MajorAxisEndPoint { get; set; }
+        public DxfVector MajorAxis { get; set; }
 
         public DxfVector Normal { get; set; }
 
@@ -23,18 +23,18 @@ namespace BCad.Dxf.Entities
         public double EndParameter { get; set; }
 
         public DxfEllipse()
-            : this(new DxfPoint() { X = 0, Y = 0, Z = 0 }, new DxfPoint() { X = 0, Y = 0, Z = 0 }, 1.0)
+            : this(new DxfPoint() { X = 0, Y = 0, Z = 0 }, new DxfVector() { X = 0, Y = 0, Z = 0 }, 1.0)
         {
         }
 
-        public DxfEllipse(DxfPoint center, DxfPoint majorAxisEndPoint, double minorAxisRatio)
+        public DxfEllipse(DxfPoint center, DxfVector majorAxis, double minorAxisRatio)
         {
             Center = center;
-            MajorAxisEndPoint = majorAxisEndPoint;
+            MajorAxis = majorAxis;
             MinorAxisRatio = minorAxisRatio;
             Normal = new DxfVector() { X = 0.0, Y = 0.0, Z = 1.0 };
             StartParameter = 0.0;
-            EndParameter = Math.PI * 2.0;
+            EndParameter = 360.0;
         }
 
         public static DxfEllipse FromPairs(IEnumerable<DxfCodePair> pairs)
@@ -55,13 +55,13 @@ namespace BCad.Dxf.Entities
                         el.Center.Z = pair.DoubleValue;
                         break;
                     case 11:
-                        el.MajorAxisEndPoint.X = pair.DoubleValue;
+                        el.MajorAxis.X = pair.DoubleValue;
                         break;
                     case 21:
-                        el.MajorAxisEndPoint.Y = pair.DoubleValue;
+                        el.MajorAxis.Y = pair.DoubleValue;
                         break;
                     case 31:
-                        el.MajorAxisEndPoint.Z = pair.DoubleValue;
+                        el.MajorAxis.Z = pair.DoubleValue;
                         break;
                     case 210:
                         el.Normal.X = pair.DoubleValue;
@@ -91,9 +91,9 @@ namespace BCad.Dxf.Entities
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);
             yield return new DxfCodePair(30, Center.Z);
-            yield return new DxfCodePair(11, MajorAxisEndPoint.X);
-            yield return new DxfCodePair(21, MajorAxisEndPoint.Y);
-            yield return new DxfCodePair(31, MajorAxisEndPoint.Z);
+            yield return new DxfCodePair(11, MajorAxis.X);
+            yield return new DxfCodePair(21, MajorAxis.Y);
+            yield return new DxfCodePair(31, MajorAxis.Z);
             if (Normal != new DxfVector(0, 0, 1))
             {
                 yield return new DxfCodePair(210, Normal.X);
@@ -108,7 +108,7 @@ namespace BCad.Dxf.Entities
 
         public override string ToString()
         {
-            return base.ToString() + string.Format(":{0}R1={1},R2={0}", Center, MajorAxisEndPoint, MinorAxisRatio);
+            return base.ToString() + string.Format(":{0}R1={1},R2={0}", Center, MajorAxis, MinorAxisRatio);
         }
     }
 }

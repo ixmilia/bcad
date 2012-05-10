@@ -50,6 +50,7 @@
     <Compile Include="DxfTests\AbstractDxfTests.cs" />
     <Compile Include="DxfTests\DxfEntityTests.cs" />
     <Compile Include="DxfTests\DxfHeaderTests.cs" />
+    <Compile Include="DxfTests\DxfReaderWriterTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="PointTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

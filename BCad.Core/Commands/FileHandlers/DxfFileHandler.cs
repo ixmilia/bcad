@@ -10,6 +10,7 @@ using BCad.Dxf.Tables;
 using BCad.Entities;
 using BCad.FileHandlers;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 
 namespace BCad.Commands.FileHandlers
 {
@@ -40,7 +41,7 @@ namespace BCad.Commands.FileHandlers
             {
                 Layer layer = null;
 
-                // objects without a layer go to 'Default'
+                // objects without a layer go to '0'
                 string objectLayer = item.Layer == null ? "0" : item.Layer;
                 if (layers.ContainsKey(objectLayer))
                     layer = layers[objectLayer];
@@ -59,6 +60,10 @@ namespace BCad.Commands.FileHandlers
                     entity = ((DxfCircle)item).ToCircle();
                 else if (item is DxfArc)
                     entity = ((DxfArc)item).ToArc();
+                else if (item is DxfEllipse)
+                    entity = ((DxfEllipse)item).ToEllipse();
+                else
+                    Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
 
                 // add the object to the appropriate layer
                 if (entity != null)
@@ -98,6 +103,14 @@ namespace BCad.Commands.FileHandlers
                             entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
                         else
                             entity = ((Arc)item).ToDxfArc(layer);
+                    }
+                    else if (item is Ellipse)
+                    {
+                        entity = ((Ellipse)item).ToDxfEllipse(layer);
+                    }
+                    else
+                    {
+                        Debug.Fail("Unsupported entity type: " + item.GetType().Name);
                     }
 
                     if (entity != null)
@@ -162,6 +175,11 @@ namespace BCad.Commands.FileHandlers
             return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor());
         }
 
+        public static Ellipse ToEllipse(this DxfEllipse el)
+        {
+            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter, el.EndParameter, el.Normal.ToVector(), el.Color.ToColor());
+        }
+
         public static DxfLine ToDxfLine(this Line line, Layer layer)
         {
             return new DxfLine(line.P1.ToDxfPoint(), line.P2.ToDxfPoint())
@@ -188,6 +206,17 @@ namespace BCad.Commands.FileHandlers
                 Color = arc.Color.ToDxfColor(),
                 Normal = arc.Normal.ToDxfVector(),
                 Layer = layer.Name
+            };
+        }
+
+        public static DxfEllipse ToDxfEllipse(this Ellipse el, Layer layer)
+        {
+            return new DxfEllipse(el.Center.ToDxfPoint(), el.MajorAxis.ToDxfVector(), el.MinorAxisRatio)
+            {
+                Color = el.Color.ToDxfColor(),
+                StartParameter = el.StartAngle,
+                EndParameter = el.EndAngle,
+                Normal = el.Normal.ToDxfVector()
             };
         }
     }

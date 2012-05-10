@@ -4,6 +4,7 @@
     {
         Arc,
         Circle,
+        Ellipse,
         Line
     }
 }

@@ -106,8 +106,6 @@ namespace BCad.UI.Views
         #region Constants
 
         private const int FullCircleDrawingSegments = 101;
-        private const double DegreesToRadians = Math.PI / 180.0;
-        private const double TwoPI = Math.PI * 2.0;
         private ResourceDictionary resources = null;
         private ResourceDictionary SnapPointResources
         {
@@ -328,37 +326,51 @@ namespace BCad.UI.Views
                     break;
                 case PrimitiveKind.Arc:
                 case PrimitiveKind.Circle:
-                    double startAngle, endAngle, radius;
+                case PrimitiveKind.Ellipse:
+                    double startAngle, endAngle, radiusX, radiusY;
                     Point center;
                     Vector normal;
-                    if (primitive.Kind == PrimitiveKind.Arc)
+                    switch (primitive.Kind)
                     {
-                        var arc = (Arc)primitive;
-                        startAngle = arc.StartAngle;
-                        endAngle = arc.EndAngle;
-                        radius = arc.Radius;
-                        center = arc.Center;
-                        normal = arc.Normal;
+                        case PrimitiveKind.Arc:
+                            var arc = (Arc)primitive;
+                            startAngle = arc.StartAngle;
+                            endAngle = arc.EndAngle;
+                            radiusX = radiusY = arc.Radius;
+                            center = arc.Center;
+                            normal = arc.Normal;
+                            break;
+                        case PrimitiveKind.Circle:
+                            var circle = (Circle)primitive;
+                            startAngle = 0.0;
+                            endAngle = 360.0;
+                            radiusX = radiusY = circle.Radius;
+                            center = circle.Center;
+                            normal = circle.Normal;
+                            break;
+                        case PrimitiveKind.Ellipse:
+                            var el = (Ellipse)primitive;
+                            startAngle = el.StartAngle;
+                            endAngle = el.EndAngle;
+                            radiusX = el.MajorAxis.Length;
+                            radiusY = radiusX * el.MinorAxisRatio;
+                            center = el.Center;
+                            normal = el.Normal;
+                            break;
+                        default:
+                            throw new InvalidOperationException("Only arc, circle, and ellipse allowed here");
                     }
-                    else
-                    {
-                        var circle = (Circle)primitive;
-                        startAngle = 0.0;
-                        endAngle = 360.0;
-                        radius = circle.Radius;
-                        center = circle.Center;
-                        normal = circle.Normal;
-                    }
-                    startAngle *= DegreesToRadians;
-                    endAngle *= DegreesToRadians;
+
+                    startAngle *= MathHelper.DegreesToRadians;
+                    endAngle *= MathHelper.DegreesToRadians;
                     var coveringAngle = endAngle - startAngle;
-                    if (coveringAngle < 0.0) coveringAngle += TwoPI;
-                    var segCount = Math.Max(3, (int)(coveringAngle / TwoPI * (double)FullCircleDrawingSegments));
+                    if (coveringAngle < 0.0) coveringAngle += MathHelper.TwoPI;
+                    var segCount = Math.Max(3, (int)(coveringAngle / MathHelper.TwoPI * (double)FullCircleDrawingSegments));
                     segments = new LineVertex[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
                     var transformation =
-                        Matrix.Scaling(new Vector3((float)radius))
+                        Matrix.Scaling(new Vector3((float)radiusX, (float)radiusY, 1.0f))
                         * Matrix.RotationZ(-(float)Math.Atan2(normal.Y, normal.X))
                         * Matrix.RotationX(-(float)Math.Atan2(normal.Y, normal.Z))
                         * Matrix.RotationY((float)Math.Atan2(normal.X, normal.Z))
@@ -514,7 +526,7 @@ namespace BCad.UI.Views
                 };
 
                 var points = from sa in workspace.SettingsManager.SnapAngles
-                             let rad = sa * Math.PI / 180.0
+                             let rad = sa * MathHelper.DegreesToRadians
                              let radVector = snapVector(rad)
                              let snapPoint = (last + radVector).ToPoint()
                              let di = (cursor - Project(snapPoint.ToVector3())).Length()

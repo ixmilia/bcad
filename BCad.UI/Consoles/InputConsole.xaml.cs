@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BCad.EventArguments;
+using BCad.Helpers;
 
 namespace BCad.UI.Consoles
 {
@@ -143,7 +144,7 @@ namespace BCad.UI.Consoles
                 var parts = text.Split("<".ToCharArray(), 2);
                 var dist = double.Parse(parts[0]);
                 var angle = double.Parse(parts[1]);
-                var radians = angle * Math.PI / 180.0;
+                var radians = angle * MathHelper.DegreesToRadians;
                 var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
                 p = (InputService.LastPoint + offset).ToPoint();
             }

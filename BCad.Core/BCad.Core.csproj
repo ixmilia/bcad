@@ -70,6 +70,7 @@
     <Compile Include="DialogFactory.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="DrawingPlane.cs" />
+    <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="EventArguments\CommandEventArgs.cs" />
     <Compile Include="EventArguments\PromptChangedEventArgs.cs" />
     <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
