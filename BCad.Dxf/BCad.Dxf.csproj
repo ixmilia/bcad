@@ -50,6 +50,7 @@
     <Compile Include="DxfWriter.cs" />
     <Compile Include="Entities\DxfArc.cs" />
     <Compile Include="Entities\DxfCircle.cs" />
+    <Compile Include="Entities\DxfEllipse.cs" />
     <Compile Include="Entities\DxfEntity.cs" />
     <Compile Include="Entities\DxfLine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

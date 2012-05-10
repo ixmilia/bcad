@@ -8,7 +8,8 @@ namespace BCad.Dxf.Entities
     {
         Line,
         Circle,
-        Arc
+        Arc,
+        Ellipse
     }
 
     public abstract class DxfEntity
@@ -16,6 +17,7 @@ namespace BCad.Dxf.Entities
         public const string LineType = "LINE";
         public const string CircleType = "CIRCLE";
         public const string ArcType = "ARC";
+        public const string EllipseType = "ELLIPSE";
         public const string SubclassMarker = "AcDbEntity";
 
         public abstract DxfEntityType EntityType { get; }
@@ -92,6 +94,9 @@ namespace BCad.Dxf.Entities
                 case ArcType:
                     ent = DxfArc.FromPairs(pairs);
                     break;
+                case EllipseType:
+                    ent = DxfEllipse.FromPairs(pairs);
+                    break;
                 default:
                     throw new NotImplementedException("Unsupported entity type " + first.Value);
             }
@@ -114,6 +119,9 @@ namespace BCad.Dxf.Entities
                         break;
                     case DxfEntityType.Arc:
                         name = ArcType;
+                        break;
+                    case DxfEntityType.Ellipse:
+                        name = EllipseType;
                         break;
                     default:
                         throw new NotImplementedException();

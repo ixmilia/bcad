@@ -2,6 +2,7 @@
 using BCad.Dxf;
 using BCad.Dxf.Entities;
 using Xunit;
+using System;
 
 namespace BCad.Test.DxfTests
 {
@@ -85,6 +86,24 @@ AcDbEntity
             Assert.Equal(1.0, arc.Normal.Z);
             Assert.Equal(0.0, arc.StartAngle);
             Assert.Equal(360.0, arc.EndAngle);
+        }
+
+        [Fact]
+        public void ReadDefaultEllipseTest()
+        {
+            var el = (DxfEllipse)EmptyEntity("ELLIPSE");
+            Assert.Equal(0.0, el.Center.X);
+            Assert.Equal(0.0, el.Center.Y);
+            Assert.Equal(0.0, el.Center.Z);
+            Assert.Equal(0.0, el.MajorAxisEndPoint.X);
+            Assert.Equal(0.0, el.MajorAxisEndPoint.Y);
+            Assert.Equal(0.0, el.MajorAxisEndPoint.Z);
+            Assert.Equal(0.0, el.Normal.X);
+            Assert.Equal(0.0, el.Normal.Y);
+            Assert.Equal(1.0, el.Normal.Z);
+            Assert.Equal(1.0, el.MinorAxisRatio);
+            Assert.Equal(0.0, el.StartParameter);
+            Assert.Equal(Math.PI * 2.0, el.EndParameter);
         }
 
         #endregion
@@ -176,6 +195,49 @@ AcDbEntity
             Assert.Equal(77.0, arc.Normal.Z);
             Assert.Equal(88.0, arc.StartAngle);
             Assert.Equal(99.0, arc.EndAngle);
+        }
+
+        [Fact]
+        public void ReadEllipseTest()
+        {
+            var el = (DxfEllipse)Entity("ELLIPSE", @"
+ 10
+1.100000E+001
+ 20
+2.200000E+001
+ 30
+3.300000E+001
+ 11
+4.400000E+001
+ 21
+5.500000E+001
+ 31
+6.600000E+001
+210
+7.700000E+001
+220
+8.800000E+001
+230
+9.900000E+001
+ 40
+1.200000E+001
+ 41
+0.100000E+000
+ 42
+0.400000E+000
+");
+            Assert.Equal(11.0, el.Center.X);
+            Assert.Equal(22.0, el.Center.Y);
+            Assert.Equal(33.0, el.Center.Z);
+            Assert.Equal(44.0, el.MajorAxisEndPoint.X);
+            Assert.Equal(55.0, el.MajorAxisEndPoint.Y);
+            Assert.Equal(66.0, el.MajorAxisEndPoint.Z);
+            Assert.Equal(77.0, el.Normal.X);
+            Assert.Equal(88.0, el.Normal.Y);
+            Assert.Equal(99.0, el.Normal.Z);
+            Assert.Equal(12.0, el.MinorAxisRatio);
+            Assert.Equal(0.1, el.StartParameter);
+            Assert.Equal(0.4, el.EndParameter);
         }
 
         #endregion
