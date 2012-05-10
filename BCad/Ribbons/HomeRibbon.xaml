@@ -134,13 +134,15 @@
         <r:RibbonGroup.GroupSizeDefinitions>
             <r:RibbonGroupSizeDefinitionBaseCollection>
                 <r:RibbonGroupSizeDefinition>
-                    <r:RibbonControlSizeDefinition ImageSize="Small" IsLabelVisible="False" />
+                    <r:RibbonControlSizeDefinition ImageSize="Small"
+                                                   IsLabelVisible="False" />
                 </r:RibbonGroupSizeDefinition>
             </r:RibbonGroupSizeDefinitionBaseCollection>
         </r:RibbonGroup.GroupSizeDefinitions>
         <r:RibbonButton Label="Layers"
                         Command="commands:RibbonCommands.CADCommand"
                         SmallImageSource="{StaticResource Layers}"
+                        ToolTip="Edit layers"
                         CommandParameter="Edit.Layers" />
         <ComboBox Name="currentLayer"
                   Width="150"

@@ -127,18 +127,74 @@
                         <Pen Brush="Black" />
                     </GeometryDrawing.Pen>
                     <GeometryDrawing.Brush>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="Green" Offset="0" />
-                            <GradientStop Color="Red" Offset="1" />
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="LavenderBlush" Offset="0" />
+                            <GradientStop Color="White" Offset="1" />
                         </LinearGradientBrush>
                     </GeometryDrawing.Brush>
                     <GeometryDrawing.Geometry>
-                        <GeometryGroup>
-                            <LineGeometry StartPoint="3,0" EndPoint="15,0" />
-                            <LineGeometry StartPoint="15,0" EndPoint="12,5" />
-                            <LineGeometry StartPoint="12,5" EndPoint="0,5" />
-                            <LineGeometry StartPoint="0,5" EndPoint="3,0" />
-                        </GeometryGroup>
+                        <PathGeometry>
+                            <PathGeometry.Figures>
+                                <PathFigureCollection>
+                                    <PathFigure StartPoint="3,0">
+                                        <LineSegment Point="15,0" />
+                                        <LineSegment Point="12,5" />
+                                        <LineSegment Point="0,5" />
+                                        <LineSegment Point="3,0" />
+                                    </PathFigure>
+                                </PathFigureCollection>
+                            </PathGeometry.Figures>
+                        </PathGeometry>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Black" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="LightYellow" Offset="0" />
+                            <GradientStop Color="White" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry>
+                            <PathGeometry.Figures>
+                                <PathFigureCollection>
+                                    <PathFigure StartPoint="3,5">
+                                        <LineSegment Point="15,5" />
+                                        <LineSegment Point="12,10" />
+                                        <LineSegment Point="0,10" />
+                                        <LineSegment Point="3,5" />
+                                    </PathFigure>
+                                </PathFigureCollection>
+                            </PathGeometry.Figures>
+                        </PathGeometry>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Black" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="LightBlue" Offset="0" />
+                            <GradientStop Color="White" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry>
+                            <PathGeometry.Figures>
+                                <PathFigureCollection>
+                                    <PathFigure StartPoint="3,10">
+                                        <LineSegment Point="15,10" />
+                                        <LineSegment Point="12,15" />
+                                        <LineSegment Point="0,15" />
+                                        <LineSegment Point="3,10" />
+                                    </PathFigure>
+                                </PathFigureCollection>
+                            </PathGeometry.Figures>
+                        </PathGeometry>
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
             </DrawingGroup>
