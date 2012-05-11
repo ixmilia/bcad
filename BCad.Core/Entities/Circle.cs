@@ -32,7 +32,8 @@ namespace BCad.Entities
             this.normal = normal;
             this.color = color;
 
-            var points = TransformedPoints(this.center, this.normal, Vector.XAxis, this.radius, this.radius, 0, 90, 180, 270);
+            var right = Vector.RightVectorFromNormal(this.normal);
+            var points = TransformedPoints(this.center, this.normal, right, this.radius, this.radius, 0, 90, 180, 270);
             quadrant1 = points[0];
             quadrant2 = points[1];
             quadrant3 = points[2];

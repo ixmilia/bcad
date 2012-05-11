@@ -263,6 +263,15 @@ namespace BCad
         {
             return string.Format("({0},{1},{2})", X, Y, Z);
         }
+
+        public static Vector RightVectorFromNormal(Vector normal)
+        {
+            if (normal == Vector.XAxis)
+                return Vector.ZAxis;
+            var right = Vector.XAxis;
+            var up = normal.Cross(right);
+            return up.Cross(normal);
+        }
     }
 
     public struct ValueOrDirective<T>

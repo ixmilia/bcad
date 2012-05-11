@@ -339,7 +339,7 @@ namespace BCad.UI.Views
                             radiusX = radiusY = arc.Radius;
                             center = arc.Center;
                             normal = arc.Normal;
-                            right = Vector.XAxis;
+                            right = Vector.RightVectorFromNormal(arc.Normal);
                             break;
                         case PrimitiveKind.Circle:
                             var circle = (Circle)primitive;
@@ -348,7 +348,7 @@ namespace BCad.UI.Views
                             radiusX = radiusY = circle.Radius;
                             center = circle.Center;
                             normal = circle.Normal;
-                            right = Vector.XAxis;
+                            right = Vector.RightVectorFromNormal(circle.Normal);
                             break;
                         case PrimitiveKind.Ellipse:
                             var el = (Ellipse)primitive;
