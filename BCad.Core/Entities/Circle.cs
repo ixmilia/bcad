@@ -32,7 +32,7 @@ namespace BCad.Entities
             this.normal = normal;
             this.color = color;
 
-            var points = TransformedPoints(this.center, this.normal, this.radius, this.radius, 0, 90, 180, 270);
+            var points = TransformedPoints(this.center, this.normal, Vector.XAxis, this.radius, this.radius, 0, 90, 180, 270);
             quadrant1 = points[0];
             quadrant2 = points[1];
             quadrant3 = points[2];
@@ -70,22 +70,31 @@ namespace BCad.Entities
                 color ?? this.Color);
         }
 
-        internal static Point[] TransformedPoints(Point center, Vector normal, double radiusX, double radiusY, params double[] anglesInDegrees)
+        internal static Point[] TransformedPoints(Point center, Vector normal, Vector right, double radiusX, double radiusY, params double[] anglesInDegrees)
         {
             var result = new Point[anglesInDegrees.Length];
-
+            var r = right.Normalize();
+            var n = normal.Normalize();
+            var up = normal.Cross(right).Normalize();
             var trans = Matrix3D.Identity;
-            trans.Scale(new Vector3D(radiusX, radiusY, 1.0));
-            trans.Rotate(new Quaternion(new Vector3D(0, 0, 1), -Math.Atan2(normal.X, normal.Y) * MathHelper.RadiansToDegrees));
-            trans.Rotate(new Quaternion(new Vector3D(1, 0, 0), -Math.Atan2(normal.Y, normal.Z) * MathHelper.RadiansToDegrees));
-            trans.Rotate(new Quaternion(new Vector3D(0, 1, 0), Math.Atan2(normal.X, normal.Z) * MathHelper.RadiansToDegrees));
-            trans.Translate(center.ToVector().ToVector3D());
+            trans.M11 = r.X;
+            trans.M12 = r.Y;
+            trans.M13 = r.Z;
+            trans.M21 = up.X;
+            trans.M22 = up.Y;
+            trans.M23 = up.Z;
+            trans.M31 = n.X;
+            trans.M32 = n.Y;
+            trans.M33 = n.Z;
+            trans.OffsetX = center.X;
+            trans.OffsetY = center.Y;
+            trans.OffsetZ = center.Z;
 
             for (int i = 0; i < anglesInDegrees.Length; i++)
             {
                 var x = Math.Cos(anglesInDegrees[i] * MathHelper.DegreesToRadians);
                 var y = Math.Sin(anglesInDegrees[i] * MathHelper.DegreesToRadians);
-                result[i] = new Point(trans.Transform(new Point3D(x, y, 0.0)));
+                result[i] = new Point(trans.Transform(new Point3D(x * radiusX, y * radiusY, 0.0)));
             }
 
             return result;

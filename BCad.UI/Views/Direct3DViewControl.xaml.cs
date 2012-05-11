@@ -329,7 +329,7 @@ namespace BCad.UI.Views
                 case PrimitiveKind.Ellipse:
                     double startAngle, endAngle, radiusX, radiusY;
                     Point center;
-                    Vector normal;
+                    Vector normal, right;
                     switch (primitive.Kind)
                     {
                         case PrimitiveKind.Arc:
@@ -339,6 +339,7 @@ namespace BCad.UI.Views
                             radiusX = radiusY = arc.Radius;
                             center = arc.Center;
                             normal = arc.Normal;
+                            right = Vector.XAxis;
                             break;
                         case PrimitiveKind.Circle:
                             var circle = (Circle)primitive;
@@ -347,6 +348,7 @@ namespace BCad.UI.Views
                             radiusX = radiusY = circle.Radius;
                             center = circle.Center;
                             normal = circle.Normal;
+                            right = Vector.XAxis;
                             break;
                         case PrimitiveKind.Ellipse:
                             var el = (Ellipse)primitive;
@@ -356,11 +358,15 @@ namespace BCad.UI.Views
                             radiusY = radiusX * el.MinorAxisRatio;
                             center = el.Center;
                             normal = el.Normal;
+                            right = el.MajorAxis;
                             break;
                         default:
                             throw new InvalidOperationException("Only arc, circle, and ellipse allowed here");
                     }
 
+                    normal = normal.Normalize();
+                    right = right.Normalize();
+                    var up = normal.Cross(right).Normalize();
                     startAngle *= MathHelper.DegreesToRadians;
                     endAngle *= MathHelper.DegreesToRadians;
                     var coveringAngle = endAngle - startAngle;
@@ -369,17 +375,24 @@ namespace BCad.UI.Views
                     segments = new LineVertex[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
-                    var transformation =
-                        Matrix.Scaling(new Vector3((float)radiusX, (float)radiusY, 1.0f))
-                        * Matrix.RotationZ(-(float)Math.Atan2(normal.Y, normal.X))
-                        * Matrix.RotationX(-(float)Math.Atan2(normal.Y, normal.Z))
-                        * Matrix.RotationY((float)Math.Atan2(normal.X, normal.Z))
-                        * Matrix.Translation(center.ToVector3());
+                    var transformation = Matrix.Identity;
+                    transformation.M11 = (float)right.X;
+                    transformation.M12 = (float)right.Y;
+                    transformation.M13 = (float)right.Z;
+                    transformation.M21 = (float)up.X;
+                    transformation.M22 = (float)up.Y;
+                    transformation.M23 = (float)up.Z;
+                    transformation.M31 = (float)normal.X;
+                    transformation.M32 = (float)normal.Y;
+                    transformation.M33 = (float)normal.Z;
+                    transformation.M41 = (float)center.X;
+                    transformation.M42 = (float)center.Y;
+                    transformation.M43 = (float)center.Z;
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
                         var result = Vector3.Transform(
-                            new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0.0f),
+                            new Vector3((float)(Math.Cos(angle) * radiusX), (float)(Math.Sin(angle) * radiusY), 0.0f),
                             transformation);
                         segments[i] = new LineVertex()
                         {

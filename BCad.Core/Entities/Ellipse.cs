@@ -49,12 +49,7 @@ namespace BCad.Entities
             this.color = color;
 
             var majorLength = this.majorAxis.Length;
-            var points = Circle.TransformedPoints(
-                this.center,
-                this.normal,
-                majorLength,
-                majorLength * minorAxisRatio,
-                0, 90, 180, 270, startAngle, endAngle, (startAngle + endAngle) / 2.0);
+            var points = Circle.TransformedPoints(this.center, this.normal, this.majorAxis, majorLength, majorLength * minorAxisRatio, 0, 90, 180, 270, startAngle, endAngle, (startAngle + endAngle) / 2.0);
             quadrant1 = points[0];
             quadrant2 = points[1];
             quadrant3 = points[2];
