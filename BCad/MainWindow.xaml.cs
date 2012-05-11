@@ -180,6 +180,19 @@ namespace BCad
             bool value = (bool)propInfo.GetValue(Workspace.SettingsManager, null);
             propInfo.SetValue(Workspace.SettingsManager, !value, null);
         }
+
+        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = Workspace == null ? false : Workspace.CanExecute();
+        }
+
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            Debug.Assert(Workspace != null, "Workspace should not have been null");
+            var command = e.Parameter as string;
+            Debug.Assert(command != null, "Command string should not have been null");
+            Workspace.ExecuteCommand(command);
+        }
     }
 
     public class BoolToBrushConverter : IValueConverter
