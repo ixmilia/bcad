@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using System.Windows.Input;
-using BCad.Entities;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Object.Delete", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
+    [ExportCommand("Edit.Delete", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
     internal class DeleteCommand : ICommand
     {
         [Import]
@@ -16,25 +14,16 @@ namespace BCad.Commands
 
         public bool Execute(object arg)
         {
-            var directive = new UserDirective("Select object");
-            var entities = new List<Entity>();
-            var input = InputService.GetEntity(directive);
-            while (input.HasValue)
-            {
-                InputService.WriteLine("Found object {0}", input.Value);
-                entities.Add(input.Value);
-                input = InputService.GetEntity(directive);
-            }
-
-            if (input.Cancel)
+            var entities = InputService.GetEntities();
+            if (entities.Cancel || !entities.HasValue)
             {
                 return false;
             }
 
             var doc = Workspace.Document;
-            foreach (var obj in entities)
+            foreach (var ent in entities.Value)
             {
-                doc = doc.Remove(obj);
+                doc = doc.Remove(ent);
             }
 
             Workspace.Document = doc;

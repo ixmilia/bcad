@@ -6,7 +6,7 @@ using BCad.Entities;
 
 namespace BCad.Extensions
 {
-    public static class ObjectExtensions
+    public static class EntityExtensions
     {
         public static bool EquivalentTo(this Arc arc, Entity entity)
         {
@@ -38,6 +38,23 @@ namespace BCad.Extensions
             return false;
         }
 
+        public static bool EquivalentTo(this Ellipse el, Entity entity)
+        {
+            var other = entity as Ellipse;
+            if (other != null)
+            {
+                return el.Center == other.Center
+                    && el.Color == other.Color
+                    && el.EndAngle == other.EndAngle
+                    && el.MajorAxis == other.MajorAxis
+                    && el.MinorAxisRatio == other.MinorAxisRatio
+                    && el.Normal == other.Normal
+                    && el.StartAngle == other.StartAngle;
+            }
+
+            return false;
+        }
+
         public static bool EquivalentTo(this Line line, Entity entity)
         {
             var other = entity as Line;
@@ -57,10 +74,12 @@ namespace BCad.Extensions
                 return ((Arc)a).EquivalentTo(b);
             else if (a is Circle)
                 return ((Circle)a).EquivalentTo(b);
+            else if (a is Ellipse)
+                return ((Ellipse)a).EquivalentTo(b);
             else if (a is Line)
                 return ((Line)a).EquivalentTo(b);
             else
-                throw new NotSupportedException("Unsupported object type");
+                throw new NotSupportedException("Unsupported entity type");
         }
     }
 }

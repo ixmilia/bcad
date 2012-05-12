@@ -41,10 +41,10 @@ namespace BCad
         }
 
         /// <summary>
-        /// Returns true if the layer contains the specified object.
+        /// Returns true if the layer contains the specified entity.
         /// </summary>
-        /// <param name="entity">The object to find.</param>
-        /// <returns>True if the object was found, false otherwise.</returns>
+        /// <param name="entity">The entity to find.</param>
+        /// <returns>True if the entity was found, false otherwise.</returns>
         public bool EntityExists(Entity entity)
         {
             return this.Entities.Any(e => e == entity);
@@ -58,14 +58,14 @@ namespace BCad
         public Layer Remove(Entity entity)
         {
             if (!this.EntityExists(entity))
-                throw new ArgumentException("The layer does not contain the specified object.");
+                throw new ArgumentException("The layer does not contain the specified entity.");
             return this.Update(entities: this.Entities.Except(new[] { entity }));
         }
 
         public Layer Replace(Entity oldEntity, Entity newEntity)
         {
             if (!this.EntityExists(oldEntity))
-                throw new ArgumentException("The layer does not contain the specified object.");
+                throw new ArgumentException("The layer does not contain the specified entity.");
             return this.Update(entities: this.Entities.Except(new[] { oldEntity }).Concat(new[] { newEntity }));
         }
 

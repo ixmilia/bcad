@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BCad.Entities;
 
 namespace BCad.EventArguments
@@ -9,6 +10,7 @@ namespace BCad.EventArguments
 
         private Point point;
         private Entity entity;
+        private IEnumerable<Entity> entities;
         private string text;
         private string directive;
         private string command;
@@ -27,9 +29,19 @@ namespace BCad.EventArguments
         {
             get
             {
-                if (InputType != InputType.Object)
-                    throw new Exception("Value was not an object");
+                if (InputType != InputType.Entity)
+                    throw new Exception("Value was not an entity");
                 return entity;
+            }
+        }
+
+        public IEnumerable<Entity> Entities
+        {
+            get
+            {
+                if (InputType != BCad.InputType.Entities)
+                    throw new Exception("Value was not an entity collection");
+                return entities;
             }
         }
 
@@ -77,7 +89,13 @@ namespace BCad.EventArguments
         public ValueReceivedEventArgs(Entity entity)
         {
             this.entity = entity;
-            InputType = InputType.Object;
+            InputType = InputType.Entity;
+        }
+
+        public ValueReceivedEventArgs(IEnumerable<Entity> entities)
+        {
+            this.entities = entities;
+            InputType = InputType.Entities;
         }
 
         public ValueReceivedEventArgs(string value, InputType type)

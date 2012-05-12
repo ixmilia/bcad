@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BCad.Entities;
+﻿using BCad.Entities;
 
 namespace BCad
 {
     public static class DocumentExtensions
     {
         /// <summary>
-        /// Adds an object to the specified layer.
+        /// Adds an entity to the specified layer.
         /// </summary>
-        /// <param name="layer">The layer to which to add the object.</param>
-        /// <param name="entity">The object to add.</param>
+        /// <param name="layer">The layer to which to add the entity.</param>
+        /// <param name="entity">The entity to add.</param>
         /// <returns>The new document with the layer added.</returns>
         public static Document Add(this Document document, Layer layer, Entity entity)
         {
@@ -21,12 +17,29 @@ namespace BCad
         }
 
         /// <summary>
-        /// Replaces the object in the specified layer.
+        /// Replaces the specified entity.
         /// </summary>
-        /// <param name="layer">The layer containing the object.</param>
-        /// <param name="oldEntity">The object to be replaced.</param>
-        /// <param name="newEntity">The replacement object.</param>
-        /// <returns>The new document with the object replacedl</returns>
+        /// <param name="oldEntity">The entity to be replaced.</param>
+        /// <param name="newEntity">The replacement entity.</param>
+        /// <returns>The new document with the entity replaced.</returns>
+        public static Document Replace(this Document document, Entity oldEntity, Entity newEntity)
+        {
+            var layer = document.ContainingLayer(oldEntity);
+            if (layer == null)
+            {
+                return document;
+            }
+
+            return document.Replace(layer, oldEntity, newEntity);
+        }
+
+        /// <summary>
+        /// Replaces the entity in the specified layer.
+        /// </summary>
+        /// <param name="layer">The layer containing the entity.</param>
+        /// <param name="oldEntity">The entity to be replaced.</param>
+        /// <param name="newEntity">The replacement entity.</param>
+        /// <returns>The new document with the entity replaced.</returns>
         public static Document Replace(this Document document, Layer layer, Entity oldEntity, Entity newEntity)
         {
             var updatedLayer = layer.Replace(oldEntity, newEntity);
@@ -35,11 +48,11 @@ namespace BCad
 
 
         /// <summary>
-        /// Removes the object from the layer.
+        /// Removes the entity from the layer.
         /// </summary>
         /// <param name="layer">The containing layer.</param>
-        /// <param name="entity">The object to remove.</param>
-        /// <returns>The new document with the object removed.</returns>
+        /// <param name="entity">The entity to remove.</param>
+        /// <returns>The new document with the entity removed.</returns>
         public static Document Remove(this Document document, Layer layer, Entity entity)
         {
             var updatedLayer = layer.Remove(entity);
@@ -47,11 +60,11 @@ namespace BCad
         }
 
         /// <summary>
-        /// Removes the object from the document.
+        /// Removes the entity from the document.
         /// </summary>
         /// <param name="document">The document.</param>
-        /// <param name="entity">The object to remove.</param>
-        /// <returns>The new document with the object removed.</returns>
+        /// <param name="entity">The entity to remove.</param>
+        /// <returns>The new document with the entity removed.</returns>
         public static Document Remove(this Document document, Entity entity)
         {
             var layer = document.ContainingLayer(entity);
@@ -64,9 +77,9 @@ namespace BCad
         }
 
         /// <summary>
-        /// Returns the layer that contains the specified object.
+        /// Returns the layer that contains the specified entity.
         /// </summary>
-        /// <param name="entity">The object to find.</param>
+        /// <param name="entity">The entity to find.</param>
         /// <returns>The containing layer.</returns>
         public static Layer ContainingLayer(this Document document, Entity entity)
         {

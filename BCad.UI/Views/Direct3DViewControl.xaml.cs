@@ -257,7 +257,7 @@ namespace BCad.UI.Views
             ForceRender();
         }
 
-        void ViewPortChanged(object sender, ViewPortChangedEventArgs e)
+        private void ViewPortChanged(object sender, ViewPortChangedEventArgs e)
         {
             var width = (float)view.ViewWidth;
             var height = (float)(view.ViewWidth * this.ActualHeight / this.ActualWidth);
@@ -272,7 +272,7 @@ namespace BCad.UI.Views
             ForceRender();
         }
 
-        void CommandExecuted(object sender, CommandExecutedEventArgs e)
+        private void CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(() => this.snapLayer.Children.Clear()));
             rubberBandLines = null;
@@ -492,7 +492,7 @@ namespace BCad.UI.Views
 
         private TransformedSnapPoint GetActiveModelPoint(Vector3 cursor)
         {
-            return ActiveObjectSnapPoints(cursor)
+            return ActiveEntitySnapPoints(cursor)
                 ?? GetOrthoPoint(cursor)
                 ?? GetAngleSnapPoint(cursor)
                 ?? GetRawModelPoint(cursor);
@@ -601,7 +601,7 @@ namespace BCad.UI.Views
             return null;
         }
 
-        private TransformedSnapPoint ActiveObjectSnapPoints(Vector3 cursor)
+        private TransformedSnapPoint ActiveEntitySnapPoints(Vector3 cursor)
         {
             if (workspace.SettingsManager.PointSnap && inputService.DesiredInputType == InputType.Point)
             {
@@ -626,7 +626,7 @@ namespace BCad.UI.Views
             var cursor = e.GetPosition(this);
             var cursorVector = cursor.ToVector3();
             var sp = GetActiveModelPoint(cursorVector);
-            var selectionDist = workspace.SettingsManager.ObjectSelectionRadius;
+            Entity ent = null;
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
@@ -635,54 +635,25 @@ namespace BCad.UI.Views
                         case InputType.Point:
                             inputService.PushValue(sp.WorldPoint);
                             break;
-                        case InputType.Object:
-                            var start = DateTime.UtcNow;
-                            uint hitEntity = 0;
-                            foreach (var entityId in lines.Keys)
+                        case InputType.Entity:
+                            ent = GetHitEntity(cursor);
+                            if (ent != null)
                             {
-                                var segments = lines[entityId];
-                                for (int i = 0; i < segments.Length - 1; i++)
-                                {
-                                    // translate line segment to screen coordinates
-                                    var p1 = Project(segments[i].Position);
-                                    var p2 = Project(segments[i + 1].Position);
-                                    // check that cursor is in expanded bounding box of line segment
-                                    var minx = Math.Min(p1.X, p2.X) - selectionDist;
-                                    var maxx = Math.Max(p1.X, p2.X) + selectionDist;
-                                    var miny = Math.Min(p1.Y, p2.Y) - selectionDist;
-                                    var maxy = Math.Max(p1.Y, p2.Y) + selectionDist;
-                                    if (MathHelper.Between(minx, maxx, cursor.X) && MathHelper.Between(miny, maxy, cursor.Y))
-                                    {
-                                        // in bounding rectangle, check distance to line
-                                        var x1 = p1.X - cursor.X;
-                                        var x2 = p2.X - cursor.X;
-                                        var y1 = p1.Y - cursor.Y;
-                                        var y2 = p2.Y - cursor.Y;
-                                        var dx = x2 - x1;
-                                        var dy = y2 - y1;
-                                        var dr2 = dx * dx + dy * dy;
-                                        var D = x1 * y2 - x2 * y1;
-                                        var det = (selectionDist * selectionDist * dr2) - (D * D);
-                                        if (det >= 0.0)
-                                        {
-                                            hitEntity = entityId;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (hitEntity > 0)
-                                    break;
-                            }
-
-                            if (hitEntity > 0)
-                            {
-                                // found it
-                                var ent = document.Layers.Values.SelectMany(l => l.Entities).FirstOrDefault(en => en.Id == hitEntity);
-                                Debug.Assert(ent != null, "hit object not in document");
-                                var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                                 inputService.PushValue(ent);
                             }
+
+                            break;
+                        case InputType.Entities:
+                            ent = GetHitEntity(cursor);
+                            if (ent != null)
+                            {
+                                inputService.PushValue(ent);
+                            }
+                            else
+                            {
+                                // TODO: no single entity found, use selection box
+                            }
+
                             break;
                     }
                     break;
@@ -734,7 +705,7 @@ namespace BCad.UI.Views
             }
         }
 
-        void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             // scale everything
             var scale = 1.25f;
@@ -765,6 +736,48 @@ namespace BCad.UI.Views
         #endregion
 
         #region Misc functions
+
+        private Entity GetHitEntity(System.Windows.Point cursor)
+        {
+            var start = DateTime.UtcNow;
+            var selectionDist = workspace.SettingsManager.EntitySelectionRadius;
+            uint hitEntity = 0;
+            foreach (var entityId in lines.Keys)
+            {
+                var segments = lines[entityId];
+                for (int i = 0; i < segments.Length - 1; i++)
+                {
+                    // translate line segment to screen coordinates
+                    var p1 = Project(segments[i].Position);
+                    var p2 = Project(segments[i + 1].Position);
+                    // check that cursor is in expanded bounding box of line segment
+                    var minx = Math.Min(p1.X, p2.X) - selectionDist;
+                    var maxx = Math.Max(p1.X, p2.X) + selectionDist;
+                    var miny = Math.Min(p1.Y, p2.Y) - selectionDist;
+                    var maxy = Math.Max(p1.Y, p2.Y) + selectionDist;
+                    if (MathHelper.Between(minx, maxx, cursor.X) && MathHelper.Between(miny, maxy, cursor.Y))
+                    {
+                        // in bounding rectangle, check distance to line
+                        var x1 = p1.X - cursor.X;
+                        var x2 = p2.X - cursor.X;
+                        var y1 = p1.Y - cursor.Y;
+                        var y2 = p2.Y - cursor.Y;
+                        var dx = x2 - x1;
+                        var dy = y2 - y1;
+                        var dr2 = dx * dx + dy * dy;
+                        var D = x1 * y2 - x2 * y1;
+                        var det = (selectionDist * selectionDist * dr2) - (D * D);
+                        if (det >= 0.0)
+                        {
+                            hitEntity = entityId;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return document.Layers.Values.SelectMany(l => l.Entities).FirstOrDefault(en => en.Id == hitEntity);
+        }
 
         private void ForceRender()
         {

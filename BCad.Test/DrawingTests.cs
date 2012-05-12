@@ -87,7 +87,7 @@ namespace BCad.Test
             var line = Entities.Line();
             Workspace.AddToCurrentLayer(line);
             VerifyLayerContains("0", line);
-            Execute("Object.Delete");
+            Execute("Edit.Delete");
             Push(line);
             Push(null);
             WaitForCompletion();
@@ -100,7 +100,7 @@ namespace BCad.Test
             var line = Entities.Line();
             Workspace.AddToCurrentLayer(line);
             VerifyLayerContains("0", line);
-            Execute("Object.Delete");
+            Execute("Edit.Delete");
             Push(line);
             WaitForRequest();
             Cancel();

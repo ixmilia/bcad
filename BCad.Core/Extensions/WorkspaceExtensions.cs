@@ -20,11 +20,11 @@ namespace BCad
         }
 
         /// <summary>
-        /// Add an object to the specified layer.
+        /// Add an entity to the specified layer.
         /// </summary>
         /// <param name="workspace">The workspace containing the document.</param>
-        /// <param name="layer">The layer to which to add the object.</param>
-        /// <param name="entity">The object to add.</param>
+        /// <param name="layer">The layer to which to add the entity.</param>
+        /// <param name="entity">The entity to add.</param>
         public static void Add(this IWorkspace workspace, Layer layer, Entity entity)
         {
             var updatedDocument = workspace.Document.Add(layer, entity);
@@ -32,10 +32,10 @@ namespace BCad
         }
 
         /// <summary>
-        /// Add an object to the current layer.
+        /// Add an entity to the current layer.
         /// </summary>
         /// <param name="workspace">The workspace containing the document.</param>
-        /// <param name="entity">The object to be added.</param>
+        /// <param name="entity">The entity to be added.</param>
         public static void AddToCurrentLayer(this IWorkspace workspace, Entity entity)
         {
             workspace.Add(workspace.CurrentLayer, entity);
@@ -54,12 +54,12 @@ namespace BCad
         }
 
         /// <summary>
-        /// Replace the object in a specified layer.
+        /// Replace the entity in a specified layer.
         /// </summary>
         /// <param name="workspace">The workspace containing the document.</param>
-        /// <param name="layer">The layer containing the objects.</param>
-        /// <param name="oldEntity">The object to be replaced.</param>
-        /// <param name="newEntity">The replacement object.</param>
+        /// <param name="layer">The layer containing the entities.</param>
+        /// <param name="oldEntity">The entity to be replaced.</param>
+        /// <param name="newEntity">The replacement entity.</param>
         public static void Replace(this IWorkspace workspace, Layer layer, Entity oldEntity, Entity newEntity)
         {
             var updatedDocument = workspace.Document.Replace(layer, oldEntity, newEntity);
@@ -78,11 +78,11 @@ namespace BCad
         }
 
         /// <summary>
-        /// Remove an object from the specified layer.
+        /// Remove an entity from the specified layer.
         /// </summary>
         /// <param name="workspace">The workspace containing the document.</param>
-        /// <param name="layer">The layer containing the object.</param>
-        /// <param name="entity">The object to be removed.</param>
+        /// <param name="layer">The layer containing the entity.</param>
+        /// <param name="entity">The entity to be removed.</param>
         public static void Remove(this IWorkspace workspace, Layer layer, Entity entity)
         {
             var updatedDocument = workspace.Document.Remove(layer, entity);

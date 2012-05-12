@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Input;
-using BCad.EventArguments;
+﻿using System.Collections.Generic;
 using BCad.Entities;
+using BCad.EventArguments;
 
 namespace BCad
 {
@@ -15,7 +10,8 @@ namespace BCad
         Command,
         Directive,
         Point,
-        Object,
+        Entity,
+        Entities,
         Text
     }
 
@@ -38,6 +34,8 @@ namespace BCad
         ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
 
         ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
+
+        ValueOrDirective<IEnumerable<Entity>> GetEntities(RubberBandGenerator onCursorMove = null);
 
         Point LastPoint { get; }
 

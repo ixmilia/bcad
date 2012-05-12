@@ -41,18 +41,18 @@ namespace BCad.Commands.FileHandlers
             {
                 Layer layer = null;
 
-                // objects without a layer go to '0'
-                string objectLayer = item.Layer == null ? "0" : item.Layer;
-                if (layers.ContainsKey(objectLayer))
-                    layer = layers[objectLayer];
+                // entities without a layer go to '0'
+                string entityLayer = item.Layer == null ? "0" : item.Layer;
+                if (layers.ContainsKey(entityLayer))
+                    layer = layers[entityLayer];
                 else
                 {
                     // add the layer if previously undefined
-                    layer = new Layer(objectLayer, Color.Auto);
-                    layers[objectLayer] = layer;
+                    layer = new Layer(entityLayer, Color.Auto);
+                    layers[entityLayer] = layer;
                 }
 
-                // create the object
+                // create the entity
                 Entity entity = null;
                 if (item is DxfLine)
                     entity = ((DxfLine)item).ToLine();
@@ -65,11 +65,11 @@ namespace BCad.Commands.FileHandlers
                 else
                     Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
 
-                // add the object to the appropriate layer
+                // add the entity to the appropriate layer
                 if (entity != null)
                 {
                     layer = layer.Add(entity);
-                    layers[objectLayer] = layer;
+                    layers[entityLayer] = layer;
                 }
             }
 

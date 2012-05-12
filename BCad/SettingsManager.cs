@@ -16,7 +16,7 @@ namespace BCad
         private string consoleControlId = null;
         private double snapPointDist = 0.0;
         private double snapPointSize = 0.0;
-        private double objectSelectionRadius = 0.0;
+        private double entitySelectionRadius = 0.0;
         private bool pointSnap = false;
         private bool angleSnap = false;
         private bool ortho = false;
@@ -90,15 +90,15 @@ namespace BCad
             }
         }
 
-        public double ObjectSelectionRadius
+        public double EntitySelectionRadius
         {
-            get { return this.objectSelectionRadius; }
+            get { return this.entitySelectionRadius; }
             set
             {
-                if (this.objectSelectionRadius == value)
+                if (this.entitySelectionRadius == value)
                     return;
-                this.objectSelectionRadius = value;
-                OnPropertyChanged("ObjectSelectionRadius");
+                this.entitySelectionRadius = value;
+                OnPropertyChanged("EntitySelectionRadius");
             }
         }
 
@@ -305,7 +305,7 @@ namespace BCad
             ConsoleControlId = "Default";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
-            ObjectSelectionRadius = 3.0;
+            EntitySelectionRadius = 3.0;
             PointSnap = true;
             AngleSnap = true;
             Ortho = false;

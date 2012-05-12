@@ -80,7 +80,7 @@ namespace BCad.UI.Consoles
 
         private void SubmitValue()
         {
-            if (InputService.DesiredInputType == InputType.Object)
+            if (InputService.DesiredInputType == InputType.Entity)
                 return; // doesn't make sense
             object value = null;
             switch (InputService.DesiredInputType)

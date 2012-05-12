@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Windows.Controls;
-using System.Windows.Input;
-using BCad.EventArguments;
 using BCad.Entities;
+using BCad.EventArguments;
 
 namespace BCad
 {
@@ -91,14 +88,13 @@ namespace BCad
             }
 
             WaitDone();
-
             return result;
         }
 
         public ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Object));
-            WaitFor(InputType.Object, directive, onCursorMove);
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Entity));
+            WaitFor(InputType.Entity, directive, onCursorMove);
 
             ValueOrDirective<Entity> result;
             switch (lastType)
@@ -112,6 +108,9 @@ namespace BCad
                 case PushedValueType.Entity:
                     result = new ValueOrDirective<Entity>(pushedEntity);
                     break;
+                case PushedValueType.Entities:
+                    result = new ValueOrDirective<Entity>(pushedEntities.First());
+                    break;
                 case PushedValueType.Directive:
                     result = new ValueOrDirective<Entity>(pushedDirective);
                     break;
@@ -120,8 +119,49 @@ namespace BCad
             }
 
             WaitDone();
-
             return result;
+        }
+
+        public ValueOrDirective<IEnumerable<Entity>> GetEntities(RubberBandGenerator onCursorMove = null)
+        {
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Entities));
+
+            ValueOrDirective<IEnumerable<Entity>>? result = null;
+            HashSet<Entity> entities = new HashSet<Entity>();
+            bool awaitingMore = true;
+            while (awaitingMore)
+            {
+                WaitFor(InputType.Entities, new UserDirective("Select entities", "all"), onCursorMove);
+                switch (lastType)
+                {
+                    case PushedValueType.Cancel:
+                        result = ValueOrDirective<IEnumerable<Entity>>.GetCancel();
+                        awaitingMore = false;
+                        break;
+                    case PushedValueType.Directive:
+                        Debug.Fail("TODO: allow 'all' directive and 'r' to remove objects from selection");
+                        break;
+                    case PushedValueType.None:
+                        result = new ValueOrDirective<IEnumerable<Entity>>(entities);
+                        awaitingMore = false;
+                        break;
+                    case PushedValueType.Entity:
+                        entities.Add(pushedEntity);
+                        // TODO: print status
+                        break;
+                    case PushedValueType.Entities:
+                        foreach (var e in pushedEntities)
+                            entities.Add(e);
+                        // TODO: print status
+                        break;
+                    default:
+                        throw new Exception("Unexpected pushed value");
+                }
+            }
+
+            WaitDone();
+            Debug.Assert(result != null, "result should never be null");
+            return result.Value;
         }
 
         private void WaitFor(InputType type, UserDirective directive, RubberBandGenerator onCursorMove)
@@ -156,6 +196,7 @@ namespace BCad
             Cancel,
             Point,
             Entity,
+            Entities,
             Directive
         }
 
@@ -164,6 +205,7 @@ namespace BCad
         private Point pushedPoint = default(Point);
         private string pushedDirective = null;
         private Entity pushedEntity = null;
+        private IEnumerable<Entity> pushedEntities = null;
         private string pushedText = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
         private string lastCommand = null;
@@ -230,11 +272,33 @@ namespace BCad
                                     OnValueReceived(new ValueReceivedEventArgs(pushedPoint));
                                     this.LastPoint = pushedPoint;
                                     break;
-                                case InputType.Object:
+                                case InputType.Entity:
                                     lastType = PushedValueType.Entity;
                                     pushedEntity = value as Entity;
                                     valueReceived = true;
                                     OnValueReceived(new ValueReceivedEventArgs(pushedEntity));
+                                    break;
+                                case InputType.Entities:
+                                    var enumerable = value as IEnumerable<Entity>;
+                                    var entity = value as Entity;
+                                    if (enumerable != null)
+                                    {
+                                        lastType = PushedValueType.Entities;
+                                        pushedEntities = enumerable;
+                                        valueReceived = true;
+                                        OnValueReceived(new ValueReceivedEventArgs(pushedEntities));
+                                    }
+                                    else if (entity != null)
+                                    {
+                                        lastType = PushedValueType.Entity;
+                                        pushedEntity = entity;
+                                        valueReceived = true;
+                                        OnValueReceived(new ValueReceivedEventArgs(pushedEntity));
+                                    }
+                                    else
+                                    {
+                                        Debug.Fail("Value was not Entity or IEnumerable<Entity>");
+                                    }
                                     break;
                                 case InputType.Text:
                                     lastType = PushedValueType.Directive;
