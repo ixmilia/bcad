@@ -5,10 +5,9 @@ namespace BCad.Dxf.Entities
 {
     public class DxfEllipse: DxfEntity
     {
-        public override DxfEntityType EntityType
-        {
-            get { return DxfEntityType.Ellipse; }
-        }
+        public override DxfEntityType EntityType { get { return DxfEntityType.Ellipse; } }
+
+        public override string SubclassMarker { get { return "AcDbEllipse"; } }
 
         public DxfPoint Center { get; set; }
 

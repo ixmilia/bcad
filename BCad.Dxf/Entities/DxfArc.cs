@@ -4,10 +4,9 @@ namespace BCad.Dxf.Entities
 {
     public class DxfArc : DxfEntity
     {
-        public override DxfEntityType EntityType
-        {
-            get { return DxfEntityType.Arc; }
-        }
+        public override DxfEntityType EntityType { get { return DxfEntityType.Arc; } }
+
+        public override string SubclassMarker { get { return DxfCircle.CircleSubclassMarker; } }
 
         public DxfPoint Center { get; set; }
 

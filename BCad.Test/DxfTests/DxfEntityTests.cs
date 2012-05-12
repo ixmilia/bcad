@@ -19,8 +19,6 @@ namespace BCad.Test.DxfTests
 <handle>
   8
 <layer>
-100
-AcDbEntity
  62
 1
 {1}

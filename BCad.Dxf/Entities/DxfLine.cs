@@ -4,10 +4,9 @@ namespace BCad.Dxf.Entities
 {
     public class DxfLine : DxfEntity
     {
-        public override DxfEntityType EntityType
-        {
-            get { return DxfEntityType.Line; }
-        }
+        public override DxfEntityType EntityType { get { return DxfEntityType.Line; } }
+
+        public override string SubclassMarker { get { return "AcDbLine"; } }
 
         public DxfPoint P1 { get; set; }
 

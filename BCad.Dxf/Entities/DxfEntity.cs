@@ -18,9 +18,10 @@ namespace BCad.Dxf.Entities
         public const string CircleType = "CIRCLE";
         public const string ArcType = "ARC";
         public const string EllipseType = "ELLIPSE";
-        public const string SubclassMarker = "AcDbEntity";
 
         public abstract DxfEntityType EntityType { get; }
+
+        public abstract string SubclassMarker { get; }
 
         public string Handle { get; set; }
 
@@ -66,10 +67,6 @@ namespace BCad.Dxf.Entities
                         break;
                     case 62:
                         Color = DxfColor.FromRawValue(pair.ShortValue);
-                        break;
-                    case 100:
-                        if (pair.StringValue != SubclassMarker)
-                            throw new DxfReadException("Incorrect subclass marker " + pair.StringValue);
                         break;
                 }
             }

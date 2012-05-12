@@ -4,10 +4,11 @@ namespace BCad.Dxf.Entities
 {
     public class DxfCircle : DxfEntity
     {
-        public override DxfEntityType EntityType
-        {
-            get { return DxfEntityType.Circle; }
-        }
+        public const string CircleSubclassMarker = "AcDbCircle";
+
+        public override DxfEntityType EntityType { get { return DxfEntityType.Circle; } }
+
+        public override string SubclassMarker { get { return CircleSubclassMarker; } }
 
         public DxfPoint Center { get; set; }
 
