@@ -3,7 +3,7 @@ using BCad.SnapPoints;
 
 namespace BCad.Entities
 {
-    public class Arc : Entity, IPrimitive
+    public class Arc : Entity
     {
         private readonly Point center;
         private readonly Vector normal;
@@ -14,6 +14,7 @@ namespace BCad.Entities
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
+        private readonly IPrimitive[] primitives;
 
         public Point Center { get { return center; } }
 
@@ -41,6 +42,8 @@ namespace BCad.Entities
             this.endPoint1 = points[0];
             this.endPoint2 = points[1];
             this.midPoint = points[2];
+
+            this.primitives = new[] { new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color) };
         }
 
         public Point EndPoint1 { get { return this.endPoint1; } }
@@ -51,7 +54,7 @@ namespace BCad.Entities
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return new[] { this };
+            return this.primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
@@ -63,11 +66,6 @@ namespace BCad.Entities
                 new EndPoint(EndPoint2),
                 new MidPoint(MidPoint)
             };
-        }
-
-        public PrimitiveKind Kind
-        {
-            get { return PrimitiveKind.Arc; }
         }
 
         public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)

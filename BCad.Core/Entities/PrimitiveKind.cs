@@ -2,8 +2,6 @@
 {
     public enum PrimitiveKind
     {
-        Arc,
-        Circle,
         Ellipse,
         Line
     }

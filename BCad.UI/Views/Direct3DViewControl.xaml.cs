@@ -343,51 +343,21 @@ namespace BCad.UI.Views
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
-                    var line = (BCad.Entities.Line)primitive;
+                    var line = (PrimitiveLine)primitive;
                     segments = new[] {
                         line.P1.ToVector3(),
                         line.P2.ToVector3()
                     };
                     break;
-                case PrimitiveKind.Arc:
-                case PrimitiveKind.Circle:
                 case PrimitiveKind.Ellipse:
-                    double startAngle, endAngle, radiusX, radiusY;
-                    Point center;
-                    Vector normal, right;
-                    switch (primitive.Kind)
-                    {
-                        case PrimitiveKind.Arc:
-                            var arc = (Arc)primitive;
-                            startAngle = arc.StartAngle;
-                            endAngle = arc.EndAngle;
-                            radiusX = radiusY = arc.Radius;
-                            center = arc.Center;
-                            normal = arc.Normal;
-                            right = Vector.RightVectorFromNormal(arc.Normal);
-                            break;
-                        case PrimitiveKind.Circle:
-                            var circle = (Circle)primitive;
-                            startAngle = 0.0;
-                            endAngle = 360.0;
-                            radiusX = radiusY = circle.Radius;
-                            center = circle.Center;
-                            normal = circle.Normal;
-                            right = Vector.RightVectorFromNormal(circle.Normal);
-                            break;
-                        case PrimitiveKind.Ellipse:
-                            var el = (Ellipse)primitive;
-                            startAngle = el.StartAngle;
-                            endAngle = el.EndAngle;
-                            radiusX = el.MajorAxis.Length;
-                            radiusY = radiusX * el.MinorAxisRatio;
-                            center = el.Center;
-                            normal = el.Normal;
-                            right = el.MajorAxis;
-                            break;
-                        default:
-                            throw new InvalidOperationException("Only arc, circle, and ellipse allowed here");
-                    }
+                    var el = (PrimitiveEllipse)primitive;
+                    double startAngle = el.StartAngle;
+                    double endAngle = el.EndAngle;
+                    double radiusX = el.MajorAxis.Length;
+                    double radiusY = radiusX * el.MinorAxisRatio;
+                    var center = el.Center;
+                    var normal = el.Normal;
+                    var right = el.MajorAxis;
 
                     normal = normal.Normalize();
                     right = right.Normalize();

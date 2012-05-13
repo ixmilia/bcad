@@ -32,7 +32,7 @@ namespace BCad.Commands
             var destination = InputService.GetPoint(new UserDirective("Destination point"), p =>
                 {
                     return entities.Value.SelectMany(e => MovedEntity(e, p - origin.Value).GetPrimitives())
-                        .Concat(new[] { new Line(origin.Value, p, Color.Default) });
+                        .Concat(new[] { new PrimitiveLine(origin.Value, p, Color.Default) });
                 });
 
             if (destination.Cancel || !destination.HasValue)

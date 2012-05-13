@@ -37,8 +37,8 @@ namespace BCad.Commands
                         {
                             return new IPrimitive[]
                             {
-                                new Line(center, p, Color.Default),
-                                new Circle(center, (p - center).Length, Workspace.DrawingPlaneNormal(), Color.Default)
+                                new PrimitiveLine(center, p, Color.Default),
+                                new PrimitiveEllipse(center, (p - center).Length, Workspace.DrawingPlaneNormal(), Color.Default)
                             };
                         });
                         if (rad.Cancel) return false;
@@ -67,8 +67,8 @@ namespace BCad.Commands
                         {
                             return new IPrimitive[]
                             {
-                                new Line(center, p, Color.Default),
-                                new Circle(center, (p - center).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default)
+                                new PrimitiveLine(center, p, Color.Default),
+                                new PrimitiveEllipse(center, (p - center).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default)
                             };
                         });
                         if (diameter.Cancel) return false;

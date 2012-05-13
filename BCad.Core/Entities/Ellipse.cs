@@ -7,7 +7,7 @@ using BCad.Helpers;
 
 namespace BCad.Entities
 {
-    public class Ellipse : Entity, IPrimitive
+    public class Ellipse : Entity
     {
         private readonly Point center;
         private readonly Vector majorAxis;
@@ -23,6 +23,7 @@ namespace BCad.Entities
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
+        private readonly IPrimitive[] primitives;
 
         public Point Center { get { return center; } }
 
@@ -57,11 +58,13 @@ namespace BCad.Entities
             endPoint1 = points[4];
             endPoint2 = points[5];
             midPoint = points[6];
+
+            this.primitives = new[] { new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color) };
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return new[] { this };
+            return this.primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
@@ -89,11 +92,6 @@ namespace BCad.Entities
                     new MidPoint(midPoint)
                 };
             }
-        }
-
-        public PrimitiveKind Kind
-        {
-            get { return PrimitiveKind.Ellipse; }
         }
 
         public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)

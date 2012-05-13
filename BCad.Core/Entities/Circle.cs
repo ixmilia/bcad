@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
-using BCad.SnapPoints;
 using BCad.Helpers;
+using BCad.SnapPoints;
 
 namespace BCad.Entities
 {
-    public class Circle : Entity, IPrimitive
+    public class Circle : Entity
     {
         private readonly Point center;
         private readonly Vector normal;
@@ -16,6 +16,7 @@ namespace BCad.Entities
         private readonly Point quadrant2;
         private readonly Point quadrant3;
         private readonly Point quadrant4;
+        private readonly IPrimitive[] primitives;
 
         public Point Center { get { return center; } }
 
@@ -38,11 +39,13 @@ namespace BCad.Entities
             quadrant2 = points[1];
             quadrant3 = points[2];
             quadrant4 = points[3];
+
+            this.primitives = new[] { new PrimitiveEllipse(Center, Radius, Normal, Color) };
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return new[] { this };
+            return this.primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
@@ -55,11 +58,6 @@ namespace BCad.Entities
                 new QuadrantPoint(quadrant3),
                 new QuadrantPoint(quadrant4)
             };
-        }
-
-        public PrimitiveKind Kind
-        {
-            get { return PrimitiveKind.Circle; }
         }
 
         public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)

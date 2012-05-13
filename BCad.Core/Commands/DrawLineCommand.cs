@@ -23,7 +23,7 @@ namespace BCad.Commands
             {
                 var current = InputService.GetPoint(new UserDirective("Next or [c]lose", "c"), (p) =>
                 {
-                    return new[] { new Line(last, p, Color.Default) };
+                    return new[] { new PrimitiveLine(last, p, Color.Default) };
                 });
                 if (current.Cancel) break;
                 if (current.HasValue)
