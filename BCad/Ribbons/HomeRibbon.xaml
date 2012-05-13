@@ -85,8 +85,7 @@
         </r:RibbonGroup.GroupSizeDefinitions>
         <r:RibbonButton Label="Move"
                         Command="commands:RibbonCommands.CADCommand"
-                        LargeImageSource="{StaticResource NYI}"
-                        SmallImageSource="{StaticResource NYI}"
+                        SmallImageSource="{StaticResource MoveSmall}"
                         CommandParameter="Edit.Move" />
         <r:RibbonButton Label="Copy"
                         Command="commands:RibbonCommands.CADCommand"

@@ -200,6 +200,52 @@
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <DrawingImage x:Key="MoveSmall">
+        <DrawingImage.Drawing>
+            <GeometryDrawing Brush="Black">
+                <GeometryDrawing.Pen>
+                    <Pen Brush="Black" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <PathGeometry>
+                        <PathGeometry.Figures>
+                            <PathFigureCollection>
+                                <PathFigure StartPoint="8,0">
+                                    <LineSegment Point="10,2" />
+                                    <LineSegment Point="8,2" />
+                                    <LineSegment Point="8,7" />
+                                    <LineSegment Point="13,7" />
+                                    <LineSegment Point="13,5" />
+                                    <LineSegment Point="15,7" />
+                                    <LineSegment Point="15,8" />
+                                    <LineSegment Point="13,10" />
+                                    <LineSegment Point="13,8" />
+                                    <LineSegment Point="8,8" />
+                                    <LineSegment Point="8,13" />
+                                    <LineSegment Point="10,13" />
+                                    <LineSegment Point="8,15" />
+                                    <LineSegment Point="7,15" />
+                                    <LineSegment Point="5,13" />
+                                    <LineSegment Point="7,13" />
+                                    <LineSegment Point="7,8" />
+                                    <LineSegment Point="2,8" />
+                                    <LineSegment Point="2,10" />
+                                    <LineSegment Point="0,8" />
+                                    <LineSegment Point="0,7" />
+                                    <LineSegment Point="2,5" />
+                                    <LineSegment Point="2,7" />
+                                    <LineSegment Point="7,7" />
+                                    <LineSegment Point="7,2" />
+                                    <LineSegment Point="5,2" />
+                                    <LineSegment Point="7,0" />
+                                </PathFigure>
+                            </PathFigureCollection>
+                        </PathGeometry.Figures>
+                    </PathGeometry>
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
     <DrawingImage x:Key="NYI">
         <DrawingImage.Drawing>
             <GeometryDrawing>
