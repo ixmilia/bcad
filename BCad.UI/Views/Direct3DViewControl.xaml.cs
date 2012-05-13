@@ -24,6 +24,7 @@ namespace BCad.UI.Views
     [ExportViewControl("Direct3D")]
     public partial class Direct3DViewControl : ViewControl, IRenderEngine
     {
+
         #region Constructors
 
         public Direct3DViewControl()
@@ -46,6 +47,7 @@ namespace BCad.UI.Views
             this.workspace.PropertyChanged += WorkspacePropertyChanged;
             this.workspace.SettingsManager.PropertyChanged += SettingsManagerPropertyChanged;
             this.workspace.CommandExecuted += CommandExecuted;
+            this.workspace.SelectedEntities.CollectionChanged += SelectedEntitiesCollectionChanged;
 
             // load settings
             foreach (var setting in new[] { "BackgroundColor" })
@@ -72,16 +74,6 @@ namespace BCad.UI.Views
 
         #endregion
 
-        #region LineVertex struct
-
-        private struct LineVertex
-        {
-            public Vector3 Position;
-            public int Color;
-        }
-
-        #endregion
-
         #region Member variables
 
         private IWorkspace workspace = null;
@@ -90,16 +82,19 @@ namespace BCad.UI.Views
         private Matrix worldMatrix = Matrix.Identity;
         private Matrix viewMatrix = Matrix.Scaling(1.0f, 1.0f, 0.0f);
         private Matrix projectionMatrix = Matrix.Identity;
+        private Matrix projectionViewWorldMatrix = Matrix.Identity;
         private TransformedSnapPoint[] snapPoints = new TransformedSnapPoint[0];
         private object documentGate = new object();
         private Document document = null;
         private Device Device { get { return this.content.Device; } }
-        private int autoColor = 0xFFFFFF;
-        private Dictionary<uint, LineVertex[]> lines = new Dictionary<uint, LineVertex[]>();
-        private IEnumerable<LineVertex[]> rubberBandLines = null;
+        private Color4 autoColor = new Color4();
+        private Dictionary<uint, Tuple<Color4, Vector3[]>[]> lines = new Dictionary<uint, Tuple<Color4, Vector3[]>[]>();
+        private Tuple<Color4, Vector3[]>[] rubberBandLines = null;
         private bool panning = false;
         private System.Windows.Point lastPanPoint = new System.Windows.Point();
         private bool lastGeneratorNonNull = false;
+        private SlimDX.Direct3D9.Line solidLine;
+        private SlimDX.Direct3D9.Line dashedLine;
 
         #endregion
 
@@ -150,9 +145,17 @@ namespace BCad.UI.Views
 
         public void OnDeviceReset(object sender, EventArgs e)
         {
-            Device.VertexDeclaration = new VertexDeclaration(Device, new[] {
-                    new VertexElement(0, 0, DeclarationType.Float3, DeclarationMethod.Default, DeclarationUsage.Position, 0),
-                    new VertexElement(0, 12, DeclarationType.Color, DeclarationMethod.Default, DeclarationUsage.Color, 0) });
+            if (solidLine != null)
+                solidLine.Dispose();
+            if (dashedLine != null)
+                dashedLine.Dispose();
+            solidLine = new SlimDX.Direct3D9.Line(Device);
+            dashedLine = new SlimDX.Direct3D9.Line(Device)
+            {
+                Width = 1.0f,
+                Pattern = 0xF0F0F0F,
+                PatternScale = 1
+            };
             Device.SetRenderState(RenderState.Lighting, false);
         }
 
@@ -160,20 +163,33 @@ namespace BCad.UI.Views
         {
             lock (documentGate)
             {
-                foreach (var lineSet in lines.Values)
+                foreach (var entityId in lines.Keys)
                 {
-                    if (lineSet.Length > 0)
-                        Device.DrawUserPrimitives(PrimitiveType.LineStrip, lineSet.Length - 1, lineSet);
+                    var len = lines[entityId].Length;
+                    for (int i = 0; i < len; i++)
+                    {
+                        var color = lines[entityId][i].Item1;
+                        var lineSet = lines[entityId][i].Item2;
+                        Debug.Assert(lineSet.Length > 0);
+                        if (workspace.SelectedEntities.Contains(entityId))
+                        {
+                            dashedLine.DrawTransformed(lineSet, projectionViewWorldMatrix, color);
+                        }
+                        else
+                        {
+                            solidLine.DrawTransformed(lineSet, projectionViewWorldMatrix, color);
+                        }
+                    }
                 }
 
                 if (rubberBandLines != null)
                 {
-                    foreach (var prim in rubberBandLines)
+                    for (int i = 0; i < rubberBandLines.Length; i++)
                     {
-                        if (prim != null && prim.Length > 0)
-                        {
-                            Device.DrawUserPrimitives(PrimitiveType.LineStrip, prim.Length - 1, prim);
-                        }
+                        var color = rubberBandLines[i].Item1;
+                        var lineSet = rubberBandLines[i].Item2;
+                        Debug.Assert(lineSet.Length > 0);
+                        solidLine.DrawTransformed(lineSet, projectionViewWorldMatrix, autoColor);
                     }
                 }
             }
@@ -193,7 +209,8 @@ namespace BCad.UI.Views
                     this.content.ClearColor = bg;
                     var backgroundColor = (bg.R << 16) | (bg.G << 8) | bg.B;
                     var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
-                    autoColor = brightness < 0.67 ? 0xFFFFFF : 0x000000;
+                    var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
+                    autoColor = new Color4((0xFF << 24) | color);
                     ForceRender();
                     break;
                 case "AngleSnap":
@@ -265,10 +282,16 @@ namespace BCad.UI.Views
                 * Matrix.Translation((float)-view.BottomLeft.X, (float)-view.BottomLeft.Y, 0)
                 * Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
                 * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
+            projectionViewWorldMatrix = projectionMatrix * viewMatrix * worldMatrix;
 
             Device.SetTransform(TransformState.Projection, projectionMatrix);
             Device.SetTransform(TransformState.View, viewMatrix);
             UpdateSnapPoints(projectionMatrix);
+            ForceRender();
+        }
+
+        private void SelectedEntitiesCollectionChanged(object sender, EventArgs e)
+        {
             ForceRender();
         }
 
@@ -283,13 +306,14 @@ namespace BCad.UI.Views
 
         #region Primitive generator functions
 
-        private int GetDisplayColor(Color layerColor, Color primitiveColor)
+        private Color4 GetDisplayColor(Color layerColor, Color primitiveColor)
         {
+            var color = autoColor;
             if (!primitiveColor.IsAuto)
-                return primitiveColor.ToInt();
+                color = new Color4(primitiveColor.ToInt());
             if (!layerColor.IsAuto)
-                return layerColor.ToInt();
-            return autoColor;
+                color = new Color4(layerColor.ToInt());
+            return color;
         }
 
         private void GenerateRubberBandLines(Point worldPoint)
@@ -297,7 +321,7 @@ namespace BCad.UI.Views
             var generator = inputService.PrimitiveGenerator;
             rubberBandLines = generator == null
                 ? null
-                : generator(worldPoint).Select(p => GeneratePrimitiveSegments(p, autoColor).ToArray());
+                : generator(worldPoint).Select(p => Tuple.Create<Color4, Vector3[]>(autoColor, GeneratePrimitiveSegments(p))).ToArray();
 
             if (generator != null || lastGeneratorNonNull)
             {
@@ -307,21 +331,22 @@ namespace BCad.UI.Views
             lastGeneratorNonNull = generator != null;
         }
 
-        private IEnumerable<LineVertex> GenerateEntitySegments(Entity entity, Color layerColor)
+        private IEnumerable<Tuple<Color4, Vector3[]>> GenerateEntitySegments(Entity entity, Color layerColor)
         {
-            return entity.GetPrimitives().SelectMany(p => GeneratePrimitiveSegments(p, GetDisplayColor(layerColor, p.Color)));
+            return from prim in entity.GetPrimitives()
+                   select Tuple.Create<Color4, Vector3[]>(GetDisplayColor(layerColor, prim.Color), GeneratePrimitiveSegments(prim));
         }
 
-        private IEnumerable<LineVertex> GeneratePrimitiveSegments(IPrimitive primitive, int color)
+        private Vector3[] GeneratePrimitiveSegments(IPrimitive primitive)
         {
-            LineVertex[] segments;
+            Vector3[] segments;
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
                     var line = (BCad.Entities.Line)primitive;
                     segments = new[] {
-                        new LineVertex() { Position = line.P1.ToVector3(), Color = color },
-                        new LineVertex() { Position = line.P2.ToVector3(), Color = color }
+                        line.P1.ToVector3(),
+                        line.P2.ToVector3()
                     };
                     break;
                 case PrimitiveKind.Arc:
@@ -372,7 +397,7 @@ namespace BCad.UI.Views
                     var coveringAngle = endAngle - startAngle;
                     if (coveringAngle < 0.0) coveringAngle += MathHelper.TwoPI;
                     var segCount = Math.Max(3, (int)(coveringAngle / MathHelper.TwoPI * (double)FullCircleDrawingSegments));
-                    segments = new LineVertex[segCount];
+                    segments = new Vector3[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
                     var transformation = Matrix.Identity;
@@ -394,11 +419,7 @@ namespace BCad.UI.Views
                         var result = Vector3.Transform(
                             new Vector3((float)(Math.Cos(angle) * radiusX), (float)(Math.Sin(angle) * radiusY), 0.0f),
                             transformation);
-                        segments[i] = new LineVertex()
-                        {
-                            Position = new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W),
-                            Color = color
-                        };
+                        segments[i] = new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W);
                     }
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                     break;
@@ -745,32 +766,36 @@ namespace BCad.UI.Views
             foreach (var entityId in lines.Keys)
             {
                 var segments = lines[entityId];
-                for (int i = 0; i < segments.Length - 1; i++)
+                for (int i = 0; i < segments.Length && hitEntity == 0; i++)
                 {
-                    // translate line segment to screen coordinates
-                    var p1 = Project(segments[i].Position);
-                    var p2 = Project(segments[i + 1].Position);
-                    // check that cursor is in expanded bounding box of line segment
-                    var minx = Math.Min(p1.X, p2.X) - selectionDist;
-                    var maxx = Math.Max(p1.X, p2.X) + selectionDist;
-                    var miny = Math.Min(p1.Y, p2.Y) - selectionDist;
-                    var maxy = Math.Max(p1.Y, p2.Y) + selectionDist;
-                    if (MathHelper.Between(minx, maxx, cursor.X) && MathHelper.Between(miny, maxy, cursor.Y))
+                    var points = segments[i].Item2;
+                    for (int j = 0; j < points.Length - 1; j++)
                     {
-                        // in bounding rectangle, check distance to line
-                        var x1 = p1.X - cursor.X;
-                        var x2 = p2.X - cursor.X;
-                        var y1 = p1.Y - cursor.Y;
-                        var y2 = p2.Y - cursor.Y;
-                        var dx = x2 - x1;
-                        var dy = y2 - y1;
-                        var dr2 = dx * dx + dy * dy;
-                        var D = x1 * y2 - x2 * y1;
-                        var det = (selectionDist * selectionDist * dr2) - (D * D);
-                        if (det >= 0.0)
+                        // translate line segment to screen coordinates
+                        var p1 = Project(points[j]);
+                        var p2 = Project(points[j + 1]);
+                        // check that cursor is in expanded bounding box of line segment
+                        var minx = Math.Min(p1.X, p2.X) - selectionDist;
+                        var maxx = Math.Max(p1.X, p2.X) + selectionDist;
+                        var miny = Math.Min(p1.Y, p2.Y) - selectionDist;
+                        var maxy = Math.Max(p1.Y, p2.Y) + selectionDist;
+                        if (MathHelper.Between(minx, maxx, cursor.X) && MathHelper.Between(miny, maxy, cursor.Y))
                         {
-                            hitEntity = entityId;
-                            break;
+                            // in bounding rectangle, check distance to line
+                            var x1 = p1.X - cursor.X;
+                            var x2 = p2.X - cursor.X;
+                            var y1 = p1.Y - cursor.Y;
+                            var y2 = p2.Y - cursor.Y;
+                            var dx = x2 - x1;
+                            var dy = y2 - y1;
+                            var dr2 = dx * dx + dy * dy;
+                            var D = x1 * y2 - x2 * y1;
+                            var det = (selectionDist * selectionDist * dr2) - (D * D);
+                            if (det >= 0.0)
+                            {
+                                hitEntity = entityId;
+                                break;
+                            }
                         }
                     }
                 }

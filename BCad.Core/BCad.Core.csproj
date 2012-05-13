@@ -47,6 +47,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Commands\CopyCommand.cs" />
     <Compile Include="Commands\DeleteCommand.cs" />

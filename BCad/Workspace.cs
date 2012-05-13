@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Primitives;
 using System.Diagnostics;
@@ -7,11 +9,9 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Xml.Serialization;
-using BCad.EventArguments;
+using BCad.Collections;
 using BCad.Commands;
-using System.Collections.Generic;
-using System.Windows.Input;
-using System.ComponentModel;
+using BCad.EventArguments;
 
 namespace BCad
 {
@@ -140,6 +140,12 @@ namespace BCad
                 this.drawingPlaneOffset = value;
                 OnPropertyChanged("DrawingPlaneOffset");
             }
+        }
+
+        private ObservableHashSet<uint> selectedEntities = new ObservableHashSet<uint>();
+        public ObservableHashSet<uint> SelectedEntities
+        {
+            get { return selectedEntities; }
         }
 
         #endregion

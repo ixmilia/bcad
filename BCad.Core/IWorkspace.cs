@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
+using BCad.Collections;
 using BCad.EventArguments;
-using System.Windows.Input;
-using System.ComponentModel;
 
 namespace BCad
 {
@@ -25,6 +21,7 @@ namespace BCad
         Layer CurrentLayer { get; set; }
         DrawingPlane DrawingPlane { get; set; }
         double DrawingPlaneOffset { get; set; }
+        ObservableHashSet<uint> SelectedEntities { get; }
 
         ISettingsManager SettingsManager { get; }
         void SaveSettings();

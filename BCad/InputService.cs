@@ -29,6 +29,7 @@ namespace BCad
 
         void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
+            Workspace.SelectedEntities.Clear();
             SetPrompt("Command");
         }
 
@@ -147,11 +148,15 @@ namespace BCad
                         break;
                     case PushedValueType.Entity:
                         entities.Add(pushedEntity);
+                        Workspace.SelectedEntities.Add(pushedEntity.Id);
                         // TODO: print status
                         break;
                     case PushedValueType.Entities:
                         foreach (var e in pushedEntities)
+                        {
                             entities.Add(e);
+                            Workspace.SelectedEntities.Add(e.Id);
+                        }
                         // TODO: print status
                         break;
                     default:
