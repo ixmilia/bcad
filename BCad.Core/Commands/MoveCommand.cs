@@ -59,29 +59,26 @@ namespace BCad.Commands
         private static Entity MovedEntity(Entity ent, Vector delta)
         {
             Entity moved;
-            if (ent is Arc)
+            switch (ent.Kind)
             {
-                var arc = (Arc)ent;
-                moved = arc.Update(center: (arc.Center + delta).ToPoint());
-            }
-            else if (ent is Circle)
-            {
-                var circle = (Circle)ent;
-                moved = circle.Update(center: (circle.Center + delta).ToPoint());
-            }
-            else if (ent is Ellipse)
-            {
-                var el = (Ellipse)ent;
-                moved = el.Update(center: (el.Center + delta).ToPoint());
-            }
-            else if (ent is Line)
-            {
-                var line = (Line)ent;
-                moved = line.Update(p1: (line.P1 + delta).ToPoint(), p2: (line.P2 + delta).ToPoint());
-            }
-            else
-            {
-                throw new Exception("Unsupported entity type");
+                case EntityKind.Arc:
+                    var arc = (Arc)ent;
+                    moved = arc.Update(center: (arc.Center + delta).ToPoint());
+                    break;
+                case EntityKind.Circle:
+                    var circle = (Circle)ent;
+                    moved = circle.Update(center: (circle.Center + delta).ToPoint());
+                    break;
+                case EntityKind.Ellipse:
+                    var el = (Ellipse)ent;
+                    moved = el.Update(center: (el.Center + delta).ToPoint());
+                    break;
+                case EntityKind.Line:
+                    var line = (Line)ent;
+                    moved = line.Update(p1: (line.P1 + delta).ToPoint(), p2: (line.P2 + delta).ToPoint());
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported entity type", "ent");
             }
 
             return moved;

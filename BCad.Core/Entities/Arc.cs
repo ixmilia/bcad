@@ -68,6 +68,8 @@ namespace BCad.Entities
             };
         }
 
+        public override EntityKind Kind { get { return EntityKind.Arc; } }
+
         public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
         {
             return new Arc(

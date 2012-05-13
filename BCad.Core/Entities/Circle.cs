@@ -60,6 +60,8 @@ namespace BCad.Entities
             };
         }
 
+        public override EntityKind Kind { get { return EntityKind.Circle; } }
+
         public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)
         {
             return new Circle(

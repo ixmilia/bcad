@@ -7,6 +7,7 @@ namespace BCad.Entities
     {
         public abstract IEnumerable<IPrimitive> GetPrimitives();
         public abstract IEnumerable<SnapPoint> GetSnapPoints();
+        public abstract EntityKind Kind { get; }
 
         private static uint nextId = 1;
 

@@ -91,26 +91,28 @@ namespace BCad.Commands.FileHandlers
                 foreach (var item in layer.Entities)
                 {
                     DxfEntity entity = null;
-                    if (item is Line)
-                        entity = ((Line)item).ToDxfLine(layer);
-                    else if (item is Circle)
-                        entity = ((Circle)item).ToDxfCircle(layer);
-                    else if (item is Arc)
+                    switch (item.Kind)
                     {
-                        // if start/end angles are a full circle, write it that way instead
-                        var arc = (Arc)item;
-                        if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
-                            entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
-                        else
-                            entity = ((Arc)item).ToDxfArc(layer);
-                    }
-                    else if (item is Ellipse)
-                    {
-                        entity = ((Ellipse)item).ToDxfEllipse(layer);
-                    }
-                    else
-                    {
-                        Debug.Fail("Unsupported entity type: " + item.GetType().Name);
+                        case EntityKind.Arc:
+                            // if start/end angles are a full circle, write it that way instead
+                            var arc = (Arc)item;
+                            if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
+                                entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
+                            else
+                                entity = ((Arc)item).ToDxfArc(layer);
+                            break;
+                        case EntityKind.Circle:
+                            entity = ((Circle)item).ToDxfCircle(layer);
+                            break;
+                        case EntityKind.Ellipse:
+                            entity = ((Ellipse)item).ToDxfEllipse(layer);
+                            break;
+                        case EntityKind.Line:
+                            entity = ((Line)item).ToDxfLine(layer);
+                            break;
+                        default:
+                            Debug.Fail("Unsupported entity type: " + item.GetType().Name);
+                            break;
                     }
 
                     if (entity != null)

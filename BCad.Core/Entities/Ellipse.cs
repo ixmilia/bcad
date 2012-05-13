@@ -94,6 +94,8 @@ namespace BCad.Entities
             }
         }
 
+        public override EntityKind Kind { get { return EntityKind.Ellipse; } }
+
         public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
         {
             return new Ellipse(

@@ -40,6 +40,8 @@ namespace BCad.Entities
             };
         }
 
+        public override EntityKind Kind { get { return EntityKind.Line; } }
+
         public Line Update(Point p1 = null, Point p2 = null, Color? color = null)
         {
             return new Line(
