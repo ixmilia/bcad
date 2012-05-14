@@ -6,6 +6,7 @@ namespace BCad.Collections
     public class ObservableHashSet<T>
     {
         private HashSet<T> items = new HashSet<T>();
+        private HashSet<int> itemHashes = new HashSet<int>();
 
         public event EventHandler CollectionChanged;
 
@@ -14,6 +15,7 @@ namespace BCad.Collections
         public bool Add(T item)
         {
             var result = items.Add(item);
+            itemHashes.Add(item.GetHashCode());
             OnCollectionChanged();
             return result;
         }
@@ -21,19 +23,28 @@ namespace BCad.Collections
         public void AddRange(IEnumerable<T> items)
         {
             foreach (var item in items)
+            {
                 this.items.Add(item);
+                this.itemHashes.Add(item.GetHashCode());
+            }
             OnCollectionChanged();
         }
 
         public void Clear()
         {
             items.Clear();
+            itemHashes.Clear();
             OnCollectionChanged();
         }
 
         public bool Contains(T item)
         {
             return items.Contains(item);
+        }
+
+        public bool ContainsHash(int hash)
+        {
+            return itemHashes.Contains(hash);
         }
 
         protected void OnCollectionChanged()

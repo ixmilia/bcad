@@ -148,14 +148,14 @@ namespace BCad
                         break;
                     case PushedValueType.Entity:
                         entities.Add(pushedEntity);
-                        Workspace.SelectedEntities.Add(pushedEntity.Id);
+                        Workspace.SelectedEntities.Add(pushedEntity);
                         // TODO: print status
                         break;
                     case PushedValueType.Entities:
                         foreach (var e in pushedEntities)
                         {
                             entities.Add(e);
-                            Workspace.SelectedEntities.Add(e.Id);
+                            Workspace.SelectedEntities.Add(e);
                         }
                         // TODO: print status
                         break;

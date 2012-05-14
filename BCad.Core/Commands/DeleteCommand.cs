@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Linq;
 using System.Windows.Input;
 
 namespace BCad.Commands
@@ -18,6 +19,11 @@ namespace BCad.Commands
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
+            }
+
+            if (!entities.Value.Any())
+            {
+                return true;
             }
 
             var doc = Workspace.Document;

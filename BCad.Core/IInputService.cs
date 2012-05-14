@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using BCad.Entities;
 using BCad.EventArguments;
+using BCad.Primitives;
 
 namespace BCad
 {

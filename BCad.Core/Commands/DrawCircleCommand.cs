@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using BCad;
+﻿using System.ComponentModel.Composition;
 using BCad.Entities;
+using BCad.Primitives;
 
 namespace BCad.Commands
 {

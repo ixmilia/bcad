@@ -11,6 +11,7 @@ using System.Windows;
 using System.Xml.Serialization;
 using BCad.Collections;
 using BCad.Commands;
+using BCad.Entities;
 using BCad.EventArguments;
 
 namespace BCad
@@ -142,8 +143,8 @@ namespace BCad
             }
         }
 
-        private ObservableHashSet<uint> selectedEntities = new ObservableHashSet<uint>();
-        public ObservableHashSet<uint> SelectedEntities
+        private ObservableHashSet<Entity> selectedEntities = new ObservableHashSet<Entity>();
+        public ObservableHashSet<Entity> SelectedEntities
         {
             get { return selectedEntities; }
         }

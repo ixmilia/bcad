@@ -18,5 +18,10 @@ namespace BCad.UI
         {
             return new Point(point.X, point.Y, point.Z);
         }
+
+        public static System.Windows.Point ToWindowsPoint(this Vector3 point)
+        {
+            return new System.Windows.Point(point.X, point.Y);
+        }
     }
 }

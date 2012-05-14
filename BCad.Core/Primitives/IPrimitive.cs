@@ -1,4 +1,4 @@
-﻿namespace BCad.Entities
+﻿namespace BCad.Primitives
 {
     public interface IPrimitive
     {

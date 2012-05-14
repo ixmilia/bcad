@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BCad.Primitives;
 using BCad.SnapPoints;
 
 namespace BCad.Entities
@@ -15,6 +16,7 @@ namespace BCad.Entities
         private readonly Point endPoint2;
         private readonly Point midPoint;
         private readonly IPrimitive[] primitives;
+        private readonly BoundingBox boundingBox;
 
         public Point Center { get { return center; } }
 
@@ -44,6 +46,7 @@ namespace BCad.Entities
             this.midPoint = points[2];
 
             this.primitives = new[] { new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color) };
+            this.boundingBox = BoundingBox.FromPoints(Circle.TransformedPoints(this.center, this.normal, right, this.radius, this.radius, 0, 90, 180, 270));
         }
 
         public Point EndPoint1 { get { return this.endPoint1; } }
@@ -69,6 +72,8 @@ namespace BCad.Entities
         }
 
         public override EntityKind Kind { get { return EntityKind.Arc; } }
+
+        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
         {

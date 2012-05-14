@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BCad.Primitives;
 using BCad.SnapPoints;
 
 namespace BCad.Entities
@@ -9,6 +10,7 @@ namespace BCad.Entities
         private readonly Point p2;
         private readonly Color color;
         private readonly IPrimitive[] primitives;
+        private readonly BoundingBox boundingBox;
 
         public Point P1 { get { return p1; } }
 
@@ -23,6 +25,7 @@ namespace BCad.Entities
             this.color = color;
 
             this.primitives = new[] { new PrimitiveLine(P1, P2, Color) };
+            this.boundingBox = BoundingBox.FromPoints(P1, P2);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
@@ -41,6 +44,8 @@ namespace BCad.Entities
         }
 
         public override EntityKind Kind { get { return EntityKind.Line; } }
+
+        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Line Update(Point p1 = null, Point p2 = null, Color? color = null)
         {

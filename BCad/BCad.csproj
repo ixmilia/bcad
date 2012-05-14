@@ -140,7 +140,6 @@
   <ItemGroup>
     <Resource Include="BCad.ico" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Icons\NewSmall.png" />
     <Resource Include="Icons\OpenSmall.png" />

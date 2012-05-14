@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using BCad.Primitives;
 using BCad.SnapPoints;
-using BCad.Helpers;
 
 namespace BCad.Entities
 {
@@ -24,6 +21,7 @@ namespace BCad.Entities
         private readonly Point endPoint2;
         private readonly Point midPoint;
         private readonly IPrimitive[] primitives;
+        private readonly BoundingBox boundingBox;
 
         public Point Center { get { return center; } }
 
@@ -60,6 +58,7 @@ namespace BCad.Entities
             midPoint = points[6];
 
             this.primitives = new[] { new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color) };
+            this.boundingBox = BoundingBox.FromPoints(quadrant1, quadrant2, quadrant3, quadrant4);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
@@ -95,6 +94,8 @@ namespace BCad.Entities
         }
 
         public override EntityKind Kind { get { return EntityKind.Ellipse; } }
+
+        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
         {

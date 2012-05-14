@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using BCad.Entities;
+using BCad.Primitives;
 
 namespace BCad.Commands
 {
@@ -21,6 +21,11 @@ namespace BCad.Commands
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
+            }
+
+            if (!entities.Value.Any())
+            {
+                return true;
             }
 
             var origin = InputService.GetPoint(new UserDirective("Origin point"));

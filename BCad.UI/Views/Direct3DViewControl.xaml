@@ -10,6 +10,7 @@
     <Grid>
         <views:Direct3DControl x:Name="content" />
         <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
+        <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" />
         <Canvas Name="clicker"
                 Background="White"
                 Opacity="0.001"

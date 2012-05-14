@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using BCad.Collections;
+using BCad.Entities;
 using BCad.EventArguments;
 
 namespace BCad
@@ -21,7 +22,7 @@ namespace BCad
         Layer CurrentLayer { get; set; }
         DrawingPlane DrawingPlane { get; set; }
         double DrawingPlaneOffset { get; set; }
-        ObservableHashSet<uint> SelectedEntities { get; }
+        ObservableHashSet<Entity> SelectedEntities { get; }
 
         ISettingsManager SettingsManager { get; }
         void SaveSettings();

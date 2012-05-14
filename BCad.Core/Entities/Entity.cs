@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BCad.Primitives;
 using BCad.SnapPoints;
 
 namespace BCad.Entities
@@ -8,6 +9,7 @@ namespace BCad.Entities
         public abstract IEnumerable<IPrimitive> GetPrimitives();
         public abstract IEnumerable<SnapPoint> GetSnapPoints();
         public abstract EntityKind Kind { get; }
+        public abstract BoundingBox BoundingBox { get; }
 
         private static uint nextId = 1;
 
