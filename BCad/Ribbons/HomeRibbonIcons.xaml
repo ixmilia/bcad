@@ -246,6 +246,44 @@
             </GeometryDrawing>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <DrawingImage x:Key="DeleteSmall">
+        <DrawingImage.Drawing>
+            <GeometryDrawing>
+                <GeometryDrawing.Brush>
+                    <SolidColorBrush Color="DarkRed" />
+                </GeometryDrawing.Brush>
+                <GeometryDrawing.Pen>
+                    <Pen Brush="Black" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <PathGeometry>
+                        <PathGeometry.Figures>
+                            <PathFigureCollection>
+                                <PathFigure StartPoint="3,0">
+                                    <LineSegment Point="7,5" />
+                                    <LineSegment Point="8,5" />
+                                    <LineSegment Point="12,0" />
+                                    <LineSegment Point="15,3" />
+                                    <LineSegment Point="10,7" />
+                                    <LineSegment Point="10,8" />
+                                    <LineSegment Point="15,12" />
+                                    <LineSegment Point="12,15" />
+                                    <LineSegment Point="8,10" />
+                                    <LineSegment Point="7,10" />
+                                    <LineSegment Point="3,15" />
+                                    <LineSegment Point="0,12" />
+                                    <LineSegment Point="5,8" />
+                                    <LineSegment Point="5,7" />
+                                    <LineSegment Point="0,3" />
+                                    <LineSegment Point="3,0" />
+                                </PathFigure>
+                            </PathFigureCollection>
+                        </PathGeometry.Figures>
+                    </PathGeometry>
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
     <DrawingImage x:Key="NYI">
         <DrawingImage.Drawing>
             <GeometryDrawing>
