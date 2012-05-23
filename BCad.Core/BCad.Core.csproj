@@ -62,6 +62,7 @@
     <Compile Include="Commands\LayersCommand.cs" />
     <Compile Include="Commands\MoveCommand.cs" />
     <Compile Include="Commands\NewCommand.cs" />
+    <Compile Include="Commands\OffsetCommand.cs" />
     <Compile Include="Commands\OpenCommand.cs" />
     <Compile Include="Commands\RedoCommand.cs" />
     <Compile Include="Commands\RotateCommand.cs" />

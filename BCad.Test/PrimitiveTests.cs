@@ -10,7 +10,8 @@ namespace BCad.Test
         {
             var a = new PrimitiveLine(new Point(0, 0, 0), new Point(0, 2, 0));
             var b = new PrimitiveLine(new Point(1, 1, 0), new Point(2, 1, 0));
-            Assert.False(a.IntersectsInXY(b));
+            Assert.Null(a.IntersectionXY(b));
+            Assert.Equal(a.IntersectionXY(b, false), new Point(0, 1, 0));
         }
     }
 }

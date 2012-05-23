@@ -46,8 +46,8 @@ namespace BCad
         protected virtual void OnViewPortChanged(ViewPortChangedEventArgs e)
         {
             var cam = new OrthographicCamera(ViewPoint.ToPoint3D(),
-                Sight.ToVector3D(),
-                Up.ToVector3D(),
+                Sight,
+                Up,
                 ViewWidth);
             transform = cam.Transform.Value;
             // find scale

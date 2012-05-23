@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using BCad.Entities;
 using BCad.EventArguments;
+using BCad.Primitives;
 
 namespace BCad
 {
@@ -63,26 +64,69 @@ namespace BCad
 
         private UserDirective currentDirective = null;
 
+        public ValueOrDirective<double> GetDistance()
+        {
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Distance | InputType.Point));
+            WaitFor(InputType.Distance | InputType.Point, new UserDirective("Offset distance or first point"), null);
+            ValueOrDirective<double> result;
+            switch (lastType)
+            {
+                case PushedValueType.Cancel:
+                    result = ValueOrDirective<double>.GetCancel();
+                    break;
+                case PushedValueType.None:
+                    result = new ValueOrDirective<double>();
+                    break;
+                case PushedValueType.Distance:
+                    result = new ValueOrDirective<double>(pushedDistance);
+                    break;
+                case PushedValueType.Point:
+                    var first = pushedPoint;
+                    WaitDone();
+                    var second = GetPoint(new UserDirective("Second point of offset distance"), p =>
+                        {
+                            return new[] { new PrimitiveLine(first, p) };
+                        });
+                    if (second.HasValue)
+                    {
+                        var dist = (second.Value - first).Length;
+                        result = new ValueOrDirective<double>(dist);
+                    }
+                    else if (second.Directive != null)
+                    {
+                        result = new ValueOrDirective<double>(second.Directive);
+                    }
+                    else
+                    {
+                        result = ValueOrDirective<double>.GetCancel();
+                    }
+                    break;
+                default:
+                    throw new Exception("Unexpected pushed value");
+            }
+
+            WaitDone();
+            return result;
+        }
+
         public ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Point));
-            WaitFor(InputType.Point, directive, onCursorMove);
-
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Point | InputType.Directive));
+            WaitFor(InputType.Point | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<Point> result;
             switch (lastType)
             {
-                case PushedValueType.None:
-                    result = new ValueOrDirective<Point>();
-                    break;
                 case PushedValueType.Cancel:
                     result = ValueOrDirective<Point>.GetCancel();
                     break;
-                case PushedValueType.Point:
-                    result = new ValueOrDirective<Point>(pushedPoint);
-                    LastPoint = pushedPoint;
+                case PushedValueType.None:
+                    result = new ValueOrDirective<Point>();
                     break;
                 case PushedValueType.Directive:
                     result = new ValueOrDirective<Point>(pushedDirective);
+                    break;
+                case PushedValueType.Point:
+                    result = new ValueOrDirective<Point>(pushedPoint);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");
@@ -94,9 +138,8 @@ namespace BCad
 
         public ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Entity));
-            WaitFor(InputType.Entity, directive, onCursorMove);
-
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Entity | InputType.Directive));
+            WaitFor(InputType.Entity | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<Entity> result;
             switch (lastType)
             {
@@ -108,9 +151,6 @@ namespace BCad
                     break;
                 case PushedValueType.Entity:
                     result = new ValueOrDirective<Entity>(pushedEntity);
-                    break;
-                case PushedValueType.Entities:
-                    result = new ValueOrDirective<Entity>(pushedEntities.First());
                     break;
                 case PushedValueType.Directive:
                     result = new ValueOrDirective<Entity>(pushedDirective);
@@ -125,14 +165,13 @@ namespace BCad
 
         public ValueOrDirective<IEnumerable<Entity>> GetEntities(RubberBandGenerator onCursorMove = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Entities));
-
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Entities | InputType.Directive));
             ValueOrDirective<IEnumerable<Entity>>? result = null;
             HashSet<Entity> entities = new HashSet<Entity>();
             bool awaitingMore = true;
             while (awaitingMore)
             {
-                WaitFor(InputType.Entities, new UserDirective("Select entities", "all"), onCursorMove);
+                WaitFor(InputType.Entities | InputType.Directive, new UserDirective("Select entities", "all"), onCursorMove);
                 switch (lastType)
                 {
                     case PushedValueType.Cancel:
@@ -173,10 +212,9 @@ namespace BCad
         {
             SetPrompt(directive.Prompt);
             currentDirective = directive;
-            DesiredInputType = type;
+            AllowedInputTypes = type;
             lastType = PushedValueType.None;
             pushedPoint = default(Point);
-            pushedText = null;
             pushedEntity = null;
             pushedDirective = null;
             PrimitiveGenerator = onCursorMove;
@@ -186,9 +224,9 @@ namespace BCad
 
         private void WaitDone()
         {
+            AllowedInputTypes = InputType.Command;
             lastType = PushedValueType.None;
             pushedPoint = default(Point);
-            pushedText = null;
             pushedEntity = null;
             pushedDirective = null;
             PrimitiveGenerator = null;
@@ -202,16 +240,17 @@ namespace BCad
             Point,
             Entity,
             Entities,
-            Directive
+            Directive,
+            Distance
         }
 
         private object inputGate = new object();
         private PushedValueType lastType = PushedValueType.None;
         private Point pushedPoint = default(Point);
+        private double pushedDistance = 0.0;
         private string pushedDirective = null;
         private Entity pushedEntity = null;
         private IEnumerable<Entity> pushedEntities = null;
-        private string pushedText = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
         private string lastCommand = null;
 
@@ -220,111 +259,146 @@ namespace BCad
             lock (inputGate)
             {
                 lastType = PushedValueType.Cancel;
-                DesiredInputType = InputType.Command;
+                AllowedInputTypes = InputType.Command;
                 pushValueDone.Set();
             }
         }
 
-        public void PushValue(object value)
+        public void PushNone()
         {
             lock (inputGate)
             {
-                bool valueReceived = false;
-                if (DesiredInputType == InputType.Command)
+                if (AllowedInputTypes == InputType.Command)
                 {
-                    if (value == null && lastCommand != null)
-                        Workspace.ExecuteCommand(lastCommand);
-                    else if (value is string)
-                    {
-                        Workspace.ExecuteCommand((string)value);
-                        lastCommand = (string)value;
-                    }
-                    OnValueReceived(new ValueReceivedEventArgs(lastCommand, InputType.Command));
+                    PushCommand(null);
                 }
                 else
                 {
-                    if (value is string && DesiredInputType != InputType.Text)
-                    {
-                        var directive = (string)value;
-                        if (currentDirective.AllowableDirectives.Contains(directive))
-                        {
-                            lastType = PushedValueType.Directive;
-                            pushedDirective = directive;
-                            valueReceived = true;
-                            OnValueReceived(new ValueReceivedEventArgs(pushedDirective, InputType.Directive));
-                        }
-                        else
-                        {
-                            WriteLine("Bad value or directive '{0}'", directive);
-                        }
-                    }
-                    else
-                    {
-                        if (value == null)
-                        {
-                            lastType = PushedValueType.None;
-                            valueReceived = true;
-                            OnValueReceived(new ValueReceivedEventArgs());
-                        }
-                        else
-                        {
-                            switch (DesiredInputType)
-                            {
-                                case InputType.Point:
-                                    lastType = PushedValueType.Point;
-                                    pushedPoint = value as Point;
-                                    valueReceived = true;
-                                    OnValueReceived(new ValueReceivedEventArgs(pushedPoint));
-                                    this.LastPoint = pushedPoint;
-                                    break;
-                                case InputType.Entity:
-                                    lastType = PushedValueType.Entity;
-                                    pushedEntity = value as Entity;
-                                    valueReceived = true;
-                                    OnValueReceived(new ValueReceivedEventArgs(pushedEntity));
-                                    break;
-                                case InputType.Entities:
-                                    var enumerable = value as IEnumerable<Entity>;
-                                    var entity = value as Entity;
-                                    if (enumerable != null)
-                                    {
-                                        lastType = PushedValueType.Entities;
-                                        pushedEntities = enumerable;
-                                        valueReceived = true;
-                                        OnValueReceived(new ValueReceivedEventArgs(pushedEntities));
-                                    }
-                                    else if (entity != null)
-                                    {
-                                        lastType = PushedValueType.Entity;
-                                        pushedEntity = entity;
-                                        valueReceived = true;
-                                        OnValueReceived(new ValueReceivedEventArgs(pushedEntity));
-                                    }
-                                    else
-                                    {
-                                        Debug.Fail("Value was not Entity or IEnumerable<Entity>");
-                                    }
-                                    break;
-                                case InputType.Text:
-                                    lastType = PushedValueType.Directive;
-                                    pushedText = value as string;
-                                    valueReceived = true;
-                                    OnValueReceived(new ValueReceivedEventArgs(pushedText, InputType.Text));
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                if (valueReceived)
-                {
-                    DesiredInputType = InputType.Command;
-                    pushValueDone.Set();
+                    lastType = PushedValueType.None;
+                    OnValueReceived(new ValueReceivedEventArgs());
                 }
             }
         }
 
-        public InputType DesiredInputType { get; private set; }
+        public void PushCommand(string commandName)
+        {
+            lock (inputGate)
+            {
+                commandName = commandName ?? lastCommand;
+                OnValueReceived(new ValueReceivedEventArgs(commandName, InputType.Command));
+                Workspace.ExecuteCommand(commandName);
+                lastCommand = commandName;
+            }
+        }
+
+        public void PushDirective(string directive)
+        {
+            if (directive == null)
+            {
+                throw new ArgumentNullException("directive");
+            }
+
+            lock (inputGate)
+            {
+                if (AllowedInputTypes.HasFlag(InputType.Directive))
+                {
+                    if (currentDirective.AllowableDirectives.Contains(directive))
+                    {
+                        pushedDirective = directive;
+                        lastType = PushedValueType.Directive;
+                        OnValueReceived(new ValueReceivedEventArgs(directive, InputType.Directive));
+                    }
+                    else
+                    {
+                        WriteLine("Bad value or directive '{0}'", directive);
+                    }
+                }
+            }
+        }
+
+        public void PushDistance(double distance)
+        {
+            lock (inputGate)
+            {
+                if (AllowedInputTypes.HasFlag(InputType.Distance))
+                {
+                    pushedDistance = distance;
+                    lastType = PushedValueType.Distance;
+                    OnValueReceived(new ValueReceivedEventArgs(distance));
+                }
+            }
+        }
+
+        public void PushEntity(Entity entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+
+            lock (inputGate)
+            {
+                if (AllowedInputTypes.HasFlag(InputType.Entity))
+                {
+                    pushedEntity = entity;
+                    lastType = PushedValueType.Entity;
+                    OnValueReceived(new ValueReceivedEventArgs(entity));
+                }
+            }
+        }
+
+        public void PushEntities(IEnumerable<Entity> entities)
+        {
+            if (entities == null)
+            {
+                throw new ArgumentNullException("entities");
+            }
+
+            lock (inputGate)
+            {
+                if (AllowedInputTypes.HasFlag(InputType.Entities))
+                {
+                    pushedEntities = entities;
+                    lastType = PushedValueType.Entities;
+                    OnValueReceived(new ValueReceivedEventArgs(entities));
+                }
+            }
+        }
+
+        public void PushPoint(Point point)
+        {
+            if (point == null)
+            {
+                throw new ArgumentNullException("point");
+            }
+
+            lock (inputGate)
+            {
+                if (AllowedInputTypes.HasFlag(InputType.Point))
+                {
+                    pushedPoint = point;
+                    lastType = PushedValueType.Point;
+                    OnValueReceived(new ValueReceivedEventArgs(point));
+                }
+            }
+        }
+
+        public InputType AllowedInputTypes { get; private set; }
+
+        public IEnumerable<string> AllowedDirectives
+        {
+            get
+            {
+                if (currentDirective == null)
+                {
+                    return new string[0];
+                }
+                else
+                {
+                    return currentDirective.AllowableDirectives;
+                }
+            }
+        }
 
         private void SetPrompt(string prompt)
         {
@@ -349,7 +423,7 @@ namespace BCad
 
         public void Reset()
         {
-            DesiredInputType = InputType.Command;
+            AllowedInputTypes = InputType.Command;
             SetPrompt("Command");
         }
 
@@ -367,6 +441,7 @@ namespace BCad
         {
             if (ValueReceived != null)
                 ValueReceived(this, e);
+            pushValueDone.Set();
         }
 
         public event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;

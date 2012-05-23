@@ -59,8 +59,7 @@ namespace BCad.UI.Consoles
                     SubmitValue();
                     break;
                 case Key.Space:
-                    if (InputService.DesiredInputType != InputType.Text)
-                        e.Handled = true;
+                    e.Handled = true;
                     SubmitValue();
                     break;
                 case Key.Escape:
@@ -80,24 +79,31 @@ namespace BCad.UI.Consoles
 
         private void SubmitValue()
         {
-            if (InputService.DesiredInputType == InputType.Entity)
-                return; // doesn't make sense
-            object value = null;
-            switch (InputService.DesiredInputType)
+            var text = inputLine.Text;
+
+            if (InputService.AllowedInputTypes.HasFlag(InputType.Directive) && InputService.AllowedDirectives.Contains(text))
             {
-                case InputType.Point:
-                    var point = ParsePoint(inputLine.Text);
-                    if (point != null)
-                        value = point;
-                    else
-                        value = inputLine.Text; // directive
-                    break;
-                case InputType.Command:
-                case InputType.Text:
-                    value = string.IsNullOrEmpty(inputLine.Text) ? null : inputLine.Text;
-                    break;
+                InputService.PushDirective(text);
             }
-            InputService.PushValue(value);
+            else if (InputService.AllowedInputTypes.HasFlag(InputType.Distance))
+            {
+                // TODO: parse single value or point
+                double dist = 0.0;
+                if (double.TryParse(text, out dist))
+                {
+                    InputService.PushDistance(dist);
+                }
+            }
+            else if (InputService.AllowedInputTypes.HasFlag(InputType.Point))
+            {
+                var point = ParsePoint(text);
+                if (point != null)
+                    InputService.PushPoint(point);
+            }
+            else if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
+            {
+                InputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
+            }
 
             inputLine.Text = string.Empty;
         }
@@ -129,14 +135,14 @@ namespace BCad.UI.Consoles
                 else
                 {
                     vec = vec.Normalize() * length;
-                    p = (InputService.LastPoint + vec).ToPoint();
+                    p = InputService.LastPoint + vec;
                 }
             }
             else if (relativePoint.IsMatch(text))
             {
                 // offset from last point
                 var offset = Point.Parse(text.Substring(1));
-                p = (InputService.LastPoint + offset).ToPoint();
+                p = InputService.LastPoint + offset;
             }
             else if (relativeAngle.IsMatch(text))
             {
@@ -146,7 +152,7 @@ namespace BCad.UI.Consoles
                 var angle = double.Parse(parts[1]);
                 var radians = angle * MathHelper.DegreesToRadians;
                 var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
-                p = (InputService.LastPoint + offset).ToPoint();
+                p = InputService.LastPoint + offset;
             }
             else if (Point.PointPattern.IsMatch(text))
             {

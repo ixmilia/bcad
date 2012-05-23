@@ -38,9 +38,9 @@ namespace BCad
             return point;
         }
 
-        public Vector ToVector()
+        public static implicit operator Vector(Point point)
         {
-            return new Vector(this.X, this.Y, this.Z);
+            return new Vector(point.X, point.Y, point.Z);
         }
 
         public static Point Parse(string text)
@@ -79,24 +79,24 @@ namespace BCad
             return !(p1 == p2);
         }
 
-        public static Vector operator +(Point p1, Point p2)
+        public static Point operator +(Point p1, Vector p2)
         {
-            return new Vector(p1.X + p2.X, p1.Y + p2.Y, p1.Z + p2.Z);
-        }
-
-        public static Vector operator +(Point p1, Vector p2)
-        {
-            return new Vector(p1.X + p2.X, p1.Y + p2.Y, p1.Z + p2.Z);
-        }
-
-        public static Vector operator -(Point p1, Point p2)
-        {
-            return new Vector(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
+            return new Point(p1.X + p2.X, p1.Y + p2.Y, p1.Z + p2.Z);
         }
 
         public static Vector operator -(Point p1, Vector p2)
         {
             return new Vector(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
+        }
+
+        public static Point operator *(Point p, double scalar)
+        {
+            return new Point(p.X * scalar, p.Y * scalar, p.Z * scalar);
+        }
+
+        public static Point operator /(Point p, double scalar)
+        {
+            return new Point(p.X / scalar, p.Y / scalar, p.Z / scalar);
         }
 
         public bool Equals(Point p)

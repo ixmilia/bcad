@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -16,7 +17,6 @@ using BCad.SnapPoints;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Media = System.Windows.Media;
-using Shapes = System.Windows.Shapes;
 
 namespace BCad.UI.Views
 {
@@ -26,6 +26,8 @@ namespace BCad.UI.Views
     [ExportViewControl("Direct3D")]
     public partial class Direct3DViewControl : ViewControl, IRenderEngine
     {
+
+        #region TransformedEntity class
 
         private class TransformedEntity
         {
@@ -38,6 +40,8 @@ namespace BCad.UI.Views
                 this.LineSegments = lineSegments;
             }
         }
+
+        #endregion
 
         #region Constructors
 
@@ -354,6 +358,7 @@ namespace BCad.UI.Views
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
         {
+            this.Dispatcher.Invoke((Action)(() => snapLayer.Children.Clear()));
             selecting = false;
             ForceRender();
         }
@@ -589,7 +594,7 @@ namespace BCad.UI.Views
                 var points = from sa in workspace.SettingsManager.SnapAngles
                              let rad = sa * MathHelper.DegreesToRadians
                              let radVector = snapVector(rad)
-                             let snapPoint = (last + radVector).ToPoint()
+                             let snapPoint = last + radVector
                              let di = (cursor - Project(snapPoint.ToVector3())).Length()
                              where di <= workspace.SettingsManager.SnapAngleDistance
                              orderby di
@@ -618,25 +623,25 @@ namespace BCad.UI.Views
                         if (offset != last.Z && offset != current.Z)
                             return null;
                         if (Math.Abs(delta.X) > Math.Abs(delta.Y))
-                            world = (last + new Vector(delta.X, 0.0, 0.0)).ToPoint();
+                            world = last + new Vector(delta.X, 0.0, 0.0);
                         else
-                            world = (last + new Vector(0.0, delta.Y, 0.0)).ToPoint();
+                            world = last + new Vector(0.0, delta.Y, 0.0);
                         break;
                     case DrawingPlane.XZ:
                         if (offset != last.Y && offset != current.Y)
                             return null;
                         if (Math.Abs(delta.X) > Math.Abs(delta.Z))
-                            world = (last + new Vector(delta.X, 0.0, 0.0)).ToPoint();
+                            world = last + new Vector(delta.X, 0.0, 0.0);
                         else
-                            world = (last + new Vector(0.0, 0.0, delta.Z)).ToPoint();
+                            world = last + new Vector(0.0, 0.0, delta.Z);
                         break;
                     case DrawingPlane.YZ:
                         if (offset != last.X && offset != current.X)
                             return null;
                         if (Math.Abs(delta.Y) > Math.Abs(delta.Z))
-                            world = (last + new Vector(0.0, delta.Y, 0.0)).ToPoint();
+                            world = last + new Vector(0.0, delta.Y, 0.0);
                         else
-                            world = (last + new Vector(0.0, 0.0, delta.Z)).ToPoint();
+                            world = last + new Vector(0.0, 0.0, delta.Z);
                         break;
                     default:
                         throw new NotSupportedException("Invalid drawing plane");
@@ -651,7 +656,7 @@ namespace BCad.UI.Views
 
         private TransformedSnapPoint ActiveEntitySnapPoints(Vector3 cursor)
         {
-            if (workspace.SettingsManager.PointSnap && inputService.DesiredInputType == InputType.Point)
+            if (workspace.SettingsManager.PointSnap && inputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
                 var maxDistSq = (float)(workspace.SettingsManager.SnapPointDistance * workspace.SettingsManager.SnapPointDistance);
                 var points = from sp in snapPoints
@@ -678,59 +683,58 @@ namespace BCad.UI.Views
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
-                    switch (inputService.DesiredInputType)
+                    if (inputService.AllowedInputTypes.HasFlag(InputType.Point))
                     {
-                        case InputType.Point:
-                            inputService.PushValue(sp.WorldPoint);
-                            break;
-                        case InputType.Entity:
+                        inputService.PushPoint(sp.WorldPoint);
+                    }
+                    else if (inputService.AllowedInputTypes.HasFlag(InputType.Entity))
+                    {
+                        ent = GetHitEntity(cursor);
+                        if (ent != null)
+                        {
+                            inputService.PushEntity(ent);
+                        }
+                    }
+                    else if (inputService.AllowedInputTypes.HasFlag(InputType.Entities))
+                    {
+                        if (selecting)
+                        {
+                            // finish selection
+                            var rect = new System.Windows.Rect(
+                                new System.Windows.Point(
+                                    Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
+                                    Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
+                                new System.Windows.Size(
+                                    Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
+                                    Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
+                            var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                            selecting = false;
+                            inputService.PushEntities(entities);
+                            ForceRender();
+                        }
+                        else
+                        {
+                            // start selection
                             ent = GetHitEntity(cursor);
                             if (ent != null)
                             {
-                                inputService.PushValue(ent);
-                            }
-
-                            break;
-                        case InputType.Entities:
-                            if (selecting)
-                            {
-                                // finish selection
-                                var rect = new System.Windows.Rect(
-                                    new System.Windows.Point(
-                                        Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
-                                        Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
-                                    new System.Windows.Size(
-                                        Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
-                                        Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
-                                var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
-                                selecting = false;
-                                inputService.PushValue(entities);
-                                ForceRender();
+                                inputService.PushEntities(new[] { ent });
                             }
                             else
                             {
-                                // start selection
-                                ent = GetHitEntity(cursor);
-                                if (ent != null)
-                                {
-                                    inputService.PushValue(ent);
-                                }
-                                else
-                                {
-                                    selecting = true;
-                                    firstSelectionPoint = cursor;
-                                }
+                                selecting = true;
+                                firstSelectionPoint = cursor;
                             }
-
-                            break;
+                        }
                     }
+
                     break;
                 case MouseButton.Middle:
                     panning = true;
                     lastPanPoint = cursor;
                     break;
                 case MouseButton.Right:
-                    inputService.PushValue(null);
+                    inputService.PushNone();
                     break;
             }
 
@@ -778,7 +782,7 @@ namespace BCad.UI.Views
                 ForceRender();
             }
 
-            if (inputService.DesiredInputType == InputType.Point)
+            if (inputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
                 var sp = GetActiveModelPoint(cursor.ToVector3());
                 GenerateRubberBandLines(sp.WorldPoint);
@@ -806,7 +810,7 @@ namespace BCad.UI.Views
             var viewHeightDelta = viewHeight * (scale - 1.0);
 
             // set values
-            view.UpdateView(viewWidth: view.ViewWidth * scale, bottomLeft: (botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)).ToPoint());
+            view.UpdateView(viewWidth: view.ViewWidth * scale, bottomLeft: botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0));
             var cursor = GetActiveModelPoint(e.GetPosition(this).ToVector3());
             DrawSnapPoint(cursor);
             GenerateRubberBandLines(cursor.WorldPoint);
@@ -821,79 +825,79 @@ namespace BCad.UI.Views
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
         {
             var start = DateTime.UtcNow;
-            var entities = new List<Entity>();
-            foreach (var entityId in lines.Keys)
-            {
-                // project all 8 bounding box coordinates to the screen and create a bigger bounding rectangle
-                var entity = lines[entityId].Entity;
-                var box = entity.BoundingBox;
-                var projectedBox = new[]
+            var entities = new ConcurrentBag<Entity>();
+            Parallel.ForEach(lines.Keys, entityId =>
                 {
-                    Project(box.MinimumPoint.ToVector3()),
-                    Project((box.MinimumPoint + new Vector(box.Size.X, 0.0, 0.0)).ToPoint().ToVector3()),
-                    Project((box.MinimumPoint + new Vector(0.0, box.Size.Y, 0.0)).ToPoint().ToVector3()),
-                    Project((box.MinimumPoint + new Vector(box.Size.X, box.Size.Y, 0.0)).ToPoint().ToVector3()),
-                    Project((box.MinimumPoint + new Vector(0.0, 0.0, box.Size.Z)).ToPoint().ToVector3()),
-                    Project((box.MinimumPoint + new Vector(box.Size.X, 0.0, box.Size.Z)).ToPoint().ToVector3()),
-                    Project((box.MinimumPoint + new Vector(0.0, box.Size.Y, box.Size.Z)).ToPoint().ToVector3()),
-                    Project((box.MinimumPoint + new Vector(box.Size.X, box.Size.Y, box.Size.Z)).ToPoint().ToVector3())
-                };
-                var screenRect = GetBoundingRectangle(projectedBox);
-                bool isContained = false;
-
-                if (selectionRect.Contains(screenRect))
-                {
-                    // regardless of selection type, this will match
-                    isContained = true;
-                }
-                else
-                {
-                    // project all line segments to screen space
-                    var segmentCollection = lines[entityId].LineSegments;
-                    var projectedPoints = from prim in segmentCollection
-                                          let points = prim.Item2
-                                          select points.Select(p => Project(p).ToWindowsPoint());
-                    var flattenedPoints = projectedPoints.SelectMany(x => x);
-
-                    if (includePartial)
+                    // project all 8 bounding box coordinates to the screen and create a bigger bounding rectangle
+                    var entity = lines[entityId].Entity;
+                    var box = entity.BoundingBox;
+                    var projectedBox = new[]
                     {
-                        // if any point is in the rectangle OR any segment intersects a rectangle edge
-                        if (flattenedPoints.Any(p => selectionRect.Contains(p)))
+                        Project(box.MinimumPoint.ToVector3()),
+                        Project((box.MinimumPoint + new Vector(box.Size.X, 0.0, 0.0)).ToVector3()),
+                        Project((box.MinimumPoint + new Vector(0.0, box.Size.Y, 0.0)).ToVector3()),
+                        Project((box.MinimumPoint + new Vector(box.Size.X, box.Size.Y, 0.0)).ToVector3()),
+                        Project((box.MinimumPoint + new Vector(0.0, 0.0, box.Size.Z)).ToVector3()),
+                        Project((box.MinimumPoint + new Vector(box.Size.X, 0.0, box.Size.Z)).ToVector3()),
+                        Project((box.MinimumPoint + new Vector(0.0, box.Size.Y, box.Size.Z)).ToVector3()),
+                        Project((box.MinimumPoint + new Vector(box.Size.X, box.Size.Y, box.Size.Z)).ToVector3())
+                    };
+                    var screenRect = GetBoundingRectangle(projectedBox);
+                    bool isContained = false;
+
+                    if (selectionRect.Contains(screenRect))
+                    {
+                        // regardless of selection type, this will match
+                        isContained = true;
+                    }
+                    else
+                    {
+                        // project all line segments to screen space
+                        var segmentCollection = lines[entityId].LineSegments;
+                        var projectedPoints = from prim in segmentCollection
+                                              let points = prim.Item2
+                                              select points.Select(p => Project(p).ToWindowsPoint());
+                        var flattenedPoints = projectedPoints.SelectMany(x => x);
+
+                        if (includePartial)
                         {
-                            isContained = true;
+                            // if any point is in the rectangle OR any segment intersects a rectangle edge
+                            if (flattenedPoints.Any(p => selectionRect.Contains(p)))
+                            {
+                                isContained = true;
+                            }
+                            else
+                            {
+                                var selectionLines = new[]
+                                    {
+                                        new PrimitiveLine(new Point(selectionRect.TopLeft), new Point(selectionRect.TopRight)),
+                                        new PrimitiveLine(new Point(selectionRect.TopRight), new Point(selectionRect.BottomRight)),
+                                        new PrimitiveLine(new Point(selectionRect.BottomRight), new Point(selectionRect.BottomLeft)),
+                                        new PrimitiveLine(new Point(selectionRect.BottomLeft), new Point(selectionRect.TopRight))
+                                    };
+                                if (projectedPoints
+                                    .Select(p => p.Zip(p.Skip(1), (a, b) => new PrimitiveLine(new Point(a), new Point(b))))
+                                    .SelectMany(x => x).Any(l => selectionLines.Any(s => s.IntersectionXY(l) != null)))
+                                {
+                                    isContained = true;
+                                }
+                            }
                         }
                         else
                         {
-                            var selectionLines = new[]
-                                {
-                                    new PrimitiveLine(new Point(selectionRect.TopLeft), new Point(selectionRect.TopRight)),
-                                    new PrimitiveLine(new Point(selectionRect.TopRight), new Point(selectionRect.BottomRight)),
-                                    new PrimitiveLine(new Point(selectionRect.BottomRight), new Point(selectionRect.BottomLeft)),
-                                    new PrimitiveLine(new Point(selectionRect.BottomLeft), new Point(selectionRect.TopRight))
-                                };
-                            if (projectedPoints
-                                .Select(p => p.Zip(p.Skip(1), (a, b) => new PrimitiveLine(new Point(a), new Point(b))))
-                                .SelectMany(x => x).Any(l => selectionLines.Any(s => s.IntersectsInXY(l))))
+                            // all points must be in rectangle
+                            if (flattenedPoints.All(p => selectionRect.Contains(p)))
                             {
                                 isContained = true;
                             }
                         }
                     }
-                    else
-                    {
-                        // all points must be in rectangle
-                        if (flattenedPoints.All(p => selectionRect.Contains(p)))
-                        {
-                            isContained = true;
-                        }
-                    }
-                }
 
-                if (isContained)
-                {
-                    entities.Add(entity);
-                }
-            }
+                    if (isContained)
+                    {
+                        entities.Add(entity);
+                    }
+                });
 
             var ellapsed = (DateTime.UtcNow - start).TotalMilliseconds;
             return entities;

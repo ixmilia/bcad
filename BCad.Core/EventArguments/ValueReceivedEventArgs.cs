@@ -8,12 +8,22 @@ namespace BCad.EventArguments
     {
         public InputType InputType { get; private set; }
 
+        private double distance;
         private Point point;
         private Entity entity;
         private IEnumerable<Entity> entities;
-        private string text;
         private string directive;
         private string command;
+
+        public double Distance
+        {
+            get
+            {
+                if (InputType != BCad.InputType.Distance)
+                    throw new Exception("Value was not a distance");
+                return distance;
+            }
+        }
 
         public Point Point
         {
@@ -45,16 +55,6 @@ namespace BCad.EventArguments
             }
         }
 
-        public string Text
-        {
-            get
-            {
-                if (InputType != InputType.Text)
-                    throw new Exception("Value was not text");
-                return text;
-            }
-        }
-
         public string Directive
         {
             get
@@ -78,6 +78,12 @@ namespace BCad.EventArguments
         public ValueReceivedEventArgs()
         {
             InputType = InputType.None;
+        }
+
+        public ValueReceivedEventArgs(double distance)
+        {
+            this.distance = distance;
+            InputType = BCad.InputType.Distance;
         }
 
         public ValueReceivedEventArgs(Point point)
@@ -104,9 +110,6 @@ namespace BCad.EventArguments
             {
                 case BCad.InputType.Command:
                     command = value;
-                    break;
-                case BCad.InputType.Text:
-                    text = value;
                     break;
                 case BCad.InputType.Directive:
                     directive = value;

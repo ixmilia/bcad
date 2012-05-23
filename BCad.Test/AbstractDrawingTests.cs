@@ -4,6 +4,7 @@ using System.Threading;
 using BCad.Entities;
 using BCad.Extensions;
 using Xunit;
+using System.Collections.Generic;
 
 namespace BCad.Test
 {
@@ -56,23 +57,51 @@ namespace BCad.Test
         {
             WaitForRequest();
             valueReceived.Reset();
-            InputService.PushValue(obj);
+            if (obj == null)
+            {
+                InputService.PushNone();
+            }
+            else if (obj is string)
+            {
+                InputService.PushDirective((string)obj);
+            }
+            else if (obj is double)
+            {
+                InputService.PushDistance((double)obj);
+            }
+            else if (obj is Point)
+            {
+                InputService.PushPoint((Point)obj);
+            }
+            else if (obj is Entity)
+            {
+                InputService.PushEntity((Entity)obj);
+            }
+            else if (obj is IEnumerable<Entity>)
+            {
+                InputService.PushEntities((IEnumerable<Entity>)obj);
+            }
+            else
+            {
+                throw new Exception("Unsupported push type: " + obj.GetType().Name);
+            }
+
             Wait(valueReceived);
         }
 
         protected void AwaitingCommand()
         {
-            Assert.Equal(InputType.Command, InputService.DesiredInputType);
+            Assert.Equal(InputType.Command, InputService.AllowedInputTypes);
         }
 
         protected void AwaitingPoint()
         {
-            Assert.Equal(InputType.Point, InputService.DesiredInputType);
+            Assert.Equal(InputType.Point, InputService.AllowedInputTypes);
         }
 
         protected void Complete()
         {
-            InputService.PushValue(null);
+            InputService.PushNone();
             WaitForCompletion();
         }
 

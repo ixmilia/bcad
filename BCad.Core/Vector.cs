@@ -41,14 +41,14 @@ namespace BCad
             return new Vector(this.Y * v.Z - this.Z * v.Y, this.Z * v.X - this.X * v.Z, this.X * v.Y - this.Y * v.X);
         }
 
-        public Point ToPoint()
+        public static implicit operator Point(Vector vector)
         {
             return new Point(vector.X, vector.Y, vector.Z);
         }
 
-        public Vector3D ToVector3D()
+        public static implicit operator Vector3D(Vector vector)
         {
-            return vector;
+            return vector.vector;
         }
 
         public static Vector operator -(Vector vector)

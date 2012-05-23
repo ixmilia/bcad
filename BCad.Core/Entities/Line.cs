@@ -39,7 +39,7 @@ namespace BCad.Entities
             {
                 new EndPoint(P1),
                 new EndPoint(P2),
-                new MidPoint(((P1 + P2) / 2.0).ToPoint())
+                new MidPoint((P1 + P2) / 2.0)
             };
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 using System.Windows.Input;
 
 namespace BCad.Commands
@@ -12,7 +8,8 @@ namespace BCad.Commands
     {
         public bool Execute(object arg)
         {
-            throw new NotImplementedException();
+            Debug.Fail("NYI");
+            return false;
         }
 
         public string DisplayName
