@@ -296,7 +296,6 @@ namespace BCad.UI.Views
                 var sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
                 lines.Clear();
-                var red = System.Drawing.Color.Red.ToArgb();
                 foreach (var layer in document.Layers.Values.Where(l => l.IsVisible))
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
@@ -308,10 +307,16 @@ namespace BCad.UI.Views
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                 }
 
+                // populate the snap points
                 snapPoints = document.Layers.Values.SelectMany(l => l.Entities.SelectMany(o => o.GetSnapPoints()))
                     .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
+                
+                // ensure they have correct values
                 UpdateSnapPoints(projectionMatrix);
+
+                // clear rubber band lines
                 rubberBandLines = null;
+
                 sw.Stop();
                 var loadTime = sw.ElapsedMilliseconds;
             }
@@ -358,7 +363,12 @@ namespace BCad.UI.Views
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
         {
-            this.Dispatcher.Invoke((Action)(() => snapLayer.Children.Clear()));
+            var cursor = (Vector3)this.Dispatcher.Invoke((Func<Vector3>)(() =>
+            {
+                snapLayer.Children.Clear();
+                return Project(Mouse.GetPosition(this).ToVector3());
+            }));
+            GenerateRubberBandLines(GetActiveModelPoint(cursor).WorldPoint);
             selecting = false;
             ForceRender();
         }
