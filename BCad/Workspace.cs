@@ -78,7 +78,6 @@ namespace BCad
                 var currentLayerName = CurrentLayer.Name;
 
                 // change the value and fire events
-                UndoRedoService.SetSnapshot();
                 document = value;
                 OnPropertyChanged("Document");
 
@@ -156,8 +155,9 @@ namespace BCad
         [Import]
         private IInputService InputService = null;
 
+        // required so that the service is created before the undo or redo commands are fired
         [Import]
-        private IUndoRedoService UndoRedoService = null;
+        private IUndoRedoService UndoRedoService { get; set; }
 
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;

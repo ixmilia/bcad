@@ -62,13 +62,12 @@ namespace BCad.Commands
 
             using (var file = new FileStream(filename, FileMode.Open))
             {
-                UndoRedoService.ClearHistory();
-
                 Document document;
                 Layer currentLayer;
                 reader.ReadFile(filename, file, out document, out currentLayer);
                 Workspace.Document = document;
                 Workspace.CurrentLayer = currentLayer;
+                UndoRedoService.ClearHistory();
             }
 
             return true;

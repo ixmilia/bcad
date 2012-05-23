@@ -375,6 +375,7 @@ namespace BCad
                 {
                     pushedPoint = point;
                     lastType = PushedValueType.Point;
+                    LastPoint = point;
                     OnValueReceived(new ValueReceivedEventArgs(point));
                 }
             }
