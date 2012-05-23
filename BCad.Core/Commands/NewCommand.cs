@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace BCad.Commands
 {
     [ExportCommand("File.New", ModifierKeys.Control, Key.N, "new", "n")]
-    internal class NewCommand : ICommand
+    public class NewCommand : ICommand
     {
         [Import]
         private IWorkspace Workspace = null;

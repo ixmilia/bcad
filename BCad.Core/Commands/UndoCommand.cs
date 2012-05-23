@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace BCad.Commands
 {
     [ExportCommand("Edit.Undo", ModifierKeys.Control, Key.Z, "undo", "u")]
-    internal class UndoCommandCommand : ICommand
+    public class UndoCommandCommand : ICommand
     {
         [Import]
         public IUndoRedoService UndoRedoService { get; set; }

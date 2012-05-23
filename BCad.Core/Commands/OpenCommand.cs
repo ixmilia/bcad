@@ -15,7 +15,7 @@ using System.Windows.Input;
 namespace BCad.Commands
 {
     [ExportCommand("File.Open", ModifierKeys.Control, Key.O, "open", "o")]
-    internal class OpenCommand : ICommand
+    public class OpenCommand : ICommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }

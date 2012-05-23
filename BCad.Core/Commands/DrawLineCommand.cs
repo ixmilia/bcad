@@ -5,7 +5,7 @@ using BCad.Primitives;
 namespace BCad.Commands
 {
     [ExportCommand("Draw.Line", "line", "l")]
-    internal class DrawLineCommand : ICommand
+    public class DrawLineCommand : ICommand
     {
         [Import]
         private IInputService InputService = null;

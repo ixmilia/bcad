@@ -7,7 +7,7 @@ using System.Text;
 namespace BCad.Commands
 {
     [ExportCommand("Edit.Trim", "trim", "tr", "t")]
-    internal class TrimCommand : ICommand
+    public class TrimCommand : ICommand
     {
         public bool Execute(object arg)
         {

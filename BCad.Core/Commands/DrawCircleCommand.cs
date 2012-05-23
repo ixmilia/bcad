@@ -5,7 +5,7 @@ using BCad.Primitives;
 namespace BCad.Commands
 {
     [ExportCommand("Draw.Circle", "circle", "c", "cir")]
-    internal class DrawCircleCommand : ICommand
+    public class DrawCircleCommand : ICommand
     {
         [Import]
         private IInputService InputService = null;

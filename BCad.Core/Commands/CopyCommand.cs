@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace BCad.Commands
 {
     [ExportCommand("Edit.Copy", ModifierKeys.Control, Key.C, "copy", "co")]
-    internal class CopyCommand : ICommand
+    public class CopyCommand : ICommand
     {
         public bool Execute(object arg)
         {

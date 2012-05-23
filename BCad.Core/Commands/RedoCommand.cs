@@ -3,8 +3,8 @@ using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Redo", ModifierKeys.Control, Key.Y, "redo", "re")]
-    internal class RedoCommandCommand : ICommand
+    [ExportCommand("Edit.Redo", ModifierKeys.Control, Key.Y, "redo", "re", "r")]
+    public class RedoCommandCommand : ICommand
     {
         [Import]
         public IUndoRedoService UndoRedoService { get; set; }

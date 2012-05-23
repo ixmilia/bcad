@@ -6,7 +6,7 @@ using BCad.FileHandlers;
 namespace BCad.Commands
 {
     [ExportCommand("File.Save", ModifierKeys.Control, Key.S, "save", "s")]
-    internal class SaveCommand : ICommand
+    public class SaveCommand : ICommand
     {
         [Import]
         private IWorkspace Workspace = null;

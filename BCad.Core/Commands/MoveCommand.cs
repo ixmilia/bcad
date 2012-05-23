@@ -7,7 +7,7 @@ using BCad.Primitives;
 namespace BCad.Commands
 {
     [ExportCommand("Edit.Move", "move", "mov", "m")]
-    internal class MoveCommand : ICommand
+    public class MoveCommand : ICommand
     {
         [Import]
         private IInputService InputService = null;

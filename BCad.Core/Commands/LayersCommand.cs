@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace BCad.Commands
 {
     [ExportCommand("Edit.Layers", ModifierKeys.Control, Key.L, "layers", "lay", "la")]
-    internal class LayersCommand : ICommand
+    public class LayersCommand : ICommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }

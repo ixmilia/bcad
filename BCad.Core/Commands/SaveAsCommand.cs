@@ -10,7 +10,7 @@ using Microsoft.Win32;
 namespace BCad.Commands
 {
     [ExportCommand("File.SaveAs", "saveas", "sa")]
-    internal class SaveAsCommand : ICommand
+    public class SaveAsCommand : ICommand
     {
         [Import]
         private IWorkspace Workspace = null;

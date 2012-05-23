@@ -5,7 +5,7 @@ using BCad.Primitives;
 namespace BCad.Commands
 {
     [ExportCommand("View.Distance", "distance", "di", "dist")]
-    internal class DistanceCommand : ICommand
+    public class DistanceCommand : ICommand
     {
         [Import]
         private IInputService InputService = null;

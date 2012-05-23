@@ -6,8 +6,8 @@ using System.Text;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Rotate", "rotate", "rot", "r")]
-    internal class RotateCommand : ICommand
+    [ExportCommand("Edit.Rotate", "rotate", "rot", "ro")]
+    public class RotateCommand : ICommand
     {
         public bool Execute(object arg)
         {
