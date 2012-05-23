@@ -252,7 +252,6 @@ namespace BCad
         private Entity pushedEntity = null;
         private IEnumerable<Entity> pushedEntities = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
-        private string lastCommand = null;
 
         public void Cancel()
         {
@@ -284,10 +283,8 @@ namespace BCad
         {
             lock (inputGate)
             {
-                commandName = commandName ?? lastCommand;
                 OnValueReceived(new ValueReceivedEventArgs(commandName, InputType.Command));
                 Workspace.ExecuteCommand(commandName);
-                lastCommand = commandName;
             }
         }
 

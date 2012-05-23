@@ -102,7 +102,7 @@ namespace BCad.UI.Consoles
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
             {
-                InputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
+                InputService.PushCommand(text);
             }
 
             inputLine.Text = string.Empty;

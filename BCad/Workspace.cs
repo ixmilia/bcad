@@ -213,7 +213,11 @@ namespace BCad
 
         public bool ExecuteCommandSynchronous(string commandName, object arg)
         {
-            Debug.Assert(commandName != null, "Null command not supported");
+            if (commandName == null && lastCommand == null)
+            {
+                return false;
+            }
+
             lock (executeGate)
             {
                 if (isExecuting)
@@ -221,6 +225,7 @@ namespace BCad
                 isExecuting = true;
             }
 
+            commandName = commandName ?? lastCommand;
             var command = GetCommand(commandName);
             if (command == null)
             {
@@ -230,6 +235,7 @@ namespace BCad
             }
 
             bool result = Execute(command, arg);
+            lastCommand = commandName;
             lock (executeGate)
             {
                 isExecuting = false;
@@ -297,7 +303,7 @@ namespace BCad
         #region Privates
 
         private bool isExecuting = false;
-
+        private string lastCommand = null;
         private object executeGate = new object();
 
         private BCad.Commands.ICommand GetCommand(string commandName)
