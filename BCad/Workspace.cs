@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Primitives;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -13,6 +12,7 @@ using BCad.Collections;
 using BCad.Commands;
 using BCad.Entities;
 using BCad.EventArguments;
+using BCad.FileHandlers;
 
 namespace BCad
 {
@@ -162,6 +162,9 @@ namespace BCad
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
+        [ImportMany]
+        private IEnumerable<IFileWriter> FileWriters = null;
+
         #endregion
 
         #region IWorkspace implementation
@@ -272,7 +275,7 @@ namespace BCad
                 {
                     case MessageBoxResult.Yes:
                         // TODO: can't execute another command
-                        if (ExecuteCommandSynchronous("File.Save", Document.FileName))
+                        if (SaveAsCommand.Execute(this, FileWriters, Document.FileName))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;

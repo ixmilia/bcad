@@ -9,6 +9,9 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
+        [Import]
+        private IUndoRedoService UndoRedoService = null;
+
         public bool Execute(object arg)
         {
             var unsaved = Workspace.PromptForUnsavedChanges();
@@ -18,6 +21,7 @@ namespace BCad.Commands
             }
 
             Workspace.Document = new Document();
+            UndoRedoService.ClearHistory();
             return true;
         }
 
