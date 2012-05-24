@@ -76,6 +76,18 @@ namespace BCad.UI.Views
             // load settings
             foreach (var setting in new[] { "BackgroundColor" })
                 SettingsManagerPropertyChanged(this.workspace.SettingsManager, new PropertyChangedEventArgs(setting));
+
+            // prepare the cursor
+            UpdateCursor();
+            SetCursorVisibility();
+            this.Loaded += (_, __) =>
+                {
+                    foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage })
+                    {
+                        Canvas.SetLeft(cursorImage, -(int)(cursorImage.ActualWidth / 2.0));
+                        Canvas.SetTop(cursorImage, -(int)(cursorImage.ActualHeight / 2.0));
+                    }
+                };
         }
 
         #endregion
@@ -257,6 +269,7 @@ namespace BCad.UI.Views
                     var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
                     autoColor = new Color4((0xFF << 24) | color);
                     ForceRender();
+                    UpdateCursor();
                     break;
                 case "AngleSnap":
                 case "Ortho":
@@ -353,12 +366,14 @@ namespace BCad.UI.Views
             rubberBandLines = null;
             selecting = false;
             ForceRender();
+            SetCursorVisibility();
         }
 
         private void InputServiceValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
             ForceRender();
+            SetCursorVisibility();
         }
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
@@ -371,6 +386,7 @@ namespace BCad.UI.Views
             GenerateRubberBandLines(GetActiveModelPoint(cursor).WorldPoint);
             selecting = false;
             ForceRender();
+            SetCursorVisibility();
         }
 
         #endregion
@@ -689,7 +705,6 @@ namespace BCad.UI.Views
             var cursor = e.GetPosition(this);
             var cursorVector = cursor.ToVector3();
             var sp = GetActiveModelPoint(cursorVector);
-            Entity ent = null;
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
@@ -699,10 +714,10 @@ namespace BCad.UI.Views
                     }
                     else if (inputService.AllowedInputTypes.HasFlag(InputType.Entity))
                     {
-                        ent = GetHitEntity(cursor);
-                        if (ent != null)
+                        var selected = GetHitEntity(cursor);
+                        if (selected != null)
                         {
-                            inputService.PushEntity(ent);
+                            inputService.PushEntity(selected);
                         }
                     }
                     else if (inputService.AllowedInputTypes.HasFlag(InputType.Entities))
@@ -725,10 +740,10 @@ namespace BCad.UI.Views
                         else
                         {
                             // start selection
-                            ent = GetHitEntity(cursor);
-                            if (ent != null)
+                            var selected = GetHitEntity(cursor);
+                            if (selected != null)
                             {
-                                inputService.PushEntities(new[] { ent });
+                                inputService.PushEntities(new[] { selected.Entity });
                             }
                             else
                             {
@@ -798,6 +813,12 @@ namespace BCad.UI.Views
                 GenerateRubberBandLines(sp.WorldPoint);
                 DrawSnapPoint(sp);
             }
+
+            foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage })
+            {
+                Canvas.SetLeft(cursorImage, (int)(cursor.X - (cursorImage.ActualWidth / 2.0)));
+                Canvas.SetTop(cursorImage, (int)(cursor.Y - (cursorImage.ActualHeight / 2.0)));
+            }
         }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
@@ -831,6 +852,67 @@ namespace BCad.UI.Views
         #endregion
 
         #region Misc functions
+
+        private void SetCursorVisibility()
+        {
+            Func<InputType[], System.Windows.Visibility> getVisibility = types =>
+                types.Any(t => inputService.AllowedInputTypes.HasFlag(t))
+                    ? System.Windows.Visibility.Visible
+                    : System.Windows.Visibility.Hidden;
+
+            this.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                pointCursorImage.Visibility = getVisibility(new[]
+                {
+                    InputType.Command,
+                    InputType.Point
+                });
+                entityCursorImage.Visibility = getVisibility(new[]
+                {
+                    InputType.Command,
+                    InputType.Entities,
+                    InputType.Entity
+                });
+            }));
+        }
+
+        private void UpdateCursor()
+        {
+            var color = Media.Color.FromRgb((byte)(autoColor.Red * 255), (byte)(autoColor.Green * 255), (byte)(autoColor.Blue * 255));
+            var pen = new Media.Pen(new Media.SolidColorBrush(color), 1);
+
+            var cursorSize = workspace.SettingsManager.CursorSize / 2;
+            pointCursorImage.Source = new Media.DrawingImage(
+                new Media.GeometryDrawing()
+                {
+                    Geometry = new Media.GeometryGroup()
+                    {
+                        Children = new Media.GeometryCollection(new []
+                        {
+                            new Media.LineGeometry(new System.Windows.Point(-cursorSize, 0), new System.Windows.Point(cursorSize, 0)),
+                            new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
+                        })
+                    },
+                    Pen = pen
+                });
+
+            var entitySize = workspace.SettingsManager.EntitySelectionRadius;
+            entityCursorImage.Source = new Media.DrawingImage(
+                new Media.GeometryDrawing()
+                {
+                    Geometry = new Media.GeometryGroup()
+                    {
+                        Children = new Media.GeometryCollection(new[]
+                        {
+                            new Media.LineGeometry(new System.Windows.Point(-entitySize, -entitySize), new System.Windows.Point(entitySize, -entitySize)),
+                            new Media.LineGeometry(new System.Windows.Point(entitySize, -entitySize), new System.Windows.Point(entitySize, entitySize)),
+                            new Media.LineGeometry(new System.Windows.Point(entitySize, entitySize), new System.Windows.Point(-entitySize, entitySize)),
+                            new Media.LineGeometry(new System.Windows.Point(-entitySize, entitySize), new System.Windows.Point(-entitySize, -entitySize))
+                        })
+                    },
+                    Pen = pen
+                });
+        }
 
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
         {
@@ -913,51 +995,59 @@ namespace BCad.UI.Views
             return entities;
         }
 
-        private Entity GetHitEntity(System.Windows.Point cursor)
+        private SelectedEntity GetHitEntity(System.Windows.Point cursor)
         {
             var start = DateTime.UtcNow;
             var selectionDist = workspace.SettingsManager.EntitySelectionRadius;
-            uint hitEntity = 0;
-            foreach (var entityId in lines.Keys)
-            {
-                var segments = lines[entityId];
-                for (int i = 0; i < segments.LineSegments.Length && hitEntity == 0; i++)
-                {
-                    var points = segments.LineSegments[i].Item2;
-                    for (int j = 0; j < points.Length - 1; j++)
-                    {
-                        // translate line segment to screen coordinates
-                        var p1 = Project(points[j]);
-                        var p2 = Project(points[j + 1]);
-                        // check that cursor is in expanded bounding box of line segment
-                        var minx = Math.Min(p1.X, p2.X) - selectionDist;
-                        var maxx = Math.Max(p1.X, p2.X) + selectionDist;
-                        var miny = Math.Min(p1.Y, p2.Y) - selectionDist;
-                        var maxy = Math.Max(p1.Y, p2.Y) + selectionDist;
-                        if (MathHelper.Between(minx, maxx, cursor.X) && MathHelper.Between(miny, maxy, cursor.Y))
-                        {
-                            // in bounding rectangle, check distance to line
-                            var x1 = p1.X - cursor.X;
-                            var x2 = p2.X - cursor.X;
-                            var y1 = p1.Y - cursor.Y;
-                            var y2 = p2.Y - cursor.Y;
-                            var dx = x2 - x1;
-                            var dy = y2 - y1;
-                            var dr2 = dx * dx + dy * dy;
-                            var D = x1 * y2 - x2 * y1;
-                            var det = (selectionDist * selectionDist * dr2) - (D * D);
-                            if (det >= 0.0)
-                            {
-                                // TODO: how to find closest instead of first
-                                hitEntity = entityId;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            var selectionDist2 = selectionDist * selectionDist;
+            var cursorPoint = new Point(cursor);
 
-            return document.Layers.Values.SelectMany(l => l.Entities).FirstOrDefault(en => en.Id == hitEntity);
+            var entities = from entityId in lines.Keys
+                           from primitiveSegment in lines[entityId].LineSegments
+                           let points = primitiveSegment.Item2
+                           from i in Enumerable.Range(0, points.Length - 1)
+                           // translate line segment to screen coordinates
+                           let p1 = Project(points[i])
+                           let p2 = Project(points[i + 1])
+                           // check that cursor is in expanded bounding box of line segment
+                           let minx = Math.Min(p1.X, p2.X) - selectionDist
+                           let maxx = Math.Max(p1.X, p2.X) + selectionDist
+                           let miny = Math.Min(p1.Y, p2.Y) - selectionDist
+                           let maxy = Math.Max(p1.Y, p2.Y) + selectionDist
+                           where MathHelper.Between(minx, maxx, cursor.X)
+                              && MathHelper.Between(miny, maxy, cursor.Y)
+                           // find the shortest line connecting point and line segment
+                           let p1p = p1.ToPoint()
+                           let p2p = p2.ToPoint()
+                           let segment = new PrimitiveLine(p1p, p2p)
+                           let shortLine = new PrimitiveLine(cursorPoint, segment.PerpendicularSlope)
+                           let selectionPoint = shortLine.IntersectionXY(segment, false)
+                           let dist = (selectionPoint - cursorPoint).LengthSquared
+                           where dist < selectionDist2
+                           orderby dist
+                           // simple unproject via interpolation
+                           let pct = (selectionPoint - p1p).Length / (p2p - p1p).Length
+                           let vec = (Vector)(points[i + 1] - points[i]).ToPoint()
+                           let newLen = vec.Length * pct
+                           let offset = vec.Normalize() * newLen
+                           select new
+                           {
+                               EntityId = entityId,
+                               SelectionPoint = points[i].ToPoint() + offset
+                           };
+            var selected = entities.FirstOrDefault();
+            var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+
+            if (selected == null)
+            {
+                return null;
+            }
+            else
+            {
+                var entity = document.Layers.Values.SelectMany(l => l.Entities).Single(en => en.Id == selected.EntityId);
+                var elapsed2 = (DateTime.UtcNow - start).TotalMilliseconds;
+                return new SelectedEntity(entity, selected.SelectionPoint);
+            }
         }
 
         private void ForceRender()

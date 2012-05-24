@@ -136,24 +136,24 @@ namespace BCad
             return result;
         }
 
-        public ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
+        public ValueOrDirective<SelectedEntity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Entity | InputType.Directive));
             WaitFor(InputType.Entity | InputType.Directive, directive, onCursorMove);
-            ValueOrDirective<Entity> result;
+            ValueOrDirective<SelectedEntity> result;
             switch (lastType)
             {
                 case PushedValueType.None:
-                    result = new ValueOrDirective<Entity>();
+                    result = new ValueOrDirective<SelectedEntity>();
                     break;
                 case PushedValueType.Cancel:
-                    result = ValueOrDirective<Entity>.GetCancel();
+                    result = ValueOrDirective<SelectedEntity>.GetCancel();
                     break;
                 case PushedValueType.Entity:
-                    result = new ValueOrDirective<Entity>(pushedEntity);
+                    result = new ValueOrDirective<SelectedEntity>(pushedEntity);
                     break;
                 case PushedValueType.Directive:
-                    result = new ValueOrDirective<Entity>(pushedDirective);
+                    result = new ValueOrDirective<SelectedEntity>(pushedDirective);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");
@@ -186,8 +186,8 @@ namespace BCad
                         awaitingMore = false;
                         break;
                     case PushedValueType.Entity:
-                        entities.Add(pushedEntity);
-                        Workspace.SelectedEntities.Add(pushedEntity);
+                        entities.Add(pushedEntity.Entity);
+                        Workspace.SelectedEntities.Add(pushedEntity.Entity);
                         // TODO: print status
                         break;
                     case PushedValueType.Entities:
@@ -249,7 +249,7 @@ namespace BCad
         private Point pushedPoint = default(Point);
         private double pushedDistance = 0.0;
         private string pushedDirective = null;
-        private Entity pushedEntity = null;
+        private SelectedEntity pushedEntity = null;
         private IEnumerable<Entity> pushedEntities = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
 
@@ -326,7 +326,7 @@ namespace BCad
             }
         }
 
-        public void PushEntity(Entity entity)
+        public void PushEntity(SelectedEntity entity)
         {
             if (entity == null)
             {

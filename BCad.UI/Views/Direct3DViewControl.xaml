@@ -6,11 +6,16 @@
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core"
                 xmlns:views="clr-namespace:BCad.UI.Views"
                 mc:Ignorable="d"
+                Cursor="None"
+                SnapsToDevicePixels="True"
                 d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <views:Direct3DControl x:Name="content" />
         <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
-        <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" />
+        <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" SnapsToDevicePixels="True">
+            <Image Name="pointCursorImage" SnapsToDevicePixels="True" />
+            <Image Name="entityCursorImage" SnapsToDevicePixels="True" />
+        </Canvas>
         <Canvas Name="clicker"
                 Background="White"
                 Opacity="0.001"

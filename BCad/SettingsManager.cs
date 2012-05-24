@@ -17,6 +17,7 @@ namespace BCad
         private double snapPointDist = 0.0;
         private double snapPointSize = 0.0;
         private double entitySelectionRadius = 0.0;
+        private int cursorSize = 0;
         private bool pointSnap = false;
         private bool angleSnap = false;
         private bool ortho = false;
@@ -99,6 +100,18 @@ namespace BCad
                     return;
                 this.entitySelectionRadius = value;
                 OnPropertyChanged("EntitySelectionRadius");
+            }
+        }
+
+        public int CursorSize
+        {
+            get { return this.cursorSize; }
+            set
+            {
+                if (this.cursorSize == value)
+                    return;
+                this.cursorSize = value;
+                OnPropertyChanged("CursorSize");
             }
         }
 
@@ -306,6 +319,7 @@ namespace BCad
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
             EntitySelectionRadius = 3.0;
+            CursorSize = 60;
             PointSnap = true;
             AngleSnap = true;
             Ortho = false;

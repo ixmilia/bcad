@@ -29,7 +29,7 @@ namespace BCad
         RubberBandGenerator PrimitiveGenerator { get; }
         ValueOrDirective<double> GetDistance();
         ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
-        ValueOrDirective<Entity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
+        ValueOrDirective<SelectedEntity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         ValueOrDirective<IEnumerable<Entity>> GetEntities(RubberBandGenerator onCursorMove = null);
         Point LastPoint { get; }
 
@@ -42,7 +42,7 @@ namespace BCad
         void PushDistance(double distance);
         void PushDirective(string directive);
         void PushPoint(Point point);
-        void PushEntity(Entity entity);
+        void PushEntity(SelectedEntity entity);
         void PushEntities(IEnumerable<Entity> entities);
 
         InputType AllowedInputTypes { get; }

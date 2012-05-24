@@ -10,7 +10,7 @@ namespace BCad.EventArguments
 
         private double distance;
         private Point point;
-        private Entity entity;
+        private SelectedEntity entity;
         private IEnumerable<Entity> entities;
         private string directive;
         private string command;
@@ -35,7 +35,7 @@ namespace BCad.EventArguments
             }
         }
 
-        public Entity Entity
+        public SelectedEntity Entity
         {
             get
             {
@@ -92,7 +92,7 @@ namespace BCad.EventArguments
             InputType = InputType.Point;
         }
 
-        public ValueReceivedEventArgs(Entity entity)
+        public ValueReceivedEventArgs(SelectedEntity entity)
         {
             this.entity = entity;
             InputType = InputType.Entity;

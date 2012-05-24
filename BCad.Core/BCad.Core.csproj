@@ -114,6 +114,7 @@
     <Compile Include="Primitives\PrimitiveKind.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
+    <Compile Include="SelectedEntity.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />

@@ -73,9 +73,9 @@ namespace BCad.Test
             {
                 InputService.PushPoint((Point)obj);
             }
-            else if (obj is Entity)
+            else if (obj is SelectedEntity)
             {
-                InputService.PushEntity((Entity)obj);
+                InputService.PushEntity((SelectedEntity)obj);
             }
             else if (obj is IEnumerable<Entity>)
             {

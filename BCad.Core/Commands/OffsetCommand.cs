@@ -42,7 +42,8 @@ namespace BCad.Commands
             var selection = InputService.GetEntity(new UserDirective("Select entity"));
             while (!selection.Cancel && selection.HasValue)
             {
-                if (!Workspace.IsEntityOnDrawingPlane(selection.Value))
+                var ent = selection.Value.Entity;
+                if (!Workspace.IsEntityOnDrawingPlane(ent))
                 {
                     InputService.WriteLine("Entity must be entirely on the drawing plane to offset");
                     selection = InputService.GetEntity(new UserDirective("Select entity"));
@@ -50,7 +51,7 @@ namespace BCad.Commands
                 }
 
                 Workspace.SelectedEntities.Clear();
-                Workspace.SelectedEntities.Add(selection.Value);
+                Workspace.SelectedEntities.Add(ent);
                 var point = InputService.GetPoint(new UserDirective("Side to offset"));
                 if (point.Cancel || !point.HasValue)
                 {
@@ -67,11 +68,11 @@ namespace BCad.Commands
                 // do the actual offset
                 Entity updated = null;
                 bool isInside;
-                switch (selection.Value.Kind)
+                switch (selection.Value.Entity.Kind)
                 {
                     // for ellipse-like shapes, the radius changes
                     case EntityKind.Arc:
-                        var arc = (Arc)selection.Value;
+                        var arc = (Arc)ent;
                         isInside = (point.Value - arc.Center).Length < arc.Radius;
                         if (isInside && dist > arc.Radius)
                         {
@@ -83,7 +84,7 @@ namespace BCad.Commands
                             : arc.Radius + dist);
                         break;
                     case EntityKind.Circle:
-                        var circle = (Circle)selection.Value;
+                        var circle = (Circle)ent;
                         // TODO: project to determine this
                         isInside = (point.Value - circle.Center).Length < circle.Radius;
                         if (isInside && dist > circle.Radius)
@@ -96,7 +97,7 @@ namespace BCad.Commands
                             : circle.Radius + dist);
                         break;
                     case EntityKind.Ellipse:
-                        var el = (Ellipse)selection.Value;
+                        var el = (Ellipse)ent;
                         var majorRadius = el.MajorAxis.Length;
                         var minorRadius = majorRadius * el.MinorAxisRatio;
                         isInside = (point.Value - el.Center).Length < el.MajorAxis.Length;
@@ -110,7 +111,7 @@ namespace BCad.Commands
                         break;
                     case EntityKind.Line:
                         // find what side the offset occured on and move both end points
-                        var line = (Line)selection.Value;
+                        var line = (Line)ent;
                         // normalize to XY plane
                         var picked = Workspace.ToXYPlane(point.Value);
                         var p1 = Workspace.ToXYPlane(line.P1);
