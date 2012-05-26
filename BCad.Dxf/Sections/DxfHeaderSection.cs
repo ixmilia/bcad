@@ -26,20 +26,22 @@ namespace BCad.Dxf.Sections
             for (int i = 0; i < pairList.Count - 1; i += 2)
             {
                 var variable = pairList[i];
-                if (variable.Code != 9)
-                {
-                    throw new DxfReadException("Expected code 9 for header variable, got " + variable.Code);
-                }
-
                 var pair = pairList[i + 1];
-                switch (variable.StringValue.ToUpperInvariant())
+                switch (variable.Code)
                 {
-                    case CLAYER:
-                        EnsureCode(pair, 8);
-                        CurrentLayer = pair.StringValue;
+                    case 9: // string value
+                        switch (variable.StringValue.ToUpperInvariant())
+                        {
+                            case CLAYER:
+                                EnsureCode(pair, 8);
+                                CurrentLayer = pair.StringValue;
+                                break;
+                            default:
+                                // unsupported variable
+                                break;
+                        }
                         break;
-                    default:
-                        // unsupported variable
+                    case 20: // double value
                         break;
                 }
             }

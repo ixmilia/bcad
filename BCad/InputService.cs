@@ -64,10 +64,12 @@ namespace BCad
 
         private UserDirective currentDirective = null;
 
-        public ValueOrDirective<double> GetDistance()
+        public ValueOrDirective<double> GetDistance(double? defaultDistance = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Distance | InputType.Point));
-            WaitFor(InputType.Distance | InputType.Point, new UserDirective("Offset distance or first point"), null);
+            var prompt = "Offset distance or first point" +
+                (defaultDistance.HasValue ? string.Format(" [{0}]", defaultDistance.Value) : "");
+            WaitFor(InputType.Distance | InputType.Point, new UserDirective(prompt), null);
             ValueOrDirective<double> result;
             switch (lastType)
             {
@@ -163,7 +165,7 @@ namespace BCad
             return result;
         }
 
-        public ValueOrDirective<IEnumerable<Entity>> GetEntities(RubberBandGenerator onCursorMove = null)
+        public ValueOrDirective<IEnumerable<Entity>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Entities | InputType.Directive));
             ValueOrDirective<IEnumerable<Entity>>? result = null;
@@ -171,7 +173,7 @@ namespace BCad
             bool awaitingMore = true;
             while (awaitingMore)
             {
-                WaitFor(InputType.Entities | InputType.Directive, new UserDirective("Select entities", "all"), onCursorMove);
+                WaitFor(InputType.Entities | InputType.Directive, new UserDirective(prompt ?? "Select entities", "all"), onCursorMove);
                 switch (lastType)
                 {
                     case PushedValueType.Cancel:

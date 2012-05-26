@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BCad.Dxf.Entities
@@ -94,8 +95,19 @@ namespace BCad.Dxf.Entities
                 case EllipseType:
                     ent = DxfEllipse.FromPairs(pairs);
                     break;
+                // TODO:
+                // POLYLINE
+                // VERTEX
+                // SEQEND
+                // DIMENSION
+                // INSERT
+                // ATTRIB
+                // MTEXT
+                // HATCH
+                // LEADER
                 default:
-                    throw new NotImplementedException("Unsupported entity type " + first.Value);
+                    Debug.WriteLine("Unsupported entity type " + first.StringValue);
+                    break;
             }
 
             return ent;

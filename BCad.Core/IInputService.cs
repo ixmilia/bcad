@@ -27,10 +27,10 @@ namespace BCad
     public interface IInputService
     {
         RubberBandGenerator PrimitiveGenerator { get; }
-        ValueOrDirective<double> GetDistance();
+        ValueOrDirective<double> GetDistance(double? defaultDistance = null);
         ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
         ValueOrDirective<SelectedEntity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
-        ValueOrDirective<IEnumerable<Entity>> GetEntities(RubberBandGenerator onCursorMove = null);
+        ValueOrDirective<IEnumerable<Entity>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
         Point LastPoint { get; }
 
         void WriteLine(string text);

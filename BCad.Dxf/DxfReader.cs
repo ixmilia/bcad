@@ -164,6 +164,8 @@ namespace BCad.Dxf
                     value = int.Parse(line);
                 else if (expectedType == typeof(long))
                     value = long.Parse(line);
+                else if (expectedType == typeof(bool))
+                    value = short.Parse(line) != 0;
                 else
                     throw new DxfReadException("Reading type not supported " + expectedType);
             }
@@ -184,6 +186,8 @@ namespace BCad.Dxf
                     value = binReader.ReadInt32();
                 else if (expectedType == typeof(long))
                     value = binReader.ReadInt64();
+                else if (expectedType == typeof(bool))
+                    value = binReader.ReadInt16() != 0;
                 else
                     throw new DxfReadException("Reading type not supported " + expectedType);
             }

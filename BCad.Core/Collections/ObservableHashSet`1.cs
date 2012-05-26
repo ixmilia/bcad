@@ -37,6 +37,13 @@ namespace BCad.Collections
             OnCollectionChanged();
         }
 
+        public void Set(IEnumerable<T> items)
+        {
+            this.items.Clear();
+            this.itemHashes.Clear();
+            AddRange(items);
+        }
+
         public bool Contains(T item)
         {
             return items.Contains(item);

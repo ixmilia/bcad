@@ -116,7 +116,7 @@ namespace BCad.Dxf
             else if (between(280, 289))
                 expected = typeof(short);
             else if (between(290, 299))
-                expected = typeof(bool); // TODO: what is this?
+                expected = typeof(bool);
             else if (between(300, 309))
                 expected = typeof(string);
             else if (between(310, 319))
@@ -124,13 +124,13 @@ namespace BCad.Dxf
             else if (between(320, 329))
                 expected = typeof(string);
             else if (between(330, 369))
-                expected = typeof(double);
+                expected = typeof(string);
             else if (between(370, 379))
                 expected = typeof(short);
             else if (between(380, 389))
                 expected = typeof(double);
             else if (between(390, 399))
-                expected = typeof(double);
+                expected = typeof(string);
             else if (between(400, 409))
                 expected = typeof(short);
             else if (between(410, 419))

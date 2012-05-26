@@ -41,7 +41,7 @@ namespace BCad.Dxf.Sections
         public DxfEntitiesSection(IEnumerable<DxfCodePair> pairs)
         {
             var simpleRecords = DxfSection.SplitAtZero(pairs);
-            Entities = simpleRecords.Select(r => DxfEntity.FromCodeValuePairs(r)).ToList();
+            Entities = simpleRecords.Select(r => DxfEntity.FromCodeValuePairs(r)).Where(e => e != null).ToList();
         }
     }
 }

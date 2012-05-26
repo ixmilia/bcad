@@ -22,7 +22,7 @@ namespace BCad.Commands
 
         public bool Execute(object arg)
         {
-            var distance = InputService.GetDistance();
+            var distance = InputService.GetDistance(lastOffsetDistance);
             if (distance.Cancel)
             {
                 return false;
