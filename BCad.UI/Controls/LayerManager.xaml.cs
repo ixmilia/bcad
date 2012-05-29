@@ -40,7 +40,7 @@ namespace BCad.UI.Controls
         {
             this.workspace = workspace;
             this.layers.Clear();
-            foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
+            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(l => l.Name))
                 this.layers.Add(new MutableLayer(layer));
 
             for (int i = 0; i < 256; i++)
@@ -51,10 +51,10 @@ namespace BCad.UI.Controls
 
         public override void Commit()
         {
-            var doc = workspace.Document;
+            var dwg = workspace.Drawing;
 
             if (this.layers.Where(layer => layer.IsDirty).Any() ||
-                this.layers.Count != doc.Layers.Count)
+                this.layers.Count != dwg.Layers.Count)
             {
                 // found changes, need to update
                 var newLayers = new Dictionary<string, Layer>();
@@ -64,8 +64,8 @@ namespace BCad.UI.Controls
                     newLayers.Add(layer.Name, layer);
                 }
 
-                doc = doc.Update(layers: newLayers);
-                workspace.Document = doc;
+                dwg = dwg.Update(layers: newLayers);
+                workspace.Drawing = dwg;
             }
         }
 

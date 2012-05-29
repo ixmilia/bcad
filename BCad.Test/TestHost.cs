@@ -22,7 +22,7 @@ namespace BCad.Test
             var batch = new CompositionBatch();
             container.Compose(batch);
             container.SatisfyImportsOnce(this);
-            Workspace.Document = new Document();
+            Workspace.Drawing = new Drawing();
         }
 
         public static TestHost CreateHost()

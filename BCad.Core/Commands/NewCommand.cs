@@ -20,7 +20,7 @@ namespace BCad.Commands
                 return false;
             }
 
-            Workspace.Document = new Document();
+            Workspace.Drawing = new Drawing();
             UndoRedoService.ClearHistory();
             return true;
         }

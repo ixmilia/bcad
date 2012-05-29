@@ -39,11 +39,11 @@ namespace BCad.Ribbons
         {
             switch (e.PropertyName)
             {
-                case "CurrentLayer":
+                case Constants.CurrentLayerString:
                     if (listenToChangeEvent)
                         this.Dispatcher.BeginInvoke((Action)(() => this.currentLayer.SelectedItem = workspace.CurrentLayer));
                     break;
-                case "Document":
+                case Constants.DrawingString:
                     this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown(true)));
                     break;
                 default:
@@ -56,10 +56,10 @@ namespace BCad.Ribbons
             listenToChangeEvent = false;
             string currentLayerName = workspace.CurrentLayer.Name;
             this.currentLayer.Items.Clear();
-            foreach (var layer in workspace.Document.Layers.Values.OrderBy(l => l.Name))
+            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(l => l.Name))
                 this.currentLayer.Items.Add(layer);
-            if (preserveCurrent && workspace.Document.Layers.ContainsKey(currentLayerName))
-                this.currentLayer.SelectedItem = workspace.Document.Layers[currentLayerName];
+            if (preserveCurrent && workspace.Drawing.Layers.ContainsKey(currentLayerName))
+                this.currentLayer.SelectedItem = workspace.Drawing.Layers[currentLayerName];
             else
                 this.currentLayer.SelectedItem = workspace.CurrentLayer;
             listenToChangeEvent = true;

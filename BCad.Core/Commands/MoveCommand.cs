@@ -46,13 +46,13 @@ namespace BCad.Commands
             }
 
             var delta = destination.Value - origin.Value;
-            var doc = Workspace.Document;
+            var dwg = Workspace.Drawing;
             foreach (var ent in entities.Value)
             {
-                doc = doc.Replace(ent, MovedEntity(ent, delta));
+                dwg = dwg.Replace(ent, MovedEntity(ent, delta));
             }
 
-            Workspace.Document = doc;
+            Workspace.Drawing = dwg;
             return true;
         }
 

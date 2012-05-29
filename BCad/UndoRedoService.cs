@@ -12,9 +12,9 @@ namespace BCad
     {
         [Import]
         private IWorkspace workspace = null;
-        private Stack<Document> undoHistory = new Stack<Document>();
-        private Stack<Document> redoHistory = new Stack<Document>();
-        private bool ignoreDocumentChange = false;
+        private Stack<Drawing> undoHistory = new Stack<Drawing>();
+        private Stack<Drawing> redoHistory = new Stack<Drawing>();
+        private bool ignoreDrawingChange = false;
 
         public void OnImportsSatisfied()
         {
@@ -25,11 +25,11 @@ namespace BCad
         {
             switch (e.PropertyName)
             {
-                case "Document":
-                    if (!ignoreDocumentChange)
+                case Constants.DrawingString:
+                    if (!ignoreDrawingChange)
                     {
                         // save the last snapshot
-                        undoHistory.Push(workspace.Document);
+                        undoHistory.Push(workspace.Drawing);
                         redoHistory.Clear();
                     }
                     break;
@@ -41,10 +41,10 @@ namespace BCad
             if (UndoHistorySize == 0)
                 throw new NotSupportedException("There are no items to undo");
 
-            ignoreDocumentChange = true;
-            redoHistory.Push(workspace.Document);
-            workspace.Document = undoHistory.Pop();
-            ignoreDocumentChange = false;
+            ignoreDrawingChange = true;
+            redoHistory.Push(workspace.Drawing);
+            workspace.Drawing = undoHistory.Pop();
+            ignoreDrawingChange = false;
         }
 
         public void Redo()
@@ -52,10 +52,10 @@ namespace BCad
             if (RedoHistorySize == 0)
                 throw new NotSupportedException("There are no items to redo");
 
-            ignoreDocumentChange = true;
-            undoHistory.Push(workspace.Document);
-            workspace.Document = redoHistory.Pop();
-            ignoreDocumentChange = false;
+            ignoreDrawingChange = true;
+            undoHistory.Push(workspace.Drawing);
+            workspace.Drawing = redoHistory.Pop();
+            ignoreDrawingChange = false;
         }
 
         public void ClearHistory()

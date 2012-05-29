@@ -113,13 +113,13 @@ namespace BCad.Test
 
         protected void VerifyLayerContains(string layerName, Entity entity)
         {
-            var x = Workspace.Document.Layers[layerName];
+            var x = Workspace.Drawing.Layers[layerName];
             Assert.True(x.Entities.Any(o => o.EquivalentTo(entity)));
         }
 
         protected void VerifyLayerDoesNotContain(string layerName, Entity entity)
         {
-            var x = Workspace.Document.Layers[layerName];
+            var x = Workspace.Drawing.Layers[layerName];
             Assert.False(x.Entities.Any(o => o.EquivalentTo(entity)));
         }
 

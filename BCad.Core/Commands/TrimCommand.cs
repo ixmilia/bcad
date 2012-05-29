@@ -30,7 +30,7 @@ namespace BCad.Commands
             var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives());
             Workspace.SelectedEntities.Set(boundaries.Value);
 
-            var doc = Workspace.Document;
+            var dwg = Workspace.Drawing;
             var directive = new UserDirective("Entity to trim");
             var selected = InputService.GetEntity(directive);
             while (!selected.Cancel && selected.HasValue)
@@ -51,7 +51,7 @@ namespace BCad.Commands
                     switch (selected.Value.Entity.Kind)
                     {
                         case EntityKind.Line:
-                            doc = TrimLine(doc, (Line)selected.Value.Entity, selected.Value.SelectionPoint, sel, intersectionPoints);
+                            dwg = TrimLine(dwg, (Line)selected.Value.Entity, selected.Value.SelectionPoint, sel, intersectionPoints);
                             break;
                         default:
                             Debug.Fail("only lines are supported");
@@ -59,7 +59,7 @@ namespace BCad.Commands
                     }
 
                     // commit the change
-                    Workspace.Document = doc;
+                    Workspace.Drawing = dwg;
                 }
 
                 // get next entity to trim
@@ -70,7 +70,7 @@ namespace BCad.Commands
             return true;
         }
 
-        private static Document TrimLine(Document doc, Line line, Point pivot, PrimitiveLine sel, IEnumerable<Point> intersectionPoints)
+        private static Drawing TrimLine(Drawing dwg, Line line, Point pivot, PrimitiveLine sel, IEnumerable<Point> intersectionPoints)
         {
             // split intersection points based on which side of the selection point they are
             var left = new List<Point>();
@@ -96,19 +96,19 @@ namespace BCad.Commands
             // remove the original line
             if (leftPoint != null || rightPoint != null)
             {
-                var layer = doc.ContainingLayer(line).Name;
-                doc = doc.Remove(line);
+                var layer = dwg.ContainingLayer(line).Name;
+                dwg = dwg.Remove(line);
                 if (leftPoint != null)
                 {
-                    doc = doc.Add(doc.Layers[layer], line.Update(p1: line.P1, p2: leftPoint));
+                    dwg = dwg.Add(dwg.Layers[layer], line.Update(p1: line.P1, p2: leftPoint));
                 }
                 if (rightPoint != null)
                 {
-                    doc = doc.Add(doc.Layers[layer], line.Update(p1: rightPoint, p2: line.P2));
+                    dwg = dwg.Add(dwg.Layers[layer], line.Update(p1: rightPoint, p2: line.P2));
                 }
             }
 
-            return doc;
+            return dwg;
         }
 
         public string DisplayName

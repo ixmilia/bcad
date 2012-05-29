@@ -26,13 +26,13 @@ namespace BCad.Commands
                 return true;
             }
 
-            var doc = Workspace.Document;
+            var dwg = Workspace.Drawing;
             foreach (var ent in entities.Value)
             {
-                doc = doc.Remove(ent);
+                dwg = dwg.Remove(ent);
             }
 
-            Workspace.Document = doc;
+            Workspace.Drawing = dwg;
             return true;
         }
 

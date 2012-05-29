@@ -71,11 +71,11 @@ namespace BCad.UI.Views
             this.inputService.ValueReceived += InputServiceValueReceived;
 
             // load the workspace
-            foreach (var setting in new[] { "Document" })
+            foreach (var setting in new[] { Constants.DrawingString })
                 WorkspacePropertyChanged(this.workspace, new PropertyChangedEventArgs(setting));
 
             // load settings
-            foreach (var setting in new[] { "BackgroundColor" })
+            foreach (var setting in new[] { Constants.BackgroundColorString })
                 SettingsManagerPropertyChanged(this.workspace.SettingsManager, new PropertyChangedEventArgs(setting));
 
             // prepare the cursor
@@ -122,8 +122,8 @@ namespace BCad.UI.Views
         private Matrix projectionWorldMatrix = Matrix.Identity;
         private Matrix projectionViewWorldMatrix = Matrix.Identity;
         private TransformedSnapPoint[] snapPoints = new TransformedSnapPoint[0];
-        private object documentGate = new object();
-        private Document document = null;
+        private object drawingGate = new object();
+        private Drawing drawing = null;
         private Device Device { get { return this.content.Device; } }
         private Color4 autoColor = new Color4();
         private Dictionary<uint, TransformedEntity> lines = new Dictionary<uint, TransformedEntity>();
@@ -202,7 +202,7 @@ namespace BCad.UI.Views
 
         public void OnMainLoop(object sender, EventArgs args)
         {
-            lock (documentGate)
+            lock (drawingGate)
             {
                 foreach (var entityId in lines.Keys)
                 {
@@ -262,7 +262,7 @@ namespace BCad.UI.Views
             bool redraw = false;
             switch (e.PropertyName)
             {
-                case "BackgroundColor":
+                case Constants.BackgroundColorString:
                     var bg = workspace.SettingsManager.BackgroundColor;
                     this.content.ClearColor = bg;
                     var backgroundColor = (bg.R << 16) | (bg.G << 8) | bg.B;
@@ -272,9 +272,9 @@ namespace BCad.UI.Views
                     ForceRender();
                     UpdateCursor();
                     break;
-                case "AngleSnap":
-                case "Ortho":
-                case "PointSnap":
+                case Constants.AngleSnapString:
+                case Constants.OrthoString:
+                case Constants.PointSnapString:
                     redraw = true;
                     break;
                 default:
@@ -294,23 +294,23 @@ namespace BCad.UI.Views
         {
             switch (e.PropertyName)
             {
-                case "Document":
-                    DocumentChanged(workspace.Document);
+                case Constants.DrawingString:
+                    DrawingChanged(workspace.Drawing);
                     break;
                 default:
                     break;
             }
         }
 
-        private void DocumentChanged(Document document)
+        private void DrawingChanged(Drawing drawing)
         {
-            lock (documentGate)
+            lock (drawingGate)
             {
-                this.document = document;
+                this.drawing = drawing;
                 var sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
                 lines.Clear();
-                foreach (var layer in document.Layers.Values.Where(l => l.IsVisible))
+                foreach (var layer in drawing.Layers.Values.Where(l => l.IsVisible))
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
                     var start = DateTime.UtcNow;
@@ -322,7 +322,7 @@ namespace BCad.UI.Views
                 }
 
                 // populate the snap points
-                snapPoints = document.Layers.Values.SelectMany(l => l.Entities.SelectMany(o => o.GetSnapPoints()))
+                snapPoints = drawing.Layers.Values.SelectMany(l => l.Entities.SelectMany(o => o.GetSnapPoints()))
                     .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
                 
                 // ensure they have correct values
@@ -1045,7 +1045,7 @@ namespace BCad.UI.Views
             }
             else
             {
-                var entity = document.Layers.Values.SelectMany(l => l.Entities).Single(en => en.Id == selected.EntityId);
+                var entity = drawing.Layers.Values.SelectMany(l => l.Entities).Single(en => en.Id == selected.EntityId);
                 var elapsed2 = (DateTime.UtcNow - start).TotalMilliseconds;
                 return new SelectedEntity(entity, selected.SelectionPoint);
             }

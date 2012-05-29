@@ -18,7 +18,7 @@ namespace BCad
 
     public interface IWorkspace : INotifyPropertyChanging, INotifyPropertyChanged
     {
-        Document Document { get; set; }
+        Drawing Drawing { get; set; }
         Layer CurrentLayer { get; set; }
         DrawingPlane DrawingPlane { get; set; }
         double DrawingPlaneOffset { get; set; }

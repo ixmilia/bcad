@@ -123,7 +123,7 @@ namespace BCad
                 if (this.pointSnap == value)
                     return;
                 this.pointSnap = value;
-                OnPropertyChanged("PointSnap");
+                OnPropertyChanged(Constants.PointSnapString);
             }
         }
 
@@ -135,7 +135,7 @@ namespace BCad
                 if (this.angleSnap == value)
                     return;
                 this.angleSnap = value;
-                OnPropertyChanged("AngleSnap");
+                OnPropertyChanged(Constants.AngleSnapString);
             }
         }
 
@@ -147,7 +147,7 @@ namespace BCad
                 if (this.ortho == value)
                     return;
                 this.ortho = value;
-                OnPropertyChanged("Ortho");
+                OnPropertyChanged(Constants.OrthoString);
             }
         }
 
@@ -227,12 +227,12 @@ namespace BCad
                 if (this.backgroundColor == value)
                     return;
                 this.backgroundColor = value;
-                OnPropertyChanged("BackgroundColor");
+                OnPropertyChanged(Constants.BackgroundColorString);
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "BackgroundColor")]
+        [XmlElement(ElementName = Constants.BackgroundColorString)]
         public string BackgroundColorString
         {
             get

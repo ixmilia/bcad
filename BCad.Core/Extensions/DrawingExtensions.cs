@@ -2,18 +2,18 @@
 
 namespace BCad
 {
-    public static class DocumentExtensions
+    public static class DrawingExtensions
     {
         /// <summary>
         /// Adds an entity to the specified layer.
         /// </summary>
         /// <param name="layer">The layer to which to add the entity.</param>
         /// <param name="entity">The entity to add.</param>
-        /// <returns>The new document with the layer added.</returns>
-        public static Document Add(this Document document, Layer layer, Entity entity)
+        /// <returns>The new drawing with the layer added.</returns>
+        public static Drawing Add(this Drawing drawing, Layer layer, Entity entity)
         {
             var updatedLayer = layer.Add(entity);
-            return document.Replace(layer, updatedLayer);
+            return drawing.Replace(layer, updatedLayer);
         }
 
         /// <summary>
@@ -21,16 +21,16 @@ namespace BCad
         /// </summary>
         /// <param name="oldEntity">The entity to be replaced.</param>
         /// <param name="newEntity">The replacement entity.</param>
-        /// <returns>The new document with the entity replaced.</returns>
-        public static Document Replace(this Document document, Entity oldEntity, Entity newEntity)
+        /// <returns>The new drawing with the entity replaced.</returns>
+        public static Drawing Replace(this Drawing drawing, Entity oldEntity, Entity newEntity)
         {
-            var layer = document.ContainingLayer(oldEntity);
+            var layer = drawing.ContainingLayer(oldEntity);
             if (layer == null)
             {
-                return document;
+                return drawing;
             }
 
-            return document.Replace(layer, oldEntity, newEntity);
+            return drawing.Replace(layer, oldEntity, newEntity);
         }
 
         /// <summary>
@@ -39,11 +39,11 @@ namespace BCad
         /// <param name="layer">The layer containing the entity.</param>
         /// <param name="oldEntity">The entity to be replaced.</param>
         /// <param name="newEntity">The replacement entity.</param>
-        /// <returns>The new document with the entity replaced.</returns>
-        public static Document Replace(this Document document, Layer layer, Entity oldEntity, Entity newEntity)
+        /// <returns>The new drawing with the entity replaced.</returns>
+        public static Drawing Replace(this Drawing drawing, Layer layer, Entity oldEntity, Entity newEntity)
         {
             var updatedLayer = layer.Replace(oldEntity, newEntity);
-            return document.Replace(layer, updatedLayer);
+            return drawing.Replace(layer, updatedLayer);
         }
 
 
@@ -52,28 +52,28 @@ namespace BCad
         /// </summary>
         /// <param name="layer">The containing layer.</param>
         /// <param name="entity">The entity to remove.</param>
-        /// <returns>The new document with the entity removed.</returns>
-        public static Document Remove(this Document document, Layer layer, Entity entity)
+        /// <returns>The new drawing with the entity removed.</returns>
+        public static Drawing Remove(this Drawing drawing, Layer layer, Entity entity)
         {
             var updatedLayer = layer.Remove(entity);
-            return document.Replace(layer, updatedLayer);
+            return drawing.Replace(layer, updatedLayer);
         }
 
         /// <summary>
-        /// Removes the entity from the document.
+        /// Removes the entity from the drawing.
         /// </summary>
-        /// <param name="document">The document.</param>
+        /// <param name="drawing">The drawing.</param>
         /// <param name="entity">The entity to remove.</param>
-        /// <returns>The new document with the entity removed.</returns>
-        public static Document Remove(this Document document, Entity entity)
+        /// <returns>The new drawing with the entity removed.</returns>
+        public static Drawing Remove(this Drawing drawing, Entity entity)
         {
-            var layer = document.ContainingLayer(entity);
+            var layer = drawing.ContainingLayer(entity);
             if (layer != null)
             {
-                return document.Remove(layer, entity);
+                return drawing.Remove(layer, entity);
             }
 
-            return document;
+            return drawing;
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace BCad
         /// </summary>
         /// <param name="entity">The entity to find.</param>
         /// <returns>The containing layer.</returns>
-        public static Layer ContainingLayer(this Document document, Entity entity)
+        public static Layer ContainingLayer(this Drawing drawing, Entity entity)
         {
-            foreach (var layer in document.Layers.Values)
+            foreach (var layer in drawing.Layers.Values)
             {
                 if (layer.EntityExists(entity))
                     return layer;

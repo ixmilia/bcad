@@ -58,9 +58,9 @@ namespace BCad
             Workspace.PropertyChanged += Workspace_PropertyChanged;
 
             // prepare status bar bindings
-            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = "Ortho" },
-                                      new { TextBlock = this.pointSnapStatus, Path = "PointSnap" },
-                                      new { TextBlock = this.angleSnapStatus, Path = "AngleSnap" }})
+            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = Constants.OrthoString },
+                                      new { TextBlock = this.pointSnapStatus, Path = Constants.PointSnapString },
+                                      new { TextBlock = this.angleSnapStatus, Path = Constants.AngleSnapString }})
             {
                 var binding = new Binding(x.Path);
                 binding.Source = Workspace.SettingsManager;
@@ -81,9 +81,9 @@ namespace BCad
 
             // add keyboard shortcuts for toggled settings
             foreach (var setting in new[] {
-                                        new { Name = "AngleSnap", Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
-                                        new { Name = "PointSnap", Shortcut = Workspace.SettingsManager.PointSnapShortcut },
-                                        new { Name = "Ortho", Shortcut = Workspace.SettingsManager.OrthoShortcut } })
+                                        new { Name = Constants.AngleSnapString, Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
+                                        new { Name = Constants.PointSnapString, Shortcut = Workspace.SettingsManager.PointSnapShortcut },
+                                        new { Name = Constants.PointSnapString, Shortcut = Workspace.SettingsManager.OrthoShortcut } })
             {
                 if (setting.Shortcut.HasValue)
                 {
@@ -93,21 +93,21 @@ namespace BCad
                 }
             }
 
-            Workspace_PropertyChanged(this, new PropertyChangedEventArgs("Document"));
+            Workspace_PropertyChanged(this, new PropertyChangedEventArgs(Constants.DrawingString));
         }
 
         void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case "CurrentLayer":
+                case Constants.CurrentLayerString:
                     TakeFocus();
                     break;
-                case "Document":
+                case Constants.DrawingString:
                     TakeFocus();
-                    SetTitle(Workspace.Document);
+                    SetTitle(Workspace.Drawing);
                     int lineCount = 0, arcCount = 0, circleCount = 0, ellipseCount = 0;
-                    foreach (var ent in Workspace.Document.Layers.SelectMany(l => l.Value.Entities))
+                    foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities))
                     {
                         switch (ent.Kind)
                         {
@@ -170,14 +170,14 @@ namespace BCad
                 viewWidth: 300.0,
                 bottomLeft: new Point(-10, -10, 0));
 
-            SetTitle(Workspace.Document);
+            SetTitle(Workspace.Drawing);
         }
 
-        private void SetTitle(Document document)
+        private void SetTitle(Drawing drawing)
         {
-            string filename = document.FileName == null ? "(Untitled)" : Path.GetFileName(document.FileName);
+            string filename = drawing.FileName == null ? "(Untitled)" : Path.GetFileName(drawing.FileName);
             Dispatcher.BeginInvoke((Action)(() =>
-                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, document.IsDirty ? " *" : "")));
+                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, drawing.IsDirty ? " *" : "")));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

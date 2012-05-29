@@ -62,32 +62,32 @@ namespace BCad
 
         #region Properties
 
-        private Document document = new Document();
-        public Document Document
+        private Drawing drawing = new Drawing();
+        public Drawing Drawing
         {
-            get { return document; }
+            get { return drawing; }
             set
             {
                 if (value == null)
-                    throw new NotSupportedException("Null document not allowed.");
-                if (document == value)
+                    throw new NotSupportedException("Null drawing not allowed.");
+                if (drawing == value)
                     return;
-                OnPropertyChanging("Document");
+                OnPropertyChanging(Constants.DrawingString);
 
                 // ensure the same layer is selected after the change
                 var currentLayerName = CurrentLayer.Name;
 
                 // change the value and fire events
-                document = value;
-                OnPropertyChanged("Document");
+                drawing = value;
+                OnPropertyChanged(Constants.DrawingString);
 
                 // reset the current layer
-                if (document.Layers.ContainsKey(currentLayerName))
-                    this.CurrentLayer = document.Layers[currentLayerName];
-                else if (document.Layers.ContainsKey("0"))
-                    this.CurrentLayer = document.Layers["0"];
+                if (drawing.Layers.ContainsKey(currentLayerName))
+                    this.CurrentLayer = drawing.Layers[currentLayerName];
+                else if (drawing.Layers.ContainsKey("0"))
+                    this.CurrentLayer = drawing.Layers["0"];
                 else
-                    this.CurrentLayer = document.Layers.Values.First();
+                    this.CurrentLayer = drawing.Layers.Values.First();
             }
         }
 
@@ -97,20 +97,20 @@ namespace BCad
             get
             {
                 if (currentLayer == null)
-                    currentLayer = document.Layers.First().Value;
+                    currentLayer = drawing.Layers.First().Value;
                 return currentLayer;
             }
             set
             {
                 if (value == null)
                     throw new NotSupportedException("Null layer not allowed.");
-                if (!document.Layers.ContainsValue(value))
-                    throw new NotSupportedException("Specified layer is not part of the current document.");
+                if (!drawing.Layers.ContainsValue(value))
+                    throw new NotSupportedException("Specified layer is not part of the current drawing.");
                 if (currentLayer == value)
                     return;
-                OnPropertyChanging("CurrentLayer");
+                OnPropertyChanging(Constants.CurrentLayerString);
                 currentLayer = value;
-                OnPropertyChanged("CurrentLayer");
+                OnPropertyChanged(Constants.CurrentLayerString);
             }
         }
 
@@ -122,9 +122,9 @@ namespace BCad
             {
                 if (this.drawingPlane == value)
                     return;
-                OnPropertyChanging("DrawingPlane");
+                OnPropertyChanging(Constants.DrawingPlaneString);
                 this.drawingPlane = value;
-                OnPropertyChanged("DrawingPlane");
+                OnPropertyChanged(Constants.DrawingPlaneString);
             }
         }
 
@@ -136,9 +136,9 @@ namespace BCad
             {
                 if (this.drawingPlaneOffset == value)
                     return;
-                OnPropertyChanging("DrawingPlaneOffset");
+                OnPropertyChanging(Constants.DrawingPlaneOffsetString);
                 this.drawingPlaneOffset = value;
-                OnPropertyChanged("DrawingPlaneOffset");
+                OnPropertyChanged(Constants.DrawingPlaneOffsetString);
             }
         }
 
@@ -265,9 +265,9 @@ namespace BCad
         public UnsavedChangesResult PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
-            if (Document.IsDirty)
+            if (Drawing.IsDirty)
             {
-                string filename = Document.FileName ?? "(Untitled)";
+                string filename = Drawing.FileName ?? "(Untitled)";
                 var dialog = MessageBox.Show(string.Format("Save changes to '{0}'?", filename),
                     "Unsaved changes",
                     MessageBoxButton.YesNoCancel);
@@ -275,7 +275,7 @@ namespace BCad
                 {
                     case MessageBoxResult.Yes:
                         // TODO: can't execute another command
-                        if (SaveAsCommand.Execute(this, FileWriters, Document.FileName))
+                        if (SaveAsCommand.Execute(this, FileWriters, Drawing.FileName))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;

@@ -21,7 +21,7 @@ namespace BCad.Commands.FileHandlers
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
 
-        public void ReadFile(string fileName, Stream stream, out Document document, out Layer currentLayer)
+        public void ReadFile(string fileName, Stream stream, out Drawing drawing, out Layer currentLayer)
         {
             var file = DxfFile.Load(stream);
             var layers = new Dictionary<string, Layer>();
@@ -73,7 +73,7 @@ namespace BCad.Commands.FileHandlers
                 }
             }
 
-            document = new Document(Path.GetFullPath(fileName), layers);
+            drawing = new Drawing(Path.GetFullPath(fileName), layers);
             currentLayer = !string.IsNullOrEmpty(file.CurrentLayer)
                 ? layers.First(l => l.Key == file.CurrentLayer).Value
                 : layers.First().Value;
@@ -83,9 +83,9 @@ namespace BCad.Commands.FileHandlers
         {
             var file = new DxfFile();
             file.CurrentLayer = workspace.CurrentLayer.Name;
-            var document = workspace.Document;
+            var drawing = workspace.Drawing;
 
-            foreach (var layer in document.Layers.Values)
+            foreach (var layer in drawing.Layers.Values)
             {
                 file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.Entities)
