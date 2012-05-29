@@ -147,6 +147,15 @@
     <Resource Include="Icons\SaveSmall.png" />
     <Resource Include="Icons\UndoSmall.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\TrimSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\ExtendSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\OffsetSmall.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
