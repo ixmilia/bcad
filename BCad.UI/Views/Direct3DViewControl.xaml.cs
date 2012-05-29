@@ -970,7 +970,7 @@ namespace BCad.UI.Views
                                     };
                                 if (projectedPoints
                                     .Select(p => p.Zip(p.Skip(1), (a, b) => new PrimitiveLine(new Point(a), new Point(b))))
-                                    .SelectMany(x => x).Any(l => selectionLines.Any(s => s.IntersectionXY(l) != null)))
+                                    .SelectMany(x => x).Any(l => selectionLines.Any(s => s.IntersectionPoint(l) != null)))
                                 {
                                     isContained = true;
                                 }
@@ -1022,7 +1022,7 @@ namespace BCad.UI.Views
                            let p2p = p2.ToPoint()
                            let segment = new PrimitiveLine(p1p, p2p)
                            let shortLine = new PrimitiveLine(cursorPoint, segment.PerpendicularSlope())
-                           let selectionPoint = shortLine.IntersectionXY(segment, false)
+                           let selectionPoint = shortLine.IntersectionPoint(segment, false)
                            let dist = (selectionPoint - cursorPoint).LengthSquared
                            where dist < selectionDist2
                            orderby dist

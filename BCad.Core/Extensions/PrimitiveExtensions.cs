@@ -51,7 +51,7 @@ namespace BCad.Extensions
             switch (other.Kind)
             {
                 case PrimitiveKind.Line:
-                    result = new[] { line.IntersectionXY((PrimitiveLine)other, withinBounds) };
+                    result = new[] { line.IntersectionPoint((PrimitiveLine)other, withinBounds) };
                     break;
                 case PrimitiveKind.Ellipse:
                 default:
@@ -63,153 +63,62 @@ namespace BCad.Extensions
             return result;
         }
 
-        public static Point IntersectionXY(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
+        public static Point IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
         {
-            //var epsilon = 0.0000000001;
-            //var minLength = 0.0000000001;
+            var epsilon = 0.0000000001;
+            var minLength = 0.0000000001;
 
-            //var p0 = first.P1;
-            //var u = first.P2 - first.P1;
-            //var q0 = second.P1;
-            //var v = second.P2 - second.P1;
-            //var w0 = q0 - p0;
-
-            //var a = u.Dot(u);
-            //var b = u.Dot(v);
-            //var c = v.Dot(v);
-            //var d = u.Dot(w0);
-            //var e = v.Dot(w0);
-
-            //var denom = a * c - b * b;
-
-            //if (denom == 0.0)
-            //    return null; // parallel
-
-            //var sc = (b * e - c * d) / denom;
-            //var tc = (a * e - b * d) / denom;
-
-            //var ps = p0 + (u * sc);
-            //var qt = q0 + (v * tc);
-            //var l = (ps - qt).LengthSquared;
-
-            //if (l > minLength)
-            //    return null; // too far apart
-
-            //return (ps + qt) / 2.0;
-
-            //http://paulbourke.net/geometry/lineline3d/calclineline.cs
+            //http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
             // find real 3D intersection within a minimum distance
-            //var p1 = first.P1;
-            //var p2 = first.P2;
-            //var p3 = second.P1;
-            //var p4 = second.P2;
-            //var p13 = p1 - p3;
-            //var p43 = p4 - p3;
+            var p1 = first.P1;
+            var p2 = first.P2;
+            var p3 = second.P1;
+            var p4 = second.P2;
+            var p13 = p1 - p3;
+            var p43 = p4 - p3;
 
-            //if (p43.LengthSquared < epsilon)
-            //    return null;
-
-            //var p21 = p2 - p1;
-            //if (p21.LengthSquared < epsilon)
-            //    return null;
-
-            //var d1343 = p13.Dot(p43);
-            //var d4321 = p43.Dot(p21);
-            //var d1321 = p13.Dot(p21);
-            //var d4343 = p43.Dot(p43);
-            //var d2121 = p21.Dot(p21);
-
-            //var denom = d2121 * d4343 - d4321 * d4321;
-            //if (Math.Abs(denom) < epsilon)
-            //    return null;
-
-            //var num = d1343 * d4321 - d1321 * d4343;
-            //var mua = num / denom;
-            //var mub = (d1343 + d4321 * mua) / d4343;
-
-            //var connector = new PrimitiveLine((p21 * mua) + p1, (p43 * mub) + p3);
-            //var cv = connector.P1 - connector.P2;
-            //if (cv.LengthSquared > minLength)
-            //    return null;
-
-            //var point = (Point)((connector.P1 + connector.P2) / 2);
-            //if (withinSegment)
-            //{
-            //    if (!MathHelper.Between(Math.Min(p1.X, p2.X), Math.Max(p1.X, p2.X), point.X) ||
-            //        !MathHelper.Between(Math.Min(p1.Y, p2.Y), Math.Max(p1.Y, p2.Y), point.Y) ||
-            //        !MathHelper.Between(Math.Min(p1.Z, p2.Z), Math.Max(p1.Z, p2.Z), point.Z) ||
-            //        !MathHelper.Between(Math.Min(p3.X, p4.X), Math.Max(p3.X, p4.X), point.X) ||
-            //        !MathHelper.Between(Math.Min(p3.Y, p4.Y), Math.Max(p3.Y, p4.Y), point.Y) ||
-            //        !MathHelper.Between(Math.Min(p3.Z, p4.Z), Math.Max(p3.Z, p4.Z), point.Z))
-            //    {
-            //        point = null;
-            //    }
-            //}
-
-            //return point;
-
-
-            if (first.P1.Z != first.P2.Z || second.P1.Z != second.P2.Z || first.P1.Z != second.P1.Z)
-            {
-                // not all in the same plane
+            if (p43.LengthSquared < epsilon)
                 return null;
-            }
 
-            var m1 = first.Slope();
-            var m2 = second.Slope();
-            var b1 = first.P1.Y - m1 * first.P1.X;
-            var b2 = second.P1.Y - m2 * second.P1.X;
-            var z = first.P1.Z;
-            Point result;
+            var p21 = p2 - p1;
+            if (p21.LengthSquared < epsilon)
+                return null;
 
-            if (double.IsNaN(m1))
+            Func<Point, Point, Point, Point, double> d = (m, n, o, p) =>
             {
-                // first line is vertical
-                if (double.IsNaN(m2))
-                {
-                    // second line is vertical; parallel
-                    result = null;
-                }
-                else
-                {
-                    // we know the x-value, solve for y in `other`
-                    result = new Point(first.P1.X, m2 * first.P1.X + b2, z);
-                }
-            }
-            else
+                return (m.X - n.X) * (o.X - p.X) + (m.Y - n.Y) * (o.Y - p.Y) + (m.Z - n.Z) * (o.Z - p.Z);
+            };
+
+            var d1343 = d(p1, p3, p4, p3);
+            var d4321 = d(p4, p3, p2, p1);
+            var d1321 = d(p1, p3, p2, p1);
+            var d4343 = d(p4, p3, p4, p3);
+            var d2121 = d(p2, p1, p2, p1);
+
+            var denom = d2121 * d4343 - d4321 * d4321;
+            if (Math.Abs(denom) < epsilon)
+                return null;
+
+            var num = d1343 * d4321 - d1321 * d4343;
+            var mua = num / denom;
+            var mub = (d1343 + d4321 * mua) / d4343;
+
+            if (withinSegment)
             {
-                // first line is not vertial
-                if (double.IsNaN(m2))
+                if (!MathHelper.Between(0.0 - epsilon, 1.0 + epsilon, mua) ||
+                    !MathHelper.Between(0.0 - epsilon, 1.0 + epsilon, mub))
                 {
-                    // second line is vertical
-                    result = new Point(second.P1.X, m1 * second.P1.X + b1, z);
-                }
-                else if (m1 == m2)
-                {
-                    // lines are non-vertial and parallel
-                    result = null;
-                }
-                else
-                {
-                    // some intersection exists
-                    var x = (b2 - b1) / (m1 - m2);
-                    var y = m1 * x + b1;
-                    result = new Point(x, y, z);
+                    return null;
                 }
             }
 
-            if (result != null && withinSegment)
-            {
-                if (!MathHelper.Between(Math.Min(first.P1.X, first.P2.X), Math.Max(first.P1.X, first.P2.X), result.X) ||
-                    !MathHelper.Between(Math.Min(first.P1.Y, first.P2.Y), Math.Max(first.P1.Y, first.P2.Y), result.Y) ||
-                    !MathHelper.Between(Math.Min(second.P1.X, second.P2.X), Math.Max(second.P1.X, second.P2.X), result.X) ||
-                    !MathHelper.Between(Math.Min(second.P1.Y, second.P2.Y), Math.Max(second.P1.Y, second.P2.Y), result.Y))
-                {
-                    result = null;
-                }
-            }
+            var connector = new PrimitiveLine((p21 * mua) + p1, (p43 * mub) + p3);
+            var cv = connector.P1 - connector.P2;
+            if (cv.LengthSquared > minLength)
+                return null;
 
-            return result;
+            var point = (Point)((connector.P1 + connector.P2) / 2);
+            return point;
         }
     }
 }

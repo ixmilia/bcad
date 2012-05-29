@@ -115,7 +115,7 @@ namespace BCad.Commands
                         var p2 = Workspace.ToXYPlane(line.P2);
                         var pline = new PrimitiveLine(p1, p2);
                         var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
-                        var intersection = pline.IntersectionXY(perpendicular, false);
+                        var intersection = pline.IntersectionPoint(perpendicular, false);
                         if (intersection != null)
                         {
                             var offsetVector = (picked - intersection).Normalize() * dist;

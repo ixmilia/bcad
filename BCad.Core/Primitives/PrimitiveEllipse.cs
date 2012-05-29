@@ -71,7 +71,7 @@ namespace BCad.Primitives
             var b1 = new PrimitiveLine(b1a, b1a + m1);
             var b2 = new PrimitiveLine(b2a, b2a + m2);
 
-            var center = b1.IntersectionXY(b2, false);
+            var center = b1.IntersectionPoint(b2, false);
             if (center == null)
                 return null;
 

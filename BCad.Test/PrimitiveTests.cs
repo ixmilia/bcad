@@ -11,14 +11,7 @@ namespace BCad.Test
         {
             var a = new PrimitiveLine(new Point(-1, 0, 0), new Point(1, 0, 0));
             var b = new PrimitiveLine(new Point(0, -1, 0), new Point(0, 1, 0));
-
-            //a = new PrimitiveLine(new Point(0, 3, 0), new Point(1, 1, -1));
-            //b = new PrimitiveLine(new Point(5, 8, 2), new Point(3, 7, 1));
-
-            // intersection is (0.5, 1.5, 2)
-
-            Assert.Null(a.IntersectionXY(b));
-            Assert.Equal(a.IntersectionXY(b, false), new Point(0, 1, 0));
+            Assert.Equal(a.IntersectionPoint(b), new Point(0, 0, 0));
         }
 
         [Fact]
