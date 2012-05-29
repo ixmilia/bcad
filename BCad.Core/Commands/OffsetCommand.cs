@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel.Composition;
-using BCad.Primitives;
-using BCad.Entities;
+﻿using System.ComponentModel.Composition;
 using System.Diagnostics;
+using BCad.Entities;
+using BCad.Extensions;
+using BCad.Primitives;
 
 namespace BCad.Commands
 {
@@ -117,7 +114,7 @@ namespace BCad.Commands
                         var p1 = Workspace.ToXYPlane(line.P1);
                         var p2 = Workspace.ToXYPlane(line.P2);
                         var pline = new PrimitiveLine(p1, p2);
-                        var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope);
+                        var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
                         var intersection = pline.IntersectionXY(perpendicular, false);
                         if (intersection != null)
                         {

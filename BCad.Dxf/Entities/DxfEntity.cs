@@ -106,7 +106,7 @@ namespace BCad.Dxf.Entities
                 // HATCH
                 // LEADER
                 default:
-                    Debug.WriteLine("Unsupported entity type " + first.StringValue);
+                    //Debug.WriteLine("Unsupported entity type " + first.StringValue);
                     break;
             }
 

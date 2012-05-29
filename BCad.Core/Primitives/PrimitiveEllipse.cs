@@ -1,4 +1,6 @@
-﻿namespace BCad.Primitives
+﻿using BCad.Extensions;
+
+namespace BCad.Primitives
 {
     public class PrimitiveEllipse : IPrimitive
     {
@@ -39,6 +41,41 @@
         public PrimitiveEllipse(Point center, double radius, double startAngle, double endAngle, Vector normal, Color color)
             : this(center, Vector.RightVectorFromNormal(normal) * radius, normal, 1.0, startAngle, endAngle, color)
         {
+        }
+
+        /// <summary>
+        /// Creates a circle that passes through the three specified points.  Null if the points are co-linear
+        /// </summary>
+        /// <param name="a">The first point.</param>
+        /// <param name="b">The second point.</param>
+        /// <param name="c">The third point.</param>
+        /// <returns>The resultant circle or null.</returns>
+        public static PrimitiveEllipse ThreePointCircle(Point a, Point b, Point c)
+        {
+            var v1 = a - b;
+            var v2 = c - b;
+
+            var normal = v1.Cross(v2);
+
+            if (normal.IsZeroVector)
+                return null;
+
+            normal = normal.Normalize();
+
+            var m1 = v1.Cross(normal);
+            var m2 = v2.Cross(normal);
+
+            var b1a = (a + b) / 2.0;
+            var b2a = (c + b) / 2.0;
+
+            var b1 = new PrimitiveLine(b1a, b1a + m1);
+            var b2 = new PrimitiveLine(b2a, b2a + m2);
+
+            var center = b1.IntersectionXY(b2, false);
+            if (center == null)
+                return null;
+
+            return new PrimitiveEllipse(center, (a - center).Length, normal, Color.Auto);
         }
     }
 }

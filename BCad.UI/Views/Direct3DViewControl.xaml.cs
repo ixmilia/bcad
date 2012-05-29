@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using BCad.Entities;
 using BCad.EventArguments;
+using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
@@ -1020,7 +1021,7 @@ namespace BCad.UI.Views
                            let p1p = p1.ToPoint()
                            let p2p = p2.ToPoint()
                            let segment = new PrimitiveLine(p1p, p2p)
-                           let shortLine = new PrimitiveLine(cursorPoint, segment.PerpendicularSlope)
+                           let shortLine = new PrimitiveLine(cursorPoint, segment.PerpendicularSlope())
                            let selectionPoint = shortLine.IntersectionXY(segment, false)
                            let dist = (selectionPoint - cursorPoint).LengthSquared
                            where dist < selectionDist2

@@ -31,6 +31,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="100" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <r:Ribbon Grid.Row="0" Title="BCad" Name="ribbon">
             <r:Ribbon.QuickAccessToolBar>
@@ -75,6 +76,9 @@
                        Text="ORTHO"
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
                        Tag="Ortho" />
+        </StatusBar>
+        <StatusBar Grid.Row="4">
+            <TextBlock Name="debugStatus" />
         </StatusBar>
     </Grid>
 </r:RibbonWindow>

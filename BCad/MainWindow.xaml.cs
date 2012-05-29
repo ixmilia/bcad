@@ -15,6 +15,7 @@ using BCad.Commands;
 using BCad.EventArguments;
 using BCad.UI;
 using Microsoft.Windows.Controls.Ribbon;
+using BCad.Entities;
 
 namespace BCad
 {
@@ -91,6 +92,8 @@ namespace BCad
                         new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
                 }
             }
+
+            Workspace_PropertyChanged(this, new PropertyChangedEventArgs("Document"));
         }
 
         void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -98,8 +101,33 @@ namespace BCad
             switch (e.PropertyName)
             {
                 case "CurrentLayer":
+                    TakeFocus();
+                    break;
                 case "Document":
                     TakeFocus();
+                    SetTitle(Workspace.Document);
+                    int lineCount = 0, arcCount = 0, circleCount = 0, ellipseCount = 0;
+                    foreach (var ent in Workspace.Document.Layers.SelectMany(l => l.Value.Entities))
+                    {
+                        switch (ent.Kind)
+                        {
+                            case EntityKind.Arc:
+                                arcCount++;
+                                break;
+                            case EntityKind.Circle:
+                                circleCount++;
+                                break;
+                            case EntityKind.Ellipse:
+                                ellipseCount++;
+                                break;
+                            case EntityKind.Line:
+                                lineCount++;
+                                break;
+                        }
+                    }
+                    this.Dispatcher.BeginInvoke((Action)(() =>
+                    debugStatus.Text = string.Format("Entity counts - {0} arcs, {1} circles, {2} ellipses, {3} lines, {4} total.",
+                        arcCount, circleCount, ellipseCount, lineCount, arcCount + circleCount + ellipseCount + lineCount)));
                     break;
                 default:
                     break;
@@ -221,13 +249,16 @@ namespace BCad
             //time focus is set
             ThreadPool.QueueUserWorkItem(delegate(Object foo)
             {
-                UIElement elem = (UIElement)foo;
-                elem.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
-                    (MethodInvoker)delegate()
-                    {
-                        elem.Focus();
-                        Keyboard.Focus(elem);
-                    });
+                if (foo != null)
+                {
+                    UIElement elem = (UIElement)foo;
+                    elem.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
+                        (MethodInvoker)delegate()
+                        {
+                            elem.Focus();
+                            Keyboard.Focus(elem);
+                        });
+                }
             }, element);
         }
     }

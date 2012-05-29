@@ -59,7 +59,8 @@ namespace BCad.UI.Consoles
                     SubmitValue();
                     break;
                 case Key.Space:
-                    e.Handled = true;
+                    if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
+                        e.Handled = true;
                     SubmitValue();
                     break;
                 case Key.Escape:
@@ -102,7 +103,7 @@ namespace BCad.UI.Consoles
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
             {
-                InputService.PushCommand(text);
+                InputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
             }
 
             inputLine.Text = string.Empty;

@@ -6,13 +6,11 @@ namespace BCad
 {
     public class Vector
     {
-        private readonly Vector3D vector;
+        public double X { get; private set; }
 
-        public double X { get { return vector.X; } }
+        public double Y { get; private set; }
 
-        public double Y { get { return vector.Y; } }
-
-        public double Z { get { return vector.Z; } }
+        public double Z { get; private set; }
 
         public double LengthSquared
         {
@@ -24,21 +22,31 @@ namespace BCad
             get { return Math.Sqrt(LengthSquared); }
         }
 
+        public bool IsZeroVector
+        {
+            get { return this.X == 0.0 && this.Y == 0.0 && this.Z == 0.0; }
+        }
+
         public Vector(double x, double y, double z)
         {
-            this.vector = new Vector3D(x, y, z);
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
 
         public Vector Normalize()
         {
-            var v = new Vector3D(this.X, this.Y, this.Z);
-            v.Normalize();
-            return new Vector(v.X, v.Y, v.Z);
+            return this / this.Length;
         }
 
         public Vector Cross(Vector v)
         {
             return new Vector(this.Y * v.Z - this.Z * v.Y, this.Z * v.X - this.X * v.Z, this.X * v.Y - this.Y * v.X);
+        }
+
+        public double Dot(Vector v)
+        {
+            return this.X * v.X + this.Y + v.Y + this.Z + v.Z;
         }
 
         public static implicit operator Point(Vector vector)
@@ -48,7 +56,7 @@ namespace BCad
 
         public static implicit operator Vector3D(Vector vector)
         {
-            return vector.vector;
+            return new Vector3D(vector.X, vector.Y, vector.Z);
         }
 
         public static Vector operator -(Vector vector)

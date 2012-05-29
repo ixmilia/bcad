@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
-using BCad.Entities;
 using System.Diagnostics;
-using BCad.Primitives;
+using System.Linq;
+using BCad.Entities;
+using BCad.Extensions;
 using BCad.Helpers;
+using BCad.Primitives;
 
 namespace BCad.Commands
 {
@@ -39,52 +39,19 @@ namespace BCad.Commands
                 var sel = selected.Value.Entity.GetPrimitives().OfType<PrimitiveLine>().Single();
 
                 // find all intersection points
-                var intersectionPoints = boundaryPrimitives.OfType<PrimitiveLine>()
-                    // TODO: real intersection, not just XY
-                    .Select(b => b.IntersectionXY(sel))
+                var intersectionPoints = boundaryPrimitives
+                    .Select(b => b.IntersectionPoints(sel))
+                    .Where(p => p != null)
+                    .SelectMany(b => b)
                     .Where(p => p != null);
 
                 if (intersectionPoints.Any())
                 {
-                    // split intersection points based on which side of the selection point they are
-                    var left = new List<Point>();
-                    var right = new List<Point>();
-                    var pivot = selected.Value.SelectionPoint;
-                    foreach (var point in intersectionPoints)
-                    {
-                        if (MathHelper.Between(Math.Min(sel.P1.X, pivot.X), Math.Max(sel.P1.X, pivot.X), point.X) &&
-                            MathHelper.Between(Math.Min(sel.P1.Y, pivot.Y), Math.Max(sel.P1.Y, pivot.Y), point.Y) &&
-                            MathHelper.Between(Math.Min(sel.P1.Z, pivot.Z), Math.Max(sel.P1.Z, pivot.Z), point.Z))
-                        {
-                            left.Add(point);
-                        }
-                        else
-                        {
-                            right.Add(point);
-                        }
-                    }
-
-                    // find the closest points on each side.  these are the new endpoints
-                    var leftPoint = left.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
-                    var rightPoint = right.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
-
-                    // remove the original line
-                    var layer = doc.ContainingLayer(selected.Value.Entity).Name;
-                    doc = doc.Remove(selected.Value.Entity);
-
-                    // re-add left and right lines
+                    // perform the trim operation
                     switch (selected.Value.Entity.Kind)
                     {
                         case EntityKind.Line:
-                            var line = (Line)selected.Value.Entity;
-                            if (leftPoint != null)
-                            {
-                                doc = doc.Add(doc.Layers[layer], line.Update(p1: line.P1, p2: leftPoint));
-                            }
-                            if (rightPoint != null)
-                            {
-                                doc = doc.Add(doc.Layers[layer], line.Update(p1: rightPoint, p2: line.P2));
-                            }
+                            doc = TrimLine(doc, (Line)selected.Value.Entity, selected.Value.SelectionPoint, sel, intersectionPoints);
                             break;
                         default:
                             Debug.Fail("only lines are supported");
@@ -101,6 +68,47 @@ namespace BCad.Commands
 
             Workspace.SelectedEntities.Clear();
             return true;
+        }
+
+        private static Document TrimLine(Document doc, Line line, Point pivot, PrimitiveLine sel, IEnumerable<Point> intersectionPoints)
+        {
+            // split intersection points based on which side of the selection point they are
+            var left = new List<Point>();
+            var right = new List<Point>();
+            foreach (var point in intersectionPoints)
+            {
+                if (MathHelper.Between(Math.Min(sel.P1.X, pivot.X), Math.Max(sel.P1.X, pivot.X), point.X) &&
+                    MathHelper.Between(Math.Min(sel.P1.Y, pivot.Y), Math.Max(sel.P1.Y, pivot.Y), point.Y) &&
+                    MathHelper.Between(Math.Min(sel.P1.Z, pivot.Z), Math.Max(sel.P1.Z, pivot.Z), point.Z))
+                {
+                    left.Add(point);
+                }
+                else
+                {
+                    right.Add(point);
+                }
+            }
+
+            // find the closest points on each side.  these are the new endpoints
+            var leftPoint = left.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
+            var rightPoint = right.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
+
+            // remove the original line
+            if (leftPoint != null || rightPoint != null)
+            {
+                var layer = doc.ContainingLayer(line).Name;
+                doc = doc.Remove(line);
+                if (leftPoint != null)
+                {
+                    doc = doc.Add(doc.Layers[layer], line.Update(p1: line.P1, p2: leftPoint));
+                }
+                if (rightPoint != null)
+                {
+                    doc = doc.Add(doc.Layers[layer], line.Update(p1: rightPoint, p2: line.P2));
+                }
+            }
+
+            return doc;
         }
 
         public string DisplayName

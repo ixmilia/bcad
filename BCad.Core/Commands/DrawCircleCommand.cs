@@ -15,16 +15,14 @@ namespace BCad.Commands
 
         public bool Execute(object arg)
         {
-            Point center = Point.Origin;
-            double radius = 0.0;
+            Circle circle = null;
 
             var cen = InputService.GetPoint(new UserDirective("Select center, [ttr], or [3]-point", "ttr", "3"));
             if (cen.Cancel) return false;
             if (cen.HasValue)
             {
-                center = cen.Value;
                 bool getRadius = true;
-                while (radius == 0.0)
+                while (circle == null)
                 {
                     if (getRadius)
                     {
@@ -32,14 +30,14 @@ namespace BCad.Commands
                         {
                             return new IPrimitive[]
                             {
-                                new PrimitiveLine(center, p, Color.Default),
-                                new PrimitiveEllipse(center, (p - center).Length, Workspace.DrawingPlaneNormal(), Color.Default)
+                                new PrimitiveLine(cen.Value, p, Color.Default),
+                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, Workspace.DrawingPlaneNormal(), Color.Default)
                             };
                         });
                         if (rad.Cancel) return false;
                         if (rad.HasValue)
                         {
-                            radius = (rad.Value - center).Length;
+                            circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, Workspace.DrawingPlaneNormal(), Color.Default);
                         }
                         else // switch modes
                         {
@@ -62,14 +60,14 @@ namespace BCad.Commands
                         {
                             return new IPrimitive[]
                             {
-                                new PrimitiveLine(center, p, Color.Default),
-                                new PrimitiveEllipse(center, (p - center).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default)
+                                new PrimitiveLine(cen.Value, p, Color.Default),
+                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default)
                             };
                         });
                         if (diameter.Cancel) return false;
                         if (diameter.HasValue)
                         {
-                            radius = (diameter.Value - center).Length / 2.0f;
+                            circle = new Circle(cen.Value, (diameter.Value - cen.Value).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default);
                         }
                         else // switch modes
                         {
@@ -92,11 +90,51 @@ namespace BCad.Commands
                     case "2":
                         break;
                     case "3":
+                        var first = InputService.GetPoint(new UserDirective("First point"));
+                        if (first.Cancel || !first.HasValue)
+                            break;
+                        var second = InputService.GetPoint(new UserDirective("Second point"), p =>
+                            new[]
+                            {
+                                new PrimitiveLine(first.Value, p)
+                            });
+                        if (second.Cancel || !second.HasValue)
+                            break;
+                        var third = InputService.GetPoint(new UserDirective("Third point"), p =>
+                            {
+                                var c = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, p);
+                                if (c == null)
+                                    return new IPrimitive[]
+                                    {
+                                        new PrimitiveLine(first.Value, second.Value),
+                                        new PrimitiveLine(second.Value, p),
+                                        new PrimitiveLine(p, first.Value)
+                                    };
+                                else
+                                    return new IPrimitive[]
+                                    {
+                                        new PrimitiveLine(first.Value, second.Value),
+                                        new PrimitiveLine(second.Value, p),
+                                        new PrimitiveLine(p, first.Value),
+                                        c
+                                    };
+                            });
+                        if (third.Cancel || !third.HasValue)
+                            break;
+                        var circ = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, third.Value);
+                        if (circ != null)
+                        {
+                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal, Color.Auto);
+                        }
                         break;
                 }
             }
 
-            Workspace.AddToCurrentLayer(new Circle(center, radius, Workspace.DrawingPlaneNormal(), Color.Default));
+            if (circle != null)
+            {
+                Workspace.AddToCurrentLayer(circle);
+            }
+
             return true;
         }
 

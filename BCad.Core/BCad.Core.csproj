@@ -75,6 +75,7 @@
     <Compile Include="DrawingPlane.cs" />
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
+    <Compile Include="Extensions\PrimitiveExtensions.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
     <Compile Include="EventArguments\CommandEventArgs.cs" />
