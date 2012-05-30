@@ -75,15 +75,16 @@ namespace BCad.Commands
             // split intersection points based on which side of the selection point they are
             var left = new List<Point>();
             var right = new List<Point>();
+            var pivotDist = (pivot - line.P1).LengthSquared;
+            var fullDist = (line.P2 - line.P1).LengthSquared;
             foreach (var point in intersectionPoints)
             {
-                if (MathHelper.Between(sel.P1.X, pivot.X, point.X) &&
-                    MathHelper.Between(sel.P1.Y, pivot.Y, point.Y) &&
-                    MathHelper.Between(sel.P1.Z, pivot.Z, point.Z))
+                var isectDist = (point - line.P1).LengthSquared;
+                if (MathHelper.BetweenNarrow(0.0, pivotDist, isectDist))
                 {
                     left.Add(point);
                 }
-                else
+                else if (MathHelper.BetweenNarrow(pivotDist, fullDist, isectDist))
                 {
                     right.Add(point);
                 }

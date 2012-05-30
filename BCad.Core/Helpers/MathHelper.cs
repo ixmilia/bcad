@@ -18,5 +18,12 @@ namespace BCad.Helpers
             var max = Math.Max(a, b) + Epsilon;
             return value >= min && value <= max;
         }
+
+        public static bool BetweenNarrow(double a, double b, double value)
+        {
+            var min = Math.Min(a, b) + Epsilon;
+            var max = Math.Max(a, b) - Epsilon;
+            return value >= min && value <= max;
+        }
     }
 }
