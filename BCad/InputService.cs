@@ -431,6 +431,7 @@ namespace BCad
 
         protected virtual void OnValueRequested(ValueRequestedEventArgs e)
         {
+            AllowedInputTypes = e.InputType;
             if (ValueRequested != null)
                 ValueRequested(this, e);
         }
