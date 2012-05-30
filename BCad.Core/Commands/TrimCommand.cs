@@ -77,9 +77,9 @@ namespace BCad.Commands
             var right = new List<Point>();
             foreach (var point in intersectionPoints)
             {
-                if (MathHelper.Between(Math.Min(sel.P1.X, pivot.X), Math.Max(sel.P1.X, pivot.X), point.X) &&
-                    MathHelper.Between(Math.Min(sel.P1.Y, pivot.Y), Math.Max(sel.P1.Y, pivot.Y), point.Y) &&
-                    MathHelper.Between(Math.Min(sel.P1.Z, pivot.Z), Math.Max(sel.P1.Z, pivot.Z), point.Z))
+                if (MathHelper.Between(sel.P1.X, pivot.X, point.X) &&
+                    MathHelper.Between(sel.P1.Y, pivot.Y, point.Y) &&
+                    MathHelper.Between(sel.P1.Z, pivot.Z, point.Z))
                 {
                     left.Add(point);
                 }

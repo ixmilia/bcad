@@ -65,7 +65,6 @@ namespace BCad.Extensions
 
         public static Point IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
         {
-            var epsilon = 0.0000000001;
             var minLength = 0.0000000001;
 
             //http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
@@ -77,11 +76,11 @@ namespace BCad.Extensions
             var p13 = p1 - p3;
             var p43 = p4 - p3;
 
-            if (p43.LengthSquared < epsilon)
+            if (p43.LengthSquared < MathHelper.Epsilon)
                 return null;
 
             var p21 = p2 - p1;
-            if (p21.LengthSquared < epsilon)
+            if (p21.LengthSquared < MathHelper.Epsilon)
                 return null;
 
             Func<Point, Point, Point, Point, double> d = (m, n, o, p) =>
@@ -96,7 +95,7 @@ namespace BCad.Extensions
             var d2121 = d(p2, p1, p2, p1);
 
             var denom = d2121 * d4343 - d4321 * d4321;
-            if (Math.Abs(denom) < epsilon)
+            if (Math.Abs(denom) < MathHelper.Epsilon)
                 return null;
 
             var num = d1343 * d4321 - d1321 * d4343;
@@ -105,8 +104,8 @@ namespace BCad.Extensions
 
             if (withinSegment)
             {
-                if (!MathHelper.Between(0.0 - epsilon, 1.0 + epsilon, mua) ||
-                    !MathHelper.Between(0.0 - epsilon, 1.0 + epsilon, mub))
+                if (!MathHelper.Between(0.0, 1.0, mua) ||
+                    !MathHelper.Between(0.0, 1.0, mub))
                 {
                     return null;
                 }
