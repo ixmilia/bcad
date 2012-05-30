@@ -36,6 +36,7 @@ namespace BCad.Extensions
                     result = ((PrimitiveLine)primitive).IntersectionPoints(other, withinBounds);
                     break;
                 case PrimitiveKind.Ellipse:
+                case PrimitiveKind.Text:
                 default:
                     Debug.Fail("Unsupported primitive type");
                     result = null;
@@ -54,6 +55,7 @@ namespace BCad.Extensions
                     result = new[] { line.IntersectionPoint((PrimitiveLine)other, withinBounds) };
                     break;
                 case PrimitiveKind.Ellipse:
+                case PrimitiveKind.Text:
                 default:
                     Debug.Fail("Unsupported primitive type");
                     result = null;

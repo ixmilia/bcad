@@ -3,6 +3,20 @@ SECTION
 2
 ENTITIES
 0
+TEXT
+1
+Hello, world!
+10
+20.0
+20
+20.0
+30
+0.0
+40
+10.0
+50
+45.0
+0
 ELLIPSE
 10
 50

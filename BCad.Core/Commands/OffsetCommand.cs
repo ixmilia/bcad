@@ -123,8 +123,8 @@ namespace BCad.Commands
                             updated = line.Update(p1: line.P1 + offsetVector, p2: line.P2 + offsetVector);
                         }
                         break;
+                    case EntityKind.Text:
                     default:
-                        Debug.Fail("Unsupported entity type");
                         InputService.WriteLine("Unable to offset {0}", selection.Value.GetType().Name);
                         break;
                 }

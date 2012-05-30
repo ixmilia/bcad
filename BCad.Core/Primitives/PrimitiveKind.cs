@@ -3,6 +3,7 @@
     public enum PrimitiveKind
     {
         Ellipse,
-        Line
+        Line,
+        Text
     }
 }

@@ -62,6 +62,8 @@ namespace BCad.Commands.FileHandlers
                     entity = ((DxfArc)item).ToArc();
                 else if (item is DxfEllipse)
                     entity = ((DxfEllipse)item).ToEllipse();
+                else if (item is DxfText)
+                    entity = ((DxfText)item).ToText();
                 else
                     Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
 
@@ -109,6 +111,9 @@ namespace BCad.Commands.FileHandlers
                             break;
                         case EntityKind.Line:
                             entity = ((Line)item).ToDxfLine(layer);
+                            break;
+                        case EntityKind.Text:
+                            entity = ((Text)item).ToDxfText(layer);
                             break;
                         default:
                             Debug.Fail("Unsupported entity type: " + item.GetType().Name);
@@ -182,6 +187,11 @@ namespace BCad.Commands.FileHandlers
             return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter, el.EndParameter, el.Normal.ToVector(), el.Color.ToColor());
         }
 
+        public static Text ToText(this DxfText text)
+        {
+            return new Text(text.Value, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor());
+        }
+
         public static DxfLine ToDxfLine(this Line line, Layer layer)
         {
             return new DxfLine(line.P1.ToDxfPoint(), line.P2.ToDxfPoint())
@@ -218,7 +228,19 @@ namespace BCad.Commands.FileHandlers
                 Color = el.Color.ToDxfColor(),
                 StartParameter = el.StartAngle,
                 EndParameter = el.EndAngle,
-                Normal = el.Normal.ToDxfVector()
+                Normal = el.Normal.ToDxfVector(),
+                Layer = layer.Name
+            };
+        }
+
+        public static DxfText ToDxfText(this Text text, Layer layer)
+        {
+            return new DxfText(text.Location.ToDxfPoint(), text.Height, text.Value)
+            {
+                Color = text.Color.ToDxfColor(),
+                Layer = layer.Name,
+                Normal = text.Normal.ToDxfVector(),
+                Rotation = text.Rotation
             };
         }
     }

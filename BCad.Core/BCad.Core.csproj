@@ -76,6 +76,7 @@
     <Compile Include="DrawingPlane.cs" />
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
+    <Compile Include="Entities\Text.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Primitives\IPrimitive.cs" />
     <Compile Include="Primitives\PrimitiveKind.cs" />
     <Compile Include="Point.cs" />
+    <Compile Include="Primitives\PrimitiveText.cs" />
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
     <Compile Include="SelectedEntity.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />

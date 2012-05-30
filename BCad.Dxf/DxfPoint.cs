@@ -25,6 +25,11 @@ namespace BCad
             return string.Format("({0},{1},{2})", X, Y, Z);
         }
 
+        public static DxfPoint Origin
+        {
+            get { return new DxfPoint(0, 0, 0); }
+        }
+
         public static bool operator ==(DxfPoint a, DxfPoint b)
         {
             if (Object.ReferenceEquals(a, b))
@@ -62,6 +67,21 @@ namespace BCad
         public DxfVector(double x, double y, double z)
             : base(x, y, z)
         {
+        }
+
+        public static DxfVector XAxis
+        {
+            get { return new DxfVector(1, 0, 0); }
+        }
+
+        public static DxfVector YAxis
+        {
+            get { return new DxfVector(0, 1, 0); }
+        }
+
+        public static DxfVector ZAxis
+        {
+            get { return new DxfVector(0, 0, 1); }
         }
     }
 }

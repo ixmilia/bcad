@@ -197,7 +197,7 @@ namespace BCad.UI.Views
                 Pattern = 0xF0F0F0F,
                 PatternScale = 1
             };
-            Device.SetRenderState(RenderState.Lighting, false);
+            Device.SetRenderState(RenderState.Lighting, true);
         }
 
         public void OnMainLoop(object sender, EventArgs args)
@@ -222,6 +222,17 @@ namespace BCad.UI.Views
                         }
                     }
                 }
+
+                //if (m == null)
+                //{
+                //    var f = System.Drawing.SystemFonts.DefaultFont;
+                //    GlyphMetricsFloat[] asdf = null;
+                //    m = Mesh.CreateSphere(Device, 1.0f, 10, 10);
+                //    m = Mesh.CreateText(Device, f, "asdf", 0.0f, 0.0f);
+                //}
+                //Device.SetTransform(TransformState.World, Matrix.Identity);
+                //m.DrawSubset(0);
+                //Device.SetTransform(TransformState.World, worldMatrix);
 
                 if (rubberBandLines != null)
                 {
@@ -330,7 +341,6 @@ namespace BCad.UI.Views
 
                 // clear rubber band lines
                 rubberBandLines = null;
-
                 sw.Stop();
                 var loadTime = sw.ElapsedMilliseconds;
             }
@@ -423,14 +433,40 @@ namespace BCad.UI.Views
         {
             return new TransformedEntity(entity,
                 (from prim in entity.GetPrimitives()
-                 select Tuple.Create<Color4, Vector3[]>(GetDisplayColor(layerColor, prim.Color), GeneratePrimitiveSegments(prim))).ToArray());
+                 let segments = GeneratePrimitiveSegments(prim)
+                 where segments != null
+                 select Tuple.Create<Color4, Vector3[]>(GetDisplayColor(layerColor, prim.Color), segments)).ToArray());
         }
 
         private Vector3[] GeneratePrimitiveSegments(IPrimitive primitive)
         {
             Vector3[] segments;
+            Vector right = null;
+            Vector up = null;
+            Vector normal = null;
             switch (primitive.Kind)
             {
+                case PrimitiveKind.Text:
+                    // TODO: segments = null
+                    var text = (PrimitiveText)primitive;
+                    normal = text.Normal;
+                    right = Vector.RightVectorFromNormal(normal);
+                    up = normal.Cross(right).Normalize();
+                    var width = text.Height * 0.625 * text.Value.Length;
+
+                    var botLeft = text.Location;
+                    var botRight = botLeft + (right * width);
+                    var topLeft = botLeft + (up * text.Height);
+                    var topRight = topLeft + (right * width);
+
+                    segments = new[] {
+                        botLeft.ToVector3(),
+                        botRight.ToVector3(),
+                        topRight.ToVector3(),
+                        topLeft.ToVector3(),
+                        botLeft.ToVector3()
+                    };
+                    break;
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     segments = new[] {
@@ -445,12 +481,12 @@ namespace BCad.UI.Views
                     double radiusX = el.MajorAxis.Length;
                     double radiusY = radiusX * el.MinorAxisRatio;
                     var center = el.Center;
-                    var normal = el.Normal;
-                    var right = el.MajorAxis;
+                    normal = el.Normal;
+                    right = el.MajorAxis;
 
                     normal = normal.Normalize();
                     right = right.Normalize();
-                    var up = normal.Cross(right).Normalize();
+                    up = normal.Cross(right).Normalize();
                     startAngle *= MathHelper.DegreesToRadians;
                     endAngle *= MathHelper.DegreesToRadians;
                     var coveringAngle = endAngle - startAngle;

@@ -7,10 +7,12 @@ namespace BCad.Dxf.Entities
 {
     public enum DxfEntityType
     {
+        Attribute,
         Line,
         Circle,
         Arc,
-        Ellipse
+        Ellipse,
+        Text
     }
 
     public abstract class DxfEntity
@@ -19,6 +21,7 @@ namespace BCad.Dxf.Entities
         public const string CircleType = "CIRCLE";
         public const string ArcType = "ARC";
         public const string EllipseType = "ELLIPSE";
+        public const string TextType = "TEXT";
 
         public abstract DxfEntityType EntityType { get; }
 
@@ -95,6 +98,9 @@ namespace BCad.Dxf.Entities
                 case EllipseType:
                     ent = DxfEllipse.FromPairs(pairs);
                     break;
+                case TextType:
+                    ent = DxfText.FromPairs(pairs);
+                    break;
                 // TODO:
                 // POLYLINE
                 // VERTEX
@@ -131,6 +137,9 @@ namespace BCad.Dxf.Entities
                         break;
                     case DxfEntityType.Ellipse:
                         name = EllipseType;
+                        break;
+                    case DxfEntityType.Text:
+                        name = TextType;
                         break;
                     default:
                         throw new NotImplementedException();

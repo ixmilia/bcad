@@ -106,7 +106,7 @@ namespace BCad
                 case Constants.DrawingString:
                     TakeFocus();
                     SetTitle(Workspace.Drawing);
-                    int lineCount = 0, arcCount = 0, circleCount = 0, ellipseCount = 0;
+                    int lineCount = 0, arcCount = 0, circleCount = 0, ellipseCount = 0, textCount = 0;
                     foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities))
                     {
                         switch (ent.Kind)
@@ -123,11 +123,14 @@ namespace BCad
                             case EntityKind.Line:
                                 lineCount++;
                                 break;
+                            case EntityKind.Text:
+                                textCount++;
+                                break;
                         }
                     }
                     this.Dispatcher.BeginInvoke((Action)(() =>
-                    debugStatus.Text = string.Format("Entity counts - {0} arcs, {1} circles, {2} ellipses, {3} lines, {4} total.",
-                        arcCount, circleCount, ellipseCount, lineCount, arcCount + circleCount + ellipseCount + lineCount)));
+                    debugStatus.Text = string.Format("Entity counts - {0} arcs, {1} circles, {2} ellipses, {3} lines, {4} text, {5} total.",
+                        arcCount, circleCount, ellipseCount, lineCount, textCount, arcCount + circleCount + ellipseCount + lineCount + textCount)));
                     break;
                 default:
                     break;

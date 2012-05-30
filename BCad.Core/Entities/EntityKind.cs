@@ -5,6 +5,7 @@
         Arc,
         Circle,
         Ellipse,
-        Line
+        Line,
+        Text
     }
 }

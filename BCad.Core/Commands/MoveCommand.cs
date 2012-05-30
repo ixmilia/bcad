@@ -82,6 +82,10 @@ namespace BCad.Commands
                     var line = (Line)ent;
                     moved = line.Update(p1: line.P1 + delta, p2: line.P2 + delta);
                     break;
+                case EntityKind.Text:
+                    var text = (Text)ent;
+                    moved = text.Update(location: text.Location + delta);
+                    break;
                 default:
                     throw new ArgumentException("Unsupported entity type", "ent");
             }

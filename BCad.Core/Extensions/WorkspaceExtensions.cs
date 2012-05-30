@@ -160,6 +160,11 @@ namespace BCad
                     points.Add(line.P2);
                     entityNormal = workspace.DrawingPlaneNormal(); // this is always correct
                     break;
+                case EntityKind.Text:
+                    var text = (Text)entity;
+                    points.Add(text.Location);
+                    entityNormal = text.Normal;
+                    break;
                 default:
                     throw new Exception("Unrecognized entity type");
             }
