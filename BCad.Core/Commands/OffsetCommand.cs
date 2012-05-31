@@ -123,6 +123,7 @@ namespace BCad.Commands
                             updated = line.Update(p1: line.P1 + offsetVector, p2: line.P2 + offsetVector);
                         }
                         break;
+                    case EntityKind.Polyline:
                     case EntityKind.Text:
                     default:
                         InputService.WriteLine("Unable to offset {0}", selection.Value.GetType().Name);

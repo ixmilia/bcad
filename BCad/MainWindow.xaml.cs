@@ -16,6 +16,7 @@ using BCad.EventArguments;
 using BCad.UI;
 using Microsoft.Windows.Controls.Ribbon;
 using BCad.Entities;
+using BCad.Primitives;
 
 namespace BCad
 {
@@ -106,31 +107,25 @@ namespace BCad
                 case Constants.DrawingString:
                     TakeFocus();
                     SetTitle(Workspace.Drawing);
-                    int lineCount = 0, arcCount = 0, circleCount = 0, ellipseCount = 0, textCount = 0;
-                    foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities))
+                    int lineCount = 0, ellipseCount = 0, textCount = 0;
+                    foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities).SelectMany(en => en.GetPrimitives()))
                     {
                         switch (ent.Kind)
                         {
-                            case EntityKind.Arc:
-                                arcCount++;
-                                break;
-                            case EntityKind.Circle:
-                                circleCount++;
-                                break;
-                            case EntityKind.Ellipse:
+                            case PrimitiveKind.Ellipse:
                                 ellipseCount++;
                                 break;
-                            case EntityKind.Line:
+                            case PrimitiveKind.Line:
                                 lineCount++;
                                 break;
-                            case EntityKind.Text:
+                            case PrimitiveKind.Text:
                                 textCount++;
                                 break;
                         }
                     }
                     this.Dispatcher.BeginInvoke((Action)(() =>
-                    debugStatus.Text = string.Format("Entity counts - {0} arcs, {1} circles, {2} ellipses, {3} lines, {4} text, {5} total.",
-                        arcCount, circleCount, ellipseCount, lineCount, textCount, arcCount + circleCount + ellipseCount + lineCount + textCount)));
+                    debugStatus.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
+                        ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount)));
                     break;
                 default:
                     break;

@@ -12,7 +12,10 @@ namespace BCad.Dxf.Entities
         Circle,
         Arc,
         Ellipse,
-        Text
+        Text,
+        Polyline,
+        Seqend,
+        Vertex
     }
 
     public abstract class DxfEntity
@@ -22,6 +25,9 @@ namespace BCad.Dxf.Entities
         public const string ArcType = "ARC";
         public const string EllipseType = "ELLIPSE";
         public const string TextType = "TEXT";
+        public const string PolylineType = "POLYLINE";
+        public const string SeqendType = "SEQEND";
+        public const string VertexType = "VERTEX";
 
         public abstract DxfEntityType EntityType { get; }
 
@@ -43,7 +49,8 @@ namespace BCad.Dxf.Entities
                     yield return new DxfCodePair(8, Layer);
                 if (!Color.IsByLayer)
                     yield return new DxfCodePair(62, Color.RawValue);
-                yield return new DxfCodePair(100, SubclassMarker);
+                if (!string.IsNullOrEmpty(SubclassMarker))
+                    yield return new DxfCodePair(100, SubclassMarker);
                 foreach (var pair in GetEntitySpecificPairs())
                     yield return pair;
             }
@@ -101,18 +108,21 @@ namespace BCad.Dxf.Entities
                 case TextType:
                     ent = DxfText.FromPairs(pairs);
                     break;
+                case PolylineType:
+                    ent = DxfPolyline.FromPairs(pairs);
+                    break;
+                case SeqendType:
+                    ent = new DxfSeqend();
+                    break;
                 // TODO:
-                // POLYLINE
-                // VERTEX
-                // SEQEND
                 // DIMENSION
                 // INSERT
                 // ATTRIB
                 // MTEXT
                 // HATCH
                 // LEADER
+                case VertexType: // not directly used
                 default:
-                    //Debug.WriteLine("Unsupported entity type " + first.StringValue);
                     break;
             }
 
@@ -140,6 +150,15 @@ namespace BCad.Dxf.Entities
                         break;
                     case DxfEntityType.Text:
                         name = TextType;
+                        break;
+                    case DxfEntityType.Polyline:
+                        name = PolylineType;
+                        break;
+                    case DxfEntityType.Seqend:
+                        name = SeqendType;
+                        break;
+                    case DxfEntityType.Vertex:
+                        name = VertexType;
                         break;
                     default:
                         throw new NotImplementedException();

@@ -32,7 +32,7 @@ namespace BCad.Dxf.Sections
             return Type.ToSectionName();
         }
 
-        protected static IEnumerable<IEnumerable<DxfCodePair>> SplitAtZero(IEnumerable<DxfCodePair> pairs)
+        internal static IEnumerable<IEnumerable<DxfCodePair>> SplitAtZero(IEnumerable<DxfCodePair> pairs)
         {
             var list = new List<List<DxfCodePair>>();
             foreach (var p in pairs)

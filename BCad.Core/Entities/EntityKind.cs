@@ -6,6 +6,7 @@
         Circle,
         Ellipse,
         Line,
+        Polyline,
         Text
     }
 }

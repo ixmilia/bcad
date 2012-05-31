@@ -62,10 +62,14 @@ namespace BCad.Commands.FileHandlers
                     entity = ((DxfArc)item).ToArc();
                 else if (item is DxfEllipse)
                     entity = ((DxfEllipse)item).ToEllipse();
+                else if (item is DxfPolyline)
+                    entity = ((DxfPolyline)item).ToPolyline();
                 else if (item is DxfText)
                     entity = ((DxfText)item).ToText();
                 else
-                    Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
+                {
+                    //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
+                }
 
                 // add the entity to the appropriate layer
                 if (entity != null)
@@ -111,6 +115,9 @@ namespace BCad.Commands.FileHandlers
                             break;
                         case EntityKind.Line:
                             entity = ((Line)item).ToDxfLine(layer);
+                            break;
+                        case EntityKind.Polyline:
+                            entity = ((Polyline)item).ToDxfPolyline(layer);
                             break;
                         case EntityKind.Text:
                             entity = ((Text)item).ToDxfText(layer);
@@ -172,6 +179,11 @@ namespace BCad.Commands.FileHandlers
             return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor());
         }
 
+        public static Polyline ToPolyline(this DxfPolyline poly)
+        {
+            return new Polyline(poly.Vertices.Select(v => v.Location.ToPoint()), poly.Color.ToColor());
+        }
+
         public static Circle ToCircle(this DxfCircle circle)
         {
             return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor());
@@ -199,6 +211,19 @@ namespace BCad.Commands.FileHandlers
                 Color = line.Color.ToDxfColor(),
                 Layer = layer.Name
             };
+        }
+
+        public static DxfPolyline ToDxfPolyline(this Polyline poly, Layer layer)
+        {
+            var dp = new DxfPolyline()
+            {
+                Color = poly.Color.ToDxfColor(),
+                Elevation = poly.Points.Any() ? poly.Points.First().Z : 0.0,
+                Layer = layer.Name,
+                Normal = DxfVector.ZAxis
+            };
+            dp.Vertices.AddRange(poly.Points.Select(p => new DxfVertex(p.ToDxfPoint())));
+            return dp;
         }
 
         public static DxfCircle ToDxfCircle(this Circle circle, Layer layer)

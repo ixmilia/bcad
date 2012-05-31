@@ -40,8 +40,54 @@ namespace BCad.Dxf.Sections
 
         public DxfEntitiesSection(IEnumerable<DxfCodePair> pairs)
         {
-            var simpleRecords = DxfSection.SplitAtZero(pairs);
+            var simpleRecords = CombineEntities(DxfSection.SplitAtZero(pairs));
             Entities = simpleRecords.Select(r => DxfEntity.FromCodeValuePairs(r)).Where(e => e != null).ToList();
+        }
+
+        private static IEnumerable<IEnumerable<DxfCodePair>> CombineEntities(IEnumerable<IEnumerable<DxfCodePair>> simpleEntities)
+        {
+            var entities = new List<IEnumerable<DxfCodePair>>();
+            List<DxfCodePair> current = null;
+            bool readingCompound = false;
+            foreach (var simpleEntity in simpleEntities)
+            {
+                var first = simpleEntity.First();
+                if (readingCompound)
+                {
+                    switch (first.StringValue)
+                    {
+                        case DxfEntity.SeqendType:
+                            entities.Add(current);
+                            current = null;
+                            readingCompound = false;
+                            break;
+                        default:
+                            current.AddRange(simpleEntity);
+                            break;
+                    }
+                }
+                else
+                {
+                    // check for start of compound
+                    switch (first.StringValue)
+                    {
+                        case DxfEntity.PolylineType:
+                            current = new List<DxfCodePair>(simpleEntity);
+                            readingCompound = true;
+                            break;
+                        default:
+                            entities.Add(simpleEntity);
+                            break;
+                    }
+                }
+            }
+
+            if (readingCompound)
+            {
+                throw new DxfReadException("Compound entity not terminated");
+            }
+
+            return entities;
         }
     }
 }
