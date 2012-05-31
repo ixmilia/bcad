@@ -136,6 +136,9 @@ namespace BCad.UI.Views
         private bool lastGeneratorNonNull = false;
         private SlimDX.Direct3D9.Line solidLine;
         private SlimDX.Direct3D9.Line dashedLine;
+        private double lastDrawingChangeTime = 0.0;
+        private double lastSnapUpdateTime = 0.0;
+        private Font debugFont = null;
 
         #endregion
 
@@ -198,12 +201,18 @@ namespace BCad.UI.Views
                 PatternScale = 1
             };
             Device.SetRenderState(RenderState.Lighting, true);
+
+            debugFont = new Font(Device, System.Drawing.SystemFonts.DefaultFont);
         }
+
+        Mesh m = null;
 
         public void OnMainLoop(object sender, EventArgs args)
         {
             lock (drawingGate)
             {
+                var start = DateTime.UtcNow;
+
                 foreach (var entityId in lines.Keys)
                 {
                     var len = lines[entityId].LineSegments.Length;
@@ -226,8 +235,7 @@ namespace BCad.UI.Views
                 //if (m == null)
                 //{
                 //    var f = System.Drawing.SystemFonts.DefaultFont;
-                //    GlyphMetricsFloat[] asdf = null;
-                //    m = Mesh.CreateSphere(Device, 1.0f, 10, 10);
+                //    //m = Mesh.CreateSphere(Device, 1.0f, 10, 10);
                 //    m = Mesh.CreateText(Device, f, "asdf", 0.0f, 0.0f);
                 //}
                 //Device.SetTransform(TransformState.World, Matrix.Identity);
@@ -260,6 +268,12 @@ namespace BCad.UI.Views
                     line.Draw(new[] { c, d }, autoColor);
                     line.Draw(new[] { d, e }, autoColor);
                     line.Draw(new[] { e, a }, autoColor);
+                }
+
+                if (debugFont != null)
+                {
+                    var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+                    debugFont.DrawString(null, string.Format("DrawingChanged - {0}, UpdateSnapPoints - {1}, Render - {2}", lastDrawingChangeTime, lastSnapUpdateTime, elapsed), 0, 0, autoColor);
                 }
             }
         }
@@ -343,6 +357,7 @@ namespace BCad.UI.Views
                 rubberBandLines = null;
                 sw.Stop();
                 var loadTime = sw.ElapsedMilliseconds;
+                lastDrawingChangeTime = loadTime - lastSnapUpdateTime;
             }
 
             ForceRender();
@@ -560,6 +575,7 @@ namespace BCad.UI.Views
                     });
             }
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            lastSnapUpdateTime = elapsed;
         }
 
         private Image GetSnapIcon(TransformedSnapPoint snapPoint)
