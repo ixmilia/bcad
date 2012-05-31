@@ -36,6 +36,7 @@ namespace BCad.Commands
             }
 
             InputService.WriteLine("Using offset distance of {0}", dist);
+            lastOffsetDistance = dist;
             var selection = InputService.GetEntity(new UserDirective("Select entity"));
             while (!selection.Cancel && selection.HasValue)
             {
