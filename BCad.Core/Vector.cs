@@ -46,7 +46,7 @@ namespace BCad
 
         public double Dot(Vector v)
         {
-            return this.X * v.X + this.Y + v.Y + this.Z + v.Z;
+            return this.X * v.X + this.Y * v.Y + this.Z * v.Z;
         }
 
         public static implicit operator Point(Vector vector)
