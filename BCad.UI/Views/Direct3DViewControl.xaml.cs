@@ -28,17 +28,153 @@ namespace BCad.UI.Views
     public partial class Direct3DViewControl : ViewControl, IRenderEngine
     {
 
+        #region IDisplayPrimitive
+
+        private interface IDisplayPrimitive
+        {
+            void RenderNormal(Device device, Matrix projection, Matrix view);
+            void RenderSelected(Device device, Matrix projection, Matrix view);
+            Tuple<double, Point> ClosestPointToCursor(Point cursorPoint, Func<Vector3, Vector3> project);
+            bool IsContained(Rect selectionRectangle, bool includePartial, Func<Vector3, Vector3> project);
+        }
+
+        private class DisplayPrimitiveLines : IDisplayPrimitive
+        {
+            public Color4 Color { get; private set; }
+            public Vector3[] LineVerticies { get; private set; }
+            private SlimDX.Direct3D9.Line solidLine = null;
+            private SlimDX.Direct3D9.Line dashedLine = null;
+
+            public DisplayPrimitiveLines(Color4 color, Vector3[] lineVerticies, SlimDX.Direct3D9.Line solidLine, SlimDX.Direct3D9.Line dashedLine)
+            {
+                Debug.Assert(lineVerticies.Length > 1);
+
+                this.Color = color;
+                this.LineVerticies = lineVerticies;
+                this.solidLine = solidLine;
+                this.dashedLine = dashedLine;
+            }
+
+            public void RenderNormal(Device device, Matrix projection, Matrix view)
+            {
+                // TODO: draw via user primitives
+                solidLine.DrawTransformed(LineVerticies, projection * view, Color);
+            }
+
+            public void RenderSelected(Device device, Matrix projection, Matrix view)
+            {
+                dashedLine.DrawTransformed(LineVerticies, projection * view, Color);
+            }
+
+            public Tuple<double, Point> ClosestPointToCursor(Point cursorPoint, Func<Vector3, Vector3> project)
+            {
+                return cursorPoint.ClosestPoint(LineVerticies, project);
+            }
+
+            public bool IsContained(Rect selectionRectangle, bool includePartial, Func<Vector3, Vector3> project)
+            {
+                return selectionRectangle.Contains(LineVerticies, project, includePartial);
+            }
+        }
+
+        private class DisplayPrimitiveMesh : IDisplayPrimitive
+        {
+            public Material Material { get; private set; }
+            public Mesh Mesh { get; private set; }
+            public Matrix WorldMatrix { get; private set; }
+            private Vector3[] boundingCorners = null;
+            private Vector3[] outlineCorners = null;
+            private Material SelectedMaterial { get; set; }
+
+            public DisplayPrimitiveMesh(Mesh mesh, Color4 color, Matrix worldMatrix)
+            {
+                this.Mesh = mesh;
+                this.Material = new Material()
+                {
+                    Diffuse = color,
+                    Emissive = color
+                };
+                this.WorldMatrix = worldMatrix;
+                var sc = new Color4(0.5f, color.Red, color.Green, color.Blue);
+                sc = new Color4(color.Alpha, color.Red / 2.0f, color.Green / 2.0f, color.Blue / 2.0f);
+                this.SelectedMaterial = new Material()
+                {
+                    Diffuse = sc,
+                    Emissive = sc
+                };
+
+                var boundingBox = Mesh.GetBoundingBox();
+                this.boundingCorners = boundingBox.GetCorners();
+                for (int i = 0; i < boundingCorners.Length; i++)
+                {
+                    this.boundingCorners[i] = Vector3.Transform(this.boundingCorners[i], worldMatrix).ToVector3();
+                }
+
+                this.outlineCorners = this.boundingCorners.Concat(new[] { this.boundingCorners[0] }).ToArray();
+            }
+
+            public void RenderNormal(Device device, Matrix projection, Matrix view)
+            {
+                Render(device, Material);
+            }
+
+            public void RenderSelected(Device device, Matrix projection, Matrix view)
+            {
+                Render(device, SelectedMaterial);
+            }
+
+            private void Render(Device device, Material material)
+            {
+                device.SetTransform(TransformState.World, this.WorldMatrix);
+                device.Material = material;
+                Mesh.DrawSubset(0);
+            }
+
+            public Tuple<double, Point> ClosestPointToCursor(Point cursorPoint, Func<Vector3, Vector3> project)
+            {
+                // if projected extents contains point, use point
+                if (outlineCorners.Select(c => project(c)).ConvexHull().Contains(cursorPoint.ToVector3()))
+                    return Tuple.Create(0.0, cursorPoint);
+                // else, like lines
+                return cursorPoint.ClosestPoint(boundingCorners, project);
+            }
+
+            public bool IsContained(Rect selectionRectangle, bool includePartial, Func<Vector3, Vector3> project)
+            {
+                return selectionRectangle.Contains(this.outlineCorners, project, includePartial);
+            }
+        }
+
+        #endregion
+
         #region TransformedEntity class
 
         private class TransformedEntity
         {
             public Entity Entity { get; private set; }
-            public Tuple<Color4, Vector3[]>[] LineSegments { get; private set; }
+            public IDisplayPrimitive[] DisplayPrimitives { get; private set; }
 
-            public TransformedEntity(Entity entity, Tuple<Color4, Vector3[]>[] lineSegments)
+            public TransformedEntity(Entity entity, IEnumerable<IDisplayPrimitive> displayPrimitives)
             {
                 this.Entity = entity;
-                this.LineSegments = lineSegments;
+                this.DisplayPrimitives = displayPrimitives.ToArray();
+            }
+
+            public bool IsContained(Rect selectionRectangle, bool includePartial, Func<Vector3, Vector3> project)
+            {
+                if (includePartial)
+                    return DisplayPrimitives.Any(p => p.IsContained(selectionRectangle, includePartial, project));
+                else
+                    return DisplayPrimitives.All(p => p.IsContained(selectionRectangle, includePartial, project));
+            }
+
+            public Tuple<double, Point> ClosestPointToCursor(Point cursorPoint, Func<Vector3, Vector3> project)
+            {
+                return DisplayPrimitives
+                    .Select(p => p.ClosestPointToCursor(cursorPoint, project))
+                    .Where(p => p != null)
+                    .OrderBy(p => p.Item1)
+                    .FirstOrDefault();
             }
         }
 
@@ -69,6 +205,20 @@ namespace BCad.UI.Views
             this.workspace.SelectedEntities.CollectionChanged += SelectedEntitiesCollectionChanged;
             this.inputService.ValueRequested += InputServiceValueRequested;
             this.inputService.ValueReceived += InputServiceValueReceived;
+
+            // prepare shader bytecode
+//            selectedMeshBytecode = ShaderBytecode.Compile(@"
+//float4 bg;
+//
+//float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
+//{
+//    int p = position.x + position.y;
+//    if ((p / 2) % 2 == 0)
+//        return color;
+//    else
+//        return bg;
+//}
+//", "PShader", "ps_3_0", ShaderFlags.None);
 
             // load the workspace
             foreach (var setting in new[] { Constants.DrawingString })
@@ -127,7 +277,7 @@ namespace BCad.UI.Views
         private Device Device { get { return this.content.Device; } }
         private Color4 autoColor = new Color4();
         private Dictionary<uint, TransformedEntity> lines = new Dictionary<uint, TransformedEntity>();
-        private Tuple<Color4, Vector3[]>[] rubberBandLines = null;
+        private IDisplayPrimitive[] rubberBandLines = null;
         private bool panning = false;
         private bool selecting = false;
         private System.Windows.Point firstSelectionPoint = new System.Windows.Point();
@@ -136,15 +286,13 @@ namespace BCad.UI.Views
         private bool lastGeneratorNonNull = false;
         private SlimDX.Direct3D9.Line solidLine;
         private SlimDX.Direct3D9.Line dashedLine;
-        private double lastDrawingChangeTime = 0.0;
-        private double lastSnapUpdateTime = 0.0;
-        private Font debugFont = null;
 
         #endregion
 
         #region Constants
 
         private const int FullCircleDrawingSegments = 101;
+        private const int LowQualityCircleDrawingSegments = 51;
         private ResourceDictionary resources = null;
         private ResourceDictionary SnapPointResources
         {
@@ -193,6 +341,7 @@ namespace BCad.UI.Views
                 solidLine.Dispose();
             if (dashedLine != null)
                 dashedLine.Dispose();
+
             solidLine = new SlimDX.Direct3D9.Line(Device);
             dashedLine = new SlimDX.Direct3D9.Line(Device)
             {
@@ -200,12 +349,11 @@ namespace BCad.UI.Views
                 Pattern = 0xF0F0F0F,
                 PatternScale = 1
             };
+
             Device.SetRenderState(RenderState.Lighting, true);
-
-            debugFont = new Font(Device, System.Drawing.SystemFonts.DefaultFont);
+            Device.SetRenderState(RenderState.AlphaBlendEnable, true);
+            DrawingChanged(drawing);
         }
-
-        Mesh m = null;
 
         public void OnMainLoop(object sender, EventArgs args)
         {
@@ -213,43 +361,33 @@ namespace BCad.UI.Views
             {
                 var start = DateTime.UtcNow;
 
+                Device.SetTransform(TransformState.Projection, projectionMatrix);
+                Device.SetTransform(TransformState.View, viewMatrix);
+
+                var selected = workspace.SelectedEntities;
                 foreach (var entityId in lines.Keys)
                 {
-                    var len = lines[entityId].LineSegments.Length;
+                    var ent = lines[entityId];
+                    var prims = ent.DisplayPrimitives;
+                    var len = prims.Length;
                     for (int i = 0; i < len; i++)
                     {
-                        var color = lines[entityId].LineSegments[i].Item1;
-                        var lineSet = lines[entityId].LineSegments[i].Item2;
-                        Debug.Assert(lineSet.Length > 0);
-                        if (workspace.SelectedEntities.ContainsHash(entityId.GetHashCode()))
+                        if (selected.ContainsHash(entityId.GetHashCode()))
                         {
-                            dashedLine.DrawTransformed(lineSet, projectionViewWorldMatrix, color);
+                            prims[i].RenderSelected(Device, projectionMatrix, viewMatrix);
                         }
                         else
                         {
-                            solidLine.DrawTransformed(lineSet, projectionViewWorldMatrix, color);
+                            prims[i].RenderNormal(Device, projectionMatrix, viewMatrix);
                         }
                     }
                 }
-
-                //if (m == null)
-                //{
-                //    var f = System.Drawing.SystemFonts.DefaultFont;
-                //    //m = Mesh.CreateSphere(Device, 1.0f, 10, 10);
-                //    m = Mesh.CreateText(Device, f, "asdf", 0.0f, 0.0f);
-                //}
-                //Device.SetTransform(TransformState.World, Matrix.Identity);
-                //m.DrawSubset(0);
-                //Device.SetTransform(TransformState.World, worldMatrix);
 
                 if (rubberBandLines != null)
                 {
                     for (int i = 0; i < rubberBandLines.Length; i++)
                     {
-                        var color = rubberBandLines[i].Item1;
-                        var lineSet = rubberBandLines[i].Item2;
-                        Debug.Assert(lineSet.Length > 0);
-                        solidLine.DrawTransformed(lineSet, projectionViewWorldMatrix, autoColor);
+                        rubberBandLines[i].RenderNormal(Device, projectionMatrix, viewMatrix);
                     }
                 }
 
@@ -268,12 +406,6 @@ namespace BCad.UI.Views
                     line.Draw(new[] { c, d }, autoColor);
                     line.Draw(new[] { d, e }, autoColor);
                     line.Draw(new[] { e, a }, autoColor);
-                }
-
-                if (debugFont != null)
-                {
-                    var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-                    debugFont.DrawString(null, string.Format("DrawingChanged - {0}, UpdateSnapPoints - {1}, Render - {2}", lastDrawingChangeTime, lastSnapUpdateTime, elapsed), 0, 0, autoColor);
                 }
             }
         }
@@ -332,18 +464,15 @@ namespace BCad.UI.Views
             lock (drawingGate)
             {
                 this.drawing = drawing;
-                var sw = new System.Diagnostics.Stopwatch();
-                sw.Start();
+                var start = DateTime.UtcNow;
                 lines.Clear();
                 foreach (var layer in drawing.Layers.Values.Where(l => l.IsVisible))
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
-                    var start = DateTime.UtcNow;
                     foreach (var entity in layer.Entities)
                     {
                         lines[entity.Id] = GenerateEntitySegments(entity, layer.Color);
                     }
-                    var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                 }
 
                 // populate the snap points
@@ -355,9 +484,8 @@ namespace BCad.UI.Views
 
                 // clear rubber band lines
                 rubberBandLines = null;
-                sw.Stop();
-                var loadTime = sw.ElapsedMilliseconds;
-                lastDrawingChangeTime = loadTime - lastSnapUpdateTime;
+                var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+                inputService.WriteLine("DrawingChanged in {0} ms", elapsed);
             }
 
             ForceRender();
@@ -373,10 +501,6 @@ namespace BCad.UI.Views
                 * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
             projectionWorldMatrix = projectionMatrix * worldMatrix;
             projectionViewWorldMatrix = projectionMatrix * viewMatrix * worldMatrix;
-
-            Device.SetTransform(TransformState.Projection, projectionMatrix);
-            Device.SetTransform(TransformState.View, viewMatrix);
-            Device.SetTransform(TransformState.World, worldMatrix);
             UpdateSnapPoints(projectionMatrix);
             ForceRender();
         }
@@ -434,7 +558,7 @@ namespace BCad.UI.Views
             var generator = inputService.PrimitiveGenerator;
             rubberBandLines = generator == null
                 ? null
-                : generator(worldPoint).Select(p => Tuple.Create<Color4, Vector3[]>(autoColor, GeneratePrimitiveSegments(p))).ToArray();
+                : generator(worldPoint).Select(p => GenerateDisplayPrimitive(p, autoColor, false)).ToArray();
 
             if (generator != null || lastGeneratorNonNull)
             {
@@ -447,47 +571,38 @@ namespace BCad.UI.Views
         private TransformedEntity GenerateEntitySegments(Entity entity, Color layerColor)
         {
             return new TransformedEntity(entity,
-                (from prim in entity.GetPrimitives()
-                 let segments = GeneratePrimitiveSegments(prim)
-                 where segments != null
-                 select Tuple.Create<Color4, Vector3[]>(GetDisplayColor(layerColor, prim.Color), segments)).ToArray());
+                entity.GetPrimitives().Select(p => GenerateDisplayPrimitive(p, GetDisplayColor(layerColor, p.Color))));
         }
 
-        private Vector3[] GeneratePrimitiveSegments(IPrimitive primitive)
+        private IDisplayPrimitive GenerateDisplayPrimitive(IPrimitive primitive, Color4 color, bool highQuality = true)
         {
-            Vector3[] segments;
-            Vector right = null;
-            Vector up = null;
-            Vector normal = null;
+            IDisplayPrimitive display;
+            Vector normal = null, right = null, up = null;
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Text:
-                    // TODO: segments = null
                     var text = (PrimitiveText)primitive;
+                    var f = System.Drawing.SystemFonts.DefaultFont;
+                    var sc = (float)text.Height;
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
                     normal = text.Normal;
-                    right = Vector.RightVectorFromNormal(normal);
+                    right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
-                    var width = text.Height * 0.625 * text.Value.Length;
-
-                    var botLeft = text.Location;
-                    var botRight = botLeft + (right * width);
-                    var topLeft = botLeft + (up * text.Height);
-                    var topRight = topLeft + (right * width);
-
-                    segments = new[] {
-                        botLeft.ToVector3(),
-                        botRight.ToVector3(),
-                        topRight.ToVector3(),
-                        topLeft.ToVector3(),
-                        botLeft.ToVector3()
-                    };
+                    var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
+                    var alignment = Direct3DExtensions.AlginmentMatrix(normal, right, up, text.Location);
+                    var matrix = Matrix.Scaling(sc, sc, sc) * alignment;
+                    display = new DisplayPrimitiveMesh(mesh, color, matrix);
                     break;
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
-                    segments = new[] {
-                        line.P1.ToVector3(),
-                        line.P2.ToVector3()
-                    };
+                    display = new DisplayPrimitiveLines(
+                        color,
+                        new[] {
+                            line.P1.ToVector3(),
+                            line.P2.ToVector3()
+                        },
+                        solidLine,
+                        dashedLine);
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
@@ -506,23 +621,12 @@ namespace BCad.UI.Views
                     endAngle *= MathHelper.DegreesToRadians;
                     var coveringAngle = endAngle - startAngle;
                     if (coveringAngle < 0.0) coveringAngle += MathHelper.TwoPI;
-                    var segCount = Math.Max(3, (int)(coveringAngle / MathHelper.TwoPI * (double)FullCircleDrawingSegments));
-                    segments = new Vector3[segCount];
+                    var fullSegCount = highQuality ? FullCircleDrawingSegments : LowQualityCircleDrawingSegments;
+                    var segCount = Math.Max(3, (int)(coveringAngle / MathHelper.TwoPI * (double)fullSegCount));
+                    var segments = new Vector3[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
-                    var transformation = Matrix.Identity;
-                    transformation.M11 = (float)right.X;
-                    transformation.M12 = (float)right.Y;
-                    transformation.M13 = (float)right.Z;
-                    transformation.M21 = (float)up.X;
-                    transformation.M22 = (float)up.Y;
-                    transformation.M23 = (float)up.Z;
-                    transformation.M31 = (float)normal.X;
-                    transformation.M32 = (float)normal.Y;
-                    transformation.M33 = (float)normal.Z;
-                    transformation.M41 = (float)center.X;
-                    transformation.M42 = (float)center.Y;
-                    transformation.M43 = (float)center.Z;
+                    var transformation = Direct3DExtensions.AlginmentMatrix(normal, right, up, center);
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
@@ -532,12 +636,17 @@ namespace BCad.UI.Views
                         segments[i] = new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W);
                     }
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+                    display = new DisplayPrimitiveLines(
+                        color,
+                        segments,
+                        solidLine,
+                        dashedLine);
                     break;
                 default:
-                    throw new ArgumentException("entity.Kind");
+                    throw new ArgumentException("primitive.Kind");
             }
 
-            return segments;
+            return display;
         }
 
         #endregion
@@ -575,7 +684,6 @@ namespace BCad.UI.Views
                     });
             }
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            lastSnapUpdateTime = elapsed;
         }
 
         private Image GetSnapIcon(TransformedSnapPoint snapPoint)
@@ -973,123 +1081,36 @@ namespace BCad.UI.Views
             var entities = new ConcurrentBag<Entity>();
             Parallel.ForEach(lines.Keys, entityId =>
                 {
-                    // project all 8 bounding box coordinates to the screen and create a bigger bounding rectangle
-                    var entity = lines[entityId].Entity;
-                    var box = entity.BoundingBox;
-                    var projectedBox = new[]
-                    {
-                        Project(box.MinimumPoint.ToVector3()),
-                        Project((box.MinimumPoint + new Vector(box.Size.X, 0.0, 0.0)).ToVector3()),
-                        Project((box.MinimumPoint + new Vector(0.0, box.Size.Y, 0.0)).ToVector3()),
-                        Project((box.MinimumPoint + new Vector(box.Size.X, box.Size.Y, 0.0)).ToVector3()),
-                        Project((box.MinimumPoint + new Vector(0.0, 0.0, box.Size.Z)).ToVector3()),
-                        Project((box.MinimumPoint + new Vector(box.Size.X, 0.0, box.Size.Z)).ToVector3()),
-                        Project((box.MinimumPoint + new Vector(0.0, box.Size.Y, box.Size.Z)).ToVector3()),
-                        Project((box.MinimumPoint + new Vector(box.Size.X, box.Size.Y, box.Size.Z)).ToVector3())
-                    };
-                    var screenRect = GetBoundingRectangle(projectedBox);
-                    bool isContained = false;
-
-                    if (selectionRect.Contains(screenRect))
-                    {
-                        // regardless of selection type, this will match
-                        isContained = true;
-                    }
-                    else
-                    {
-                        // project all line segments to screen space
-                        var segmentCollection = lines[entityId].LineSegments;
-                        var projectedPoints = from prim in segmentCollection
-                                              let points = prim.Item2
-                                              select points.Select(p => Project(p).ToWindowsPoint());
-                        var flattenedPoints = projectedPoints.SelectMany(x => x);
-
-                        if (includePartial)
-                        {
-                            // if any point is in the rectangle OR any segment intersects a rectangle edge
-                            if (flattenedPoints.Any(p => selectionRect.Contains(p)))
-                            {
-                                isContained = true;
-                            }
-                            else
-                            {
-                                var selectionLines = new[]
-                                    {
-                                        new PrimitiveLine(new Point(selectionRect.TopLeft), new Point(selectionRect.TopRight)),
-                                        new PrimitiveLine(new Point(selectionRect.TopRight), new Point(selectionRect.BottomRight)),
-                                        new PrimitiveLine(new Point(selectionRect.BottomRight), new Point(selectionRect.BottomLeft)),
-                                        new PrimitiveLine(new Point(selectionRect.BottomLeft), new Point(selectionRect.TopRight))
-                                    };
-                                if (projectedPoints
-                                    .Select(p => p.Zip(p.Skip(1), (a, b) => new PrimitiveLine(new Point(a), new Point(b))))
-                                    .SelectMany(x => x).Any(l => selectionLines.Any(s => s.IntersectionPoint(l) != null)))
-                                {
-                                    isContained = true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // all points must be in rectangle
-                            if (flattenedPoints.All(p => selectionRect.Contains(p)))
-                            {
-                                isContained = true;
-                            }
-                        }
-                    }
-
-                    if (isContained)
-                    {
-                        entities.Add(entity);
-                    }
+                    var entity = lines[entityId];
+                    if (entity.IsContained(selectionRect, includePartial, Project))
+                        entities.Add(entity.Entity);
                 });
 
             var ellapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            inputService.WriteLine("GetContainedEntites in {0} ms", ellapsed);
             return entities;
         }
 
         private SelectedEntity GetHitEntity(System.Windows.Point cursor)
         {
             var start = DateTime.UtcNow;
-            var selectionDist = workspace.SettingsManager.EntitySelectionRadius;
-            var selectionDist2 = selectionDist * selectionDist;
+            var selectionRadius = workspace.SettingsManager.EntitySelectionRadius;
+            var selectionRadius2 = selectionRadius * selectionRadius;
             var cursorPoint = new Point(cursor);
-
             var entities = from entityId in lines.Keys
-                           from primitiveSegment in lines[entityId].LineSegments
-                           let points = primitiveSegment.Item2
-                           from i in Enumerable.Range(0, points.Length - 1)
-                           // translate line segment to screen coordinates
-                           let p1 = Project(points[i])
-                           let p2 = Project(points[i + 1])
-                           // check that cursor is in expanded bounding box of line segment
-                           let minx = Math.Min(p1.X, p2.X) - selectionDist
-                           let maxx = Math.Max(p1.X, p2.X) + selectionDist
-                           let miny = Math.Min(p1.Y, p2.Y) - selectionDist
-                           let maxy = Math.Max(p1.Y, p2.Y) + selectionDist
-                           where MathHelper.Between(minx, maxx, cursor.X)
-                              && MathHelper.Between(miny, maxy, cursor.Y)
-                           // find the shortest line connecting point and line segment
-                           let p1p = p1.ToPoint()
-                           let p2p = p2.ToPoint()
-                           let segment = new PrimitiveLine(p1p, p2p)
-                           let shortLine = new PrimitiveLine(cursorPoint, segment.PerpendicularSlope())
-                           let selectionPoint = shortLine.IntersectionPoint(segment, false)
-                           let dist = (selectionPoint - cursorPoint).LengthSquared
-                           where dist < selectionDist2
-                           orderby dist
-                           // simple unproject via interpolation
-                           let pct = (selectionPoint - p1p).Length / (p2p - p1p).Length
-                           let vec = (Vector)(points[i + 1] - points[i]).ToPoint()
-                           let newLen = vec.Length * pct
-                           let offset = vec.Normalize() * newLen
+                           let dist = lines[entityId].ClosestPointToCursor(cursorPoint, Project)
+                           where dist != null && dist.Item1 < selectionRadius2
+                           orderby dist.Item1
                            select new
                            {
                                EntityId = entityId,
-                               SelectionPoint = points[i].ToPoint() + offset
+                               Distance = dist.Item1,
+                               SelectionPoint = dist.Item2
                            };
+
             var selected = entities.FirstOrDefault();
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            inputService.WriteLine("GetHitEntity in {0} ms", elapsed);
 
             if (selected == null)
             {
@@ -1097,8 +1118,10 @@ namespace BCad.UI.Views
             }
             else
             {
+                start = DateTime.UtcNow;
                 var entity = drawing.Layers.Values.SelectMany(l => l.Entities).Single(en => en.Id == selected.EntityId);
                 var elapsed2 = (DateTime.UtcNow - start).TotalMilliseconds;
+                inputService.WriteLine("GetHitEntity(selection) in {0} ms", elapsed2);
                 return new SelectedEntity(entity, selected.SelectionPoint);
             }
         }
@@ -1135,23 +1158,6 @@ namespace BCad.UI.Views
                 Device.Viewport.MaxZ,
                 projectionWorldMatrix);
             return worldPoint;
-        }
-
-        private static Rect GetBoundingRectangle(params Vector3[] points)
-        {
-            Debug.Assert(points.Length > 0);
-            float minX, minY, maxX, maxY;
-            minX = maxX = points[0].X;
-            minY = maxY = points[0].Y;
-            for (int i = 1; i < points.Length; i++)
-            {
-                minX = Math.Min(minX, points[i].X);
-                maxX = Math.Max(maxX, points[i].X);
-                minY = Math.Min(minY, points[i].Y);
-                maxY = Math.Max(maxY, points[i].Y);
-            }
-
-            return new Rect(minX, minY, maxX - minX, maxY - minY);
         }
 
         #endregion

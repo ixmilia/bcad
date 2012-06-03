@@ -10,6 +10,26 @@ namespace BCad.Extensions
 {
     public static class PrimitiveExtensions
     {
+        public static Point ClosestPoint(this PrimitiveLine line, Point point, bool withinBounds = true)
+        {
+            var v = line.P1;
+            var w = line.P2;
+            var p = point;
+            var wv = w - v;
+            var l2 = wv.LengthSquared;
+            if (Math.Abs(l2) < MathHelper.Epsilon)
+                return v;
+            var t = (p - v).Dot(wv) / l2;
+            if (withinBounds)
+            {
+                t = Math.Max(t, 0.0 - MathHelper.Epsilon);
+                t = Math.Min(t, 1.0 + MathHelper.Epsilon);
+            }
+
+            var result = v + (wv) * t;
+            return result;
+        }
+
         public static double Slope(this PrimitiveLine line)
         {
             var denom = line.P2.X - line.P1.X;
@@ -85,16 +105,11 @@ namespace BCad.Extensions
             if (p21.LengthSquared < MathHelper.Epsilon)
                 return null;
 
-            Func<Point, Point, Point, Point, double> d = (m, n, o, p) =>
-            {
-                return (m.X - n.X) * (o.X - p.X) + (m.Y - n.Y) * (o.Y - p.Y) + (m.Z - n.Z) * (o.Z - p.Z);
-            };
-
-            var d1343 = d(p1, p3, p4, p3);
-            var d4321 = d(p4, p3, p2, p1);
-            var d1321 = d(p1, p3, p2, p1);
-            var d4343 = d(p4, p3, p4, p3);
-            var d2121 = d(p2, p1, p2, p1);
+            var d1343 = p13.Dot(p43);
+            var d4321 = p43.Dot(p21);
+            var d1321 = p13.Dot(p21);
+            var d4343 = p43.Dot(p43);
+            var d2121 = p21.Dot(p21);
 
             var denom = d2121 * d4343 - d4321 * d4321;
             if (Math.Abs(denom) < MathHelper.Epsilon)
