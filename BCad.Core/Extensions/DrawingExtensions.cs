@@ -1,4 +1,6 @@
-﻿using BCad.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using BCad.Entities;
 
 namespace BCad
 {
@@ -90,6 +92,16 @@ namespace BCad
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns a collection of all entities in the drawing.
+        /// </summary>
+        /// <param name="drawing">The drawing.</param>
+        /// <returns>A collection of all entities in the drawing.</returns>
+        public static IEnumerable<Entity> GetEntities(this Drawing drawing)
+        {
+            return drawing.Layers.Values.SelectMany(l => l.Entities);
         }
     }
 }

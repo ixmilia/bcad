@@ -12,7 +12,7 @@ namespace BCad.Services
     [Export(typeof(ITrimExtendService))]
     internal class TrimExtendService : ITrimExtendService
     {
-        public Drawing Trim(Drawing drawing, SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives)
+        public void Trim(Drawing drawing, SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var selectionPrimitives = entityToTrim.Entity.GetPrimitives();
 
@@ -29,19 +29,27 @@ namespace BCad.Services
                 switch (entityToTrim.Entity.Kind)
                 {
                     case EntityKind.Line:
-                        drawing = TrimLine(drawing, (Line)entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints);
+                        TrimLine(drawing, (Line)entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
                         Debug.Fail("only lines are supported");
+                        removed = new List<Entity>();
+                        added = new List<Entity>();
                         break;
                 }
             }
-
-            return drawing;
+            else
+            {
+                removed = new List<Entity>();
+                added = new List<Entity>();
+            }
         }
 
-        private static Drawing TrimLine(Drawing drawing, Line lineToTrim, Point selectionPoint, IEnumerable<Point> intersectionPoints)
+        private static void TrimLine(Drawing drawing, Line lineToTrim, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
+            var removedList = new List<Entity>();
+            var addedList = new List<Entity>();
+
             // split intersection points based on which side of the selection point they are
             var left = new List<Point>();
             var right = new List<Point>();
@@ -67,19 +75,19 @@ namespace BCad.Services
             // remove the original line
             if (leftPoint != null || rightPoint != null)
             {
-                var layer = drawing.ContainingLayer(lineToTrim).Name;
-                drawing = drawing.Remove(lineToTrim);
+                removedList.Add(lineToTrim);
                 if (leftPoint != null)
                 {
-                    drawing = drawing.Add(drawing.Layers[layer], lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoint));
+                    addedList.Add(lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoint));
                 }
                 if (rightPoint != null)
                 {
-                    drawing = drawing.Add(drawing.Layers[layer], lineToTrim.Update(p1: rightPoint, p2: lineToTrim.P2));
+                    addedList.Add(lineToTrim.Update(p1: rightPoint, p2: lineToTrim.P2));
                 }
             }
 
-            return drawing;
+            removed = removedList;
+            added = addedList;
         }
     }
 }

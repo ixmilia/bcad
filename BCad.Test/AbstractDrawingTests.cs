@@ -139,5 +139,6 @@ namespace BCad.Test
         protected TestHost Host { get; set; }
         protected IWorkspace Workspace { get { return Host.Workspace; } }
         protected IInputService InputService { get { return Host.InputService; } }
+        protected ITrimExtendService TrimExtendService { get { return Host.TrimExtendService; } }
     }
 }

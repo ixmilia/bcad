@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestHost.cs" />
+    <Compile Include="TrimExtendTests.cs" />
     <Compile Include="VectorTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,9 @@ namespace BCad.Test
         [Import]
         public IInputService InputService { get; private set; }
 
+        [Import]
+        public ITrimExtendService TrimExtendService { get; private set; }
+
         private TestHost()
         {
             var catalog = new AggregateCatalog(
