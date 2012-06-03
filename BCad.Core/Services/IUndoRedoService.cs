@@ -1,4 +1,4 @@
-﻿namespace BCad
+﻿namespace BCad.Services
 {
     public interface IUndoRedoService
     {

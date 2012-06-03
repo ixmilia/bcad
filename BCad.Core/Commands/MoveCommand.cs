@@ -3,6 +3,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using BCad.Entities;
 using BCad.Primitives;
+using BCad.Services;
 
 namespace BCad.Commands
 {

@@ -13,10 +13,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using BCad.Commands;
 using BCad.EventArguments;
+using BCad.Primitives;
+using BCad.Services;
 using BCad.UI;
 using Microsoft.Windows.Controls.Ribbon;
-using BCad.Entities;
-using BCad.Primitives;
 
 namespace BCad
 {

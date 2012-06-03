@@ -13,6 +13,7 @@ using BCad.Commands;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.FileHandlers;
+using BCad.Services;
 
 namespace BCad
 {

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
+using BCad.Services;
 
 namespace BCad.Commands
 {

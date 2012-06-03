@@ -3,7 +3,7 @@ using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Primitives;
 
-namespace BCad
+namespace BCad.Services
 {
     public enum InputType
     {

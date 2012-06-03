@@ -8,7 +8,7 @@ using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Primitives;
 
-namespace BCad
+namespace BCad.Services
 {
     [Export(typeof(IInputService))]
     internal class InputService : IInputService, IPartImportsSatisfiedNotification

@@ -3,14 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Text;
-using BCad.Dxf;
-using BCad.Dxf.Entities;
-using BCad.Entities;
-using BCad.FileHandlers;
-using Microsoft.Win32;
-using System.Windows;
 using System.Windows.Input;
+using BCad.FileHandlers;
+using BCad.Services;
+using Microsoft.Win32;
 
 namespace BCad.Commands
 {

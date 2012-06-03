@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using BCad.Services;
 using Media = System.Windows.Media;
 
 namespace BCad

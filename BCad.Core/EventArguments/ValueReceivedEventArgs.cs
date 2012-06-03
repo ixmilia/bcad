@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BCad.Entities;
+using BCad.Services;
 
 namespace BCad.EventArguments
 {
@@ -19,7 +20,7 @@ namespace BCad.EventArguments
         {
             get
             {
-                if (InputType != BCad.InputType.Distance)
+                if (InputType != InputType.Distance)
                     throw new Exception("Value was not a distance");
                 return distance;
             }
@@ -49,7 +50,7 @@ namespace BCad.EventArguments
         {
             get
             {
-                if (InputType != BCad.InputType.Entities)
+                if (InputType != InputType.Entities)
                     throw new Exception("Value was not an entity collection");
                 return entities;
             }
@@ -83,7 +84,7 @@ namespace BCad.EventArguments
         public ValueReceivedEventArgs(double distance)
         {
             this.distance = distance;
-            InputType = BCad.InputType.Distance;
+            InputType = InputType.Distance;
         }
 
         public ValueReceivedEventArgs(Point point)
@@ -108,10 +109,10 @@ namespace BCad.EventArguments
         {
             switch (type)
             {
-                case BCad.InputType.Command:
+                case InputType.Command:
                     command = value;
                     break;
-                case BCad.InputType.Directive:
+                case InputType.Directive:
                     directive = value;
                     break;
                 default:

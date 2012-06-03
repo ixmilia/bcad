@@ -68,10 +68,11 @@
     <Compile Include="Ribbons\HomeRibbon.xaml.cs">
       <DependentUpon>HomeRibbon.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\TrimExtendService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
-    <Compile Include="UndoRedoService.cs" />
-    <Compile Include="InputService.cs" />
+    <Compile Include="Services\UndoRedoService.cs" />
+    <Compile Include="Services\InputService.cs" />
     <Compile Include="UserCommand.cs" />
     <Compile Include="Workspace.cs" />
     <Page Include="Ribbons\HomeRibbonIcons.xaml">

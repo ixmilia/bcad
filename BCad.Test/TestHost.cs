@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using BCad.Services;
 
 namespace BCad.Test
 {

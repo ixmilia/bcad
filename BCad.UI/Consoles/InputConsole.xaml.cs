@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using BCad.EventArguments;
 using BCad.Helpers;
+using BCad.Services;
+using Input = System.Windows.Input;
 
 namespace BCad.UI.Consoles
 {
@@ -50,20 +51,20 @@ namespace BCad.UI.Consoles
         [Import]
         private IView View = null;
 
-        private void InputKeyDown(object sender, KeyEventArgs e)
+        private void InputKeyDown(object sender, Input.KeyEventArgs e)
         {
             switch (e.Key)
             {
-                case Key.Enter:
-                case Key.LineFeed:
+                case Input.Key.Enter:
+                case Input.Key.LineFeed:
                     SubmitValue();
                     break;
-                case Key.Space:
+                case Input.Key.Space:
                     if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
                         e.Handled = true;
                     SubmitValue();
                     break;
-                case Key.Escape:
+                case Input.Key.Escape:
                     SubmitCancel();
                     break;
                 default:

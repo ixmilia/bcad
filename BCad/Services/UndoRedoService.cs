@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 
-namespace BCad
+namespace BCad.Services
 {
     [Export(typeof(IUndoRedoService))]
     internal class UndoRedoService : IUndoRedoService, IPartImportsSatisfiedNotification

@@ -103,8 +103,8 @@
     <Compile Include="IControlFactoryMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
-    <Compile Include="IUndoRedoService.cs" />
-    <Compile Include="IInputService.cs" />
+    <Compile Include="Services\IUndoRedoService.cs" />
+    <Compile Include="Services\IInputService.cs" />
     <Compile Include="IUserConsoleFactory.cs" />
     <Compile Include="IView.cs" />
     <Compile Include="IViewControlMetadata.cs" />
@@ -120,6 +120,7 @@
     <Compile Include="Primitives\PrimitiveText.cs" />
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
     <Compile Include="SelectedEntity.cs" />
+    <Compile Include="Services\ITrimExtendService.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />

@@ -8,15 +8,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using BCad.Entities;
 using BCad.EventArguments;
-using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
+using BCad.Services;
 using BCad.SnapPoints;
 using SlimDX;
 using SlimDX.Direct3D9;
+using Input = System.Windows.Input;
 using Media = System.Windows.Media;
 
 namespace BCad.UI.Views
@@ -314,7 +314,7 @@ namespace BCad.UI.Views
 
         public override Point GetCursorPoint()
         {
-            var cursor = Mouse.GetPosition(this);
+            var cursor = Input.Mouse.GetPosition(this);
             var sp = GetActiveModelPoint(cursor.ToVector3());
             return sp.WorldPoint;
         }
@@ -440,7 +440,7 @@ namespace BCad.UI.Views
 
             if (redraw)
             {
-                var cursor = Mouse.GetPosition(this);
+                var cursor = Input.Mouse.GetPosition(this);
                 var sp = GetActiveModelPoint(cursor.ToVector3());
                 GenerateRubberBandLines(sp.WorldPoint);
                 DrawSnapPoint(sp);
@@ -531,7 +531,7 @@ namespace BCad.UI.Views
             var cursor = (Vector3)this.Dispatcher.Invoke((Func<Vector3>)(() =>
             {
                 snapLayer.Children.Clear();
-                return Project(Mouse.GetPosition(this).ToVector3());
+                return Project(Input.Mouse.GetPosition(this).ToVector3());
             }));
             GenerateRubberBandLines(GetActiveModelPoint(cursor).WorldPoint);
             selecting = false;
@@ -861,14 +861,14 @@ namespace BCad.UI.Views
 
         #region Mouse functions
 
-        private void OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnMouseDown(object sender, Input.MouseButtonEventArgs e)
         {
             var cursor = e.GetPosition(this);
             var cursorVector = cursor.ToVector3();
             var sp = GetActiveModelPoint(cursorVector);
             switch (e.ChangedButton)
             {
-                case MouseButton.Left:
+                case Input.MouseButton.Left:
                     if (inputService.AllowedInputTypes.HasFlag(InputType.Point))
                     {
                         inputService.PushPoint(sp.WorldPoint);
@@ -915,11 +915,11 @@ namespace BCad.UI.Views
                     }
 
                     break;
-                case MouseButton.Middle:
+                case Input.MouseButton.Middle:
                     panning = true;
                     lastPanPoint = cursor;
                     break;
-                case MouseButton.Right:
+                case Input.MouseButton.Right:
                     inputService.PushNone();
                     break;
             }
@@ -927,12 +927,12 @@ namespace BCad.UI.Views
             GenerateRubberBandLines(sp.WorldPoint);
         }
 
-        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        private void OnMouseUp(object sender, Input.MouseButtonEventArgs e)
         {
             var cursor = e.GetPosition(this);
             switch (e.ChangedButton)
             {
-                case MouseButton.Middle:
+                case Input.MouseButton.Middle:
                     panning = false;
                     break;
             }
@@ -941,7 +941,7 @@ namespace BCad.UI.Views
             GenerateRubberBandLines(sp.WorldPoint);
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        private void OnMouseMove(object sender, Input.MouseEventArgs e)
         {
             bool force = false;
             var cursor = e.GetPosition(this);
@@ -982,7 +982,7 @@ namespace BCad.UI.Views
             }
         }
 
-        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        private void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
         {
             // scale everything
             var scale = 1.25f;

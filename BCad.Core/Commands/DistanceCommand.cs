@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using BCad.Primitives;
+using BCad.Services;
 
 namespace BCad.Commands
 {
