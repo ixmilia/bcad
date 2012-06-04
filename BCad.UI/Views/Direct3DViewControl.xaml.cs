@@ -221,14 +221,12 @@ float4 PShader(float4 color : COLOR0) : SV_Target
 ", "PShader", "ps_3_0", ShaderFlags.None);
 
             selectedMeshBytecode = ShaderBytecode.Compile(@"
-float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0, float bg : COLOR1) : SV_Target
+float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
 {
     int p = position.x + position.y;
     if (p % 2 == 0)
         return color;
     else
-        //return float4(color.x, color.y, color.z, 0.0f);
-        //return bg;
         return float4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 ", "PShader", "ps_3_0", ShaderFlags.None);
