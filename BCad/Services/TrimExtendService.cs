@@ -45,7 +45,7 @@ namespace BCad.Services
             }
         }
 
-        private static void TrimLine(Drawing drawing, Line lineToTrim, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        private static void TrimLine(Drawing drawing, Line lineToTrim, Point pivot, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var removedList = new List<Entity>();
             var addedList = new List<Entity>();
@@ -53,7 +53,7 @@ namespace BCad.Services
             // split intersection points based on which side of the selection point they are
             var left = new List<Point>();
             var right = new List<Point>();
-            var pivotDist = (selectionPoint - lineToTrim.P1).LengthSquared;
+            var pivotDist = (pivot - lineToTrim.P1).LengthSquared;
             var fullDist = (lineToTrim.P2 - lineToTrim.P1).LengthSquared;
             foreach (var point in intersectionPoints)
             {
@@ -69,13 +69,15 @@ namespace BCad.Services
             }
 
             // find the closest points on each side.  these are the new endpoints
-            var leftPoint = left.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
-            var rightPoint = right.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
+            var leftPoint = left.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
+            var rightPoint = right.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
 
-            // remove the original line
             if (leftPoint != null || rightPoint != null)
             {
+                // remove the original line
                 removedList.Add(lineToTrim);
+
+                // add the new shorted lines where appropriate
                 if (leftPoint != null)
                 {
                     addedList.Add(lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoint));

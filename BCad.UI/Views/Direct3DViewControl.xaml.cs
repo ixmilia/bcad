@@ -30,7 +30,7 @@ namespace BCad.UI.Views
 
         #region IDisplayPrimitive
 
-        private interface IDisplayPrimitive
+        private interface IDisplayPrimitive : IDisposable
         {
             void RenderNormal(Device device, Matrix projection, Matrix view);
             void RenderSelected(Device device, Matrix projection, Matrix view);
@@ -75,6 +75,10 @@ namespace BCad.UI.Views
             {
                 return selectionRectangle.Contains(LineVerticies, project, includePartial);
             }
+
+            public void Dispose()
+            {
+            }
         }
 
         private class DisplayPrimitiveMesh : IDisplayPrimitive
@@ -84,9 +88,10 @@ namespace BCad.UI.Views
             public Matrix WorldMatrix { get; private set; }
             private Vector3[] boundingCorners = null;
             private Vector3[] outlineCorners = null;
-            private Material SelectedMaterial { get; set; }
+            private PixelShader NormalShader = null;
+            private PixelShader SelectedShader = null;
 
-            public DisplayPrimitiveMesh(Mesh mesh, Color4 color, Matrix worldMatrix)
+            public DisplayPrimitiveMesh(Mesh mesh, Color4 color, Matrix worldMatrix, PixelShader normalShader, PixelShader selectedShader)
             {
                 this.Mesh = mesh;
                 this.Material = new Material()
@@ -95,13 +100,8 @@ namespace BCad.UI.Views
                     Emissive = color
                 };
                 this.WorldMatrix = worldMatrix;
-                var sc = new Color4(0.5f, color.Red, color.Green, color.Blue);
-                sc = new Color4(color.Alpha, color.Red / 2.0f, color.Green / 2.0f, color.Blue / 2.0f);
-                this.SelectedMaterial = new Material()
-                {
-                    Diffuse = sc,
-                    Emissive = sc
-                };
+                this.NormalShader = normalShader;
+                this.SelectedShader = selectedShader;
 
                 var boundingBox = Mesh.GetBoundingBox();
                 this.boundingCorners = boundingBox.GetCorners();
@@ -115,18 +115,19 @@ namespace BCad.UI.Views
 
             public void RenderNormal(Device device, Matrix projection, Matrix view)
             {
-                Render(device, Material);
+                Render(device, NormalShader);
             }
 
             public void RenderSelected(Device device, Matrix projection, Matrix view)
             {
-                Render(device, SelectedMaterial);
+                Render(device, SelectedShader);
             }
 
-            private void Render(Device device, Material material)
+            private void Render(Device device, PixelShader shader)
             {
                 device.SetTransform(TransformState.World, this.WorldMatrix);
-                device.Material = material;
+                device.Material = Material;
+                device.PixelShader = shader;
                 Mesh.DrawSubset(0);
             }
 
@@ -142,6 +143,11 @@ namespace BCad.UI.Views
             public bool IsContained(Rect selectionRectangle, bool includePartial, Func<Vector3, Vector3> project)
             {
                 return selectionRectangle.Contains(this.outlineCorners, project, includePartial);
+            }
+
+            public void Dispose()
+            {
+                this.Mesh.Dispose();
             }
         }
 
@@ -207,18 +213,25 @@ namespace BCad.UI.Views
             this.inputService.ValueReceived += InputServiceValueReceived;
 
             // prepare shader bytecode
-//            selectedMeshBytecode = ShaderBytecode.Compile(@"
-//float4 bg;
-//
-//float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
-//{
-//    int p = position.x + position.y;
-//    if ((p / 2) % 2 == 0)
-//        return color;
-//    else
-//        return bg;
-//}
-//", "PShader", "ps_3_0", ShaderFlags.None);
+            normalMeshBytecode = ShaderBytecode.Compile(@"
+float4 PShader(float4 color : COLOR0) : SV_Target
+{
+    return color;
+}
+", "PShader", "ps_3_0", ShaderFlags.None);
+
+            selectedMeshBytecode = ShaderBytecode.Compile(@"
+float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0, float bg : COLOR1) : SV_Target
+{
+    int p = position.x + position.y;
+    if (p % 2 == 0)
+        return color;
+    else
+        //return float4(color.x, color.y, color.z, 0.0f);
+        //return bg;
+        return float4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+", "PShader", "ps_3_0", ShaderFlags.None);
 
             // load the workspace
             foreach (var setting in new[] { Constants.DrawingString })
@@ -286,6 +299,10 @@ namespace BCad.UI.Views
         private bool lastGeneratorNonNull = false;
         private SlimDX.Direct3D9.Line solidLine;
         private SlimDX.Direct3D9.Line dashedLine;
+        private ShaderBytecode normalMeshBytecode = null;
+        private ShaderBytecode selectedMeshBytecode = null;
+        private PixelShader normalPixelShader = null;
+        private PixelShader selectedPixelShader = null;
 
         #endregion
 
@@ -341,6 +358,10 @@ namespace BCad.UI.Views
                 solidLine.Dispose();
             if (dashedLine != null)
                 dashedLine.Dispose();
+            if (normalPixelShader != null)
+                normalPixelShader.Dispose();
+            if (selectedPixelShader != null)
+                selectedPixelShader.Dispose();
 
             solidLine = new SlimDX.Direct3D9.Line(Device);
             dashedLine = new SlimDX.Direct3D9.Line(Device)
@@ -350,8 +371,13 @@ namespace BCad.UI.Views
                 PatternScale = 1
             };
 
+            normalPixelShader = new PixelShader(Device, normalMeshBytecode);
+            selectedPixelShader = new PixelShader(Device, selectedMeshBytecode);
+
             Device.SetRenderState(RenderState.Lighting, true);
             Device.SetRenderState(RenderState.AlphaBlendEnable, true);
+            Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+            Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
             DrawingChanged(drawing);
         }
 
@@ -465,6 +491,9 @@ namespace BCad.UI.Views
             {
                 this.drawing = drawing;
                 var start = DateTime.UtcNow;
+                Parallel.ForEach(lines.Values, ent => Parallel.ForEach(ent.DisplayPrimitives, p => p.Dispose()));
+
+                // TODO: diff the drawing and only remove/generate the necessary elements
                 lines.Clear();
                 foreach (var layer in drawing.Layers.Values.Where(l => l.IsVisible))
                 {
@@ -545,12 +574,15 @@ namespace BCad.UI.Views
 
         private Color4 GetDisplayColor(Color layerColor, Color primitiveColor)
         {
-            var color = autoColor;
+            Color4 display;
             if (!primitiveColor.IsAuto)
-                color = new Color4(primitiveColor.ToInt());
-            if (!layerColor.IsAuto)
-                color = new Color4(layerColor.ToInt());
-            return color;
+                display = new Color4(primitiveColor.ToInt());
+            else if (!layerColor.IsAuto)
+                display = new Color4(layerColor.ToInt());
+            else
+                display = autoColor;
+
+            return display;
         }
 
         private void GenerateRubberBandLines(Point worldPoint)
@@ -591,7 +623,7 @@ namespace BCad.UI.Views
                     var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
                     var alignment = Direct3DExtensions.AlginmentMatrix(normal, right, up, text.Location);
                     var matrix = Matrix.Scaling(sc, sc, sc) * alignment;
-                    display = new DisplayPrimitiveMesh(mesh, color, matrix);
+                    display = new DisplayPrimitiveMesh(mesh, color, matrix, normalPixelShader, selectedPixelShader);
                     break;
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
