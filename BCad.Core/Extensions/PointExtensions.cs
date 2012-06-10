@@ -1,12 +1,17 @@
 ﻿using System.Windows.Media.Media3D;
 
-namespace BCad
+namespace BCad.Extensions
 {
     public static class PointExtensions
     {
-        public static System.Drawing.Point ToPoint(this Point3D vector)
+        public static Point Transform(this Point point, Matrix3D matrix)
         {
-            return new System.Drawing.Point((int)vector.X, (int)vector.Y);
+            return new Point(matrix.Transform(point.ToPoint3D()));
+        }
+
+        public static Vector Transform(this Vector vector, Matrix3D matrix)
+        {
+            return ((Point)vector).Transform(matrix);
         }
     }
 }

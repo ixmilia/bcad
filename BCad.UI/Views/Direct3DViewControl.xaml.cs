@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using BCad.Entities;
 using BCad.EventArguments;
+using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
@@ -18,6 +19,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 using Input = System.Windows.Input;
 using Media = System.Windows.Media;
+using Media3D = System.Windows.Media.Media3D;
 
 namespace BCad.UI.Views
 {
@@ -212,25 +214,6 @@ namespace BCad.UI.Views
             this.inputService.ValueRequested += InputServiceValueRequested;
             this.inputService.ValueReceived += InputServiceValueReceived;
 
-            // prepare shader bytecode
-            normalMeshBytecode = ShaderBytecode.Compile(@"
-float4 PShader(float4 color : COLOR0) : SV_Target
-{
-    return color;
-}
-", "PShader", "ps_3_0", ShaderFlags.None);
-
-            selectedMeshBytecode = ShaderBytecode.Compile(@"
-float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
-{
-    int p = position.x + position.y;
-    if (p % 2 == 0)
-        return color;
-    else
-        return float4(0.0f, 0.0f, 0.0f, 0.0f);
-}
-", "PShader", "ps_3_0", ShaderFlags.None);
-
             // load the workspace
             foreach (var setting in new[] { Constants.DrawingString })
                 WorkspacePropertyChanged(this.workspace, new PropertyChangedEventArgs(setting));
@@ -356,6 +339,10 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 solidLine.Dispose();
             if (dashedLine != null)
                 dashedLine.Dispose();
+            if (normalMeshBytecode != null)
+                normalMeshBytecode.Dispose();
+            if (selectedMeshBytecode != null)
+                selectedMeshBytecode.Dispose();
             if (normalPixelShader != null)
                 normalPixelShader.Dispose();
             if (selectedPixelShader != null)
@@ -369,6 +356,24 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 PatternScale = 1
             };
 
+            // prepare shader bytecode
+            normalMeshBytecode = ShaderBytecode.Compile(@"
+float4 PShader(float4 color : COLOR0) : SV_Target
+{
+    return color;
+}
+", "PShader", "ps_3_0", ShaderFlags.None);
+
+            selectedMeshBytecode = ShaderBytecode.Compile(@"
+float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
+{
+    int p = position.x + position.y;
+    if (p % 2 == 0)
+        return color;
+    else
+        return float4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+", "PShader", "ps_3_0", ShaderFlags.None);
             normalPixelShader = new PixelShader(Device, normalMeshBytecode);
             selectedPixelShader = new PixelShader(Device, selectedMeshBytecode);
 
@@ -608,6 +613,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
         {
             IDisplayPrimitive display;
             Vector normal = null, right = null, up = null;
+            Media3D.Matrix3D trans;
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Text:
@@ -619,9 +625,8 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
                     var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
-                    var alignment = Direct3DExtensions.AlginmentMatrix(normal, right, up, text.Location);
-                    var matrix = Matrix.Scaling(sc, sc, sc) * alignment;
-                    display = new DisplayPrimitiveMesh(mesh, color, matrix, normalPixelShader, selectedPixelShader);
+                    trans = PrimitiveExtensions.GenerateUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc);
+                    display = new DisplayPrimitiveMesh(mesh, color, trans.ToMatrix(), normalPixelShader, selectedPixelShader);
                     break;
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
@@ -656,14 +661,12 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     var segments = new Vector3[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
-                    var transformation = Direct3DExtensions.AlginmentMatrix(normal, right, up, center);
+                    trans = PrimitiveExtensions.GenerateUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0);
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
-                        var result = Vector3.Transform(
-                            new Vector3((float)(Math.Cos(angle) * radiusX), (float)(Math.Sin(angle) * radiusY), 0.0f),
-                            transformation);
-                        segments[i] = new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W);
+                        var result = (new Point(Math.Cos(angle), Math.Sin(angle), 0).ToPoint3D()) * trans;
+                        segments[i] = result.ToVector3();
                     }
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                     display = new DisplayPrimitiveLines(

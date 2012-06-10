@@ -1,13 +1,14 @@
-﻿using SlimDX;
-using SlimDX.Direct3D9;
-using System.Windows;
-using BCad.Primitives;
-using System.Linq;
-using System;
-using System.Diagnostics;
-using BCad.Extensions;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Windows;
+using System.Windows.Media.Media3D;
+using BCad.Extensions;
 using BCad.Helpers;
+using BCad.Primitives;
+using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace BCad.UI
 {
@@ -28,6 +29,11 @@ namespace BCad.UI
             return new Vector3(vector.X / vector.W, vector.Y / vector.W, vector.Z / vector.W);
         }
 
+        public static Vector3 ToVector3(this Point3D point)
+        {
+            return new Vector3((float)point.X, (float)point.Y, (float)point.Z);
+        }
+
         public static Vector ToVector(this Vector3 vector)
         {
             return new Vector(vector.X, vector.Y, vector.Z);
@@ -41,6 +47,29 @@ namespace BCad.UI
         public static System.Windows.Point ToWindowsPoint(this Vector3 point)
         {
             return new System.Windows.Point(point.X, point.Y);
+        }
+
+        public static Matrix ToMatrix(this Matrix3D matrix)
+        {
+            return new Matrix()
+            {
+                M11 = (float)matrix.M11,
+                M12 = (float)matrix.M12,
+                M13 = (float)matrix.M13,
+                M14 = (float)matrix.M14,
+                M21 = (float)matrix.M21,
+                M22 = (float)matrix.M22,
+                M23 = (float)matrix.M23,
+                M24 = (float)matrix.M24,
+                M31 = (float)matrix.M31,
+                M32 = (float)matrix.M32,
+                M33 = (float)matrix.M33,
+                M34 = (float)matrix.M34,
+                M41 = (float)matrix.OffsetX,
+                M42 = (float)matrix.OffsetY,
+                M43 = (float)matrix.OffsetZ,
+                M44 = (float)matrix.M44,
+            };
         }
 
         public static SlimDX.BoundingBox GetBoundingBox(this Mesh mesh)
@@ -58,24 +87,6 @@ namespace BCad.UI
 
             mesh.UnlockVertexBuffer();
             return SlimDX.BoundingBox.FromPoints(verts);
-        }
-
-        public static Matrix AlginmentMatrix(Vector normal, Vector right, Vector up, Point offset)
-        {
-            var transformation = Matrix.Identity;
-            transformation.M11 = (float)right.X;
-            transformation.M12 = (float)right.Y;
-            transformation.M13 = (float)right.Z;
-            transformation.M21 = (float)up.X;
-            transformation.M22 = (float)up.Y;
-            transformation.M23 = (float)up.Z;
-            transformation.M31 = (float)normal.X;
-            transformation.M32 = (float)normal.Y;
-            transformation.M33 = (float)normal.Z;
-            transformation.M41 = (float)offset.X;
-            transformation.M42 = (float)offset.Y;
-            transformation.M43 = (float)offset.Z;
-            return transformation;
         }
 
         public static bool Contains(this Rect rect, Vector3[] lineSegments, Func<Vector3, Vector3> project, bool includePartial)

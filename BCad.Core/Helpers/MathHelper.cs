@@ -25,5 +25,14 @@ namespace BCad.Helpers
             var max = Math.Max(a, b) - Epsilon;
             return value >= min && value <= max;
         }
+
+        public static double CorrectAngleDegrees(this double angle)
+        {
+            while (angle < 0.0)
+                angle += 360.0;
+            while (angle >= 360.0)
+                angle -= 360.0;
+            return angle;
+        }
     }
 }

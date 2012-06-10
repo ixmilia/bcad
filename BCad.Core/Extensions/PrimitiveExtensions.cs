@@ -5,6 +5,8 @@ using System.Text;
 using BCad.Primitives;
 using BCad.Helpers;
 using System.Diagnostics;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace BCad.Extensions
 {
@@ -47,6 +49,11 @@ namespace BCad.Extensions
                 return -1.0 / slope;
         }
 
+        public static PrimitiveLine Transform(this PrimitiveLine line, Matrix3D matrix)
+        {
+            return new PrimitiveLine(line.P1.Transform(matrix), line.P2.Transform(matrix), line.Color);
+        }
+
         public static IEnumerable<Point> IntersectionPoints(this IPrimitive primitive, IPrimitive other, bool withinBounds = true)
         {
             IEnumerable<Point> result;
@@ -56,7 +63,11 @@ namespace BCad.Extensions
                     result = ((PrimitiveLine)primitive).IntersectionPoints(other, withinBounds);
                     break;
                 case PrimitiveKind.Ellipse:
+                    result = ((PrimitiveEllipse)primitive).IntersectionPoints(other, withinBounds);
+                    break;
                 case PrimitiveKind.Text:
+                    result = null;
+                    break;
                 default:
                     Debug.Fail("Unsupported primitive type");
                     result = null;
@@ -75,7 +86,11 @@ namespace BCad.Extensions
                     result = new[] { line.IntersectionPoint((PrimitiveLine)other, withinBounds) };
                     break;
                 case PrimitiveKind.Ellipse:
+                    result = line.IntersectionPoints((PrimitiveEllipse)other, withinBounds);
+                    break;
                 case PrimitiveKind.Text:
+                    result = null;
+                    break;
                 default:
                     Debug.Fail("Unsupported primitive type");
                     result = null;
@@ -83,6 +98,11 @@ namespace BCad.Extensions
             }
 
             return result;
+        }
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, IPrimitive other, bool withinBounds = true)
+        {
+            return other.IntersectionPoints(ellipse);
         }
 
         public static Point IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
@@ -135,6 +155,152 @@ namespace BCad.Extensions
 
             var point = (Point)((connector.P1 + connector.P2) / 2);
             return point;
+        }
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitiveLine line, PrimitiveEllipse ellipse, bool withinSegment = true)
+        {
+            var empty = Enumerable.Empty<Point>();
+
+            var l0 = line.P1;
+            var l = line.P2 - line.P1;
+            var p0 = ellipse.Center;
+            var n = ellipse.Normal;
+
+            var right = ellipse.MajorAxis.Normalize();
+            var up = ellipse.Normal.Cross(right).Normalize();
+            var radiusX = ellipse.MajorAxis.Length;
+            var radiusY = radiusX * ellipse.MinorAxisRatio;
+            var transform = GenerateUnitCircleProjection(ellipse.Normal, right, up, ellipse.Center, radiusX, radiusY, 1.0);
+            var invert = transform;
+            invert.Invert();
+
+            var denom = l.Dot(n);
+            var num = (p0 - l0).Dot(n);
+
+            var flatPoints = new List<Point>();
+
+            if (Math.Abs(denom) < MathHelper.Epsilon)
+            {
+                // plane either contains the line entirely or is parallel
+                if (Math.Abs(num) < MathHelper.Epsilon)
+                {
+                    // parallel.  normalize the plane and find the intersection
+                    var flatLine = line.Transform(invert);
+                    // the ellipse is now centered at the origin with a radius of 1.
+                    // find the intersection points then reproject
+                    var dv = flatLine.P2 - flatLine.P1;
+                    var dx = dv.X;
+                    var dy = dv.Y;
+                    var dr2 = dx * dx + dy * dy;
+                    var D = flatLine.P1.X * flatLine.P2.Y - flatLine.P2.X * flatLine.P1.Y;
+                    var det = dr2 - D * D;
+                    var points = new List<Point>();
+                    if (det < 0.0 || Math.Abs(dr2) < MathHelper.Epsilon)
+                    {
+                        // no intersection or line is too short
+                    }
+                    else if (Math.Abs(det) < MathHelper.Epsilon)
+                    {
+                        // 1 point
+                        var x = (D * dy) / dr2;
+                        var y = (-D * dx) / dr2;
+                        points.Add(new Point(x, y, 0.0));
+                    }
+                    else
+                    {
+                        // 2 points
+                        var sgn = dy < 0.0 ? -1.0 : 1.0;
+                        var det2 = Math.Sqrt(det);
+                        points.Add(
+                            new Point(
+                                (D * dy + sgn * dx * det2) / dr2,
+                                (-D * dx + Math.Abs(dy) * det2) / dr2,
+                                0.0));
+                        points.Add(
+                            new Point(
+                                (D * dy - sgn * dx * det2) / dr2,
+                                (-D * dx - Math.Abs(dy) * det2) / dr2,
+                                0.0));
+                    }
+
+                    // ensure the points are within appropriate bounds
+                    if (withinSegment)
+                    {
+                        // line test
+                        points = points.Where(p =>
+                            MathHelper.Between(flatLine.P1.X, flatLine.P2.X, p.X) &&
+                            MathHelper.Between(flatLine.P1.Y, flatLine.P2.Y, p.Y)).ToList();
+
+                        // circle test
+                        points = (from p in points
+                                  let angle = (Math.Atan2(p.Y, p.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees()
+                                  where MathHelper.Between(ellipse.StartAngle, ellipse.EndAngle, angle)
+                                     || MathHelper.Between(ellipse.StartAngle - 360.0, ellipse.EndAngle, angle)
+                                     || MathHelper.Between(ellipse.StartAngle, ellipse.EndAngle + 360.0, angle)
+                                  select p)
+                                  .ToList();
+                    }
+
+                    return points.Select(p => p.Transform(transform));
+                }
+            }
+            else
+            {
+                // otherwise line and plane intersect in only 1 point, p
+                var d = num / denom;
+                var p = l * d + l0;
+
+                // verify within the line segment
+                if (withinSegment && !MathHelper.Between(0.0, 1.0, d))
+                {
+                    return empty;
+                }
+
+                // p is the point of intersection.  verify if on transformed unit circle
+                var unitVector = (Vector)p.Transform(invert);
+                if (Math.Abs(unitVector.Length - 1.0) < MathHelper.Epsilon)
+                {
+                    // point is on the unit circle
+                    if (withinSegment)
+                    {
+                        // verify within the angles specified
+                        var angle = Math.Atan2(unitVector.Y, unitVector.X) * MathHelper.RadiansToDegrees;
+                        if (MathHelper.Between(ellipse.StartAngle, ellipse.EndAngle, angle.CorrectAngleDegrees()))
+                        {
+                            return new[] { p };
+                        }
+                    }
+                    else
+                    {
+                        return new[] { p };
+                    }
+                }
+            }
+
+            // point is not on unit circle
+            return empty;
+        }
+
+        public static Matrix3D GenerateUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
+        {
+            var transformation = Matrix3D.Identity;
+            transformation.M11 = right.X;
+            transformation.M12 = right.Y;
+            transformation.M13 = right.Z;
+            transformation.M21 = up.X;
+            transformation.M22 = up.Y;
+            transformation.M23 = up.Z;
+            transformation.M31 = normal.X;
+            transformation.M32 = normal.Y;
+            transformation.M33 = normal.Z;
+            transformation.OffsetX = center.X;
+            transformation.OffsetY = center.Y;
+            transformation.OffsetZ = center.Z;
+            var scale = Matrix3D.Identity;
+            scale.M11 = scaleX;
+            scale.M22 = scaleY;
+            scale.M33 = scaleZ;
+            return scale * transformation;
         }
     }
 }

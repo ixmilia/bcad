@@ -4,6 +4,7 @@ using System.Windows.Media.Media3D;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
+using BCad.Extensions;
 
 namespace BCad.Entities
 {
@@ -82,25 +83,13 @@ namespace BCad.Entities
             var r = right.Normalize();
             var n = normal.Normalize();
             var up = normal.Cross(right).Normalize();
-            var trans = Matrix3D.Identity;
-            trans.M11 = r.X;
-            trans.M12 = r.Y;
-            trans.M13 = r.Z;
-            trans.M21 = up.X;
-            trans.M22 = up.Y;
-            trans.M23 = up.Z;
-            trans.M31 = n.X;
-            trans.M32 = n.Y;
-            trans.M33 = n.Z;
-            trans.OffsetX = center.X;
-            trans.OffsetY = center.Y;
-            trans.OffsetZ = center.Z;
+            var trans = PrimitiveExtensions.GenerateUnitCircleProjection(n, r, up, center, radiusX, radiusY, 0.0);
 
             for (int i = 0; i < anglesInDegrees.Length; i++)
             {
                 var x = Math.Cos(anglesInDegrees[i] * MathHelper.DegreesToRadians);
                 var y = Math.Sin(anglesInDegrees[i] * MathHelper.DegreesToRadians);
-                result[i] = new Point(trans.Transform(new Point3D(x * radiusX, y * radiusY, 0.0)));
+                result[i] = new Point(trans.Transform(new Point3D(x, y, 0.0)));
             }
 
             return result;
