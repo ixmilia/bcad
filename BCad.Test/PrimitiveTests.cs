@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BCad.Extensions;
 using BCad.Primitives;
 using Xunit;
@@ -7,6 +8,17 @@ namespace BCad.Test
 {
     public class PrimitiveTests
     {
+        private static void Test(IPrimitive first, IPrimitive second, bool withinBounds, params Point[] points)
+        {
+            var p = first.IntersectionPoints(second, withinBounds).OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
+            points = points.OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
+            Assert.Equal(points.Length, p.Length);
+            for (int i = 0; i < p.Length; i++)
+            {
+                Assert.Equal(points[i], p[i]);
+            }
+        }
+
         [Fact]
         public void LineIntersectionTest()
         {
@@ -104,6 +116,38 @@ namespace BCad.Test
             var l = new PrimitiveLine(new Point(1, 0, 1), new Point(1, 0, -1));
             var points = l.IntersectionPoints(el).ToArray();
             Assert.Equal(0, points.Length);
+        }
+
+        [Fact]
+        public void CircleCircleIntersectionTestSamePlaneOnePoint()
+        {
+            Test(
+                new PrimitiveEllipse(Point.Origin, 1, Vector.ZAxis, Color.Auto),
+                new PrimitiveEllipse(new Point(2, 0, 0), 1, Vector.ZAxis, Color.Auto),
+                true,
+                new Point(1, 0, 0));
+        }
+
+        [Fact]
+        public void CircleCircleIntersectionTestSamePlaneTwoPoints()
+        {
+            var x = Math.Sqrt(3.0) / 2.0;
+            Test(
+                new PrimitiveEllipse(Point.Origin, 1, Vector.ZAxis, Color.Auto),
+                new PrimitiveEllipse(new Point(1, 0, 0), 1, Vector.ZAxis, Color.Auto),
+                true,
+                new Point(0.5, x, 0),
+                new Point(0.5, -x, 0));
+        }
+
+        [Fact]
+        public void CircleCircleIntersectionTestSamePlaneNoPoints()
+        {
+            var x = Math.Sqrt(3.0) / 2.0;
+            Test(
+                new PrimitiveEllipse(Point.Origin, 1, Vector.ZAxis, Color.Auto),
+                new PrimitiveEllipse(new Point(3, 0, 0), 1, Vector.ZAxis, Color.Auto),
+                true);
         }
     }
 }

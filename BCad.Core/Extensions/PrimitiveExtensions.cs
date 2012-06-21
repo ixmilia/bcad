@@ -66,16 +66,18 @@ namespace BCad.Extensions
                     result = ((PrimitiveEllipse)primitive).IntersectionPoints(other, withinBounds);
                     break;
                 case PrimitiveKind.Text:
-                    result = null;
+                    result = Enumerable.Empty<Point>();
                     break;
                 default:
                     Debug.Fail("Unsupported primitive type");
-                    result = null;
+                    result = Enumerable.Empty<Point>();
                     break;
             }
 
             return result;
         }
+
+        #region Line-primitive intersection
 
         public static IEnumerable<Point> IntersectionPoints(this PrimitiveLine line, IPrimitive other, bool withinBounds = true)
         {
@@ -89,21 +91,20 @@ namespace BCad.Extensions
                     result = line.IntersectionPoints((PrimitiveEllipse)other, withinBounds);
                     break;
                 case PrimitiveKind.Text:
-                    result = null;
+                    result = Enumerable.Empty<Point>();
                     break;
                 default:
                     Debug.Fail("Unsupported primitive type");
-                    result = null;
+                    result = Enumerable.Empty<Point>();
                     break;
             }
 
             return result;
         }
 
-        public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, IPrimitive other, bool withinBounds = true)
-        {
-            return other.IntersectionPoints(ellipse);
-        }
+        #endregion
+
+        #region Line-line intersection
 
         public static Point IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
         {
@@ -156,6 +157,10 @@ namespace BCad.Extensions
             var point = (Point)((connector.P1 + connector.P2) / 2);
             return point;
         }
+
+        #endregion
+
+        #region Line-circle intersection
 
         public static IEnumerable<Point> IntersectionPoints(this PrimitiveLine line, PrimitiveEllipse ellipse, bool withinSegment = true)
         {
@@ -281,6 +286,144 @@ namespace BCad.Extensions
             return empty;
         }
 
+        #endregion
+
+        #region Circle-primitive intersection
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, IPrimitive primitive, bool withinBounds = true)
+        {
+            IEnumerable<Point> result;
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    result = ellipse.IntersectionPoints((PrimitiveEllipse)primitive, withinBounds);
+                    break;
+                case PrimitiveKind.Line:
+                    result = ((PrimitiveLine)primitive).IntersectionPoints(ellipse, withinBounds);
+                    break;
+                case PrimitiveKind.Text:
+                    result = Enumerable.Empty<Point>();
+                    break;
+                default:
+                    Debug.Fail("Unsupported primitive type");
+                    result = Enumerable.Empty<Point>();
+                    break;
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Circle-circle intersection
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse first, PrimitiveEllipse second, bool withinBounds = true)
+        {
+            var empty = Enumerable.Empty<Point>();
+
+            // planes either intersect in a line or are parallel
+            var lineVector = first.Normal.Cross(second.Normal);
+            if (lineVector.IsZeroVector)
+            {
+                // parallel or the same plane
+                if ((first.Center == second.Center) ||
+                    Math.Abs((second.Center - first.Center).Dot(first.Normal)) < MathHelper.Epsilon)
+                {
+                    // if they share a point or second.Center is on the first plane, they are the same plane
+                    // project second back to a unit circle and find intersection points
+                    var transform = first.GenerateUnitCircleProjection();
+                    var inverse = transform;
+                    inverse.Invert();
+
+                    // find new values for second ellipse
+                    var secondCenter = second.Center.Transform(inverse);
+                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(inverse);
+                    var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MinorAxisRatio))
+                        .Transform(inverse);
+
+                    if ((secondMajorEnd - secondCenter).LengthSquared == (secondMinorEnd - secondCenter).LengthSquared)
+                    {
+                        // if second ellipse is a circle we can absolutely solve for the intersection points
+                        // rotate to place the center of the second circle on the x-axis
+                        var angle = ((Vector)secondCenter).ToAngle();
+                        var rotation = RotateAboutZ(angle * -1.0);
+                        var newSecondCenter = secondCenter.Transform(rotation);
+                        var secondRadius = (secondMajorEnd - secondCenter).Length;
+
+                        var points = new List<Point>();
+                        if (newSecondCenter.X == secondRadius + 1.0)
+                        {
+                            // 1 point of intersection on the x-axis
+                            points.Add(new Point(1, 0, 0));
+                        }
+                        else if (newSecondCenter.X < secondRadius + 1.0)
+                        {
+                            // 2 points of intersection
+                            var x = (secondRadius * secondRadius - newSecondCenter.X * newSecondCenter.X - 1.0)
+                                / (-2.0 * newSecondCenter.X);
+                            var y = Math.Sqrt(1.0 - x * x);
+                            points.Add(new Point(x, y, 0));
+                            points.Add(new Point(x, -y, 0));
+                        }
+                        else
+                        {
+                            // no points of intersection
+                        }
+
+                        var newInverse = inverse * RotateAboutZ(angle);
+                        return points.Select(p => p.Transform(newInverse));
+                    }
+                    else
+                    {
+                        // TODO: unable to do circle/ellipse intersection
+                        // rotate these values to make second.MajorAxis align with X-Axis
+                        var angle = (secondMajorEnd - secondCenter).ToAngle();
+                        var rotation = Translation(secondCenter * -1.0)
+                            * RotateAboutZ(angle)
+                            * Translation(secondCenter);
+                        var finalCenter = secondCenter.Transform(rotation);
+                        var finalMajorEnd = secondMajorEnd.Transform(rotation);
+                        var finalMinorEnd = secondMinorEnd.Transform(rotation);
+
+                        if (finalCenter == Point.Origin &&
+                            (finalMajorEnd - finalCenter).LengthSquared < MathHelper.Epsilon &&
+                            (finalMinorEnd - finalCenter).LengthSquared < MathHelper.Epsilon)
+                        {
+                            // they're the same circle
+                            return empty;
+                        }
+                        else
+                        {
+                            // circle:
+                            //     2     2
+                            //    x  +  y  = 1
+                            //
+                            // ellipse:
+                            //         2            2
+                            // (x - xc)     (y - yc)
+                            // --------  +  --------  =  1
+                            //     2            2
+                            //    a            b
+                            return empty;
+                        }
+                    }
+                }
+                else
+                {
+                    // parallel with no intersections
+                    return empty;
+                }
+            }
+            else
+            {
+                // intersection was a line
+                // find a common point to complete the line then intersect that line with the circles
+                return empty;
+            }
+        }
+
+        #endregion
+
         public static Matrix3D GenerateUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
         {
             var transformation = Matrix3D.Identity;
@@ -301,6 +444,37 @@ namespace BCad.Extensions
             scale.M22 = scaleY;
             scale.M33 = scaleZ;
             return scale * transformation;
+        }
+
+        public static Matrix3D GenerateUnitCircleProjection(this PrimitiveEllipse el)
+        {
+            var normal = el.Normal.Normalize();
+            var right = el.MajorAxis.Normalize();
+            var up = normal.Cross(right).Normalize();
+            var radiusX = el.MajorAxis.Length;
+            return GenerateUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
+        }
+
+        public static Matrix3D Translation(Vector offset)
+        {
+            var m = Matrix3D.Identity;
+            m.OffsetX = offset.X;
+            m.OffsetY = offset.Y;
+            m.OffsetZ = offset.Z;
+            return m;
+        }
+
+        public static Matrix3D RotateAboutZ(double angleInDegrees)
+        {
+            var theta = angleInDegrees * MathHelper.DegreesToRadians;
+            var cos = Math.Cos(theta);
+            var sin = Math.Sin(theta);
+            var m = Matrix3D.Identity;
+            m.M11 = cos;
+            m.M12 = -sin;
+            m.M21 = sin;
+            m.M22 = cos;
+            return m;
         }
     }
 }
