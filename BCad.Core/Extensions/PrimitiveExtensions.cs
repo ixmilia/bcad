@@ -418,6 +418,9 @@ namespace BCad.Extensions
             {
                 // intersection was a line
                 // find a common point to complete the line then intersect that line with the circles
+                if (lineVector.Z != 0.0)
+                {
+                }
                 return empty;
             }
         }
