@@ -375,7 +375,7 @@ namespace BCad.Extensions
                         }
 
                         var newInverse = inverse * RotateAboutZ(angle);
-                        results = points.Select(p => p.Transform(newInverse));
+                        results = points.Distinct().Select(p => p.Transform(newInverse));
                     }
                     else
                     {
@@ -414,8 +414,8 @@ namespace BCad.Extensions
                                     NewtonianConvergence(finalCenter, a, b, false, false)
                                 }
                                 .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
-                                .Select(p => p.Transform(inverse))
-                                .Distinct();
+                                .Distinct()
+                                .Select(p => p.Transform(inverse));
                             }
                         }
                     }
@@ -430,8 +430,7 @@ namespace BCad.Extensions
             {
                 // intersection was a line
                 // find a common point to complete the line then intersect that line with the circles
-                Debug.Fail("NYI");
-                results = empty;
+                throw new NotImplementedException();
             }
 
             // verify points are in angle bounds
@@ -454,7 +453,17 @@ namespace BCad.Extensions
             return results;
         }
 
-        private static Point NewtonianConvergence(Point center, double a, double b, bool sqrt1, bool sqrt2)
+        /// <summary>
+        /// Performs a Newtonian-approximation convergence to find the intersection of a unit circle and
+        /// the specified ellipse.
+        /// </summary>
+        /// <param name="center">The center of the ellipse.</param>
+        /// <param name="a">The major axis length of the ellipse.</param>
+        /// <param name="b">The minor axis length of the ellipse.</param>
+        /// <param name="xPosRoot">If true, take the positive square root in the x-equation.</param>
+        /// <param name="yPosRoot">If true, take the positive square root in the y-equation.</param>
+        /// <returns></returns>
+        private static Point NewtonianConvergence(Point center, double a, double b, bool xPosRoot, bool yPosRoot)
         {
             var a2 = a * a;
             var b2 = b * b;
@@ -462,19 +471,20 @@ namespace BCad.Extensions
             var h = center.X;
             var k = center.Y;
             var h2 = h * h;
-            Func<double, double> getX = (y) => Math.Sqrt(1.0 - (y * y)) * (sqrt1 ? 1.0 : -1.0);
+            Func<double, double> getX = (y) => Math.Sqrt(1.0 - (y * y)) * (xPosRoot ? 1.0 : -1.0);
             Func<double, double, double> yNext = (x, y) =>
                 {
                     var x2 = x * x;
                     var sqrOp = a4 * b2 - a2 * b2 * h2 + 2.0 * a2 * b2 * h * x - a2 * b2 * x2;
                     var sqr = Math.Sqrt(sqrOp);
                     var denom = 2.0 * a2 * b2 * (h - x);
-                    return y + (2.0 * sqr * ((a2 * k) + sqr * (sqrt2 ? 1.0 : -1.0))) / denom;
+                    return y + (2.0 * sqr * ((a2 * k) + sqr * (yPosRoot ? 1.0 : -1.0))) / denom;
                 };
 
             var y0 = 0.0;
             var x0 = getX(y0);
 
+            // TODO: check convergence to a certain number of digits
             for (int i = 0; i < 5; i++)
             {
                 y0 = yNext(x0, y0);
