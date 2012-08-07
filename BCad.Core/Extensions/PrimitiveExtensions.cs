@@ -49,6 +49,15 @@ namespace BCad.Extensions
                 return -1.0 / slope;
         }
 
+        public static bool IsAngleContained(this PrimitiveEllipse ellipse, double angle)
+        {
+            var startAngle = ellipse.StartAngle;
+            var endAngle = ellipse.EndAngle;
+            return MathHelper.Between(startAngle, endAngle, angle)
+                || MathHelper.Between(startAngle - 360.0, endAngle, angle)
+                || MathHelper.Between(startAngle, endAngle + 360.0, angle);
+        }
+
         public static PrimitiveLine Transform(this PrimitiveLine line, Matrix3D matrix)
         {
             return new PrimitiveLine(line.P1.Transform(matrix), line.P2.Transform(matrix), line.Color);
@@ -237,13 +246,7 @@ namespace BCad.Extensions
                             MathHelper.Between(flatLine.P1.Y, flatLine.P2.Y, p.Y)).ToList();
 
                         // circle test
-                        points = (from p in points
-                                  let angle = (Math.Atan2(p.Y, p.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees()
-                                  where MathHelper.Between(ellipse.StartAngle, ellipse.EndAngle, angle)
-                                     || MathHelper.Between(ellipse.StartAngle - 360.0, ellipse.EndAngle, angle)
-                                     || MathHelper.Between(ellipse.StartAngle, ellipse.EndAngle + 360.0, angle)
-                                  select p)
-                                  .ToList();
+                        points = points.Where(p => ellipse.IsAngleContained(((Vector)p).ToAngle())).ToList();
                     }
 
                     return points.Select(p => p.Transform(transform));
@@ -320,6 +323,7 @@ namespace BCad.Extensions
         public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse first, PrimitiveEllipse second, bool withinBounds = true)
         {
             var empty = Enumerable.Empty<Point>();
+            IEnumerable<Point> results;
 
             // planes either intersect in a line or are parallel
             var lineVector = first.Normal.Cross(second.Normal);
@@ -371,11 +375,10 @@ namespace BCad.Extensions
                         }
 
                         var newInverse = inverse * RotateAboutZ(angle);
-                        return points.Select(p => p.Transform(newInverse));
+                        results = points.Select(p => p.Transform(newInverse));
                     }
                     else
                     {
-                        // TODO: unable to do circle/ellipse intersection
                         // rotate these values to make second.MajorAxis align with X-Axis
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
                         var rotation = Translation(secondCenter * -1.0)
@@ -390,39 +393,97 @@ namespace BCad.Extensions
                             (finalMinorEnd - finalCenter).LengthSquared < MathHelper.Epsilon)
                         {
                             // they're the same circle
-                            return empty;
+                            results = empty;
                         }
                         else
                         {
-                            // circle:
-                            //     2     2
-                            //    x  +  y  = 1
-                            //
-                            // ellipse:
-                            //         2            2
-                            // (x - xc)     (y - yc)
-                            // --------  +  --------  =  1
-                            //     2            2
-                            //    a            b
-                            return empty;
+                            // TODO: solve for X- or Y-axis alignment
+                            // if x-align
+                            // else if y-align
+                            // else
+                            {
+                                inverse = transform * rotation;
+                                inverse.Invert();
+                                // use Newtonian convergence to find a close approximation
+                                var a = (finalMajorEnd - finalCenter).Length;
+                                var b = (finalMinorEnd - finalCenter).Length;
+                                results = new[] {
+                                    NewtonianConvergence(finalCenter, a, b, true, true),
+                                    NewtonianConvergence(finalCenter, a, b, true, false),
+                                    NewtonianConvergence(finalCenter, a, b, false, true),
+                                    NewtonianConvergence(finalCenter, a, b, false, false)
+                                }
+                                .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
+                                .Select(p => p.Transform(inverse))
+                                .Distinct();
+                            }
                         }
                     }
                 }
                 else
                 {
                     // parallel with no intersections
-                    return empty;
+                    results = empty;
                 }
             }
             else
             {
                 // intersection was a line
                 // find a common point to complete the line then intersect that line with the circles
-                if (lineVector.Z != 0.0)
-                {
-                }
-                return empty;
+                Debug.Fail("NYI");
+                results = empty;
             }
+
+            // verify points are in angle bounds
+            if (withinBounds)
+            {
+                var firstUnit = first.GenerateUnitCircleProjection();
+                var secondUnit = second.GenerateUnitCircleProjection();
+                results = from res in results
+                          // verify point is within first ellipse's angles
+                          let trans1 = res.Transform(firstUnit)
+                          let ang1 = ((Vector)trans1).ToAngle()
+                          where first.IsAngleContained(ang1)
+                          // and same for second
+                          let trans2 = res.Transform(secondUnit)
+                          let ang2 = ((Vector)trans2).ToAngle()
+                          where second.IsAngleContained(ang2)
+                          select res;
+            }
+
+            return results;
+        }
+
+        private static Point NewtonianConvergence(Point center, double a, double b, bool sqrt1, bool sqrt2)
+        {
+            var a2 = a * a;
+            var b2 = b * b;
+            var a4 = a2 * a2;
+            var h = center.X;
+            var k = center.Y;
+            var h2 = h * h;
+            Func<double, double> getX = (y) => Math.Sqrt(1.0 - (y * y)) * (sqrt1 ? 1.0 : -1.0);
+            Func<double, double, double> yNext = (x, y) =>
+                {
+                    var x2 = x * x;
+                    var sqrOp = a4 * b2 - a2 * b2 * h2 + 2.0 * a2 * b2 * h * x - a2 * b2 * x2;
+                    var sqr = Math.Sqrt(sqrOp);
+                    var denom = 2.0 * a2 * b2 * (h - x);
+                    return y + (2.0 * sqr * ((a2 * k) + sqr * (sqrt2 ? 1.0 : -1.0))) / denom;
+                };
+
+            var y0 = 0.0;
+            var x0 = getX(y0);
+
+            for (int i = 0; i < 5; i++)
+            {
+                y0 = yNext(x0, y0);
+                if (double.IsNaN(y0)) break;
+                x0 = getX(y0);
+                if (double.IsNaN(x0)) break;
+            }
+
+            return new Point(x0, y0, 0.0);
         }
 
         #endregion

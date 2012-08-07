@@ -19,6 +19,16 @@ namespace BCad.Test
             }
         }
 
+        private static PrimitiveEllipse Circle(Point center, double radius)
+        {
+            return new PrimitiveEllipse(center, radius, Vector.ZAxis, Color.Auto);
+        }
+
+        private static PrimitiveEllipse Ellipse(Point center, double radiusX, double radiusY)
+        {
+            return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360, Color.Auto);
+        }
+
         [Fact]
         public void LineIntersectionTest()
         {
@@ -148,6 +158,21 @@ namespace BCad.Test
                 new PrimitiveEllipse(Point.Origin, 1, Vector.ZAxis, Color.Auto),
                 new PrimitiveEllipse(new Point(3, 0, 0), 1, Vector.ZAxis, Color.Auto),
                 true);
+        }
+
+        [Fact]
+        public void CircleEllipseIntersectionTestSamePlaneOnePoint()
+        {
+            Test(
+                Circle(Point.Origin, 1),
+                Ellipse(new Point(3, 0, 0), 2, 1),
+                true,
+                new Point(1, 0, 0));
+            Test(
+                Circle(Point.Origin, 1),
+                Ellipse(new Point(0, 2, 0), 2, 1),
+                false,
+                new Point(0, 1, 0));
         }
     }
 }

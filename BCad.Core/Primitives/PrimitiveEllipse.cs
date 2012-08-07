@@ -77,5 +77,17 @@ namespace BCad.Primitives
 
             return new PrimitiveEllipse(center, (a - center).Length, normal, Color.Auto);
         }
+
+        /// <summary>
+        /// Creates a 2-dimensional ellipse.
+        /// </summary>
+        /// <param name="center">The center of the ellipse.</param>
+        /// <param name="a">The major radius.</param>
+        /// <param name="b">The minor radius.</param>
+        /// <returns>The PrimitiveEllipse object.</returns>
+        public static PrimitiveEllipse Ellipse2d(Point center, double a, double b)
+        {
+            return new PrimitiveEllipse(center, new Vector(a, 0.0, 0.0), Vector.ZAxis, b / a, 0, 360, Color.Auto);
+        }
     }
 }
