@@ -3,4 +3,6 @@
 [Bb]in/
 [Dd]ebug/
 [Oo]bj/
-[Rr]elease
+[Rr]elease/
+*.Tests.mdf
+*.Tests_log.ldf
