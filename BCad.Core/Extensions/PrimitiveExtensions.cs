@@ -184,9 +184,9 @@ namespace BCad.Extensions
             var up = ellipse.Normal.Cross(right).Normalize();
             var radiusX = ellipse.MajorAxis.Length;
             var radiusY = radiusX * ellipse.MinorAxisRatio;
-            var transform = GenerateUnitCircleProjection(ellipse.Normal, right, up, ellipse.Center, radiusX, radiusY, 1.0);
-            var invert = transform;
-            invert.Invert();
+            var transform = ellipse.GenerateUnitCircleProjection();
+            var inverse = transform;
+            inverse.Invert();
 
             var denom = l.Dot(n);
             var num = (p0 - l0).Dot(n);
@@ -199,7 +199,7 @@ namespace BCad.Extensions
                 if (Math.Abs(num) < MathHelper.Epsilon)
                 {
                     // parallel.  normalize the plane and find the intersection
-                    var flatLine = line.Transform(invert);
+                    var flatLine = line.Transform(inverse);
                     // the ellipse is now centered at the origin with a radius of 1.
                     // find the intersection points then reproject
                     var dv = flatLine.P2 - flatLine.P1;
@@ -265,7 +265,7 @@ namespace BCad.Extensions
                 }
 
                 // p is the point of intersection.  verify if on transformed unit circle
-                var unitVector = (Vector)p.Transform(invert);
+                var unitVector = (Vector)p.Transform(inverse);
                 if (Math.Abs(unitVector.Length - 1.0) < MathHelper.Epsilon)
                 {
                     // point is on the unit circle
@@ -335,88 +335,73 @@ namespace BCad.Extensions
                 {
                     // if they share a point or second.Center is on the first plane, they are the same plane
                     // project second back to a unit circle and find intersection points
-                    var transform = first.GenerateUnitCircleProjection();
-                    var inverse = transform;
-                    inverse.Invert();
+                    var inverse = first.GenerateUnitCircleProjection();
+                    var transform = inverse;
+                    transform.Invert();
 
-                    // find new values for second ellipse
-                    var secondCenter = second.Center.Transform(inverse);
-                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(inverse);
+                    // transform second ellipse to be on the unit circle's plane
+                    var secondCenter = second.Center.Transform(transform);
+                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(transform);
                     var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MinorAxisRatio))
-                        .Transform(inverse);
+                        .Transform(transform);
+                    var a = (secondMajorEnd - secondCenter).Length;
+                    var b = (secondMinorEnd - secondCenter).Length;
 
-                    if ((secondMajorEnd - secondCenter).LengthSquared == (secondMinorEnd - secondCenter).LengthSquared)
+                    if (a == b)
                     {
                         // if second ellipse is a circle we can absolutely solve for the intersection points
                         // rotate to place the center of the second circle on the x-axis
                         var angle = ((Vector)secondCenter).ToAngle();
                         var rotation = RotateAboutZ(angle * -1.0);
                         var newSecondCenter = secondCenter.Transform(rotation);
-                        var secondRadius = (secondMajorEnd - secondCenter).Length;
+                        var secondRadius = a;
 
-                        var points = new List<Point>();
-                        if (newSecondCenter.X == secondRadius + 1.0)
+                        if (Math.Abs(newSecondCenter.X) > secondRadius + 1.0)
                         {
-                            // 1 point of intersection on the x-axis
-                            points.Add(new Point(1, 0, 0));
+                            // no points of intersection
+                            results = empty;
                         }
-                        else if (newSecondCenter.X < secondRadius + 1.0)
+                        else
                         {
                             // 2 points of intersection
                             var x = (secondRadius * secondRadius - newSecondCenter.X * newSecondCenter.X - 1.0)
                                 / (-2.0 * newSecondCenter.X);
                             var y = Math.Sqrt(1.0 - x * x);
-                            points.Add(new Point(x, y, 0));
-                            points.Add(new Point(x, -y, 0));
-                        }
-                        else
-                        {
-                            // no points of intersection
+                            results = new[]
+                                {
+                                    new Point(x, y, 0),
+                                    new Point(x, -y, 0)
+                                };
                         }
 
-                        var newInverse = inverse * RotateAboutZ(angle);
-                        results = points.Distinct().Select(p => p.Transform(newInverse));
+                        var returnTransform = inverse * RotateAboutZ(angle);
+                        results = results.Distinct().Select(p => p.Transform(returnTransform));
                     }
                     else
                     {
-                        // rotate these values to make second.MajorAxis align with X-Axis
+                        // rotate about the origin to make the major axis align with the x-axis
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
-                        var rotation = Translation(secondCenter * -1.0)
-                            * RotateAboutZ(angle)
-                            * Translation(secondCenter);
+                        var rotation = RotateAboutZ(angle * -1.0);
                         var finalCenter = secondCenter.Transform(rotation);
-                        var finalMajorEnd = secondMajorEnd.Transform(rotation);
-                        var finalMinorEnd = secondMinorEnd.Transform(rotation);
 
-                        if (finalCenter == Point.Origin &&
-                            (finalMajorEnd - finalCenter).LengthSquared < MathHelper.Epsilon &&
-                            (finalMinorEnd - finalCenter).LengthSquared < MathHelper.Epsilon)
+                        // TODO: solve for X- or Y-axis alignment
+                        // if x-align
+                        // else if y-align
+                        // else
                         {
-                            // they're the same circle
-                            results = empty;
-                        }
-                        else
-                        {
-                            // TODO: solve for X- or Y-axis alignment
-                            // if x-align
-                            // else if y-align
-                            // else
-                            {
-                                inverse = transform * rotation;
-                                inverse.Invert();
-                                // use Newtonian convergence to find a close approximation
-                                var a = (finalMajorEnd - finalCenter).Length;
-                                var b = (finalMinorEnd - finalCenter).Length;
-                                results = new[] {
-                                    NewtonianConvergence(finalCenter, a, b, true, true),
-                                    NewtonianConvergence(finalCenter, a, b, true, false),
-                                    NewtonianConvergence(finalCenter, a, b, false, true),
-                                    NewtonianConvergence(finalCenter, a, b, false, false)
-                                }
-                                .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
-                                .Distinct()
-                                .Select(p => p.Transform(inverse));
+                            inverse = inverse * RotateAboutZ(angle);
+                            transform = inverse;
+                            transform.Invert();
+                            // use Newtonian convergence to find a close approximation
+                            results = new[] {
+                                NewtonianConvergence(finalCenter, a, b, true, true),
+                                NewtonianConvergence(finalCenter, a, b, true, false),
+                                NewtonianConvergence(finalCenter, a, b, false, true),
+                                NewtonianConvergence(finalCenter, a, b, false, false)
                             }
+                            .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
+                            .Distinct()
+                            .Select(p => p.Transform(inverse));
                         }
                     }
                 }
@@ -438,6 +423,8 @@ namespace BCad.Extensions
             {
                 var firstUnit = first.GenerateUnitCircleProjection();
                 var secondUnit = second.GenerateUnitCircleProjection();
+                firstUnit.Invert();
+                secondUnit.Invert();
                 results = from res in results
                           // verify point is within first ellipse's angles
                           let trans1 = res.Transform(firstUnit)
