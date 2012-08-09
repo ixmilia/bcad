@@ -342,7 +342,7 @@ namespace BCad.Extensions
                     // transform second ellipse to be on the unit circle's plane
                     var secondCenter = second.Center.Transform(transform);
                     var secondMajorEnd = (second.Center + second.MajorAxis).Transform(transform);
-                    var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MinorAxisRatio))
+                    var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MajorAxis.Length * second.MinorAxisRatio))
                         .Transform(transform);
                     var a = (secondMajorEnd - secondCenter).Length;
                     var b = (secondMinorEnd - secondCenter).Length;
@@ -385,9 +385,56 @@ namespace BCad.Extensions
                         var finalCenter = secondCenter.Transform(rotation);
 
                         // TODO: solve for X- or Y-axis alignment
-                        // if x-align
-                        // else if y-align
-                        // else
+                        if (finalCenter.Y == 0)
+                        {
+                            // rotate for y-axis alignment
+                            var rotate90 = RotateAboutZ(90);
+                            inverse = inverse * rotate90;
+                            transform = inverse;
+                            transform.Invert();
+                            finalCenter = finalCenter.Transform(rotate90);
+
+                            // swap major/minor axis values
+                            var temp = a;
+                            a = b;
+                            b = temp;
+                        }
+
+                        if (finalCenter.X == 0)
+                        {
+                            // absolutely solve
+                            var h = finalCenter.X;
+                            var k = finalCenter.Y;
+                            var k2 = k * k;
+                            var a2 = a * a;
+                            var b2 = b * b;
+                            var a4 = a2 * a2;
+                            var b4 = b2 * b2;
+
+                            // find x values
+                            var A = a2 - (a2 * b2) + (a2 * k2) - ((2 * a4 * k2) / (a2 - b2));
+                            var B = (2 * a2 * k * Math.Sqrt(b2 * (-a2 + a4 + b2 - (a2 * b2) + (a2 * k2)))) / (a2 - b2);
+                            var C = Math.Sqrt(a2 - b2);
+
+                            var x1 = Math.Sqrt(A + B) / C;
+                            var x2 = Math.Sqrt(A - B) / C;
+                            
+                            // find y values
+                            var D = a2 * k;
+                            var E = Math.Sqrt(-a2 * b2 + a4 * b2 - a2 * b4 + a2 * b2 * k2);
+                            var F = a2 - b2;
+
+                            var y1 = (D + E) / F;
+                            var y2 = (D - E) / F;
+
+                            results = new[] {
+                                new Point(x1, y1, 0),
+                                new Point(x1, y2, 0),
+                                new Point(x2, y1, 0),
+                                new Point(x2, y2, 0)
+                            };
+                        }
+                        else
                         {
                             inverse = inverse * RotateAboutZ(angle);
                             transform = inverse;
@@ -398,11 +445,14 @@ namespace BCad.Extensions
                                 NewtonianConvergence(finalCenter, a, b, true, false),
                                 NewtonianConvergence(finalCenter, a, b, false, true),
                                 NewtonianConvergence(finalCenter, a, b, false, false)
-                            }
+                            };
+                        }
+
+                        results = results
                             .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
+                            .Where(p => !(double.IsInfinity(p.X) || double.IsInfinity(p.Y) || double.IsInfinity(p.Z)))
                             .Distinct()
                             .Select(p => p.Transform(inverse));
-                        }
                     }
                 }
                 else
