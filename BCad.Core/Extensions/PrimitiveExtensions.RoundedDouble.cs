@@ -36,6 +36,11 @@ namespace BCad.Extensions
                 return false;
             }
 
+            public override string ToString()
+            {
+                return Round(Value).ToString();
+            }
+
             public static implicit operator double(RoundedDouble rounded)
             {
                 return rounded.Value;

@@ -409,7 +409,7 @@ namespace BCad.Extensions
                         var a4 = a2 * a2;
                         var b4 = b2 * b2;
 
-                        // TODO: round all operations to within MathHelper.Epsilon
+                        // RoundedDouble is used to ensure all operations are rounded to a certain precision
                         if (Math.Abs(h) < MathHelper.Epsilon)
                         {
                             // ellipse x = 0; wide

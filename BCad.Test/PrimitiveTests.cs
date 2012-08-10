@@ -187,12 +187,12 @@ namespace BCad.Test
                 Ellipse(new Point(0, 2, 0), 2, 1),
                 true,
                 new Point(0, 1, 0));
-            // no alignment
+            // rotates to x-axis alignment
             Test(
                 Circle(Point.Origin, 1),
                 new PrimitiveEllipse(new Point(-Math.Sqrt(2), Math.Sqrt(2), 0), new Vector(Math.Sqrt(2), Math.Sqrt(2), 0), Vector.ZAxis, 0.5, 0, 360, Color.Auto),
                 true,
-                new Point(-Math.Sqrt(2)/2, Math.Sqrt(2)/2, 0));
+                new Point(-Math.Sqrt(2)/2, Math.Sqrt(2)/2, 0)); // a and b are wrong?
         }
     }
 }
