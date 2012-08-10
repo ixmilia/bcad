@@ -193,7 +193,7 @@ namespace BCad.UI
             var start = verts.OrderBy(v => v.X).First();
             hull.Add(start);
 
-            var ninety = Math.PI / 2.0;
+            var ninety = MathHelper.PI / 2.0;
             Func<Vector3, Vector3, double> polarAngle = (pivot, arm) =>
                 {
                     var delta = arm - pivot;

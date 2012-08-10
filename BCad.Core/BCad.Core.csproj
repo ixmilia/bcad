@@ -80,6 +80,7 @@
     <Compile Include="Entities\Text.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
+    <Compile Include="Extensions\PrimitiveExtensions.RoundedDouble.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
     <Compile Include="EventArguments\CommandEventArgs.cs" />

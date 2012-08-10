@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BCad.Helpers
 {
     public static class MathHelper
     {
-        public const double RadiansToDegrees = 180.0 / Math.PI;
-        public const double DegreesToRadians = Math.PI / 180.0;
-        public const double TwoPI = Math.PI * 2.0;
+        public const int Precision = 12;
+        public const double PI = 3.1415926535898;
+        public const double RadiansToDegrees = 180.0 / MathHelper.PI;
+        public const double DegreesToRadians = MathHelper.PI / 180.0;
+        public const double TwoPI = MathHelper.PI * 2.0;
         public const double Epsilon = 0.000000000001;
 
         public static bool Between(double a, double b, double value)

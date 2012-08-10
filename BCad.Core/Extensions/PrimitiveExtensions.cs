@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BCad.Primitives;
-using BCad.Helpers;
 using System.Diagnostics;
-using System.Windows.Media;
+using System.Linq;
 using System.Windows.Media.Media3D;
+using BCad.Helpers;
+using BCad.Primitives;
 
 namespace BCad.Extensions
 {
-    public static class PrimitiveExtensions
+    public static partial class PrimitiveExtensions
     {
         public static Point ClosestPoint(this PrimitiveLine line, Point point, bool withinBounds = true)
         {
@@ -335,17 +333,17 @@ namespace BCad.Extensions
                 {
                     // if they share a point or second.Center is on the first plane, they are the same plane
                     // project second back to a unit circle and find intersection points
-                    var inverse = first.GenerateUnitCircleProjection();
-                    var transform = inverse;
-                    transform.Invert();
+                    var fromUnit = first.GenerateUnitCircleProjection();
+                    var toUnit = fromUnit;
+                    toUnit.Invert();
 
                     // transform second ellipse to be on the unit circle's plane
-                    var secondCenter = second.Center.Transform(transform);
-                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(transform);
+                    var secondCenter = second.Center.Transform(toUnit);
+                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(toUnit);
                     var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MajorAxis.Length * second.MinorAxisRatio))
-                        .Transform(transform);
-                    var a = (secondMajorEnd - secondCenter).Length;
-                    var b = (secondMinorEnd - secondCenter).Length;
+                        .Transform(toUnit);
+                    RoundedDouble a = (secondMajorEnd - secondCenter).Length;
+                    RoundedDouble b = (secondMinorEnd - secondCenter).Length;
 
                     if (a == b)
                     {
@@ -374,7 +372,7 @@ namespace BCad.Extensions
                                 };
                         }
 
-                        var returnTransform = inverse * RotateAboutZ(angle);
+                        var returnTransform = fromUnit * RotateAboutZ(angle);
                         results = results.Distinct().Select(p => p.Transform(returnTransform));
                     }
                     else
@@ -383,62 +381,93 @@ namespace BCad.Extensions
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
                         var rotation = RotateAboutZ(angle * -1.0);
                         var finalCenter = secondCenter.Transform(rotation);
+                        fromUnit = fromUnit * rotation;
+                        toUnit = fromUnit;
+                        toUnit.Invert();
 
-                        // TODO: solve for X- or Y-axis alignment
-                        if (finalCenter.Y == 0)
+                        if (a < b)
                         {
-                            // rotate for y-axis alignment
-                            var rotate90 = RotateAboutZ(90);
-                            inverse = inverse * rotate90;
-                            transform = inverse;
-                            transform.Invert();
-                            finalCenter = finalCenter.Transform(rotate90);
+                            // rotate to ensure a > b
+                            var rot90 = RotateAboutZ(90);
+                            fromUnit = fromUnit * rot90;
+                            toUnit = fromUnit;
+                            toUnit.Invert();
+                            finalCenter = finalCenter.Transform(rot90);
 
-                            // swap major/minor axis values
+                            // and swap a and b
                             var temp = a;
                             a = b;
                             b = temp;
                         }
 
-                        if (finalCenter.X == 0)
+                        RoundedDouble h = finalCenter.X;
+                        RoundedDouble k = finalCenter.Y;
+                        var h2 = h * h;
+                        var k2 = k * k;
+                        var a2 = a * a;
+                        var b2 = b * b;
+                        var a4 = a2 * a2;
+                        var b4 = b2 * b2;
+
+                        // TODO: round all operations to within MathHelper.Epsilon
+                        if (Math.Abs(h) < MathHelper.Epsilon)
                         {
-                            // absolutely solve
-                            var h = finalCenter.X;
-                            var k = finalCenter.Y;
-                            var k2 = k * k;
-                            var a2 = a * a;
-                            var b2 = b * b;
-                            var a4 = a2 * a2;
-                            var b4 = b2 * b2;
-
+                            // ellipse x = 0; wide
                             // find x values
-                            var A = a2 - (a2 * b2) + (a2 * k2) - ((2 * a4 * k2) / (a2 - b2));
-                            var B = (2 * a2 * k * Math.Sqrt(b2 * (-a2 + a4 + b2 - (a2 * b2) + (a2 * k2)))) / (a2 - b2);
-                            var C = Math.Sqrt(a2 - b2);
+                            var A = a2 - a2 * b2 + a2 * k2 - ((2 * a4 * k2) / (a2 - b2));
+                            var B = (2 * a2 * k * Math.Sqrt(b2 * (-a2 + a4 + b2 - a2 * b2 + a2 * k2))) / (a2 - b2);
+                            var C = (RoundedDouble)Math.Sqrt(a2 - b2);
 
-                            var x1 = Math.Sqrt(A + B) / C;
-                            var x2 = Math.Sqrt(A - B) / C;
-                            
+                            var x1 = -Math.Sqrt(A + B) / C;
+                            var x2 = (RoundedDouble)(-x1);
+                            var x3 = -Math.Sqrt(A - B) / C;
+                            var x4 = (RoundedDouble)(-x3);
+
                             // find y values
                             var D = a2 * k;
-                            var E = Math.Sqrt(-a2 * b2 + a4 * b2 - a2 * b4 + a2 * b2 * k2);
+                            var E = Math.Sqrt(-a2 * b2 + a4 * b2 + b4 - a2 * b4 + a2 * b2 * k2);
                             var F = a2 - b2;
 
-                            var y1 = (D + E) / F;
-                            var y2 = (D - E) / F;
+                            var y1 = (D - E) / F;
+                            var y2 = (D + E) / F;
+
+                            results = new[] {
+                                new Point(x1, y1, 0),
+                                new Point(x2, y1, 0),
+                                new Point(x3, y2, 0),
+                                new Point(x4, y2, 0)
+                            };
+                        }
+                        else if (Math.Abs(k) < MathHelper.Epsilon)
+                        {
+                            // ellipse y = 0; wide
+                            // find x values
+                            var A = -b2 * h;
+                            var B = Math.Sqrt(a4 - a2 * b2 - a4 * b2 + a2 * b4 + a2 * b2 * h2);
+                            var C = a2 - b2;                            
+
+                            var x1 = (A - B) / C;
+                            var x2 = (A + B) / C;
+                            
+                            // find y values
+                            var D = -b2 + a2 * b2 - b2 * h2 - ((2 * b4 * h2) / (a2 - b2));
+                            var E = (2 * b2 * h * Math.Sqrt(a2 * (a2 - b2 - a2 * b2 + b4 + b2 * h2))) / (a2 - b2);
+                            var F = (RoundedDouble)Math.Sqrt(a2 - b2);
+
+                            var y1 = -Math.Sqrt(D - E) / F;
+                            var y2 = (RoundedDouble)(-y1);
+                            var y3 = -Math.Sqrt(D + E) / F;
+                            var y4 = (RoundedDouble)(-y3);
 
                             results = new[] {
                                 new Point(x1, y1, 0),
                                 new Point(x1, y2, 0),
-                                new Point(x2, y1, 0),
-                                new Point(x2, y2, 0)
+                                new Point(x2, y3, 0),
+                                new Point(x2, y4, 0)
                             };
                         }
                         else
                         {
-                            inverse = inverse * RotateAboutZ(angle);
-                            transform = inverse;
-                            transform.Invert();
                             // use Newtonian convergence to find a close approximation
                             results = new[] {
                                 NewtonianConvergence(finalCenter, a, b, true, true),
@@ -452,7 +481,7 @@ namespace BCad.Extensions
                             .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
                             .Where(p => !(double.IsInfinity(p.X) || double.IsInfinity(p.Y) || double.IsInfinity(p.Z)))
                             .Distinct()
-                            .Select(p => p.Transform(inverse));
+                            .Select(p => p.Transform(fromUnit));
                     }
                 }
                 else
@@ -521,13 +550,17 @@ namespace BCad.Extensions
             var y0 = 0.0;
             var x0 = getX(y0);
 
-            // TODO: check convergence to a certain number of digits
+            double y1, x1;
             for (int i = 0; i < 5; i++)
             {
-                y0 = yNext(x0, y0);
+                y1 = yNext(x0, y0);
                 if (double.IsNaN(y0)) break;
-                x0 = getX(y0);
+                x1 = getX(y0);
                 if (double.IsNaN(x0)) break;
+                // check for convergence to a certain number of digits
+                if (Math.Abs(x1 - x0) < MathHelper.Epsilon && Math.Abs(y1 - y0) < MathHelper.Epsilon) break;
+                x0 = x1;
+                y0 = y1;
             }
 
             return new Point(x0, y0, 0.0);
