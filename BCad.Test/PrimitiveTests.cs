@@ -214,8 +214,8 @@ namespace BCad.Test
                 Circle(new Point(1, 0, 0), 1),
                 Ellipse(new Point(3, 0, 0), 2, 1),
                 true,
-                new Point(1, 0, 0),
-                new Point(-1, 0, 0));
+                new Point(1.666666666667, -0.7453559925, 0),
+                new Point(1.666666666667, 0.7453559925, 0));
         }
     }
 }
