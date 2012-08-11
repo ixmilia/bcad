@@ -175,16 +175,28 @@ namespace BCad.Test
         [Fact]
         public void CircleEllipseIntersectionTestSamePlaneOnePoint()
         {
-            // x-axis alignment
+            // x-axis alignment horizontal
             Test(
                 Circle(new Point(1, 0, 0), 1),
                 Ellipse(new Point(4, 0, 0), 2, 1),
                 true,
                 new Point(2, 0, 0));
-            // y-axis alignment
+            // x-axis alignment vertical
+            Test(
+                Circle(new Point(1, 0, 0), 1),
+                Ellipse(new Point(3, 0, 0), 1, 2),
+                true,
+                new Point(2, 0, 0));
+            // y-axis alignment horizontal
             Test(
                 Circle(Point.Origin, 1),
                 Ellipse(new Point(0, 2, 0), 2, 1),
+                true,
+                new Point(0, 1, 0));
+            // y-axis alignment vertical
+            Test(
+                Circle(Point.Origin, 1),
+                Ellipse(new Point(0, 3, 0), 1, 2),
                 true,
                 new Point(0, 1, 0));
             // rotates to x-axis alignment
@@ -192,7 +204,18 @@ namespace BCad.Test
                 Circle(Point.Origin, 1),
                 new PrimitiveEllipse(new Point(-Math.Sqrt(2), Math.Sqrt(2), 0), new Vector(Math.Sqrt(2), Math.Sqrt(2), 0), Vector.ZAxis, 0.5, 0, 360, Color.Auto),
                 true,
-                new Point(-Math.Sqrt(2)/2, Math.Sqrt(2)/2, 0)); // a and b are wrong?
+                new Point(-0.707106781187, 0.707106781187, 0));
+        }
+
+        [Fact]
+        public void CircleEllipseIntersectionTestSamePlaneTwoPoints()
+        {
+            Test(
+                Circle(new Point(1, 0, 0), 1),
+                Ellipse(new Point(3, 0, 0), 2, 1),
+                true,
+                new Point(1, 0, 0),
+                new Point(-1, 0, 0));
         }
     }
 }

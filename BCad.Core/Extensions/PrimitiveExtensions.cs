@@ -379,20 +379,19 @@ namespace BCad.Extensions
                     {
                         // rotate about the origin to make the major axis align with the x-axis
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
-                        var rotation = RotateAboutZ(angle * -1.0);
+                        var rotation = RotateAboutZ(angle);
                         var finalCenter = secondCenter.Transform(rotation);
-                        fromUnit = fromUnit * rotation;
+                        fromUnit = fromUnit * RotateAboutZ(-angle);
                         toUnit = fromUnit;
                         toUnit.Invert();
 
                         if (a < b)
                         {
                             // rotate to ensure a > b
-                            var rot90 = RotateAboutZ(90);
-                            fromUnit = fromUnit * rot90;
+                            fromUnit = RotateAboutZ(90) * fromUnit;
                             toUnit = fromUnit;
                             toUnit.Invert();
-                            finalCenter = finalCenter.Transform(rot90);
+                            finalCenter = finalCenter.Transform(RotateAboutZ(-90));
 
                             // and swap a and b
                             var temp = a;
@@ -481,7 +480,8 @@ namespace BCad.Extensions
                             .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
                             .Where(p => !(double.IsInfinity(p.X) || double.IsInfinity(p.Y) || double.IsInfinity(p.Z)))
                             .Distinct()
-                            .Select(p => p.Transform(fromUnit));
+                            .Select(p => p.Transform(fromUnit))
+                            .Select(p => new Point((RoundedDouble)p.X, (RoundedDouble)p.Y, (RoundedDouble)p.Z));
                     }
                 }
                 else

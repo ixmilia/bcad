@@ -10,14 +10,12 @@ namespace BCad.Extensions
         /// </summary>
         private struct RoundedDouble
         {
-            private const int Digits = 12;
-
             public double Value { get; private set; }
 
             public RoundedDouble(double value)
                 : this()
             {
-                this.Value = value;
+                this.Value = Round(value);
             }
 
             public override int GetHashCode()
