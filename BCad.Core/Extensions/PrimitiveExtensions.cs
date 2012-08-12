@@ -10,6 +10,19 @@ namespace BCad.Extensions
 {
     public static partial class PrimitiveExtensions
     {
+        static PrimitiveExtensions()
+        {
+            SIN = new double[360];
+            COS = new double[360];
+            double rad;
+            for (int i = 0; i < 360; i++)
+            {
+                rad = (double)i * MathHelper.DegreesToRadians;
+                SIN[i] = Math.Sin(rad);
+                COS[i] = Math.Cos(rad);
+            }
+        }
+
         public static Point ClosestPoint(this PrimitiveLine line, Point point, bool withinBounds = true)
         {
             var v = line.P1;
@@ -467,13 +480,8 @@ namespace BCad.Extensions
                         }
                         else
                         {
-                            // use Newtonian convergence to find a close approximation
-                            results = new[] {
-                                NewtonianConvergence(finalCenter, a, b, true, true),
-                                NewtonianConvergence(finalCenter, a, b, true, false),
-                                NewtonianConvergence(finalCenter, a, b, false, true),
-                                NewtonianConvergence(finalCenter, a, b, false, false)
-                            };
+                            // brute-force approximate intersections
+                            results = BruteForceEllipseWithUnitCircle(finalCenter, a, b);
                         }
 
                         results = results
@@ -519,52 +527,32 @@ namespace BCad.Extensions
             return results;
         }
 
-        /// <summary>
-        /// Performs a Newtonian-approximation convergence to find the intersection of a unit circle and
-        /// the specified ellipse.
-        /// </summary>
-        /// <param name="center">The center of the ellipse.</param>
-        /// <param name="a">The major axis length of the ellipse.</param>
-        /// <param name="b">The minor axis length of the ellipse.</param>
-        /// <param name="xPosRoot">If true, take the positive square root in the x-equation.</param>
-        /// <param name="yPosRoot">If true, take the positive square root in the y-equation.</param>
-        /// <returns></returns>
-        private static Point NewtonianConvergence(Point center, double a, double b, bool xPosRoot, bool yPosRoot)
+        private static IEnumerable<Point> BruteForceEllipseWithUnitCircle(Point center, double a, double b)
         {
-            var a2 = a * a;
-            var b2 = b * b;
-            var a4 = a2 * a2;
-            var h = center.X;
-            var k = center.Y;
-            var h2 = h * h;
-            Func<double, double> getX = (y) => Math.Sqrt(1.0 - (y * y)) * (xPosRoot ? 1.0 : -1.0);
-            Func<double, double, double> yNext = (x, y) =>
-                {
-                    var x2 = x * x;
-                    var sqrOp = a4 * b2 - a2 * b2 * h2 + 2.0 * a2 * b2 * h * x - a2 * b2 * x2;
-                    var sqr = Math.Sqrt(sqrOp);
-                    var denom = 2.0 * a2 * b2 * (h - x);
-                    return y + (2.0 * sqr * ((a2 * k) + sqr * (yPosRoot ? 1.0 : -1.0))) / denom;
-                };
+            var results = new List<Point>();
 
-            var y0 = 0.0;
-            var x0 = getX(y0);
-
-            double y1, x1;
-            for (int i = 0; i < 5; i++)
+            Func<int, Point> ellipsePoint = (an) =>
+                new Point(COS[an] * a + center.X, SIN[an] * b + center.Y, 0);
+            Func<Point, bool> isInside = (p) => ((p.X * p.X) + (p.Y * p.Y)) <= 1;
+            var current = ellipsePoint(0);
+            var inside = isInside(current);
+            for (int angle = 1; angle < 360; angle++)
             {
-                y1 = yNext(x0, y0);
-                if (double.IsNaN(y0)) break;
-                x1 = getX(y0);
-                if (double.IsNaN(x0)) break;
-                // check for convergence to a certain number of digits
-                if (Math.Abs(x1 - x0) < MathHelper.Epsilon && Math.Abs(y1 - y0) < MathHelper.Epsilon) break;
-                x0 = x1;
-                y0 = y1;
+                var nextPoint = ellipsePoint(angle);
+                var next = isInside(nextPoint);
+                if (next != inside)
+                {
+                    results.Add(nextPoint);
+                }
+
+                inside = next;
             }
 
-            return new Point(x0, y0, 0.0);
+            return results;
         }
+
+        private static double[] SIN;
+        private static double[] COS;
 
         #endregion
 

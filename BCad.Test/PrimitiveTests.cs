@@ -210,12 +210,20 @@ namespace BCad.Test
         [Fact]
         public void CircleEllipseIntersectionTestSamePlaneTwoPoints()
         {
+            // y-axis alignment
             Test(
                 Circle(new Point(1, 0, 0), 1),
                 Ellipse(new Point(3, 0, 0), 2, 1),
                 true,
                 new Point(1.666666666667, -0.7453559925, 0),
                 new Point(1.666666666667, 0.7453559925, 0));
+            // no axis alignment
+            Test(
+                Circle(Point.Origin, 1),
+                Ellipse(new Point(2, 1, 0), 2, 1),
+                true,
+                new Point(0, 1, 0),
+                new Point(1, 0.133974596216, 0));
         }
     }
 }
