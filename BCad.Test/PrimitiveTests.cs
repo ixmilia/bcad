@@ -225,5 +225,23 @@ namespace BCad.Test
                 new Point(0, 1, 0),
                 new Point(1, 0.133974596216, 0));
         }
+
+        [Fact]
+        public void CircleEllipseIntersectionTestDifferentPlanes()
+        {
+            // 1 intersection point
+            Test(
+                Circle(new Point(1, 0, 0), 1),
+                new PrimitiveEllipse(new Point(2, 0, 1), 1, Vector.XAxis, Color.Auto),
+                true,
+                new Point(2, 0, 0));
+            // 2 intersection points
+            Test(
+                Circle(new Point(1, 0, 0), 1),
+                new PrimitiveEllipse(new Point(1, 0, 0), new Vector(0, 0, 2), Vector.XAxis, 0.5, 0, 360, Color.Auto),
+                true,
+                new Point(1, -1, 0),
+                new Point(1, 1, 0));
+        }
     }
 }

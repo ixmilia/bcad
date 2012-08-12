@@ -10,6 +10,9 @@ namespace BCad.Extensions
 {
     public static partial class PrimitiveExtensions
     {
+        private static double[] SIN;
+        private static double[] COS;
+
         static PrimitiveExtensions()
         {
             SIN = new double[360];
@@ -502,7 +505,16 @@ namespace BCad.Extensions
             {
                 // intersection was a line
                 // find a common point to complete the line then intersect that line with the circles
-                throw new NotImplementedException();
+                // point a = ?
+                // point b = a + lineVector
+                PrimitiveLine intersectionLine = null; // TODO: calculate this
+                var firstIntersections = intersectionLine.IntersectionPoints(first, false)
+                    .Select(p => new Point((RoundedDouble)p.X, (RoundedDouble)p.Y, (RoundedDouble)p.Z));
+                var secondIntersections = intersectionLine.IntersectionPoints(second, false)
+                    .Select(p => new Point((RoundedDouble)p.X, (RoundedDouble)p.Y, (RoundedDouble)p.Z));
+                results = firstIntersections
+                    .Union(secondIntersections)
+                    .Distinct();
             }
 
             // verify points are in angle bounds
@@ -550,9 +562,6 @@ namespace BCad.Extensions
 
             return results;
         }
-
-        private static double[] SIN;
-        private static double[] COS;
 
         #endregion
 
