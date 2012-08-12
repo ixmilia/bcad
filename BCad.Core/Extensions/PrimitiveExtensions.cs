@@ -505,9 +505,43 @@ namespace BCad.Extensions
             {
                 // intersection was a line
                 // find a common point to complete the line then intersect that line with the circles
-                // point a = ?
-                // point b = a + lineVector
-                PrimitiveLine intersectionLine = null; // TODO: calculate this
+                double x = 0, y = 0, z = 0;
+                var n = first.Normal;
+                var m = second.Normal;
+                var q = first.Center;
+                var r = second.Center;
+                if (Math.Abs(lineVector.X) >= MathHelper.Epsilon)
+                {
+                    x = 0.0;
+                    y = (-m.Z * n.X * q.X - m.Z * n.Y * q.Y - m.Z * n.Z * q.Z + m.X * n.Z * r.X + m.Y * n.Z * r.Y + m.Z * n.Z * r.Z)
+                        / (-m.Z * n.Y + m.Y * n.Z);
+                    z = (-m.Y * n.X * q.X - m.Y * n.Y * q.Y - m.Y * n.Z * q.Z + m.X * n.Y * r.X + m.Y * n.Y * r.Y + m.Z * n.Y * r.Z)
+                        / (-m.Z * n.Y + m.Y * n.Z);
+                }
+                else if (Math.Abs(lineVector.Y) >= MathHelper.Epsilon)
+                {
+                    x = (-m.Z * n.X * q.X - m.Z * n.Y * q.Y - m.Z * n.Z * q.Z + m.X * n.Z * r.X + m.Y * n.Z * r.Y + m.Z * n.Z * r.Z)
+                        / (-m.Z * n.X + m.X * n.Z);
+                    y = 0.0;
+                    z = (-m.X * n.X * q.X - m.X * n.Y * q.Y - m.X * n.Z * q.Z + m.X * n.X * r.X + m.Y * n.X * r.Y + m.Z * n.X * r.Z)
+                        / (-m.Z * n.X + m.X * n.Z);
+                }
+                else if (Math.Abs(lineVector.Z) >= MathHelper.Epsilon)
+                {
+                    x = (-m.Y * n.X * q.X - m.Y * n.Y * q.Y - m.Y * n.Z * q.Z + m.X * n.Y * r.X + m.Y * n.Y * r.Y + m.Z * n.Y * r.Z)
+                        / (m.Y * n.X - m.X * n.Y);
+                    y = (-m.X * n.X * q.X - m.X * n.Y * q.Y - m.X * n.Z * q.Z + m.X * n.X * r.X + m.Y * n.X * r.Y + m.Z * n.X * r.Z)
+                        / (m.Y * n.X - m.X * n.Y);
+                    z = 0.0;
+                }
+                else
+                {
+                    Debug.Fail("zero-vector shouldn't get here");
+                }
+
+                var point = new Point(x, y, z);
+                var other = point + lineVector;
+                var intersectionLine = new PrimitiveLine(point, other);
                 var firstIntersections = intersectionLine.IntersectionPoints(first, false)
                     .Select(p => new Point((RoundedDouble)p.X, (RoundedDouble)p.Y, (RoundedDouble)p.Z));
                 var secondIntersections = intersectionLine.IntersectionPoints(second, false)
@@ -520,17 +554,17 @@ namespace BCad.Extensions
             // verify points are in angle bounds
             if (withinBounds)
             {
-                var firstUnit = first.GenerateUnitCircleProjection();
-                var secondUnit = second.GenerateUnitCircleProjection();
-                firstUnit.Invert();
-                secondUnit.Invert();
+                var toFirstUnit = first.GenerateUnitCircleProjection();
+                var toSecondUnit = second.GenerateUnitCircleProjection();
+                toFirstUnit.Invert();
+                toSecondUnit.Invert();
                 results = from res in results
                           // verify point is within first ellipse's angles
-                          let trans1 = res.Transform(firstUnit)
+                          let trans1 = res.Transform(toFirstUnit)
                           let ang1 = ((Vector)trans1).ToAngle()
                           where first.IsAngleContained(ang1)
                           // and same for second
-                          let trans2 = res.Transform(secondUnit)
+                          let trans2 = res.Transform(toSecondUnit)
                           let ang2 = ((Vector)trans2).ToAngle()
                           where second.IsAngleContained(ang2)
                           select res;
@@ -558,6 +592,7 @@ namespace BCad.Extensions
                 }
 
                 inside = next;
+                current = nextPoint;
             }
 
             return results;
