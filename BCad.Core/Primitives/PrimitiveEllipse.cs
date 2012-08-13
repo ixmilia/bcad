@@ -79,6 +79,32 @@ namespace BCad.Primitives
         }
 
         /// <summary>
+        /// Creates an arc that passes through the three specified points where the first and last
+        /// points are the start and end points.  Null if the points are co-linear.
+        /// </summary>
+        /// <param name="a">The first point.</param>
+        /// <param name="b">The second point.</param>
+        /// <param name="c">The third point.</param>
+        /// <returns>The resultant arc or null.</returns>
+        public static PrimitiveEllipse ThreePointArc(Point a, Point b, Point c)
+        {
+            var circle = ThreePointCircle(a, b, c);
+            if (circle != null)
+            {
+                var toUnit = circle.GenerateUnitCircleProjection();
+                toUnit.Invert();
+                var startAngle = ((Vector)c.Transform(toUnit)).ToAngle();
+                var endAngle = ((Vector)a.Transform(toUnit)).ToAngle();
+                circle.StartAngle = startAngle;
+                circle.EndAngle = endAngle;
+
+                return circle;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Creates a 2-dimensional ellipse.
         /// </summary>
         /// <param name="center">The center of the ellipse.</param>
