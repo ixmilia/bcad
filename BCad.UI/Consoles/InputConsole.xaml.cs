@@ -27,11 +27,16 @@ namespace BCad.UI.Consoles
         {
             InputService.PromptChanged += HandlePromptChanged;
             InputService.LineWritten += HandleLineWritten;
+            Workspace.CommandExecuted += WorkspaceCommandExecuted;
         }
 
         private void HandlePromptChanged(object sender, PromptChangedEventArgs e)
         {
-            Dispatcher.BeginInvoke((Action)(() => prompt.Content = e.Prompt));
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                inputLine.Text = "";
+                prompt.Content = e.Prompt;
+            }));
         }
 
         private void HandleLineWritten(object sender, WriteLineEventArgs e)
@@ -43,6 +48,14 @@ namespace BCad.UI.Consoles
             }));
         }
 
+        private void WorkspaceCommandExecuted(object sender, CommandExecutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                inputLine.Text = "";
+            }));
+        }
+
         public UserControl Control { get { return this; } }
 
         [Import]
@@ -50,6 +63,9 @@ namespace BCad.UI.Consoles
 
         [Import]
         private IView View = null;
+
+        [Import]
+        private IWorkspace Workspace = null;
 
         private void InputKeyDown(object sender, Input.KeyEventArgs e)
         {
