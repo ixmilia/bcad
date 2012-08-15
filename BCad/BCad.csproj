@@ -68,7 +68,7 @@
     <Compile Include="Ribbons\HomeRibbon.xaml.cs">
       <DependentUpon>HomeRibbon.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Services\TrimExtendService.cs" />
+    <Compile Include="Services\EditService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
     <Compile Include="Services\UndoRedoService.cs" />

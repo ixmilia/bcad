@@ -38,7 +38,7 @@ namespace BCad.Commands
             while (!selected.Cancel && selected.HasValue)
             {
                 entityLayerName = drawing.ContainingLayer(selected.Value.Entity).Name;
-                EditService.Trim(drawing, selected.Value, boundaryPrimitives, out removed, out added);
+                EditService.Trim(selected.Value, boundaryPrimitives, out removed, out added);
 
                 foreach (var ent in removed)
                     drawing = drawing.Remove(ent);

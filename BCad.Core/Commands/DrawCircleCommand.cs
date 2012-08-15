@@ -87,6 +87,13 @@ namespace BCad.Commands
                 switch (cen.Directive)
                 {
                     case "ttr":
+                        var firstEntity = InputService.GetEntity(new UserDirective("First entity"));
+                        if (firstEntity.Cancel || !firstEntity.HasValue)
+                            break;
+                        var secondEntity = InputService.GetEntity(new UserDirective("Second entity"));
+                        if (secondEntity.Cancel || !secondEntity.HasValue)
+                            break;
+                        var radius = InputService.GetDistance();
                         break;
                     case "2":
                         break;

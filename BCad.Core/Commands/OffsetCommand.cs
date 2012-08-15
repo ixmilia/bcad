@@ -14,6 +14,9 @@ namespace BCad.Commands
         private IInputService InputService = null;
 
         [Import]
+        private IEditService EditService = null;
+
+        [Import]
         private IWorkspace Workspace = null;
 
         private static double lastOffsetDistance = 0.0;
@@ -42,6 +45,13 @@ namespace BCad.Commands
             while (!selection.Cancel && selection.HasValue)
             {
                 var ent = selection.Value.Entity;
+                if (!EditService.CanOffsetEntity(ent))
+                {
+                    InputService.WriteLine("Unable to offset {0}", ent.Kind);
+                    selection = InputService.GetEntity(new UserDirective("Select entity"));
+                    continue;
+                }
+
                 if (!Workspace.IsEntityOnDrawingPlane(ent))
                 {
                     InputService.WriteLine("Entity must be entirely on the drawing plane to offset");
@@ -66,79 +76,12 @@ namespace BCad.Commands
 
                 // do the actual offset
                 Entity updated = null;
-                bool isInside;
-                switch (selection.Value.Entity.Kind)
-                {
-                    // for ellipse-like shapes, the radius changes
-                    case EntityKind.Arc:
-                        var arc = (Arc)ent;
-                        isInside = (point.Value - arc.Center).Length < arc.Radius;
-                        if (isInside && dist > arc.Radius)
-                        {
-                            InputService.WriteLine("Resultant radius would be negative");
-                            break;
-                        }
-                        updated = arc.Update(radius: isInside
-                            ? arc.Radius - dist
-                            : arc.Radius + dist);
-                        break;
-                    case EntityKind.Circle:
-                        var circle = (Circle)ent;
-                        // TODO: project to determine this
-                        isInside = (point.Value - circle.Center).Length < circle.Radius;
-                        if (isInside && dist > circle.Radius)
-                        {
-                            InputService.WriteLine("Resultant radius would be negative");
-                            break;
-                        }
-                        updated = circle.Update(radius: isInside
-                            ? circle.Radius - dist
-                            : circle.Radius + dist);
-                        break;
-                    case EntityKind.Ellipse:
-                        var el = (Ellipse)ent;
-                        var majorRadius = el.MajorAxis.Length;
-                        var minorRadius = majorRadius * el.MinorAxisRatio;
-                        isInside = (point.Value - el.Center).Length < el.MajorAxis.Length;
-                        if (isInside && (dist > majorRadius || dist > minorRadius))
-                        {
-                            InputService.WriteLine("Resultant radius would be negative");
-                            break;
-                        }
-                        var newMajorRadius = isInside ? majorRadius - dist : majorRadius + dist;
-                        updated = el.Update(majorAxis: (el.MajorAxis.Normalize() * newMajorRadius));
-                        break;
-                    case EntityKind.Line:
-                        // find what side the offset occured on and move both end points
-                        var line = (Line)ent;
-                        // normalize to XY plane
-                        var picked = Workspace.ToXYPlane(point.Value);
-                        var p1 = Workspace.ToXYPlane(line.P1);
-                        var p2 = Workspace.ToXYPlane(line.P2);
-                        var pline = new PrimitiveLine(p1, p2);
-                        var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
-                        var intersection = pline.IntersectionPoint(perpendicular, false);
-                        if (intersection != null)
-                        {
-                            var offsetVector = (picked - intersection).Normalize() * dist;
-                            offsetVector = Workspace.FromXYPlane(offsetVector);
-                            updated = line.Update(p1: line.P1 + offsetVector, p2: line.P2 + offsetVector);
-                        }
-                        break;
-                    case EntityKind.Polyline:
-                    case EntityKind.Text:
-                    default:
-                        InputService.WriteLine("Unable to offset {0}", selection.Value.GetType().Name);
-                        break;
-                }
-
-                Workspace.SelectedEntities.Clear();
-
-                if (updated != null)
+                if (EditService.Offset(Workspace, ent, point.Value, dist, out updated))
                 {
                     Workspace.AddToCurrentLayer(updated);
                 }
 
+                Workspace.SelectedEntities.Clear();
                 selection = InputService.GetEntity(new UserDirective("Select entity"));
             }
 

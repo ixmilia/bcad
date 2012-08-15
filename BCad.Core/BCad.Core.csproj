@@ -122,7 +122,7 @@
     <Compile Include="Primitives\PrimitiveText.cs" />
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
     <Compile Include="SelectedEntity.cs" />
-    <Compile Include="Services\ITrimExtendService.cs" />
+    <Compile Include="Services\IEditService.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />
