@@ -13,7 +13,7 @@ namespace BCad.Test
         public IInputService InputService { get; private set; }
 
         [Import]
-        public ITrimExtendService TrimExtendService { get; private set; }
+        public IEditService EditService { get; private set; }
 
         private TestHost()
         {

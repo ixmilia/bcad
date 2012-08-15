@@ -10,8 +10,8 @@ using System;
 
 namespace BCad.Services
 {
-    [Export(typeof(ITrimExtendService))]
-    internal class TrimExtendService : ITrimExtendService
+    [Export(typeof(IEditService))]
+    internal class EditService : IEditService
     {
         public void Trim(Drawing drawing, SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {

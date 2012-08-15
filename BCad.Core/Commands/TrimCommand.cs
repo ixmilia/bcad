@@ -13,7 +13,7 @@ namespace BCad.Commands
         private IInputService InputService = null;
 
         [Import]
-        private ITrimExtendService TrimExtendService = null;
+        private IEditService EditService = null;
 
         [Import]
         private IWorkspace Workspace = null;
@@ -38,7 +38,7 @@ namespace BCad.Commands
             while (!selected.Cancel && selected.HasValue)
             {
                 entityLayerName = drawing.ContainingLayer(selected.Value.Entity).Name;
-                TrimExtendService.Trim(drawing, selected.Value, boundaryPrimitives, out removed, out added);
+                EditService.Trim(drawing, selected.Value, boundaryPrimitives, out removed, out added);
 
                 foreach (var ent in removed)
                     drawing = drawing.Remove(ent);

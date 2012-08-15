@@ -30,7 +30,7 @@ namespace BCad.Test
             // trim
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
-            TrimExtendService.Trim(Workspace.Drawing,
+            EditService.Trim(Workspace.Drawing,
                 new SelectedEntity(lineToTrim, selectionPoint),
                 boundary,
                 out removed,
