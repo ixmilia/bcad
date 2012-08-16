@@ -119,7 +119,7 @@ namespace BCad.Services
                     var pline = new PrimitiveLine(p1, p2);
                     var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
                     var intersection = pline.IntersectionPoint(perpendicular, false);
-                    if (intersection != null)
+                    if (intersection != null && intersection != picked)
                     {
                         var offsetVector = (picked - intersection).Normalize() * offsetDistance;
                         offsetVector = drawingPlane.FromXYPlane(offsetVector);
@@ -130,6 +130,7 @@ namespace BCad.Services
                     }
                     else
                     {
+                        // the selected point was directly on the line
                         result = null;
                     }
                     break;
@@ -219,15 +220,17 @@ namespace BCad.Services
                         };
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
-                    var offset = line.P1 - drawingPlane.Point;
-                    if (offset.IsZeroVector)
-                        offset = line.P2 - drawingPlane.Point;
-                    if (offset.IsZeroVector)
+                    var lineVector = line.P2 - line.P1;
+                    if (lineVector.IsZeroVector)
+                    {
                         return Enumerable.Empty<IPrimitive>();
+                    }
+
+                    var offsetVector = lineVector.Cross(drawingPlane.Normal);
                     return new[]
                         {
-                            Offset(drawingPlane, line, line.P1 + offset, distance),
-                            Offset(drawingPlane, line, line.P1 - offset, distance)
+                            Offset(drawingPlane, line, line.P1 + offsetVector, distance),
+                            Offset(drawingPlane, line, line.P1 - offsetVector, distance)
                         };
                 case PrimitiveKind.Text:
                     return Enumerable.Empty<IPrimitive>();
