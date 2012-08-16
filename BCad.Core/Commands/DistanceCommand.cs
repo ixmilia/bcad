@@ -14,13 +14,13 @@ namespace BCad.Commands
         public bool Execute(object arg)
         {
             var start = InputService.GetPoint(new UserDirective("Distance from"));
-            if (start.Cancel) return false;
+            if (start.Cancel || !start.HasValue) return false;
             var first = start.Value;
             var end = InputService.GetPoint(new UserDirective("Distance to"), (p) =>
                 {
                     return new[] { new PrimitiveLine(first, p, Color.Default) };
                 });
-            if (end.Cancel) return false;
+            if (end.Cancel || !end.HasValue) return false;
             var between = end.Value - first;
             InputService.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
                 between.Length, Math.Abs(between.X), Math.Abs(between.Y), Math.Abs(between.Z));
