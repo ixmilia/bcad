@@ -15,5 +15,19 @@ namespace BCad.Test
             Assert.Equal(1, Workspace.GetLayer("Other").Entities.Count);
             Assert.Equal(Workspace.GetLayer("Other"), Workspace.CurrentLayer);
         }
+
+        [Fact]
+        public void CircleTtrTest()
+        {
+            var ellipse = EditService.Ttr(
+                Workspace.DrawingPlane,
+                new SelectedEntity(new Line(Point.Origin, new Point(3, 0, 0), Color.Auto), new Point(1, 0, 0)),
+                new SelectedEntity(new Line(Point.Origin, new Point(0, 3, 0), Color.Auto), new Point(0, 1, 0)),
+                1.0);
+            Assert.Equal(1.0, ellipse.MinorAxisRatio);
+            Assert.Equal(1.0, ellipse.MajorAxis.Length);
+            Assert.Equal(new Point(1, 1, 0), ellipse.Center);
+            Assert.Equal(Workspace.DrawingPlane.Normal, ellipse.Normal);
+        }
     }
 }

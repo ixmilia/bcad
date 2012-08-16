@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.Primitives;
 using BCad.Services;
 
@@ -97,7 +98,8 @@ namespace BCad.Commands
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
                         var radius = InputService.GetDistance();
-                        circle = EditService.Ttr(firstEntity.Value, secondEntity.Value, radius.Value);
+                        circle = (Circle)EditService.Ttr(Workspace.DrawingPlane, firstEntity.Value, secondEntity.Value, radius.Value)
+                            .ToEntity();
                         break;
                     case "2":
                         break;

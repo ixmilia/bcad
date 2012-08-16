@@ -9,6 +9,6 @@ namespace BCad.Services
         void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added);
         bool CanOffsetEntity(Entity entityToOffset);
         Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance);
-        Circle Ttr(SelectedEntity firstEntity, SelectedEntity secondEntity, double radius);
+        PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius);
     }
 }

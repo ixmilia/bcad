@@ -53,6 +53,7 @@
     <Compile Include="DxfTests\DxfHeaderTests.cs" />
     <Compile Include="DxfTests\DxfReaderWriterTests.cs" />
     <Compile Include="Objects.cs" />
+    <Compile Include="OffsetTests.cs" />
     <Compile Include="PointTests.cs" />
     <Compile Include="PrimitiveTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

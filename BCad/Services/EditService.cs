@@ -80,15 +80,26 @@ namespace BCad.Services
                     var el = (PrimitiveEllipse)primitive;
                     var isInside = ((Vector)offsetDirection).Transform(el.FromUnitCircleProjection())
                         .LengthSquared <= 1.0;
-                    if (isInside && offsetDistance > el.MajorAxis.Length * el.MinorAxisRatio)
+                    var majorLength = el.MajorAxis.Length;
+                    if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)
+                        || (offsetDistance > majorLength))
                     {
                         result = null;
                     }
                     else
                     {
+                        Vector newMajor;
+                        if (isInside)
+                        {
+                            newMajor = el.MajorAxis.Normalize() * (majorLength - offsetDistance);
+                        }
+                        else
+                        {
+                            newMajor = el.MajorAxis.Normalize() * (majorLength + offsetDistance);
+                        }
                         result = new PrimitiveEllipse(
                             center: el.Center,
-                            majorAxis: el.MajorAxis.Normalize() * 1.0,
+                            majorAxis: newMajor,
                             normal: el.Normal,
                             minorAxisRatio: el.MinorAxisRatio,
                             startAngle: el.StartAngle,
@@ -152,19 +163,75 @@ namespace BCad.Services
             }
         }
 
-        public Circle Ttr(SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
+        public PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
         {
             var first = firstEntity.Entity;
             var second = secondEntity.Entity;
             if (!CanOffsetEntity(first) || !CanOffsetEntity(second))
                 return null;
 
+            if (!drawingPlane.Contains(first) || !drawingPlane.Contains(second))
+                return null;
+
             // offset each entity both possible directions, intersect everything, and take the closest
             // point to be the center
-            var firstP = first.GetPrimitives().First();
-            var secondP = second.GetPrimitives().First();
+            var firstOffsets = OffsetBothDirections(
+                drawingPlane: drawingPlane,
+                primitive: first.GetPrimitives().First(),
+                distance: radius);
+            var secondOffsets = OffsetBothDirections(
+                drawingPlane: drawingPlane,
+                primitive: second.GetPrimitives().First(),
+                distance: radius);
 
-            return null;
+            var candidatePoints = (from f in firstOffsets
+                                   from s in secondOffsets
+                                   where f != null && s != null
+                                   select f.IntersectionPoints(s, false))
+                                  .SelectMany(x => x)
+                                  .Where(x => x != null);
+
+            var center = candidatePoints.OrderBy(x =>
+                {
+                    return (x - firstEntity.SelectionPoint).LengthSquared
+                        * (x - secondEntity.SelectionPoint).LengthSquared;
+                })
+                .FirstOrDefault();
+
+            if (center == null)
+                return null;
+
+            return new PrimitiveEllipse(center, radius, drawingPlane.Normal, Color.Auto);
+        }
+
+        private IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    return new[]
+                        {
+                            Offset(drawingPlane, el, el.Center, distance),
+                            Offset(drawingPlane, el, el.Center + (el.MajorAxis * 2.0), distance)
+                        };
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    var offset = line.P1 - drawingPlane.Point;
+                    if (offset.IsZeroVector)
+                        offset = line.P2 - drawingPlane.Point;
+                    if (offset.IsZeroVector)
+                        return Enumerable.Empty<IPrimitive>();
+                    return new[]
+                        {
+                            Offset(drawingPlane, line, line.P1 + offset, distance),
+                            Offset(drawingPlane, line, line.P1 - offset, distance)
+                        };
+                case PrimitiveKind.Text:
+                    return Enumerable.Empty<IPrimitive>();
+                default:
+                    throw new ArgumentException("primitive.Kind");
+            }
         }
 
         private static void TrimLine(Line lineToTrim, Point pivot, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
