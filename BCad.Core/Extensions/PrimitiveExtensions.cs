@@ -367,7 +367,8 @@ namespace BCad.Extensions
                         // if second ellipse is a circle we can absolutely solve for the intersection points
                         // rotate to place the center of the second circle on the x-axis
                         var angle = ((Vector)secondCenter).ToAngle();
-                        var rotation = RotateAboutZ(angle * -1.0);
+                        var rotation = RotateAboutZ(angle);
+                        var returnTransform = RotateAboutZ(-angle) * fromUnit;
                         var newSecondCenter = secondCenter.Transform(rotation);
                         var secondRadius = a;
 
@@ -389,7 +390,6 @@ namespace BCad.Extensions
                                 };
                         }
 
-                        var returnTransform = fromUnit * RotateAboutZ(angle);
                         results = results.Distinct().Select(p => p.Transform(returnTransform));
                     }
                     else

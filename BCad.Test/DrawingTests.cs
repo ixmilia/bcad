@@ -29,5 +29,20 @@ namespace BCad.Test
             Assert.Equal(new Point(1, 1, 0), ellipse.Center);
             Assert.Equal(Workspace.DrawingPlane.Normal, ellipse.Normal);
         }
+
+        [Fact]
+        public void CircleTtrWithCirclesTest()
+        {
+            // from test.dxf
+            var el = EditService.Ttr(
+                Workspace.DrawingPlane,
+                new SelectedEntity(new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, Color.Auto), new Point(140, 30, 0)),
+                new SelectedEntity(new Circle(new Point(100, 100, 0), 50, Vector.ZAxis, Color.Auto), new Point(140, 70, 0)),
+                30.0);
+            Assert.Equal(1.0, el.MinorAxisRatio);
+            Assert.Equal(30, el.MajorAxis.Length);
+            AssertClose(new Point(162.449979983983, 50, 0), el.Center);
+            Assert.Equal(Workspace.DrawingPlane.Normal, el.Normal);
+        }
     }
 }

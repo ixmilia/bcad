@@ -27,7 +27,7 @@ namespace BCad.Test
             Assert.True(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
-        protected void AssertPointClose(Point expected, Point actual)
+        protected void AssertClose(Point expected, Point actual)
         {
             AssertClose(expected.X, actual.X);
             AssertClose(expected.Y, actual.Y);

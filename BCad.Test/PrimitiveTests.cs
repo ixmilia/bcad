@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Primitives;
 using Xunit;
 
@@ -15,8 +16,20 @@ namespace BCad.Test
             Assert.Equal(points.Length, p.Length);
             for (int i = 0; i < p.Length; i++)
             {
-                Assert.Equal(points[i], p[i]);
+                AssertClose(points[i], p[i]);
             }
+        }
+
+        private static void AssertClose(double expected, double actual)
+        {
+            Assert.True(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+        }
+
+        private static void AssertClose(Point expected, Point actual)
+        {
+            AssertClose(expected.X, actual.X);
+            AssertClose(expected.Y, actual.Y);
+            AssertClose(expected.Z, actual.Z);
         }
 
         private static PrimitiveLine Line(Point p1, Point p2)
@@ -148,6 +161,11 @@ namespace BCad.Test
                 Circle(new Point(4, 1, 0), 1),
                 true,
                 new Point(3, 1, 0));
+            Test(
+                Circle(new Point(100, 100, 0), 10),
+                Circle(new Point(120, 100, 0), 10),
+                true,
+                new Point(110, 100, 0));
         }
 
         [Fact]
@@ -160,6 +178,12 @@ namespace BCad.Test
                 true,
                 new Point(0.5, x, 0),
                 new Point(0.5, -x, 0));
+            Test(
+                Circle(new Point(100, 0, 0), 80),
+                Circle(new Point(100, 100, 0), 80),
+                true,
+                new Point(37.550020016016, 50, 0),
+                new Point(162.449979983983, 50, 0));
         }
 
         [Fact]

@@ -91,8 +91,8 @@ namespace BCad.Test
                 new Line(new Point(0, 1, 0), new Point(1, 2, 0), Color.Auto),
                 Point.Origin,
                 1.0);
-            AssertPointClose(new Point(0.707106781186547, 0.292893218813453, 0), offset.P1);
-            AssertPointClose(new Point(1.707106781186547, 1.292893218813453, 0), offset.P2);
+            AssertClose(new Point(0.707106781186547, 0.292893218813453, 0), offset.P1);
+            AssertClose(new Point(1.707106781186547, 1.292893218813453, 0), offset.P2);
         }
 
         [Fact]
