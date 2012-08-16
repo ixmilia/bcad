@@ -94,5 +94,19 @@ namespace BCad.Test
             AssertPointClose(new Point(0.707106781186547, 0.292893218813453, 0), offset.P1);
             AssertPointClose(new Point(1.707106781186547, 1.292893218813453, 0), offset.P2);
         }
+
+        [Fact]
+        public void CircleOffsetProjectionBug()
+        {
+            // enuse we're using the correct projection matrix when verifying
+            // whether the offset point is inside the circle or not
+            var offset = (Circle)EditService.Offset(
+                Workspace,
+                new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, Color.Auto),
+                new Point(100, 0, 0),
+                10);
+            Assert.Equal(new Point(100, 0, 0), offset.Center);
+            Assert.Equal(40, offset.Radius);
+        }
     }
 }
