@@ -625,7 +625,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
                     var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
-                    trans = PrimitiveExtensions.GenerateUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc);
+                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc);
                     display = new DisplayPrimitiveMesh(mesh, color, trans.ToMatrix(), normalPixelShader, selectedPixelShader);
                     break;
                 case PrimitiveKind.Line:
@@ -661,7 +661,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     var segments = new Vector3[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
-                    trans = PrimitiveExtensions.GenerateUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0);
+                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0);
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
@@ -792,20 +792,22 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 Func<double, Vector> snapVector = rad =>
                 {
                     Vector radVector = null;
-                    switch (workspace.DrawingPlane)
+                    var offset = workspace.DrawingPlane.Point;
+                    if (workspace.DrawingPlane.Normal == Vector.ZAxis)
                     {
-                        case DrawingPlane.XY:
-                            radVector = new Vector(Math.Cos(rad), Math.Sin(rad), workspace.DrawingPlaneOffset);
-                            break;
-                        case DrawingPlane.XZ:
-                            radVector = new Vector(Math.Cos(rad), workspace.DrawingPlaneOffset, Math.Sin(rad));
-                            break;
-                        case DrawingPlane.YZ:
-                            radVector = new Vector(workspace.DrawingPlaneOffset, Math.Cos(rad), Math.Sin(rad));
-                            break;
-                        default:
-                            Debug.Fail("invalid value for drawing plane");
-                            break;
+                        radVector = new Vector(Math.Cos(rad), Math.Sin(rad), offset.Z);
+                    }
+                    else if (workspace.DrawingPlane.Normal == Vector.YAxis)
+                    {
+                        radVector = new Vector(Math.Cos(rad), offset.Y, Math.Sin(rad));
+                    }
+                    else if (workspace.DrawingPlane.Normal == Vector.XAxis)
+                    {
+                        radVector = new Vector(offset.X, Math.Cos(rad), Math.Sin(rad));
+                    }
+                    else
+                    {
+                        Debug.Fail("invalid value for drawing plane");
                     }
 
                     return radVector.Normalize() * dist;
@@ -835,36 +837,39 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 var last = inputService.LastPoint;
                 var current = Unproject(cursor).ToPoint();
                 var delta = current - last;
-                var offset = workspace.DrawingPlaneOffset;
+                var offset = workspace.DrawingPlane.Point;
                 Point world;
-                switch (workspace.DrawingPlane)
+
+                if (workspace.DrawingPlane.Normal == Vector.ZAxis)
                 {
-                    case DrawingPlane.XY:
-                        if (offset != last.Z && offset != current.Z)
-                            return null;
-                        if (Math.Abs(delta.X) > Math.Abs(delta.Y))
-                            world = last + new Vector(delta.X, 0.0, 0.0);
-                        else
-                            world = last + new Vector(0.0, delta.Y, 0.0);
-                        break;
-                    case DrawingPlane.XZ:
-                        if (offset != last.Y && offset != current.Y)
-                            return null;
-                        if (Math.Abs(delta.X) > Math.Abs(delta.Z))
-                            world = last + new Vector(delta.X, 0.0, 0.0);
-                        else
-                            world = last + new Vector(0.0, 0.0, delta.Z);
-                        break;
-                    case DrawingPlane.YZ:
-                        if (offset != last.X && offset != current.X)
-                            return null;
-                        if (Math.Abs(delta.Y) > Math.Abs(delta.Z))
-                            world = last + new Vector(0.0, delta.Y, 0.0);
-                        else
-                            world = last + new Vector(0.0, 0.0, delta.Z);
-                        break;
-                    default:
-                        throw new NotSupportedException("Invalid drawing plane");
+                    if (offset.Z != last.Z && offset.Z != current.Z)
+                        return null;
+                    if (Math.Abs(delta.X) > Math.Abs(delta.Y))
+                        world = last + new Vector(delta.X, 0.0, 0.0);
+                    else
+                        world = last + new Vector(0.0, delta.Y, 0.0);
+                }
+                else if (workspace.DrawingPlane.Normal == Vector.ZAxis)
+                {
+                    if (offset.Y != last.Y && offset.Y != current.Y)
+                        return null;
+                    if (Math.Abs(delta.X) > Math.Abs(delta.Z))
+                        world = last + new Vector(delta.X, 0.0, 0.0);
+                    else
+                        world = last + new Vector(0.0, 0.0, delta.Z);
+                }
+                else if (workspace.DrawingPlane.Normal == Vector.ZAxis)
+                {
+                    if (offset.X != last.X && offset.X != current.X)
+                        return null;
+                    if (Math.Abs(delta.Y) > Math.Abs(delta.Z))
+                        world = last + new Vector(0.0, delta.Y, 0.0);
+                    else
+                        world = last + new Vector(0.0, 0.0, delta.Z);
+                }
+                else
+                {
+                    throw new NotSupportedException("Invalid drawing plane");
                 }
 
                 Debug.Assert(world != null, "should have returned null");

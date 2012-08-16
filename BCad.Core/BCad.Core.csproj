@@ -74,14 +74,15 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DialogFactory.cs" />
     <Compile Include="Drawing.cs" />
-    <Compile Include="DrawingPlane.cs" />
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
     <Compile Include="Entities\Polyline.cs" />
     <Compile Include="Entities\Text.cs" />
+    <Compile Include="Extensions\PlaneExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.RoundedDouble.cs" />
+    <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
     <Compile Include="EventArguments\CommandEventArgs.cs" />

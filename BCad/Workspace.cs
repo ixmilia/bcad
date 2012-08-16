@@ -115,8 +115,8 @@ namespace BCad
             }
         }
 
-        private DrawingPlane drawingPlane = DrawingPlane.XY;
-        public DrawingPlane DrawingPlane
+        private Plane drawingPlane = new Plane(Point.Origin, Vector.ZAxis);
+        public Plane DrawingPlane
         {
             get { return drawingPlane; }
             set
@@ -126,20 +126,6 @@ namespace BCad
                 OnPropertyChanging(Constants.DrawingPlaneString);
                 this.drawingPlane = value;
                 OnPropertyChanged(Constants.DrawingPlaneString);
-            }
-        }
-
-        private double drawingPlaneOffset = 0.0;
-        public double DrawingPlaneOffset
-        {
-            get { return this.drawingPlaneOffset; }
-            set
-            {
-                if (this.drawingPlaneOffset == value)
-                    return;
-                OnPropertyChanging(Constants.DrawingPlaneOffsetString);
-                this.drawingPlaneOffset = value;
-                OnPropertyChanged(Constants.DrawingPlaneOffsetString);
             }
         }
 

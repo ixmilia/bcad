@@ -119,7 +119,7 @@ namespace BCad.Extensions
                     throw new ArgumentException("entity");
             }
 
-            return PrimitiveExtensions.GenerateUnitCircleProjection(normal, right, up, center, scaleX, scaleY, 1.0);
+            return PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, center, scaleX, scaleY, 1.0);
         }
     }
 }

@@ -91,7 +91,7 @@ namespace BCad.Primitives
             var circle = ThreePointCircle(a, b, c);
             if (circle != null)
             {
-                var toUnit = circle.GenerateUnitCircleProjection();
+                var toUnit = circle.FromUnitCircleProjection();
                 toUnit.Invert();
                 var startAngle = ((Vector)c.Transform(toUnit)).ToAngle();
                 var endAngle = ((Vector)a.Transform(toUnit)).ToAngle();

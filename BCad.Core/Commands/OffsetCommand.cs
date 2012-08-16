@@ -52,7 +52,7 @@ namespace BCad.Commands
                     continue;
                 }
 
-                if (!Workspace.IsEntityOnDrawingPlane(ent))
+                if (!Workspace.DrawingPlane.Contains(ent))
                 {
                     InputService.WriteLine("Entity must be entirely on the drawing plane to offset");
                     selection = InputService.GetEntity(new UserDirective("Select entity"));
@@ -67,7 +67,7 @@ namespace BCad.Commands
                     break;
                 }
 
-                if (!Workspace.IsPointOnDrawingPlane(point.Value))
+                if (!Workspace.DrawingPlane.Contains(point.Value))
                 {
                     InputService.WriteLine("Point must be on the drawing plane to offset");
                     selection = InputService.GetEntity(new UserDirective("Select entity"));
@@ -75,8 +75,9 @@ namespace BCad.Commands
                 }
 
                 // do the actual offset
-                Entity updated = null;
-                if (EditService.Offset(Workspace, ent, point.Value, dist, out updated))
+                var updated = EditService.Offset(Workspace, ent, point.Value, dist);
+
+                if (updated != null)
                 {
                     Workspace.AddToCurrentLayer(updated);
                 }

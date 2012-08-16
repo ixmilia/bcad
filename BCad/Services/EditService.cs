@@ -68,79 +68,103 @@ namespace BCad.Services
             }
         }
 
-        public bool Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance, out Entity result)
+        public IPrimitive Offset(Plane drawingPlane, IPrimitive primitive, Point offsetDirection, double offsetDistance)
         {
-            bool isInside;
-            switch (entityToOffset.Kind)
+            if (!drawingPlane.Contains(offsetDirection))
+                return null;
+
+            IPrimitive result;
+            switch (primitive.Kind)
             {
-                // for ellipse-like shapes, the radius changes
-                case EntityKind.Arc:
-                    var arc = (Arc)entityToOffset;
-                    isInside = (offsetDirection - arc.Center).Length < arc.Radius;
-                    if (isInside && offsetDistance > arc.Radius)
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    var isInside = ((Vector)offsetDirection).Transform(el.FromUnitCircleProjection())
+                        .LengthSquared <= 1.0;
+                    if (isInside && offsetDistance > el.MajorAxis.Length * el.MinorAxisRatio)
                     {
                         result = null;
-                        return false;
                     }
-                    result = arc.Update(radius: isInside
-                        ? arc.Radius - offsetDistance
-                        : arc.Radius + offsetDistance);
-                    break;
-                case EntityKind.Circle:
-                    var circle = (Circle)entityToOffset;
-                    // TODO: project to determine this
-                    isInside = (offsetDirection - circle.Center).Length < circle.Radius;
-                    if (isInside && offsetDistance > circle.Radius)
+                    else
                     {
-                        result = null;
-                        return false;
+                        result = new PrimitiveEllipse(
+                            center: el.Center,
+                            majorAxis: el.MajorAxis.Normalize() * 1.0,
+                            normal: el.Normal,
+                            minorAxisRatio: el.MinorAxisRatio,
+                            startAngle: el.StartAngle,
+                            endAngle: el.EndAngle,
+                            color: el.Color);
                     }
-                    result = circle.Update(radius: isInside
-                        ? circle.Radius - offsetDistance
-                        : circle.Radius + offsetDistance);
                     break;
-                case EntityKind.Ellipse:
-                    var el = (Ellipse)entityToOffset;
-                    var majorRadius = el.MajorAxis.Length;
-                    var minorRadius = majorRadius * el.MinorAxisRatio;
-                    isInside = (offsetDirection - el.Center).Length < el.MajorAxis.Length;
-                    if (isInside && (offsetDistance > majorRadius || offsetDistance > minorRadius))
-                    {
-                        result = null;
-                        return false;
-                    }
-                    var newMajorRadius = isInside ? majorRadius - offsetDistance : majorRadius + offsetDistance;
-                    result = el.Update(majorAxis: (el.MajorAxis.Normalize() * newMajorRadius));
-                    break;
-                case EntityKind.Line:
+                case PrimitiveKind.Line:
                     // find what side the offset occured on and move both end points
-                    var line = (Line)entityToOffset;
+                    var line = (PrimitiveLine)primitive;
                     // normalize to XY plane
-                    var picked = workspace.ToXYPlane(offsetDirection);
-                    var p1 = workspace.ToXYPlane(line.P1);
-                    var p2 = workspace.ToXYPlane(line.P2);
+                    var picked = drawingPlane.ToXYPlane(offsetDirection);
+                    var p1 = drawingPlane.ToXYPlane(line.P1);
+                    var p2 = drawingPlane.ToXYPlane(line.P2);
                     var pline = new PrimitiveLine(p1, p2);
                     var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
                     var intersection = pline.IntersectionPoint(perpendicular, false);
                     if (intersection != null)
                     {
                         var offsetVector = (picked - intersection).Normalize() * offsetDistance;
-                        offsetVector = workspace.FromXYPlane(offsetVector);
-                        result = line.Update(p1: line.P1 + offsetVector, p2: line.P2 + offsetVector);
+                        offsetVector = drawingPlane.FromXYPlane(offsetVector);
+                        result = new PrimitiveLine(
+                            p1: line.P1 + offsetVector,
+                            p2: line.P2 + offsetVector,
+                            color: line.Color);
                     }
                     else
                     {
                         result = null;
                     }
                     break;
-                case EntityKind.Polyline:
-                case EntityKind.Text:
-                default:
+                case PrimitiveKind.Text:
                     result = null;
-                    return false;
+                    break;
+                default:
+                    throw new ArgumentException("primitive.Kind");
             }
 
-            return true;
+            return result;
+        }
+
+        public Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
+        {
+            switch (entityToOffset.Kind)
+            {
+                case EntityKind.Arc:
+                case EntityKind.Circle:
+                case EntityKind.Ellipse:
+                case EntityKind.Line:
+                    var offset = Offset(
+                        workspace.DrawingPlane,
+                        entityToOffset.GetPrimitives().Single(),
+                        offsetDirection,
+                        offsetDistance);
+                    return offset.ToEntity();
+                case EntityKind.Polyline:
+                case EntityKind.Text:
+                    return null;
+                default:
+                    throw new ArgumentException("entityToOffset.Kind");
+            }
+        }
+
+        public Circle Ttr(SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
+        {
+            var first = firstEntity.Entity;
+            var second = secondEntity.Entity;
+            if (!CanOffsetEntity(first) || !CanOffsetEntity(second))
+                return null;
+
+            // offset each entity both possible directions, intersect everything, and take the closest
+            // point to be the center
+            var firstP = first.GetPrimitives().First();
+            var secondP = second.GetPrimitives().First();
+
+            return null;
         }
 
         private static void TrimLine(Line lineToTrim, Point pivot, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)

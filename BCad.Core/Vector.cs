@@ -120,6 +120,16 @@ namespace BCad
             return angle.CorrectAngleDegrees();
         }
 
+        public bool IsOrthoganalTo(Vector other)
+        {
+            return Math.Abs(this.Dot(other)) < MathHelper.Epsilon;
+        }
+
+        public bool IsParallelTo(Vector other)
+        {
+            return this.Cross(other).IsZeroVector;
+        }
+
         public static Vector XAxis
         {
             get { return new Vector(1, 0, 0); }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media.Media3D;
+using BCad.Entities;
 using BCad.Helpers;
 using BCad.Primitives;
 
@@ -198,7 +199,7 @@ namespace BCad.Extensions
             var up = ellipse.Normal.Cross(right).Normalize();
             var radiusX = ellipse.MajorAxis.Length;
             var radiusY = radiusX * ellipse.MinorAxisRatio;
-            var transform = ellipse.GenerateUnitCircleProjection();
+            var transform = ellipse.FromUnitCircleProjection();
             var inverse = transform;
             inverse.Invert();
 
@@ -349,7 +350,7 @@ namespace BCad.Extensions
                 {
                     // if they share a point or second.Center is on the first plane, they are the same plane
                     // project second back to a unit circle and find intersection points
-                    var fromUnit = first.GenerateUnitCircleProjection();
+                    var fromUnit = first.FromUnitCircleProjection();
                     var toUnit = fromUnit;
                     toUnit.Invert();
 
@@ -554,8 +555,8 @@ namespace BCad.Extensions
             // verify points are in angle bounds
             if (withinBounds)
             {
-                var toFirstUnit = first.GenerateUnitCircleProjection();
-                var toSecondUnit = second.GenerateUnitCircleProjection();
+                var toFirstUnit = first.FromUnitCircleProjection();
+                var toSecondUnit = second.FromUnitCircleProjection();
                 toFirstUnit.Invert();
                 toSecondUnit.Invert();
                 results = from res in results
@@ -600,7 +601,7 @@ namespace BCad.Extensions
 
         #endregion
 
-        public static Matrix3D GenerateUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
+        public static Matrix3D FromUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
         {
             var transformation = Matrix3D.Identity;
             transformation.M11 = right.X;
@@ -622,13 +623,13 @@ namespace BCad.Extensions
             return scale * transformation;
         }
 
-        public static Matrix3D GenerateUnitCircleProjection(this PrimitiveEllipse el)
+        public static Matrix3D FromUnitCircleProjection(this PrimitiveEllipse el)
         {
             var normal = el.Normal.Normalize();
             var right = el.MajorAxis.Normalize();
             var up = normal.Cross(right).Normalize();
             var radiusX = el.MajorAxis.Length;
-            return GenerateUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
+            return FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
         }
 
         public static Matrix3D Translation(Vector offset)
@@ -651,6 +652,48 @@ namespace BCad.Extensions
             m.M21 = sin;
             m.M22 = cos;
             return m;
+        }
+
+        public static Entity ToEntity(this IPrimitive primitive)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    if (el.MinorAxisRatio == 1.0)
+                    {
+                        // circle or arc
+                        if (el.StartAngle == 0.0 && el.EndAngle == 360.0)
+                        {
+                            // circle
+                            return new Circle(el.Center, el.MajorAxis.Length, el.Normal, el.Color);
+                        }
+                        else
+                        {
+                            // arc
+                            return new Arc(el.Center, el.MajorAxis.Length, el.StartAngle, el.EndAngle, el.Normal, el.Color);
+                        }
+                    }
+                    else
+                    {
+                        return new Ellipse(
+                            el.Center,
+                            el.MajorAxis,
+                            el.MinorAxisRatio,
+                            el.StartAngle,
+                            el.EndAngle,
+                            el.Normal,
+                            el.Color);
+                    }
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    return new Line(line.P1, line.P2, line.Color);
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    return new Text(text.Value, text.Location, text.Normal, text.Height, text.Rotation, text.Color);
+                default:
+                    throw new ArgumentException("primitive.Kind");
+            }
         }
     }
 }

@@ -83,7 +83,7 @@ namespace BCad.Entities
             var r = right.Normalize();
             var n = normal.Normalize();
             var up = normal.Cross(right).Normalize();
-            var trans = PrimitiveExtensions.GenerateUnitCircleProjection(n, r, up, center, radiusX, radiusY, 0.0);
+            var trans = PrimitiveExtensions.FromUnitCircleProjection(n, r, up, center, radiusX, radiusY, 0.0);
 
             for (int i = 0; i < anglesInDegrees.Length; i++)
             {

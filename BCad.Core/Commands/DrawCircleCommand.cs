@@ -12,6 +12,9 @@ namespace BCad.Commands
         private IInputService InputService = null;
 
         [Import]
+        private IEditService EditService = null;
+
+        [Import]
         private IWorkspace Workspace = null;
 
         public bool Execute(object arg)
@@ -32,13 +35,13 @@ namespace BCad.Commands
                             return new IPrimitive[]
                             {
                                 new PrimitiveLine(cen.Value, p, Color.Default),
-                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, Workspace.DrawingPlaneNormal(), Color.Default)
+                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, Workspace.DrawingPlane.Normal, Color.Default)
                             };
                         });
                         if (rad.Cancel) return false;
                         if (rad.HasValue)
                         {
-                            circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, Workspace.DrawingPlaneNormal(), Color.Default);
+                            circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, Workspace.DrawingPlane.Normal, Color.Default);
                         }
                         else // switch modes
                         {
@@ -62,13 +65,13 @@ namespace BCad.Commands
                             return new IPrimitive[]
                             {
                                 new PrimitiveLine(cen.Value, p, Color.Default),
-                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default)
+                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length / 2.0, Workspace.DrawingPlane.Normal, Color.Default)
                             };
                         });
                         if (diameter.Cancel) return false;
                         if (diameter.HasValue)
                         {
-                            circle = new Circle(cen.Value, (diameter.Value - cen.Value).Length / 2.0, Workspace.DrawingPlaneNormal(), Color.Default);
+                            circle = new Circle(cen.Value, (diameter.Value - cen.Value).Length / 2.0, Workspace.DrawingPlane.Normal, Color.Default);
                         }
                         else // switch modes
                         {
@@ -94,6 +97,7 @@ namespace BCad.Commands
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
                         var radius = InputService.GetDistance();
+                        circle = EditService.Ttr(firstEntity.Value, secondEntity.Value, radius.Value);
                         break;
                     case "2":
                         break;

@@ -20,8 +20,7 @@ namespace BCad
     {
         Drawing Drawing { get; set; }
         Layer CurrentLayer { get; set; }
-        DrawingPlane DrawingPlane { get; set; }
-        double DrawingPlaneOffset { get; set; }
+        Plane DrawingPlane { get; set; }
         ObservableHashSet<Entity> SelectedEntities { get; }
 
         ISettingsManager SettingsManager { get; }
