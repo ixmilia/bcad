@@ -524,7 +524,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 // clear rubber band lines
                 rubberBandLines = null;
                 var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-                inputService.WriteLine("DrawingChanged in {0} ms", elapsed);
+                inputService.WriteLineDebug("DrawingChanged in {0} ms", elapsed);
             }
 
             ForceRender();
@@ -1144,7 +1144,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 });
 
             var ellapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            inputService.WriteLine("GetContainedEntites in {0} ms", ellapsed);
+            inputService.WriteLineDebug("GetContainedEntites in {0} ms", ellapsed);
             return entities;
         }
 
@@ -1167,7 +1167,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
 
             var selected = entities.FirstOrDefault();
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            inputService.WriteLine("GetHitEntity in {0} ms", elapsed);
+            inputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
 
             if (selected == null)
             {
@@ -1178,7 +1178,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 start = DateTime.UtcNow;
                 var entity = drawing.Layers.Values.SelectMany(l => l.Entities).Single(en => en.Id == selected.EntityId);
                 var elapsed2 = (DateTime.UtcNow - start).TotalMilliseconds;
-                inputService.WriteLine("GetHitEntity(selection) in {0} ms", elapsed2);
+                inputService.WriteLineDebug("GetHitEntity(selection) in {0} ms", elapsed2);
                 return new SelectedEntity(entity, selected.SelectionPoint);
             }
         }

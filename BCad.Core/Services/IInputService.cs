@@ -36,6 +36,9 @@ namespace BCad.Services
         void WriteLine(string text);
         void WriteLine(string text, params object[] param);
 
+        void WriteLineDebug(string text);
+        void WriteLineDebug(string text, params object[] param);
+
         void Cancel();
         void PushNone();
         void PushCommand(string commandName);

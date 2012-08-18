@@ -44,6 +44,22 @@ namespace BCad.Services
             WriteLine(string.Format(text, param));
         }
 
+        public void WriteLineDebug(string text)
+        {
+            if (Workspace.SettingsManager.Debug)
+            {
+                WriteLine(text);
+            }
+        }
+
+        public void WriteLineDebug(string text, params object[] param)
+        {
+            if (Workspace.SettingsManager.Debug)
+            {
+                WriteLine(string.Format(text, param));
+            }
+        }
+
         private object callbackGate = new object();
 
         private RubberBandGenerator primitiveGenerator = null;
