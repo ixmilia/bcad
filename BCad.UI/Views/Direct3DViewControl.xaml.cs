@@ -437,8 +437,6 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     line.Draw(new[] { d, e }, autoColor);
                     line.Draw(new[] { e, a }, autoColor);
                 }
-
-                UpdateDebugSnapPoints();
             }
         }
 
@@ -463,7 +461,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     break;
                 case Constants.DebugString:
                     debug = workspace.SettingsManager.Debug;
-                    UpdateDebugSnapPoints();
+                    UpdateSnapPoints(projectionMatrix);
                     break;
                 case Constants.AngleSnapString:
                 case Constants.OrthoString:
@@ -722,11 +720,22 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                             out snapPoints[i].ControlPoint); // output
                         snapPoints[i].ControlPoint.Z = 0.0f;
                     });
+                Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        debugLayer.Children.Clear();
+                        if (this.debug)
+                        {
+                            foreach (var sp in snapPoints.Where(s => s.Kind != SnapPointKind.None))
+                            {
+                                debugLayer.Children.Add(GetSnapIcon(sp, Media.Colors.Cyan));
+                            }
+                        }
+                    }));
             }
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
         }
 
-        private Image GetSnapIcon(TransformedSnapPoint snapPoint)
+        private Image GetSnapIcon(TransformedSnapPoint snapPoint, Media.Color? color = null)
         {
             string name;
             switch (snapPoint.Kind)
@@ -753,9 +762,9 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             if (name == null)
                 return null;
 
-            var geometry = (Media.GeometryDrawing)SnapPointResources[name];
+            var geometry = ((Media.GeometryDrawing)SnapPointResources[name]).Clone();
             var scale = workspace.SettingsManager.SnapPointSize;
-            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(workspace.SettingsManager.SnapPointColor), 0.2);
+            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(color ?? workspace.SettingsManager.SnapPointColor), 0.2);
             var di = new Media.DrawingImage(geometry);
             var icon = new Image();
             icon.Source = di;
@@ -764,18 +773,6 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
             Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
             return icon;
-        }
-
-        private void UpdateDebugSnapPoints()
-        {
-            debugLayer.Children.Clear();
-            if (this.debug)
-            {
-                foreach (var sp in snapPoints.Where(s => s.Kind != SnapPointKind.None))
-                {
-                    debugLayer.Children.Add(GetSnapIcon(sp));
-                }
-            }
         }
 
         #endregion
