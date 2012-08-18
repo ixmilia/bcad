@@ -21,11 +21,13 @@ namespace BCad
         private bool pointSnap = false;
         private bool angleSnap = false;
         private bool ortho = false;
+        private bool debug = false;
         private double snapAngleDist = 0.0;
         private double[] snapAngles = null;
         private KeyboardShortcut angleSnapShortcut = null;
         private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
+        private KeyboardShortcut debugShortcut = null;
         private Media.Color backgroundColor = Media.Colors.Black;
         private Media.Color snapPointColor = Media.Colors.Yellow;
 
@@ -151,6 +153,18 @@ namespace BCad
             }
         }
 
+        public bool Debug
+        {
+            get { return this.debug; }
+            set
+            {
+                if (this.debug == value)
+                    return;
+                this.debug = value;
+                OnPropertyChanged(Constants.DebugString);
+            }
+        }
+
         public double SnapAngleDistance
         {
             get { return this.snapAngleDist; }
@@ -215,6 +229,16 @@ namespace BCad
             {
                 this.orthoShortcut = value;
                 OnPropertyChanged("OrthoShortcut");
+            }
+        }
+
+        public KeyboardShortcut DebugShortcut
+        {
+            get { return this.debugShortcut; }
+            set
+            {
+                this.debugShortcut = value;
+                OnPropertyChanged("DebugShortcut");
             }
         }
 
@@ -323,11 +347,13 @@ namespace BCad
             PointSnap = true;
             AngleSnap = true;
             Ortho = false;
+            Debug = false;
             SnapAngleDistance = 30.0;
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
             AngleSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F7);
             PointSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F3);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
+            DebugShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F12);
             BackgroundColor = Media.Colors.DarkSlateGray;
             //BackgroundColor = 0x6495ED; // cornflower blue
             SnapPointColor = Media.Colors.Yellow;

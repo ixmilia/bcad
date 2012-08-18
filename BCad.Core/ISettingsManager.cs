@@ -15,11 +15,13 @@ namespace BCad
         bool PointSnap { get; set; }
         bool AngleSnap { get; set; }
         bool Ortho { get; set; }
+        bool Debug { get; set; }
         double SnapAngleDistance { get; set; }
         double[] SnapAngles { get; set; }
         KeyboardShortcut AngleSnapShortcut { get; set; }
         KeyboardShortcut PointSnapShortcut { get; set; }
         KeyboardShortcut OrthoShortcut { get; set; }
+        KeyboardShortcut DebugShortcut { get; set; }
         Media.Color BackgroundColor { get; set; }
         Media.Color SnapPointColor { get; set; }
     }

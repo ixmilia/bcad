@@ -274,6 +274,7 @@ namespace BCad.UI.Views
         private IDisplayPrimitive[] rubberBandLines = null;
         private bool panning = false;
         private bool selecting = false;
+        private bool debug = false;
         private System.Windows.Point firstSelectionPoint = new System.Windows.Point();
         private System.Windows.Point currentSelectionPoint = new System.Windows.Point();
         private System.Windows.Point lastPanPoint = new System.Windows.Point();
@@ -436,6 +437,8 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     line.Draw(new[] { d, e }, autoColor);
                     line.Draw(new[] { e, a }, autoColor);
                 }
+
+                UpdateDebugSnapPoints();
             }
         }
 
@@ -457,6 +460,10 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     autoColor = new Color4((0xFF << 24) | color);
                     ForceRender();
                     UpdateCursor();
+                    break;
+                case Constants.DebugString:
+                    debug = workspace.SettingsManager.Debug;
+                    UpdateDebugSnapPoints();
                     break;
                 case Constants.AngleSnapString:
                 case Constants.OrthoString:
@@ -757,6 +764,18 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
             Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
             return icon;
+        }
+
+        private void UpdateDebugSnapPoints()
+        {
+            debugLayer.Children.Clear();
+            if (this.debug)
+            {
+                foreach (var sp in snapPoints.Where(s => s.Kind != SnapPointKind.None))
+                {
+                    debugLayer.Children.Add(GetSnapIcon(sp));
+                }
+            }
         }
 
         #endregion

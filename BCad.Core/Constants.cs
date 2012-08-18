@@ -9,6 +9,7 @@
         public const string DrawingPlaneOffsetString = "DrawingPlaneOffset";
         public const string DrawingString = "Drawing";
         public const string OrthoString = "Ortho";
+        public const string DebugString = "Debug";
         public const string PointSnapString = "PointSnap";
     }
 }

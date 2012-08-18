@@ -61,7 +61,8 @@ namespace BCad
             // prepare status bar bindings
             foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = Constants.OrthoString },
                                       new { TextBlock = this.pointSnapStatus, Path = Constants.PointSnapString },
-                                      new { TextBlock = this.angleSnapStatus, Path = Constants.AngleSnapString }})
+                                      new { TextBlock = this.angleSnapStatus, Path = Constants.AngleSnapString },
+                                      new { TextBlock = this.debugStatus, Path = Constants.DebugString }})
             {
                 var binding = new Binding(x.Path);
                 binding.Source = Workspace.SettingsManager;
@@ -84,7 +85,8 @@ namespace BCad
             foreach (var setting in new[] {
                                         new { Name = Constants.AngleSnapString, Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
                                         new { Name = Constants.PointSnapString, Shortcut = Workspace.SettingsManager.PointSnapShortcut },
-                                        new { Name = Constants.PointSnapString, Shortcut = Workspace.SettingsManager.OrthoShortcut } })
+                                        new { Name = Constants.OrthoString, Shortcut = Workspace.SettingsManager.OrthoShortcut },
+                                        new { Name = Constants.DebugString, Shortcut = Workspace.SettingsManager.DebugShortcut } })
             {
                 if (setting.Shortcut.HasValue)
                 {
@@ -124,7 +126,7 @@ namespace BCad
                         }
                     }
                     this.Dispatcher.BeginInvoke((Action)(() =>
-                    debugStatus.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
+                    debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
                         ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount)));
                     break;
                 default:
