@@ -141,6 +141,10 @@
       <Project>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</Project>
       <Name>BCad.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BCad.UI\BCad.UI.csproj">
+      <Project>{d577269f-ea58-4ea1-a97d-a1a3fc9259b2}</Project>
+      <Name>BCad.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="bugs.txt" />
