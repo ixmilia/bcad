@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
+using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
 
@@ -18,6 +20,7 @@ namespace BCad.Entities
         private readonly double height;
         private readonly double rotation;
         private readonly Color color;
+        private readonly BoundingBox boundingBox;
 
         public string Value { get { return this.value; } }
 
@@ -42,6 +45,18 @@ namespace BCad.Entities
 
             primitives = new[] { new PrimitiveText(value, location, height, normal, rotation, color) };
             snapPoints = new[] { new EndPoint(location) };
+
+
+            var size = TextRenderer.MeasureText(this.value, System.Drawing.SystemFonts.DefaultFont);
+            var width = (this.height * (double)size.Width) / (double)size.Height;
+            var rad = this.rotation * MathHelper.DegreesToRadians;
+            var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * width;
+            var up = normal.Cross(right).Normalize() * this.height;
+            boundingBox = BoundingBox.FromPoints(
+                this.location,
+                this.location + right,
+                this.location + up,
+                this.location + right + up);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
@@ -56,13 +71,7 @@ namespace BCad.Entities
 
         public override EntityKind Kind { get { return EntityKind.Text; } }
 
-        public override BoundingBox BoundingBox
-        {
-            get
-            {
-                return new BoundingBox();
-            }
-        }
+        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Text Update(string value = null, Point location = null, Vector normal = null, double? height = null, double? rotation = null, Color? color = null)
         {
