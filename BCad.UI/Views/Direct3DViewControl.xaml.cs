@@ -1096,7 +1096,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             var color = Media.Color.FromRgb((byte)(autoColor.Red * 255), (byte)(autoColor.Green * 255), (byte)(autoColor.Blue * 255));
             var pen = new Media.Pen(new Media.SolidColorBrush(color), 1);
 
-            var cursorSize = workspace.SettingsManager.CursorSize / 2;
+            var cursorSize = (double)workspace.SettingsManager.CursorSize / 2.0 + 0.5;
             pointCursorImage.Source = new Media.DrawingImage(
                 new Media.GeometryDrawing()
                 {
