@@ -65,6 +65,11 @@
                         LargeImageSource="{StaticResource DrawCircleLarge}"
                         SmallImageSource="{StaticResource DrawCircleSmall}"
                         CommandParameter="Draw.Circle" />
+        <r:RibbonButton Label="Arc"
+                        Command="commands:RibbonCommands.CADCommand"
+                        LargeImageSource="{StaticResource DrawArcLarge}"
+                        SmallImageSource="{StaticResource DrawArcSmall}"
+                        CommandParameter="Draw.Arc" />
     </r:RibbonGroup>
     
     <r:RibbonGroup Header="Modify" >
