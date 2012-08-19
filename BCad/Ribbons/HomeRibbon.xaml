@@ -94,7 +94,7 @@
                         CommandParameter="Edit.Move" />
         <r:RibbonButton Label="Copy"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="{StaticResource NYI}"
+                        SmallImageSource="{StaticResource CopySmall}"
                         CommandParameter="Edit.Copy" />
         <r:RibbonButton Label="Delete"
                         Command="commands:RibbonCommands.CADCommand"

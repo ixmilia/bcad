@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using System.Linq;
-using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
 using BCad.Services;

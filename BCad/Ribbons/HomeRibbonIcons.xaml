@@ -342,6 +342,51 @@
             </GeometryDrawing>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <DrawingImage x:Key="CopySmall">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Black" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <EllipseGeometry Center="3,3" RadiusX="3" RadiusY="3" />
+                            <LineGeometry StartPoint="10,4" EndPoint="9,3" />
+                            <LineGeometry StartPoint="10,4" EndPoint="11,3" />
+                            <PathGeometry>
+                                <PathGeometry.Figures>
+                                    <PathFigureCollection>
+                                        <PathFigure IsClosed="False" StartPoint="7,1">
+                                            <PathFigure.Segments>
+                                                <PathSegmentCollection>
+                                                    <ArcSegment Point="10,4" Size="3,3" SweepDirection="Clockwise" IsLargeArc="False" />
+                                                </PathSegmentCollection>
+                                            </PathFigure.Segments>
+                                        </PathFigure>
+                                    </PathFigureCollection>
+                                </PathGeometry.Figures>
+                            </PathGeometry>
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Blue" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush>
+                        <SolidColorBrush Color="LightBlue" />
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <EllipseGeometry Center="9,9" RadiusX="3" RadiusY="3" />
+                            <EllipseGeometry Center="12,12" RadiusX="3" RadiusY="3" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
     <DrawingImage x:Key="NYI">
         <DrawingImage.Drawing>
             <GeometryDrawing>
