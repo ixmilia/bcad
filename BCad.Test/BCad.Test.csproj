@@ -71,6 +71,10 @@
       <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
       <Name>BCad.Dxf</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BCad\BCad.csproj">
+      <Project>{a978c366-6cc2-4f82-908a-8c830f7e6113}</Project>
+      <Name>BCad</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="diamond-bin.dxf">
