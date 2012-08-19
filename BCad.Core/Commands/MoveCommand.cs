@@ -2,6 +2,7 @@
 using System.ComponentModel.Composition;
 using System.Linq;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.Primitives;
 using BCad.Services;
 
@@ -12,6 +13,9 @@ namespace BCad.Commands
     {
         [Import]
         private IInputService InputService = null;
+
+        [Import]
+        private IEditService EditService = null;
 
         [Import]
         private IWorkspace Workspace = null;
@@ -35,9 +39,11 @@ namespace BCad.Commands
                 return false;
             }
 
+            var primitives = entities.Value.SelectMany(e => e.GetPrimitives());
             var destination = InputService.GetPoint(new UserDirective("Destination point"), p =>
                 {
-                    return entities.Value.SelectMany(e => MovedEntity(e, p - origin.Value).GetPrimitives())
+                    var offset = p - origin.Value;
+                    return primitives.Select(pr => pr.Move(offset))
                         .Concat(new[] { new PrimitiveLine(origin.Value, p, Color.Default) });
                 });
 
@@ -50,7 +56,7 @@ namespace BCad.Commands
             var dwg = Workspace.Drawing;
             foreach (var ent in entities.Value)
             {
-                dwg = dwg.Replace(ent, MovedEntity(ent, delta));
+                dwg = dwg.Replace(ent, EditService.Move(ent, delta));
             }
 
             Workspace.Drawing = dwg;
@@ -60,42 +66,6 @@ namespace BCad.Commands
         public string DisplayName
         {
             get { return "MOVE"; }
-        }
-
-        private static Entity MovedEntity(Entity ent, Vector delta)
-        {
-            Entity moved;
-            switch (ent.Kind)
-            {
-                case EntityKind.Arc:
-                    var arc = (Arc)ent;
-                    moved = arc.Update(center: arc.Center + delta);
-                    break;
-                case EntityKind.Circle:
-                    var circle = (Circle)ent;
-                    moved = circle.Update(center: circle.Center + delta);
-                    break;
-                case EntityKind.Ellipse:
-                    var el = (Ellipse)ent;
-                    moved = el.Update(center: el.Center + delta);
-                    break;
-                case EntityKind.Line:
-                    var line = (Line)ent;
-                    moved = line.Update(p1: line.P1 + delta, p2: line.P2 + delta);
-                    break;
-                case EntityKind.Polyline:
-                    var poly = (Polyline)ent;
-                    moved = poly.Update(points: poly.Points.Select(p => p + delta));
-                    break;
-                case EntityKind.Text:
-                    var text = (Text)ent;
-                    moved = text.Update(location: text.Location + delta);
-                    break;
-                default:
-                    throw new ArgumentException("Unsupported entity type", "ent");
-            }
-
-            return moved;
         }
     }
 }

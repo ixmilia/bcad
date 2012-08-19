@@ -207,6 +207,33 @@ namespace BCad.Services
             return new PrimitiveEllipse(center, radius, drawingPlane.Normal, Color.Auto);
         }
 
+        public Entity Move(Entity entity, Vector offset)
+        {
+            switch (entity.Kind)
+            {
+                case EntityKind.Arc:
+                    var arc = (Arc)entity;
+                    return arc.Update(center: arc.Center + offset);
+                case EntityKind.Circle:
+                    var circle = (Circle)entity;
+                    return circle.Update(center: circle.Center + offset);
+                case EntityKind.Ellipse:
+                    var el = (Ellipse)entity;
+                    return el.Update(center: el.Center + offset);
+                case EntityKind.Line:
+                    var line = (Line)entity;
+                    return line.Update(p1: line.P1 + offset, p2: line.P2 + offset);
+                case EntityKind.Polyline:
+                    var poly = (Polyline)entity;
+                    return poly.Update(points: poly.Points.Select(p => p + offset));
+                case EntityKind.Text:
+                    var text = (Text)entity;
+                    return text.Update(location: text.Location + offset);
+                default:
+                    throw new ArgumentException("entity.Kind");
+            }
+        }
+
         private IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
         {
             switch (primitive.Kind)

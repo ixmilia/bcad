@@ -695,5 +695,39 @@ namespace BCad.Extensions
                     throw new ArgumentException("primitive.Kind");
             }
         }
+
+        public static IPrimitive Move(this IPrimitive primitive, Vector offset)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    return new PrimitiveEllipse(
+                        el.Center + offset,
+                        el.MajorAxis,
+                        el.Normal,
+                        el.MinorAxisRatio,
+                        el.StartAngle,
+                        el.EndAngle,
+                        el.Color);
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    return new PrimitiveLine(
+                        line.P1 + offset,
+                        line.P2 + offset,
+                        line.Color);
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    return new PrimitiveText(
+                        text.Value,
+                        text.Location + offset,
+                        text.Height,
+                        text.Normal,
+                        text.Rotation,
+                        text.Color);
+                default:
+                    throw new ArgumentException("primitive.Kind");
+            }
+        }
     }
 }
