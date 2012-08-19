@@ -51,6 +51,7 @@
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Color.cs" />
+    <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
     <Compile Include="Commands\CopyCommand.cs" />
     <Compile Include="Commands\DeleteCommand.cs" />
     <Compile Include="Commands\DistanceCommand.cs" />
