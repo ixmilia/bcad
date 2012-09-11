@@ -10,6 +10,4 @@ Required files to run:
 	Microsoft.Windows.Shell.dll
 	RibbonControlsLibrary.dll
 	SlimDX.dll
-
-See this for Win8 RTM issue:
-	http://stackoverflow.com/questions/5099159/c-unable-to-create-directx-device-neither-hardware-type-or-software-type-work
+	DirectX 9.0c runtime
