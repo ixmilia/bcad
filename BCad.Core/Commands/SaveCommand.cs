@@ -16,7 +16,7 @@ namespace BCad.Commands
 
         public bool Execute(object arg)
         {
-            return SaveAsCommand.Execute(Workspace, FileWriters, Workspace.Drawing.FileName);
+            return SaveAsCommand.Execute(Workspace, FileWriters, Workspace.Drawing.Settings.FileName);
         }
 
         public string DisplayName

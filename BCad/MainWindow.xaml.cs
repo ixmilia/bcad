@@ -175,9 +175,9 @@ namespace BCad
 
         private void SetTitle(Drawing drawing)
         {
-            string filename = drawing.FileName == null ? "(Untitled)" : Path.GetFileName(drawing.FileName);
+            string filename = drawing.Settings.FileName == null ? "(Untitled)" : Path.GetFileName(drawing.Settings.FileName);
             Dispatcher.BeginInvoke((Action)(() =>
-                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, drawing.IsDirty ? " *" : "")));
+                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, drawing.Settings.IsDirty ? " *" : "")));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

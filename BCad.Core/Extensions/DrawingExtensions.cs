@@ -103,5 +103,17 @@ namespace BCad
         {
             return drawing.Layers.Values.SelectMany(l => l.Entities);
         }
+
+        /// <summary>
+        /// Returns a renamed drawing.
+        /// </summary>
+        /// <param name="drawing">The drawing.</param>
+        /// <param name="fileName">The new filename.</param>
+        /// <returns></returns>
+        public static Drawing Rename(this Drawing drawing, string fileName)
+        {
+            var newSettings = drawing.Settings.Update(fileName: fileName);
+            return drawing.Update(settings: newSettings);
+        }
     }
 }

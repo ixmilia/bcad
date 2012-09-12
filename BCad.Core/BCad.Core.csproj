@@ -76,6 +76,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DialogFactory.cs" />
     <Compile Include="Drawing.cs" />
+    <Compile Include="DrawingSettings.cs" />
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
     <Compile Include="Entities\Polyline.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="IControlFactoryMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
+    <Compile Include="Services\IFileSystemService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />
     <Compile Include="Services\IInputService.cs" />
     <Compile Include="IUserConsoleFactory.cs" />

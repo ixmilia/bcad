@@ -79,7 +79,7 @@ namespace BCad.Commands.FileHandlers
                 }
             }
 
-            drawing = new Drawing(Path.GetFullPath(fileName), layers);
+            drawing = new Drawing(new DrawingSettings(Path.GetFullPath(fileName)), layers);
             currentLayer = !string.IsNullOrEmpty(file.CurrentLayer)
                 ? layers.First(l => l.Key == file.CurrentLayer).Value
                 : layers.First().Value;

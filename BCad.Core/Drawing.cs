@@ -11,39 +11,32 @@ namespace BCad
 {
     public class Drawing
     {
+        private readonly DrawingSettings settings;
         private readonly Dictionary<string, Layer> layers;
-        private readonly string fileName;
-        private readonly bool isDirty;
 
         public Dictionary<string, Layer> Layers { get { return layers; } }
 
-        public string FileName { get { return fileName; } }
-
-        public bool IsDirty { get { return isDirty; } }
+        public DrawingSettings Settings { get { return settings; } }
 
         public Drawing()
-            : this(null)
+            : this(new DrawingSettings())
         {
         }
 
-        public Drawing(string fileName)
-            : this(fileName, new Dictionary<string, Layer>() { {"0", new Layer("0", Color.Auto) } })
+        public Drawing(DrawingSettings settings)
+            : this(settings, new Dictionary<string, Layer>() { {"0", new Layer("0", Color.Auto) } })
         {
         }
 
-        public Drawing(string fileName, IDictionary<string, Layer> layers)
-            : this(fileName, false, layers)
+        public Drawing(DrawingSettings settings, IDictionary<string, Layer> layers)
         {
-        }
-
-        public Drawing(string fileName, bool isDirty, IDictionary<string, Layer> layers)
-        {
+            if (settings == null)
+                throw new ArgumentNullException("settings");
             if (layers == null)
                 throw new ArgumentNullException("layers");
             if (!layers.Any())
                 throw new ArgumentException("At least one layer must be specified.");
-            this.fileName = fileName;
-            this.isDirty = isDirty;
+            this.settings = settings;
             this.layers = new Dictionary<string, Layer>(layers);
         }
 
@@ -101,26 +94,15 @@ namespace BCad
         }
 
         /// <summary>
-        /// Renames the drawing.
-        /// </summary>
-        /// <param name="fileName">The new name of the drawing.</param>
-        /// <returns>The new drawing with the updated name.</returns>
-        public Drawing Rename(string fileName)
-        {
-            return this.Update(fileName: fileName);
-        }
-
-        /// <summary>
         /// Updates the drawing with the specified changes.
         /// </summary>
-        /// <param name="fileName">The new name for the drawing.</param>
+        /// <param name="settings">The drawing settings.</param>
         /// <param name="layers">The layers for the drawing.</param>
         /// <returns>The new drawing with the specified updates.</returns>
-        public Drawing Update(string fileName = null, bool? isDirty = null, IDictionary<string, Layer> layers = null)
+        public Drawing Update(DrawingSettings settings = null, IDictionary<string, Layer> layers = null)
         {
             return new Drawing(
-                fileName ?? this.FileName,
-                isDirty ?? true,
+                settings ?? this.settings,
                 layers ?? this.Layers);
         }
     }

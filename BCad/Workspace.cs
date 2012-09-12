@@ -252,9 +252,9 @@ namespace BCad
         public UnsavedChangesResult PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
-            if (Drawing.IsDirty)
+            if (Drawing.Settings.IsDirty)
             {
-                string filename = Drawing.FileName ?? "(Untitled)";
+                string filename = Drawing.Settings.FileName ?? "(Untitled)";
                 var dialog = MessageBox.Show(string.Format("Save changes to '{0}'?", filename),
                     "Unsaved changes",
                     MessageBoxButton.YesNoCancel);
@@ -262,7 +262,7 @@ namespace BCad
                 {
                     case MessageBoxResult.Yes:
                         // TODO: can't execute another command
-                        if (SaveAsCommand.Execute(this, FileWriters, Drawing.FileName))
+                        if (SaveAsCommand.Execute(this, FileWriters, Drawing.Settings.FileName))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;
