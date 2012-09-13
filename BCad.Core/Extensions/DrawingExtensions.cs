@@ -19,6 +19,18 @@ namespace BCad
         }
 
         /// <summary>
+        /// Adds an entity to the current drawing layer.
+        /// </summary>
+        /// <param name="entity">The entity to add.</param>
+        /// <returns></returns>
+        public static Drawing AddToCurrentLayer(this Drawing drawing, Entity entity)
+        {
+            var newLayer = drawing.CurrentLayer.Add(entity);
+            var newLayerSet = drawing.Layers.Remove(drawing.CurrentLayer.Name).Add(newLayer.Name, newLayer);
+            return drawing.Update(layers: newLayerSet);
+        }
+
+        /// <summary>
         /// Replaces the specified entity.
         /// </summary>
         /// <param name="oldEntity">The entity to be replaced.</param>

@@ -74,44 +74,8 @@ namespace BCad
                 if (drawing == value)
                     return;
                 OnPropertyChanging(Constants.DrawingString);
-
-                // ensure the same layer is selected after the change
-                var currentLayerName = CurrentLayer.Name;
-
-                // change the value and fire events
                 drawing = value;
                 OnPropertyChanged(Constants.DrawingString);
-
-                // reset the current layer
-                if (drawing.Layers.ContainsKey(currentLayerName))
-                    this.CurrentLayer = drawing.Layers[currentLayerName];
-                else if (drawing.Layers.ContainsKey("0"))
-                    this.CurrentLayer = drawing.Layers["0"];
-                else
-                    this.CurrentLayer = drawing.Layers.Values.First();
-            }
-        }
-
-        private Layer currentLayer;
-        public Layer CurrentLayer
-        {
-            get
-            {
-                if (currentLayer == null)
-                    currentLayer = drawing.Layers.First().Value;
-                return currentLayer;
-            }
-            set
-            {
-                if (value == null)
-                    throw new NotSupportedException("Null layer not allowed.");
-                if (!drawing.Layers.ContainsValue(value))
-                    throw new NotSupportedException("Specified layer is not part of the current drawing.");
-                if (currentLayer == value)
-                    return;
-                OnPropertyChanging(Constants.CurrentLayerString);
-                currentLayer = value;
-                OnPropertyChanged(Constants.CurrentLayerString);
             }
         }
 

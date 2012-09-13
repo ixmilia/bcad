@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
 namespace BCad.Services
 {
     public interface IFileSystemService
     {
-        void SaveDrawing(Stream output);
-        Drawing OpenDrawing(Stream input);
+        void WriteDrawing(Drawing drawing, Stream output);
+        Drawing ReadDrawing(Stream input);
     }
 }

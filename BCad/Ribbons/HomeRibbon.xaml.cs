@@ -39,29 +39,21 @@ namespace BCad.Ribbons
         {
             switch (e.PropertyName)
             {
-                case Constants.CurrentLayerString:
-                    if (listenToChangeEvent)
-                        this.Dispatcher.BeginInvoke((Action)(() => this.currentLayer.SelectedItem = workspace.CurrentLayer));
-                    break;
                 case Constants.DrawingString:
-                    this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown(true)));
+                    this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown()));
                     break;
                 default:
                     break;
             }
         }
 
-        private void PopulateDropDown(bool preserveCurrent = false)
+        private void PopulateDropDown()
         {
             listenToChangeEvent = false;
-            string currentLayerName = workspace.CurrentLayer.Name;
             this.currentLayer.Items.Clear();
             foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(l => l.Name))
                 this.currentLayer.Items.Add(layer);
-            if (preserveCurrent && workspace.Drawing.Layers.ContainsKey(currentLayerName))
-                this.currentLayer.SelectedItem = workspace.Drawing.Layers[currentLayerName];
-            else
-                this.currentLayer.SelectedItem = workspace.CurrentLayer;
+            this.currentLayer.SelectedItem = workspace.Drawing.CurrentLayer;
             listenToChangeEvent = true;
         }
 
@@ -81,7 +73,10 @@ namespace BCad.Ribbons
         private void CurrentLayerSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (listenToChangeEvent)
-                workspace.CurrentLayer = (Layer)this.currentLayer.SelectedItem;
+            {
+                var layer = (Layer)this.currentLayer.SelectedItem;
+                workspace.Drawing = workspace.Drawing.Update(currentLayerName: layer.Name);
+            }
         }
     }
 }

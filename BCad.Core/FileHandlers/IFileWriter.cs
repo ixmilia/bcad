@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
 namespace BCad.FileHandlers
 {
     public interface IFileWriter
     {
-        void WriteFile(IWorkspace workspace, Stream stream);
+        void WriteFile(Drawing drawing, Stream stream);
     }
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using BCad.Extensions;
 using BCad.Utilities;
-using System.Collections.Specialized;
 
 namespace BCad.UI.Controls
 {
@@ -64,7 +63,7 @@ namespace BCad.UI.Controls
                     newLayers.Add(layer.Name, layer);
                 }
 
-                dwg = dwg.Update(layers: newLayers);
+                dwg = dwg.Update(layers: newLayers.ToReadOnlyDictionary());
                 workspace.Drawing = dwg;
             }
         }
@@ -85,9 +84,6 @@ namespace BCad.UI.Controls
             var removed = this.layerList.SelectedItem as MutableLayer;
             if (removed != null)
             {
-                if (this.layers.Count == 1)
-                    Debug.Fail("Cannot remove the last layer");
-
                 if (!this.layers.Remove(removed))
                 {
                     Debug.Fail("Layer could not be found");

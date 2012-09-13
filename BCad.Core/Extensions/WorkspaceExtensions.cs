@@ -32,13 +32,13 @@ namespace BCad
         }
 
         /// <summary>
-        /// Add an entity to the current layer.
+        /// Add an entity to the current drawing layer.
         /// </summary>
         /// <param name="workspace">The workspace containing the drawing.</param>
-        /// <param name="entity">The entity to be added.</param>
+        /// <param name="entity">The entity to add.</param>
         public static void AddToCurrentLayer(this IWorkspace workspace, Entity entity)
         {
-            workspace.Add(workspace.CurrentLayer, entity);
+            workspace.Drawing = workspace.Drawing.AddToCurrentLayer(entity);
         }
 
         /// <summary>
@@ -96,8 +96,7 @@ namespace BCad
         /// <param name="layerName">The name of the desired current layer.</param>
         public static void SetCurrentLayer(this IWorkspace workspace, string layerName)
         {
-            var layer = workspace.Drawing.Layers[layerName];
-            workspace.CurrentLayer = layer;
+            workspace.Drawing = workspace.Drawing.Update(currentLayerName: layerName);
         }
     }
 }

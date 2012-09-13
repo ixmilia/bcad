@@ -13,7 +13,35 @@ namespace BCad.Test
             Workspace.SetCurrentLayer("Other");
             Workspace.AddToCurrentLayer(Entities.Line());
             Assert.Equal(1, Workspace.GetLayer("Other").Entities.Count);
-            Assert.Equal(Workspace.GetLayer("Other"), Workspace.CurrentLayer);
+            Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
+        }
+
+        [Fact]
+        public void CurrentLayerStillSetAfterDrawingToOtherLayerTest()
+        {
+            Workspace.AddLayer("Other");
+            Workspace.SetCurrentLayer("Other");
+            Workspace.Add(Workspace.GetLayer("0"), Entities.Line());
+            Assert.Equal(1, Workspace.GetLayer("0").Entities.Count);
+            Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
+        }
+
+        [Fact]
+        public void DeleteCurrentLayerTest()
+        {
+            Workspace.AddLayer("Other");
+            Workspace.SetCurrentLayer("Other");
+            Workspace.Remove(Workspace.GetLayer("Other"));
+            Assert.Equal(Workspace.GetLayer("0"), Workspace.Drawing.CurrentLayer);
+        }
+
+        [Fact]
+        public void DeleteOnlyLayerTest()
+        {
+            var zero = Workspace.GetLayer("0");
+            Workspace.Remove(zero);
+            Assert.Equal(Workspace.GetLayer("0"), Workspace.Drawing.CurrentLayer);
+            Assert.NotEqual(zero, Workspace.Drawing.CurrentLayer);
         }
 
         [Fact]

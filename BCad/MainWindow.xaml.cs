@@ -103,9 +103,6 @@ namespace BCad
         {
             switch (e.PropertyName)
             {
-                case Constants.CurrentLayerString:
-                    TakeFocus();
-                    break;
                 case Constants.DrawingString:
                     TakeFocus();
                     SetTitle(Workspace.Drawing);

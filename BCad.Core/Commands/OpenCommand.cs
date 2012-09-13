@@ -58,11 +58,8 @@ namespace BCad.Commands
 
             using (var file = new FileStream(filename, FileMode.Open))
             {
-                Drawing drawing;
-                Layer currentLayer;
-                reader.ReadFile(filename, file, out drawing, out currentLayer);
+                var drawing = reader.ReadFile(filename, file);
                 Workspace.Drawing = drawing;
-                Workspace.CurrentLayer = currentLayer;
                 UndoRedoService.ClearHistory();
             }
 

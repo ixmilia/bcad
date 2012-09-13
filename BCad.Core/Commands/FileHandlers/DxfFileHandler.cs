@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BCad;
+using BCad.Collections;
 using BCad.Dxf;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Tables;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.FileHandlers;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
@@ -21,7 +23,7 @@ namespace BCad.Commands.FileHandlers
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
 
-        public void ReadFile(string fileName, Stream stream, out Drawing drawing, out Layer currentLayer)
+        public Drawing ReadFile(string fileName, Stream stream)
         {
             var file = DxfFile.Load(stream);
             var layers = new Dictionary<string, Layer>();
@@ -79,17 +81,20 @@ namespace BCad.Commands.FileHandlers
                 }
             }
 
-            drawing = new Drawing(new DrawingSettings(Path.GetFullPath(fileName)), layers);
-            currentLayer = !string.IsNullOrEmpty(file.CurrentLayer)
+            var currentLayer = !string.IsNullOrEmpty(file.CurrentLayer)
                 ? layers.First(l => l.Key == file.CurrentLayer).Value
                 : layers.First().Value;
+
+            return new Drawing(
+                new DrawingSettings(fileName),
+                layers.ToReadOnlyDictionary(),
+                currentLayer);
         }
 
-        public void WriteFile(IWorkspace workspace, Stream stream)
+        public void WriteFile(Drawing drawing, Stream stream)
         {
             var file = new DxfFile();
-            file.CurrentLayer = workspace.CurrentLayer.Name;
-            var drawing = workspace.Drawing;
+            file.CurrentLayer = drawing.CurrentLayer.Name;
 
             foreach (var layer in drawing.Layers.Values)
             {

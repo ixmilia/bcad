@@ -4,7 +4,6 @@
     {
         public const string AngleSnapString = "AngleSnap";
         public const string BackgroundColorString = "BackgroundColor";
-        public const string CurrentLayerString = "CurrentLayer";
         public const string DrawingPlaneString = "DrawingPlane";
         public const string DrawingPlaneOffsetString = "DrawingPlaneOffset";
         public const string DrawingString = "Drawing";
