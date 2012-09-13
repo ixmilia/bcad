@@ -121,7 +121,7 @@ namespace BCad
             if (!newLayers.ContainsKey(newCurrentName))
             {
                 // ensure the current layer is available
-                newCurrentName = newLayers.Keys.First();
+                newCurrentName = newLayers.Keys.OrderBy(x => x).First();
             }
 
             return new Drawing(
