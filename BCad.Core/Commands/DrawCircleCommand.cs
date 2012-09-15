@@ -21,7 +21,7 @@ namespace BCad.Commands
         public bool Execute(object arg)
         {
             Circle circle = null;
-            var drawingPlane = Workspace.Drawing.DrawingPlane;
+            var drawingPlane = Workspace.DrawingPlane;
 
             var cen = InputService.GetPoint(new UserDirective("Select center, [ttr], or [3]-point", "ttr", "3"));
             if (cen.Cancel) return false;

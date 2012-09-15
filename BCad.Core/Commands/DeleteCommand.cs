@@ -33,7 +33,7 @@ namespace BCad.Commands
                 dwg = dwg.Remove(ent);
             }
 
-            Workspace.Drawing = dwg;
+            Workspace.Update(drawing: dwg);
             return true;
         }
 

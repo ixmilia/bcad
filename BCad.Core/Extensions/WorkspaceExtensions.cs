@@ -16,7 +16,7 @@ namespace BCad
         public static void Add(this IWorkspace workspace, Layer layer)
         {
             var updatedDrawing = workspace.Drawing.Add(layer);
-            workspace.Drawing = updatedDrawing;
+            workspace.Update(drawing: updatedDrawing);
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace BCad
         public static void Add(this IWorkspace workspace, Layer layer, Entity entity)
         {
             var updatedDrawing = workspace.Drawing.Add(layer, entity);
-            workspace.Drawing = updatedDrawing;
+            workspace.Update(drawing: updatedDrawing);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace BCad
         /// <param name="entity">The entity to add.</param>
         public static void AddToCurrentLayer(this IWorkspace workspace, Entity entity)
         {
-            workspace.Drawing = workspace.Drawing.AddToCurrentLayer(entity);
+            workspace.Update(drawing: workspace.Drawing.AddToCurrentLayer(entity));
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace BCad
         public static void Replace(this IWorkspace workspace, Layer oldLayer, Layer newLayer)
         {
             var updatedDrawing = workspace.Drawing.Replace(oldLayer, newLayer);
-            workspace.Drawing = updatedDrawing;
+            workspace.Update(drawing: updatedDrawing);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace BCad
         public static void Replace(this IWorkspace workspace, Layer layer, Entity oldEntity, Entity newEntity)
         {
             var updatedDrawing = workspace.Drawing.Replace(layer, oldEntity, newEntity);
-            workspace.Drawing = updatedDrawing;
+            workspace.Update(drawing: updatedDrawing);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace BCad
         public static void Remove(this IWorkspace workspace, Layer layer)
         {
             var updatedDrawing = workspace.Drawing.Remove(layer);
-            workspace.Drawing = updatedDrawing;
+            workspace.Update(drawing: updatedDrawing);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace BCad
         public static void Remove(this IWorkspace workspace, Layer layer, Entity entity)
         {
             var updatedDrawing = workspace.Drawing.Remove(layer, entity);
-            workspace.Drawing = updatedDrawing;
+            workspace.Update(drawing: updatedDrawing);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace BCad
         /// <param name="layerName">The name of the desired current layer.</param>
         public static void SetCurrentLayer(this IWorkspace workspace, string layerName)
         {
-            workspace.Drawing = workspace.Drawing.Update(currentLayerName: layerName);
+            workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layerName));
         }
     }
 }

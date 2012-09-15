@@ -33,12 +33,6 @@ namespace BCad.Commands.FileHandlers
                 layers[layer.Name] = new Layer(layer.Name, layer.Color.ToColor());
             }
 
-            // ensure at least one layer is present
-            if (!layers.Any())
-            {
-                layers.Add("0", new Layer("0", Color.Auto));
-            }
-
             foreach (var item in file.Entities)
             {
                 Layer layer = null;
@@ -81,14 +75,10 @@ namespace BCad.Commands.FileHandlers
                 }
             }
 
-            var currentLayer = !string.IsNullOrEmpty(file.CurrentLayer)
-                ? layers.First(l => l.Key == file.CurrentLayer).Value
-                : layers.First().Value;
-
             return new Drawing(
                 new DrawingSettings(fileName),
                 layers.ToReadOnlyDictionary(),
-                currentLayer);
+                file.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
         }
 
         public void WriteFile(Drawing drawing, Stream stream)

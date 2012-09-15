@@ -53,7 +53,7 @@ namespace BCad.Commands
             }
 
             var delta = destination.Value - origin.Value;
-            Workspace.Drawing = DoEdit(Workspace.Drawing, entities.Value, delta);
+            Workspace.Update(drawing: DoEdit(Workspace.Drawing, entities.Value, delta));
             return true;
         }
 

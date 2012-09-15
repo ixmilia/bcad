@@ -154,6 +154,7 @@
     <Compile Include="UserDirective.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Vector.cs" />
+    <Compile Include="ViewPort.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="SnapPoints\SnapPointIcons.xaml">

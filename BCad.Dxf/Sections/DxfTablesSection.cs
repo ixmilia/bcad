@@ -12,6 +12,7 @@ namespace BCad.Dxf.Sections
         }
 
         private DxfLayerTable layerTable;
+        private DxfViewPortTable viewPortTable;
 
         public List<DxfLayer> Layers
         {
@@ -29,6 +30,7 @@ namespace BCad.Dxf.Sections
         public DxfTablesSection()
         {
             layerTable = new DxfLayerTable();
+            viewPortTable = new DxfViewPortTable();
         }
 
         public DxfTablesSection(IEnumerable<DxfCodePair> pairs)
@@ -40,6 +42,9 @@ namespace BCad.Dxf.Sections
                 {
                     case DxfTableType.Layer:
                         layerTable = new DxfLayerTable(DxfSection.SplitAtZero(t.ValuePairs).Select(l => DxfLayer.FromPairs(l)));
+                        break;
+                    case DxfTableType.ViewPort:
+                        viewPortTable = new DxfViewPortTable();
                         break;
                 }
             }

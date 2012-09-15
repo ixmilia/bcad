@@ -48,7 +48,7 @@ namespace BCad.Commands
 
                 // commit the change
                 if (Workspace.Drawing != drawing)
-                    Workspace.Drawing = drawing;
+                    Workspace.Update(drawing: drawing);
 
                 // get next entity to trim
                 selected = InputService.GetEntity(directive);

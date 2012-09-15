@@ -808,7 +808,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 Func<double, Vector> snapVector = rad =>
                 {
                     Vector radVector = null;
-                    var drawingPlane = workspace.Drawing.DrawingPlane;
+                    var drawingPlane = workspace.DrawingPlane;
                     var offset = drawingPlane.Point;
                     if (drawingPlane.Normal == Vector.ZAxis)
                     {
@@ -854,7 +854,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 var last = inputService.LastPoint;
                 var current = Unproject(cursor).ToPoint();
                 var delta = current - last;
-                var drawingPlane = workspace.Drawing.DrawingPlane;
+                var drawingPlane = workspace.DrawingPlane;
                 var offset = drawingPlane.Point;
                 Point world;
 

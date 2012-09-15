@@ -41,7 +41,7 @@ namespace BCad.Services
 
             ignoreDrawingChange = true;
             redoHistory.Push(workspace.Drawing);
-            workspace.Drawing = undoHistory.Pop();
+            workspace.Update(drawing: undoHistory.Pop());
             ignoreDrawingChange = false;
         }
 
@@ -52,7 +52,7 @@ namespace BCad.Services
 
             ignoreDrawingChange = true;
             undoHistory.Push(workspace.Drawing);
-            workspace.Drawing = redoHistory.Pop();
+            workspace.Update(drawing: redoHistory.Pop());
             ignoreDrawingChange = false;
         }
 

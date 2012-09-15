@@ -21,7 +21,7 @@ namespace BCad.Commands
                 return false;
             }
 
-            Workspace.Drawing = new Drawing();
+            Workspace.Update(drawing: new Drawing());
             UndoRedoService.ClearHistory();
             return true;
         }

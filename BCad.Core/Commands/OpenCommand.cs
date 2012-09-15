@@ -59,7 +59,7 @@ namespace BCad.Commands
             using (var file = new FileStream(filename, FileMode.Open))
             {
                 var drawing = reader.ReadFile(filename, file);
-                Workspace.Drawing = drawing;
+                Workspace.Update(drawing: drawing);
                 UndoRedoService.ClearHistory();
             }
 

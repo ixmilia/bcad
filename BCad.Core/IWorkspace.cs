@@ -18,8 +18,11 @@ namespace BCad
 
     public interface IWorkspace : INotifyPropertyChanging, INotifyPropertyChanged
     {
-        Drawing Drawing { get; set; }
+        Drawing Drawing { get; }
+        Plane DrawingPlane { get; }
         ObservableHashSet<Entity> SelectedEntities { get; }
+
+        void Update(Drawing drawing = null, Plane drawingPlane = null);
 
         ISettingsManager SettingsManager { get; }
         void SaveSettings();

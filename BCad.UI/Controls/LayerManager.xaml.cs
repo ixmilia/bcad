@@ -64,7 +64,7 @@ namespace BCad.UI.Controls
                 }
 
                 dwg = dwg.Update(layers: newLayers.ToReadOnlyDictionary());
-                workspace.Drawing = dwg;
+                workspace.Update(drawing: dwg);
             }
         }
 

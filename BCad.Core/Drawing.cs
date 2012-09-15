@@ -14,19 +14,18 @@ namespace BCad
     {
         private readonly DrawingSettings settings;
         private readonly ReadOnlyDictionary<string, Layer> layers;
-        private readonly Layer currentLayer;
-        private readonly Plane drawingPlane;
+        private readonly string currentLayerName;
 
         public ReadOnlyDictionary<string, Layer> Layers { get { return layers; } }
 
         public DrawingSettings Settings { get { return settings; } }
 
-        public Layer CurrentLayer { get { return currentLayer; } }
+        public string CurrentLayerName { get { return currentLayerName; } }
 
-        public Plane DrawingPlane { get { return drawingPlane; } }
+        public Layer CurrentLayer { get { return layers[currentLayerName]; } }
 
         public Drawing()
-            : this(new DrawingSettings())
+            : this(new DrawingSettings(), new ReadOnlyDictionary<string, Layer>().Add("0", new Layer("0", Color.Auto)), "0")
         {
         }
 
@@ -36,16 +35,11 @@ namespace BCad
         }
 
         public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers)
-            : this(settings, layers, layers.OrderBy(x => x.Key).First().Value)
+            : this(settings, layers, layers.OrderBy(x => x.Key).First().Key)
         {
         }
 
-        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, Layer currentLayer)
-            : this(settings, layers, currentLayer, Plane.XY)
-        {
-        }
-
-        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, Layer currentLayer, Plane drawingPlane)
+        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, string currentLayerName)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
@@ -53,16 +47,13 @@ namespace BCad
                 throw new ArgumentNullException("layers");
             if (!layers.Any())
                 throw new ArgumentException("At least one layer must be specified.");
-            if (currentLayer == null)
-                throw new ArgumentNullException("currentLayer");
-            if (drawingPlane == null)
-                throw new ArgumentNullException("drawingPlane");
-            if (!layers.ContainsKey(currentLayer.Name) || layers[currentLayer.Name] != currentLayer)
-                throw new InvalidOperationException("The current layer must be part of the layer set.");
+            if (currentLayerName == null)
+                throw new ArgumentNullException("currentLayerName");
+            if (!layers.ContainsKey(currentLayerName))
+                throw new InvalidOperationException("The current layer is not part of the layers collection.");
             this.settings = settings;
             this.layers = layers;
-            this.currentLayer = currentLayer;
-            this.drawingPlane = drawingPlane;
+            this.currentLayerName = currentLayerName;
         }
 
         /// <summary>
@@ -129,7 +120,7 @@ namespace BCad
                 newLayers = newLayers.Add("0", new Layer("0", Color.Auto));
             }
 
-            var newCurrentName = currentLayerName ?? this.currentLayer.Name;
+            var newCurrentName = currentLayerName ?? this.currentLayerName;
             if (!newLayers.ContainsKey(newCurrentName))
             {
                 // ensure the current layer is available
@@ -139,7 +130,7 @@ namespace BCad
             return new Drawing(
                 settings ?? this.settings,
                 newLayers,
-                newLayers[newCurrentName]);
+                newCurrentName);
         }
     }
 }

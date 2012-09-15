@@ -71,6 +71,8 @@
     <Compile Include="Tables\DxfSimpleTable.cs" />
     <Compile Include="Tables\DxfTable.cs" />
     <Compile Include="Tables\DxfTableType.cs" />
+    <Compile Include="Tables\DxfViewPort.cs" />
+    <Compile Include="Tables\DxfViewPortTable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

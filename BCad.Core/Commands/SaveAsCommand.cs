@@ -46,7 +46,7 @@ namespace BCad.Commands
             {
                 writer.WriteFile(workspace.Drawing, file);
                 var newSettings = workspace.Drawing.Settings.Update(fileName: fileName, isDirty: false);
-                workspace.Drawing = workspace.Drawing.Update(settings: newSettings);
+                workspace.Update(drawing: workspace.Drawing.Update(settings: newSettings));
             }
             
             return true;

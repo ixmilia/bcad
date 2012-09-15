@@ -75,7 +75,7 @@ namespace BCad.Ribbons
             if (listenToChangeEvent)
             {
                 var layer = (Layer)this.currentLayer.SelectedItem;
-                workspace.Drawing = workspace.Drawing.Update(currentLayerName: layer.Name);
+                workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
             }
         }
     }

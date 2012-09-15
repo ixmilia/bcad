@@ -67,30 +67,12 @@ namespace BCad
         public Drawing Drawing
         {
             get { return drawing; }
-            set
-            {
-                if (value == null)
-                    throw new NotSupportedException("Null drawing not allowed.");
-                if (drawing == value)
-                    return;
-                OnPropertyChanging(Constants.DrawingString);
-                drawing = value;
-                OnPropertyChanged(Constants.DrawingString);
-            }
         }
 
         private Plane drawingPlane = new Plane(Point.Origin, Vector.ZAxis);
         public Plane DrawingPlane
         {
             get { return drawingPlane; }
-            set
-            {
-                if (this.drawingPlane == value)
-                    return;
-                OnPropertyChanging(Constants.DrawingPlaneString);
-                this.drawingPlane = value;
-                OnPropertyChanged(Constants.DrawingPlaneString);
-            }
         }
 
         private ObservableHashSet<Entity> selectedEntities = new ObservableHashSet<Entity>();
@@ -121,6 +103,27 @@ namespace BCad
         #region IWorkspace implementation
 
         public ISettingsManager SettingsManager { get; private set; }
+
+        public void Update(Drawing drawing = null, Plane drawingPlane = null)
+        {
+            // fire changing events
+            if (drawing != null)
+                OnPropertyChanging(Constants.DrawingString);
+            if (drawingPlane != null)
+                OnPropertyChanging(Constants.DrawingPlaneString);
+
+            // update values
+            if (drawing != null)
+                this.drawing = drawing;
+            if (drawingPlane != null)
+                this.drawingPlane = drawingPlane;
+
+            // fire changed events
+            if (drawing != null)
+                OnPropertyChanged(Constants.DrawingString);
+            if (drawingPlane != null)
+                OnPropertyChanged(Constants.DrawingPlaneString);
+        }
 
         private void LoadSettings(string path)
         {
