@@ -90,12 +90,15 @@ namespace BCad
 
         public void Update(Drawing drawing = null, Plane drawingPlane = null)
         {
-            var e = new WorkspaceChangeEventArgs(drawing != null, drawingPlane != null);
+            bool drawingChange = drawing != null;
+            bool drawingPlaneChange = drawingPlane != null;
 
-            OnWorkspaceChanging(drawing != null, drawingPlane != null);
-            this.drawing = drawing;
-            this.drawingPlane = drawingPlane;
-            OnWorkspaceChanged(drawing != null, drawingPlane != null);
+            OnWorkspaceChanging(drawingChange, drawingPlaneChange);
+            if (drawing != null)
+                this.drawing = drawing;
+            if (drawingPlane != null)
+                this.drawingPlane = drawingPlane;
+            OnWorkspaceChanged(drawingChange, drawingPlaneChange);
         }
 
         public event WorkspaceChangingEventHandler WorkspaceChanging;
