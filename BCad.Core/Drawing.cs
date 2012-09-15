@@ -15,12 +15,15 @@ namespace BCad
         private readonly DrawingSettings settings;
         private readonly ReadOnlyDictionary<string, Layer> layers;
         private readonly Layer currentLayer;
+        private readonly Plane drawingPlane;
 
         public ReadOnlyDictionary<string, Layer> Layers { get { return layers; } }
 
         public DrawingSettings Settings { get { return settings; } }
 
         public Layer CurrentLayer { get { return currentLayer; } }
+
+        public Plane DrawingPlane { get { return drawingPlane; } }
 
         public Drawing()
             : this(new DrawingSettings())
@@ -33,6 +36,16 @@ namespace BCad
         }
 
         public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers)
+            : this(settings, layers, layers.OrderBy(x => x.Key).First().Value)
+        {
+        }
+
+        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, Layer currentLayer)
+            : this(settings, layers, currentLayer, Plane.XY)
+        {
+        }
+
+        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, Layer currentLayer, Plane drawingPlane)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
@@ -40,17 +53,16 @@ namespace BCad
                 throw new ArgumentNullException("layers");
             if (!layers.Any())
                 throw new ArgumentException("At least one layer must be specified.");
+            if (currentLayer == null)
+                throw new ArgumentNullException("currentLayer");
+            if (drawingPlane == null)
+                throw new ArgumentNullException("drawingPlane");
+            if (!layers.ContainsKey(currentLayer.Name) || layers[currentLayer.Name] != currentLayer)
+                throw new InvalidOperationException("The current layer must be part of the layer set.");
             this.settings = settings;
             this.layers = layers;
-            this.currentLayer = layers.First().Value;
-        }
-
-        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, Layer currentLayer)
-            : this(settings, layers)
-        {
-            if (!layers.Values.Contains(currentLayer))
-                throw new ArgumentException("The current layer is not part of the layer set.");
             this.currentLayer = currentLayer;
+            this.drawingPlane = drawingPlane;
         }
 
         /// <summary>

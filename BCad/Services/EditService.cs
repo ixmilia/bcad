@@ -153,7 +153,7 @@ namespace BCad.Services
                 case EntityKind.Ellipse:
                 case EntityKind.Line:
                     var offset = Offset(
-                        workspace.DrawingPlane,
+                        workspace.Drawing.DrawingPlane,
                         entityToOffset.GetPrimitives().Single(),
                         offsetDirection,
                         offsetDistance);

@@ -11,5 +11,10 @@
             this.Point = point;
             this.Normal = normal;
         }
+
+        public static Plane XY
+        {
+            get { return new Plane(Point.Origin, Vector.ZAxis); }
+        }
     }
 }

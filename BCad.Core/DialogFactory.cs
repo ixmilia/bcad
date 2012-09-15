@@ -19,10 +19,12 @@ namespace BCad
             return (bool?)Application.Current.Dispatcher.Invoke(new Func<bool?>(() =>
             {
                 var control = factory.Value.Generate();
-                var window = new BCadDialog(control);
-                window.Title = factory.Metadata.Title;
-                window.Owner = Application.Current.MainWindow;
-                return window.ShowDialog();
+                using (var window = new BCadDialog(control))
+                {
+                    window.Title = factory.Metadata.Title;
+                    window.Owner = Application.Current.MainWindow;
+                    return window.ShowDialog();
+                }
             }));
         }
     }

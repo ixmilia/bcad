@@ -808,16 +808,17 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 Func<double, Vector> snapVector = rad =>
                 {
                     Vector radVector = null;
-                    var offset = workspace.DrawingPlane.Point;
-                    if (workspace.DrawingPlane.Normal == Vector.ZAxis)
+                    var drawingPlane = workspace.Drawing.DrawingPlane;
+                    var offset = drawingPlane.Point;
+                    if (drawingPlane.Normal == Vector.ZAxis)
                     {
                         radVector = new Vector(Math.Cos(rad), Math.Sin(rad), offset.Z);
                     }
-                    else if (workspace.DrawingPlane.Normal == Vector.YAxis)
+                    else if (drawingPlane.Normal == Vector.YAxis)
                     {
                         radVector = new Vector(Math.Cos(rad), offset.Y, Math.Sin(rad));
                     }
-                    else if (workspace.DrawingPlane.Normal == Vector.XAxis)
+                    else if (drawingPlane.Normal == Vector.XAxis)
                     {
                         radVector = new Vector(offset.X, Math.Cos(rad), Math.Sin(rad));
                     }
@@ -853,10 +854,11 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                 var last = inputService.LastPoint;
                 var current = Unproject(cursor).ToPoint();
                 var delta = current - last;
-                var offset = workspace.DrawingPlane.Point;
+                var drawingPlane = workspace.Drawing.DrawingPlane;
+                var offset = drawingPlane.Point;
                 Point world;
 
-                if (workspace.DrawingPlane.Normal == Vector.ZAxis)
+                if (drawingPlane.Normal == Vector.ZAxis)
                 {
                     if (offset.Z != last.Z && offset.Z != current.Z)
                         return null;
@@ -865,7 +867,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     else
                         world = last + new Vector(0.0, delta.Y, 0.0);
                 }
-                else if (workspace.DrawingPlane.Normal == Vector.ZAxis)
+                else if (drawingPlane.Normal == Vector.ZAxis)
                 {
                     if (offset.Y != last.Y && offset.Y != current.Y)
                         return null;
@@ -874,7 +876,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
                     else
                         world = last + new Vector(0.0, 0.0, delta.Z);
                 }
-                else if (workspace.DrawingPlane.Normal == Vector.ZAxis)
+                else if (drawingPlane.Normal == Vector.ZAxis)
                 {
                     if (offset.X != last.X && offset.X != current.X)
                         return null;

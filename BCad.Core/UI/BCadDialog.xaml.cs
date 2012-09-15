@@ -17,7 +17,7 @@ namespace BCad.UI
     /// <summary>
     /// Interaction logic for BCadDialog.xaml
     /// </summary>
-    public partial class BCadDialog : Window
+    public partial class BCadDialog : Window, IDisposable
     {
         public BCadControl Control { get; private set; }
 
@@ -27,6 +27,10 @@ namespace BCad.UI
 
             this.Control = control;
             this.controlSurface.Content = this.Control;
+        }
+
+        public void Dispose()
+        {
         }
 
         private void OK_Click(object sender, RoutedEventArgs e)

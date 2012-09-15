@@ -23,6 +23,7 @@ namespace BCad.Commands
 
         public bool Execute(object arg)
         {
+            var drawingPlane = Workspace.Drawing.DrawingPlane;
             var distance = InputService.GetDistance(lastOffsetDistance);
             if (distance.Cancel)
             {
@@ -52,7 +53,7 @@ namespace BCad.Commands
                     continue;
                 }
 
-                if (!Workspace.DrawingPlane.Contains(ent))
+                if (!drawingPlane.Contains(ent))
                 {
                     InputService.WriteLine("Entity must be entirely on the drawing plane to offset");
                     selection = InputService.GetEntity(new UserDirective("Select entity"));
@@ -67,7 +68,7 @@ namespace BCad.Commands
                     break;
                 }
 
-                if (!Workspace.DrawingPlane.Contains(point.Value))
+                if (!drawingPlane.Contains(point.Value))
                 {
                     InputService.WriteLine("Point must be on the drawing plane to offset");
                     selection = InputService.GetEntity(new UserDirective("Select entity"));
