@@ -86,10 +86,10 @@ namespace BCad.Commands.FileHandlers
             var file = new DxfFile();
             file.CurrentLayer = drawing.CurrentLayer.Name;
 
-            foreach (var layer in drawing.Layers.Values)
+            foreach (var layer in drawing.Layers.Values.OrderBy(x => x.Name))
             {
                 file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
-                foreach (var item in layer.Entities)
+                foreach (var item in layer.Entities.OrderBy(e => e.Id))
                 {
                     DxfEntity entity = null;
                     switch (item.Kind)
