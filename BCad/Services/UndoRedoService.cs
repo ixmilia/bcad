@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using BCad.EventArguments;
 
 namespace BCad.Services
 {
@@ -16,21 +17,16 @@ namespace BCad.Services
 
         public void OnImportsSatisfied()
         {
-            this.workspace.PropertyChanging += WorkspacePropertyChanging;
+            this.workspace.WorkspaceChanging += WorkspaceChanging;
         }
 
-        void WorkspacePropertyChanging(object sender, PropertyChangingEventArgs e)
+        void WorkspaceChanging(object sender, WorkspaceChangeEventArgs e)
         {
-            switch (e.PropertyName)
+            if (e.IsDrawingChange && ! ignoreDrawingChange)
             {
-                case Constants.DrawingString:
-                    if (!ignoreDrawingChange)
-                    {
-                        // save the last snapshot
-                        undoHistory.Push(workspace.Drawing);
-                        redoHistory.Clear();
-                    }
-                    break;
+                // save the last snapshot
+                undoHistory.Push(workspace.Drawing);
+                redoHistory.Clear();
             }
         }
 

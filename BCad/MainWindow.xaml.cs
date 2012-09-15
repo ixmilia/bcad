@@ -56,7 +56,7 @@ namespace BCad
         public void OnImportsSatisfied()
         {
             Workspace.CommandExecuted += Workspace_CommandExecuted;
-            Workspace.PropertyChanged += Workspace_PropertyChanged;
+            Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
 
             // prepare status bar bindings
             foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = Constants.OrthoString },
@@ -96,38 +96,34 @@ namespace BCad
                 }
             }
 
-            Workspace_PropertyChanged(this, new PropertyChangedEventArgs(Constants.DrawingString));
+            Workspace_WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, true));
         }
 
-        void Workspace_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
-            switch (e.PropertyName)
+            if (e.IsDrawingChange)
             {
-                case Constants.DrawingString:
-                    TakeFocus();
-                    SetTitle(Workspace.Drawing);
-                    int lineCount = 0, ellipseCount = 0, textCount = 0;
-                    foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities).SelectMany(en => en.GetPrimitives()))
+                TakeFocus();
+                SetTitle(Workspace.Drawing);
+                int lineCount = 0, ellipseCount = 0, textCount = 0;
+                foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities).SelectMany(en => en.GetPrimitives()))
+                {
+                    switch (ent.Kind)
                     {
-                        switch (ent.Kind)
-                        {
-                            case PrimitiveKind.Ellipse:
-                                ellipseCount++;
-                                break;
-                            case PrimitiveKind.Line:
-                                lineCount++;
-                                break;
-                            case PrimitiveKind.Text:
-                                textCount++;
-                                break;
-                        }
+                        case PrimitiveKind.Ellipse:
+                            ellipseCount++;
+                            break;
+                        case PrimitiveKind.Line:
+                            lineCount++;
+                            break;
+                        case PrimitiveKind.Text:
+                            textCount++;
+                            break;
                     }
-                    this.Dispatcher.BeginInvoke((Action)(() =>
-                    debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
-                        ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount)));
-                    break;
-                default:
-                    break;
+                }
+                this.Dispatcher.BeginInvoke((Action)(() =>
+                debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
+                    ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount)));
             }
         }
 

@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
+using BCad.EventArguments;
 using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad.Ribbons
@@ -29,22 +30,16 @@ namespace BCad.Ribbons
             this.workspace = workspace;
 
             // subscribe to events
-            this.workspace.PropertyChanged += SettingsChanged;
+            this.workspace.WorkspaceChanged += WorkspaceChanged;
 
             // populate the layers
             PopulateDropDown();
         }
 
-        void SettingsChanged(object sender, PropertyChangedEventArgs e)
+        void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
-            switch (e.PropertyName)
-            {
-                case Constants.DrawingString:
-                    this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown()));
-                    break;
-                default:
-                    break;
-            }
+            if (e.IsDrawingChange)
+                this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown()));
         }
 
         private void PopulateDropDown()

@@ -207,7 +207,7 @@ namespace BCad.UI.Views
 
             this.MouseWheel += OnMouseWheel;
             this.view.ViewPortChanged += ViewPortChanged;
-            this.workspace.PropertyChanged += WorkspacePropertyChanged;
+            this.workspace.WorkspaceChanged += WorkspaceChanged;
             this.workspace.SettingsManager.PropertyChanged += SettingsManagerPropertyChanged;
             this.workspace.CommandExecuted += CommandExecuted;
             this.workspace.SelectedEntities.CollectionChanged += SelectedEntitiesCollectionChanged;
@@ -215,8 +215,7 @@ namespace BCad.UI.Views
             this.inputService.ValueReceived += InputServiceValueReceived;
 
             // load the workspace
-            foreach (var setting in new[] { Constants.DrawingString })
-                WorkspacePropertyChanged(this.workspace, new PropertyChangedEventArgs(setting));
+            WorkspaceChanged(this.workspace, new WorkspaceChangeEventArgs(true, true));
 
             // load settings
             foreach (var setting in new[] { Constants.BackgroundColorString })
@@ -481,16 +480,10 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             }
         }
 
-        private void WorkspacePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
-            switch (e.PropertyName)
-            {
-                case Constants.DrawingString:
-                    DrawingChanged(workspace.Drawing);
-                    break;
-                default:
-                    break;
-            }
+            if (e.IsDrawingChange)
+                DrawingChanged(workspace.Drawing);
         }
 
         private void DrawingChanged(Drawing drawing)

@@ -82,6 +82,7 @@
     <Compile Include="Entities\EntityKind.cs" />
     <Compile Include="Entities\Polyline.cs" />
     <Compile Include="Entities\Text.cs" />
+    <Compile Include="EventArguments\WorkspaceChangeEventArgs.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\PlaneExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />

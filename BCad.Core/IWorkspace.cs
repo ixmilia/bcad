@@ -9,6 +9,10 @@ namespace BCad
 
     public delegate void CommandExecutedEventHandler(object sender, CommandExecutedEventArgs e);
 
+    public delegate void WorkspaceChangingEventHandler(object sender, WorkspaceChangeEventArgs e);
+
+    public delegate void WorkspaceChangedEventHandler(object sender, WorkspaceChangeEventArgs e);
+
     public enum UnsavedChangesResult
     {
         Saved,
@@ -16,13 +20,15 @@ namespace BCad
         Cancel
     }
 
-    public interface IWorkspace : INotifyPropertyChanging, INotifyPropertyChanged
+    public interface IWorkspace
     {
         Drawing Drawing { get; }
         Plane DrawingPlane { get; }
         ObservableHashSet<Entity> SelectedEntities { get; }
 
         void Update(Drawing drawing = null, Plane drawingPlane = null);
+        event WorkspaceChangingEventHandler WorkspaceChanging;
+        event WorkspaceChangedEventHandler WorkspaceChanged;
 
         ISettingsManager SettingsManager { get; }
         void SaveSettings();

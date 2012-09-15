@@ -43,22 +43,6 @@ namespace BCad
                 CommandExecuted(this, e);
         }
 
-        public event PropertyChangingEventHandler PropertyChanging;
-
-        protected void OnPropertyChanging(string propertyName)
-        {
-            if (PropertyChanging != null)
-                PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         #endregion
 
         #region Properties
@@ -106,23 +90,30 @@ namespace BCad
 
         public void Update(Drawing drawing = null, Plane drawingPlane = null)
         {
-            // fire changing events
-            if (drawing != null)
-                OnPropertyChanging(Constants.DrawingString);
-            if (drawingPlane != null)
-                OnPropertyChanging(Constants.DrawingPlaneString);
+            var e = new WorkspaceChangeEventArgs(drawing != null, drawingPlane != null);
 
-            // update values
-            if (drawing != null)
-                this.drawing = drawing;
-            if (drawingPlane != null)
-                this.drawingPlane = drawingPlane;
+            OnWorkspaceChanging(drawing != null, drawingPlane != null);
+            this.drawing = drawing;
+            this.drawingPlane = drawingPlane;
+            OnWorkspaceChanged(drawing != null, drawingPlane != null);
+        }
 
-            // fire changed events
-            if (drawing != null)
-                OnPropertyChanged(Constants.DrawingString);
-            if (drawingPlane != null)
-                OnPropertyChanged(Constants.DrawingPlaneString);
+        public event WorkspaceChangingEventHandler WorkspaceChanging;
+
+        protected void OnWorkspaceChanging(bool isDrawingChanging, bool isDrawingPlaneChanging)
+        {
+            var handler = WorkspaceChanging;
+            if (handler != null)
+                handler(this, new WorkspaceChangeEventArgs(isDrawingChanging, isDrawingPlaneChanging));
+        }
+
+        public event WorkspaceChangedEventHandler WorkspaceChanged;
+
+        protected void OnWorkspaceChanged(bool isDrawingChanged, bool isDrawingPlaneChanged)
+        {
+            var handler = WorkspaceChanged;
+            if (handler != null)
+                handler(this, new WorkspaceChangeEventArgs(isDrawingChanged, isDrawingPlaneChanged));
         }
 
         private void LoadSettings(string path)
