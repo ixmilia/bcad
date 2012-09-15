@@ -57,6 +57,7 @@ namespace BCad
         {
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
+            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
 
             // prepare status bar bindings
             foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = Constants.OrthoString },
@@ -99,32 +100,58 @@ namespace BCad
             Workspace_WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, true));
         }
 
-        void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
+        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case Constants.DebugString:
+                    if (Workspace.SettingsManager.Debug)
+                        SetDebugText();
+                    else
+                        this.Dispatcher.BeginInvoke((Action)(() =>
+                            {
+                                debugText.Height = 0;
+                                debugText.Text = "";
+                            }));
+                    break;
+            }
+        }
+
+        private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
             if (e.IsDrawingChange)
             {
                 TakeFocus();
                 SetTitle(Workspace.Drawing);
-                int lineCount = 0, ellipseCount = 0, textCount = 0;
-                foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities).SelectMany(en => en.GetPrimitives()))
-                {
-                    switch (ent.Kind)
-                    {
-                        case PrimitiveKind.Ellipse:
-                            ellipseCount++;
-                            break;
-                        case PrimitiveKind.Line:
-                            lineCount++;
-                            break;
-                        case PrimitiveKind.Text:
-                            textCount++;
-                            break;
-                    }
-                }
-                this.Dispatcher.BeginInvoke((Action)(() =>
-                debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
-                    ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount)));
+                if (Workspace.SettingsManager.Debug)
+                    SetDebugText();
             }
+        }
+
+        private void SetDebugText()
+        {
+            int lineCount = 0, ellipseCount = 0, textCount = 0;
+            foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.Entities).SelectMany(en => en.GetPrimitives()))
+            {
+                switch (ent.Kind)
+                {
+                    case PrimitiveKind.Ellipse:
+                        ellipseCount++;
+                        break;
+                    case PrimitiveKind.Line:
+                        lineCount++;
+                        break;
+                    case PrimitiveKind.Text:
+                        textCount++;
+                        break;
+                }
+            }
+            this.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    debugText.Height = double.NaN;
+                    debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
+                        ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount);
+                }));
         }
 
         private void TakeFocus()

@@ -83,7 +83,7 @@
                        Tag="Debug" />
         </StatusBar>
         <StatusBar Grid.Row="4">
-            <TextBlock Name="debugText" />
+            <TextBlock Name="debugText" Height="0" />
         </StatusBar>
     </Grid>
 </r:RibbonWindow>
