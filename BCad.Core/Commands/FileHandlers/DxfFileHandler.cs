@@ -23,7 +23,7 @@ namespace BCad.Commands.FileHandlers
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
 
-        public Drawing ReadFile(string fileName, Stream stream)
+        public void ReadFile(string fileName, Stream stream, out Drawing drawing, out ViewPort activeViewPort)
         {
             var file = DxfFile.Load(stream);
             var layers = new Dictionary<string, Layer>();
@@ -75,18 +75,37 @@ namespace BCad.Commands.FileHandlers
                 }
             }
 
-            return new Drawing(
+            drawing = new Drawing(
                 new DrawingSettings(fileName),
                 layers.ToReadOnlyDictionary(),
                 file.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
+
+            var vp = file.ViewPorts.FirstOrDefault();
+            if (vp != null)
+            {
+                activeViewPort = new ViewPort(
+                    vp.LowerLeft.ToPoint(),
+                    vp.ViewDirection.ToVector(),
+                    Vector.YAxis,
+                    vp.ViewHeight);
+            }
+            else
+            {
+                activeViewPort = new ViewPort(
+                    Point.Origin,
+                    Vector.ZAxis,
+                    Vector.YAxis,
+                    10.0);
+            }
         }
 
-        public void WriteFile(Drawing drawing, Stream stream)
+        public void WriteFile(IWorkspace workspace, Stream stream)
         {
             var file = new DxfFile();
-            file.CurrentLayer = drawing.CurrentLayer.Name;
 
-            foreach (var layer in drawing.Layers.Values.OrderBy(x => x.Name))
+            // save layers and entities
+            file.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
+            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
             {
                 file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.Entities.OrderBy(e => e.Id))
@@ -126,6 +145,15 @@ namespace BCad.Commands.FileHandlers
                         file.Entities.Add(entity);
                 }
             }
+
+            // save viewport
+            var vp = workspace.ActiveViewPort;
+            file.ViewPorts.Add(new DxfViewPort()
+            {
+                LowerLeft = vp.BottomLeft.ToDxfPoint(),
+                ViewDirection = vp.Sight.ToDxfVector(),
+                ViewHeight = vp.ViewHeight
+            });
 
             file.Save(stream);
         }

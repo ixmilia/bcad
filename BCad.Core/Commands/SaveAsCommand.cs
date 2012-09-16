@@ -44,7 +44,7 @@ namespace BCad.Commands
 
             using (var file = new FileStream(fileName, FileMode.Create))
             {
-                writer.WriteFile(workspace.Drawing, file);
+                writer.WriteFile(workspace, file);
                 var newSettings = workspace.Drawing.Settings.Update(fileName: fileName, isDirty: false);
                 workspace.Update(drawing: workspace.Drawing.Update(settings: newSettings));
             }

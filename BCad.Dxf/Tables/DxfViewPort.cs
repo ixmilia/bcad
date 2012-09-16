@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BCad.Dxf.Tables
 {
     public class DxfViewPort
     {
         public const string ViewPortText = "VPORT";
+
+        public const string ActiveViewPortName = "*ACTIVE";
 
         public string Name { get; set; }
 
@@ -40,14 +43,14 @@ namespace BCad.Dxf.Tables
 
         public DxfViewPort()
         {
-            Name = "*ACTIVE";
+            Name = ActiveViewPortName;
             LowerLeft = new DxfPoint();
             UpperRight = new DxfPoint();
             ViewCenter = new DxfPoint();
             SnapBasePoint = new DxfPoint();
             SnapSpacing = new DxfVector();
             GridSpacing = new DxfVector();
-            ViewDirection = new DxfVector();
+            ViewDirection = DxfVector.ZAxis;
             TargetViewPoint = new DxfPoint();
             ViewHeight = 0.0;
             ViewPortAspectRatio = 0.0;
@@ -62,32 +65,41 @@ namespace BCad.Dxf.Tables
         {
             get
             {
-                yield return new DxfCodePair(2, Name);
-                yield return new DxfCodePair(10, LowerLeft.X);
-                yield return new DxfCodePair(20, LowerLeft.Y);
-                yield return new DxfCodePair(11, UpperRight.X);
-                yield return new DxfCodePair(21, UpperRight.Y);
-                yield return new DxfCodePair(12, ViewCenter.X);
-                yield return new DxfCodePair(22, ViewCenter.Y);
-                yield return new DxfCodePair(13, SnapBasePoint.X);
-                yield return new DxfCodePair(23, SnapBasePoint.Y);
-                yield return new DxfCodePair(14, SnapSpacing.X);
-                yield return new DxfCodePair(24, SnapSpacing.Y);
-                yield return new DxfCodePair(15, GridSpacing.X);
-                yield return new DxfCodePair(25, GridSpacing.Y);
-                yield return new DxfCodePair(16, ViewDirection.X);
-                yield return new DxfCodePair(26, ViewDirection.Y);
-                yield return new DxfCodePair(36, ViewDirection.Z);
-                yield return new DxfCodePair(17, TargetViewPoint.X);
-                yield return new DxfCodePair(27, TargetViewPoint.Y);
-                yield return new DxfCodePair(37, TargetViewPoint.Z);
-                yield return new DxfCodePair(40, ViewHeight);
-                yield return new DxfCodePair(41, ViewPortAspectRatio);
-                yield return new DxfCodePair(42, LensLength);
-                yield return new DxfCodePair(43, FrontClippingPlane);
-                yield return new DxfCodePair(44, BackClippingPlane);
-                yield return new DxfCodePair(50, SnapRotationAngle);
-                yield return new DxfCodePair(51, ViewTwistAngle);
+                var pairs = new List<DxfCodePair>();
+                Action<int, object, object> addIfNotDefault = (code, actualValue, defaultValue) =>
+                    {
+                        if (!actualValue.Equals(defaultValue))
+                            pairs.Add(new DxfCodePair(code, actualValue));
+                    };
+
+                pairs.Add(new DxfCodePair(2, Name ?? ActiveViewPortName));
+                addIfNotDefault(10, LowerLeft.X, 0.0);
+                addIfNotDefault(20, LowerLeft.Y, 0.0);
+                addIfNotDefault(11, UpperRight.X, 0.0);
+                addIfNotDefault(21, UpperRight.Y, 0.0);
+                addIfNotDefault(12, ViewCenter.X, 0.0);
+                addIfNotDefault(22, ViewCenter.Y, 0.0);
+                addIfNotDefault(13, SnapBasePoint.X, 0.0);
+                addIfNotDefault(23, SnapBasePoint.Y, 0.0);
+                addIfNotDefault(14, SnapSpacing.X, 0.0);
+                addIfNotDefault(24, SnapSpacing.Y, 0.0);
+                addIfNotDefault(15, GridSpacing.X, 0.0);
+                addIfNotDefault(25, GridSpacing.Y, 0.0);
+                addIfNotDefault(16, ViewDirection.X, 0.0);
+                addIfNotDefault(26, ViewDirection.Y, 0.0);
+                addIfNotDefault(36, ViewDirection.Z, 1.0);
+                addIfNotDefault(17, TargetViewPoint.X, 0.0);
+                addIfNotDefault(27, TargetViewPoint.Y, 0.0);
+                addIfNotDefault(37, TargetViewPoint.Z, 0.0);
+                addIfNotDefault(40, ViewHeight, 0.0);
+                addIfNotDefault(41, ViewPortAspectRatio, 0.0);
+                addIfNotDefault(42, LensLength, 0.0);
+                addIfNotDefault(43, FrontClippingPlane, 0.0);
+                addIfNotDefault(44, BackClippingPlane, 0.0);
+                addIfNotDefault(50, SnapRotationAngle, 0.0);
+                addIfNotDefault(51, ViewTwistAngle, 0.0);
+
+                return pairs;
             }
         }
 

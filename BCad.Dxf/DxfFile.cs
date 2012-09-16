@@ -19,6 +19,7 @@ namespace BCad.Dxf
 
         public List<DxfLayer> Layers { get { return tablesSection.Layers; } }
         public List<DxfEntity> Entities { get { return entitiesSection.Entities; } }
+        public List<DxfViewPort> ViewPorts { get { return tablesSection.ViewPorts; } }
 
         internal IEnumerable<DxfSection> Sections
         {

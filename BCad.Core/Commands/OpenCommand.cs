@@ -58,8 +58,14 @@ namespace BCad.Commands
 
             using (var file = new FileStream(filename, FileMode.Open))
             {
-                var drawing = reader.ReadFile(filename, file);
-                Workspace.Update(drawing: drawing);
+                Drawing drawing;
+                ViewPort activeViewPort;
+                reader.ReadFile(filename, file, out drawing, out activeViewPort);
+                if (drawing == null)
+                    throw new InvalidOperationException("A drawing must be returned.");
+                if (activeViewPort == null)
+                    throw new InvalidOperationException("An active viewport must be returned.");
+                Workspace.Update(drawing: drawing, activeViewPort: activeViewPort);
                 UndoRedoService.ClearHistory();
             }
 

@@ -4,6 +4,6 @@ namespace BCad.FileHandlers
 {
     public interface IFileReader
     {
-        Drawing ReadFile(string fileName, Stream stream);
+        void ReadFile(string fileName, Stream stream, out Drawing drawing, out ViewPort activeViewPort);
     }
 }

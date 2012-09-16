@@ -524,8 +524,8 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
         private void ViewPortChanged()
         {
             var bottomLeft = workspace.ActiveViewPort.BottomLeft;
-            var width = (float)workspace.ActiveViewPort.ViewWidth;
-            var height = (float)(width * this.ActualHeight / this.ActualWidth);
+            var height = (float)workspace.ActiveViewPort.ViewHeight;
+            var width = (float)(height * this.ActualWidth / this.ActualHeight);
             projectionMatrix = Matrix.Identity
                 * Matrix.Translation((float)-bottomLeft.X, (float)-bottomLeft.Y, 0)
                 * Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
@@ -999,7 +999,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             if (panning)
             {
                 var vp = workspace.ActiveViewPort;
-                var scale = vp.ViewWidth / this.ActualWidth;
+                var scale = vp.ViewHeight / this.ActualHeight;
                 var dx = vp.BottomLeft.X + delta.X * scale;
                 var dy = vp.BottomLeft.Y - delta.Y * scale;
                 workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
@@ -1047,16 +1047,14 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             var botLeft = vp.BottomLeft;
 
             // find relative scales
-            var viewHeight = this.ActualHeight / this.ActualWidth * vp.ViewWidth;
             var relHoriz = controlPoint.X / this.ActualWidth;
             var relVert = controlPoint.Y / this.ActualHeight;
-            var viewWidthDelta = vp.ViewWidth * (scale - 1.0);
-            var viewHeightDelta = viewHeight * (scale - 1.0);
+            var viewDelta = vp.ViewHeight * (scale - 1.0);
 
             // set values
             workspace.Update(
                 activeViewPort: vp.Update(
-                    viewWidth: vp.ViewWidth * scale, bottomLeft: botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)));
+                    viewHeight: vp.ViewHeight * scale, bottomLeft: botLeft - new Vector(viewDelta * relHoriz, viewDelta * relVert, 0.0)));
             var cursor = GetActiveModelPoint(e.GetPosition(this).ToVector3());
             DrawSnapPoint(cursor);
             GenerateRubberBandLines(cursor.WorldPoint);

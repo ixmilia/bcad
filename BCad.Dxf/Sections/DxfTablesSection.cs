@@ -19,11 +19,17 @@ namespace BCad.Dxf.Sections
             get { return layerTable.Layers; }
         }
 
+        public List<DxfViewPort> ViewPorts
+        {
+            get { return viewPortTable.ViewPorts; }
+        }
+
         public IEnumerable<DxfTable> Tables
         {
             get
             {
                 yield return layerTable;
+                yield return viewPortTable;
             }
         }
 
@@ -44,7 +50,7 @@ namespace BCad.Dxf.Sections
                         layerTable = new DxfLayerTable(DxfSection.SplitAtZero(t.ValuePairs).Select(l => DxfLayer.FromPairs(l)));
                         break;
                     case DxfTableType.ViewPort:
-                        viewPortTable = new DxfViewPortTable();
+                        viewPortTable = new DxfViewPortTable(DxfSection.SplitAtZero(t.ValuePairs).Select(v => DxfViewPort.FromPairs(v)));
                         break;
                 }
             }
