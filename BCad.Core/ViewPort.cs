@@ -1,4 +1,6 @@
-﻿namespace BCad
+﻿using System;
+
+namespace BCad
 {
     public class ViewPort
     {
@@ -17,6 +19,18 @@
 
         public ViewPort(Point bottomLeft, Vector sight, Vector up, double viewHeight)
         {
+            if (bottomLeft == null)
+                throw new ArgumentNullException("bottomLeft");
+            if (sight == null)
+                throw new ArgumentNullException("sight");
+            if (up == null)
+                throw new ArgumentNullException("up");
+            if (sight == Vector.Zero)
+                throw new ArgumentOutOfRangeException("Sight vector cannot be zero.");
+            if (up == Vector.Zero)
+                throw new ArgumentOutOfRangeException("Up vector cannot be zero.");
+            if (double.IsInfinity(viewHeight) || double.IsNaN(viewHeight) || viewHeight == 0.0)
+                throw new ArgumentOutOfRangeException("ViewHeight must have a non-zero, real value.");
             this.bottomLeft = bottomLeft;
             this.sight = sight;
             this.up = up;

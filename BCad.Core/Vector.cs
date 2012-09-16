@@ -145,6 +145,11 @@ namespace BCad
             get { return new Vector(0, 0, 1); }
         }
 
+        public static Vector Zero
+        {
+            get { return new Vector(0, 0, 0); }
+        }
+
         public override string ToString()
         {
             return string.Format("({0},{1},{2})", X, Y, Z);
