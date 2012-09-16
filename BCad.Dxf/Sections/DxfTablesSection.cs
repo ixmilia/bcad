@@ -50,7 +50,10 @@ namespace BCad.Dxf.Sections
                         layerTable = new DxfLayerTable(DxfSection.SplitAtZero(t.ValuePairs).Select(l => DxfLayer.FromPairs(l)));
                         break;
                     case DxfTableType.ViewPort:
-                        viewPortTable = new DxfViewPortTable(DxfSection.SplitAtZero(t.ValuePairs).Select(v => DxfViewPort.FromPairs(v)));
+                        var viewPorts = DxfSection.SplitAtZero(t.ValuePairs)
+                            .Select(v => DxfViewPort.FromPairs(v))
+                            .Where(v => v.Name != null);
+                        viewPortTable = new DxfViewPortTable(viewPorts);
                         break;
                 }
             }

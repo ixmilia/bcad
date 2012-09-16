@@ -43,7 +43,7 @@ namespace BCad.Dxf.Tables
 
         public DxfViewPort()
         {
-            Name = ActiveViewPortName;
+            Name = null;
             LowerLeft = new DxfPoint();
             UpperRight = new DxfPoint();
             ViewCenter = new DxfPoint();
