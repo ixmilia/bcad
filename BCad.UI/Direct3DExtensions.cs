@@ -12,7 +12,7 @@ using SlimDX.Direct3D9;
 
 namespace BCad.UI
 {
-    public static class Direct3DExtensions
+    internal static class Direct3DExtensions
     {
         public static Vector3 ToVector3(this System.Windows.Point point)
         {
@@ -166,7 +166,7 @@ namespace BCad.UI
             return new Rect(minX, minY, maxX - minX, maxY - minY);
         }
 
-        public static bool Contains(this IEnumerable<Vector3> verticies, Vector3 point)
+        public static bool PolygonContains(this IEnumerable<Vector3> verticies, Vector3 point)
         {
             var arr = verticies.ToArray();
             var maxX = verticies.Select(v => v.X).Max();

@@ -14,6 +14,7 @@ using BCad.Entities;
 using BCad.EventArguments;
 using BCad.FileHandlers;
 using BCad.Services;
+using BCad.UI;
 
 namespace BCad
 {
@@ -22,6 +23,12 @@ namespace BCad
     {
         public Workspace()
         {
+            Drawing = new Drawing();
+            DrawingPlane = new Plane(Point.Origin, Vector.ZAxis);
+            ActiveViewPort = new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 100.0);
+            SelectedEntities = new ObservableHashSet<Entity>();
+            ViewControl = null;
+
             LoadSettings(ConfigFile);
         }
 
@@ -47,23 +54,15 @@ namespace BCad
 
         #region Properties
 
-        private Drawing drawing = new Drawing();
-        public Drawing Drawing
-        {
-            get { return drawing; }
-        }
+        public Drawing Drawing { get; private set; }
 
-        private Plane drawingPlane = new Plane(Point.Origin, Vector.ZAxis);
-        public Plane DrawingPlane
-        {
-            get { return drawingPlane; }
-        }
+        public Plane DrawingPlane { get; private set; }
 
-        private ObservableHashSet<Entity> selectedEntities = new ObservableHashSet<Entity>();
-        public ObservableHashSet<Entity> SelectedEntities
-        {
-            get { return selectedEntities; }
-        }
+        public ViewPort ActiveViewPort { get; private set; }
+
+        public ViewControl ViewControl { get; private set; }
+
+        public ObservableHashSet<Entity> SelectedEntities { get; private set; }
 
         #endregion
 
@@ -88,35 +87,46 @@ namespace BCad
 
         public ISettingsManager SettingsManager { get; private set; }
 
-        public void Update(Drawing drawing = null, Plane drawingPlane = null)
+        public void Update(
+            Drawing drawing = null,
+            Plane drawingPlane = null,
+            ViewPort activeViewPort = null,
+            ViewControl viewControl = null)
         {
-            bool drawingChange = drawing != null;
-            bool drawingPlaneChange = drawingPlane != null;
+            var e = new WorkspaceChangeEventArgs(
+                drawing != null,
+                drawingPlane != null,
+                activeViewPort != null,
+                viewControl != null);
 
-            OnWorkspaceChanging(drawingChange, drawingPlaneChange);
+            OnWorkspaceChanging(e);
             if (drawing != null)
-                this.drawing = drawing;
+                this.Drawing = drawing;
             if (drawingPlane != null)
-                this.drawingPlane = drawingPlane;
-            OnWorkspaceChanged(drawingChange, drawingPlaneChange);
+                this.DrawingPlane = drawingPlane;
+            if (activeViewPort != null)
+                this.ActiveViewPort = activeViewPort;
+            if (viewControl != null)
+                this.ViewControl = viewControl;
+            OnWorkspaceChanged(e);
         }
 
         public event WorkspaceChangingEventHandler WorkspaceChanging;
 
-        protected void OnWorkspaceChanging(bool isDrawingChanging, bool isDrawingPlaneChanging)
+        protected void OnWorkspaceChanging(WorkspaceChangeEventArgs e)
         {
             var handler = WorkspaceChanging;
             if (handler != null)
-                handler(this, new WorkspaceChangeEventArgs(isDrawingChanging, isDrawingPlaneChanging));
+                handler(this, e);
         }
 
         public event WorkspaceChangedEventHandler WorkspaceChanged;
 
-        protected void OnWorkspaceChanged(bool isDrawingChanged, bool isDrawingPlaneChanged)
+        protected void OnWorkspaceChanged(WorkspaceChangeEventArgs e)
         {
             var handler = WorkspaceChanged;
             if (handler != null)
-                handler(this, new WorkspaceChangeEventArgs(isDrawingChanged, isDrawingPlaneChanged));
+                handler(this, e);
         }
 
         private void LoadSettings(string path)

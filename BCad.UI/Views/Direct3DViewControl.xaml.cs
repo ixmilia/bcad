@@ -136,7 +136,7 @@ namespace BCad.UI.Views
             public Tuple<double, Point> ClosestPointToCursor(Point cursorPoint, Func<Vector3, Vector3> project)
             {
                 // if projected extents contains point, use point
-                if (outlineCorners.Select(c => project(c)).ConvexHull().Contains(cursorPoint.ToVector3()))
+                if (outlineCorners.Select(c => project(c)).ConvexHull().PolygonContains(cursorPoint.ToVector3()))
                     return Tuple.Create(0.0, cursorPoint);
                 // else, like lines
                 return cursorPoint.ClosestPoint(boundingCorners, project);
@@ -198,15 +198,13 @@ namespace BCad.UI.Views
         }
 
         [ImportingConstructor]
-        public Direct3DViewControl(IWorkspace workspace, IInputService inputService, IView view)
+        public Direct3DViewControl(IWorkspace workspace, IInputService inputService)
             : this()
         {
             this.workspace = workspace;
             this.inputService = inputService;
-            this.view = view;
 
             this.MouseWheel += OnMouseWheel;
-            this.view.ViewPortChanged += ViewPortChanged;
             this.workspace.WorkspaceChanged += WorkspaceChanged;
             this.workspace.SettingsManager.PropertyChanged += SettingsManagerPropertyChanged;
             this.workspace.CommandExecuted += CommandExecuted;
@@ -215,7 +213,7 @@ namespace BCad.UI.Views
             this.inputService.ValueReceived += InputServiceValueReceived;
 
             // load the workspace
-            WorkspaceChanged(this.workspace, new WorkspaceChangeEventArgs(true, true));
+            WorkspaceChanged(this.workspace, WorkspaceChangeEventArgs.UpdateAll());
 
             // load settings
             foreach (var setting in new[] { Constants.BackgroundColorString })
@@ -258,7 +256,6 @@ namespace BCad.UI.Views
 
         private IWorkspace workspace = null;
         private IInputService inputService = null;
-        private IView view = null;
         private Matrix worldMatrix = Matrix.Identity;
         private Matrix viewMatrix = Matrix.Scaling(1.0f, 1.0f, 0.0f);
         private Matrix projectionMatrix = Matrix.Identity;
@@ -381,6 +378,7 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             Device.SetRenderState(RenderState.AlphaBlendEnable, true);
             Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
             Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
+            ViewPortChanged();
             DrawingChanged(drawing);
         }
 
@@ -484,6 +482,8 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
         {
             if (e.IsDrawingChange)
                 DrawingChanged(workspace.Drawing);
+            if (e.IsActiveViewPortChange)
+                ViewPortChanged();
         }
 
         private void DrawingChanged(Drawing drawing)
@@ -521,12 +521,13 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             ForceRender();
         }
 
-        private void ViewPortChanged(object sender, ViewPortChangedEventArgs e)
+        private void ViewPortChanged()
         {
-            var width = (float)view.ViewWidth;
-            var height = (float)(view.ViewWidth * this.ActualHeight / this.ActualWidth);
+            var bottomLeft = workspace.ActiveViewPort.BottomLeft;
+            var width = (float)workspace.ActiveViewPort.ViewWidth;
+            var height = (float)(width * this.ActualHeight / this.ActualWidth);
             projectionMatrix = Matrix.Identity
-                * Matrix.Translation((float)-view.BottomLeft.X, (float)-view.BottomLeft.Y, 0)
+                * Matrix.Translation((float)-bottomLeft.X, (float)-bottomLeft.Y, 0)
                 * Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
                 * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
             projectionWorldMatrix = projectionMatrix * worldMatrix;
@@ -997,10 +998,11 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             var delta = lastPanPoint - cursor;
             if (panning)
             {
-                var scale = view.ViewWidth / this.ActualWidth;
-                var dx = view.BottomLeft.X + delta.X * scale;
-                var dy = view.BottomLeft.Y - delta.Y * scale;
-                view.UpdateView(bottomLeft: new Point(dx, dy, view.BottomLeft.Z));
+                var vp = workspace.ActiveViewPort;
+                var scale = vp.ViewWidth / this.ActualWidth;
+                var dx = vp.BottomLeft.X + delta.X * scale;
+                var dy = vp.BottomLeft.Y - delta.Y * scale;
+                workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
                 lastPanPoint = cursor;
                 firstSelectionPoint -= delta;
                 force = true;
@@ -1041,17 +1043,20 @@ float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
             var cursorPoint = e.GetPosition(this);
             var controlPoint = new Point(cursorPoint);
             var cursorPos = Unproject(controlPoint.ToVector3()).ToPoint();
-            var botLeft = view.BottomLeft;
+            var vp = workspace.ActiveViewPort;
+            var botLeft = vp.BottomLeft;
 
             // find relative scales
-            var viewHeight = this.ActualHeight / this.ActualWidth * view.ViewWidth;
+            var viewHeight = this.ActualHeight / this.ActualWidth * vp.ViewWidth;
             var relHoriz = controlPoint.X / this.ActualWidth;
             var relVert = controlPoint.Y / this.ActualHeight;
-            var viewWidthDelta = view.ViewWidth * (scale - 1.0);
+            var viewWidthDelta = vp.ViewWidth * (scale - 1.0);
             var viewHeightDelta = viewHeight * (scale - 1.0);
 
             // set values
-            view.UpdateView(viewWidth: view.ViewWidth * scale, bottomLeft: botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0));
+            workspace.Update(
+                activeViewPort: vp.Update(
+                    viewWidth: vp.ViewWidth * scale, bottomLeft: botLeft - new Vector(viewWidthDelta * relHoriz, viewHeightDelta * relVert, 0.0)));
             var cursor = GetActiveModelPoint(e.GetPosition(this).ToVector3());
             DrawSnapPoint(cursor);
             GenerateRubberBandLines(cursor.WorldPoint);

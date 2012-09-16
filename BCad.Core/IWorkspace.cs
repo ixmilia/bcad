@@ -2,6 +2,7 @@
 using BCad.Collections;
 using BCad.Entities;
 using BCad.EventArguments;
+using BCad.UI;
 
 namespace BCad
 {
@@ -24,11 +25,14 @@ namespace BCad
     {
         Drawing Drawing { get; }
         Plane DrawingPlane { get; }
-        ObservableHashSet<Entity> SelectedEntities { get; }
+        ViewPort ActiveViewPort { get; }
+        ViewControl ViewControl { get; }
 
-        void Update(Drawing drawing = null, Plane drawingPlane = null);
+        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, ViewControl viewControl = null);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
+
+        ObservableHashSet<Entity> SelectedEntities { get; }
 
         ISettingsManager SettingsManager { get; }
         void SaveSettings();

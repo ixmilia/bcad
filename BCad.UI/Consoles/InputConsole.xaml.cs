@@ -62,9 +62,6 @@ namespace BCad.UI.Consoles
         private IInputService InputService = null;
 
         [Import]
-        private IView View = null;
-
-        [Import]
         private IWorkspace Workspace = null;
 
         private void InputKeyDown(object sender, Input.KeyEventArgs e)
@@ -143,7 +140,7 @@ namespace BCad.UI.Consoles
             {
                 // length on current vector
                 var length = double.Parse(text);
-                var cursor = View.RegisteredControl.GetCursorPoint();
+                var cursor = Workspace.ViewControl.GetCursorPoint();
                 var vec = cursor - InputService.LastPoint;
                 if (vec.LengthSquared == 0.0)
                 {

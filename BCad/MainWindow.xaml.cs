@@ -38,9 +38,6 @@ namespace BCad
         [Import]
         private IInputService InputService = null;
 
-        [Import]
-        private IView View = null;
-
         [ImportMany]
         private IEnumerable<RibbonTab> RibbonTabs = null; // TODO: import lazily and sort by name
 
@@ -97,7 +94,7 @@ namespace BCad
                 }
             }
 
-            Workspace_WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, true));
+            Workspace_WorkspaceChanged(this, WorkspaceChangeEventArgs.UpdateAll());
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -182,13 +179,7 @@ namespace BCad
             // prepare view control
             var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
             this.viewPanel.Content = view;
-            View.RegisteredControl = view;
-
-            View.UpdateView(viewPoint: new Point(0, 0, 1),
-                sight: Vector.ZAxis,
-                up: Vector.YAxis,
-                viewWidth: 300.0,
-                bottomLeft: new Point(-10, -10, 0));
+            Workspace.Update(viewControl: view);
 
             SetTitle(Workspace.Drawing);
         }
