@@ -29,8 +29,8 @@ namespace BCad
                 throw new ArgumentOutOfRangeException("Sight vector cannot be zero.");
             if (up == Vector.Zero)
                 throw new ArgumentOutOfRangeException("Up vector cannot be zero.");
-            if (double.IsInfinity(viewHeight) || double.IsNaN(viewHeight) || viewHeight == 0.0)
-                throw new ArgumentOutOfRangeException("ViewHeight must have a non-zero, real value.");
+            if (double.IsInfinity(viewHeight) || double.IsNaN(viewHeight) || viewHeight <= 0.0)
+                throw new ArgumentOutOfRangeException("ViewHeight must have a positive, real value.");
             this.bottomLeft = bottomLeft;
             this.sight = sight;
             this.up = up;
