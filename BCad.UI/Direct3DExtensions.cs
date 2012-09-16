@@ -170,7 +170,7 @@ namespace BCad.UI
         {
             var arr = verticies.ToArray();
             var maxX = verticies.Select(v => v.X).Max();
-            var dist = maxX - point.X;
+            var dist = Math.Abs(maxX - point.X);
             var ray = new PrimitiveLine(point.ToPoint(), new Point(point.X + (dist * 1.1), point.Y, point.Z));
             int intersections = 0;
             for (int i = 0; i < arr.Length - 1; i++)
