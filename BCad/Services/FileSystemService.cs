@@ -7,6 +7,9 @@ namespace BCad.Services
     [Export(typeof(IFileSystemService))]
     internal class FileSystemService : IFileSystemService
     {
+        [Import]
+        private IWorkspace Workspace { get; set; }
+
         public void WriteDrawing(Drawing drawing, Stream output)
         {
             throw new NotImplementedException();
