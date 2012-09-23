@@ -70,7 +70,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ColorExtensions.cs" />
     <Compile Include="Ribbons\HomeRibbon.xaml.cs">
       <DependentUpon>HomeRibbon.xaml</DependentUpon>
     </Compile>

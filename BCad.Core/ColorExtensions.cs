@@ -3,7 +3,7 @@ using Media = System.Windows.Media;
 
 namespace BCad
 {
-    internal static class ColorExtensions
+    public static class ColorExtensions
     {
         public static Media.Color ParseColor(this string s)
         {
@@ -16,8 +16,10 @@ namespace BCad
 
         public static string ToColorString(this Media.Color color)
         {
-            int c = (color.R << 16) | (color.G << 8) | color.B;
-            return string.Format("#{0:X}", c);
+            var r = string.Format("{0:X2}", color.R);
+            var g = string.Format("{0:X2}", color.G);
+            var b = string.Format("{0:X2}", color.B);
+            return string.Format("#{0}{1}{2}", r, g, b);
         }
     }
 }
