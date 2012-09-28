@@ -1,5 +1,6 @@
-﻿using System.Linq;
+﻿using System;
 using BCad.Entities;
+using BCad.Extensions;
 using Xunit;
 
 namespace BCad.Test
@@ -71,6 +72,21 @@ namespace BCad.Test
             Assert.Equal(30, el.MajorAxis.Length);
             AssertClose(new Point(162.449979983983, 50, 0), el.Center);
             Assert.Equal(Workspace.DrawingPlane.Normal, el.Normal);
+        }
+
+        [Fact]
+        public void ArcMidpointTests()
+        {
+            Action<double, Arc> TestMidpoint = (midPointAngle, arc) =>
+            {
+                var transform = arc.GetUnitCircleProjection();
+                var mp = (Vector)new Point(transform.Transform(arc.MidPoint.ToPoint3D()));
+                AssertClose(midPointAngle, mp.ToAngle());
+            };
+            TestMidpoint(45, new Arc(Point.Origin, 1, 315, 135, Vector.ZAxis, Color.Auto));
+            TestMidpoint(135, new Arc(Point.Origin, 1, 45, 225, Vector.ZAxis, Color.Auto));
+            TestMidpoint(315, new Arc(Point.Origin, 1, 225, 45, Vector.ZAxis, Color.Auto));
+            TestMidpoint(225, new Arc(Point.Origin, 1, 135, 315, Vector.ZAxis, Color.Auto));
         }
     }
 }

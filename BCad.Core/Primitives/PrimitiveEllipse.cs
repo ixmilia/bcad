@@ -49,8 +49,9 @@ namespace BCad.Primitives
         /// <param name="a">The first point.</param>
         /// <param name="b">The second point.</param>
         /// <param name="c">The third point.</param>
+        /// <param name="idealNormal">The ideal normal to normalize to if specified.</param>
         /// <returns>The resultant circle or null.</returns>
-        public static PrimitiveEllipse ThreePointCircle(Point a, Point b, Point c)
+        public static PrimitiveEllipse ThreePointCircle(Point a, Point b, Point c, Vector idealNormal = null)
         {
             var v1 = a - b;
             var v2 = c - b;
@@ -75,6 +76,9 @@ namespace BCad.Primitives
             if (center == null)
                 return null;
 
+            if (idealNormal != null && idealNormal == normal * -1.0)
+                normal = idealNormal;
+
             return new PrimitiveEllipse(center, (a - center).Length, normal, Color.Auto);
         }
 
@@ -85,16 +89,35 @@ namespace BCad.Primitives
         /// <param name="a">The first point.</param>
         /// <param name="b">The second point.</param>
         /// <param name="c">The third point.</param>
+        /// <param name="idealNormal">The ideal normal to normalize to if specified.</param>
         /// <returns>The resultant arc or null.</returns>
-        public static PrimitiveEllipse ThreePointArc(Point a, Point b, Point c)
+        public static PrimitiveEllipse ThreePointArc(Point a, Point b, Point c, Vector idealNormal = null)
         {
-            var circle = ThreePointCircle(a, b, c);
+            var circle = ThreePointCircle(a, b, c, idealNormal);
             if (circle != null)
             {
                 var toUnit = circle.FromUnitCircleProjection();
                 toUnit.Invert();
-                var startAngle = ((Vector)c.Transform(toUnit)).ToAngle();
-                var endAngle = ((Vector)a.Transform(toUnit)).ToAngle();
+                var startAngle = ((Vector)a.Transform(toUnit)).ToAngle();
+                var midAngle = ((Vector)b.Transform(toUnit)).ToAngle();
+                var endAngle = ((Vector)c.Transform(toUnit)).ToAngle();
+
+                // ensure the midpoint is included in the absolute angle span
+                double realStart = startAngle, realMid = midAngle, realEnd = endAngle;
+                if (realStart > realEnd)
+                    realStart -= 360.0;
+
+                if (realMid < realStart)
+                    realMid += 360;
+
+
+                if (realMid < realStart || realMid > realEnd)
+                {
+                    var temp = startAngle;
+                    startAngle = endAngle;
+                    endAngle = temp;
+                }
+
                 circle.StartAngle = startAngle;
                 circle.EndAngle = endAngle;
 

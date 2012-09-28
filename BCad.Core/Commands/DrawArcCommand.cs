@@ -46,7 +46,7 @@ namespace BCad.Commands
                         });
                     if (!third.Cancel && third.HasValue)
                     {
-                        var primitiveArc = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, third.Value);
+                        var primitiveArc = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, third.Value, Workspace.DrawingPlane.Normal);
                         if (primitiveArc != null)
                         {
                             var arc = new Arc(

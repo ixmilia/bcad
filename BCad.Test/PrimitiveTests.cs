@@ -9,7 +9,7 @@ namespace BCad.Test
 {
     public class PrimitiveTests
     {
-        private static void Test(IPrimitive first, IPrimitive second, bool withinBounds, params Point[] points)
+        private static void TestIntersection(IPrimitive first, IPrimitive second, bool withinBounds, params Point[] points)
         {
             var p = first.IntersectionPoints(second, withinBounds).OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
             points = points.OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
@@ -30,6 +30,24 @@ namespace BCad.Test
             AssertClose(expected.X, actual.X);
             AssertClose(expected.Y, actual.Y);
             AssertClose(expected.Z, actual.Z);
+        }
+
+        private static void AssertClose(Vector expected, Vector actual)
+        {
+            AssertClose(expected.X, actual.X);
+            AssertClose(expected.Y, actual.Y);
+            AssertClose(expected.Z, actual.Z);
+        }
+
+        private static void TestThreePointArcNormal(Point a, Point b, Point c, Vector idealNormal, Point expectedCenter, double expectedRadius, double expectedStartAngle, double expectedEndAngle)
+        {
+            var arc = PrimitiveEllipse.ThreePointArc(a, b, c, idealNormal);
+            AssertClose(idealNormal, arc.Normal);
+            AssertClose(expectedCenter, arc.Center);
+            AssertClose(1.0, arc.MinorAxisRatio);
+            AssertClose(expectedRadius, arc.MajorAxis.Length);
+            AssertClose(expectedStartAngle, arc.StartAngle);
+            AssertClose(expectedEndAngle, arc.EndAngle);
         }
 
         private static PrimitiveLine Line(Point p1, Point p2)
@@ -55,7 +73,7 @@ namespace BCad.Test
         [Fact]
         public void LineIntersectionTest()
         {
-            Test(
+            TestIntersection(
                 Line(new Point(-1, 0, 0), new Point(1, 0, 0)),
                 Line(new Point(0, -1, 0), new Point(0, 1, 0)),
                 true,
@@ -93,9 +111,79 @@ namespace BCad.Test
         }
 
         [Fact]
+        public void ThreePointArcNormalizedNormalTest()
+        {
+            var rad = Math.Sqrt(2.0) / 2.0;
+            // up then left
+            //
+            // 3         2
+            //
+            //      c
+            //
+            //           1
+            TestThreePointArcNormal(
+                new Point(1, 0, 0),
+                new Point(1, 1, 0),
+                new Point(0, 1, 0),
+                Vector.ZAxis,
+                new Point(0.5, 0.5, 0),
+                rad,
+                315.0,
+                135.0);
+            // up then right
+            //
+            // 2         3
+            //
+            //      c
+            //
+            // 1
+            TestThreePointArcNormal(
+                new Point(0, 0, 0),
+                new Point(0, 1, 0),
+                new Point(1, 1, 0),
+                Vector.ZAxis,
+                new Point(0.5, 0.5, 0),
+                rad,
+                45.0,
+                225.0);
+            // down then left
+            //
+            //           1
+            //
+            //      c
+            //
+            // 3         2
+            TestThreePointArcNormal(
+                new Point(1, 1, 0),
+                new Point(1, 0, 0),
+                new Point(0, 0, 0),
+                Vector.ZAxis,
+                new Point(0.5, 0.5, 0),
+                rad,
+                225.0,
+                45.0);
+            // down then right
+            //
+            // 1
+            //
+            //      c
+            //
+            // 2         3
+            TestThreePointArcNormal(
+                new Point(0, 1, 0),
+                new Point(0, 0, 0),
+                new Point(1, 0, 0),
+                Vector.ZAxis,
+                new Point(0.5, 0.5, 0),
+                rad,
+                135.0,
+                315.0);
+        }
+
+        [Fact]
         public void LineCircleIntersectionTest1()
         {
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 2),
                 Line(new Point(2, 0, -2), new Point(2, 0, 2)),
                 true,
@@ -105,7 +193,7 @@ namespace BCad.Test
         [Fact]
         public void LineCircleIntersectionTest2()
         {
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 0, 0), 1.0),
                 Line(new Point(-4, 0, 0), new Point(4, 0, 0)),
                 true,
@@ -116,7 +204,7 @@ namespace BCad.Test
         [Fact]
         public void LineCircleIntersectionTest3()
         {
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 1, 0), 2),
                 Line(new Point(-3, 1, 0), new Point(3, 1, 0)),
                 true,
@@ -127,7 +215,7 @@ namespace BCad.Test
         [Fact]
         public void LineCircleIntersectionTest4()
         {
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 1, 0), 2),
                 Line(new Point(2, 1, 0), new Point(4, 1, 0)),
                 true,
@@ -137,7 +225,7 @@ namespace BCad.Test
         [Fact]
         public void LineCircleIntersectionTestOffPlane()
         {
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 Line(new Point(1, 0, 1), new Point(1, 0, -1)),
                 true,
@@ -147,7 +235,7 @@ namespace BCad.Test
         [Fact]
         public void LineCircleIntersectionTestOffPlaneOutsideAngle()
         {
-            Test(
+            TestIntersection(
                 Arc(Point.Origin, 1, 90, 270),
                 Line(new Point(1, 0, 1), new Point(1, 0, -1)),
                 true);
@@ -156,12 +244,12 @@ namespace BCad.Test
         [Fact]
         public void CircleCircleIntersectionTestSamePlaneOnePoint()
         {
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 1, 0), 2),
                 Circle(new Point(4, 1, 0), 1),
                 true,
                 new Point(3, 1, 0));
-            Test(
+            TestIntersection(
                 Circle(new Point(100, 100, 0), 10),
                 Circle(new Point(120, 100, 0), 10),
                 true,
@@ -172,13 +260,13 @@ namespace BCad.Test
         public void CircleCircleIntersectionTestSamePlaneTwoPoints()
         {
             var x = Math.Sqrt(3.0) / 2.0;
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 Circle(new Point(1, 0, 0), 1),
                 true,
                 new Point(0.5, x, 0),
                 new Point(0.5, -x, 0));
-            Test(
+            TestIntersection(
                 Circle(new Point(100, 0, 0), 80),
                 Circle(new Point(100, 100, 0), 80),
                 true,
@@ -190,7 +278,7 @@ namespace BCad.Test
         public void CircleCircleIntersectionTestSamePlaneNoPoints()
         {
             var x = Math.Sqrt(3.0) / 2.0;
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 Circle(new Point(3, 0, 0), 1),
                 true);
@@ -200,31 +288,31 @@ namespace BCad.Test
         public void CircleEllipseIntersectionTestSamePlaneOnePoint()
         {
             // x-axis alignment horizontal
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 0, 0), 1),
                 Ellipse(new Point(4, 0, 0), 2, 1),
                 true,
                 new Point(2, 0, 0));
             // x-axis alignment vertical
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 0, 0), 1),
                 Ellipse(new Point(3, 0, 0), 1, 2),
                 true,
                 new Point(2, 0, 0));
             // y-axis alignment horizontal
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 Ellipse(new Point(0, 2, 0), 2, 1),
                 true,
                 new Point(0, 1, 0));
             // y-axis alignment vertical
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 Ellipse(new Point(0, 3, 0), 1, 2),
                 true,
                 new Point(0, 1, 0));
             // rotates to x-axis alignment
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 new PrimitiveEllipse(new Point(-Math.Sqrt(2), Math.Sqrt(2), 0), new Vector(Math.Sqrt(2), Math.Sqrt(2), 0), Vector.ZAxis, 0.5, 0, 360, Color.Auto),
                 true,
@@ -235,14 +323,14 @@ namespace BCad.Test
         public void CircleEllipseIntersectionTestSamePlaneTwoPoints()
         {
             // y-axis alignment
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 0, 0), 1),
                 Ellipse(new Point(3, 0, 0), 2, 1),
                 true,
                 new Point(1.666666666667, -0.7453559925, 0),
                 new Point(1.666666666667, 0.7453559925, 0));
             // no axis alignment
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 Ellipse(new Point(2, 1, 0), 2, 1),
                 true,
@@ -254,25 +342,25 @@ namespace BCad.Test
         public void CircleEllipseIntersectionTestDifferentPlanes()
         {
             // 1 intersection point, x-axis plane intersection
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 new PrimitiveEllipse(new Point(0, 1, 1), 1, Vector.YAxis, Color.Auto),
                 true,
                 new Point(0, 1, 0));
             // 1 intersection point, y-axis plane intersection
-            Test(
+            TestIntersection(
                 Circle(Point.Origin, 1),
                 new PrimitiveEllipse(new Point(1, 0, 1), 1, Vector.XAxis, Color.Auto),
                 true,
                 new Point(1, 0, 0));
             // 1 intersection point, z-axis plane intersection
-            Test(
+            TestIntersection(
                 new PrimitiveEllipse(Point.Origin, 1, Vector.XAxis, Color.Auto),
                 new PrimitiveEllipse(new Point(1, 1, 0), 1, Vector.YAxis, Color.Auto),
                 true,
                 new Point(0, 1, 0));
             // 2 intersection points
-            Test(
+            TestIntersection(
                 Circle(new Point(1, 0, 0), 1),
                 new PrimitiveEllipse(new Point(1, 0, 0), new Vector(0, 0, 2), Vector.XAxis, 0.5, 0, 360, Color.Auto),
                 true,

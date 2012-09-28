@@ -40,7 +40,10 @@ namespace BCad.Entities
             this.color = color;
 
             var right = Vector.RightVectorFromNormal(this.normal);
-            var points = Circle.TransformedPoints(this.center, this.normal, right, this.radius, this.radius, startAngle, endAngle, (startAngle + endAngle) / 2.0);
+            var midAngle = (startAngle + endAngle) / 2.0;
+            if (startAngle > endAngle)
+                midAngle -= 180.0;
+            var points = Circle.TransformedPoints(this.center, this.normal, right, this.radius, this.radius, startAngle, endAngle, midAngle);
             this.endPoint1 = points[0];
             this.endPoint2 = points[1];
             this.midPoint = points[2];
