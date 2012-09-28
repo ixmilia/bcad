@@ -42,6 +42,12 @@ namespace BCad.Commands
                     let exts = string.Join(";", r.Extensions().Select(x => "*" + x))
                     select string.Format("{0}|{1}", r.DisplayName(), exts));
 
+                var all = string.Format("{0}|{1}",
+                    "All supported types",
+                    string.Join(";", FileReaders.SelectMany(f => f.Extensions()).Select(x => "*" + x)));
+
+                filter = string.Join("|", all, filter);
+
                 var dialog = new OpenFileDialog();
                 dialog.DefaultExt = FileReaders.First().Extensions().First();
                 dialog.Filter = filter;

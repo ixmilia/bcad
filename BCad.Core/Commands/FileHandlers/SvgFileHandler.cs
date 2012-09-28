@@ -8,38 +8,55 @@ using BCad.FileHandlers;
 
 namespace BCad.Commands.FileHandlers
 {
+    [ExportFileReader(SvgFileHandler.DisplayName, SvgFileHandler.FileExtension)]
     [ExportFileWriter(SvgFileHandler.DisplayName, SvgFileHandler.FileExtension)]
-    internal class SvgFileHandler : IFileWriter
+    internal class SvgFileHandler : IFileReader, IFileWriter
     {
         public const string DisplayName = "SVF Files (" + FileExtension + ")";
         public const string FileExtension = ".svg";
 
         private static XNamespace Xmlns = "http://www.w3.org/2000/svg";
 
+        public void ReadFile(string fileName, Stream stream, out Drawing drawing, out ViewPort activeViewPort)
+        {
+            var doc = XDocument.Load(stream);
+            var root = doc.Root;
+            var dwg = new Drawing();
+
+            foreach (var node in root.Elements())
+            {
+                dwg = ReadEntities(node, dwg);
+            }
+
+            drawing = dwg;
+            activeViewPort = new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 10);
+        }
+
         public void WriteFile(IWorkspace workspace, Stream stream)
         {
             // create transform
-            // normalizing to 640x480
-            var actualWidth = 640.0;
-            var actualHeight = 480.0;
+            // normalizing to 11x8.5
+            var actualWidth = 11.0;
+            var actualHeight = 8.5;
             var bottomLeft = workspace.ActiveViewPort.BottomLeft;
             var height = workspace.ActiveViewPort.ViewHeight;
             var width = height * actualWidth / actualHeight;
             var transform = Matrix3D.Identity
                 * TranslationMatrix(-bottomLeft.X, -bottomLeft.Y, 0)
-                * ScalingMatrix(1, 1, 1);
-                //* TranslationMatrix(-width / 2.0, -height / 2.0, 0);
-                //* ScalingMatrix(2.0 / width, 2.0 / height, 1.0);
+                * ScalingMatrix(1, -1, 1)
+                * TranslationMatrix(0, height, 0);
 
-            // TODO: use XDocument with <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
             var root = new XElement(Xmlns + "svg",
+                new XAttribute("width", string.Format("{0}in", actualWidth)),
+                new XAttribute("height", string.Format("{0}in", actualHeight)),
+                //new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", 0, 0, actualWidth, actualHeight)),
                 new XAttribute("version", "1.1"));
-            // TODO: width="15cm" height="15cm" viewBox="0 0 640 480"
             foreach (var layer in from l in workspace.Drawing.Layers.Values
                                   where l.Entities.Count > 0
                                   orderby l.Name
                                   select l)
             {
+                root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
                 var g = new XElement(Xmlns + "g",
                     new XAttribute("stroke", layer.Color.MediaColor.ToColorString()));
                 // TODO: stroke-width="0.5"
@@ -62,7 +79,6 @@ namespace BCad.Commands.FileHandlers
                     }
                 }
 
-                root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
                 root.Add(g);
             }
 
@@ -73,7 +89,10 @@ namespace BCad.Commands.FileHandlers
                 OmitXmlDeclaration = true
             };
             var writer = XmlWriter.Create(stream, settings);
-            root.WriteTo(writer);
+            var doc = new XDocument(
+                new XDocumentType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null),
+                root);
+            doc.WriteTo(writer);
             writer.Flush();
             writer.Close();
         }
@@ -90,12 +109,36 @@ namespace BCad.Commands.FileHandlers
                 line.Color.IsAuto ? null : new XAttribute("stroke", line.Color.MediaColor.ToColorString()));
         }
 
-        private static Matrix3D TranslationMatrix(double x, double y, double z)
+        private static Drawing ReadEntities(XElement node, Drawing drawing)
+        {
+            switch (node.Name.LocalName)
+            {
+                case "line":
+                    var x1 = double.Parse(node.Attribute("x1").Value);
+                    var y1 = double.Parse(node.Attribute("y1").Value);
+                    var x2 = double.Parse(node.Attribute("x2").Value);
+                    var y2 = double.Parse(node.Attribute("y2").Value);
+                    var color = node.Attribute("stroke") == null
+                        ? Color.Auto
+                        : Color.Auto; //: new Color(node.Attribute("stroke").Value.ParseColor());
+                    return drawing.AddToCurrentLayer(new Line(new Point(x1, y1, 0), new Point(x2, y2, 0), color));
+                case "g":
+                    foreach (var sub in node.Elements())
+                    {
+                        drawing = ReadEntities(sub, drawing);
+                    }
+                    return drawing;
+                default:
+                    return drawing;
+            }
+        }
+
+        private static Matrix3D TranslationMatrix(double dx, double dy, double dz)
         {
             var matrix = Matrix3D.Identity;
-            matrix.OffsetX = x;
-            matrix.OffsetY = y;
-            matrix.OffsetZ = z;
+            matrix.OffsetX = dx;
+            matrix.OffsetY = dy;
+            matrix.OffsetZ = dz;
             return matrix;
         }
 
