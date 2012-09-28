@@ -23,7 +23,7 @@ namespace BCad.Commands
             Circle circle = null;
             var drawingPlane = Workspace.DrawingPlane;
 
-            var cen = InputService.GetPoint(new UserDirective("Select center, [ttr], or [3]-point", "ttr", "3"));
+            var cen = InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
             if (cen.Cancel) return false;
             if (cen.HasValue)
             {
@@ -99,12 +99,15 @@ namespace BCad.Commands
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
                         var radius = InputService.GetDistance();
-                        circle = (Circle)EditService.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value)
-                            .ToEntity();
+                        var ellipse = EditService.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
+                        if (ellipse != null)
+                        {
+                            circle = (Circle)ellipse.ToEntity();
+                        }
                         break;
                     case "2":
                         break;
-                    case "3":
+                    case "th":
                         var first = InputService.GetPoint(new UserDirective("First point"));
                         if (first.Cancel || !first.HasValue)
                             break;

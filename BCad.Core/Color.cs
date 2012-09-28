@@ -60,6 +60,11 @@ namespace BCad
             return RgbValues[Value];
         }
 
+        public override string ToString()
+        {
+            return IsAuto ? "Auto" : Value.ToString();
+        }
+
         public static bool operator ==(Color a, Color b)
         {
             return a.Value == b.Value;

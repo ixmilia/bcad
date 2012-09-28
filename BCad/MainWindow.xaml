@@ -29,6 +29,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="100" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -60,8 +61,9 @@
             </r:Ribbon.QuickAccessToolBar>
         </r:Ribbon>
         <UserControl Grid.Row="1" Name="viewPanel" />
-        <UserControl Grid.Row="2" Name="inputPanel" />
-        <StatusBar Grid.Row="3">
+        <GridSplitter ResizeDirection="Rows" Grid.Row="2" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <UserControl Grid.Row="3" Name="inputPanel" />
+        <StatusBar Grid.Row="4">
             <TextBlock Name="pointSnapStatus"
                        Text="POINT SNAP"
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
@@ -82,7 +84,7 @@
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
                        Tag="Debug" />
         </StatusBar>
-        <StatusBar Grid.Row="4">
+        <StatusBar Grid.Row="5">
             <TextBlock Name="debugText" Height="0" />
         </StatusBar>
     </Grid>

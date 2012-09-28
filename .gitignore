@@ -1,5 +1,6 @@
 # ignore VS
 *.suo
+*.ide
 [Bb]in/
 [Dd]ebug/
 [Oo]bj/
