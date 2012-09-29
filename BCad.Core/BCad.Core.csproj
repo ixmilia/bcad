@@ -114,6 +114,7 @@
     <Compile Include="IControlFactoryMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
+    <Compile Include="Services\IExportService.cs" />
     <Compile Include="Services\IFileSystemService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />
     <Compile Include="Services\IInputService.cs" />

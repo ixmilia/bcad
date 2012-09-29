@@ -4,6 +4,7 @@ using System.Windows.Media.Media3D;
 using System.Xml;
 using System.Xml.Linq;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.FileHandlers;
 
 namespace BCad.Commands.FileHandlers
@@ -35,21 +36,24 @@ namespace BCad.Commands.FileHandlers
         public void WriteFile(IWorkspace workspace, Stream stream)
         {
             // create transform
-            // normalizing to 11x8.5
-            var actualWidth = 11.0;
-            var actualHeight = 8.5;
-            var bottomLeft = workspace.ActiveViewPort.BottomLeft;
-            var height = workspace.ActiveViewPort.ViewHeight;
-            var width = height * actualWidth / actualHeight;
-            var transform = Matrix3D.Identity
-                * TranslationMatrix(-bottomLeft.X, -bottomLeft.Y, 0)
-                * ScalingMatrix(1, -1, 1)
-                * TranslationMatrix(0, height, 0);
+            var vp = workspace.ActiveViewPort;
+            var normal = vp.Sight * -1.0;
+            var up = vp.Up;
+            var right = up.Cross(normal).Normalize();
+            var transform =
+                PrimitiveExtensions.FromUnitCircleProjection(
+                normal,
+                right,
+                up,
+                Point.Origin,
+                -1.0,
+                -1.0,
+                0.0);
 
             var root = new XElement(Xmlns + "svg",
-                new XAttribute("width", string.Format("{0}in", actualWidth)),
-                new XAttribute("height", string.Format("{0}in", actualHeight)),
-                //new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", 0, 0, actualWidth, actualHeight)),
+                new XAttribute("width", string.Format("{0}in", 6)),
+                new XAttribute("height", string.Format("{0}in", 6)),
+                new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", -500, -500, 500, 500)),
                 new XAttribute("version", "1.1"));
             foreach (var layer in from l in workspace.Drawing.Layers.Values
                                   where l.Entities.Count > 0
@@ -85,8 +89,7 @@ namespace BCad.Commands.FileHandlers
             var settings = new XmlWriterSettings()
             {
                 Indent = true,
-                IndentChars = "  ",
-                OmitXmlDeclaration = true
+                IndentChars = "  "
             };
             var writer = XmlWriter.Create(stream, settings);
             var doc = new XDocument(
