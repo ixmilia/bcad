@@ -36,7 +36,8 @@ namespace BCad.Commands.FileHandlers
                 var layer = groupedEntity.Key;
                 root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
                 var g = new XElement(Xmlns + "g",
-                    new XAttribute("stroke", layer.Color.MediaColor.ToColorString()));
+                    new XAttribute("stroke", layer.Color.MediaColor.ToColorString()),
+                    new XAttribute("fill", layer.Color.MediaColor.ToColorString()));
                 // TODO: stroke-width="0.5"
                 foreach (var entity in groupedEntity)
                 {
@@ -45,6 +46,12 @@ namespace BCad.Commands.FileHandlers
                     {
                         case EntityKind.Line:
                             elem = ToXElement((ProjectedLine)entity);
+                            break;
+                        case EntityKind.Text:
+                            elem = ToXElement((ProjectedText)entity);
+                            break;
+                        case EntityKind.Ellipse:
+                            elem = ToXElement((ProjectedCircle)entity);
                             break;
                         default:
                             elem = null;
@@ -76,14 +83,44 @@ namespace BCad.Commands.FileHandlers
 
         private static XElement ToXElement(ProjectedLine line)
         {
-            return new XElement(Xmlns + "line",
+            var xml = new XElement(Xmlns + "line",
                 new XAttribute("x1", line.P1.X),
                 new XAttribute("y1", line.P1.Y),
                 new XAttribute("x2", line.P2.X),
-                new XAttribute("y2", line.P2.Y),
-                line.OriginalLine.Color.IsAuto
-                    ? null
-                    : new XAttribute("stroke", line.OriginalLine.Color.MediaColor.ToColorString()));
+                new XAttribute("y2", line.P2.Y));
+            if (!line.OriginalLine.Color.IsAuto)
+                xml.Add(new XAttribute("stroke", line.OriginalLine.Color.MediaColor.ToColorString()));
+            return xml;
+        }
+
+        private static XElement ToXElement(ProjectedText text)
+        {
+            var xml = new XElement(Xmlns + "text",
+                new XAttribute("x", text.Location.X),
+                new XAttribute("y", text.Location.Y),
+                new XAttribute("font-size", string.Format("{0}px", text.Height)),
+                text.OriginalText.Value);
+            if (text.Rotation != 0.0)
+                xml.Add(new XAttribute("transform", string.Format("rotate({0} {1} {2})", text.Rotation * -1.0, text.Location.X, text.Location.Y)));
+            if (!text.OriginalText.Color.IsAuto)
+            {
+                xml.Add(new XAttribute("stroke", text.OriginalText.Color.MediaColor.ToColorString()));
+                xml.Add(new XAttribute("fill", text.OriginalText.Color.MediaColor.ToColorString()));
+            }
+            return xml;
+        }
+
+        private static XElement ToXElement(ProjectedCircle ellipse)
+        {
+            var xml = new XElement(Xmlns + "ellipse",
+                new XAttribute("cx", ellipse.Center.X),
+                new XAttribute("cy", ellipse.Center.Y),
+                new XAttribute("rx", ellipse.RadiusX),
+                new XAttribute("ry", ellipse.RadiusY),
+                new XAttribute("fill-opacity", 0));
+            if (!ellipse.OriginalCircle.Color.IsAuto)
+                xml.Add(new XAttribute("stroke", ellipse.OriginalCircle.Color.MediaColor.ToColorString()));
+            return xml;
         }
     }
 }

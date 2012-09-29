@@ -5,6 +5,7 @@ using System.Windows.Media.Media3D;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
+using BCad.Helpers;
 
 namespace BCad.Services
 {
@@ -45,7 +46,21 @@ namespace BCad.Services
                             entities.Add(new ProjectedLine(line, layer, new Point(p1), new Point(p2)));
                             break;
                         case EntityKind.Text:
-                            // from bottom left
+                            var text = (Text)entity;
+                            var loc = transform.Transform(text.Location.ToPoint3D());
+                            var rad = text.Rotation * MathHelper.DegreesToRadians;
+                            var rt = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
+                            var u = text.Normal.Cross(rt).Normalize();
+                            var top = transform.Transform((text.Location + u * text.Height).ToPoint3D());
+                            var h = (top - loc).Length;
+                            var r = new Vector((top - loc)).ToAngle() * -1.0 - 90.0;
+                            entities.Add(new ProjectedText(text, layer, new Point(loc), h, r));
+                            break;
+                        case EntityKind.Circle:
+                            var c = (Circle)entity;
+                            var center = transform.Transform(c.Center.ToPoint3D());
+                            // TODO: proper projection and rotation
+                            entities.Add(new ProjectedCircle(c, layer, new Point(center), c.Radius, c.Radius, 0));
                             break;
                         default:
                             //throw new ArgumentException("entity.Kind");

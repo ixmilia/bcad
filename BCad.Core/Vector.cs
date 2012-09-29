@@ -34,6 +34,13 @@ namespace BCad
             this.Z = z;
         }
 
+        public Vector(Vector3D vector)
+        {
+            this.X = vector.X;
+            this.Y = vector.Y;
+            this.Z = vector.Z;
+        }
+
         public Vector Normalize()
         {
             return this / this.Length;
