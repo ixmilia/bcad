@@ -73,5 +73,11 @@ namespace BCad.Ribbons
                 workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
             }
         }
+
+        private void DebugButtonClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            workspace.ExecuteCommandSynchronous("File.Open", @"D:\Code\BCad\BCad\BellevueHouse.dxf");
+            workspace.ExecuteCommandSynchronous("File.SaveAs", @"D:\Personal\Desktop\bh.svg");
+        }
     }
 }

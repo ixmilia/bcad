@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Windows.Media.Media3D;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
@@ -10,60 +11,68 @@ namespace BCad.Services
     [Export(typeof(IExportService))]
     internal class ExportService : IExportService
     {
-        [Import]
-        private IEditService EditService = null;
-
-        public Drawing ProjectTo2D(Drawing drawing, ViewPort viewPort)
+        public IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort)
         {
             // create transform
             var normal = viewPort.Sight * -1.0;
             var up = viewPort.Up;
             var right = up.Cross(normal).Normalize();
-            var transform =
-                PrimitiveExtensions.FromUnitCircleProjection(
-                normal,
-                right,
-                up,
-                Point.Origin,
-                -1.0,
-                -1.0,
-                0.0);
+            var transform = TranslationMatrix(-viewPort.BottomLeft.X, -viewPort.BottomLeft.Y - viewPort.ViewHeight, 0)
+                * PrimitiveExtensions.FromUnitCircleProjection(
+                    normal,
+                    right,
+                    up,
+                    Point.Origin,
+                    -1.0,
+                    -1.0,
+                    1.0);
 
             // project all entities
-            var minx = 0.0;
-            var miny = 0.0;
-            var layers = new List<Layer>();
+            var entities = new List<ProjectedEntity>();
             foreach (var layer in from l in drawing.Layers.Values
                                   where l.Entities.Count > 0
                                   orderby l.Name
                                   select l)
             {
-                var entities = new List<Entity>();
                 foreach (var entity in layer.Entities.OrderBy(x => x.Id))
                 {
                     switch (entity.Kind)
                     {
                         case EntityKind.Line:
                             var line = (Line)entity;
-                            line = line.Update(p1: new Point(transform.Transform(line.P1.ToPoint3D())), p2: new Point(transform.Transform(line.P2.ToPoint3D())));
-                            minx = Math.Min(minx, line.P1.X);
-                            minx = Math.Min(minx, line.P2.X);
-                            miny = Math.Min(miny, line.P1.Y);
-                            miny = Math.Min(miny, line.P2.Y);
-                            entities.Add(line);
+                            var p1 = transform.Transform(line.P1.ToPoint3D());
+                            var p2 = transform.Transform(line.P2.ToPoint3D());
+                            entities.Add(new ProjectedLine(line, layer, new Point(p1), new Point(p2)));
+                            break;
+                        case EntityKind.Text:
+                            // from bottom left
                             break;
                         default:
-                            throw new ArgumentException("entity.Kind");
+                            //throw new ArgumentException("entity.Kind");
+                            break;
                     }
                 }
-
-                layers.Add(layer.Update(entities: entities));
             }
 
-            // and translate again to make all values positive
+            return entities;
+        }
 
+        private static Matrix3D TranslationMatrix(double dx, double dy, double dz)
+        {
+            var matrix = Matrix3D.Identity;
+            matrix.OffsetX = dx;
+            matrix.OffsetY = dy;
+            matrix.OffsetZ = dz;
+            return matrix;
+        }
 
-            return drawing;
+        private static Matrix3D ScalingMatrix(double xs, double ys, double zs)
+        {
+            var matrix = Matrix3D.Identity;
+            matrix.M11 = xs;
+            matrix.M22 = ys;
+            matrix.M33 = zs;
+            return matrix;
         }
     }
 }

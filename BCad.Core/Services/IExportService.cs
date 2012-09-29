@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using BCad.Entities;
+
 namespace BCad.Services
 {
     public interface IExportService
     {
-        Drawing ProjectTo2D(Drawing drawing, ViewPort viewPort);
+        IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort);
     }
 }

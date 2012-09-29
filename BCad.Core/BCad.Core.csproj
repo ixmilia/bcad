@@ -84,6 +84,8 @@
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
     <Compile Include="Entities\Polyline.cs" />
+    <Compile Include="Entities\ProjectedEntity.cs" />
+    <Compile Include="Entities\ProjectedLine.cs" />
     <Compile Include="Entities\Text.cs" />
     <Compile Include="EventArguments\WorkspaceChangeEventArgs.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
