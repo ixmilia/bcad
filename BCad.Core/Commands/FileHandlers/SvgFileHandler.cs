@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Windows.Media.Media3D;
 using System.Xml;
 using System.Xml.Linq;
 using BCad.Entities;
-using BCad.Extensions;
 using BCad.FileHandlers;
 using BCad.Services;
 
@@ -41,27 +39,9 @@ namespace BCad.Commands.FileHandlers
                 // TODO: stroke-width="0.5"
                 foreach (var entity in groupedEntity)
                 {
-                    XElement elem;
-                    switch (entity.Kind)
-                    {
-                        case EntityKind.Line:
-                            elem = ToXElement((ProjectedLine)entity);
-                            break;
-                        case EntityKind.Text:
-                            elem = ToXElement((ProjectedText)entity);
-                            break;
-                        case EntityKind.Ellipse:
-                            elem = ToXElement((ProjectedCircle)entity);
-                            break;
-                        default:
-                            elem = null;
-                            break;
-                    }
-
+                    var elem = ToXElement(entity);
                     if (elem != null)
-                    {
                         g.Add(elem);
-                    }
                 }
 
                 root.Add(g);
@@ -79,6 +59,21 @@ namespace BCad.Commands.FileHandlers
             doc.WriteTo(writer);
             writer.Flush();
             writer.Close();
+        }
+
+        private static XElement ToXElement(ProjectedEntity entity)
+        {
+            switch (entity.Kind)
+            {
+                case EntityKind.Line:
+                    return ToXElement((ProjectedLine)entity);
+                case EntityKind.Circle:
+                    return ToXElement((ProjectedCircle)entity);
+                case EntityKind.Text:
+                    return ToXElement((ProjectedText)entity);
+                default:
+                    return null;
+            }
         }
 
         private static XElement ToXElement(ProjectedLine line)

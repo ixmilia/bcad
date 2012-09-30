@@ -37,39 +37,54 @@ namespace BCad.Services
             {
                 foreach (var entity in layer.Entities.OrderBy(x => x.Id))
                 {
-                    switch (entity.Kind)
-                    {
-                        case EntityKind.Line:
-                            var line = (Line)entity;
-                            var p1 = transform.Transform(line.P1.ToPoint3D());
-                            var p2 = transform.Transform(line.P2.ToPoint3D());
-                            entities.Add(new ProjectedLine(line, layer, new Point(p1), new Point(p2)));
-                            break;
-                        case EntityKind.Text:
-                            var text = (Text)entity;
-                            var loc = transform.Transform(text.Location.ToPoint3D());
-                            var rad = text.Rotation * MathHelper.DegreesToRadians;
-                            var rt = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
-                            var u = text.Normal.Cross(rt).Normalize();
-                            var top = transform.Transform((text.Location + u * text.Height).ToPoint3D());
-                            var h = (top - loc).Length;
-                            var r = new Vector((top - loc)).ToAngle() * -1.0 - 90.0;
-                            entities.Add(new ProjectedText(text, layer, new Point(loc), h, r));
-                            break;
-                        case EntityKind.Circle:
-                            var c = (Circle)entity;
-                            var center = transform.Transform(c.Center.ToPoint3D());
-                            // TODO: proper projection and rotation
-                            entities.Add(new ProjectedCircle(c, layer, new Point(center), c.Radius, c.Radius, 0));
-                            break;
-                        default:
-                            //throw new ArgumentException("entity.Kind");
-                            break;
-                    }
+                    var projected = Project(entity, layer, transform);
+                    if (projected != null)
+                        entities.Add(projected);
                 }
             }
 
             return entities;
+        }
+
+        public ProjectedEntity Project(Entity entity, Layer layer, Matrix3D transform)
+        {
+            switch (entity.Kind)
+            {
+                case EntityKind.Line:
+                    return Project((Line)entity, layer, transform);
+                case EntityKind.Text:
+                    return Project((Text)entity, layer, transform);
+                case EntityKind.Circle:
+                    return Project((Circle)entity, layer, transform);
+                default:
+                    return null;
+            }
+        }
+
+        public ProjectedLine Project(Line line, Layer layer, Matrix3D transform)
+        {
+            var p1 = transform.Transform(line.P1.ToPoint3D());
+            var p2 = transform.Transform(line.P2.ToPoint3D());
+            return new ProjectedLine(line, layer, new Point(p1), new Point(p2));
+        }
+
+        public ProjectedText Project(Text text, Layer layer, Matrix3D transform)
+        {
+            var loc = transform.Transform(text.Location.ToPoint3D());
+            var rad = text.Rotation * MathHelper.DegreesToRadians;
+            var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
+            var up = text.Normal.Cross(right).Normalize();
+            var top = transform.Transform((text.Location + up * text.Height).ToPoint3D());
+            var height = (top - loc).Length;
+            var rotation = new Vector((top - loc)).ToAngle() * -1.0 - 90.0;
+            return new ProjectedText(text, layer, new Point(loc), height, rotation);
+        }
+
+        public ProjectedCircle Project(Circle circle, Layer layer, Matrix3D transform)
+        {
+            var center = transform.Transform(circle.Center.ToPoint3D());
+            // TODO: proper projection and rotation
+            return new ProjectedCircle(circle, layer, new Point(center), circle.Radius, circle.Radius, 0);
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)
@@ -78,15 +93,6 @@ namespace BCad.Services
             matrix.OffsetX = dx;
             matrix.OffsetY = dy;
             matrix.OffsetZ = dz;
-            return matrix;
-        }
-
-        private static Matrix3D ScalingMatrix(double xs, double ys, double zs)
-        {
-            var matrix = Matrix3D.Identity;
-            matrix.M11 = xs;
-            matrix.M22 = ys;
-            matrix.M33 = zs;
             return matrix;
         }
     }
