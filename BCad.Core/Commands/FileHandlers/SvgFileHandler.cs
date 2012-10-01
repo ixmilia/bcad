@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Linq;
 using BCad.Entities;
 using BCad.FileHandlers;
+using BCad.Helpers;
 using BCad.Services;
 
 namespace BCad.Commands.FileHandlers
@@ -95,7 +96,7 @@ namespace BCad.Commands.FileHandlers
                 new XAttribute("y", text.Location.Y),
                 new XAttribute("font-size", string.Format("{0}px", text.Height)),
                 text.OriginalText.Value);
-            if (text.Rotation != 0.0)
+            if (!MathHelper.CloseTo(0, text.Rotation) && !MathHelper.CloseTo(360, text.Rotation))
                 xml.Add(new XAttribute("transform", string.Format("rotate({0} {1} {2})", text.Rotation * -1.0, text.Location.X, text.Location.Y)));
             if (!text.OriginalText.Color.IsAuto)
             {

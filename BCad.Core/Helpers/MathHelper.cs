@@ -33,5 +33,10 @@ namespace BCad.Helpers
                 angle -= 360.0;
             return angle;
         }
+
+        public static bool CloseTo(double expected, double actual)
+        {
+            return Between(expected - Epsilon, expected + Epsilon, actual);
+        }
     }
 }

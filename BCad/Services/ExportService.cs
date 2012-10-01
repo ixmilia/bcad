@@ -77,7 +77,7 @@ namespace BCad.Services
             var top = transform.Transform((text.Location + up * text.Height).ToPoint3D());
             var height = (top - loc).Length;
             var rotation = new Vector((top - loc)).ToAngle() * -1.0 - 90.0;
-            return new ProjectedText(text, layer, new Point(loc), height, rotation);
+            return new ProjectedText(text, layer, new Point(loc), height, rotation.CorrectAngleDegrees());
         }
 
         public ProjectedCircle Project(Circle circle, Layer layer, Matrix3D transform)
