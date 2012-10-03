@@ -277,7 +277,6 @@ namespace BCad.UI.Views
         private bool lastGeneratorNonNull = false;
         private SlimDX.Direct3D9.Line solidLine;
         private SlimDX.Direct3D9.Line dashedLine;
-        private ShaderBytecode normalMeshBytecode = null;
         private ShaderBytecode selectedMeshBytecode = null;
         private PixelShader normalPixelShader = null;
         private PixelShader selectedPixelShader = null;
@@ -336,12 +335,8 @@ namespace BCad.UI.Views
                 solidLine.Dispose();
             if (dashedLine != null)
                 dashedLine.Dispose();
-            if (normalMeshBytecode != null)
-                normalMeshBytecode.Dispose();
             if (selectedMeshBytecode != null)
                 selectedMeshBytecode.Dispose();
-            if (normalPixelShader != null)
-                normalPixelShader.Dispose();
             if (selectedPixelShader != null)
                 selectedPixelShader.Dispose();
 
@@ -354,24 +349,31 @@ namespace BCad.UI.Views
             };
 
             // prepare shader bytecode
-            normalMeshBytecode = ShaderBytecode.Compile(@"
-float4 PShader(float4 color : COLOR0) : SV_Target
-{
-    return color;
-}
-", "PShader", "ps_3_0", ShaderFlags.None);
-
             selectedMeshBytecode = ShaderBytecode.Compile(@"
-float4 PShader(float2 position : SV_POSITION, float4 color : COLOR0) : SV_Target
+struct Result
 {
-    int p = position.x + position.y;
+    float4 Color : COLOR0;
+};
+
+struct Input
+{
+    float4 Position : SV_POSITION;
+    float4 Color    : COLOR0;
+};
+
+Result PShader(Input pixel)
+{
+    Result res = (Result)0;
+    int p = pixel.Position.x + pixel.Position.y;
     if (p % 2 == 0)
-        return color;
+        res.Color = pixel.Color;
     else
-        return float4(0.0f, 0.0f, 0.0f, 0.0f);
+        res.Color = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    return res;
 }
 ", "PShader", "ps_3_0", ShaderFlags.None);
-            normalPixelShader = new PixelShader(Device, normalMeshBytecode);
+            normalPixelShader = Device.PixelShader;
             selectedPixelShader = new PixelShader(Device, selectedMeshBytecode);
 
             Device.SetRenderState(RenderState.Lighting, true);
