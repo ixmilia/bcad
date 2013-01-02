@@ -80,7 +80,8 @@ namespace BCad.Commands
 
                 if (updated != null)
                 {
-                    Workspace.AddToCurrentLayer(updated);
+                    var oldLayer = Workspace.Drawing.ContainingLayer(ent);
+                    Workspace.Add(oldLayer, updated);
                 }
 
                 Workspace.SelectedEntities.Clear();
