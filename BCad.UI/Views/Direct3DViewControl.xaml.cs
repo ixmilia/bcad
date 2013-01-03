@@ -695,23 +695,34 @@ Result PShader(Input pixel)
             snapLayer.Children.Add(GetSnapIcon(snapPoint));
         }
 
+        private static Queue<double> updateCalls = new Queue<double>(10);
+        private Matrix lastSnapPointMatrix = Matrix.Identity;
+
         private void UpdateSnapPoints(Matrix matrix)
         {
+            if (matrix == lastSnapPointMatrix)
+            {
+                // don't update if we've already used this matrix
+                return;
+            }
+
+            lastSnapPointMatrix = matrix;
             var start = DateTime.UtcNow;
             if (snapPoints.Length > 0)
             {
+                var vp = Device.Viewport;
                 Parallel.For(0, snapPoints.Length,
                     (i) =>
                     {
                         var wp = snapPoints[i].WorldPoint.ToVector3();
                         Vector3.Project(
                             ref wp, // input
-                            Device.Viewport.X, // x
-                            Device.Viewport.Y, // y
-                            Device.Viewport.Width, // viewport width
-                            Device.Viewport.Height, // viewport height
-                            Device.Viewport.MinZ, // z-min
-                            Device.Viewport.MaxZ, // z-max
+                            vp.X, // x
+                            vp.Y, // y
+                            vp.Width, // viewport width
+                            vp.Height, // viewport height
+                            vp.MinZ, // z-min
+                            vp.MaxZ, // z-max
                             ref matrix, // transformation matrix
                             out snapPoints[i].ControlPoint); // output
                         snapPoints[i].ControlPoint.Z = 0.0f;
@@ -729,6 +740,10 @@ Result PShader(Input pixel)
                     }));
             }
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            updateCalls.Enqueue(elapsed);
+            if (updateCalls.Count > 10)
+                updateCalls.Dequeue();
+            inputService.WriteLine(string.Format("UpdateSnapPoints: {0}ms", updateCalls.Average()));
         }
 
         private Image GetSnapIcon(TransformedSnapPoint snapPoint, Media.Color? color = null)
