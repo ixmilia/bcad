@@ -33,6 +33,11 @@ namespace BCad
             return new System.Windows.Point(this.X, this.Y);
         }
 
+        public System.Drawing.Point ToDrawingPoint()
+        {
+            return new System.Drawing.Point((int)this.X, (int)this.Y);
+        }
+
         public Point3D ToPoint3D()
         {
             return point;

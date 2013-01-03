@@ -76,8 +76,23 @@ namespace BCad.Ribbons
 
         private void DebugButtonClick(object sender, System.Windows.RoutedEventArgs e)
         {
-            workspace.ExecuteCommandSynchronous("File.Open", @"D:\Code\BCad\BCad\BellevueHouse.dxf");
-            workspace.ExecuteCommandSynchronous("File.SaveAs", @"D:\Personal\Desktop\bh.svg");
+            string inputFile, outputFile;
+            if (string.Compare(Environment.MachineName, "bisquik", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                // home machine
+                inputFile = @"D:\Code\BCad\BCad\BellevueHouse.dxf";
+                outputFile = @"D:\Personal\Desktop\bh.svg";
+            }
+            else
+            {
+                // work machine
+                inputFile = @"C:\Users\brettfo\Documents\GitHub\BCad\BCad\test.dxf";
+                outputFile = @"D:\Private\Desktop\test.png";
+            }
+
+            workspace.ExecuteCommandSynchronous("File.Open", inputFile);
+            workspace.ExecuteCommandSynchronous("File.SaveAs", outputFile);
+            System.Diagnostics.Process.Start(outputFile);
         }
     }
 }

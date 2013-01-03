@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Drawing = System.Drawing;
+using System.Drawing;
 using Media = System.Windows.Media;
 using System.Text.RegularExpressions;
 
@@ -29,13 +29,13 @@ namespace BCad
             get { return this.IsAuto ? "Auto" : this.Value.ToString(); }
         }
 
-        //public Drawing.Color DrawingColor
-        //{
-        //    get
-        //    {
-        //        return Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
-        //    }
-        //}
+        public System.Drawing.Color DrawingColor
+        {
+            get
+            {
+                return System.Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
+            }
+        }
 
         public Media.Color MediaColor
         {
