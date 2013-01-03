@@ -13,7 +13,7 @@ namespace BCad.Commands.FileHandlers
     [ExportFileWriter(SvgFileHandler.DisplayName, SvgFileHandler.FileExtension)]
     internal class SvgFileHandler : IFileWriter
     {
-        public const string DisplayName = "SVF Files (" + FileExtension + ")";
+        public const string DisplayName = "SVG Files (" + FileExtension + ")";
         public const string FileExtension = ".svg";
 
         private static XNamespace Xmlns = "http://www.w3.org/2000/svg";
@@ -69,6 +69,7 @@ namespace BCad.Commands.FileHandlers
                 case EntityKind.Line:
                     return ToXElement((ProjectedLine)entity);
                 case EntityKind.Circle:
+                case EntityKind.Ellipse:
                     return ToXElement((ProjectedCircle)entity);
                 case EntityKind.Text:
                     return ToXElement((ProjectedText)entity);
@@ -84,8 +85,7 @@ namespace BCad.Commands.FileHandlers
                 new XAttribute("y1", line.P1.Y),
                 new XAttribute("x2", line.P2.X),
                 new XAttribute("y2", line.P2.Y));
-            if (!line.OriginalLine.Color.IsAuto)
-                xml.Add(new XAttribute("stroke", line.OriginalLine.Color.MediaColor.ToColorString()));
+            AddStrokeIfNotDefault(xml, line.OriginalLine.Color);
             return xml;
         }
 
@@ -96,13 +96,9 @@ namespace BCad.Commands.FileHandlers
                 new XAttribute("y", text.Location.Y),
                 new XAttribute("font-size", string.Format("{0}px", text.Height)),
                 text.OriginalText.Value);
-            if (!MathHelper.CloseTo(0, text.Rotation) && !MathHelper.CloseTo(360, text.Rotation))
-                xml.Add(new XAttribute("transform", string.Format("rotate({0} {1} {2})", text.Rotation * -1.0, text.Location.X, text.Location.Y)));
-            if (!text.OriginalText.Color.IsAuto)
-            {
-                xml.Add(new XAttribute("stroke", text.OriginalText.Color.MediaColor.ToColorString()));
-                xml.Add(new XAttribute("fill", text.OriginalText.Color.MediaColor.ToColorString()));
-            }
+            AddRotationTransform(xml, text.Rotation, text.Location);
+            AddStrokeIfNotDefault(xml, text.OriginalText.Color);
+            AddFillIfNotDefault(xml, text.OriginalText.Color);
             return xml;
         }
 
@@ -114,9 +110,66 @@ namespace BCad.Commands.FileHandlers
                 new XAttribute("rx", ellipse.RadiusX),
                 new XAttribute("ry", ellipse.RadiusY),
                 new XAttribute("fill-opacity", 0));
-            if (!ellipse.OriginalCircle.Color.IsAuto)
-                xml.Add(new XAttribute("stroke", ellipse.OriginalCircle.Color.MediaColor.ToColorString()));
+            AddRotationTransform(xml, ellipse.Rotation, ellipse.Center);
+            AddStrokeIfNotDefault(xml, ellipse.OriginalCircle.Color);
             return xml;
+        }
+
+        private static void AddRotationTransform(XElement xml, double angle, Point location)
+        {
+            if (!MathHelper.CloseTo(0, angle) && !MathHelper.CloseTo(360, angle))
+            {
+                var rotateText = string.Format("rotate({0} {1} {2})", angle * -1.0, location.X, location.Y);
+                var transform = xml.Attribute("transform");
+                if (transform == null)
+                {
+                    // add new attribute
+                    xml.Add(new XAttribute("transform", rotateText));
+                }
+                else
+                {
+                    // append a space and the rotation
+                    transform.Value += " " + rotateText;
+                }
+            }
+        }
+
+        private static void AddStrokeIfNotDefault(XElement xml, Color color)
+        {
+            if (!color.IsAuto)
+            {
+                var stroke = xml.Attribute("stroke");
+                var colorString = color.MediaColor.ToColorString();
+                if (stroke == null)
+                {
+                    // add new attribute
+                    xml.Add(new XAttribute("stroke", colorString));
+                }
+                else
+                {
+                    // replace attribute
+                    stroke.Value = colorString;
+                }
+            }
+        }
+
+        private static void AddFillIfNotDefault(XElement xml, Color color)
+        {
+            if (!color.IsAuto)
+            {
+                var stroke = xml.Attribute("fill");
+                var colorString = color.MediaColor.ToColorString();
+                if (stroke == null)
+                {
+                    // add new attribute
+                    xml.Add(new XAttribute("fill", colorString));
+                }
+                else
+                {
+                    // replace attribute
+                    stroke.Value = colorString;
+                }
+            }
         }
     }
 }
