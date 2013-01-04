@@ -16,5 +16,13 @@
         {
             get { return new Plane(Point.Origin, Vector.ZAxis); }
         }
+
+        public static Plane From3Points(Point a, Point b, Point c)
+        {
+            var ab = a - b;
+            var cb = c - b;
+            var normal = ab.Cross(cb).Normalize();
+            return new Plane(a, normal);
+        }
     }
 }

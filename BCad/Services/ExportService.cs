@@ -89,7 +89,7 @@ namespace BCad.Services
             var pt = transform.Transform((circle.Center + (rightVector * circle.Radius)));
             var qt = transform.Transform((circle.Center + (upVector * circle.Radius)));
             var m = transform.Transform(circle.Center);
-            return ProjectedCircle.FromConjugateDiameters(m, pt, qt);
+            return ProjectedCircle.FromConjugateDiameters(circle, layer, m, pt, qt);
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)
