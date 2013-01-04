@@ -18,34 +18,29 @@ namespace BCad
             this.point = new Point3D(x, y, z);
         }
 
-        public Point(System.Windows.Point point)
-        {
-            this.point = new Point3D(point.X, point.Y, 0.0);
-        }
-
-        public Point(Point3D point)
-        {
-            this.point = point;
-        }
-
-        public System.Windows.Point ToWindowsPoint()
-        {
-            return new System.Windows.Point(this.X, this.Y);
-        }
-
-        public System.Drawing.Point ToDrawingPoint()
-        {
-            return new System.Drawing.Point((int)this.X, (int)this.Y);
-        }
-
-        public Point3D ToPoint3D()
-        {
-            return point;
-        }
-
         public static implicit operator Vector(Point point)
         {
             return new Vector(point.X, point.Y, point.Z);
+        }
+
+        public static implicit operator Point3D(Point point)
+        {
+            return new Point3D(point.X, point.Y, point.Z);
+        }
+
+        public static implicit operator Point(Point3D point)
+        {
+            return new Point(point.X, point.Y, point.Z);
+        }
+
+        public static implicit operator Point(System.Windows.Point point)
+        {
+            return new Point(point.X, point.Y, 0.0);
+        }
+
+        public static implicit operator System.Drawing.PointF(Point point)
+        {
+            return new System.Drawing.PointF((float)point.X, (float)point.Y);
         }
 
         public static Point Parse(string text)

@@ -80,7 +80,7 @@ namespace BCad.Services
                     var el = (PrimitiveEllipse)primitive;
                     var projection = el.FromUnitCircleProjection();
                     projection.Invert();
-                    var isInside = ((Vector)offsetDirection).Transform(projection)
+                    var isInside = ((Vector)(offsetDirection).Transform(projection))
                         .LengthSquared <= 1.0;
                     var majorLength = el.MajorAxis.Length;
                     if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)

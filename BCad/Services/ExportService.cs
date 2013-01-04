@@ -64,33 +64,32 @@ namespace BCad.Services
 
         private ProjectedLine Project(Line line, Layer layer, Matrix3D transform)
         {
-            var p1 = transform.Transform(line.P1.ToPoint3D());
-            var p2 = transform.Transform(line.P2.ToPoint3D());
-            return new ProjectedLine(line, layer, new Point(p1), new Point(p2));
+            var p1 = transform.Transform(line.P1);
+            var p2 = transform.Transform(line.P2);
+            return new ProjectedLine(line, layer, p1, p2);
         }
 
         private ProjectedText Project(Text text, Layer layer, Matrix3D transform)
         {
-            var loc = transform.Transform(text.Location.ToPoint3D());
+            var loc = transform.Transform(text.Location);
             var rad = text.Rotation * MathHelper.DegreesToRadians;
             var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
             var up = text.Normal.Cross(right).Normalize();
-            var top = transform.Transform((text.Location + up * text.Height).ToPoint3D());
+            var top = transform.Transform((text.Location + up * text.Height));
             var height = (top - loc).Length;
             var rotation = new Vector((top - loc)).ToAngle() * -1.0 - 90.0;
-            return new ProjectedText(text, layer, new Point(loc), height, rotation.CorrectAngleDegrees());
+            return new ProjectedText(text, layer, loc, height, rotation.CorrectAngleDegrees());
         }
 
         private ProjectedCircle Project(Circle circle, Layer layer, Matrix3D transform)
         {
-            var center = transform.Transform(circle.Center.ToPoint3D());
             // find axis endpoints
             var rightVector = Vector.RightVectorFromNormal(circle.Normal);
             var upVector = circle.Normal.Cross(rightVector).Normalize();
-            var rightPoint = transform.Transform((circle.Center + (rightVector * circle.Radius)).ToPoint3D());
-            var upPoint = transform.Transform((circle.Center + (upVector * circle.Radius)).ToPoint3D());
-            var angle = new Vector(rightPoint - center).ToAngle();
-            return new ProjectedCircle(circle, layer, new Point(center), (upPoint - center).Length, (rightPoint - center).Length, angle);
+            var pt = transform.Transform((circle.Center + (rightVector * circle.Radius)));
+            var qt = transform.Transform((circle.Center + (upVector * circle.Radius)));
+            var m = transform.Transform(circle.Center);
+            return ProjectedCircle.FromConjugateDiameters(m, pt, qt);
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)

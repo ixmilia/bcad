@@ -26,5 +26,13 @@
             RadiusY = radiusY;
             Rotation = rotation;
         }
+
+        /// <summary>
+        /// Using algorithm as described at http://www.ceometric.com/support/examples/v-ellipse-projection-using-rytz-construction.html
+        /// </summary>
+        public static ProjectedCircle FromConjugateDiameters(Point center, Point majorAxisConjugate, Point minorAxisConjugate)
+        {
+            return null;
+        }
     }
 }

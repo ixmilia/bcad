@@ -666,7 +666,7 @@ Result PShader(Input pixel)
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
-                        var result = (new Point(Math.Cos(angle), Math.Sin(angle), 0).ToPoint3D()) * trans;
+                        var result = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0));
                         segments[i] = result.ToVector3();
                     }
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
@@ -1057,15 +1057,14 @@ Result PShader(Input pixel)
             if (e.Delta > 0.0f) scale = 0.8f; // 1.0f / 1.25f
 
             // center zoom operation on mouse
-            var cursorPoint = e.GetPosition(this);
-            var controlPoint = new Point(cursorPoint);
-            var cursorPos = Unproject(controlPoint.ToVector3()).ToPoint();
+            var cursorPoint = (Point)e.GetPosition(this);
+            var cursorPos = Unproject(cursorPoint.ToVector3()).ToPoint();
             var vp = workspace.ActiveViewPort;
             var botLeft = vp.BottomLeft;
 
             // find relative scales
-            var relHoriz = controlPoint.X / this.ActualWidth;
-            var relVert = controlPoint.Y / this.ActualHeight;
+            var relHoriz = cursorPoint.X / this.ActualWidth;
+            var relVert = cursorPoint.Y / this.ActualHeight;
             var viewDelta = vp.ViewHeight * (scale - 1.0);
 
             // set values
@@ -1165,9 +1164,8 @@ Result PShader(Input pixel)
             var start = DateTime.UtcNow;
             var selectionRadius = workspace.SettingsManager.EntitySelectionRadius;
             var selectionRadius2 = selectionRadius * selectionRadius;
-            var cursorPoint = new Point(cursor);
             var entities = from entityId in lines.Keys
-                           let dist = lines[entityId].ClosestPointToCursor(cursorPoint, Project)
+                           let dist = lines[entityId].ClosestPointToCursor(cursor, Project)
                            where dist != null && dist.Item1 < selectionRadius2
                            orderby dist.Item1
                            select new

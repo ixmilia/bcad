@@ -89,7 +89,7 @@ namespace BCad.Entities
             {
                 var x = Math.Cos(anglesInDegrees[i] * MathHelper.DegreesToRadians);
                 var y = Math.Sin(anglesInDegrees[i] * MathHelper.DegreesToRadians);
-                result[i] = new Point(trans.Transform(new Point3D(x, y, 0.0)));
+                result[i] = trans.Transform(new Point3D(x, y, 0.0));
             }
 
             return result;

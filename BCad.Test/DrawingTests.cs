@@ -80,7 +80,7 @@ namespace BCad.Test
             Action<double, Arc> TestMidpoint = (midPointAngle, arc) =>
             {
                 var transform = arc.GetUnitCircleProjection();
-                var mp = (Vector)new Point(transform.Transform(arc.MidPoint.ToPoint3D()));
+                var mp = (Vector)transform.Transform((Vector)arc.MidPoint);
                 AssertClose(midPointAngle, mp.ToAngle());
             };
             TestMidpoint(45, new Arc(Point.Origin, 1, 315, 135, Vector.ZAxis, Color.Auto));

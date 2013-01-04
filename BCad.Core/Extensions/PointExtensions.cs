@@ -6,12 +6,12 @@ namespace BCad.Extensions
     {
         public static Point Transform(this Point point, Matrix3D matrix)
         {
-            return new Point(matrix.Transform(point.ToPoint3D()));
+            return matrix.Transform(point);
         }
 
-        public static Vector Transform(this Vector vector, Matrix3D matrix)
+        public static System.Drawing.Point ToDrawingPoint(Point point)
         {
-            return ((Point)vector).Transform(matrix);
+            return new System.Drawing.Point((int)point.X, (int)point.Y);
         }
     }
 }

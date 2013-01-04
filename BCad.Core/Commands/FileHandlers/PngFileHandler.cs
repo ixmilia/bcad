@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.FileHandlers;
 using BCad.Helpers;
 using BCad.Services;
@@ -93,7 +94,7 @@ namespace BCad.Commands.FileHandlers
 
         private void DrawEntity(Graphics graphics, ProjectedLine line)
         {
-            graphics.DrawLine(ColorToPen(line.OriginalLine.Color), line.P1.ToDrawingPoint(), line.P2.ToDrawingPoint());
+            graphics.DrawLine(ColorToPen(line.OriginalLine.Color), line.P1, line.P2);
         }
 
         private void DrawEntity(Graphics graphics, ProjectedCircle circle)

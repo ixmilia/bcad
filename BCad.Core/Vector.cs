@@ -66,6 +66,11 @@ namespace BCad
             return new Vector3D(vector.X, vector.Y, vector.Z);
         }
 
+        public static implicit operator Vector(Vector3D vector)
+        {
+            return new Vector(vector.X, vector.Y, vector.Z);
+        }
+
         public static Vector operator -(Vector vector)
         {
             return new Vector(-vector.X, -vector.Y, -vector.Z);
