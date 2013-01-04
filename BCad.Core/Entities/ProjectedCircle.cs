@@ -58,7 +58,9 @@ namespace BCad.Entities
             }
 
             // find the plane containing the projected ellipse
-            Plane
+            var plane = Plane.From3Points(m, p, q);
+
+            // rotate P by 90 degrees around the normal
 
             return null;
         }
