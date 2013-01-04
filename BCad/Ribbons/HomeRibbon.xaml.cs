@@ -87,7 +87,7 @@ namespace BCad.Ribbons
             {
                 // work machine
                 inputFile = @"C:\Users\brettfo\Documents\GitHub\BCad\BCad\test.dxf";
-                outputFile = @"D:\Private\Desktop\test.png";
+                outputFile = @"D:\Private\Desktop\test.svg";
             }
 
             workspace.ExecuteCommandSynchronous("File.Open", inputFile);

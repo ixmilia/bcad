@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
 using BCad.Entities;
 using BCad.FileHandlers;
 using BCad.Helpers;
@@ -20,6 +19,9 @@ namespace BCad.Commands.FileHandlers
 
         [Import]
         private IExportService ExportService = null;
+
+        private Dictionary<Color, Brush> brushCache = new Dictionary<Color, Brush>();
+        private Dictionary<Color, Pen> penCache = new Dictionary<Color, Pen>();
 
         public void WriteFile(IWorkspace workspace, Stream stream)
         {
@@ -42,7 +44,7 @@ namespace BCad.Commands.FileHandlers
             image.Save(stream, ImageFormat.Png);
         }
 
-        private static void DrawEntity(Graphics graphics, ProjectedEntity entity)
+        private void DrawEntity(Graphics graphics, ProjectedEntity entity)
         {
             switch (entity.Kind)
             {
@@ -51,17 +53,60 @@ namespace BCad.Commands.FileHandlers
                     break;
                 case EntityKind.Circle:
                 case EntityKind.Ellipse:
-                    //DrawEntity((ProjectedCircle)entity);
+                    DrawEntity(graphics, (ProjectedCircle)entity);
+                    break;
                 case EntityKind.Text:
-                    //DrawEntity((ProjectedText)entity);
+                    DrawEntity(graphics, (ProjectedText)entity);
+                    break;
                 default:
                     break;
             }
         }
 
-        private static void DrawEntity(Graphics graphics, ProjectedLine line)
+        private Brush ColorToBrush(Color color)
         {
-            graphics.DrawLine(new Pen(new SolidBrush(line.OriginalLine.Color.DrawingColor)), line.P1.ToDrawingPoint(), line.P2.ToDrawingPoint());
+            if (brushCache.ContainsKey(color))
+            {
+                return brushCache[color];
+            }
+            else
+            {
+                var brush = new SolidBrush(color.DrawingColor);
+                brushCache.Add(color, brush);
+                return brush;
+            }
+        }
+
+        private Pen ColorToPen(Color color)
+        {
+            if (penCache.ContainsKey(color))
+            {
+                return penCache[color];
+            }
+            else
+            {
+                var pen = new Pen(ColorToBrush(color));
+                penCache.Add(color, pen);
+                return pen;
+            }
+        }
+
+        private void DrawEntity(Graphics graphics, ProjectedLine line)
+        {
+            graphics.DrawLine(ColorToPen(line.OriginalLine.Color), line.P1.ToDrawingPoint(), line.P2.ToDrawingPoint());
+        }
+
+        private void DrawEntity(Graphics graphics, ProjectedCircle circle)
+        {
+            // TODO: handle rotation
+        }
+
+        private void DrawEntity(Graphics graphics, ProjectedText text)
+        {
+            // TODO: handle rotation
+            var x = (float)text.Location.X;
+            var y = (float)(text.Location.Y - text.Height);
+            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.DrawingColor), x, y);
         }
     }
 }
