@@ -512,7 +512,7 @@ Result PShader(Input pixel)
                     .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
                 
                 // ensure they have correct values
-                UpdateSnapPoints(projectionMatrix);
+                UpdateSnapPoints(projectionMatrix, force: true);
 
                 // clear rubber band lines
                 rubberBandLines = null;
@@ -698,9 +698,9 @@ Result PShader(Input pixel)
         private static Queue<double> updateCalls = new Queue<double>(10);
         private Matrix lastSnapPointMatrix = Matrix.Identity;
 
-        private void UpdateSnapPoints(Matrix matrix)
+        private void UpdateSnapPoints(Matrix matrix, bool force = false)
         {
-            if (matrix == lastSnapPointMatrix)
+            if (matrix == lastSnapPointMatrix && !force)
             {
                 // don't update if we've already used this matrix
                 return;
