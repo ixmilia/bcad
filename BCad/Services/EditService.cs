@@ -84,7 +84,7 @@ namespace BCad.Services
                         .LengthSquared <= 1.0;
                     var majorLength = el.MajorAxis.Length;
                     if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)
-                        || (offsetDistance > majorLength))
+                        || (offsetDistance >= majorLength))
                     {
                         result = null;
                     }
@@ -157,7 +157,7 @@ namespace BCad.Services
                         entityToOffset.GetPrimitives().Single(),
                         offsetDirection,
                         offsetDistance);
-                    return offset.ToEntity();
+                    return offset == null ? null : offset.ToEntity();
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return null;

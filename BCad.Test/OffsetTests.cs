@@ -96,6 +96,26 @@ namespace BCad.Test
         }
 
         [Fact]
+        public void OffsetPointDirectlyOnEntity()
+        {
+            // line
+            var offset = EditService.Offset(
+                Workspace,
+                new Line(new Point(-1, 0, 0), new Point(1, 0, 0), Color.Auto),
+                Point.Origin,
+                1.0);
+            Assert.Null(offset);
+            
+            // circle
+            offset = EditService.Offset(
+                Workspace,
+                new Circle(Point.Origin, 1.0, Vector.ZAxis, Color.Auto),
+                new Point(1.0, 0, 0),
+                1.0);
+            Assert.Null(offset);
+        }
+
+        [Fact]
         public void CircleOffsetProjectionBug()
         {
             // enuse we're using the correct projection matrix when verifying
