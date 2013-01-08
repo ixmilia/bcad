@@ -1,5 +1,6 @@
 ﻿using System;
 using BCad.Entities;
+using BCad.Helpers;
 using System.Windows.Media.Media3D;
 
 namespace BCad.Extensions
@@ -11,12 +12,13 @@ namespace BCad.Extensions
             var other = entity as Arc;
             if (other != null)
             {
-                return arc.Center == other.Center
+
+                return arc.Center.CloseTo(other.Center)
                     && arc.Color == other.Color
-                    && arc.EndAngle == other.EndAngle
-                    && arc.Normal == other.Normal
-                    && arc.Radius == other.Radius
-                    && arc.StartAngle == other.StartAngle;
+                    && MathHelper.CloseTo(arc.EndAngle, other.EndAngle)
+                    && arc.Normal.CloseTo(other.Normal)
+                    && MathHelper.CloseTo(arc.Radius, other.Radius)
+                    && MathHelper.CloseTo(arc.StartAngle, other.StartAngle);
             }
 
             return false;
@@ -27,10 +29,10 @@ namespace BCad.Extensions
             var other = entity as Circle;
             if (other != null)
             {
-                return circle.Center == other.Center
+                return circle.Center.CloseTo(other.Center)
                     && circle.Color == other.Color
-                    && circle.Normal == other.Normal
-                    && circle.Radius == other.Radius;
+                    && circle.Normal.CloseTo(other.Normal)
+                    && MathHelper.CloseTo(circle.Radius, other.Radius);
             }
 
             return false;
@@ -41,13 +43,13 @@ namespace BCad.Extensions
             var other = entity as Ellipse;
             if (other != null)
             {
-                return el.Center == other.Center
+                return el.Center.CloseTo(other.Center)
                     && el.Color == other.Color
-                    && el.EndAngle == other.EndAngle
-                    && el.MajorAxis == other.MajorAxis
-                    && el.MinorAxisRatio == other.MinorAxisRatio
-                    && el.Normal == other.Normal
-                    && el.StartAngle == other.StartAngle;
+                    && MathHelper.CloseTo(el.EndAngle, other.EndAngle)
+                    && el.MajorAxis.CloseTo(other.MajorAxis)
+                    && MathHelper.CloseTo(el.MinorAxisRatio, other.MinorAxisRatio)
+                    && el.Normal.CloseTo(other.Normal)
+                    && MathHelper.CloseTo(el.StartAngle, other.StartAngle);
             }
 
             return false;
@@ -59,8 +61,8 @@ namespace BCad.Extensions
             if (other != null)
             {
                 return line.Color == other.Color
-                    && line.P1 == other.P1
-                    && line.P2 == other.P2;
+                    && line.P1.CloseTo(other.P1)
+                    && line.P2.CloseTo(other.P2);
             }
 
             return false;

@@ -11,27 +11,27 @@ namespace BCad.Test
 
         #region Helpers
 
-        private void DoLineTrim(IEnumerable<Line> existingLines,
-            Line lineToTrim,
+        private void DoTrim(IEnumerable<Entity> existingEntities,
+            Entity entityToTrim,
             Point selectionPoint,
             bool expectTrim,
-            IEnumerable<Line> expectedAdded)
+            IEnumerable<Entity> expectedAdded)
         {
-            expectedAdded = expectedAdded ?? new Line[0];
+            expectedAdded = expectedAdded ?? new Entity[0];
 
             // prepare the drawing
-            foreach (var line in existingLines)
+            foreach (var ent in existingEntities)
             {
-                Workspace.AddToCurrentLayer(line);
+                Workspace.AddToCurrentLayer(ent);
             }
             var boundary = Workspace.Drawing.GetEntities().SelectMany(e => e.GetPrimitives());
-            Workspace.AddToCurrentLayer(lineToTrim);
+            Workspace.AddToCurrentLayer(entityToTrim);
 
             // trim
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
             EditService.Trim(
-                new SelectedEntity(lineToTrim, selectionPoint),
+                new SelectedEntity(entityToTrim, selectionPoint),
                 boundary,
                 out removed,
                 out added);
@@ -41,7 +41,7 @@ namespace BCad.Test
             if (expectTrim)
             {
                 Assert.Equal(1, removed.Count());
-                Assert.True(removed.Single().EquivalentTo(lineToTrim));
+                Assert.True(removed.Single().EquivalentTo(entityToTrim));
             }
 
             // verify added
@@ -55,7 +55,7 @@ namespace BCad.Test
         public void SimpleLineTrimTest()
         {
             var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), Color.Auto);
-            DoLineTrim(new[]
+            DoTrim(new[]
                 {
                     new Line(new Point(1.0, -1.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
                 },
@@ -71,7 +71,7 @@ namespace BCad.Test
         [Fact]
         public void TrimWholeLineBetweenTest()
         {
-            DoLineTrim(
+            DoTrim(
                 new[]
                 {
                     new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), Color.Auto),
@@ -81,6 +81,23 @@ namespace BCad.Test
                 new Point(0.5, 0, 0),
                 false,
                 null);
+        }
+
+        [Fact]
+        public void TrimCircleAtZeroAngleTest()
+        {
+            DoTrim(
+                new[]
+                {
+                    new Line(new Point(-1.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                },
+                new Circle(Point.Origin, 1.0, Vector.ZAxis, Color.Auto),
+                new Point(0.0, -1.0, 0.0),
+                true,
+                new[]
+                {
+                    new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto)
+                });
         }
     }
 }

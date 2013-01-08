@@ -320,20 +320,24 @@ namespace BCad.Services
 
             // prep common variables
             double startAngle, endAngle;
+            bool isClosed;
             if (entityToTrim.Kind == EntityKind.Arc)
             {
                 startAngle = ((Arc)entityToTrim).StartAngle;
                 endAngle = ((Arc)entityToTrim).EndAngle;
+                isClosed = false;
             }
             else if (entityToTrim.Kind == EntityKind.Ellipse)
             {
                 startAngle = ((Ellipse)entityToTrim).StartAngle;
                 endAngle = ((Ellipse)entityToTrim).EndAngle;
+                isClosed = false;
             }
             else
             {
                 startAngle = 0.0;
                 endAngle = 360.0;
+                isClosed = true;
             }
 
             // convert points to angles
@@ -343,7 +347,7 @@ namespace BCad.Services
             var angles = intersectionPoints
                 .Select(p => p.Transform(inverse))
                 .Select(p => (Math.Atan2(p.Y, p.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees())
-                .Where(a => a != startAngle && a != endAngle)
+                .Where(a => isClosed || (!MathHelper.CloseTo(a, startAngle) && MathHelper.CloseTo(a, endAngle)))
                 .OrderBy(a => a)
                 .ToList();
             var unitPivot = pivot.Transform(inverse);
