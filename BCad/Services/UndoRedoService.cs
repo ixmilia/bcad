@@ -20,9 +20,9 @@ namespace BCad.Services
             this.workspace.WorkspaceChanging += WorkspaceChanging;
         }
 
-        void WorkspaceChanging(object sender, WorkspaceChangeEventArgs e)
+        private void WorkspaceChanging(object sender, WorkspaceChangeEventArgs e)
         {
-            if (e.IsDrawingChange && ! ignoreDrawingChange)
+            if (e.IsDrawingChange && ! ignoreDrawingChange && !e.IsOnlyDirtyChange())
             {
                 // save the last snapshot
                 undoHistory.Push(workspace.Drawing);

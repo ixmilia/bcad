@@ -12,17 +12,25 @@ namespace BCad.EventArguments
 
         public bool IsViewControlChange { get; private set; }
 
-        public WorkspaceChangeEventArgs(bool isDrawingChange, bool isDrawingPlaneChange, bool isActiveViewPortChange, bool isViewControlChange)
+        public bool IsDirtyChange { get; private set; }
+
+        public WorkspaceChangeEventArgs(bool isDrawingChange, bool isDrawingPlaneChange, bool isActiveViewPortChange, bool isViewControlChange, bool isDirtyChange)
         {
             this.IsDrawingChange = isDrawingChange;
             this.IsDrawingPlaneChange = isDrawingPlaneChange;
             this.IsActiveViewPortChange = isActiveViewPortChange;
             this.IsViewControlChange = isViewControlChange;
+            this.IsDirtyChange = isDirtyChange;
         }
 
-        public static WorkspaceChangeEventArgs UpdateAll()
+        public bool IsOnlyDirtyChange()
         {
-            return new WorkspaceChangeEventArgs(true, true, true, true);
+            return this.IsDirtyChange && !(this.IsDrawingChange || this.IsDrawingPlaneChange || this.IsActiveViewPortChange || this.IsViewControlChange);
+        }
+
+        public static WorkspaceChangeEventArgs Reset()
+        {
+            return new WorkspaceChangeEventArgs(true, true, true, true, false);
         }
     }
 }

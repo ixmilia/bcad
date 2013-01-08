@@ -54,6 +54,8 @@ namespace BCad
 
         #region Properties
 
+        public bool IsDirty { get; private set; }
+
         public Drawing Drawing { get; private set; }
 
         public Plane DrawingPlane { get; private set; }
@@ -91,13 +93,15 @@ namespace BCad
             Drawing drawing = null,
             Plane drawingPlane = null,
             ViewPort activeViewPort = null,
-            ViewControl viewControl = null)
+            ViewControl viewControl = null,
+            bool? isDirty = true)
         {
             var e = new WorkspaceChangeEventArgs(
                 drawing != null,
                 drawingPlane != null,
                 activeViewPort != null,
-                viewControl != null);
+                viewControl != null,
+                isDirty != null);
 
             OnWorkspaceChanging(e);
             if (drawing != null)
@@ -108,6 +112,8 @@ namespace BCad
                 this.ActiveViewPort = activeViewPort;
             if (viewControl != null)
                 this.ViewControl = viewControl;
+            if (isDirty != null)
+                this.IsDirty = isDirty.Value;
             OnWorkspaceChanged(e);
         }
 
@@ -223,7 +229,7 @@ namespace BCad
         public UnsavedChangesResult PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
-            if (Drawing.Settings.IsDirty)
+            if (this.IsDirty)
             {
                 string filename = Drawing.Settings.FileName ?? "(Untitled)";
                 var dialog = MessageBox.Show(string.Format("Save changes to '{0}'?", filename),

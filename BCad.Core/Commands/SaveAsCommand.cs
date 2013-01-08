@@ -45,8 +45,15 @@ namespace BCad.Commands
             using (var file = new FileStream(fileName, FileMode.Create))
             {
                 writer.WriteFile(workspace, file);
-                var newSettings = workspace.Drawing.Settings.Update(fileName: fileName, isDirty: false);
-                workspace.Update(drawing: workspace.Drawing.Update(settings: newSettings));
+                if (workspace.Drawing.Settings.FileName != fileName)
+                {
+                    var newSettings = workspace.Drawing.Settings.Update(fileName: fileName);
+                    workspace.Update(drawing: workspace.Drawing.Update(settings: newSettings), isDirty: false);
+                }
+                else
+                {
+                    workspace.Update(isDirty: false);
+                }
             }
             
             return true;

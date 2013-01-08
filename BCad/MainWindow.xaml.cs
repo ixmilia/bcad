@@ -94,7 +94,7 @@ namespace BCad
                 }
             }
 
-            Workspace_WorkspaceChanged(this, WorkspaceChangeEventArgs.UpdateAll());
+            Workspace_WorkspaceChanged(this, WorkspaceChangeEventArgs.Reset());
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -116,10 +116,10 @@ namespace BCad
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
+            SetTitle(Workspace.Drawing);
             if (e.IsDrawingChange)
             {
                 TakeFocus();
-                SetTitle(Workspace.Drawing);
                 if (Workspace.SettingsManager.Debug)
                     SetDebugText();
             }
@@ -179,7 +179,7 @@ namespace BCad
             // prepare view control
             var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
             this.viewPanel.Content = view;
-            Workspace.Update(viewControl: view);
+            Workspace.Update(viewControl: view, isDirty: false);
 
             SetTitle(Workspace.Drawing);
         }
@@ -188,7 +188,7 @@ namespace BCad
         {
             string filename = drawing.Settings.FileName == null ? "(Untitled)" : Path.GetFileName(drawing.Settings.FileName);
             Dispatcher.BeginInvoke((Action)(() =>
-                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, drawing.Settings.IsDirty ? " *" : "")));
+                this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, Workspace.IsDirty ? " *" : "")));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

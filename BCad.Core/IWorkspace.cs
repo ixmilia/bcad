@@ -23,12 +23,13 @@ namespace BCad
 
     public interface IWorkspace
     {
+        bool IsDirty { get; }
         Drawing Drawing { get; }
         Plane DrawingPlane { get; }
         ViewPort ActiveViewPort { get; }
         ViewControl ViewControl { get; }
 
-        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, ViewControl viewControl = null);
+        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, ViewControl viewControl = null, bool? isDirty = true);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
 

@@ -213,7 +213,7 @@ namespace BCad.UI.Views
             this.inputService.ValueReceived += InputServiceValueReceived;
 
             // load the workspace
-            WorkspaceChanged(this.workspace, WorkspaceChangeEventArgs.UpdateAll());
+            WorkspaceChanged(this.workspace, WorkspaceChangeEventArgs.Reset());
 
             // load settings
             foreach (var setting in new[] { Constants.BackgroundColorString })
