@@ -30,6 +30,14 @@ namespace BCad.Primitives
         /// <summary>
         /// Creates a new PrimitiveEllipse based on a circle.
         /// </summary>
+        public PrimitiveEllipse(Point center, double radius, Vector normal)
+            : this(center, radius, normal, Color.Auto)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new PrimitiveEllipse based on a circle.
+        /// </summary>
         public PrimitiveEllipse(Point center, double radius, Vector normal, Color color)
             : this(center, Vector.RightVectorFromNormal(normal) * radius, normal, 1.0, 0.0, 360.0, color)
         {

@@ -1,4 +1,8 @@
-﻿using BCad.Helpers;
+﻿using BCad.Extensions;
+using BCad.Helpers;
+using BCad.Primitives;
+using System.Linq;
+using System.Windows.Media.Media3D;
 
 namespace BCad.Entities
 {
@@ -61,8 +65,48 @@ namespace BCad.Entities
             var plane = Plane.From3Points(m, p, q);
 
             // rotate P by 90 degrees around the normal
+            var rotationMatrix = Matrix3D.Identity;
+            rotationMatrix.RotateAt(new Quaternion(plane.Normal, 90.0), m);
+            var rotp = (Point)rotationMatrix.Transform(p);
 
-            return null;
+            // the angle between (rotp-M) and (Q-M) should be less than 90 degrees.  mirror if not
+            if (Vector.AngleBetween(rotp - m, qm) > 90.0)
+                rotp = ((rotp - m) * -1.0) + m;
+
+            // construct the rytz circle
+            // the center is the midpoint of the edge from rotp to Q
+            // the radius is the distance from M to the center
+            // the normal is the normal of the plane
+            var rc = (rotp + q) / 2.0;
+            var rytz = new PrimitiveEllipse(rc, (m - rc).Length, plane.Normal);
+
+            // intersect the rytz circle with a line passing through the center and Q
+            var intersectingLine = new PrimitiveLine(rc, q);
+            var intersectingPoints = intersectingLine.IntersectionPoints(rytz, false).ToList();
+            if (intersectingPoints.Count != 2)
+                return null;
+            var da = (q - intersectingPoints[0]).Length;
+            var db = (q - intersectingPoints[1]).Length;
+            if (da < db)
+            {
+                // da must be large than db
+                var temp = da;
+                da = db;
+                db = temp;
+            }
+
+            // get main axes
+            var a = intersectingPoints[0] - m;
+            var b = intersectingPoints[1] - m;
+            if (b.LengthSquared > a.LengthSquared)
+            {
+                var temp = a;
+                a = b;
+                b = temp;
+            }
+
+            // return the new ellipse
+            return new ProjectedCircle(originalCircle, originalLayer, m, da, db, a.ToAngle() * -1.0);
         }
     }
 }

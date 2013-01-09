@@ -175,5 +175,14 @@ namespace BCad
             var up = normal.Cross(right);
             return up.Cross(normal).Normalize();
         }
+
+        /// <summary>
+        /// Returns the angle between the two vectors in degrees.
+        /// </summary>
+        public static double AngleBetween(Vector a, Vector b)
+        {
+            var dot = a.Dot(b);
+            return Math.Acos(dot) * MathHelper.RadiansToDegrees;
+        }
     }
 }

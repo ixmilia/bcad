@@ -22,6 +22,15 @@
             var ab = a - b;
             var cb = c - b;
             var normal = ab.Cross(cb).Normalize();
+
+            // use a positive normal when possible
+            if (normal == Vector.XAxis * -1.0)
+                normal = Vector.XAxis;
+            else if (normal == Vector.YAxis * -1.0)
+                normal = Vector.YAxis;
+            else if (normal == Vector.ZAxis * -1.0)
+                normal = Vector.ZAxis;
+
             return new Plane(a, normal);
         }
     }
