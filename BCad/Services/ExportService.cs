@@ -57,6 +57,8 @@ namespace BCad.Services
                     return Project((Text)entity, layer, transform);
                 case EntityKind.Circle:
                     return Project((Circle)entity, layer, transform);
+                case EntityKind.Arc:
+                    return Project((Arc)entity, layer, transform);
                 default:
                     return null;
             }
@@ -90,6 +92,20 @@ namespace BCad.Services
             var qt = transform.Transform((circle.Center + (upVector * circle.Radius)));
             var m = transform.Transform(circle.Center);
             return ProjectedCircle.FromConjugateDiameters(circle, layer, m, pt, qt);
+        }
+
+        private ProjectedArc Project(Arc arc, Layer layer, Matrix3D transform)
+        {
+            // find the containing circle
+            var rightVector = Vector.RightVectorFromNormal(arc.Normal);
+            var upVector = arc.Normal.Cross(rightVector).Normalize();
+            var pt = transform.Transform((arc.Center + (rightVector * arc.Radius)));
+            var qt = transform.Transform((arc.Center + (upVector * arc.Radius)));
+            var m = transform.Transform(arc.Center);
+            var circle = ProjectedCircle.FromConjugateDiameters(null, layer, m, pt, qt);
+
+            // a projected arc is a center, start/end point, x/y radius, rotation
+            return null;
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)

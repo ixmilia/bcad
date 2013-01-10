@@ -85,6 +85,7 @@
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
     <Compile Include="Entities\Polyline.cs" />
+    <Compile Include="Entities\ProjectedArc.cs" />
     <Compile Include="Entities\ProjectedCircle.cs" />
     <Compile Include="Entities\ProjectedEntity.cs" />
     <Compile Include="Entities\ProjectedLine.cs" />

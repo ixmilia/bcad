@@ -68,8 +68,9 @@ namespace BCad.Commands.FileHandlers
             {
                 case EntityKind.Line:
                     return ToXElement((ProjectedLine)entity);
+                case EntityKind.Arc:
+                    return ToXElement((ProjectedArc)entity);
                 case EntityKind.Circle:
-                case EntityKind.Ellipse:
                     return ToXElement((ProjectedCircle)entity);
                 case EntityKind.Text:
                     return ToXElement((ProjectedText)entity);
@@ -102,16 +103,35 @@ namespace BCad.Commands.FileHandlers
             return xml;
         }
 
-        private static XElement ToXElement(ProjectedCircle ellipse)
+        private static XElement ToXElement(ProjectedCircle circle)
         {
             var xml = new XElement(Xmlns + "ellipse",
-                new XAttribute("cx", ellipse.Center.X),
-                new XAttribute("cy", ellipse.Center.Y),
-                new XAttribute("rx", ellipse.RadiusX),
-                new XAttribute("ry", ellipse.RadiusY),
+                new XAttribute("cx", circle.Center.X),
+                new XAttribute("cy", circle.Center.Y),
+                new XAttribute("rx", circle.RadiusX),
+                new XAttribute("ry", circle.RadiusY),
                 new XAttribute("fill-opacity", 0));
-            AddRotationTransform(xml, ellipse.Rotation, ellipse.Center);
-            AddStrokeIfNotDefault(xml, ellipse.OriginalCircle.Color);
+            AddRotationTransform(xml, circle.Rotation, circle.Center);
+            AddStrokeIfNotDefault(xml, circle.OriginalCircle.Color);
+            return xml;
+        }
+
+        private static XElement ToXElement(ProjectedArc arc)
+        {
+            var pathData = string.Format("M {0} {1} a {2} {3} {4} {5} {6} {7} {8}",
+                arc.StartPoint.X,
+                arc.StartPoint.Y,
+                arc.RadiusX,
+                arc.RadiusY,
+                0, // x axis rotation
+                0, // flag
+                0, // flag
+                arc.EndPoint.X,
+                arc.EndPoint.Y);
+            var xml = new XElement(Xmlns + "path",
+                new XAttribute("d", pathData),
+                new XAttribute("fill-opacity", 0));
+            AddStrokeIfNotDefault(xml, arc.OriginalArc.Color);
             return xml;
         }
 

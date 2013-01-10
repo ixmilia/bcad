@@ -10,7 +10,7 @@ namespace BCad.Entities
     {
         public override EntityKind Kind
         {
-            get { return EntityKind.Ellipse; }
+            get { return EntityKind.Circle; }
         }
 
         public Circle OriginalCircle { get; private set; }
