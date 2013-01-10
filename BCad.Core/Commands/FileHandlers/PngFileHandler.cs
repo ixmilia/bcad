@@ -29,6 +29,13 @@ namespace BCad.Commands.FileHandlers
         {
             var projected = ExportService.ProjectTo2D(workspace.Drawing, workspace.ActiveViewPort);
 
+            // set autocolor
+            var bg = workspace.SettingsManager.BackgroundColor;
+            var backgroundColor = (bg.R << 16) | (bg.G << 8) | bg.B;
+            var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
+            var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
+            autoColor = System.Drawing.Color.FromArgb((0xFF << 24) | color);
+
             var image = new Bitmap(500, 500);
             using (var graphics = Graphics.FromImage(image))
             {
@@ -101,6 +108,10 @@ namespace BCad.Commands.FileHandlers
         private void DrawEntity(Graphics graphics, ProjectedCircle circle, Color layerColor)
         {
             // TODO: handle rotation
+            var width = circle.RadiusX * 2.0;
+            var height = circle.RadiusY * 2.0;
+            var topLeft = (Point)(circle.Center - new Point(circle.RadiusX, circle.RadiusX, 0.0));
+            graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
         }
 
         private void DrawEntity(Graphics graphics, ProjectedText text, Color layerColor)
