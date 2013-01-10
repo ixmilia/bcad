@@ -21,8 +21,9 @@ namespace BCad.Commands.FileHandlers
         [Import]
         private IExportService ExportService = null;
 
-        private Dictionary<Color, Brush> brushCache = new Dictionary<Color, Brush>();
-        private Dictionary<Color, Pen> penCache = new Dictionary<Color, Pen>();
+        private Dictionary<System.Drawing.Color, Brush> brushCache = new Dictionary<System.Drawing.Color, Brush>();
+        private Dictionary<System.Drawing.Color, Pen> penCache = new Dictionary<System.Drawing.Color, Pen>();
+        private System.Drawing.Color autoColor = System.Drawing.Color.Black;
 
         public void WriteFile(IWorkspace workspace, Stream stream)
         {
@@ -37,7 +38,7 @@ namespace BCad.Commands.FileHandlers
                     var layer = groupedEntity.Key;
                     foreach (var entity in groupedEntity)
                     {
-                        DrawEntity(graphics, entity);
+                        DrawEntity(graphics, entity, layer.Color);
                     }
                 }
             }
@@ -45,26 +46,26 @@ namespace BCad.Commands.FileHandlers
             image.Save(stream, ImageFormat.Png);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedEntity entity)
+        private void DrawEntity(Graphics graphics, ProjectedEntity entity, Color layerColor)
         {
             switch (entity.Kind)
             {
                 case EntityKind.Line:
-                    DrawEntity(graphics, (ProjectedLine)entity);
+                    DrawEntity(graphics, (ProjectedLine)entity, layerColor);
                     break;
                 case EntityKind.Circle:
                 case EntityKind.Ellipse:
-                    DrawEntity(graphics, (ProjectedCircle)entity);
+                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor);
                     break;
                 case EntityKind.Text:
-                    DrawEntity(graphics, (ProjectedText)entity);
+                    DrawEntity(graphics, (ProjectedText)entity, layerColor);
                     break;
                 default:
                     break;
             }
         }
 
-        private Brush ColorToBrush(Color color)
+        private Brush ColorToBrush(System.Drawing.Color color)
         {
             if (brushCache.ContainsKey(color))
             {
@@ -72,13 +73,13 @@ namespace BCad.Commands.FileHandlers
             }
             else
             {
-                var brush = new SolidBrush(color.DrawingColor);
+                var brush = new SolidBrush(color);
                 brushCache.Add(color, brush);
                 return brush;
             }
         }
 
-        private Pen ColorToPen(Color color)
+        private Pen ColorToPen(System.Drawing.Color color)
         {
             if (penCache.ContainsKey(color))
             {
@@ -92,22 +93,35 @@ namespace BCad.Commands.FileHandlers
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedLine line)
+        private void DrawEntity(Graphics graphics, ProjectedLine line, Color layerColor)
         {
-            graphics.DrawLine(ColorToPen(line.OriginalLine.Color), line.P1, line.P2);
+            graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color)), line.P1, line.P2);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedCircle circle)
+        private void DrawEntity(Graphics graphics, ProjectedCircle circle, Color layerColor)
         {
             // TODO: handle rotation
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedText text)
+        private void DrawEntity(Graphics graphics, ProjectedText text, Color layerColor)
         {
             // TODO: handle rotation
             var x = (float)text.Location.X;
             var y = (float)(text.Location.Y - text.Height);
             graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.DrawingColor), x, y);
+        }
+
+        private System.Drawing.Color GetDisplayColor(Color layerColor, Color primitiveColor)
+        {
+            System.Drawing.Color display;
+            if (!primitiveColor.IsAuto)
+                display = primitiveColor.DrawingColor;
+            else if (!layerColor.IsAuto)
+                display = layerColor.DrawingColor;
+            else
+                display = autoColor;
+
+            return display;
         }
     }
 }
