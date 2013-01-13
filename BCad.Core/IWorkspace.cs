@@ -44,5 +44,6 @@ namespace BCad
         event CommandExecutingEventHandler CommandExecuting;
         event CommandExecutedEventHandler CommandExecuted;
         UnsavedChangesResult PromptForUnsavedChanges();
+        string FormatUnits(double value);
     }
 }

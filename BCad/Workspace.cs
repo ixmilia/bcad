@@ -15,6 +15,7 @@ using BCad.EventArguments;
 using BCad.FileHandlers;
 using BCad.Services;
 using BCad.UI;
+using BCad.Helpers;
 
 namespace BCad
 {
@@ -264,6 +265,45 @@ namespace BCad
         {
             Application.Current.Dispatcher.Invoke((Action)(() => Application.Current.MainWindow.Focus()));
         }
+
+        public string FormatUnits(double value)
+        {
+            var feet = (int)value / 12;
+            var inches = (int)value % 12;
+
+            // TODO: add 0.5 * 1/16 to simulate rounding?
+            var frac = (value - ((double)(int)value)) + MathHelper.Epsilon;
+            int fracPart;
+            for (fracPart = 0; fracPart < unitSixteenths.Length - 1; fracPart++)
+            {
+                if (frac >= unitSixteenths[fracPart] && frac < unitSixteenths[fracPart + 1])
+                {
+                    break;
+                }
+            }
+
+            return string.Format(@"{0}'-{1}""-{2}/{3}", feet, inches, fracPart, 16);
+        }
+
+        static double[] unitSixteenths = new double[]
+        {
+            0.0,    //  0/16
+            0.0625, //  1/16
+            0.125,  //  2/16 - 1/8
+            0.1875, //  3/16
+            0.25,   //  4/16 - 1/4
+            0.3125, //  5/16
+            0.375,  //  6/16 - 3/8
+            0.4375, //  7/16
+            0.5,    //  8/16 - 1/2
+            0.5625, //  9/16
+            0.625,  // 10/16 - 5/8
+            0.6875, // 11/16
+            0.75,   // 12/16 - 3/4
+            0.8125, // 13/16
+            0.875,  // 14/16 - 7/8
+            0.9375, // 15/16
+        };
 
         #endregion
 
