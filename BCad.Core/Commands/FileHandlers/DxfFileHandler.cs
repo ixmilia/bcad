@@ -224,7 +224,7 @@ namespace BCad.Commands.FileHandlers
 
         public static Text ToText(this DxfText text)
         {
-            return new Text(text.Value, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor());
+            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor());
         }
 
         public static DxfLine ToDxfLine(this Line line, Layer layer)

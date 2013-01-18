@@ -36,6 +36,11 @@ namespace BCad.Entities
 
         public Text(string value, Point location, Vector normal, double height, double rotation, Color color)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+
             this.value = value;
             this.location = location;
             this.normal = normal;
