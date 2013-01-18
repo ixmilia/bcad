@@ -625,7 +625,7 @@ Result PShader(Input pixel)
                     normal = text.Normal;
                     right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
-                    var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
+                    var mesh = Mesh.CreateText(Device, f, text.Value ?? "", highQuality ? 0.0f : 0.1f, float.Epsilon);
                     trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc);
                     display = new DisplayPrimitiveMesh(mesh, color, trans.ToMatrix(), normalPixelShader, selectedPixelShader);
                     break;
