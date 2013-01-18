@@ -76,7 +76,7 @@ namespace BCad.Commands.FileHandlers
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName),
+                new DrawingSettings(fileName, UnitFormat.None, -1),
                 layers.ToReadOnlyDictionary(),
                 file.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
 

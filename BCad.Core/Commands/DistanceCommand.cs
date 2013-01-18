@@ -25,13 +25,20 @@ namespace BCad.Commands
                 });
             if (end.Cancel || !end.HasValue) return false;
             var between = end.Value - first;
+            var settings = Workspace.Drawing.Settings;
             InputService.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
-                Workspace.FormatUnits(between.Length),
-                Workspace.FormatUnits(Math.Abs(between.X)),
-                Workspace.FormatUnits(Math.Abs(between.Y)),
-                Workspace.FormatUnits(Math.Abs(between.Z)));
+                Format(between.Length),
+                Format(Math.Abs(between.X)),
+                Format(Math.Abs(between.Y)),
+                Format(Math.Abs(between.Z)));
 
             return true;
+        }
+
+        private string Format(double value)
+        {
+            var settings = Workspace.Drawing.Settings;
+            return DrawingSettings.FormatUnits(value, settings.UnitFormat, settings.UnitPrecision);
         }
 
         public string DisplayName

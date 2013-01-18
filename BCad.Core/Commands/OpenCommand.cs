@@ -71,7 +71,7 @@ namespace BCad.Commands
                     throw new InvalidOperationException("A drawing must be returned.");
                 if (activeViewPort == null)
                     throw new InvalidOperationException("An active viewport must be returned.");
-                Workspace.Update(drawing: drawing, activeViewPort: activeViewPort);
+                Workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
                 UndoRedoService.ClearHistory();
             }
 
