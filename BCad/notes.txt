@@ -1,6 +1,10 @@
 ﻿DXF reference:
 	http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=12272454&linkID=10809853
 
+DWG reference:
+	http://www.gnu.org/software/libredwg/
+	http://savannah.gnu.org/projects/libredwg/
+
 Required files to run:
 	BCad.config
 	BCad.Core.dll
