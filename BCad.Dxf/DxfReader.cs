@@ -23,23 +23,18 @@ namespace BCad.Dxf
             binReader = new BinaryReader(input);
         }
 
-        private string ReadLine()
+        public IEnumerable<DxfCodePair> ReadCodePairs()
         {
-            string result;
-            if (firstLine != null)
+            Initialize();
+            var pairs = new List<DxfCodePair>();
+            var pair = ReadCodeValuePair();
+            while (pair != null)
             {
-                result = firstLine;
-                firstLine = null;
-                return result;
+                pairs.Add(pair);
+                pair = ReadCodeValuePair();
             }
 
-            result = textReader.ReadLine();
-            if (result == null)
-            {
-                throw new DxfReadException("Unexpected end of file");
-            }
-
-            return result;
+            return pairs;
         }
 
         private void Initialize()
@@ -67,73 +62,18 @@ namespace BCad.Dxf
                 firstLine = line;
                 textReader = new StreamReader(this.BaseStream);
             }
-
-            started = true;
-        }
-   
-        private DxfSimpleSection NextSection()
-        {
-            DxfSimpleSection sec = null;
-            var pair = ReadCodeValue();
-            if (pair == null)
-            {
-                throw new DxfReadException("Unexpected end of file");
-            }
-            else if (pair.Code == 0 && pair.StringValue == DxfSection.SectionText)
-            {
-                pair = ReadCodeValue();
-                if (pair.Code != 2)
-                    throw new DxfReadException("Expected section type");
-                var name = pair.StringValue;
-                var values = CodeValuePairs.TakeWhile(p => !IsEndSec(p)).ToList();
-                sec = new DxfSimpleSection(name, values);
-            }
-            else if (IsEof(pair))
-            {
-                sec = null;
-            }
-            return sec;
         }
 
-        public IEnumerable<DxfSection> Sections
+        private DxfCodePair ReadCodeValuePair()
         {
-            get
-            {
-                for (var sec = NextSection(); sec != null; sec = NextSection())
-                {
-                    var sectionType = sec.SectionName.ToDxfSection();
-                    switch (sectionType)
-                    {
-                        case DxfSectionType.Header:
-                            yield return new DxfHeaderSection(sec.ValuePairs);
-                            break;
-                        case DxfSectionType.Entities:
-                            yield return new DxfEntitiesSection(sec.ValuePairs);
-                            break;
-                        case DxfSectionType.Tables:
-                            yield return new DxfTablesSection(sec.ValuePairs);
-                            break;
-                    }
-                }
-            }
-        }
-
-        private bool IsEof(DxfCodePair pair)
-        {
-            return pair.Code == 0 && pair.StringValue == DxfFile.EofText;
-        }
-
-        private bool IsEndSec(DxfCodePair pair)
-        {
-            return pair.Code == 0 && pair.StringValue == DxfSection.EndSectionText;
+            int code = ReadCode();
+            object value = ReadValue(DxfCodePair.ExpectedTypeForCode(code));
+            return new DxfCodePair(code, value);
         }
 
         private int ReadCode()
         {
             int code = 0;
-            if (!started)
-                Initialize();
-
             if (readText)
             {
                 code = int.Parse(ReadLine().Trim());
@@ -195,32 +135,23 @@ namespace BCad.Dxf
             return value;
         }
 
-        private IEnumerable<DxfCodePair> CodeValuePairs
+        private string ReadLine()
         {
-            get
+            string result;
+            if (firstLine != null)
             {
-                for (var pair = ReadCodeValue(); pair != null; pair = ReadCodeValue())
-                {
-                    yield return pair;
-                }
+                result = firstLine;
+                firstLine = null;
+                return result;
             }
-        }
 
-        private DxfCodePair ReadCodeValue()
-        {
-            var pair = NextFilePair();
-            while (pair != null && pair.Code == 999)
+            result = textReader.ReadLine();
+            if (result == null)
             {
-                pair = NextFilePair();
+                throw new DxfReadException("Unexpected end of file");
             }
-            return pair;
-        }
 
-        private DxfCodePair NextFilePair()
-        {
-            int code = ReadCode();
-            object value = ReadValue(DxfCodePair.ExpectedTypeForCode(code));
-            return new DxfCodePair(code, value);
+            return result;
         }
     }
 }

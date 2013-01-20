@@ -58,6 +58,13 @@ namespace BCad.Dxf
         {
             var file = new DxfFile();
             var reader = new DxfReader(stream);
+            var pairs = new BufferReader<DxfCodePair>(reader.ReadCodePairs());
+            List<DxfCodePair> sectionPairs = new List<DxfCodePair>();
+            while (pairs.ItemsRemain)
+            {
+                var pair = pairs.Peek();
+            }
+
             foreach (var sec in reader.Sections)
             {
                 if (sec is DxfTablesSection)
