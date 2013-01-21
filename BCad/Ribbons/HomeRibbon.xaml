@@ -46,6 +46,8 @@
                     <r:RibbonControlSizeDefinition ImageSize="Large" />
                     <r:RibbonControlSizeDefinition ImageSize="Large" />
                     <r:RibbonControlSizeDefinition ImageSize="Large" />
+                    <r:RibbonControlSizeDefinition ImageSize="Large" />
+                    <r:RibbonControlSizeDefinition ImageSize="Large" />
                 </r:RibbonGroupSizeDefinition>
             </r:RibbonGroupSizeDefinitionBaseCollection>
         </r:RibbonGroup.GroupSizeDefinitions>
@@ -70,6 +72,11 @@
                         LargeImageSource="{StaticResource DrawArcLarge}"
                         SmallImageSource="{StaticResource DrawArcSmall}"
                         CommandParameter="Draw.Arc" />
+        <r:RibbonButton Label="Text"
+                        Command="commands:RibbonCommands.CADCommand"
+                        LargeImageSource="{StaticResource DrawTextLarge}"
+                        SmallImageSource="{StaticResource DrawTextSmall}"
+                        CommandParameter="Draw.Text" />
     </r:RibbonGroup>
     
     <r:RibbonGroup Header="Modify" >

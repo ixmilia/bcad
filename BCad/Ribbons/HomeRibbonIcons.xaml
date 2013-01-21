@@ -177,6 +177,42 @@
             </GeometryDrawing>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <DrawingImage x:Key="DrawTextLarge">
+        <DrawingImage.Drawing>
+            <GeometryDrawing>
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="0,0,32,32"></RectangleGeometry>
+                </GeometryDrawing.Geometry>
+                <GeometryDrawing.Brush>
+                    <VisualBrush>
+                        <VisualBrush.Visual>
+                            <StackPanel>
+                                <TextBlock Text="T" FontFamily="Times New Roman" FontSize="16" FontWeight="Bold" Foreground="Black"></TextBlock>
+                            </StackPanel>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </GeometryDrawing.Brush>
+            </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+    <DrawingImage x:Key="DrawTextSmall">
+        <DrawingImage.Drawing>
+            <GeometryDrawing>
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="0,0,16,16"></RectangleGeometry>
+                </GeometryDrawing.Geometry>
+                <GeometryDrawing.Brush>
+                    <VisualBrush>
+                        <VisualBrush.Visual>
+                            <StackPanel>
+                                <TextBlock Text="T" FontFamily="Times New Roman" FontSize="16" FontWeight="Bold" Foreground="Black"></TextBlock>
+                            </StackPanel>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </GeometryDrawing.Brush>
+            </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
     <DrawingImage x:Key="Layers">
         <DrawingImage.Drawing>
             <DrawingGroup>
