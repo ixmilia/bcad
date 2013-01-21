@@ -226,6 +226,24 @@ namespace BCad.Services
             return result.Value;
         }
 
+        public ValueOrDirective<string> GetText(string prompt = null)
+        {
+            OnValueRequested(new ValueRequestedEventArgs(InputType.Text));
+            WaitFor(InputType.Text, new UserDirective(prompt ?? "Enter text"), null);
+            ValueOrDirective<string> result;
+            switch (lastType)
+            {
+                case PushedValueType.Text:
+                    result = new ValueOrDirective<string>(pushedString);
+                    break;
+                default:
+                    throw new Exception("Unexpected pushed value");
+            }
+
+            WaitDone();
+            return result;
+        }
+
         private void WaitFor(InputType type, UserDirective directive, RubberBandGenerator onCursorMove)
         {
             SetPrompt(directive.Prompt);
@@ -235,6 +253,7 @@ namespace BCad.Services
             pushedPoint = default(Point);
             pushedEntity = null;
             pushedDirective = null;
+            pushedString = null;
             PrimitiveGenerator = onCursorMove;
             pushValueDone.Reset();
             pushValueDone.WaitOne();
@@ -247,6 +266,7 @@ namespace BCad.Services
             pushedPoint = default(Point);
             pushedEntity = null;
             pushedDirective = null;
+            pushedString = null;
             PrimitiveGenerator = null;
             currentDirective = null;
         }
@@ -259,7 +279,8 @@ namespace BCad.Services
             Entity,
             Entities,
             Directive,
-            Distance
+            Distance,
+            Text
         }
 
         private object inputGate = new object();
@@ -267,6 +288,7 @@ namespace BCad.Services
         private Point pushedPoint = default(Point);
         private double pushedDistance = 0.0;
         private string pushedDirective = null;
+        private string pushedString = null;
         private SelectedEntity pushedEntity = null;
         private IEnumerable<Entity> pushedEntities = null;
         private ManualResetEvent pushValueDone = new ManualResetEvent(false);
@@ -395,6 +417,24 @@ namespace BCad.Services
                     lastType = PushedValueType.Point;
                     LastPoint = point;
                     OnValueReceived(new ValueReceivedEventArgs(point));
+                }
+            }
+        }
+
+        public void PushText(string text)
+        {
+            if (text == null)
+            {
+                throw new ArgumentNullException("text");
+            }
+
+            lock (inputGate)
+            {
+                if (AllowedInputTypes.HasFlag(InputType.Text))
+                {
+                    pushedString = text;
+                    lastType = PushedValueType.Text;
+                    OnValueReceived(new ValueReceivedEventArgs(pushedString, InputType.Text));
                 }
             }
         }

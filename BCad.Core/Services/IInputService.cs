@@ -14,7 +14,7 @@ namespace BCad.Services
         Point = 0x08,
         Entity = 0x10,
         Entities = 0x20,
-        //Text = 0x40
+        Text = 0x40
     }
 
     public delegate void PromptChangedEventHandler(object sender, PromptChangedEventArgs e);
@@ -31,6 +31,7 @@ namespace BCad.Services
         ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
         ValueOrDirective<SelectedEntity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         ValueOrDirective<IEnumerable<Entity>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
+        ValueOrDirective<string> GetText(string prompt = null);
         Point LastPoint { get; }
 
         void WriteLine(string text);
@@ -47,6 +48,7 @@ namespace BCad.Services
         void PushPoint(Point point);
         void PushEntity(SelectedEntity entity);
         void PushEntities(IEnumerable<Entity> entities);
+        void PushText(string text);
 
         InputType AllowedInputTypes { get; }
         IEnumerable<string> AllowedDirectives { get; }

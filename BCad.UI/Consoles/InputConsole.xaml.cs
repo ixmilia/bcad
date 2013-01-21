@@ -74,8 +74,15 @@ namespace BCad.UI.Consoles
                     break;
                 case Input.Key.Space:
                     if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
+                    {
                         e.Handled = true;
-                    SubmitValue();
+                    }
+
+                    if (!InputService.AllowedInputTypes.HasFlag(InputType.Text))
+                    {
+                        // space doesn't submit when getting text
+                        SubmitValue();
+                    }
                     break;
                 case Input.Key.Escape:
                     SubmitCancel();
