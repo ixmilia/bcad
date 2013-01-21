@@ -13,6 +13,7 @@ namespace BCad.EventArguments
         private Point point;
         private SelectedEntity entity;
         private IEnumerable<Entity> entities;
+        private string text;
         private string directive;
         private string command;
 
@@ -53,6 +54,16 @@ namespace BCad.EventArguments
                 if (InputType != InputType.Entities)
                     throw new Exception("Value was not an entity collection");
                 return entities;
+            }
+        }
+
+        public string Text
+        {
+            get
+            {
+                if (InputType != InputType.Text)
+                    throw new Exception("Value was not text");
+                return text;
             }
         }
 
@@ -114,6 +125,9 @@ namespace BCad.EventArguments
                     break;
                 case InputType.Directive:
                     directive = value;
+                    break;
+                case Services.InputType.Text:
+                    text = value;
                     break;
                 default:
                     throw new Exception("Unacceptable type");

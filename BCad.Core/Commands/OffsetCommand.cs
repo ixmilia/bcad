@@ -24,7 +24,7 @@ namespace BCad.Commands
         public bool Execute(object arg)
         {
             var drawingPlane = Workspace.DrawingPlane;
-            var distance = InputService.GetDistance(lastOffsetDistance);
+            var distance = InputService.GetDistance(defaultDistance: lastOffsetDistance);
             if (distance.Cancel)
             {
                 return false;

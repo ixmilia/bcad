@@ -80,11 +80,19 @@ namespace BCad.Services
 
         private UserDirective currentDirective = null;
 
-        public ValueOrDirective<double> GetDistance(double? defaultDistance = null)
+        public ValueOrDirective<double> GetDistance(string prompt = null, double? defaultDistance = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Distance | InputType.Point));
-            var prompt = "Offset distance or first point" +
-                (defaultDistance.HasValue ? string.Format(" [{0}]", defaultDistance.Value) : "");
+            if (prompt == null)
+            {
+                prompt = "Offset distance or first point";
+            }
+
+            if (defaultDistance.HasValue)
+            {
+                prompt += string.Format(" [{0}]", defaultDistance.Value);
+            }
+
             WaitFor(InputType.Distance | InputType.Point, new UserDirective(prompt), null);
             ValueOrDirective<double> result;
             switch (lastType)
@@ -96,7 +104,7 @@ namespace BCad.Services
                     result = new ValueOrDirective<double>();
                     break;
                 case PushedValueType.Distance:
-                    result = new ValueOrDirective<double>(pushedDistance);
+                    result = ValueOrDirective<double>.GetValue(pushedDistance);
                     break;
                 case PushedValueType.Point:
                     var first = pushedPoint;
@@ -108,11 +116,11 @@ namespace BCad.Services
                     if (second.HasValue)
                     {
                         var dist = (second.Value - first).Length;
-                        result = new ValueOrDirective<double>(dist);
+                        result = ValueOrDirective<double>.GetValue(dist);
                     }
                     else if (second.Directive != null)
                     {
-                        result = new ValueOrDirective<double>(second.Directive);
+                        result = ValueOrDirective<double>.GetDirective(second.Directive);
                     }
                     else
                     {
@@ -141,10 +149,10 @@ namespace BCad.Services
                     result = new ValueOrDirective<Point>();
                     break;
                 case PushedValueType.Directive:
-                    result = new ValueOrDirective<Point>(pushedDirective);
+                    result = ValueOrDirective<Point>.GetDirective(pushedDirective);
                     break;
                 case PushedValueType.Point:
-                    result = new ValueOrDirective<Point>(pushedPoint);
+                    result = ValueOrDirective<Point>.GetValue(pushedPoint);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");
@@ -168,10 +176,10 @@ namespace BCad.Services
                     result = ValueOrDirective<SelectedEntity>.GetCancel();
                     break;
                 case PushedValueType.Entity:
-                    result = new ValueOrDirective<SelectedEntity>(pushedEntity);
+                    result = ValueOrDirective<SelectedEntity>.GetValue(pushedEntity);
                     break;
                 case PushedValueType.Directive:
-                    result = new ValueOrDirective<SelectedEntity>(pushedDirective);
+                    result = ValueOrDirective<SelectedEntity>.GetDirective(pushedDirective);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");
@@ -200,7 +208,7 @@ namespace BCad.Services
                         Debug.Fail("TODO: allow 'all' directive and 'r' to remove objects from selection");
                         break;
                     case PushedValueType.None:
-                        result = new ValueOrDirective<IEnumerable<Entity>>(entities);
+                        result = ValueOrDirective<IEnumerable<Entity>>.GetValue(entities);
                         awaitingMore = false;
                         break;
                     case PushedValueType.Entity:
@@ -234,7 +242,7 @@ namespace BCad.Services
             switch (lastType)
             {
                 case PushedValueType.Text:
-                    result = new ValueOrDirective<string>(pushedString);
+                    result = ValueOrDirective<string>.GetValue(pushedString);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");

@@ -19,25 +19,27 @@ namespace BCad
             }
         }
 
-        public ValueOrDirective(string directive)
-            : this()
-        {
-            Cancel = false;
-            Directive = directive;
-            HasValue = false;
-        }
-
-        public ValueOrDirective(T value)
-            : this()
-        {
-            Cancel = false;
-            this.value = value;
-            HasValue = true;
-        }
-
         public static ValueOrDirective<T> GetCancel()
         {
             return new ValueOrDirective<T>() { Cancel = true };
+        }
+
+        public static ValueOrDirective<T> GetDirective(string directive)
+        {
+            var result = new ValueOrDirective<T>();
+            result.Directive = directive;
+            result.Cancel = false;
+            result.HasValue = false;
+            return result;
+        }
+
+        public static ValueOrDirective<T> GetValue(T value)
+        {
+            var result = new ValueOrDirective<T>();
+            result.value = value;
+            result.Cancel = false;
+            result.HasValue = true;
+            return result;
         }
     }
 }

@@ -6,7 +6,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Trim", "trim", "tr", "t")]
+    [ExportCommand("Edit.Trim", "trim", "tr")]
     public class TrimCommand : ICommand
     {
         [Import]

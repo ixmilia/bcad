@@ -60,6 +60,7 @@
     <Compile Include="Commands\DrawArcCommand.cs" />
     <Compile Include="Commands\DrawCircleCommand.cs" />
     <Compile Include="Commands\DrawLineCommand.cs" />
+    <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
     <Compile Include="Commands\FileHandlers\DxfFileHandler.cs" />
