@@ -347,7 +347,7 @@ namespace BCad.Services
             var angles = intersectionPoints
                 .Select(p => p.Transform(inverse))
                 .Select(p => (Math.Atan2(p.Y, p.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees())
-                .Where(a => isClosed || (!MathHelper.CloseTo(a, startAngle) && MathHelper.CloseTo(a, endAngle)))
+                .Where(a => isClosed || (!MathHelper.CloseTo(a, startAngle) && !MathHelper.CloseTo(a, endAngle)))
                 .OrderBy(a => a)
                 .ToList();
             var unitPivot = pivot.Transform(inverse);

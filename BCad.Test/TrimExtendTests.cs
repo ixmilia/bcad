@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
 using Xunit;
-using System.Collections.Generic;
 
 namespace BCad.Test
 {
@@ -97,6 +98,29 @@ namespace BCad.Test
                 new[]
                 {
                     new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto)
+                });
+        }
+
+        [Fact]
+        public void TrimHalfArcTest()
+        {
+            //      _________            ____
+            //     /    |    \           |   \
+            //   o/     |     \    =>    |    \
+            //   |      |      |         |     |
+            //   |      |      |         |     |
+            var sqrt2 = Math.Sqrt(2.0);
+            DoTrim(
+                new[]
+                {
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), Color.Auto)
+                },
+                new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto),
+                new Point(-sqrt2 / 2.0, sqrt2 / 2.0, 0.0),
+                true,
+                new[]
+                {
+                    new Arc(Point.Origin, 1.0, 0.0, 90.0, Vector.ZAxis, Color.Auto)
                 });
         }
     }
