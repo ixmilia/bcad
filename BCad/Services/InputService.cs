@@ -241,6 +241,12 @@ namespace BCad.Services
             ValueOrDirective<string> result;
             switch (lastType)
             {
+                case PushedValueType.Cancel:
+                    result = ValueOrDirective<string>.GetCancel();
+                    break;
+                case PushedValueType.None:
+                    result = new ValueOrDirective<string>();
+                    break;
                 case PushedValueType.Text:
                     result = ValueOrDirective<string>.GetValue(pushedString);
                     break;
