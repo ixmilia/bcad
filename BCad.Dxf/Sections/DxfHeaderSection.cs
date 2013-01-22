@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -16,45 +17,6 @@ namespace BCad.Dxf.Sections
             CurrentLayer = null;
         }
 
-        public DxfHeaderSection(IEnumerable<DxfCodePair> pairs)
-            : this()
-        {
-            // a header variables come in pairs:
-            // 9, $VARNAME
-            // <code>, <value>
-            var pairList = pairs.ToList();
-            for (int i = 0; i < pairList.Count - 1; i += 2)
-            {
-                var variable = pairList[i];
-                var pair = pairList[i + 1];
-                switch (variable.Code)
-                {
-                    case 9: // string value
-                        switch (variable.StringValue.ToUpperInvariant())
-                        {
-                            case CLAYER:
-                                EnsureCode(pair, 8);
-                                CurrentLayer = pair.StringValue;
-                                break;
-                            default:
-                                // unsupported variable
-                                break;
-                        }
-                        break;
-                    case 20: // double value
-                        break;
-                }
-            }
-        }
-
-        private static void EnsureCode(DxfCodePair pair, int code)
-        {
-            if (pair.Code != code)
-            {
-                throw new DxfReadException(string.Format("Expected code {0}, got {1}", code, pair.Code));
-            }
-        }
-
         public override DxfSectionType Type
         {
             get { return DxfSectionType.Header; }
@@ -69,6 +31,60 @@ namespace BCad.Dxf.Sections
                     yield return new DxfCodePair(9, CLAYER);
                     yield return new DxfCodePair(8, CurrentLayer);
                 }
+            }
+        }
+
+        internal static DxfHeaderSection HeaderSectionFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var section = new DxfHeaderSection();
+            string keyName = null;
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfCodePair.IsSectionEnd(pair))
+                {
+                    // done reading settings
+                    break;
+                }
+
+                if (keyName == null)
+                {
+                    // what setting to set
+                    Debug.Assert(pair.Code == 9);
+                    keyName = pair.StringValue;
+                }
+                else
+                {
+                    // the value of the setting
+                    switch (keyName)
+                    {
+                        case CLAYER:
+                            EnsureCode(pair, 8);
+                            section.CurrentLayer = pair.StringValue;
+                            break;
+                        default:
+                            // unsupported variable
+                            break;
+                    }
+
+                    keyName = null; // reset for next read
+                }
+            }
+
+            if (keyName != null)
+            {
+                throw new DxfReadException("Expected value for key " + keyName);
+            }
+
+            return section;
+        }
+
+        private static void EnsureCode(DxfCodePair pair, int code)
+        {
+            if (pair.Code != code)
+            {
+                throw new DxfReadException(string.Format("Expected code {0}, got {1}", code, pair.Code));
             }
         }
     }

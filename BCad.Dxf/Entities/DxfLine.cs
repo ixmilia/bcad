@@ -18,39 +18,51 @@ namespace BCad.Dxf.Entities
         }
 
         public DxfLine(DxfPoint p1, DxfPoint p2)
+            : base()
         {
             P1 = p1;
             P2 = p2;
         }
 
-        public static DxfLine FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal static DxfLine LineFromBuffer(DxfCodePairBufferReader buffer)
         {
             var line = new DxfLine();
-            line.PopulateDefaultAndCommonValues(pairs);
-            foreach (var pair in pairs)
+            while (buffer.ItemsRemain)
             {
-                switch (pair.Code)
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
                 {
-                    case 10:
-                        line.P1.X = pair.DoubleValue;
-                        break;
-                    case 20:
-                        line.P1.Y = pair.DoubleValue;
-                        break;
-                    case 30:
-                        line.P1.Z = pair.DoubleValue;
-                        break;
-                    case 11:
-                        line.P2.X = pair.DoubleValue;
-                        break;
-                    case 21:
-                        line.P2.Y = pair.DoubleValue;
-                        break;
-                    case 31:
-                        line.P2.Z = pair.DoubleValue;
-                        break;
+                    // done reading line
+                    break;
+                }
+
+                buffer.Advance();
+                if (!line.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                            line.P1.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            line.P1.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            line.P1.Z = pair.DoubleValue;
+                            break;
+                        case 11:
+                            line.P2.X = pair.DoubleValue;
+                            break;
+                        case 21:
+                            line.P2.Y = pair.DoubleValue;
+                            break;
+                        case 31:
+                            line.P2.Z = pair.DoubleValue;
+                            break;
+                    }
                 }
             }
+
             return line;
         }
 

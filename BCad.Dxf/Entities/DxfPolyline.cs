@@ -25,6 +25,7 @@ namespace BCad.Dxf.Entities
         {
             Vertices = new List<DxfVertex>();
             SequenceEnd = new DxfSeqend();
+            Normal = DxfVector.ZAxis;
         }
 
         protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
@@ -53,39 +54,66 @@ namespace BCad.Dxf.Entities
             }
         }
 
-        public static DxfPolyline FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal static DxfPolyline PolylineFromBuffer(DxfCodePairBufferReader buffer)
         {
             var poly = new DxfPolyline();
-            poly.PopulateDefaultAndCommonValues(pairs);
-            var subEntities = DxfSection.SplitAtZero(pairs);
-            var first = subEntities.First();
-            foreach (var pair in first)
+            poly.SequenceEnd = null;
+            while (buffer.ItemsRemain)
             {
-                switch (pair.Code)
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
                 {
-                    case 10:
-                        //Debug.Assert(pair.DoubleValue == 0.0);
-                        break;
-                    case 20:
-                        //Debug.Assert(pair.DoubleValue == 0.0);
-                        break;
-                    case 30:
-                        poly.Elevation = pair.DoubleValue;
-                        break;
+                    break;
+                }
+
+                buffer.Advance();
+                if (!poly.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                        case 20:
+                            Debug.Assert(pair.DoubleValue == 0.0); // dummy value
+                            break;
+                        case 30:
+                            poly.Elevation = pair.DoubleValue;
+                            break;
+                        case 210:
+                            poly.Normal.X = pair.DoubleValue;
+                            break;
+                        case 220:
+                            poly.Normal.Y = pair.DoubleValue;
+                            break;
+                        case 230:
+                            poly.Normal.Z = pair.DoubleValue;
+                            break;
+                    }
                 }
             }
 
-            foreach (var vertex in subEntities)
+            // now read verticies
+            while (buffer.ItemsRemain)
             {
-                switch (vertex.First().StringValue)
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
                 {
-                    case VertexType:
-                        var vert = DxfVertex.FromPairs(vertex);
-                        poly.Vertices.Add(vert);
+                    if (pair.StringValue == DxfEntity.SeqendType)
+                    {
+                        buffer.Advance();
+                        var seq = DxfSeqend.SeqendFromBuffer(buffer);
+                        poly.SequenceEnd = seq;
                         break;
-                    default:
-                        // probably SEQEND
+                    }
+                    else if (pair.StringValue == DxfEntity.VertexType)
+                    {
+                        buffer.Advance();
+                        var vertex = DxfVertex.VertexFromBuffer(buffer);
+                        poly.Vertices.Add(vertex);
+                    }
+                    else
+                    {
                         break;
+                    }
                 }
             }
 

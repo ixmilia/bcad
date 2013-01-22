@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BCad.Dxf.Sections
@@ -32,18 +33,30 @@ namespace BCad.Dxf.Sections
             return Type.ToSectionName();
         }
 
-        internal static IEnumerable<IEnumerable<DxfCodePair>> SplitAtZero(IEnumerable<DxfCodePair> pairs)
+        internal static DxfSection FromBuffer(DxfCodePairBufferReader buffer)
         {
-            var list = new List<List<DxfCodePair>>();
-            foreach (var p in pairs)
+            Debug.Assert(buffer.ItemsRemain);
+            var sectionType = buffer.Peek();
+            buffer.Advance();
+            if (sectionType.Code != 2)
             {
-                if (p.Code == 0)
-                    list.Add(new List<DxfCodePair>());
-                if (list.Count == 0)
-                    list.Add(new List<DxfCodePair>());
-                list.Last().Add(p);
+                throw new DxfReadException("Expected code 2, got " + sectionType.Code);
             }
-            return list;
+
+            DxfSection section;
+            switch (sectionType.StringValue)
+            {
+                case EntitiesSectionText:
+                    section = DxfEntitiesSection.EntitiesSectionFromBuffer(buffer);
+                    break;
+                case HeaderSectionText:
+                    section = DxfHeaderSection.HeaderSectionFromBuffer(buffer);
+                    break;
+                default:
+                    throw new DxfReadException("Unexpected section type: " + sectionType.StringValue);
+            }
+
+            return section;
         }
     }
 }

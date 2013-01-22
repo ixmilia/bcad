@@ -104,6 +104,47 @@ namespace BCad.Test.DxfTests
             Assert.Equal(360.0, el.EndParameter);
         }
 
+        [Fact]
+        public void ReadDefaultTextTest()
+        {
+            var text = (DxfText)EmptyEntity("TEXT");
+            Assert.Equal(0.0, text.Location.X);
+            Assert.Equal(0.0, text.Location.Y);
+            Assert.Equal(0.0, text.Location.Z);
+            Assert.Equal(0.0, text.Normal.X);
+            Assert.Equal(0.0, text.Normal.Y);
+            Assert.Equal(1.0, text.Normal.Z);
+            Assert.Equal(0.0, text.Rotation);
+            Assert.Equal(1.0, text.TextHeight);
+            Assert.Equal(null, text.Value);
+        }
+
+        [Fact]
+        public void ReadDefaultVertexTest()
+        {
+            var vertex = (DxfVertex)EmptyEntity("VERTEX");
+            Assert.Equal(0.0, vertex.Location.X);
+            Assert.Equal(0.0, vertex.Location.Y);
+            Assert.Equal(0.0, vertex.Location.Z);
+        }
+
+        [Fact]
+        public void ReadDefaultSeqendTest()
+        {
+            var seqend = (DxfSeqend)EmptyEntity("SEQEND");
+            // nothing to verify
+        }
+
+        [Fact]
+        public void ReadDefaultPolylineTest()
+        {
+            var poly = (DxfPolyline)EmptyEntity("POLYLINE");
+            Assert.Equal(0.0, poly.Elevation);
+            Assert.Equal(0.0, poly.Normal.X);
+            Assert.Equal(0.0, poly.Normal.Y);
+            Assert.Equal(1.0, poly.Normal.Z);
+        }
+
         #endregion
 
         #region Read specific value tests
@@ -236,6 +277,107 @@ namespace BCad.Test.DxfTests
             Assert.Equal(12.0, el.MinorAxisRatio);
             Assert.Equal(0.1, el.StartParameter);
             Assert.Equal(0.4, el.EndParameter);
+        }
+
+        [Fact]
+        public void ReadTextTest()
+        {
+            var text = (DxfText)Entity("TEXT", @"
+  1
+foo bar
+ 10
+1.100000E+001
+ 20
+2.200000E+001
+ 30
+3.300000E+001
+ 40
+4.400000E+001
+ 50
+5.500000E+001
+ 210
+6.600000E+001
+ 220
+7.700000E+001
+ 230
+8.800000E+001
+");
+            Assert.Equal("foo bar", text.Value);
+            Assert.Equal(11.0, text.Location.X);
+            Assert.Equal(22.0, text.Location.Y);
+            Assert.Equal(33.0, text.Location.Z);
+            Assert.Equal(44.0, text.TextHeight);
+            Assert.Equal(55.0, text.Rotation);
+            Assert.Equal(66.0, text.Normal.X);
+            Assert.Equal(77.0, text.Normal.Y);
+            Assert.Equal(88.0, text.Normal.Z);
+        }
+
+        [Fact]
+        public void ReadVertexTest()
+        {
+            var vertex = (DxfVertex)Entity("VERTEX", @"
+ 10
+1.100000E+001
+ 20
+2.200000E+001
+ 30
+3.300000E+001
+");
+            Assert.Equal(11.0, vertex.Location.X);
+            Assert.Equal(22.0, vertex.Location.Y);
+            Assert.Equal(33.0, vertex.Location.Z);
+        }
+
+        [Fact]
+        public void ReadSeqendTest()
+        {
+            var seqend = (DxfSeqend)Entity("SEQEND", "");
+            // nothing to verify
+        }
+
+        [Fact]
+        public void ReadPolylineTest()
+        {
+            var poly = (DxfPolyline)Entity("POLYLINE", @"
+  30
+1.100000E+001
+210
+2.200000E+001
+220
+3.300000E+001
+230
+4.400000E+001
+  0
+VERTEX
+ 10
+1.200000E+001
+ 20
+2.300000E+001
+ 30
+3.400000E+001
+  0
+VERTEX
+ 10
+4.500000E+001
+ 20
+5.600000E+001
+ 30
+6.700000E+001
+  0
+SEQEND
+");
+            Assert.Equal(11.0, poly.Elevation);
+            Assert.Equal(22.0, poly.Normal.X);
+            Assert.Equal(33.0, poly.Normal.Y);
+            Assert.Equal(44.0, poly.Normal.Z);
+            Assert.Equal(2, poly.Vertices.Count);
+            Assert.Equal(12.0, poly.Vertices[0].Location.X);
+            Assert.Equal(23.0, poly.Vertices[0].Location.Y);
+            Assert.Equal(34.0, poly.Vertices[0].Location.Z);
+            Assert.Equal(45.0, poly.Vertices[1].Location.X);
+            Assert.Equal(56.0, poly.Vertices[1].Location.Y);
+            Assert.Equal(67.0, poly.Vertices[1].Location.Z);
         }
 
         #endregion

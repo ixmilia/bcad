@@ -24,6 +24,7 @@ namespace BCad.Dxf.Entities
         }
 
         public DxfArc(DxfPoint center, double radius, double startAngle, double endAngle)
+            : base()
         {
             Center = center;
             Radius = radius;
@@ -32,43 +33,53 @@ namespace BCad.Dxf.Entities
             Normal = new DxfVector(0.0, 0.0, 1.0);
         }
 
-        public static DxfArc FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal static DxfArc ArcFromBuffer(DxfCodePairBufferReader buffer)
         {
             var arc = new DxfArc();
-            arc.PopulateDefaultAndCommonValues(pairs);
-            foreach (var pair in pairs)
+            while (buffer.ItemsRemain)
             {
-                switch (pair.Code)
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
                 {
-                    case 10:
-                        arc.Center.X = pair.DoubleValue;
-                        break;
-                    case 20:
-                        arc.Center.Y = pair.DoubleValue;
-                        break;
-                    case 30:
-                        arc.Center.Z = pair.DoubleValue;
-                        break;
-                    case 40:
-                        arc.Radius = pair.DoubleValue;
-                        break;
-                    case 210:
-                        arc.Normal.X = pair.DoubleValue;
-                        break;
-                    case 220:
-                        arc.Normal.Y = pair.DoubleValue;
-                        break;
-                    case 230:
-                        arc.Normal.Z = pair.DoubleValue;
-                        break;
-                    case 50:
-                        arc.StartAngle = pair.DoubleValue;
-                        break;
-                    case 51:
-                        arc.EndAngle = pair.DoubleValue;
-                        break;
+                    break;
+                }
+
+                buffer.Advance();
+                if (!arc.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                            arc.Center.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            arc.Center.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            arc.Center.Z = pair.DoubleValue;
+                            break;
+                        case 40:
+                            arc.Radius = pair.DoubleValue;
+                            break;
+                        case 210:
+                            arc.Normal.X = pair.DoubleValue;
+                            break;
+                        case 220:
+                            arc.Normal.Y = pair.DoubleValue;
+                            break;
+                        case 230:
+                            arc.Normal.Z = pair.DoubleValue;
+                            break;
+                        case 50:
+                            arc.StartAngle = pair.DoubleValue;
+                            break;
+                        case 51:
+                            arc.EndAngle = pair.DoubleValue;
+                            break;
+                    }
                 }
             }
+
             return arc;
         }
 

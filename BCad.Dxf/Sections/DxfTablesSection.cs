@@ -39,53 +39,9 @@ namespace BCad.Dxf.Sections
             viewPortTable = new DxfViewPortTable();
         }
 
-        public DxfTablesSection(IEnumerable<DxfCodePair> pairs)
-            : this()
+        internal static DxfTablesSection TablesSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
-            foreach (var t in SplitTables(pairs))
-            {
-                switch (DxfTable.TableNameToType(t.TableName))
-                {
-                    case DxfTableType.Layer:
-                        layerTable = new DxfLayerTable(DxfSection.SplitAtZero(t.ValuePairs).Select(l => DxfLayer.FromPairs(l)));
-                        break;
-                    case DxfTableType.ViewPort:
-                        var viewPorts = DxfSection.SplitAtZero(t.ValuePairs)
-                            .Select(v => DxfViewPort.FromPairs(v))
-                            .Where(v => v.Name != null);
-                        viewPortTable = new DxfViewPortTable(viewPorts);
-                        break;
-                }
-            }
-        }
-
-        private static IEnumerable<DxfSimpleTable> SplitTables(IEnumerable<DxfCodePair> pairs)
-        {
-            var l = pairs.ToList();
-            var tables = new List<DxfSimpleTable>();
-            var su = new SingleUseEnumerable<DxfCodePair>(l);
-
-            while (su.Count > 0)
-            {
-                var item = su.GetItem();
-                if (item == null)
-                    throw new DxfReadException("Unexpected end of section");
-                if (!IsTableStart(item))
-                    throw new DxfReadException("Expected start of table, got " + item);
-                var header = su.GetItem();
-                if (header == null)
-                    throw new DxfReadException("Unexpected end of section");
-                if (header.Code != 2)
-                    throw new DxfReadException("Expected table type");
-                string name = header.StringValue;
-                var values = su.GetItems().TakeWhile(p => !IsTableEnd(p)).ToList();
-                tables.Add(new DxfSimpleTable(name, values));
-            }
-
-            if (su.Count > 0)
-                throw new DxfReadException("Unexpected values after table");
-
-            return tables;
+            throw new System.NotImplementedException();
         }
 
         private static bool IsTableStart(DxfCodePair pair)

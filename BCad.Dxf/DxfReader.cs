@@ -11,7 +11,6 @@ namespace BCad.Dxf
     {
         public Stream BaseStream { get; private set; }
 
-        private bool started = false;
         private bool readText = false;
         private string firstLine = null;
         private StreamReader textReader = null;
@@ -67,6 +66,8 @@ namespace BCad.Dxf
         private DxfCodePair ReadCodeValuePair()
         {
             int code = ReadCode();
+            if (code == -1)
+                return null;
             object value = ReadValue(DxfCodePair.ExpectedTypeForCode(code));
             return new DxfCodePair(code, value);
         }
@@ -76,7 +77,15 @@ namespace BCad.Dxf
             int code = 0;
             if (readText)
             {
-                code = int.Parse(ReadLine().Trim());
+                var line = ReadLine();
+                if (line == null)
+                {
+                    code = -1;
+                }
+                else
+                {
+                    code = int.Parse(line.Trim());
+                }
             }
             else
             {
@@ -146,11 +155,6 @@ namespace BCad.Dxf
             }
 
             result = textReader.ReadLine();
-            if (result == null)
-            {
-                throw new DxfReadException("Unexpected end of file");
-            }
-
             return result;
         }
     }

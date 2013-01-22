@@ -12,5 +12,26 @@ namespace BCad.Dxf.Entities
         {
             return null;
         }
+
+        internal static DxfSeqend SeqendFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var seqend = new DxfSeqend();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                buffer.Advance();
+                if (!seqend.TrySetSharedCode(pair))
+                {
+                    // nothing to parse
+                }
+            }
+
+            return seqend;
+        }
     }
 }

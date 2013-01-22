@@ -58,24 +58,33 @@ namespace BCad.Dxf
         {
             var file = new DxfFile();
             var reader = new DxfReader(stream);
-            var pairs = new BufferReader<DxfCodePair>(reader.ReadCodePairs());
-            List<DxfCodePair> sectionPairs = new List<DxfCodePair>();
-            while (pairs.ItemsRemain)
+            var buffer = new DxfCodePairBufferReader(reader.ReadCodePairs());
+            while (buffer.ItemsRemain)
             {
-                var pair = pairs.Peek();
+                var pair = buffer.Peek();
+                if (DxfCodePair.IsSectionStart(pair))
+                {
+                    buffer.Advance(); // swallow (0, SECTION) pair
+                    var section = DxfSection.FromBuffer(buffer);
+                    switch (section.Type)
+                    {
+                        case DxfSectionType.Entities:
+                            file.entitiesSection = (DxfEntitiesSection)section;
+                            break;
+                        case DxfSectionType.Header:
+                            file.headerSection = (DxfHeaderSection)section;
+                            break;
+                    }
+                }
+                else if (DxfCodePair.IsEof(pair))
+                {
+                    // swallow and quit
+                    buffer.Advance();
+                    break;
+                }
             }
 
-            foreach (var sec in reader.Sections)
-            {
-                if (sec is DxfTablesSection)
-                    file.tablesSection = (DxfTablesSection)sec;
-                else if (sec is DxfEntitiesSection)
-                    file.entitiesSection = (DxfEntitiesSection)sec;
-                else if (sec is DxfHeaderSection)
-                    file.headerSection = (DxfHeaderSection)sec;
-                else
-                    Debug.Fail("Unknown section: " + sec.GetType().Name);
-            }
+            Debug.Assert(!buffer.ItemsRemain);
 
             return file;
         }

@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BufferReader.cs" />
+    <Compile Include="DxfCodePairBufferReader.cs" />
     <Compile Include="DxfCodePair.cs" />
     <Compile Include="DxfColor.cs" />
     <Compile Include="DxfFile.cs" />
@@ -50,7 +50,6 @@
     <Compile Include="DxfReadException.cs" />
     <Compile Include="DxfWriter.cs" />
     <Compile Include="Entities\DxfArc.cs" />
-    <Compile Include="Entities\DxfAttribute.cs" />
     <Compile Include="Entities\DxfCircle.cs" />
     <Compile Include="Entities\DxfEllipse.cs" />
     <Compile Include="Entities\DxfEntity.cs" />

@@ -23,6 +23,41 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
+        internal static DxfVertex VertexFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var vertex = new DxfVertex();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                buffer.Advance();
+                if (!vertex.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                            vertex.Location.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            vertex.Location.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            vertex.Location.Z = pair.DoubleValue;
+                            break;
+                        default:
+                            // unknown or unsupported attribute
+                            break;
+                    }
+                }
+            }
+
+            return vertex;
+        }
+
         public static DxfVertex FromPairs(IEnumerable<DxfCodePair> pairs)
         {
             var vertex = new DxfVertex();

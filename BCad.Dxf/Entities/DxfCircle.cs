@@ -22,44 +22,55 @@ namespace BCad.Dxf.Entities
         }
 
         public DxfCircle(DxfPoint center, double radius)
+            : base()
         {
             Center = center;
             Radius = radius;
             Normal = new DxfVector() { X = 0.0, Y = 0.0, Z = 1.0 };
         }
 
-        public static DxfCircle FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal static DxfCircle CircleFromBuffer(DxfCodePairBufferReader buffer)
         {
-            var cir = new DxfCircle();
-            cir.PopulateDefaultAndCommonValues(pairs);
-            foreach (var pair in pairs)
+            var circle = new DxfCircle();
+            while (buffer.ItemsRemain)
             {
-                switch (pair.Code)
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
                 {
-                    case 10:
-                        cir.Center.X = pair.DoubleValue;
-                        break;
-                    case 20:
-                        cir.Center.Y = pair.DoubleValue;
-                        break;
-                    case 30:
-                        cir.Center.Z = pair.DoubleValue;
-                        break;
-                    case 40:
-                        cir.Radius = pair.DoubleValue;
-                        break;
-                    case 210:
-                        cir.Normal.X = pair.DoubleValue;
-                        break;
-                    case 220:
-                        cir.Normal.Y = pair.DoubleValue;
-                        break;
-                    case 230:
-                        cir.Normal.Z = pair.DoubleValue;
-                        break;
+                    break;
+                }
+
+                buffer.Advance();
+                if (!circle.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                            circle.Center.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            circle.Center.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            circle.Center.Z = pair.DoubleValue;
+                            break;
+                        case 40:
+                            circle.Radius = pair.DoubleValue;
+                            break;
+                        case 210:
+                            circle.Normal.X = pair.DoubleValue;
+                            break;
+                        case 220:
+                            circle.Normal.Y = pair.DoubleValue;
+                            break;
+                        case 230:
+                            circle.Normal.Z = pair.DoubleValue;
+                            break;
+                    }
                 }
             }
-            return cir;
+
+            return circle;
         }
 
         protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
