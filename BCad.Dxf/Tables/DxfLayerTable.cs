@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BCad.Dxf.Sections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Dxf.Tables
@@ -32,6 +33,30 @@ namespace BCad.Dxf.Tables
                     yield return p;
                 }
             }
+        }
+
+        internal static DxfLayerTable LayerTableFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var table = new DxfLayerTable();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfTablesSection.IsTableEnd(pair))
+                {
+                    break;
+                }
+
+                if (pair.Code != 0 || pair.StringValue != DxfLayerTable.LayerText)
+                {
+                    throw new DxfReadException("Expected layer start.");
+                }
+
+                var layer = DxfLayer.FromBuffer(buffer);
+                table.Layers.Add(layer);
+            }
+
+            return table;
         }
     }
 }

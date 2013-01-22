@@ -28,7 +28,7 @@ namespace BCad.Commands.FileHandlers
             var file = DxfFile.Load(stream);
             var layers = new Dictionary<string, Layer>();
 
-            foreach (var layer in file.Layers)
+            foreach (var layer in file.TablesSection.LayerTable.Layers)
             {
                 layers[layer.Name] = new Layer(layer.Name, layer.Color.ToColor());
             }
@@ -80,7 +80,7 @@ namespace BCad.Commands.FileHandlers
                 layers.ToReadOnlyDictionary(),
                 file.HeaderSection.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
 
-            var vp = file.ViewPorts.FirstOrDefault();
+            var vp = file.TablesSection.ViewPortTable.ViewPorts.FirstOrDefault();
             if (vp != null)
             {
                 activeViewPort = new ViewPort(
@@ -107,7 +107,7 @@ namespace BCad.Commands.FileHandlers
             file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
             foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
             {
-                file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
+                file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.Entities.OrderBy(e => e.Id))
                 {
                     DxfEntity entity = null;
@@ -148,7 +148,7 @@ namespace BCad.Commands.FileHandlers
 
             // save viewport
             var vp = workspace.ActiveViewPort;
-            file.ViewPorts.Add(new DxfViewPort()
+            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort()
             {
                 LowerLeft = vp.BottomLeft.ToDxfPoint(),
                 ViewDirection = vp.Sight.ToDxfVector(),

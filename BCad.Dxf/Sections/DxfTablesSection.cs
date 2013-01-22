@@ -4,52 +4,57 @@ using BCad.Dxf.Tables;
 
 namespace BCad.Dxf.Sections
 {
-    internal class DxfTablesSection : DxfSection
+    public class DxfTablesSection : DxfSection
     {
         public override DxfSectionType Type
         {
             get { return DxfSectionType.Tables; }
         }
 
-        private DxfLayerTable layerTable;
-        private DxfViewPortTable viewPortTable;
-
-        public List<DxfLayer> Layers
-        {
-            get { return layerTable.Layers; }
-        }
-
-        public List<DxfViewPort> ViewPorts
-        {
-            get { return viewPortTable.ViewPorts; }
-        }
-
-        public IEnumerable<DxfTable> Tables
-        {
-            get
-            {
-                yield return layerTable;
-                yield return viewPortTable;
-            }
-        }
+        public DxfLayerTable LayerTable { get; private set; }
+        public DxfViewPortTable ViewPortTable { get; private set; }
 
         public DxfTablesSection()
         {
-            layerTable = new DxfLayerTable();
-            viewPortTable = new DxfViewPortTable();
+            this.LayerTable = new DxfLayerTable();
+            this.ViewPortTable = new DxfViewPortTable();
         }
 
         internal static DxfTablesSection TablesSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
-            throw new System.NotImplementedException();
+            var section = new DxfTablesSection();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfCodePair.IsSectionEnd(pair))
+                {
+                    break;
+                }
+
+                if (!IsTableStart(pair))
+                {
+                    throw new DxfReadException("Expected start of table.");
+                }
+
+                var table = DxfTable.FromBuffer(buffer);
+                switch (table.TableType)
+                {
+                    case DxfTableType.Layer:
+                        section.LayerTable = (DxfLayerTable)table;
+                        break;
+                }
+            }
+
+            return section;
         }
 
-        private static bool IsTableStart(DxfCodePair pair)
+        internal static bool IsTableStart(DxfCodePair pair)
         {
             return pair.Code == 0 && pair.StringValue == DxfSection.TableText;
         }
 
-        private static bool IsTableEnd(DxfCodePair pair)
+        internal static bool IsTableEnd(DxfCodePair pair)
         {
             return pair.Code == 0 && pair.StringValue == DxfSection.EndTableText;
         }
@@ -58,7 +63,7 @@ namespace BCad.Dxf.Sections
         {
             get
             {
-                foreach (var t in Tables)
+                foreach (var t in new DxfTable[] { LayerTable, ViewPortTable })
                 {
                     var pairs = t.ValuePairs;
                     if (pairs.Count() > 0)

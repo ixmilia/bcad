@@ -52,6 +52,9 @@ namespace BCad.Dxf.Sections
                 case HeaderSectionText:
                     section = DxfHeaderSection.HeaderSectionFromBuffer(buffer);
                     break;
+                case TablesSectionText:
+                    section = DxfTablesSection.TablesSectionFromBuffer(buffer);
+                    break;
                 default:
                     throw new DxfReadException("Unexpected section type: " + sectionType.StringValue);
             }

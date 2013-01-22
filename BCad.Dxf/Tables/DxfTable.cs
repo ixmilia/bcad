@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BCad.Dxf.Sections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Dxf.Tables
@@ -107,6 +108,31 @@ namespace BCad.Dxf.Tables
                     break;
             }
             return name;
+        }
+
+        internal static DxfTable FromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var pair = buffer.Peek();
+            buffer.Advance();
+            if (pair.Code != 2)
+            {
+                throw new DxfReadException("Expected table type.");
+            }
+
+            DxfTable result;
+            switch (pair.StringValue)
+            {
+                case DxfTable.LayerText:
+                    result = DxfLayerTable.LayerTableFromBuffer(buffer);
+                    break;
+                //case DxfViewPort.ViewPortText:
+                //    result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
+                //    break;
+                default:
+                    throw new DxfReadException("Unexpected table type " + pair.StringValue);
+            }
+
+            return result;
         }
     }
 }
