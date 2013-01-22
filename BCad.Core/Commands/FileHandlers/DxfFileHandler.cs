@@ -33,7 +33,7 @@ namespace BCad.Commands.FileHandlers
                 layers[layer.Name] = new Layer(layer.Name, layer.Color.ToColor());
             }
 
-            foreach (var item in file.Entities)
+            foreach (var item in file.EntitiesSection.Entities)
             {
                 Layer layer = null;
 
@@ -142,7 +142,7 @@ namespace BCad.Commands.FileHandlers
                     }
 
                     if (entity != null)
-                        file.Entities.Add(entity);
+                        file.EntitiesSection.Entities.Add(entity);
                 }
             }
 

@@ -4,7 +4,7 @@ using BCad.Dxf.Entities;
 
 namespace BCad.Dxf.Sections
 {
-    internal class DxfEntitiesSection : DxfSection
+    public class DxfEntitiesSection : DxfSection
     {
         public List<DxfEntity> Entities { get; private set; }
 

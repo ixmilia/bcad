@@ -14,12 +14,11 @@ namespace BCad.Dxf
         public const string EofText = "EOF";
 
         public DxfHeaderSection HeaderSection { get; private set; }
+        public DxfEntitiesSection EntitiesSection { get; private set; }
 
         private DxfTablesSection tablesSection = new DxfTablesSection();
-        private DxfEntitiesSection entitiesSection = new DxfEntitiesSection();
 
         public List<DxfLayer> Layers { get { return tablesSection.Layers; } }
-        public List<DxfEntity> Entities { get { return entitiesSection.Entities; } }
         public List<DxfViewPort> ViewPorts { get { return tablesSection.ViewPorts; } }
 
         internal IEnumerable<DxfSection> Sections
@@ -28,7 +27,7 @@ namespace BCad.Dxf
             {
                 yield return this.HeaderSection;
                 yield return tablesSection;
-                yield return entitiesSection;
+                yield return this.EntitiesSection;
             }
         }
 
@@ -40,6 +39,7 @@ namespace BCad.Dxf
         public DxfFile()
         {
             this.HeaderSection = new DxfHeaderSection();
+            this.EntitiesSection = new DxfEntitiesSection();
         }
 
         public static DxfFile Load(string path)
@@ -65,7 +65,7 @@ namespace BCad.Dxf
                     switch (section.Type)
                     {
                         case DxfSectionType.Entities:
-                            file.entitiesSection = (DxfEntitiesSection)section;
+                            file.EntitiesSection = (DxfEntitiesSection)section;
                             break;
                         case DxfSectionType.Header:
                             file.HeaderSection = (DxfHeaderSection)section;

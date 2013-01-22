@@ -12,7 +12,7 @@ namespace BCad.Test.DxfTests
 
         private static DxfEntity Entity(string entityType, string data)
         {
-            var section = Section("ENTITIES", string.Format(@"
+            var file = Section("ENTITIES", string.Format(@"
   0
 {0}
   5
@@ -23,7 +23,7 @@ namespace BCad.Test.DxfTests
 1
 {1}
 ", entityType, data.Trim()));
-            var entity = section.Entities.Single();
+            var entity = file.EntitiesSection.Entities.Single();
             Assert.Equal("<handle>", entity.Handle);
             Assert.Equal("<layer>", entity.Layer);
             Assert.Equal(DxfColor.FromIndex(1), entity.Color);
@@ -32,10 +32,10 @@ namespace BCad.Test.DxfTests
 
         private static DxfEntity EmptyEntity(string entityType)
         {
-            var section = Section("ENTITIES", string.Format(@"
+            var file = Section("ENTITIES", string.Format(@"
   0
 {0}", entityType));
-            var entity = section.Entities.Single();
+            var entity = file.EntitiesSection.Entities.Single();
             Assert.Equal(null, entity.Handle);
             Assert.Equal(null, entity.Layer);
             Assert.Equal(DxfColor.ByBlock, entity.Color);
