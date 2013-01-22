@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using BCad.Dxf;
 using BCad.Dxf.Entities;
 using Xunit;
-using System;
 
 namespace BCad.Test.DxfTests
 {
@@ -40,6 +41,16 @@ namespace BCad.Test.DxfTests
             Assert.Equal(null, entity.Layer);
             Assert.Equal(DxfColor.ByBlock, entity.Color);
             return entity;
+        }
+
+        private static void EnsureContains(DxfFile file, string text)
+        {
+            var stream = new MemoryStream();
+            file.Save(stream);
+            stream.Flush();
+            stream.Seek(0, SeekOrigin.Begin);
+            var actual = new StreamReader(stream).ReadToEnd();
+            Assert.True(actual.Contains(text.Trim()));
         }
 
         #endregion
@@ -378,6 +389,22 @@ SEQEND
             Assert.Equal(45.0, poly.Vertices[1].Location.X);
             Assert.Equal(56.0, poly.Vertices[1].Location.Y);
             Assert.Equal(67.0, poly.Vertices[1].Location.Z);
+        }
+
+        #endregion
+
+        #region Write default value tests
+
+        [Fact]
+        public void WriteDefaultLineTest()
+        {
+            var file = new DxfFile();
+            file.EntitiesSection.Entities.Add(new DxfLine());
+            EnsureContains(file, @"
+  0
+LINE
+  0
+");
         }
 
         #endregion

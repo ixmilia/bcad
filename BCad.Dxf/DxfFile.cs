@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
-using System.Diagnostics;
 
 namespace BCad.Dxf
 {
@@ -93,7 +94,20 @@ namespace BCad.Dxf
         private void WriteStream(Stream stream, bool asText)
         {
             var writer = new DxfWriter(stream, asText);
-            writer.Write(this);
+            writer.Open();
+
+            // write sections
+            foreach (var section in Sections)
+            {
+                var pairs = section.ValuePairs.ToList();
+                if (pairs.Count == 0)
+                    continue;
+                writer.WriteCodeValuePair(new DxfCodePair(0, DxfSection.SectionText));
+                writer.WriteCodeValuePair(new DxfCodePair(2, section.Type.ToSectionName()));
+                writer.WriteCodeValuePairs(pairs);
+                writer.WriteCodeValuePair(new DxfCodePair(0, DxfSection.EndSectionText));
+            }
+
             writer.Close();
         }
     }
