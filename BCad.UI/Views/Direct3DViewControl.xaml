@@ -16,6 +16,7 @@
         <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" SnapsToDevicePixels="True">
             <Image Name="pointCursorImage" SnapsToDevicePixels="True" />
             <Image Name="entityCursorImage" SnapsToDevicePixels="True" />
+            <Image Name="textCursorImage" SnapsToDevicePixels="True" />
         </Canvas>
         <Canvas Name="clicker"
                 Background="White"

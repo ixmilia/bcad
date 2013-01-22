@@ -222,9 +222,15 @@ namespace BCad.UI.Views
             // prepare the cursor
             UpdateCursor();
             SetCursorVisibility();
+            var cursors = new[]
+                {
+                    pointCursorImage,
+                    entityCursorImage,
+                    textCursorImage
+                };
             this.Loaded += (_, __) =>
                 {
-                    foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage })
+                    foreach (var cursorImage in cursors)
                     {
                         Canvas.SetLeft(cursorImage, -(int)(cursorImage.ActualWidth / 2.0));
                         Canvas.SetTop(cursorImage, -(int)(cursorImage.ActualHeight / 2.0));
@@ -1089,11 +1095,12 @@ Result PShader(Input pixel)
                     ? System.Windows.Visibility.Visible
                     : System.Windows.Visibility.Hidden;
 
-            this.Dispatcher.BeginInvoke((Action)(() =>
+            this.Dispatcher.Invoke((Action)(() =>
             {
                 pointCursorImage.Visibility = getVisibility(new[]
                 {
                     InputType.Command,
+                    InputType.Distance,
                     InputType.Point
                 });
                 entityCursorImage.Visibility = getVisibility(new[]
@@ -1102,7 +1109,13 @@ Result PShader(Input pixel)
                     InputType.Entities,
                     InputType.Entity
                 });
+                textCursorImage.Visibility = getVisibility(new[]
+                {
+                    InputType.Directive,
+                    InputType.Text
+                });
             }));
+            int i = 1;
         }
 
         private void UpdateCursor()
@@ -1137,6 +1150,20 @@ Result PShader(Input pixel)
                             new Media.LineGeometry(new System.Windows.Point(entitySize, -entitySize), new System.Windows.Point(entitySize, entitySize)),
                             new Media.LineGeometry(new System.Windows.Point(entitySize, entitySize), new System.Windows.Point(-entitySize, entitySize)),
                             new Media.LineGeometry(new System.Windows.Point(-entitySize, entitySize), new System.Windows.Point(-entitySize, -entitySize))
+                        })
+                    },
+                    Pen = pen
+                });
+
+            textCursorImage.Source = new Media.DrawingImage(
+                new Media.GeometryDrawing()
+                {
+                    Geometry = new Media.GeometryGroup()
+                    {
+                        Children = new Media.GeometryCollection(new[]
+                        {
+                            //new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
+                            new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
                         })
                     },
                     Pen = pen
