@@ -6,15 +6,18 @@ using System.Text;
 
 namespace BCad.Dxf.Sections
 {
-    internal class DxfHeaderSection : DxfSection
+    public class DxfHeaderSection : DxfSection
     {
         public string CurrentLayer { get; set; }
+        public DxfAcadVersion Version { get; set; }
 
         private const string CLAYER = "$CLAYER";
+        private const string ACADVER = "$ACADVER";
 
         public DxfHeaderSection()
         {
             CurrentLayer = null;
+            Version = DxfAcadVersion.R14;
         }
 
         public override DxfSectionType Type
@@ -31,6 +34,9 @@ namespace BCad.Dxf.Sections
                     yield return new DxfCodePair(9, CLAYER);
                     yield return new DxfCodePair(8, CurrentLayer);
                 }
+
+                yield return new DxfCodePair(9, ACADVER);
+                yield return new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(Version));
             }
         }
 
@@ -59,6 +65,10 @@ namespace BCad.Dxf.Sections
                     // the value of the setting
                     switch (keyName)
                     {
+                        case ACADVER:
+                            EnsureCode(pair, 1);
+                            section.Version = DxfAcadVersionStrings.StringToVersion(pair.StringValue);
+                            break;
                         case CLAYER:
                             EnsureCode(pair, 8);
                             section.CurrentLayer = pair.StringValue;

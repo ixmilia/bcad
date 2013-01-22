@@ -13,9 +13,10 @@ namespace BCad.Dxf
         public const string BinarySentinel = "AutoCAD Binary DXF";
         public const string EofText = "EOF";
 
+        public DxfHeaderSection HeaderSection { get; private set; }
+
         private DxfTablesSection tablesSection = new DxfTablesSection();
         private DxfEntitiesSection entitiesSection = new DxfEntitiesSection();
-        private DxfHeaderSection headerSection = new DxfHeaderSection();
 
         public List<DxfLayer> Layers { get { return tablesSection.Layers; } }
         public List<DxfEntity> Entities { get { return entitiesSection.Entities; } }
@@ -25,7 +26,7 @@ namespace BCad.Dxf
         {
             get
             {
-                yield return headerSection;
+                yield return this.HeaderSection;
                 yield return tablesSection;
                 yield return entitiesSection;
             }
@@ -36,14 +37,9 @@ namespace BCad.Dxf
             get { return tablesSection.Tables; }
         }
 
-        public string CurrentLayer
-        {
-            get { return headerSection.CurrentLayer; }
-            set { headerSection.CurrentLayer = value; }
-        }
-
         public DxfFile()
         {
+            this.HeaderSection = new DxfHeaderSection();
         }
 
         public static DxfFile Load(string path)
@@ -72,7 +68,7 @@ namespace BCad.Dxf
                             file.entitiesSection = (DxfEntitiesSection)section;
                             break;
                         case DxfSectionType.Header:
-                            file.headerSection = (DxfHeaderSection)section;
+                            file.HeaderSection = (DxfHeaderSection)section;
                             break;
                     }
                 }

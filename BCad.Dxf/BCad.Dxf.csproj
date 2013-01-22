@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DxfAcadVersion.cs" />
     <Compile Include="DxfCodePairBufferReader.cs" />
     <Compile Include="DxfCodePair.cs" />
     <Compile Include="DxfColor.cs" />

@@ -78,7 +78,7 @@ namespace BCad.Commands.FileHandlers
             drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.None, -1),
                 layers.ToReadOnlyDictionary(),
-                file.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
+                file.HeaderSection.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
 
             var vp = file.ViewPorts.FirstOrDefault();
             if (vp != null)
@@ -104,7 +104,7 @@ namespace BCad.Commands.FileHandlers
             var file = new DxfFile();
 
             // save layers and entities
-            file.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
+            file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
             foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
             {
                 file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));

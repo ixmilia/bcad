@@ -7,18 +7,18 @@ namespace BCad.Dxf.Sections
 {
     public abstract class DxfSection
     {
-        public const string HeaderSectionText = "HEADER";
-        public const string ClassesSectionText = "CLASSES";
-        public const string TablesSectionText = "TABLES";
-        public const string BlocksSectionText = "BLOCKS";
-        public const string EntitiesSectionText = "ENTITIES";
-        public const string ObjectsSectionText = "OBJECTS";
+        internal const string HeaderSectionText = "HEADER";
+        internal const string ClassesSectionText = "CLASSES";
+        internal const string TablesSectionText = "TABLES";
+        internal const string BlocksSectionText = "BLOCKS";
+        internal const string EntitiesSectionText = "ENTITIES";
+        internal const string ObjectsSectionText = "OBJECTS";
 
-        public const string SectionText = "SECTION";
-        public const string EndSectionText = "ENDSEC";
+        internal const string SectionText = "SECTION";
+        internal const string EndSectionText = "ENDSEC";
 
-        public const string TableText = "TABLE";
-        public const string EndTableText = "ENDTAB";
+        internal const string TableText = "TABLE";
+        internal const string EndTableText = "ENDTAB";
 
         public abstract DxfSectionType Type { get; }
 
