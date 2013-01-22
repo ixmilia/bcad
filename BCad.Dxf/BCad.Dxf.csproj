@@ -65,7 +65,6 @@
     <Compile Include="Sections\DxfSection.cs" />
     <Compile Include="Sections\DxfSectionType.cs" />
     <Compile Include="Sections\DxfTablesSection.cs" />
-    <Compile Include="SingleUseEnumerable.cs" />
     <Compile Include="Tables\DxfLayer.cs" />
     <Compile Include="Tables\DxfLayerTable.cs" />
     <Compile Include="Tables\DxfTable.cs" />
