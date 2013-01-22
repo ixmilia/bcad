@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BCad.Dxf.Sections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Dxf.Tables
@@ -32,6 +33,30 @@ namespace BCad.Dxf.Tables
                     yield return p;
                 }
             }
+        }
+
+        internal static DxfViewPortTable ViewPortTableFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var table = new DxfViewPortTable();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfTablesSection.IsTableEnd(pair))
+                {
+                    break;
+                }
+
+                if (pair.Code != 0 || pair.StringValue != DxfViewPort.ViewPortText)
+                {
+                    throw new DxfReadException("Expected view port start.");
+                }
+
+                var vp = DxfViewPort.FromBuffer(buffer);
+                table.ViewPorts.Add(vp);
+            }
+
+            return table;
         }
     }
 }

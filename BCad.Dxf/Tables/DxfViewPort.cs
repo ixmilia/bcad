@@ -103,90 +103,97 @@ namespace BCad.Dxf.Tables
             }
         }
 
-        public static DxfViewPort FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal static DxfViewPort FromBuffer(DxfCodePairBufferReader buffer)
         {
             var viewPort = new DxfViewPort();
-            foreach (var p in pairs)
+            while (buffer.ItemsRemain)
             {
-                switch (p.Code)
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                buffer.Advance();
+                switch (pair.Code)
                 {
                     case 2:
-                        viewPort.Name = p.StringValue;
+                        viewPort.Name = pair.StringValue;
                         break;
                     case 10:
-                        viewPort.LowerLeft.X = p.DoubleValue;
+                        viewPort.LowerLeft.X = pair.DoubleValue;
                         break;
                     case 20:
-                        viewPort.LowerLeft.Y = p.DoubleValue;
+                        viewPort.LowerLeft.Y = pair.DoubleValue;
                         break;
                     case 11:
-                        viewPort.UpperRight.X = p.DoubleValue;
+                        viewPort.UpperRight.X = pair.DoubleValue;
                         break;
                     case 21:
-                        viewPort.UpperRight.Y = p.DoubleValue;
+                        viewPort.UpperRight.Y = pair.DoubleValue;
                         break;
                     case 12:
-                        viewPort.ViewCenter.X = p.DoubleValue;
+                        viewPort.ViewCenter.X = pair.DoubleValue;
                         break;
                     case 22:
-                        viewPort.ViewCenter.Y = p.DoubleValue;
+                        viewPort.ViewCenter.Y = pair.DoubleValue;
                         break;
                     case 13:
-                        viewPort.SnapBasePoint.X = p.DoubleValue;
+                        viewPort.SnapBasePoint.X = pair.DoubleValue;
                         break;
                     case 23:
-                        viewPort.SnapBasePoint.Y = p.DoubleValue;
+                        viewPort.SnapBasePoint.Y = pair.DoubleValue;
                         break;
                     case 14:
-                        viewPort.SnapSpacing.X = p.DoubleValue;
+                        viewPort.SnapSpacing.X = pair.DoubleValue;
                         break;
                     case 24:
-                        viewPort.SnapSpacing.Y = p.DoubleValue;
+                        viewPort.SnapSpacing.Y = pair.DoubleValue;
                         break;
                     case 15:
-                        viewPort.GridSpacing.X = p.DoubleValue;
+                        viewPort.GridSpacing.X = pair.DoubleValue;
                         break;
                     case 25:
-                        viewPort.GridSpacing.Y = p.DoubleValue;
+                        viewPort.GridSpacing.Y = pair.DoubleValue;
                         break;
                     case 16:
-                        viewPort.ViewDirection.X = p.DoubleValue;
+                        viewPort.ViewDirection.X = pair.DoubleValue;
                         break;
                     case 26:
-                        viewPort.ViewDirection.Y = p.DoubleValue;
+                        viewPort.ViewDirection.Y = pair.DoubleValue;
                         break;
                     case 36:
-                        viewPort.ViewDirection.Z = p.DoubleValue;
+                        viewPort.ViewDirection.Z = pair.DoubleValue;
                         break;
                     case 17:
-                        viewPort.TargetViewPoint.X = p.DoubleValue;
+                        viewPort.TargetViewPoint.X = pair.DoubleValue;
                         break;
                     case 27:
-                        viewPort.TargetViewPoint.Y = p.DoubleValue;
+                        viewPort.TargetViewPoint.Y = pair.DoubleValue;
                         break;
                     case 37:
-                        viewPort.TargetViewPoint.Z = p.DoubleValue;
+                        viewPort.TargetViewPoint.Z = pair.DoubleValue;
                         break;
                     case 40:
-                        viewPort.ViewHeight = p.DoubleValue;
+                        viewPort.ViewHeight = pair.DoubleValue;
                         break;
                     case 41:
-                        viewPort.ViewPortAspectRatio = p.DoubleValue;
+                        viewPort.ViewPortAspectRatio = pair.DoubleValue;
                         break;
                     case 42:
-                        viewPort.LensLength = p.DoubleValue;
+                        viewPort.LensLength = pair.DoubleValue;
                         break;
                     case 43:
-                        viewPort.FrontClippingPlane = p.DoubleValue;
+                        viewPort.FrontClippingPlane = pair.DoubleValue;
                         break;
                     case 44:
-                        viewPort.BackClippingPlane = p.DoubleValue;
+                        viewPort.BackClippingPlane = pair.DoubleValue;
                         break;
                     case 50:
-                        viewPort.SnapRotationAngle = p.DoubleValue;
+                        viewPort.SnapRotationAngle = pair.DoubleValue;
                         break;
                     case 51:
-                        viewPort.ViewTwistAngle = p.DoubleValue;
+                        viewPort.ViewTwistAngle = pair.DoubleValue;
                         break;
                 }
             }

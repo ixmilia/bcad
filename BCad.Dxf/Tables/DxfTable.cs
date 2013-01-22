@@ -125,9 +125,9 @@ namespace BCad.Dxf.Tables
                 case DxfTable.LayerText:
                     result = DxfLayerTable.LayerTableFromBuffer(buffer);
                     break;
-                //case DxfViewPort.ViewPortText:
-                //    result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
-                //    break;
+                case DxfViewPort.ViewPortText:
+                    result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
+                    break;
                 default:
                     throw new DxfReadException("Unexpected table type " + pair.StringValue);
             }
