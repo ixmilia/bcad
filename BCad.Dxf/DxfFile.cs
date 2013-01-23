@@ -35,6 +35,7 @@ namespace BCad.Dxf
             this.EntitiesSection = new DxfEntitiesSection();
         }
 
+        // TODO: #if !SILVERLIGHT || !WIN_RT
         public static DxfFile Load(string path)
         {
             using (var stream = new FileStream(path, FileMode.Open))
@@ -100,13 +101,8 @@ namespace BCad.Dxf
             // write sections
             foreach (var section in Sections)
             {
-                var pairs = section.ValuePairs.ToList();
-                if (pairs.Count == 0)
-                    continue;
-                writer.WriteCodeValuePair(new DxfCodePair(0, DxfSection.SectionText));
-                writer.WriteCodeValuePair(new DxfCodePair(2, section.Type.ToSectionName()));
-                writer.WriteCodeValuePairs(pairs);
-                writer.WriteCodeValuePair(new DxfCodePair(0, DxfSection.EndSectionText));
+                foreach (var pair in section.GetValuePairs())
+                    writer.WriteCodeValuePair(pair);
             }
 
             writer.Close();

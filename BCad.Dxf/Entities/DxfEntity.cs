@@ -44,24 +44,20 @@ namespace BCad.Dxf.Entities
             Color = DxfColor.ByBlock;
         }
 
-        public IEnumerable<DxfCodePair> ValuePairs
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(Handle))
-                    yield return new DxfCodePair(5, Handle);
-                if (!string.IsNullOrEmpty(Layer))
-                    yield return new DxfCodePair(8, Layer);
-                if (!Color.IsByLayer)
-                    yield return new DxfCodePair(62, Color.RawValue);
-                if (!string.IsNullOrEmpty(SubclassMarker))
-                    yield return new DxfCodePair(100, SubclassMarker);
-                foreach (var pair in GetEntitySpecificPairs())
-                    yield return pair;
-            }
-        }
+        abstract internal IEnumerable<DxfCodePair> GetValuePairs();
 
-        internal abstract IEnumerable<DxfCodePair> GetEntitySpecificPairs();
+        protected internal IEnumerable<DxfCodePair> GetCommonValuePairs()
+        {
+            yield return new DxfCodePair(0, this.EntityTypeString);
+            if (!string.IsNullOrEmpty(Handle))
+                yield return new DxfCodePair(5, Handle);
+            if (!string.IsNullOrEmpty(Layer))
+                yield return new DxfCodePair(8, Layer);
+            if (!Color.IsByLayer)
+                yield return new DxfCodePair(62, Color.RawValue);
+            if (!string.IsNullOrEmpty(SubclassMarker))
+                yield return new DxfCodePair(100, SubclassMarker);
+        }
 
         protected internal bool TrySetSharedCode(DxfCodePair pair)
         {

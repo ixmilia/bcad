@@ -61,46 +61,44 @@ namespace BCad.Dxf.Tables
             ViewTwistAngle = 0.0;
         }
 
-        public IEnumerable<DxfCodePair> ValuePairs
+        internal IEnumerable<DxfCodePair> GetValuePairs()
         {
-            get
-            {
-                var pairs = new List<DxfCodePair>();
-                Action<int, object, object> addIfNotDefault = (code, actualValue, defaultValue) =>
-                    {
-                        if (!actualValue.Equals(defaultValue))
-                            pairs.Add(new DxfCodePair(code, actualValue));
-                    };
+            var pairs = new List<DxfCodePair>();
+            Action<int, object, object> addIfNotDefault = (code, actualValue, defaultValue) =>
+                {
+                    if (!actualValue.Equals(defaultValue))
+                        pairs.Add(new DxfCodePair(code, actualValue));
+                };
 
-                pairs.Add(new DxfCodePair(2, Name ?? ActiveViewPortName));
-                addIfNotDefault(10, LowerLeft.X, 0.0);
-                addIfNotDefault(20, LowerLeft.Y, 0.0);
-                addIfNotDefault(11, UpperRight.X, 0.0);
-                addIfNotDefault(21, UpperRight.Y, 0.0);
-                addIfNotDefault(12, ViewCenter.X, 0.0);
-                addIfNotDefault(22, ViewCenter.Y, 0.0);
-                addIfNotDefault(13, SnapBasePoint.X, 0.0);
-                addIfNotDefault(23, SnapBasePoint.Y, 0.0);
-                addIfNotDefault(14, SnapSpacing.X, 0.0);
-                addIfNotDefault(24, SnapSpacing.Y, 0.0);
-                addIfNotDefault(15, GridSpacing.X, 0.0);
-                addIfNotDefault(25, GridSpacing.Y, 0.0);
-                addIfNotDefault(16, ViewDirection.X, 0.0);
-                addIfNotDefault(26, ViewDirection.Y, 0.0);
-                addIfNotDefault(36, ViewDirection.Z, 1.0);
-                addIfNotDefault(17, TargetViewPoint.X, 0.0);
-                addIfNotDefault(27, TargetViewPoint.Y, 0.0);
-                addIfNotDefault(37, TargetViewPoint.Z, 0.0);
-                addIfNotDefault(40, ViewHeight, 0.0);
-                addIfNotDefault(41, ViewPortAspectRatio, 0.0);
-                addIfNotDefault(42, LensLength, 0.0);
-                addIfNotDefault(43, FrontClippingPlane, 0.0);
-                addIfNotDefault(44, BackClippingPlane, 0.0);
-                addIfNotDefault(50, SnapRotationAngle, 0.0);
-                addIfNotDefault(51, ViewTwistAngle, 0.0);
+            pairs.Add(new DxfCodePair(0, ViewPortText));
+            pairs.Add(new DxfCodePair(2, Name ?? ActiveViewPortName));
+            addIfNotDefault(10, LowerLeft.X, 0.0);
+            addIfNotDefault(20, LowerLeft.Y, 0.0);
+            addIfNotDefault(11, UpperRight.X, 0.0);
+            addIfNotDefault(21, UpperRight.Y, 0.0);
+            addIfNotDefault(12, ViewCenter.X, 0.0);
+            addIfNotDefault(22, ViewCenter.Y, 0.0);
+            addIfNotDefault(13, SnapBasePoint.X, 0.0);
+            addIfNotDefault(23, SnapBasePoint.Y, 0.0);
+            addIfNotDefault(14, SnapSpacing.X, 0.0);
+            addIfNotDefault(24, SnapSpacing.Y, 0.0);
+            addIfNotDefault(15, GridSpacing.X, 0.0);
+            addIfNotDefault(25, GridSpacing.Y, 0.0);
+            addIfNotDefault(16, ViewDirection.X, 0.0);
+            addIfNotDefault(26, ViewDirection.Y, 0.0);
+            addIfNotDefault(36, ViewDirection.Z, 1.0);
+            addIfNotDefault(17, TargetViewPoint.X, 0.0);
+            addIfNotDefault(27, TargetViewPoint.Y, 0.0);
+            addIfNotDefault(37, TargetViewPoint.Z, 0.0);
+            addIfNotDefault(40, ViewHeight, 0.0);
+            addIfNotDefault(41, ViewPortAspectRatio, 0.0);
+            addIfNotDefault(42, LensLength, 0.0);
+            addIfNotDefault(43, FrontClippingPlane, 0.0);
+            addIfNotDefault(44, BackClippingPlane, 0.0);
+            addIfNotDefault(50, SnapRotationAngle, 0.0);
+            addIfNotDefault(51, ViewTwistAngle, 0.0);
 
-                return pairs;
-            }
+            return pairs;
         }
 
         internal static DxfViewPort FromBuffer(DxfCodePairBufferReader buffer)

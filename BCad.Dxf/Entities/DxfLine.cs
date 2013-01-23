@@ -24,6 +24,18 @@ namespace BCad.Dxf.Entities
             P2 = p2;
         }
 
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
+            yield return new DxfCodePair(10, P1.X);
+            yield return new DxfCodePair(20, P1.Y);
+            yield return new DxfCodePair(30, P1.Z);
+            yield return new DxfCodePair(11, P2.X);
+            yield return new DxfCodePair(21, P2.Y);
+            yield return new DxfCodePair(31, P2.Z);
+        }
+
         internal static DxfLine LineFromBuffer(DxfCodePairBufferReader buffer)
         {
             var line = new DxfLine();
@@ -64,16 +76,6 @@ namespace BCad.Dxf.Entities
             }
 
             return line;
-        }
-
-        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
-            yield return new DxfCodePair(10, P1.X);
-            yield return new DxfCodePair(20, P1.Y);
-            yield return new DxfCodePair(30, P1.Z);
-            yield return new DxfCodePair(11, P2.X);
-            yield return new DxfCodePair(21, P2.Y);
-            yield return new DxfCodePair(31, P2.Z);
         }
 
         public override string ToString()

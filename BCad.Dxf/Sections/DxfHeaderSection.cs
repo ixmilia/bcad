@@ -25,16 +25,16 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Header; }
         }
 
-        public override IEnumerable<DxfCodePair> ValuePairs
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            get
+            if (!string.IsNullOrEmpty(CurrentLayer))
             {
-                if (!string.IsNullOrEmpty(CurrentLayer))
-                {
-                    yield return new DxfCodePair(9, CLAYER);
-                    yield return new DxfCodePair(8, CurrentLayer);
-                }
+                yield return new DxfCodePair(9, CLAYER);
+                yield return new DxfCodePair(8, CurrentLayer);
+            }
 
+            if (Version != DxfAcadVersion.R14)
+            {
                 yield return new DxfCodePair(9, ACADVER);
                 yield return new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(Version));
             }

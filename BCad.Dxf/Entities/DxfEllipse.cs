@@ -37,6 +37,28 @@ namespace BCad.Dxf.Entities
             EndParameter = 360.0;
         }
 
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
+            yield return new DxfCodePair(10, Center.X);
+            yield return new DxfCodePair(20, Center.Y);
+            yield return new DxfCodePair(30, Center.Z);
+            yield return new DxfCodePair(11, MajorAxis.X);
+            yield return new DxfCodePair(21, MajorAxis.Y);
+            yield return new DxfCodePair(31, MajorAxis.Z);
+            if (Normal != new DxfVector(0, 0, 1))
+            {
+                yield return new DxfCodePair(210, Normal.X);
+                yield return new DxfCodePair(220, Normal.Y);
+                yield return new DxfCodePair(230, Normal.Z);
+            }
+
+            yield return new DxfCodePair(40, MinorAxisRatio);
+            yield return new DxfCodePair(41, StartParameter);
+            yield return new DxfCodePair(42, EndParameter);
+        }
+
         internal static DxfEllipse EllipseFromBuffer(DxfCodePairBufferReader buffer)
         {
             var ellipse = new DxfEllipse();
@@ -94,26 +116,6 @@ namespace BCad.Dxf.Entities
             }
 
             return ellipse;
-        }
-
-        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
-            yield return new DxfCodePair(10, Center.X);
-            yield return new DxfCodePair(20, Center.Y);
-            yield return new DxfCodePair(30, Center.Z);
-            yield return new DxfCodePair(11, MajorAxis.X);
-            yield return new DxfCodePair(21, MajorAxis.Y);
-            yield return new DxfCodePair(31, MajorAxis.Z);
-            if (Normal != new DxfVector(0, 0, 1))
-            {
-                yield return new DxfCodePair(210, Normal.X);
-                yield return new DxfCodePair(220, Normal.Y);
-                yield return new DxfCodePair(230, Normal.Z);
-            }
-
-            yield return new DxfCodePair(40, MinorAxisRatio);
-            yield return new DxfCodePair(41, StartParameter);
-            yield return new DxfCodePair(42, EndParameter);
         }
 
         public override string ToString()

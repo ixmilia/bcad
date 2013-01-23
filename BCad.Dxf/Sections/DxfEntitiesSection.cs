@@ -18,19 +18,9 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Entities; }
         }
 
-        public override IEnumerable<DxfCodePair> ValuePairs
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            get
-            {
-                foreach (var e in Entities)
-                {
-                    yield return new DxfCodePair(0, e.EntityTypeString);
-                    foreach (var p in e.ValuePairs)
-                    {
-                        yield return p;
-                    }
-                }
-            }
+           return this.Entities.SelectMany(e => e.GetValuePairs());
         }
 
         internal static DxfEntitiesSection EntitiesSectionFromBuffer(DxfCodePairBufferReader buffer)

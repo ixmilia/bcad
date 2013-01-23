@@ -38,6 +38,27 @@ namespace BCad.Dxf.Entities
             this.Rotation = 0.0;
         }
 
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
+            yield return new DxfCodePair(1, Value);
+            yield return new DxfCodePair(10, Location.X);
+            yield return new DxfCodePair(20, Location.Y);
+            yield return new DxfCodePair(30, Location.Z);
+            yield return new DxfCodePair(40, TextHeight);
+            if (Rotation != 0.0)
+            {
+                yield return new DxfCodePair(50, Rotation);
+            }
+            if (Normal != DxfVector.ZAxis)
+            {
+                yield return new DxfCodePair(210, Normal.X);
+                yield return new DxfCodePair(220, Normal.Y);
+                yield return new DxfCodePair(230, Normal.Z);
+            }
+        }
+
         internal static DxfText TextFromBuffer(DxfCodePairBufferReader buffer)
         {
             var text = new DxfText();
@@ -93,25 +114,6 @@ namespace BCad.Dxf.Entities
             }
 
             return text;
-        }
-
-        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
-            yield return new DxfCodePair(1, Value);
-            yield return new DxfCodePair(10, Location.X);
-            yield return new DxfCodePair(20, Location.Y);
-            yield return new DxfCodePair(30, Location.Z);
-            yield return new DxfCodePair(40, TextHeight);
-            if (Rotation != 0.0)
-            {
-                yield return new DxfCodePair(50, Rotation);
-            }
-            if (Normal != DxfVector.ZAxis)
-            {
-                yield return new DxfCodePair(210, Normal.X);
-                yield return new DxfCodePair(220, Normal.Y);
-                yield return new DxfCodePair(230, Normal.Z);
-            }
         }
 
         public override string ToString()

@@ -20,6 +20,15 @@ namespace BCad.Dxf.Sections
             this.ViewPortTable = new DxfViewPortTable();
         }
 
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
+        {
+            foreach (var table in new DxfTable[] { LayerTable, ViewPortTable })
+            {
+                foreach (var pair in table.GetValuePairs())
+                    yield return pair;
+            }
+        }
+
         internal static DxfTablesSection TablesSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
             var section = new DxfTablesSection();
@@ -62,27 +71,6 @@ namespace BCad.Dxf.Sections
         internal static bool IsTableEnd(DxfCodePair pair)
         {
             return pair.Code == 0 && pair.StringValue == DxfSection.EndTableText;
-        }
-
-        public override IEnumerable<DxfCodePair> ValuePairs
-        {
-            get
-            {
-                foreach (var t in new DxfTable[] { LayerTable, ViewPortTable })
-                {
-                    var pairs = t.ValuePairs;
-                    if (pairs.Count() > 0)
-                    {
-                        yield return new DxfCodePair(0, DxfSection.TableText);
-                        yield return new DxfCodePair(2, t.TableTypeName);
-                        foreach (var p in pairs)
-                        {
-                            yield return p;
-                        }
-                        yield return new DxfCodePair(0, DxfSection.EndTableText);
-                    }
-                }
-            }
         }
     }
 }

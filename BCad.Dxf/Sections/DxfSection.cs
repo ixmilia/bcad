@@ -22,8 +22,6 @@ namespace BCad.Dxf.Sections
 
         public abstract DxfSectionType Type { get; }
 
-        public abstract IEnumerable<DxfCodePair> ValuePairs { get; }
-
         protected DxfSection()
         {
         }
@@ -31,6 +29,20 @@ namespace BCad.Dxf.Sections
         public override string ToString()
         {
             return Type.ToSectionName();
+        }
+
+        protected internal abstract IEnumerable<DxfCodePair> GetSpecificPairs();
+
+        internal IEnumerable<DxfCodePair> GetValuePairs()
+        {
+            var pairs = GetSpecificPairs().ToList();
+            if (pairs.Count == 0)
+                yield break;
+            yield return new DxfCodePair(0, SectionText);
+            yield return new DxfCodePair(2, this.Type.ToSectionName());
+            foreach (var pair in pairs)
+                yield return pair;
+            yield return new DxfCodePair(0, EndSectionText);
         }
 
         internal static DxfSection FromBuffer(DxfCodePairBufferReader buffer)

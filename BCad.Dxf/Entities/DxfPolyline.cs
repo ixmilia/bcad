@@ -28,8 +28,10 @@ namespace BCad.Dxf.Entities
             Normal = DxfVector.ZAxis;
         }
 
-        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
             yield return new DxfCodePair(10, 0.0);
             yield return new DxfCodePair(20, 0.0);
             yield return new DxfCodePair(30, Elevation);
@@ -42,13 +44,13 @@ namespace BCad.Dxf.Entities
 
             foreach (var vertex in Vertices)
             {
-                foreach (var pair in vertex.ValuePairs)
+                foreach (var pair in vertex.GetValuePairs())
                 {
                     yield return pair;
                 }
             }
 
-            foreach (var pair in SequenceEnd.ValuePairs)
+            foreach (var pair in SequenceEnd.GetValuePairs())
             {
                 yield return pair;
             }

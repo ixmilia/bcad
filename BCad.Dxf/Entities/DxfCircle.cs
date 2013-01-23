@@ -29,6 +29,22 @@ namespace BCad.Dxf.Entities
             Normal = new DxfVector() { X = 0.0, Y = 0.0, Z = 1.0 };
         }
 
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
+            yield return new DxfCodePair(10, Center.X);
+            yield return new DxfCodePair(20, Center.Y);
+            yield return new DxfCodePair(30, Center.Z);
+            yield return new DxfCodePair(40, Radius);
+            if (Normal != new DxfVector(0, 0, 1))
+            {
+                yield return new DxfCodePair(210, Normal.X);
+                yield return new DxfCodePair(220, Normal.Y);
+                yield return new DxfCodePair(230, Normal.Z);
+            }
+        }
+
         internal static DxfCircle CircleFromBuffer(DxfCodePairBufferReader buffer)
         {
             var circle = new DxfCircle();
@@ -71,20 +87,6 @@ namespace BCad.Dxf.Entities
             }
 
             return circle;
-        }
-
-        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
-            yield return new DxfCodePair(10, Center.X);
-            yield return new DxfCodePair(20, Center.Y);
-            yield return new DxfCodePair(30, Center.Z);
-            yield return new DxfCodePair(40, Radius);
-            if (Normal != new DxfVector(0, 0, 1))
-            {
-                yield return new DxfCodePair(210, Normal.X);
-                yield return new DxfCodePair(220, Normal.Y);
-                yield return new DxfCodePair(230, Normal.Z);
-            }
         }
 
         public override string ToString()

@@ -18,20 +18,7 @@ namespace BCad.Dxf.Tables
 
         public abstract DxfTableType TableType { get; }
 
-        public IEnumerable<DxfCodePair> ValuePairs
-        {
-            get
-            {
-                var pairs = GetTableValuePairs();
-                if (pairs.Count() > 0)
-                {
-                    foreach (var p in pairs)
-                        yield return p;
-                }
-            }
-        }
-
-        public abstract IEnumerable<DxfCodePair> GetTableValuePairs();
+        abstract internal IEnumerable<DxfCodePair> GetValuePairs();
 
         public string TableTypeName
         {

@@ -16,7 +16,7 @@ namespace BCad.Dxf.Tables
         }
 
         public DxfLayer(string name)
-            : this(name, DxfColor.FromIndex(7))
+            : this(name, DxfColor.ByBlock)
         {
         }
 
@@ -26,13 +26,11 @@ namespace BCad.Dxf.Tables
             Color = color;
         }
 
-        public IEnumerable<DxfCodePair> ValuePairs
+        internal IEnumerable<DxfCodePair> GetValuePairs()
         {
-            get
-            {
-                yield return new DxfCodePair(2, Name);
-                yield return new DxfCodePair(62, Color.RawValue);
-            }
+            yield return new DxfCodePair(0, LayerText);
+            yield return new DxfCodePair(2, Name);
+            yield return new DxfCodePair(62, Color.RawValue);
         }
 
         internal static DxfLayer FromBuffer(DxfCodePairBufferReader buffer)

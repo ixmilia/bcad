@@ -33,6 +33,24 @@ namespace BCad.Dxf.Entities
             Normal = new DxfVector(0.0, 0.0, 1.0);
         }
 
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
+            yield return new DxfCodePair(10, Center.X);
+            yield return new DxfCodePair(20, Center.Y);
+            yield return new DxfCodePair(30, Center.Z);
+            yield return new DxfCodePair(40, Radius);
+            yield return new DxfCodePair(50, StartAngle);
+            yield return new DxfCodePair(51, EndAngle);
+            if (Normal != new DxfVector(0, 0, 1))
+            {
+                yield return new DxfCodePair(210, Normal.X);
+                yield return new DxfCodePair(220, Normal.Y);
+                yield return new DxfCodePair(230, Normal.Z);
+            }
+        }
+
         internal static DxfArc ArcFromBuffer(DxfCodePairBufferReader buffer)
         {
             var arc = new DxfArc();
@@ -81,22 +99,6 @@ namespace BCad.Dxf.Entities
             }
 
             return arc;
-        }
-
-        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
-            yield return new DxfCodePair(10, Center.X);
-            yield return new DxfCodePair(20, Center.Y);
-            yield return new DxfCodePair(30, Center.Z);
-            yield return new DxfCodePair(40, Radius);
-            yield return new DxfCodePair(50, StartAngle);
-            yield return new DxfCodePair(51, EndAngle);
-            if (Normal != new DxfVector(0, 0, 1))
-            {
-                yield return new DxfCodePair(210, Normal.X);
-                yield return new DxfCodePair(220, Normal.Y);
-                yield return new DxfCodePair(230, Normal.Z);
-            }
         }
 
         public override string ToString()

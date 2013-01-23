@@ -1,10 +1,15 @@
-﻿using BCad.Dxf;
+﻿using System;
+using System.IO;
+using BCad.Dxf;
+using BCad.Dxf.Tables;
 using Xunit;
 
 namespace BCad.Test.DxfTests
 {
     public class DxfHeaderTests : AbstractDxfTests
     {
+        #region Read tests
+
         [Fact]
         public void DefaultHeaderValuesTest()
         {
@@ -187,5 +192,89 @@ ENDTAB
             Assert.Equal(26.0, viewPorts[1].SnapRotationAngle);
             Assert.Equal(27.0, viewPorts[1].ViewTwistAngle);
         }
+
+        #endregion
+
+        #region Write tests
+
+        private static void VerifyFileContents(DxfFile file, string expected, Action<string, string> predicate)
+        {
+            var stream = new MemoryStream();
+            file.Save(stream);
+            stream.Flush();
+            stream.Seek(0, SeekOrigin.Begin);
+            var actual = new StreamReader(stream).ReadToEnd();
+            predicate(expected, actual);
+        }
+
+        private static void VerifyFileContains(DxfFile file, string expected)
+        {
+            VerifyFileContents(file, expected, (ex, ac) => Assert.Contains(ex.Trim(), ac));
+        }
+
+        private static void VerifyFileIsExactly(DxfFile file, string expected)
+        {
+            VerifyFileContents(file, expected, (ex, ac) => Assert.Equal(ex.Trim(), ac.Trim()));
+        }
+
+        [Fact]
+        public void WriteDefaultHeaderValuesTest()
+        {
+            VerifyFileIsExactly(new DxfFile(), "0\r\nEOF");
+        }
+
+        [Fact]
+        public void WriteSpecificHeaderValuesTest()
+        {
+            var file = new DxfFile();
+            file.HeaderSection.CurrentLayer = "<current layer>";
+            file.HeaderSection.Version = DxfAcadVersion.R13;
+            VerifyFileContains(file, @"
+  0
+SECTION
+  2
+HEADER
+  9
+$CLAYER
+  8
+<current layer>
+  9
+$ACADVER
+  1
+AC1012
+  0
+ENDSEC
+");
+        }
+
+        [Fact]
+        public void WriteLayersTest()
+        {
+            var file = new DxfFile();
+            file.TablesSection.LayerTable.Layers.Add(new DxfLayer("default"));
+            VerifyFileContains(file, @"
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+LAYER
+  0
+LAYER
+  2
+default
+ 62
+0
+  0
+ENDTAB
+  0
+ENDSEC
+");
+        }
+
+        #endregion
+
     }
 }

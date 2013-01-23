@@ -23,16 +23,19 @@ namespace BCad.Dxf.Tables
             ViewPorts = new List<DxfViewPort>(viewPorts);
         }
 
-        public override IEnumerable<DxfCodePair> GetTableValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            foreach (var v in ViewPorts)
+            if (ViewPorts.Count == 0)
+                yield break;
+            yield return new DxfCodePair(0, DxfSection.TablesSectionText);
+            yield return new DxfCodePair(2, DxfTable.ViewPortText);
+            foreach (var viewPort in ViewPorts)
             {
-                yield return new DxfCodePair(0, DxfViewPort.ViewPortText);
-                foreach (var p in v.ValuePairs)
-                {
-                    yield return p;
-                }
+                foreach (var pair in viewPort.GetValuePairs())
+                    yield return pair;
             }
+
+            yield return new DxfCodePair(0, DxfSection.EndTableText);
         }
 
         internal static DxfViewPortTable ViewPortTableFromBuffer(DxfCodePairBufferReader buffer)
