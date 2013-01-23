@@ -27,7 +27,7 @@ namespace BCad.Dxf.Tables
         {
             if (ViewPorts.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TablesSectionText);
+            yield return new DxfCodePair(0, DxfSection.TableText);
             yield return new DxfCodePair(2, DxfTable.ViewPortText);
             foreach (var viewPort in ViewPorts)
             {
