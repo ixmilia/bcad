@@ -16,6 +16,8 @@ namespace BCad.Dxf.Entities
 
         public DxfVector Normal { get; set; }
 
+        public double Thickness { get; set; }
+
         public DxfCircle()
             : this(new DxfPoint() { X = 0, Y = 0, Z = 0 }, 0.0)
         {
@@ -36,6 +38,8 @@ namespace BCad.Dxf.Entities
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);
             yield return new DxfCodePair(30, Center.Z);
+            if (Thickness != 0.0)
+                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(40, Radius);
             if (Normal != new DxfVector(0, 0, 1))
             {
@@ -69,6 +73,9 @@ namespace BCad.Dxf.Entities
                             break;
                         case 30:
                             circle.Center.Z = pair.DoubleValue;
+                            break;
+                        case 39:
+                            circle.Thickness = pair.DoubleValue;
                             break;
                         case 40:
                             circle.Radius = pair.DoubleValue;

@@ -29,6 +29,8 @@ namespace BCad.Dxf.Entities
         public const string SeqendType = "SEQEND";
         public const string VertexType = "VERTEX";
 
+        public const string BYLAYER = "BYLAYER";
+
         public abstract DxfEntityType EntityType { get; }
 
         public abstract string SubclassMarker { get; }
@@ -37,11 +39,21 @@ namespace BCad.Dxf.Entities
 
         public string Layer { get; set; }
 
+        public string LinetypeName { get; set; }
+
+        public double LinetypeScale { get; set; }
+
         public DxfColor Color { get; set; }
+
+        public bool IsInPaperSpace { get; set; }
+
+        public bool IsVisible { get; set; }
 
         public DxfEntity()
         {
             Color = DxfColor.ByBlock;
+            LinetypeScale = 1.0;
+            IsVisible = true;
         }
 
         abstract internal IEnumerable<DxfCodePair> GetValuePairs();
@@ -51,10 +63,18 @@ namespace BCad.Dxf.Entities
             yield return new DxfCodePair(0, this.EntityTypeString);
             if (!string.IsNullOrEmpty(Handle))
                 yield return new DxfCodePair(5, Handle);
+            if (!string.IsNullOrEmpty(LinetypeName) && LinetypeName != BYLAYER)
+                yield return new DxfCodePair(6, LinetypeName);
             if (!string.IsNullOrEmpty(Layer))
                 yield return new DxfCodePair(8, Layer);
+            if (LinetypeScale != 1.0)
+                yield return new DxfCodePair(48, LinetypeScale);
+            if (!IsVisible)
+                yield return new DxfCodePair(60, 1);
             if (!Color.IsByLayer)
                 yield return new DxfCodePair(62, Color.RawValue);
+            if (IsInPaperSpace)
+                yield return new DxfCodePair(67, (short)1);
             if (!string.IsNullOrEmpty(SubclassMarker))
                 yield return new DxfCodePair(100, SubclassMarker);
         }
@@ -66,11 +86,23 @@ namespace BCad.Dxf.Entities
                 case 5: // handle
                     this.Handle = pair.HandleValue;
                     break;
+                case 6: // linetype
+                    this.LinetypeName = pair.StringValue;
+                    break;
                 case 8: // layer
                     this.Layer = pair.StringValue;
                     break;
+                case 48: // linetype scale
+                    this.LinetypeScale = pair.DoubleValue;
+                    break;
+                case 60:
+                    this.IsVisible = pair.ShortValue == 0;
+                    break;
                 case 62: // color
                     this.Color = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case 67:
+                    this.IsInPaperSpace = pair.ShortValue == 1;
                     break;
                 default:
                     return false;

@@ -18,6 +18,8 @@ namespace BCad.Dxf.Entities
 
         public double EndAngle { get; set; }
 
+        public double Thickness { get; set; }
+
         public DxfArc()
             : this(new DxfPoint(0.0, 0.0, 0.0), 0.0, 0.0, 360.0)
         {
@@ -40,6 +42,8 @@ namespace BCad.Dxf.Entities
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);
             yield return new DxfCodePair(30, Center.Z);
+            if (Thickness != 0.0)
+                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(40, Radius);
             yield return new DxfCodePair(50, StartAngle);
             yield return new DxfCodePair(51, EndAngle);
@@ -75,6 +79,9 @@ namespace BCad.Dxf.Entities
                             break;
                         case 30:
                             arc.Center.Z = pair.DoubleValue;
+                            break;
+                        case 39:
+                            arc.Thickness = pair.DoubleValue;
                             break;
                         case 40:
                             arc.Radius = pair.DoubleValue;

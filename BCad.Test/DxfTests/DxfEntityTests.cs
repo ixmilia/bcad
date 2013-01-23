@@ -18,15 +18,27 @@ namespace BCad.Test.DxfTests
 {0}
   5
 <handle>
+  6
+<linetype-name>
   8
 <layer>
+ 48
+3.14159
+ 60
+1
  62
+1
+ 67
 1
 {1}
 ", entityType, data.Trim()));
             var entity = file.EntitiesSection.Entities.Single();
             Assert.Equal("<handle>", entity.Handle);
+            Assert.Equal("<linetype-name>", entity.LinetypeName);
             Assert.Equal("<layer>", entity.Layer);
+            Assert.Equal(3.14159, entity.LinetypeScale);
+            Assert.False(entity.IsVisible);
+            Assert.True(entity.IsInPaperSpace);
             Assert.Equal(DxfColor.FromIndex(1), entity.Color);
             return entity;
         }
@@ -37,8 +49,12 @@ namespace BCad.Test.DxfTests
   0
 {0}", entityType));
             var entity = file.EntitiesSection.Entities.Single();
-            Assert.Equal(null, entity.Handle);
-            Assert.Equal(null, entity.Layer);
+            Assert.Null(entity.Handle);
+            Assert.Null(entity.Layer);
+            Assert.Null(entity.LinetypeName);
+            Assert.Equal(1.0, entity.LinetypeScale);
+            Assert.True(entity.IsVisible);
+            Assert.False(entity.IsInPaperSpace);
             Assert.Equal(DxfColor.ByBlock, entity.Color);
             return entity;
         }
@@ -82,6 +98,7 @@ namespace BCad.Test.DxfTests
             Assert.Equal(0.0, circle.Normal.X);
             Assert.Equal(0.0, circle.Normal.Y);
             Assert.Equal(1.0, circle.Normal.Z);
+            Assert.Equal(0.0, circle.Thickness);
         }
 
         [Fact]
@@ -97,6 +114,7 @@ namespace BCad.Test.DxfTests
             Assert.Equal(1.0, arc.Normal.Z);
             Assert.Equal(0.0, arc.StartAngle);
             Assert.Equal(360.0, arc.EndAngle);
+            Assert.Equal(0.0, arc.Thickness);
         }
 
         [Fact]
@@ -199,6 +217,8 @@ namespace BCad.Test.DxfTests
 3.300000E+001
  40
 4.400000E+001
+ 39
+3.500000E+001
 210
 5.500000E+001
 220
@@ -213,6 +233,7 @@ namespace BCad.Test.DxfTests
             Assert.Equal(55.0, circle.Normal.X);
             Assert.Equal(66.0, circle.Normal.Y);
             Assert.Equal(77.0, circle.Normal.Z);
+            Assert.Equal(35.0, circle.Thickness);
         }
 
         [Fact]
@@ -237,6 +258,8 @@ namespace BCad.Test.DxfTests
 8.800000E+001
  51
 9.900000E+001
+ 39
+3.500000E+001
 ");
             Assert.Equal(11.0, arc.Center.X);
             Assert.Equal(22.0, arc.Center.Y);
@@ -247,6 +270,7 @@ namespace BCad.Test.DxfTests
             Assert.Equal(77.0, arc.Normal.Z);
             Assert.Equal(88.0, arc.StartAngle);
             Assert.Equal(99.0, arc.EndAngle);
+            Assert.Equal(35.0, arc.Thickness);
         }
 
         [Fact]
@@ -551,7 +575,7 @@ SEQEND
 
         #endregion
 
-        #region Write specific value tests
+        #region Write specific value tests TODO
 
         [Fact]
         public void WriteLineTest()
