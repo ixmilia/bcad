@@ -274,6 +274,31 @@ ENDSEC
 ");
         }
 
+        [Fact]
+        public void WriteViewportTest()
+        {
+            var file = new DxfFile();
+            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort());
+            VerifyFileContains(file, @"
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+VPORT
+  0
+VPORT
+  2
+*ACTIVE
+  0
+ENDTAB
+  0
+ENDSEC
+");
+        }
+
         #endregion
 
     }
