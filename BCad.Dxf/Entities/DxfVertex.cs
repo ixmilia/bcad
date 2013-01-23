@@ -81,7 +81,7 @@ namespace BCad.Dxf.Entities
             return vertex;
         }
 
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
         {
             yield return new DxfCodePair(10, Location.X);
             yield return new DxfCodePair(20, Location.Y);

@@ -28,7 +28,7 @@ namespace BCad.Dxf.Entities
             Normal = DxfVector.ZAxis;
         }
 
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
         {
             yield return new DxfCodePair(10, 0.0);
             yield return new DxfCodePair(20, 0.0);

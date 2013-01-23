@@ -43,14 +43,16 @@ namespace BCad.Test.DxfTests
             return entity;
         }
 
-        private static void EnsureContains(DxfFile file, string text)
+        private static void EnsureFileContainsEntity(DxfEntity entity, string text)
         {
+            var file = new DxfFile();
+            file.EntitiesSection.Entities.Add(entity);
             var stream = new MemoryStream();
             file.Save(stream);
             stream.Flush();
             stream.Seek(0, SeekOrigin.Begin);
             var actual = new StreamReader(stream).ReadToEnd();
-            Assert.True(actual.Contains(text.Trim()));
+            Assert.Contains(text.Trim(), actual);
         }
 
         #endregion
@@ -398,11 +400,190 @@ SEQEND
         [Fact]
         public void WriteDefaultLineTest()
         {
-            var file = new DxfFile();
-            file.EntitiesSection.Entities.Add(new DxfLine());
-            EnsureContains(file, @"
+            EnsureFileContainsEntity(new DxfLine(), @"
   0
 LINE
+ 62
+0
+100
+AcDbLine
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+ 11
+0.0000000000000000E+000
+ 21
+0.0000000000000000E+000
+ 31
+0.0000000000000000E+000
+  0
+");
+        }
+
+        [Fact]
+        public void WriteDefaultCircleTest()
+        {
+            EnsureFileContainsEntity(new DxfCircle(), @"
+  0
+CIRCLE
+ 62
+0
+100
+AcDbCircle
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+ 40
+0.0000000000000000E+000
+  0
+");
+        }
+
+        [Fact]
+        public void WriteDefaultArcTest()
+        {
+            EnsureFileContainsEntity(new DxfArc(), @"
+  0
+ARC
+ 62
+0
+100
+AcDbCircle
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+ 40
+0.0000000000000000E+000
+ 50
+0.0000000000000000E+000
+ 51
+3.6000000000000000E+002
+  0
+");
+        }
+
+        [Fact]
+        public void WriteDefaultEllipseTest()
+        {
+            EnsureFileContainsEntity(new DxfEllipse(), @"
+  0
+ELLIPSE
+ 62
+0
+100
+AcDbEllipse
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+ 11
+0.0000000000000000E+000
+ 21
+0.0000000000000000E+000
+ 31
+0.0000000000000000E+000
+ 40
+1.0000000000000000E+000
+ 41
+0.0000000000000000E+000
+ 42
+3.6000000000000000E+002
+  0
+");
+        }
+
+        [Fact]
+        public void WriteDefaultTextTest()
+        {
+            EnsureFileContainsEntity(new DxfText(), @"
+  0
+TEXT
+ 62
+0
+100
+AcDbText
+  1
+
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+ 40
+1.0000000000000000E+000
+  0
+");
+        }
+
+        [Fact]
+        public void WriteDefaultPolylineTest()
+        {
+            EnsureFileContainsEntity(new DxfPolyline(), @"
+  0
+POLYLINE
+ 62
+0
+100
+AcDb2dPolyline
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+  0
+SEQEND
+  0
+");
+        }
+
+        #endregion
+
+        #region Write specific value tests
+
+        [Fact]
+        public void WriteLineTest()
+        {
+            EnsureFileContainsEntity(new DxfLine(new DxfPoint(1, 2, 3), new DxfPoint(4, 5, 6))
+                {
+                    Color = DxfColor.FromIndex(7),
+                    Handle = "foo",
+                    Layer = "bar"
+                }, @"
+  0
+LINE
+  5
+foo
+  8
+bar
+ 62
+7
+100
+AcDbLine
+ 10
+1.0000000000000000E+000
+ 20
+2.0000000000000000E+000
+ 30
+3.0000000000000000E+000
+ 11
+4.0000000000000000E+000
+ 21
+5.0000000000000000E+000
+ 31
+6.0000000000000000E+000
   0
 ");
         }

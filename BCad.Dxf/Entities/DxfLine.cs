@@ -66,7 +66,7 @@ namespace BCad.Dxf.Entities
             return line;
         }
 
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
         {
             yield return new DxfCodePair(10, P1.X);
             yield return new DxfCodePair(20, P1.Y);

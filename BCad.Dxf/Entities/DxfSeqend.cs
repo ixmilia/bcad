@@ -8,9 +8,9 @@ namespace BCad.Dxf.Entities
 
         public override string SubclassMarker { get { return null; } }
 
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
         {
-            return null;
+            return new DxfCodePair[0];
         }
 
         internal static DxfSeqend SeqendFromBuffer(DxfCodePairBufferReader buffer)

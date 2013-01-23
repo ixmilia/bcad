@@ -73,7 +73,7 @@ namespace BCad.Dxf.Entities
             return circle;
         }
 
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
         {
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -48,15 +49,11 @@ namespace BCad.Dxf
             WriteCodeValuePair(new DxfCodePair(0, DxfFile.EofText));
             if (textWriter != null)
             {
-                textWriter.Close();
-                textWriter.Dispose();
-                textWriter = null;
+                textWriter.Flush();
             }
             if (binWriter != null)
             {
-                binWriter.Close();
-                binWriter.Dispose();
-                binWriter = null;
+                binWriter.Flush();
             }
         }
 

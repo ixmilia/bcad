@@ -31,6 +31,7 @@ namespace BCad.Dxf
         public DxfFile()
         {
             this.HeaderSection = new DxfHeaderSection();
+            this.TablesSection = new DxfTablesSection();
             this.EntitiesSection = new DxfEntitiesSection();
         }
 

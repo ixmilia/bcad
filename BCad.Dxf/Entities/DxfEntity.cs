@@ -61,7 +61,7 @@ namespace BCad.Dxf.Entities
             }
         }
 
-        protected abstract IEnumerable<DxfCodePair> GetEntitySpecificPairs();
+        internal abstract IEnumerable<DxfCodePair> GetEntitySpecificPairs();
 
         protected internal bool TrySetSharedCode(DxfCodePair pair)
         {
