@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,6 @@ namespace BCad.Dxf
         private ASCIIEncoding ascii = new ASCIIEncoding();
         private Stream fileStream = null;
 
-        private bool isOpened = false;
         private bool asText = true;
 
         public DxfWriter(string filename, bool asText)
@@ -28,10 +28,12 @@ namespace BCad.Dxf
             this.asText = asText;
         }
 
-        private void Open()
+        public void Open()
         {
             if (asText)
+            {
                 textWriter = new StreamWriter(fileStream);
+            }
             else
             {
                 binWriter = new BinaryWriter(fileStream);
@@ -40,7 +42,6 @@ namespace BCad.Dxf
                 binWriter.Write((byte)26);
                 binWriter.Write((byte)0);
             }
-            isOpened = true;
         }
 
         public void Close()
@@ -48,48 +49,21 @@ namespace BCad.Dxf
             WriteCodeValuePair(new DxfCodePair(0, DxfFile.EofText));
             if (textWriter != null)
             {
-                textWriter.Close();
-                textWriter.Dispose();
-                textWriter = null;
+                textWriter.Flush();
             }
             if (binWriter != null)
             {
-                binWriter.Close();
-                binWriter.Dispose();
-                binWriter = null;
+                binWriter.Flush();
             }
         }
 
-        private void Write(DxfSection section)
+        public void WriteCodeValuePair(DxfCodePair pair)
         {
-            var pairs = section.ValuePairs.ToList();
-            if (pairs.Count == 0)
-                return;
-            WriteCodeValuePair(new DxfCodePair(0, DxfSection.SectionText));
-            WriteCodeValuePair(new DxfCodePair(2, section.Type.ToSectionName()));
-            foreach (var p in pairs)
-                WriteCodeValuePair(p);
-            WriteCodeValuePair(new DxfCodePair(0, DxfSection.EndSectionText));
-        }
-
-        public void Write(DxfFile file)
-        {
-            // write sections
-            foreach (var section in file.Sections)
-            {
-                Write(section);
-            }
-        }
-
-        private void WriteCodeValuePair(DxfCodePair pair)
-        {
-            if (!isOpened)
-                Open();
             WriteCode(pair.Code);
             WriteValue(pair.Code, pair.Value);
         }
 
-        private void WriteCodeValuePairs(IEnumerable<DxfCodePair> pairs)
+        public void WriteCodeValuePairs(IEnumerable<DxfCodePair> pairs)
         {
             foreach (var pair in pairs)
                 WriteCodeValuePair(pair);

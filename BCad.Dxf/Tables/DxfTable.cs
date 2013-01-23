@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BCad.Dxf.Sections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Dxf.Tables
@@ -17,20 +18,7 @@ namespace BCad.Dxf.Tables
 
         public abstract DxfTableType TableType { get; }
 
-        public IEnumerable<DxfCodePair> ValuePairs
-        {
-            get
-            {
-                var pairs = GetTableValuePairs();
-                if (pairs.Count() > 0)
-                {
-                    foreach (var p in pairs)
-                        yield return p;
-                }
-            }
-        }
-
-        public abstract IEnumerable<DxfCodePair> GetTableValuePairs();
+        abstract internal IEnumerable<DxfCodePair> GetValuePairs();
 
         public string TableTypeName
         {
@@ -107,6 +95,31 @@ namespace BCad.Dxf.Tables
                     break;
             }
             return name;
+        }
+
+        internal static DxfTable FromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var pair = buffer.Peek();
+            buffer.Advance();
+            if (pair.Code != 2)
+            {
+                throw new DxfReadException("Expected table type.");
+            }
+
+            DxfTable result;
+            switch (pair.StringValue)
+            {
+                case DxfTable.LayerText:
+                    result = DxfLayerTable.LayerTableFromBuffer(buffer);
+                    break;
+                case DxfViewPort.ViewPortText:
+                    result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
+                    break;
+                default:
+                    throw new DxfReadException("Unexpected table type " + pair.StringValue);
+            }
+
+            return result;
         }
     }
 }

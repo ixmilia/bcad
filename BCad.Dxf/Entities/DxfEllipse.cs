@@ -27,6 +27,7 @@ namespace BCad.Dxf.Entities
         }
 
         public DxfEllipse(DxfPoint center, DxfVector majorAxis, double minorAxisRatio)
+            : base()
         {
             Center = center;
             MajorAxis = majorAxis;
@@ -36,57 +37,10 @@ namespace BCad.Dxf.Entities
             EndParameter = 360.0;
         }
 
-        public static DxfEllipse FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            var el = new DxfEllipse();
-            el.PopulateDefaultAndCommonValues(pairs);
-            foreach (var pair in pairs)
-            {
-                switch (pair.Code)
-                {
-                    case 10:
-                        el.Center.X = pair.DoubleValue;
-                        break;
-                    case 20:
-                        el.Center.Y = pair.DoubleValue;
-                        break;
-                    case 30:
-                        el.Center.Z = pair.DoubleValue;
-                        break;
-                    case 11:
-                        el.MajorAxis.X = pair.DoubleValue;
-                        break;
-                    case 21:
-                        el.MajorAxis.Y = pair.DoubleValue;
-                        break;
-                    case 31:
-                        el.MajorAxis.Z = pair.DoubleValue;
-                        break;
-                    case 210:
-                        el.Normal.X = pair.DoubleValue;
-                        break;
-                    case 220:
-                        el.Normal.Y = pair.DoubleValue;
-                        break;
-                    case 230:
-                        el.Normal.Z = pair.DoubleValue;
-                        break;
-                    case 40:
-                        el.MinorAxisRatio = pair.DoubleValue;
-                        break;
-                    case 41:
-                        el.StartParameter = pair.DoubleValue;
-                        break;
-                    case 42:
-                        el.EndParameter = pair.DoubleValue;
-                        break;
-                }
-            }
-            return el;
-        }
-
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);
             yield return new DxfCodePair(30, Center.Z);
@@ -103,6 +57,65 @@ namespace BCad.Dxf.Entities
             yield return new DxfCodePair(40, MinorAxisRatio);
             yield return new DxfCodePair(41, StartParameter);
             yield return new DxfCodePair(42, EndParameter);
+        }
+
+        internal static DxfEllipse EllipseFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var ellipse = new DxfEllipse();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                buffer.Advance();
+                if (!ellipse.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                            ellipse.Center.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            ellipse.Center.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            ellipse.Center.Z = pair.DoubleValue;
+                            break;
+                        case 11:
+                            ellipse.MajorAxis.X = pair.DoubleValue;
+                            break;
+                        case 21:
+                            ellipse.MajorAxis.Y = pair.DoubleValue;
+                            break;
+                        case 31:
+                            ellipse.MajorAxis.Z = pair.DoubleValue;
+                            break;
+                        case 210:
+                            ellipse.Normal.X = pair.DoubleValue;
+                            break;
+                        case 220:
+                            ellipse.Normal.Y = pair.DoubleValue;
+                            break;
+                        case 230:
+                            ellipse.Normal.Z = pair.DoubleValue;
+                            break;
+                        case 40:
+                            ellipse.MinorAxisRatio = pair.DoubleValue;
+                            break;
+                        case 41:
+                            ellipse.StartParameter = pair.DoubleValue;
+                            break;
+                        case 42:
+                            ellipse.EndParameter = pair.DoubleValue;
+                            break;
+                    }
+                }
+            }
+
+            return ellipse;
         }
 
         public override string ToString()

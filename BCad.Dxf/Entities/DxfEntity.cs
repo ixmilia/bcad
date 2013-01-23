@@ -39,94 +39,82 @@ namespace BCad.Dxf.Entities
 
         public DxfColor Color { get; set; }
 
-        public IEnumerable<DxfCodePair> ValuePairs
+        public DxfEntity()
         {
-            get
-            {
-                if (!string.IsNullOrEmpty(Handle))
-                    yield return new DxfCodePair(5, Handle);
-                if (!string.IsNullOrEmpty(Layer))
-                    yield return new DxfCodePair(8, Layer);
-                if (!Color.IsByLayer)
-                    yield return new DxfCodePair(62, Color.RawValue);
-                if (!string.IsNullOrEmpty(SubclassMarker))
-                    yield return new DxfCodePair(100, SubclassMarker);
-                foreach (var pair in GetEntitySpecificPairs())
-                    yield return pair;
-            }
-        }
-
-        protected abstract IEnumerable<DxfCodePair> GetEntitySpecificPairs();
-
-        protected void PopulateDefaultAndCommonValues(IEnumerable<DxfCodePair> pairs)
-        {
-            // set defaults
-            Handle = null;
-            Layer = null;
             Color = DxfColor.ByBlock;
-
-            // read specifics
-            foreach (var pair in pairs)
-            {
-                switch (pair.Code)
-                {
-                    case 5:
-                        Handle = pair.HandleValue;
-                        break;
-                    case 8:
-                        Layer = pair.StringValue;
-                        break;
-                    case 62:
-                        Color = DxfColor.FromRawValue(pair.ShortValue);
-                        break;
-                }
-            }
         }
 
-        public static DxfEntity FromCodeValuePairs(IEnumerable<DxfCodePair> pairs)
+        abstract internal IEnumerable<DxfCodePair> GetValuePairs();
+
+        protected internal IEnumerable<DxfCodePair> GetCommonValuePairs()
         {
-            var p = pairs.ToList();
-            var first = pairs.First();
-            if (first.Code != 0)
-                throw new DxfReadException("Expected start of entity");
-                        
-            DxfEntity ent = null;
+            yield return new DxfCodePair(0, this.EntityTypeString);
+            if (!string.IsNullOrEmpty(Handle))
+                yield return new DxfCodePair(5, Handle);
+            if (!string.IsNullOrEmpty(Layer))
+                yield return new DxfCodePair(8, Layer);
+            if (!Color.IsByLayer)
+                yield return new DxfCodePair(62, Color.RawValue);
+            if (!string.IsNullOrEmpty(SubclassMarker))
+                yield return new DxfCodePair(100, SubclassMarker);
+        }
+
+        protected internal bool TrySetSharedCode(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 5: // handle
+                    this.Handle = pair.HandleValue;
+                    break;
+                case 8: // layer
+                    this.Layer = pair.StringValue;
+                    break;
+                case 62: // color
+                    this.Color = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        internal static DxfEntity FromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var first = buffer.Peek();
+            buffer.Advance();
+            DxfEntity entity = null;
             switch (first.StringValue)
             {
-                case LineType:
-                    ent = DxfLine.FromPairs(pairs);
+                case ArcType:
+                    entity = DxfArc.ArcFromBuffer(buffer);
                     break;
                 case CircleType:
-                    ent = DxfCircle.FromPairs(pairs);
-                    break;
-                case ArcType:
-                    ent = DxfArc.FromPairs(pairs);
+                    entity = DxfCircle.CircleFromBuffer(buffer);
                     break;
                 case EllipseType:
-                    ent = DxfEllipse.FromPairs(pairs);
+                    entity = DxfEllipse.EllipseFromBuffer(buffer);
                     break;
-                case TextType:
-                    ent = DxfText.FromPairs(pairs);
+                case LineType:
+                    entity = DxfLine.LineFromBuffer(buffer);
                     break;
                 case PolylineType:
-                    ent = DxfPolyline.FromPairs(pairs);
+                    entity = DxfPolyline.PolylineFromBuffer(buffer);
                     break;
                 case SeqendType:
-                    ent = new DxfSeqend();
+                    entity = DxfSeqend.SeqendFromBuffer(buffer);
                     break;
-                // TODO:
-                // DIMENSION
-                // INSERT
-                // ATTRIB
-                // MTEXT
-                // HATCH
-                // LEADER
-                case VertexType: // not directly used
+                case TextType:
+                    entity = DxfText.TextFromBuffer(buffer);
+                    break;
+                case VertexType:
+                    entity = DxfVertex.VertexFromBuffer(buffer);
+                    break;
                 default:
-                    break;
+                    throw new DxfReadException("Unexpected entity type " + first.StringValue);
             }
 
-            return ent;
+            return entity;
         }
 
         public string EntityTypeString

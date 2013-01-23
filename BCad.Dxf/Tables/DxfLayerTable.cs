@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BCad.Dxf.Sections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Dxf.Tables
@@ -22,16 +23,43 @@ namespace BCad.Dxf.Tables
             Layers = new List<DxfLayer>(layers);
         }
 
-        public override IEnumerable<DxfCodePair> GetTableValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            foreach (var l in Layers.OrderBy(l => l.Name))
+            if (Layers.Count == 0)
+                yield break;
+            yield return new DxfCodePair(0, DxfSection.TableText);
+            yield return new DxfCodePair(2, DxfTable.LayerText);
+            foreach (var layer in Layers.OrderBy(l => l.Name))
             {
-                yield return new DxfCodePair(0, DxfLayer.LayerText);
-                foreach (var p in l.ValuePairs)
-                {
-                    yield return p;
-                }
+                foreach (var pair in layer.GetValuePairs())
+                    yield return pair;
             }
+
+            yield return new DxfCodePair(0, DxfSection.EndTableText);
+        }
+
+        internal static DxfLayerTable LayerTableFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var table = new DxfLayerTable();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfTablesSection.IsTableEnd(pair))
+                {
+                    break;
+                }
+
+                if (pair.Code != 0 || pair.StringValue != DxfLayerTable.LayerText)
+                {
+                    throw new DxfReadException("Expected layer start.");
+                }
+
+                var layer = DxfLayer.FromBuffer(buffer);
+                table.Layers.Add(layer);
+            }
+
+            return table;
         }
     }
 }

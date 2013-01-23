@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using BCad.Dxf.Entities;
+using BCad.Dxf.Sections;
 
 namespace BCad.Dxf
 {
@@ -163,6 +165,21 @@ namespace BCad.Dxf
                 throw new DxfReadException("Unknown type code " + code);
 
             return expected;
+        }
+
+        public static bool IsSectionStart(DxfCodePair pair)
+        {
+            return pair.Code == 0 && pair.StringValue == DxfSection.SectionText;
+        }
+
+        public static bool IsSectionEnd(DxfCodePair pair)
+        {
+            return pair.Code == 0 && pair.StringValue == DxfSection.EndSectionText;
+        }
+
+        public static bool IsEof(DxfCodePair pair)
+        {
+            return pair.Code == 0 && pair.StringValue == DxfFile.EofText;
         }
     }
 }

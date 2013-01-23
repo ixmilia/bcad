@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BCad.Dxf.Sections
 {
     public abstract class DxfSection
     {
-        public const string HeaderSectionText = "HEADER";
-        public const string ClassesSectionText = "CLASSES";
-        public const string TablesSectionText = "TABLES";
-        public const string BlocksSectionText = "BLOCKS";
-        public const string EntitiesSectionText = "ENTITIES";
-        public const string ObjectsSectionText = "OBJECTS";
+        internal const string HeaderSectionText = "HEADER";
+        internal const string ClassesSectionText = "CLASSES";
+        internal const string TablesSectionText = "TABLES";
+        internal const string BlocksSectionText = "BLOCKS";
+        internal const string EntitiesSectionText = "ENTITIES";
+        internal const string ObjectsSectionText = "OBJECTS";
 
-        public const string SectionText = "SECTION";
-        public const string EndSectionText = "ENDSEC";
+        internal const string SectionText = "SECTION";
+        internal const string EndSectionText = "ENDSEC";
 
-        public const string TableText = "TABLE";
-        public const string EndTableText = "ENDTAB";
+        internal const string TableText = "TABLE";
+        internal const string EndTableText = "ENDTAB";
 
         public abstract DxfSectionType Type { get; }
-
-        public abstract IEnumerable<DxfCodePair> ValuePairs { get; }
 
         protected DxfSection()
         {
@@ -32,18 +31,47 @@ namespace BCad.Dxf.Sections
             return Type.ToSectionName();
         }
 
-        internal static IEnumerable<IEnumerable<DxfCodePair>> SplitAtZero(IEnumerable<DxfCodePair> pairs)
+        protected internal abstract IEnumerable<DxfCodePair> GetSpecificPairs();
+
+        internal IEnumerable<DxfCodePair> GetValuePairs()
         {
-            var list = new List<List<DxfCodePair>>();
-            foreach (var p in pairs)
+            var pairs = GetSpecificPairs().ToList();
+            if (pairs.Count == 0)
+                yield break;
+            yield return new DxfCodePair(0, SectionText);
+            yield return new DxfCodePair(2, this.Type.ToSectionName());
+            foreach (var pair in pairs)
+                yield return pair;
+            yield return new DxfCodePair(0, EndSectionText);
+        }
+
+        internal static DxfSection FromBuffer(DxfCodePairBufferReader buffer)
+        {
+            Debug.Assert(buffer.ItemsRemain);
+            var sectionType = buffer.Peek();
+            buffer.Advance();
+            if (sectionType.Code != 2)
             {
-                if (p.Code == 0)
-                    list.Add(new List<DxfCodePair>());
-                if (list.Count == 0)
-                    list.Add(new List<DxfCodePair>());
-                list.Last().Add(p);
+                throw new DxfReadException("Expected code 2, got " + sectionType.Code);
             }
-            return list;
+
+            DxfSection section;
+            switch (sectionType.StringValue)
+            {
+                case EntitiesSectionText:
+                    section = DxfEntitiesSection.EntitiesSectionFromBuffer(buffer);
+                    break;
+                case HeaderSectionText:
+                    section = DxfHeaderSection.HeaderSectionFromBuffer(buffer);
+                    break;
+                case TablesSectionText:
+                    section = DxfTablesSection.TablesSectionFromBuffer(buffer);
+                    break;
+                default:
+                    throw new DxfReadException("Unexpected section type: " + sectionType.StringValue);
+            }
+
+            return section;
         }
     }
 }

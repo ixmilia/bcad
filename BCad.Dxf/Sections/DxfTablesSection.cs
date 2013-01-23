@@ -4,119 +4,73 @@ using BCad.Dxf.Tables;
 
 namespace BCad.Dxf.Sections
 {
-    internal class DxfTablesSection : DxfSection
+    public class DxfTablesSection : DxfSection
     {
         public override DxfSectionType Type
         {
             get { return DxfSectionType.Tables; }
         }
 
-        private DxfLayerTable layerTable;
-        private DxfViewPortTable viewPortTable;
-
-        public List<DxfLayer> Layers
-        {
-            get { return layerTable.Layers; }
-        }
-
-        public List<DxfViewPort> ViewPorts
-        {
-            get { return viewPortTable.ViewPorts; }
-        }
-
-        public IEnumerable<DxfTable> Tables
-        {
-            get
-            {
-                yield return layerTable;
-                yield return viewPortTable;
-            }
-        }
+        public DxfLayerTable LayerTable { get; private set; }
+        public DxfViewPortTable ViewPortTable { get; private set; }
 
         public DxfTablesSection()
         {
-            layerTable = new DxfLayerTable();
-            viewPortTable = new DxfViewPortTable();
+            this.LayerTable = new DxfLayerTable();
+            this.ViewPortTable = new DxfViewPortTable();
         }
 
-        public DxfTablesSection(IEnumerable<DxfCodePair> pairs)
-            : this()
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            foreach (var t in SplitTables(pairs))
+            foreach (var table in new DxfTable[] { LayerTable, ViewPortTable })
             {
-                switch (DxfTable.TableNameToType(t.TableName))
+                foreach (var pair in table.GetValuePairs())
+                    yield return pair;
+            }
+        }
+
+        internal static DxfTablesSection TablesSectionFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var section = new DxfTablesSection();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfCodePair.IsSectionEnd(pair))
+                {
+                    break;
+                }
+
+                if (!IsTableStart(pair))
+                {
+                    throw new DxfReadException("Expected start of table.");
+                }
+
+                var table = DxfTable.FromBuffer(buffer);
+                switch (table.TableType)
                 {
                     case DxfTableType.Layer:
-                        layerTable = new DxfLayerTable(DxfSection.SplitAtZero(t.ValuePairs).Select(l => DxfLayer.FromPairs(l)));
+                        section.LayerTable = (DxfLayerTable)table;
                         break;
                     case DxfTableType.ViewPort:
-                        var viewPorts = DxfSection.SplitAtZero(t.ValuePairs)
-                            .Select(v => DxfViewPort.FromPairs(v))
-                            .Where(v => v.Name != null);
-                        viewPortTable = new DxfViewPortTable(viewPorts);
+                        section.ViewPortTable = (DxfViewPortTable)table;
                         break;
+                    default:
+                        throw new DxfReadException("Unexpected table type " + table.TableType);
                 }
             }
+
+            return section;
         }
 
-        private static IEnumerable<DxfSimpleTable> SplitTables(IEnumerable<DxfCodePair> pairs)
-        {
-            var l = pairs.ToList();
-            var tables = new List<DxfSimpleTable>();
-            var su = new SingleUseEnumerable<DxfCodePair>(l);
-
-            while (su.Count > 0)
-            {
-                var item = su.GetItem();
-                if (item == null)
-                    throw new DxfReadException("Unexpected end of section");
-                if (!IsTableStart(item))
-                    throw new DxfReadException("Expected start of table, got " + item);
-                var header = su.GetItem();
-                if (header == null)
-                    throw new DxfReadException("Unexpected end of section");
-                if (header.Code != 2)
-                    throw new DxfReadException("Expected table type");
-                string name = header.StringValue;
-                var values = su.GetItems().TakeWhile(p => !IsTableEnd(p)).ToList();
-                tables.Add(new DxfSimpleTable(name, values));
-            }
-
-            if (su.Count > 0)
-                throw new DxfReadException("Unexpected values after table");
-
-            return tables;
-        }
-
-        private static bool IsTableStart(DxfCodePair pair)
+        internal static bool IsTableStart(DxfCodePair pair)
         {
             return pair.Code == 0 && pair.StringValue == DxfSection.TableText;
         }
 
-        private static bool IsTableEnd(DxfCodePair pair)
+        internal static bool IsTableEnd(DxfCodePair pair)
         {
             return pair.Code == 0 && pair.StringValue == DxfSection.EndTableText;
-        }
-
-        public override IEnumerable<DxfCodePair> ValuePairs
-        {
-            get
-            {
-                foreach (var t in Tables)
-                {
-                    var pairs = t.ValuePairs;
-                    if (pairs.Count() > 0)
-                    {
-                        yield return new DxfCodePair(0, DxfSection.TableText);
-                        yield return new DxfCodePair(2, t.TableTypeName);
-                        foreach (var p in pairs)
-                        {
-                            yield return p;
-                        }
-                        yield return new DxfCodePair(0, DxfSection.EndTableText);
-                    }
-                }
-            }
         }
     }
 }

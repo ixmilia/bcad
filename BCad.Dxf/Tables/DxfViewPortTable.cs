@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BCad.Dxf.Sections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Dxf.Tables
@@ -22,16 +23,43 @@ namespace BCad.Dxf.Tables
             ViewPorts = new List<DxfViewPort>(viewPorts);
         }
 
-        public override IEnumerable<DxfCodePair> GetTableValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            foreach (var v in ViewPorts)
+            if (ViewPorts.Count == 0)
+                yield break;
+            yield return new DxfCodePair(0, DxfSection.TableText);
+            yield return new DxfCodePair(2, DxfTable.ViewPortText);
+            foreach (var viewPort in ViewPorts)
             {
-                yield return new DxfCodePair(0, DxfViewPort.ViewPortText);
-                foreach (var p in v.ValuePairs)
-                {
-                    yield return p;
-                }
+                foreach (var pair in viewPort.GetValuePairs())
+                    yield return pair;
             }
+
+            yield return new DxfCodePair(0, DxfSection.EndTableText);
+        }
+
+        internal static DxfViewPortTable ViewPortTableFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var table = new DxfViewPortTable();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfTablesSection.IsTableEnd(pair))
+                {
+                    break;
+                }
+
+                if (pair.Code != 0 || pair.StringValue != DxfViewPort.ViewPortText)
+                {
+                    throw new DxfReadException("Expected view port start.");
+                }
+
+                var vp = DxfViewPort.FromBuffer(buffer);
+                table.ViewPorts.Add(vp);
+            }
+
+            return table;
         }
     }
 }

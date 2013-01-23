@@ -8,9 +8,30 @@ namespace BCad.Dxf.Entities
 
         public override string SubclassMarker { get { return null; } }
 
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            return null;
+            return new[] { new DxfCodePair(0, DxfEntity.SeqendType) };
+        }
+
+        internal static DxfSeqend SeqendFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var seqend = new DxfSeqend();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                buffer.Advance();
+                if (!seqend.TrySetSharedCode(pair))
+                {
+                    // nothing to parse
+                }
+            }
+
+            return seqend;
         }
     }
 }

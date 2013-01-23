@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -7,9 +8,11 @@ namespace BCad.Dxf.Entities
 {
     public class DxfText : DxfEntity
     {
+        public const string TextSubclassMarker = "AcDbText";
+
         public override DxfEntityType EntityType { get { return DxfEntityType.Text; } }
 
-        public override string SubclassMarker { get { return "AcDbText"; } }
+        public override string SubclassMarker { get { return TextSubclassMarker; } }
 
         public DxfPoint Location { get; set; }
 
@@ -22,7 +25,7 @@ namespace BCad.Dxf.Entities
         public string Value { get; set; }
 
         public DxfText()
-            : this(DxfPoint.Origin, 1.0, "")
+            : this(DxfPoint.Origin, 1.0, null)
         {
         }
 
@@ -35,48 +38,10 @@ namespace BCad.Dxf.Entities
             this.Rotation = 0.0;
         }
 
-        public static DxfText FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            var text = new DxfText();
-            text.PopulateDefaultAndCommonValues(pairs);
-            foreach (var pair in pairs)
-            {
-                switch (pair.Code)
-                {
-                    case 1:
-                        text.Value = pair.StringValue;
-                        break;
-                    case 10:
-                        text.Location.X = pair.DoubleValue;
-                        break;
-                    case 20:
-                        text.Location.Y = pair.DoubleValue;
-                        break;
-                    case 30:
-                        text.Location.Z = pair.DoubleValue;
-                        break;
-                    case 40:
-                        text.TextHeight = pair.DoubleValue;
-                        break;
-                    case 50:
-                        text.Rotation = pair.DoubleValue;
-                        break;
-                    case 210:
-                        text.Normal.X = pair.DoubleValue;
-                        break;
-                    case 220:
-                        text.Normal.Y = pair.DoubleValue;
-                        break;
-                    case 230:
-                        text.Normal.Z = pair.DoubleValue;
-                        break;
-                }
-            }
-            return text;
-        }
-
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
             yield return new DxfCodePair(1, Value);
             yield return new DxfCodePair(10, Location.X);
             yield return new DxfCodePair(20, Location.Y);
@@ -92,6 +57,63 @@ namespace BCad.Dxf.Entities
                 yield return new DxfCodePair(220, Normal.Y);
                 yield return new DxfCodePair(230, Normal.Z);
             }
+        }
+
+        internal static DxfText TextFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var text = new DxfText();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    // done
+                    break;
+                }
+
+                buffer.Advance();
+                if (!text.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 1:
+                            text.Value = pair.StringValue;
+                            break;
+                        case 10:
+                            text.Location.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            text.Location.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            text.Location.Z = pair.DoubleValue;
+                            break;
+                        case 40:
+                            text.TextHeight = pair.DoubleValue;
+                            break;
+                        case 50:
+                            text.Rotation = pair.DoubleValue;
+                            break;
+                        case 100:
+                            Debug.Assert(TextSubclassMarker == pair.StringValue);
+                            break;
+                        case 210:
+                            text.Normal.X = pair.DoubleValue;
+                            break;
+                        case 220:
+                            text.Normal.Y = pair.DoubleValue;
+                            break;
+                        case 230:
+                            text.Normal.Z = pair.DoubleValue;
+                            break;
+                        default:
+                            // unknown or unsupported code
+                            break;
+                    }
+                }
+            }
+
+            return text;
         }
 
         public override string ToString()

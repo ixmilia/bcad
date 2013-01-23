@@ -4,28 +4,8 @@ using BCad.Dxf.Entities;
 
 namespace BCad.Dxf.Sections
 {
-    internal class DxfEntitiesSection : DxfSection
+    public class DxfEntitiesSection : DxfSection
     {
-        public override DxfSectionType Type
-        {
-            get { return DxfSectionType.Entities; }
-        }
-
-        public override IEnumerable<DxfCodePair> ValuePairs
-        {
-            get
-            {
-                foreach (var e in Entities)
-                {
-                    yield return new DxfCodePair(0, e.EntityTypeString);
-                    foreach (var p in e.ValuePairs)
-                    {
-                        yield return p;
-                    }
-                }
-            }
-        }
-
         public List<DxfEntity> Entities { get; private set; }
 
         public DxfEntitiesSection()
@@ -33,61 +13,39 @@ namespace BCad.Dxf.Sections
             Entities = new List<DxfEntity>();
         }
 
-        public DxfEntitiesSection(IEnumerable<DxfEntity> entities)
+        public override DxfSectionType Type
         {
-            Entities = new List<DxfEntity>(entities);
+            get { return DxfSectionType.Entities; }
         }
 
-        public DxfEntitiesSection(IEnumerable<DxfCodePair> pairs)
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            var simpleRecords = CombineEntities(DxfSection.SplitAtZero(pairs));
-            Entities = simpleRecords.Select(r => DxfEntity.FromCodeValuePairs(r)).Where(e => e != null).ToList();
+           return this.Entities.SelectMany(e => e.GetValuePairs());
         }
 
-        private static IEnumerable<IEnumerable<DxfCodePair>> CombineEntities(IEnumerable<IEnumerable<DxfCodePair>> simpleEntities)
+        internal static DxfEntitiesSection EntitiesSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
-            var entities = new List<IEnumerable<DxfCodePair>>();
-            List<DxfCodePair> current = null;
-            bool readingCompound = false;
-            foreach (var simpleEntity in simpleEntities)
+            var section = new DxfEntitiesSection();
+            while (buffer.ItemsRemain)
             {
-                var first = simpleEntity.First();
-                if (readingCompound)
+                var pair = buffer.Peek();
+                if (DxfCodePair.IsSectionEnd(pair))
                 {
-                    switch (first.StringValue)
-                    {
-                        case DxfEntity.SeqendType:
-                            entities.Add(current);
-                            current = null;
-                            readingCompound = false;
-                            break;
-                        default:
-                            current.AddRange(simpleEntity);
-                            break;
-                    }
+                    // done reading entities
+                    buffer.Advance(); // swallow (0, ENDSEC)
+                    break;
                 }
-                else
+
+                if (pair.Code != 0)
                 {
-                    // check for start of compound
-                    switch (first.StringValue)
-                    {
-                        case DxfEntity.PolylineType:
-                            current = new List<DxfCodePair>(simpleEntity);
-                            readingCompound = true;
-                            break;
-                        default:
-                            entities.Add(simpleEntity);
-                            break;
-                    }
+                    throw new DxfReadException("Expected new entity.");
                 }
+
+                var entity = DxfEntity.FromBuffer(buffer);
+                section.Entities.Add(entity);
             }
 
-            if (readingCompound)
-            {
-                throw new DxfReadException("Compound entity not terminated");
-            }
-
-            return entities;
+            return section;
         }
     }
 }

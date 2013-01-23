@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
-using System.Diagnostics;
 
 namespace BCad.Dxf
 {
@@ -13,39 +14,28 @@ namespace BCad.Dxf
         public const string BinarySentinel = "AutoCAD Binary DXF";
         public const string EofText = "EOF";
 
-        private DxfTablesSection tablesSection = new DxfTablesSection();
-        private DxfEntitiesSection entitiesSection = new DxfEntitiesSection();
-        private DxfHeaderSection headerSection = new DxfHeaderSection();
-
-        public List<DxfLayer> Layers { get { return tablesSection.Layers; } }
-        public List<DxfEntity> Entities { get { return entitiesSection.Entities; } }
-        public List<DxfViewPort> ViewPorts { get { return tablesSection.ViewPorts; } }
+        public DxfHeaderSection HeaderSection { get; private set; }
+        public DxfTablesSection TablesSection { get; private set; }
+        public DxfEntitiesSection EntitiesSection { get; private set; }
 
         internal IEnumerable<DxfSection> Sections
         {
             get
             {
-                yield return headerSection;
-                yield return tablesSection;
-                yield return entitiesSection;
+                yield return this.HeaderSection;
+                yield return this.TablesSection;
+                yield return this.EntitiesSection;
             }
-        }
-
-        public IEnumerable<DxfTable> Tables
-        {
-            get { return tablesSection.Tables; }
-        }
-
-        public string CurrentLayer
-        {
-            get { return headerSection.CurrentLayer; }
-            set { headerSection.CurrentLayer = value; }
         }
 
         public DxfFile()
         {
+            this.HeaderSection = new DxfHeaderSection();
+            this.TablesSection = new DxfTablesSection();
+            this.EntitiesSection = new DxfEntitiesSection();
         }
 
+        // TODO: #if !SILVERLIGHT || !WIN_RT
         public static DxfFile Load(string path)
         {
             using (var stream = new FileStream(path, FileMode.Open))
@@ -58,17 +48,36 @@ namespace BCad.Dxf
         {
             var file = new DxfFile();
             var reader = new DxfReader(stream);
-            foreach (var sec in reader.Sections)
+            var buffer = new DxfCodePairBufferReader(reader.ReadCodePairs());
+            while (buffer.ItemsRemain)
             {
-                if (sec is DxfTablesSection)
-                    file.tablesSection = (DxfTablesSection)sec;
-                else if (sec is DxfEntitiesSection)
-                    file.entitiesSection = (DxfEntitiesSection)sec;
-                else if (sec is DxfHeaderSection)
-                    file.headerSection = (DxfHeaderSection)sec;
-                else
-                    Debug.Fail("Unknown section: " + sec.GetType().Name);
+                var pair = buffer.Peek();
+                if (DxfCodePair.IsSectionStart(pair))
+                {
+                    buffer.Advance(); // swallow (0, SECTION) pair
+                    var section = DxfSection.FromBuffer(buffer);
+                    switch (section.Type)
+                    {
+                        case DxfSectionType.Entities:
+                            file.EntitiesSection = (DxfEntitiesSection)section;
+                            break;
+                        case DxfSectionType.Header:
+                            file.HeaderSection = (DxfHeaderSection)section;
+                            break;
+                        case DxfSectionType.Tables:
+                            file.TablesSection = (DxfTablesSection)section;
+                            break;
+                    }
+                }
+                else if (DxfCodePair.IsEof(pair))
+                {
+                    // swallow and quit
+                    buffer.Advance();
+                    break;
+                }
             }
+
+            Debug.Assert(!buffer.ItemsRemain);
 
             return file;
         }
@@ -87,7 +96,15 @@ namespace BCad.Dxf
         private void WriteStream(Stream stream, bool asText)
         {
             var writer = new DxfWriter(stream, asText);
-            writer.Write(this);
+            writer.Open();
+
+            // write sections
+            foreach (var section in Sections)
+            {
+                foreach (var pair in section.GetValuePairs())
+                    writer.WriteCodeValuePair(pair);
+            }
+
             writer.Close();
         }
     }

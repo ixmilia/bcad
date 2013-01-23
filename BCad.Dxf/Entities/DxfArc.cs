@@ -24,6 +24,7 @@ namespace BCad.Dxf.Entities
         }
 
         public DxfArc(DxfPoint center, double radius, double startAngle, double endAngle)
+            : base()
         {
             Center = center;
             Radius = radius;
@@ -32,48 +33,10 @@ namespace BCad.Dxf.Entities
             Normal = new DxfVector(0.0, 0.0, 1.0);
         }
 
-        public static DxfArc FromPairs(IEnumerable<DxfCodePair> pairs)
+        internal override IEnumerable<DxfCodePair> GetValuePairs()
         {
-            var arc = new DxfArc();
-            arc.PopulateDefaultAndCommonValues(pairs);
-            foreach (var pair in pairs)
-            {
-                switch (pair.Code)
-                {
-                    case 10:
-                        arc.Center.X = pair.DoubleValue;
-                        break;
-                    case 20:
-                        arc.Center.Y = pair.DoubleValue;
-                        break;
-                    case 30:
-                        arc.Center.Z = pair.DoubleValue;
-                        break;
-                    case 40:
-                        arc.Radius = pair.DoubleValue;
-                        break;
-                    case 210:
-                        arc.Normal.X = pair.DoubleValue;
-                        break;
-                    case 220:
-                        arc.Normal.Y = pair.DoubleValue;
-                        break;
-                    case 230:
-                        arc.Normal.Z = pair.DoubleValue;
-                        break;
-                    case 50:
-                        arc.StartAngle = pair.DoubleValue;
-                        break;
-                    case 51:
-                        arc.EndAngle = pair.DoubleValue;
-                        break;
-                }
-            }
-            return arc;
-        }
-
-        protected override IEnumerable<DxfCodePair> GetEntitySpecificPairs()
-        {
+            foreach (var pair in base.GetCommonValuePairs())
+                yield return pair;
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);
             yield return new DxfCodePair(30, Center.Z);
@@ -86,6 +49,56 @@ namespace BCad.Dxf.Entities
                 yield return new DxfCodePair(220, Normal.Y);
                 yield return new DxfCodePair(230, Normal.Z);
             }
+        }
+
+        internal static DxfArc ArcFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            var arc = new DxfArc();
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                buffer.Advance();
+                if (!arc.TrySetSharedCode(pair))
+                {
+                    switch (pair.Code)
+                    {
+                        case 10:
+                            arc.Center.X = pair.DoubleValue;
+                            break;
+                        case 20:
+                            arc.Center.Y = pair.DoubleValue;
+                            break;
+                        case 30:
+                            arc.Center.Z = pair.DoubleValue;
+                            break;
+                        case 40:
+                            arc.Radius = pair.DoubleValue;
+                            break;
+                        case 210:
+                            arc.Normal.X = pair.DoubleValue;
+                            break;
+                        case 220:
+                            arc.Normal.Y = pair.DoubleValue;
+                            break;
+                        case 230:
+                            arc.Normal.Z = pair.DoubleValue;
+                            break;
+                        case 50:
+                            arc.StartAngle = pair.DoubleValue;
+                            break;
+                        case 51:
+                            arc.EndAngle = pair.DoubleValue;
+                            break;
+                    }
+                }
+            }
+
+            return arc;
         }
 
         public override string ToString()
