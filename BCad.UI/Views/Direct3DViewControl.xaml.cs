@@ -1115,7 +1115,6 @@ Result PShader(Input pixel)
                     InputType.Text
                 });
             }));
-            int i = 1;
         }
 
         private void UpdateCursor()

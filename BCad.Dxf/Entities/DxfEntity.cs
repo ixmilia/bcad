@@ -111,6 +111,19 @@ namespace BCad.Dxf.Entities
             return true;
         }
 
+        protected static bool GetBit(int bitField, int bitNumber)
+        {
+            return ((1 << (bitNumber - 1)) & bitField) != 0;
+        }
+
+        protected static int SetBit(int bitField, int bitNumber, bool value)
+        {
+            if (value)
+                return bitField | (1 << (bitNumber - 1));
+            else
+                return bitField & ~(1 << (bitNumber - 1));
+        }
+
         internal static DxfEntity FromBuffer(DxfCodePairBufferReader buffer)
         {
             var first = buffer.Peek();

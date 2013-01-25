@@ -85,6 +85,10 @@ namespace BCad.Test.DxfTests
             Assert.Equal(0.0, line.P2.X);
             Assert.Equal(0.0, line.P2.Y);
             Assert.Equal(0.0, line.P2.Z);
+            Assert.Equal(0.0, line.Thickness);
+            Assert.Equal(0.0, line.ExtrusionDirection.X);
+            Assert.Equal(0.0, line.ExtrusionDirection.Y);
+            Assert.Equal(1.0, line.ExtrusionDirection.Z);
         }
 
         [Fact]
@@ -174,6 +178,22 @@ namespace BCad.Test.DxfTests
             Assert.Equal(0.0, poly.Normal.X);
             Assert.Equal(0.0, poly.Normal.Y);
             Assert.Equal(1.0, poly.Normal.Z);
+            Assert.Equal(0.0, poly.Thickness);
+            Assert.Equal(0.0, poly.DefaultStartingWidth);
+            Assert.Equal(0.0, poly.DefaultEndingWidth);
+            Assert.Equal(0, poly.PolygonMeshMVertexCount);
+            Assert.Equal(0, poly.PolygonMeshNVertexCount);
+            Assert.Equal(0, poly.SmoothSurfaceMDensity);
+            Assert.Equal(0, poly.SmoothSurfaceNDensity);
+            Assert.Equal(CurvedAndSmoothSurfaceType.None, poly.SurfaceType);
+            Assert.False(poly.IsClosed);
+            Assert.False(poly.ContainsCurveFitVerticies);
+            Assert.False(poly.ContainsSplineFitVerticies);
+            Assert.False(poly.Is3DPolyline);
+            Assert.False(poly.Is3DPolygonMesh);
+            Assert.False(poly.Is3DMeshClosedInNDirection);
+            Assert.False(poly.IsPolyfaceMesh);
+            Assert.False(poly.IsContinuousLinetipePattern);
         }
 
         #endregion
@@ -196,6 +216,14 @@ namespace BCad.Test.DxfTests
 5.500000E+001
  31
 6.600000E+001
+ 39
+7.700000E+001
+210
+8.800000E+001
+220
+9.900000E+001
+230
+1.500000E+002
 ");
             Assert.Equal(11.0, line.P1.X);
             Assert.Equal(22.0, line.P1.Y);
@@ -203,6 +231,10 @@ namespace BCad.Test.DxfTests
             Assert.Equal(44.0, line.P2.X);
             Assert.Equal(55.0, line.P2.Y);
             Assert.Equal(66.0, line.P2.Z);
+            Assert.Equal(77.0, line.Thickness);
+            Assert.Equal(88.0, line.ExtrusionDirection.X);
+            Assert.Equal(99.0, line.ExtrusionDirection.Y);
+            Assert.Equal(150.0, line.ExtrusionDirection.Z);
         }
 
         [Fact]
@@ -377,8 +409,26 @@ foo bar
         public void ReadPolylineTest()
         {
             var poly = (DxfPolyline)Entity("POLYLINE", @"
-  30
+ 30
 1.100000E+001
+ 39
+1.800000E+001
+ 40
+4.000000E+001
+ 41
+4.100000E+001
+ 70
+255
+ 71
+71
+ 72
+72
+ 73
+73
+ 74
+74
+ 75
+6
 210
 2.200000E+001
 220
@@ -405,6 +455,22 @@ VERTEX
 SEQEND
 ");
             Assert.Equal(11.0, poly.Elevation);
+            Assert.Equal(18.0, poly.Thickness);
+            Assert.Equal(40.0, poly.DefaultStartingWidth);
+            Assert.Equal(41.0, poly.DefaultEndingWidth);
+            Assert.Equal(71, poly.PolygonMeshMVertexCount);
+            Assert.Equal(72, poly.PolygonMeshNVertexCount);
+            Assert.Equal(73, poly.SmoothSurfaceMDensity);
+            Assert.Equal(74, poly.SmoothSurfaceNDensity);
+            Assert.Equal(CurvedAndSmoothSurfaceType.CubicBSpline, poly.SurfaceType);
+            Assert.True(poly.IsClosed);
+            Assert.True(poly.ContainsCurveFitVerticies);
+            Assert.True(poly.ContainsSplineFitVerticies);
+            Assert.True(poly.Is3DPolyline);
+            Assert.True(poly.Is3DPolygonMesh);
+            Assert.True(poly.Is3DMeshClosedInNDirection);
+            Assert.True(poly.IsPolyfaceMesh);
+            Assert.True(poly.IsContinuousLinetipePattern);
             Assert.Equal(22.0, poly.Normal.X);
             Assert.Equal(33.0, poly.Normal.Y);
             Assert.Equal(44.0, poly.Normal.Z);
@@ -584,7 +650,9 @@ SEQEND
                 {
                     Color = DxfColor.FromIndex(7),
                     Handle = "foo",
-                    Layer = "bar"
+                    Layer = "bar",
+                    Thickness = 7,
+                    ExtrusionDirection = new DxfVector(8, 9, 10)
                 }, @"
   0
 LINE
@@ -608,6 +676,14 @@ AcDbLine
 5.0000000000000000E+000
  31
 6.0000000000000000E+000
+ 39
+7.0000000000000000E+000
+210
+8.0000000000000000E+000
+220
+9.0000000000000000E+000
+230
+1.0000000000000000E+001
   0
 ");
         }
