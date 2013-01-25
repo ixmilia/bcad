@@ -70,10 +70,17 @@ namespace BCad.Test
 
             TestParse("2'", 24.0); // just feet
 
-            TestParse("2'3\"", 27.0); // feet and inches, no specifier
-            TestParse("2'3", 27.0); // feet and inches, with specifier
+            TestParse("2'3\"", 27.0); // feet and inches, with specifier
+            TestParse("2'3", 27.0); // feet and inches, no specifier
 
-            TestParse("1'5/8\"", 0); // feet and fractional inches
+            TestParse("1'3-5/8\"", 15.625); // feet and whole and fractional inches
+            TestParse("1'5/8\"", 12.625); // feet and fractional inches
+
+            TestParse("1'3.5\"", 15.5); // feet with decimal inches with specifier
+            TestParse("1'3.5", 15.5); // feet with decimal inches without specifier
+
+            double temp;
+            Assert.False(DrawingSettings.TryParseUnits("", out temp)); // verify empty string fails to parse
         }
 
         private void TestParse(string text, double expected)

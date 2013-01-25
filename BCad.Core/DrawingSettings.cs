@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 using BCad.Helpers;
 
 namespace BCad
@@ -51,7 +53,36 @@ namespace BCad
 
         public static bool TryParseUnits(string text, out double value)
         {
-            throw new NotImplementedException();
+            value = default(double);
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+            if (double.TryParse(text, out value))
+                return true;
+
+            //                           feet '  inches  - num /denom  "
+            var regex = new Regex(@"^\s*((\d+)')?(\d+)?((-(\d+)/(\d+))?"")?\s*$");
+            //                          12       3     45 6     7
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                Debug.Assert(match.Groups.Count == 8); // group 0 is the whole string
+                var feet = ParseIntAsDouble(match.Groups[2].Value);
+                var inches = ParseIntAsDouble(match.Groups[3].Value);
+                var num = ParseIntAsDouble(match.Groups[6].Value);
+                var denom = ParseIntAsDouble(match.Groups[7].Value);
+                if (denom == 0.0) denom = 1.0; // hack to prevent zero division
+                value = (feet * 12.0) + inches + (num / denom);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static double ParseIntAsDouble(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return 0.0;
+            return (double)int.Parse(text);
         }
 
         private static string FormatMetric(double value, int precision)
