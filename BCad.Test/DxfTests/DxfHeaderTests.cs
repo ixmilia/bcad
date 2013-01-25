@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BCad.Dxf;
+using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
 using Xunit;
 
@@ -16,6 +17,7 @@ namespace BCad.Test.DxfTests
             var file = Section("HEADER", "");
             Assert.Null(file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
+            Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
         }
 
         [Fact]
@@ -23,16 +25,21 @@ namespace BCad.Test.DxfTests
         {
             var file = Section("HEADER", @"
   9
+$ACADVER
+  1
+AC1012
+  9
 $CLAYER
   8
 <current layer>
   9
-$ACADVER
-  1
-AC1012
+$LUNITS
+ 70
+6
 ");
             Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
+            Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
         }
 
         [Fact]
@@ -229,19 +236,24 @@ ENDTAB
             var file = new DxfFile();
             file.HeaderSection.CurrentLayer = "<current layer>";
             file.HeaderSection.Version = DxfAcadVersion.R13;
+            file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
             VerifyFileContains(file, @"
   0
 SECTION
   2
 HEADER
   9
+$ACADVER
+  1
+AC1012
+  9
 $CLAYER
   8
 <current layer>
   9
-$ACADVER
-  1
-AC1012
+$LUNITS
+ 70
+3
   0
 ENDSEC
 ");

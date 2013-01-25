@@ -6,18 +6,33 @@ using System.Text;
 
 namespace BCad.Dxf.Sections
 {
+    public enum DxfUnitFormat
+    {
+        None = 0,
+        Scientific = 1,
+        Decimal = 2,
+        Engineering = 3,
+        ArchitecturalStacked = 4,
+        FractionalStacked = 5,
+        Architectural = 6,
+        Fractional = 7,
+    }
+
     public class DxfHeaderSection : DxfSection
     {
         public string CurrentLayer { get; set; }
         public DxfAcadVersion Version { get; set; }
+        public DxfUnitFormat UnitFormat { get; set; }
 
-        private const string CLAYER = "$CLAYER";
         private const string ACADVER = "$ACADVER";
+        private const string CLAYER = "$CLAYER";
+        private const string LUNITS = "$LUNITS";
 
         public DxfHeaderSection()
         {
             CurrentLayer = null;
             Version = DxfAcadVersion.R14;
+            UnitFormat = DxfUnitFormat.None;
         }
 
         public override DxfSectionType Type
@@ -27,16 +42,22 @@ namespace BCad.Dxf.Sections
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
+            if (Version != DxfAcadVersion.R14)
+            {
+                yield return new DxfCodePair(9, ACADVER);
+                yield return new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(Version));
+            }
+
             if (!string.IsNullOrEmpty(CurrentLayer))
             {
                 yield return new DxfCodePair(9, CLAYER);
                 yield return new DxfCodePair(8, CurrentLayer);
             }
 
-            if (Version != DxfAcadVersion.R14)
+            if (UnitFormat != DxfUnitFormat.None)
             {
-                yield return new DxfCodePair(9, ACADVER);
-                yield return new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(Version));
+                yield return new DxfCodePair(9, LUNITS);
+                yield return new DxfCodePair(70, (short)UnitFormat);
             }
         }
 
@@ -72,6 +93,10 @@ namespace BCad.Dxf.Sections
                         case CLAYER:
                             EnsureCode(pair, 8);
                             section.CurrentLayer = pair.StringValue;
+                            break;
+                        case LUNITS:
+                            EnsureCode(pair, 70);
+                            section.UnitFormat = (DxfUnitFormat)pair.ShortValue;
                             break;
                         default:
                             // unsupported variable
