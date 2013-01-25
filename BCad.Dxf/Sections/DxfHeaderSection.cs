@@ -23,10 +23,12 @@ namespace BCad.Dxf.Sections
         public string CurrentLayer { get; set; }
         public DxfAcadVersion Version { get; set; }
         public DxfUnitFormat UnitFormat { get; set; }
+        public short UnitPrecision { get; set; }
 
         private const string ACADVER = "$ACADVER";
         private const string CLAYER = "$CLAYER";
         private const string LUNITS = "$LUNITS";
+        private const string LUPREC = "$LUPREC";
 
         public DxfHeaderSection()
         {
@@ -58,6 +60,12 @@ namespace BCad.Dxf.Sections
             {
                 yield return new DxfCodePair(9, LUNITS);
                 yield return new DxfCodePair(70, (short)UnitFormat);
+            }
+
+            if (UnitPrecision != 0)
+            {
+                yield return new DxfCodePair(9, LUPREC);
+                yield return new DxfCodePair(70, UnitPrecision);
             }
         }
 
@@ -97,6 +105,10 @@ namespace BCad.Dxf.Sections
                         case LUNITS:
                             EnsureCode(pair, 70);
                             section.UnitFormat = (DxfUnitFormat)pair.ShortValue;
+                            break;
+                        case LUPREC:
+                            EnsureCode(pair, 70);
+                            section.UnitPrecision = pair.ShortValue;
                             break;
                         default:
                             // unsupported variable

@@ -18,6 +18,7 @@ namespace BCad.Test.DxfTests
             Assert.Null(file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
             Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
+            Assert.Equal(0, file.HeaderSection.UnitPrecision);
         }
 
         [Fact]
@@ -36,10 +37,15 @@ $CLAYER
 $LUNITS
  70
 6
+  9
+$LUPREC
+ 70
+7
 ");
             Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
             Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
+            Assert.Equal(7, file.HeaderSection.UnitPrecision);
         }
 
         [Fact]
@@ -237,6 +243,7 @@ ENDTAB
             file.HeaderSection.CurrentLayer = "<current layer>";
             file.HeaderSection.Version = DxfAcadVersion.R13;
             file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
+            file.HeaderSection.UnitPrecision = 4;
             VerifyFileContains(file, @"
   0
 SECTION
@@ -254,6 +261,10 @@ $CLAYER
 $LUNITS
  70
 3
+  9
+$LUPREC
+ 70
+4
   0
 ENDSEC
 ");

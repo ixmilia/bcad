@@ -77,7 +77,7 @@ namespace BCad.Commands.FileHandlers
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName, file.HeaderSection.UnitFormat.ToUnitFormat(), -1),
+                new DrawingSettings(fileName, file.HeaderSection.UnitFormat.ToUnitFormat(), file.HeaderSection.UnitPrecision),
                 layers.ToReadOnlyDictionary(),
                 file.HeaderSection.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
 
@@ -107,6 +107,7 @@ namespace BCad.Commands.FileHandlers
             // save layers and entities
             file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
             file.HeaderSection.UnitFormat = workspace.Drawing.Settings.UnitFormat.ToDxfUnitFormat();
+            file.HeaderSection.UnitPrecision = (short)workspace.Drawing.Settings.UnitPrecision;
             foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
             {
                 file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
