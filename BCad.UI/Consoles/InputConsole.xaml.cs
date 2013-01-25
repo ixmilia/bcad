@@ -109,9 +109,8 @@ namespace BCad.UI.Consoles
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Distance))
             {
-                // TODO: parse single value or point
                 double dist = 0.0;
-                if (double.TryParse(text, out dist))
+                if (DrawingSettings.TryParseUnits(text, out dist))
                 {
                     InputService.PushDistance(dist);
                 }
@@ -138,7 +137,7 @@ namespace BCad.UI.Consoles
 
         private static Regex relativePoint = new Regex(string.Format("^@{0},{0},{0}$", Point.NumberPattern), RegexOptions.Compiled);
 
-        private static Regex relativeAngle = new Regex(string.Format("^{0}<{0}$", Point.NumberPattern), RegexOptions.Compiled);
+        private static Regex relativeAngle = new Regex(string.Format("^.*<{0}$", Point.NumberPattern), RegexOptions.Compiled);
 
         private Point ParsePoint(string text)
         {
@@ -147,10 +146,11 @@ namespace BCad.UI.Consoles
                 text += ",0";
 
             Point p;
-            if (numberPattern.IsMatch(text))
+            double value = 0.0;
+            if (DrawingSettings.TryParseUnits(text, out value))
             {
                 // length on current vector
-                var length = double.Parse(text);
+                var length = value;
                 var cursor = Workspace.ViewControl.GetCursorPoint();
                 var vec = cursor - InputService.LastPoint;
                 if (vec.LengthSquared == 0.0)
@@ -174,11 +174,19 @@ namespace BCad.UI.Consoles
             {
                 // distance and angle
                 var parts = text.Split("<".ToCharArray(), 2);
-                var dist = double.Parse(parts[0]);
-                var angle = double.Parse(parts[1]);
-                var radians = angle * MathHelper.DegreesToRadians;
-                var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
-                p = InputService.LastPoint + offset;
+                if (DrawingSettings.TryParseUnits(parts[0], out value))
+                {
+                    var dist = value;
+                    var angle = double.Parse(parts[1]);
+                    var radians = angle * MathHelper.DegreesToRadians;
+                    var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
+                    p = InputService.LastPoint + offset;
+                }
+                else
+                {
+                    // failed to parse distance
+                    p = null;
+                }
             }
             else if (Point.PointPattern.IsMatch(text))
             {
