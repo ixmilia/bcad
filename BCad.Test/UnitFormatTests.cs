@@ -78,9 +78,14 @@ namespace BCad.Test
 
             TestParse("1'3.5\"", 15.5); // feet with decimal inches with specifier
             TestParse("1'3.5", 15.5); // feet with decimal inches without specifier
+        }
 
-            double temp;
-            Assert.False(DrawingSettings.TryParseUnits("", out temp)); // verify empty string fails to parse
+        [Fact]
+        public void ParseFailureTest()
+        {
+            ParseFail(""); // empty string
+            ParseFail("foo"); // not a number
+            ParseFail("1'3foo"); // garbage tail
         }
 
         private void TestParse(string text, double expected)
@@ -88,6 +93,12 @@ namespace BCad.Test
             double actual;
             Assert.True(DrawingSettings.TryParseUnits(text, out actual));
             Assert.Equal(expected, actual);
+        }
+
+        private void ParseFail(string text)
+        {
+            double temp;
+            Assert.False(DrawingSettings.TryParseUnits(text, out temp));
         }
 
         private void TestMetric(double value, string expected, int precision)

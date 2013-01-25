@@ -59,10 +59,7 @@ namespace BCad
             if (double.TryParse(text, out value))
                 return true;
 
-            //                           feet '  inches  - num /denom  "
-            var regex = new Regex(@"^\s*((\d+)')?(\d+)?((-(\d+)/(\d+))?"")?\s*$");
-            //                          12       3     45 6     7
-            var match = regex.Match(text);
+            var match = FullArchitecturalPattern.Match(text);
             if (match.Success)
             {
                 Debug.Assert(match.Groups.Count == 8); // group 0 is the whole string
@@ -75,8 +72,26 @@ namespace BCad
                 return true;
             }
 
+            match = MixedArchitecturalPattern.Match(text);
+            if (match.Success)
+            {
+                Debug.Assert(match.Groups.Count == 4);
+                var feet = ParseIntAsDouble(match.Groups[1].Value);
+                var inches = double.Parse(match.Groups[2].Value);
+                value = (feet * 12.0) + inches;
+                return true;
+            }
+
             return false;
         }
+
+        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?"")?\s*$", RegexOptions.Compiled);
+        //                                                              12       3     45  6     7
+        //                                                               feet '  inches  -  num /denom  "
+
+        private static Regex MixedArchitecturalPattern = new Regex(@"^\s*(\d+)'(\d+(\.\d+)?)""?\s*$", RegexOptions.Compiled);
+        //                                                               1     2   3
+        //                                                               feet 'inches.partial"
 
         private static double ParseIntAsDouble(string text)
         {
