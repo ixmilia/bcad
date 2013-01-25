@@ -42,13 +42,16 @@ namespace BCad.Test
             TestArch(15.2, "1'3-1/8\"", 8); // 1'3-1/8"
 
             // even feet
-            TestArch(24.0, "2'", 16); // 2'
+            TestArch(24.0, "2'0\"", 16); // 2'
 
             // only fractional inches
-            TestArch(0.125, "1/8\"", 16); // 1/8"
+            TestArch(0.125, "0'0-1/8\"", 16); // 1/8"
 
             // feet and fractional inches, no whole inches
-            TestArch(36.625, "3'5/8\"", 16); // 3'5/8"
+            TestArch(36.625, "3'0-5/8\"", 16); // 3'5/8"
+
+            // near the upper limit
+            TestArch(15.99999999, "1'4\"", 16);
         }
 
         [Fact]

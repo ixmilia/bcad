@@ -67,22 +67,61 @@ namespace BCad
             var inches = (int)value % 12;
             var frac = value - ((double)(int)value);
 
+            int numerator = 0, denominator = 0;
             switch (precision)
             {
-                case 0: // no fractional inches
-                    break;
                 case 2: // 1/2
-                    break;
                 case 4: // 1/4
-                    break;
                 case 8: // 1/8
-                    break;
                 case 16: // 1/16
-                    break;
                 case 32: // 1/32
+                    int i = 0;
+                    for (i = 0; i < precision; i++)
+                    {
+                        var limit = (double)i / precision;
+                        if (frac < limit)
+                        {
+                            i--;
+                            break;
+                        }
+                    }
+                    numerator = i;
+                    denominator = precision;
+                    if (numerator == denominator)
+                    {
+                        numerator = denominator = 0;
+                        inches++;
+                    }
+                    break;
+                default:
+                    // unsupported fractional part
                     break;
             }
-            return null;
+
+            while (inches >= 12)
+            {
+                inches -= 12;
+                feet++;
+            }
+
+            ReduceFraction(ref numerator, ref denominator);
+            string fractional = string.Empty;
+            if (numerator != 0 && denominator != 0)
+                fractional = string.Format("-{0}/{1}", numerator, denominator);
+
+            string formatted = string.Format("{0}'{1}{2}\"", feet, inches, fractional);
+            return formatted;
+        }
+
+        private static void ReduceFraction(ref int numerator, ref int denominator)
+        {
+            if (numerator == 0 || denominator == 0)
+                return;
+            while (numerator % 2 == 0 && denominator % 2 == 0)
+            {
+                numerator /= 2;
+                denominator /= 2;
+            }
         }
 
         private static string[] decimalFormats = new string[]
