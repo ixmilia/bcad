@@ -151,7 +151,18 @@ namespace BCad.Test.DxfTests
             Assert.Equal(1.0, text.Normal.Z);
             Assert.Equal(0.0, text.Rotation);
             Assert.Equal(1.0, text.TextHeight);
-            Assert.Equal(null, text.Value);
+            Assert.Null(text.Value);
+            Assert.Null(text.TextStyleName);
+            Assert.Equal(0.0, text.Thickness);
+            Assert.Equal(1.0, text.RelativeXScaleFactor);
+            Assert.Equal(0.0, text.ObliqueAngle);
+            Assert.False(text.IsTextBackward);
+            Assert.False(text.IsTextUpsideDown);
+            Assert.Equal(0.0, text.SecondAlignmentPoint.X);
+            Assert.Equal(0.0, text.SecondAlignmentPoint.Y);
+            Assert.Equal(0.0, text.SecondAlignmentPoint.Z);
+            Assert.Equal(HorizontalTextJustification.Left, text.HorizontalTextJustification);
+            Assert.Equal(VerticalTextJustification.Baseline, text.VerticalTextJustification);
         }
 
         [Fact]
@@ -161,6 +172,21 @@ namespace BCad.Test.DxfTests
             Assert.Equal(0.0, vertex.Location.X);
             Assert.Equal(0.0, vertex.Location.Y);
             Assert.Equal(0.0, vertex.Location.Z);
+            Assert.Equal(0.0, vertex.StartingWidth);
+            Assert.Equal(0.0, vertex.EndingWidth);
+            Assert.Equal(0.0, vertex.Bulge);
+            Assert.False(vertex.IsExtraCreatedByCurveFit);
+            Assert.False(vertex.IsCurveFitTangentDefined);
+            Assert.False(vertex.IsSplineVertexCreatedBySplineFitting);
+            Assert.False(vertex.IsSplineFrameControlPoint);
+            Assert.False(vertex.Is3DPolylineVertex);
+            Assert.False(vertex.Is3DPolygonMesh);
+            Assert.False(vertex.IsPolyfaceMeshVertex);
+            Assert.Equal(0.0, vertex.CurveFitTangentDirection);
+            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex1);
+            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex2);
+            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex3);
+            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex4);
         }
 
         [Fact]
@@ -354,16 +380,36 @@ namespace BCad.Test.DxfTests
             var text = (DxfText)Entity("TEXT", @"
   1
 foo bar
+  7
+text style name
  10
 1.100000E+001
  20
 2.200000E+001
  30
 3.300000E+001
+ 39
+3.900000E+001
  40
 4.400000E+001
+ 41
+4.100000E+001
  50
 5.500000E+001
+ 51
+5.100000E+001
+ 71
+255
+ 72
+3
+ 73
+1
+ 11
+9.100000E+001
+ 21
+9.200000E+001
+ 31
+9.300000E+001
  210
 6.600000E+001
  220
@@ -372,10 +418,21 @@ foo bar
 8.800000E+001
 ");
             Assert.Equal("foo bar", text.Value);
+            Assert.Equal("text style name", text.TextStyleName);
             Assert.Equal(11.0, text.Location.X);
             Assert.Equal(22.0, text.Location.Y);
             Assert.Equal(33.0, text.Location.Z);
+            Assert.Equal(39.0, text.Thickness);
+            Assert.Equal(41.0, text.RelativeXScaleFactor);
             Assert.Equal(44.0, text.TextHeight);
+            Assert.Equal(51.0, text.ObliqueAngle);
+            Assert.True(text.IsTextBackward);
+            Assert.True(text.IsTextUpsideDown);
+            Assert.Equal(HorizontalTextJustification.Aligned, text.HorizontalTextJustification);
+            Assert.Equal(VerticalTextJustification.Bottom, text.VerticalTextJustification);
+            Assert.Equal(91.0, text.SecondAlignmentPoint.X);
+            Assert.Equal(92.0, text.SecondAlignmentPoint.Y);
+            Assert.Equal(93.0, text.SecondAlignmentPoint.Z);
             Assert.Equal(55.0, text.Rotation);
             Assert.Equal(66.0, text.Normal.X);
             Assert.Equal(77.0, text.Normal.Y);
@@ -392,10 +449,43 @@ foo bar
 2.200000E+001
  30
 3.300000E+001
+ 40
+4.000000E+001
+ 41
+4.100000E+001
+ 42
+4.200000E+001
+ 50
+5.000000E+001
+ 70
+255
+ 71
+71
+ 72
+72
+ 73
+73
+ 74
+74
 ");
             Assert.Equal(11.0, vertex.Location.X);
             Assert.Equal(22.0, vertex.Location.Y);
             Assert.Equal(33.0, vertex.Location.Z);
+            Assert.Equal(40.0, vertex.StartingWidth);
+            Assert.Equal(41.0, vertex.EndingWidth);
+            Assert.Equal(42.0, vertex.Bulge);
+            Assert.True(vertex.IsExtraCreatedByCurveFit);
+            Assert.True(vertex.IsCurveFitTangentDefined);
+            Assert.True(vertex.IsSplineVertexCreatedBySplineFitting);
+            Assert.True(vertex.IsSplineFrameControlPoint);
+            Assert.True(vertex.Is3DPolylineVertex);
+            Assert.True(vertex.Is3DPolygonMesh);
+            Assert.True(vertex.IsPolyfaceMeshVertex);
+            Assert.Equal(50.0, vertex.CurveFitTangentDirection);
+            Assert.Equal(71, vertex.PolyfaceMeshVertexIndex1);
+            Assert.Equal(72, vertex.PolyfaceMeshVertexIndex2);
+            Assert.Equal(73, vertex.PolyfaceMeshVertexIndex3);
+            Assert.Equal(74, vertex.PolyfaceMeshVertexIndex4);
         }
 
         [Fact]
