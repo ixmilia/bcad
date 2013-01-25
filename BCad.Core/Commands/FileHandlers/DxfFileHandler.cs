@@ -7,6 +7,7 @@ using BCad;
 using BCad.Collections;
 using BCad.Dxf;
 using BCad.Dxf.Entities;
+using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
 using BCad.Entities;
 using BCad.Extensions;
@@ -76,7 +77,7 @@ namespace BCad.Commands.FileHandlers
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName, UnitFormat.None, -1),
+                new DrawingSettings(fileName, file.HeaderSection.UnitFormat.ToUnitFormat(), -1),
                 layers.ToReadOnlyDictionary(),
                 file.HeaderSection.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
 
@@ -105,6 +106,7 @@ namespace BCad.Commands.FileHandlers
 
             // save layers and entities
             file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
+            file.HeaderSection.UnitFormat = workspace.Drawing.Settings.UnitFormat.ToDxfUnitFormat();
             foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
             {
                 file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
@@ -290,6 +292,41 @@ namespace BCad.Commands.FileHandlers
                 Normal = text.Normal.ToDxfVector(),
                 Rotation = text.Rotation
             };
+        }
+
+        public static DxfUnitFormat ToDxfUnitFormat(this UnitFormat format)
+        {
+            switch (format)
+            {
+                case UnitFormat.Architectural:
+                    return DxfUnitFormat.Architectural;
+                case UnitFormat.Metric:
+                    return DxfUnitFormat.Decimal;
+                case UnitFormat.None:
+                    return DxfUnitFormat.None;
+                default:
+                    throw new ArgumentException("Unsupported unit format");
+            }
+        }
+
+        public static UnitFormat ToUnitFormat(this DxfUnitFormat format)
+        {
+            switch (format)
+            {
+                case DxfUnitFormat.Architectural:
+                case DxfUnitFormat.ArchitecturalStacked:
+                case DxfUnitFormat.Fractional:
+                case DxfUnitFormat.FractionalStacked:
+                    return UnitFormat.Architectural;
+                case DxfUnitFormat.Decimal:
+                case DxfUnitFormat.Engineering:
+                case DxfUnitFormat.Scientific:
+                    return UnitFormat.Metric;
+                case DxfUnitFormat.None:
+                    return UnitFormat.None;
+                default:
+                    throw new ArgumentException("Unsupported unit format");
+            }
         }
     }
 }
