@@ -6,6 +6,14 @@ HEADER
 $CLAYER
   8
 Doors
+  9
+$LUNITS
+ 70
+6
+  9
+$LUPREC
+ 70
+16
   0
 ENDSEC
   0
