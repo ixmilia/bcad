@@ -101,7 +101,7 @@ namespace BCad.Services
                     result = ValueOrDirective<double>.GetCancel();
                     break;
                 case PushedValueType.None:
-                    result = new ValueOrDirective<double>();
+                    result = ValueOrDirective<double>.GetValue(defaultDistance.Value);
                     break;
                 case PushedValueType.Distance:
                     result = ValueOrDirective<double>.GetValue(pushedDistance);
@@ -146,7 +146,7 @@ namespace BCad.Services
                     result = ValueOrDirective<Point>.GetCancel();
                     break;
                 case PushedValueType.None:
-                    result = new ValueOrDirective<Point>();
+                    result = new ValueOrDirective<Point>(); // TODO: default directive?
                     break;
                 case PushedValueType.Directive:
                     result = ValueOrDirective<Point>.GetDirective(pushedDirective);
@@ -510,6 +510,17 @@ namespace BCad.Services
 
         protected virtual void OnValueReceived(ValueReceivedEventArgs e)
         {
+            // write out received value
+            switch (e.InputType)
+            {
+                case InputType.Point:
+                    WriteLine(e.Point.ToString());
+                    break;
+                case InputType.Text:
+                    WriteLine(e.Text);
+                    break;
+            }
+
             if (ValueReceived != null)
                 ValueReceived(this, e);
             pushValueDone.Set();

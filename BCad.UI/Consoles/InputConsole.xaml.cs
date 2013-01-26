@@ -103,14 +103,25 @@ namespace BCad.UI.Consoles
         {
             var text = inputLine.Text;
 
-            if (InputService.AllowedInputTypes.HasFlag(InputType.Directive) && InputService.AllowedDirectives.Contains(text))
+            if (InputService.AllowedInputTypes.HasFlag(InputType.Directive))
             {
-                InputService.PushDirective(text);
+                if (InputService.AllowedDirectives.Contains(text))
+                {
+                    InputService.PushDirective(text);
+                }
+                else
+                {
+                    InputService.PushNone();
+                }
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Distance))
             {
                 double dist = 0.0;
-                if (DrawingSettings.TryParseUnits(text, out dist))
+                if (string.IsNullOrEmpty(text))
+                {
+                    InputService.PushNone();
+                }
+                else if (DrawingSettings.TryParseUnits(text, out dist))
                 {
                     InputService.PushDistance(dist);
                 }
