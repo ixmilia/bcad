@@ -51,6 +51,7 @@
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Collections\ReadOnlyDictionary`2.cs" />
+    <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="ColorExtensions.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
