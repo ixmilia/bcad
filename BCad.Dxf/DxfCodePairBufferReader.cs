@@ -37,6 +37,10 @@ namespace BCad.Dxf
         public void Advance()
         {
             this.position++;
+            while (ItemsRemain && Peek().Code == 999)
+            {
+                this.position++; // swallow all comments
+            }
         }
     }
 }

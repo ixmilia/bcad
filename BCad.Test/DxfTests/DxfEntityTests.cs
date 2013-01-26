@@ -14,6 +14,8 @@ namespace BCad.Test.DxfTests
         private static DxfEntity Entity(string entityType, string data)
         {
             var file = Section("ENTITIES", string.Format(@"
+999
+ill-placed comment
   0
 {0}
   5
