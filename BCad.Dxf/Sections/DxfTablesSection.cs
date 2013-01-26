@@ -47,16 +47,19 @@ namespace BCad.Dxf.Sections
                 }
 
                 var table = DxfTable.FromBuffer(buffer);
-                switch (table.TableType)
+                if (table != null)
                 {
-                    case DxfTableType.Layer:
-                        section.LayerTable = (DxfLayerTable)table;
-                        break;
-                    case DxfTableType.ViewPort:
-                        section.ViewPortTable = (DxfViewPortTable)table;
-                        break;
-                    default:
-                        throw new DxfReadException("Unexpected table type " + table.TableType);
+                    switch (table.TableType)
+                    {
+                        case DxfTableType.Layer:
+                            section.LayerTable = (DxfLayerTable)table;
+                            break;
+                        case DxfTableType.ViewPort:
+                            section.ViewPortTable = (DxfViewPortTable)table;
+                            break;
+                        default:
+                            throw new DxfReadException("Unexpected table type " + table.TableType);
+                    }
                 }
             }
 

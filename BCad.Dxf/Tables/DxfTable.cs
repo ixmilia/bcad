@@ -116,10 +116,23 @@ namespace BCad.Dxf.Tables
                     result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
                     break;
                 default:
-                    throw new DxfReadException("Unexpected table type " + pair.StringValue);
+                    SwallowTable(buffer);
+                    result = null;
+                    break;
             }
 
             return result;
+        }
+
+        internal static void SwallowTable(DxfCodePairBufferReader buffer)
+        {
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfTablesSection.IsTableEnd(pair))
+                    break;
+            }
         }
     }
 }

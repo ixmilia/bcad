@@ -68,10 +68,23 @@ namespace BCad.Dxf.Sections
                     section = DxfTablesSection.TablesSectionFromBuffer(buffer);
                     break;
                 default:
-                    throw new DxfReadException("Unexpected section type: " + sectionType.StringValue);
+                    SwallowSection(buffer);
+                    section = null;
+                    break;
             }
 
             return section;
+        }
+
+        internal static void SwallowSection(DxfCodePairBufferReader buffer)
+        {
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                buffer.Advance();
+                if (DxfCodePair.IsSectionEnd(pair))
+                    break;
+            }
         }
     }
 }

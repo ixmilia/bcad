@@ -156,10 +156,23 @@ namespace BCad.Dxf.Entities
                     entity = DxfVertex.VertexFromBuffer(buffer);
                     break;
                 default:
-                    throw new DxfReadException("Unexpected entity type " + first.StringValue);
+                    SwallowEntity(buffer);
+                    entity = null;
+                    break;
             }
 
             return entity;
+        }
+
+        internal static void SwallowEntity(DxfCodePairBufferReader buffer)
+        {
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                    break;
+                buffer.Advance();
+            }
         }
 
         public string EntityTypeString

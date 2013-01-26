@@ -193,7 +193,7 @@ namespace BCad.Dxf.Entities
                             text.SecondAlignmentPoint.Z = pair.DoubleValue;
                             break;
                         case 100:
-                            Debug.Assert(TextSubclassMarker == pair.StringValue);
+                            // should be AcDbText, but it doesn't really matter
                             break;
                         case 210:
                             text.Normal.X = pair.DoubleValue;

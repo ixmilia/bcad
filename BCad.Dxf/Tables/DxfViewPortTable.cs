@@ -50,13 +50,15 @@ namespace BCad.Dxf.Tables
                     break;
                 }
 
-                if (pair.Code != 0 || pair.StringValue != DxfViewPort.ViewPortText)
+                if (pair.Code == 0 && pair.StringValue == DxfViewPort.ViewPortText)
                 {
-                    throw new DxfReadException("Expected view port start.");
+                    var vp = DxfViewPort.FromBuffer(buffer);
+                    table.ViewPorts.Add(vp);
                 }
-
-                var vp = DxfViewPort.FromBuffer(buffer);
-                table.ViewPorts.Add(vp);
+                else
+                {
+                    // TODO: viewport options
+                }
             }
 
             return table;

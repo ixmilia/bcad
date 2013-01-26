@@ -42,7 +42,10 @@ namespace BCad.Dxf.Sections
                 }
 
                 var entity = DxfEntity.FromBuffer(buffer);
-                section.Entities.Add(entity);
+                if (entity != null)
+                {
+                    section.Entities.Add(entity);
+                }
             }
 
             return section;

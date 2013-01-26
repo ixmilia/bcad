@@ -56,17 +56,20 @@ namespace BCad.Dxf
                 {
                     buffer.Advance(); // swallow (0, SECTION) pair
                     var section = DxfSection.FromBuffer(buffer);
-                    switch (section.Type)
+                    if (section != null)
                     {
-                        case DxfSectionType.Entities:
-                            file.EntitiesSection = (DxfEntitiesSection)section;
-                            break;
-                        case DxfSectionType.Header:
-                            file.HeaderSection = (DxfHeaderSection)section;
-                            break;
-                        case DxfSectionType.Tables:
-                            file.TablesSection = (DxfTablesSection)section;
-                            break;
+                        switch (section.Type)
+                        {
+                            case DxfSectionType.Entities:
+                                file.EntitiesSection = (DxfEntitiesSection)section;
+                                break;
+                            case DxfSectionType.Header:
+                                file.HeaderSection = (DxfHeaderSection)section;
+                                break;
+                            case DxfSectionType.Tables:
+                                file.TablesSection = (DxfTablesSection)section;
+                                break;
+                        }
                     }
                 }
                 else if (DxfCodePair.IsEof(pair))

@@ -86,8 +86,12 @@ namespace BCad.Dxf.Sections
                 if (keyName == null)
                 {
                     // what setting to set
-                    Debug.Assert(pair.Code == 9);
-                    keyName = pair.StringValue;
+                    if (pair.Code == 9)
+                    {
+                        keyName = pair.StringValue;
+                    }
+
+                    // otherwise, ignore values until another 9 code
                 }
                 else
                 {

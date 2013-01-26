@@ -50,13 +50,15 @@ namespace BCad.Dxf.Tables
                     break;
                 }
 
-                if (pair.Code != 0 || pair.StringValue != DxfLayerTable.LayerText)
+                if (pair.Code == 0 && pair.StringValue == DxfLayerTable.LayerText)
                 {
-                    throw new DxfReadException("Expected layer start.");
+                    var layer = DxfLayer.FromBuffer(buffer);
+                    table.Layers.Add(layer);
                 }
-
-                var layer = DxfLayer.FromBuffer(buffer);
-                table.Layers.Add(layer);
+                else
+                {
+                    // TODO: layer table options
+                }
             }
 
             return table;
