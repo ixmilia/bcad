@@ -20,6 +20,7 @@ namespace BCad.Collections
                 {
                     left = value;
                     RecalculateHeight();
+                    RecalculateCount();
                 }
             }
             public Node Right
@@ -29,9 +30,11 @@ namespace BCad.Collections
                 {
                     right = value;
                     RecalculateHeight();
+                    RecalculateCount();
                 }
             }
             public int Height { get; private set; }
+            public int Count { get; private set; }
 
             public Node(TKey key, TValue value, Node left, Node right)
             {
@@ -40,6 +43,7 @@ namespace BCad.Collections
                 this.left = left;
                 this.right = right;
                 RecalculateHeight();
+                RecalculateCount();
             }
 
             public Node Clone()
@@ -57,6 +61,11 @@ namespace BCad.Collections
                 Height = Math.Max(GetHeight(Left), GetHeight(Right)) + 1;
             }
 
+            private void RecalculateCount()
+            {
+                Count = GetCount(Left) + GetCount(Right) + 1;
+            }
+
             public override string ToString()
             {
                 return string.Format("{0}", Key);
@@ -67,6 +76,13 @@ namespace BCad.Collections
                 if (node == null)
                     return 0;
                 return node.Height;
+            }
+
+            private static int GetCount(Node node)
+            {
+                if (node == null)
+                    return 0;
+                return node.Count;
             }
         }
 
@@ -91,15 +107,10 @@ namespace BCad.Collections
         {
             get
             {
-                return GetCount(root);
+                if (root == null)
+                    return 0;
+                return root.Count;
             }
-        }
-
-        private static int GetCount(Node node)
-        {
-            if (node == null)
-                return 0;
-            return GetCount(node.Left) + GetCount(node.Right) + 1;
         }
 
         /// <summary>

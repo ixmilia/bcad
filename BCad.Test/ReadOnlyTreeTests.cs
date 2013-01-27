@@ -14,6 +14,7 @@ namespace BCad.Test
             for (int i = 0; i < treeSize; i++)
             {
                 tree = tree.Insert(i, i * i);
+                Assert.Equal(i + 1, tree.Count);
             }
 
             Assert.Equal(treeSize, tree.Count);
