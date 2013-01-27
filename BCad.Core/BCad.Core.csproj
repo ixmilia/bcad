@@ -50,7 +50,6 @@
   <ItemGroup>
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Collections\ObservableHashSet`1.cs" />
-    <Compile Include="Collections\ReadOnlyDictionary`2.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="ColorExtensions.cs" />
@@ -94,7 +93,6 @@
     <Compile Include="Entities\ProjectedText.cs" />
     <Compile Include="Entities\Text.cs" />
     <Compile Include="EventArguments\WorkspaceChangeEventArgs.cs" />
-    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\PlaneExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
