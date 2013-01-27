@@ -13,47 +13,52 @@ namespace BCad
     public class Drawing
     {
         private readonly DrawingSettings settings;
-        private readonly ReadOnlyDictionary<string, Layer> layers;
+        private readonly ReadOnlyTree<string, Layer> layers;
         private readonly string currentLayerName;
-
-        public ReadOnlyDictionary<string, Layer> Layers { get { return layers; } }
 
         public DrawingSettings Settings { get { return settings; } }
 
         public string CurrentLayerName { get { return currentLayerName; } }
 
-        public Layer CurrentLayer { get { return layers[currentLayerName]; } }
+        public Layer CurrentLayer { get { return this.layers.GetValue(this.currentLayerName); } }
+
+        public ReadOnlyTree<string, Layer> Layers { get { return this.layers; } }
 
         public Drawing()
-            : this(new DrawingSettings(), new ReadOnlyDictionary<string, Layer>().Add("0", new Layer("0", Color.Auto)), "0")
+            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", Color.Auto)), "0")
         {
         }
 
         public Drawing(DrawingSettings settings)
-            : this(settings, new ReadOnlyDictionary<string, Layer>().Add("0", new Layer("0", Color.Auto)))
+            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", Color.Auto)))
         {
         }
 
-        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers)
-            : this(settings, layers, layers.OrderBy(x => x.Key).First().Key)
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers)
+            : this(settings, layers, layers.GetKeys().OrderBy(x => x).First())
         {
         }
 
-        public Drawing(DrawingSettings settings, ReadOnlyDictionary<string, Layer> layers, string currentLayerName)
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string currentLayerName)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
             if (layers == null)
                 throw new ArgumentNullException("layers");
-            if (!layers.Any())
+            if (layers.Count == 0)
                 throw new ArgumentException("At least one layer must be specified.");
             if (currentLayerName == null)
                 throw new ArgumentNullException("currentLayerName");
-            if (!layers.ContainsKey(currentLayerName))
+            if (!layers.KeyExists(currentLayerName))
                 throw new InvalidOperationException("The current layer is not part of the layers collection.");
             this.settings = settings;
             this.layers = layers;
             this.currentLayerName = currentLayerName;
+        }
+
+        public IEnumerable<Layer> GetLayers()
+        {
+            return this.layers.GetValues();
         }
 
         /// <summary>
@@ -63,7 +68,10 @@ namespace BCad
         /// <returns>If the layer was found on the drawing.</returns>
         public bool LayerExists(Layer layer)
         {
-            return this.Layers.ContainsKey(layer.Name) && this.Layers[layer.Name] == layer;
+            Layer found;
+            if (this.layers.TryFind(layer.Name, out found))
+                return found == layer;
+            return false;
         }
 
         /// <summary>
@@ -73,8 +81,7 @@ namespace BCad
         /// <returns>The updated drawing.</returns>
         public Drawing Add(Layer layer)
         {
-            var newLayers = this.Layers.Add(layer.Name, layer);
-            return this.Update(layers: newLayers);
+            return this.Update(layers: this.layers.Insert(layer.Name, layer));
         }
 
         /// <summary>
@@ -86,8 +93,7 @@ namespace BCad
         {
             if (!LayerExists(layer))
                 throw new ArgumentException("The drawing does not contain the specified layer");
-            var newLayers = this.Layers.Remove(layer.Name);
-            return this.Update(layers: newLayers);
+            return this.Update(layers: this.layers.Delete(layer.Name));
         }
 
         /// <summary>
@@ -100,8 +106,7 @@ namespace BCad
         {
             if (!LayerExists(oldLayer))
                 throw new ArgumentException("The drawing does not contain the specified layer");
-            var newLayers = this.Layers.Remove(oldLayer.Name).Add(newLayer.Name, newLayer);
-            return this.Update(layers: newLayers);
+            return this.Update(layers: this.layers.Delete(oldLayer.Name).Insert(newLayer.Name, newLayer));
         }
 
         /// <summary>
@@ -111,20 +116,20 @@ namespace BCad
         /// <param name="layers">The layers for the drawing.</param>
         /// <param name="currentLayerName">The name of the current layer.</param>
         /// <returns>The new drawing with the specified updates.</returns>
-        public Drawing Update(DrawingSettings settings = null, ReadOnlyDictionary<string, Layer> layers = null, string currentLayerName = null)
+        public Drawing Update(DrawingSettings settings = null, ReadOnlyTree<string, Layer> layers = null, string currentLayerName = null)
         {
-            var newLayers = layers ?? this.Layers;
+            var newLayers = layers ?? this.layers;
             if (newLayers.Count == 0)
             {
                 // ensure there is always at least one layer
-                newLayers = newLayers.Add("0", new Layer("0", Color.Auto));
+                newLayers = newLayers.Insert("0", new Layer("0", Color.Auto));
             }
 
             var newCurrentName = currentLayerName ?? this.currentLayerName;
-            if (!newLayers.ContainsKey(newCurrentName))
+            if (!newLayers.KeyExists(newCurrentName))
             {
                 // ensure the current layer is available
-                newCurrentName = newLayers.Keys.OrderBy(x => x).First();
+                newCurrentName = newLayers.GetKeys().OrderBy(x => x).First();
             }
 
             return new Drawing(

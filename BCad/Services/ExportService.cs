@@ -31,7 +31,7 @@ namespace BCad.Services
 
             // project all entities
             var entities = new List<ProjectedEntity>();
-            foreach (var layer in from l in drawing.Layers.Values
+            foreach (var layer in from l in drawing.GetLayers()
                                   where l.EntityCount > 0
                                   orderby l.Name
                                   select l)

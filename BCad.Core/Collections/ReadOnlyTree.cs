@@ -394,5 +394,13 @@ namespace BCad.Collections
             value = default(TValue);
             return false;
         }
+
+        public TValue GetValue(TKey key)
+        {
+            TValue value;
+            if (TryFind(key, out value))
+                return value;
+            throw new IndexOutOfRangeException();
+        }
     }
 }

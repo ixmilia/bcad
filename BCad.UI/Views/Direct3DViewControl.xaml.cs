@@ -504,7 +504,7 @@ Result PShader(Input pixel)
 
                 // TODO: diff the drawing and only remove/generate the necessary elements
                 lines.Clear();
-                foreach (var layer in drawing.Layers.Values.Where(l => l.IsVisible))
+                foreach (var layer in drawing.GetLayers().Where(l => l.IsVisible))
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
                     foreach (var entity in layer.GetEntities())
@@ -514,7 +514,7 @@ Result PShader(Input pixel)
                 }
 
                 // populate the snap points
-                snapPoints = drawing.Layers.Values.SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
+                snapPoints = drawing.GetLayers().SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
                     .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
                 
                 // ensure they have correct values

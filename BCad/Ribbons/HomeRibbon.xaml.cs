@@ -46,7 +46,7 @@ namespace BCad.Ribbons
         {
             listenToChangeEvent = false;
             this.currentLayer.Items.Clear();
-            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(l => l.Name))
+            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
                 this.currentLayer.Items.Add(layer);
             this.currentLayer.SelectedItem = workspace.Drawing.CurrentLayer;
             listenToChangeEvent = true;

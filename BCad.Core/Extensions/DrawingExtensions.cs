@@ -26,7 +26,7 @@ namespace BCad
         public static Drawing AddToCurrentLayer(this Drawing drawing, Entity entity)
         {
             var newLayer = drawing.CurrentLayer.Add(entity);
-            var newLayerSet = drawing.Layers.Remove(drawing.CurrentLayer.Name).Add(newLayer.Name, newLayer);
+            var newLayerSet = drawing.Layers.Delete(drawing.CurrentLayer.Name).Insert(newLayer.Name, newLayer);
             return drawing.Update(layers: newLayerSet);
         }
 
@@ -97,7 +97,7 @@ namespace BCad
         /// <returns>The containing layer.</returns>
         public static Layer ContainingLayer(this Drawing drawing, Entity entity)
         {
-            foreach (var layer in drawing.Layers.Values)
+            foreach (var layer in drawing.GetLayers())
             {
                 if (layer.EntityExists(entity))
                     return layer;
@@ -113,7 +113,7 @@ namespace BCad
         /// <returns>A collection of all entities in the drawing.</returns>
         public static IEnumerable<Entity> GetEntities(this Drawing drawing)
         {
-            return drawing.Layers.Values.SelectMany(l => l.GetEntities());
+            return drawing.GetLayers().SelectMany(l => l.GetEntities());
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace BCad
         /// <returns>The appropriate entity, or null.</returns>
         public static Entity GetEntityById(this Drawing drawing, uint id)
         {
-            return drawing.Layers.Values.Select(l => l.GetEntityById(id)).Where(e => e != null).SingleOrDefault();
+            return drawing.GetLayers().Select(l => l.GetEntityById(id)).Where(e => e != null).SingleOrDefault();
         }
 
         /// <summary>

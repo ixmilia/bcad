@@ -44,7 +44,7 @@ namespace BCad.Commands
                     drawing = drawing.Remove(ent);
 
                 foreach (var ent in added)
-                    drawing = drawing.Add(drawing.Layers[entityLayerName], ent);
+                    drawing = drawing.Add(drawing.Layers.GetValue(entityLayerName), ent);
 
                 // commit the change
                 if (Workspace.Drawing != drawing)

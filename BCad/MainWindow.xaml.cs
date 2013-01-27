@@ -128,7 +128,7 @@ namespace BCad
         private void SetDebugText()
         {
             int lineCount = 0, ellipseCount = 0, textCount = 0;
-            foreach (var ent in Workspace.Drawing.Layers.SelectMany(l => l.Value.GetEntities()).SelectMany(en => en.GetPrimitives()))
+            foreach (var ent in Workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities()).SelectMany(en => en.GetPrimitives()))
             {
                 switch (ent.Kind)
                 {

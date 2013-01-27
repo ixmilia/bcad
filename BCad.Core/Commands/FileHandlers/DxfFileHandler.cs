@@ -27,11 +27,11 @@ namespace BCad.Commands.FileHandlers
         public void ReadFile(string fileName, Stream stream, out Drawing drawing, out ViewPort activeViewPort)
         {
             var file = DxfFile.Load(stream);
-            var layers = new Dictionary<string, Layer>();
+            var layers = new ReadOnlyTree<string, Layer>();
 
             foreach (var layer in file.TablesSection.LayerTable.Layers)
             {
-                layers[layer.Name] = new Layer(layer.Name, layer.Color.ToColor());
+                layers = layers.Insert(layer.Name, new Layer(layer.Name, layer.Color.ToColor()));
             }
 
             foreach (var item in file.EntitiesSection.Entities)
@@ -40,13 +40,13 @@ namespace BCad.Commands.FileHandlers
 
                 // entities without a layer go to '0'
                 string entityLayer = item.Layer == null ? "0" : item.Layer;
-                if (layers.ContainsKey(entityLayer))
-                    layer = layers[entityLayer];
+                if (layers.KeyExists(entityLayer))
+                    layer = layers.GetValue(entityLayer);
                 else
                 {
                     // add the layer if previously undefined
                     layer = new Layer(entityLayer, Color.Auto);
-                    layers[entityLayer] = layer;
+                    layers = layers.Insert(layer.Name, layer);
                 }
 
                 // create the entity
@@ -72,14 +72,14 @@ namespace BCad.Commands.FileHandlers
                 if (entity != null)
                 {
                     layer = layer.Add(entity);
-                    layers[entityLayer] = layer;
+                    layers = layers.Insert(layer.Name, layer);
                 }
             }
 
             drawing = new Drawing(
                 new DrawingSettings(fileName, file.HeaderSection.UnitFormat.ToUnitFormat(), file.HeaderSection.UnitPrecision),
-                layers.ToReadOnlyDictionary(),
-                file.HeaderSection.CurrentLayer ?? layers.Keys.OrderBy(x => x).First());
+                layers,
+                file.HeaderSection.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First());
 
             var vp = file.TablesSection.ViewPortTable.ViewPorts.FirstOrDefault();
             if (vp != null)
@@ -108,7 +108,7 @@ namespace BCad.Commands.FileHandlers
             file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
             file.HeaderSection.UnitFormat = workspace.Drawing.Settings.UnitFormat.ToDxfUnitFormat();
             file.HeaderSection.UnitPrecision = (short)workspace.Drawing.Settings.UnitPrecision;
-            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
+            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(x => x.Name))
             {
                 file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.GetEntities().OrderBy(e => e.Id))

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using BCad.Collections;
 using BCad.Extensions;
 using BCad.Utilities;
 
@@ -39,7 +40,7 @@ namespace BCad.UI.Controls
         {
             this.workspace = workspace;
             this.layers.Clear();
-            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(l => l.Name))
+            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
                 this.layers.Add(new MutableLayer(layer));
 
             for (int i = 0; i < 256; i++)
@@ -56,14 +57,14 @@ namespace BCad.UI.Controls
                 this.layers.Count != dwg.Layers.Count)
             {
                 // found changes, need to update
-                var newLayers = new Dictionary<string, Layer>();
+                var newLayers = new ReadOnlyTree<string, Layer>();
                 foreach (var layer in from layer in this.layers
                                       select layer.GetUpdatedLayer())
                 {
-                    newLayers.Add(layer.Name, layer);
+                    newLayers = newLayers.Insert(layer.Name, layer);
                 }
 
-                dwg = dwg.Update(layers: newLayers.ToReadOnlyDictionary());
+                dwg = dwg.Update(layers: newLayers);
                 workspace.Update(drawing: dwg);
             }
         }

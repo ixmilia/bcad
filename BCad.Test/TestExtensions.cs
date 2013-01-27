@@ -13,7 +13,7 @@ namespace BCad.Test
     {
         public static Layer GetLayer(this IWorkspace workspace, string layerName)
         {
-            return workspace.Drawing.Layers[layerName];
+            return workspace.Drawing.Layers.GetValue(layerName);
         }
 
         public static void AddLayer(this IWorkspace workspace, string layerName)
@@ -28,7 +28,7 @@ namespace BCad.Test
 
         public static IEnumerable<Entity> GetEntities(this IWorkspace workspace)
         {
-            foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(l => l.Name))
+            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
             {
                 foreach (var obj in layer.GetEntities())
                 {
