@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using BCad.Collections;
 using BCad.Entities;
 
 namespace BCad
@@ -12,7 +13,7 @@ namespace BCad
         private readonly string name;
         private readonly Color color;
         private readonly bool isVisible;
-        private readonly ReadOnlyCollection<Entity> entities;
+        private readonly ReadOnlyTree<uint, Entity> entities;
 
         public string Name { get { return name; } }
 
@@ -20,24 +21,40 @@ namespace BCad
 
         public bool IsVisible { get { return isVisible; } }
 
-        public ReadOnlyCollection<Entity> Entities { get { return entities; } }
+        public int EntityCount
+        {
+            get { return this.entities.Count; }
+        }
 
         public Layer(string name, Color color)
-            : this(name, color, new Entity[0])
+            : this(name, color, new ReadOnlyTree<uint, Entity>())
         {
         }
 
-        public Layer(string name, Color color, IEnumerable<Entity> entities)
+        public Layer(string name, Color color, ReadOnlyTree<uint, Entity> entities)
             : this(name, color, true, entities)
         {
         }
 
-        public Layer(string name, Color color, bool isVisible, IEnumerable<Entity> entities)
+        public Layer(string name, Color color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
         {
             this.name = name;
             this.color = color;
             this.isVisible = isVisible;
-            this.entities = new ReadOnlyCollection<Entity>(entities.ToList());
+            this.entities = entities;
+        }
+
+        public IEnumerable<Entity> GetEntities()
+        {
+            return this.entities.GetValues();
+        }
+
+        public Entity GetEntityById(uint id)
+        {
+            Entity result;
+            if (this.entities.TryFind(id, out result))
+                return result;
+            return null;
         }
 
         /// <summary>
@@ -47,35 +64,35 @@ namespace BCad
         /// <returns>True if the entity was found, false otherwise.</returns>
         public bool EntityExists(Entity entity)
         {
-            return this.Entities.Any(e => e == entity);
+            return this.entities.KeyExists(entity.Id);
         }
 
         public Layer Add(Entity entity)
         {
-            return this.Update(entities: this.Entities.Concat(new[] { entity }));
+            return this.Update(entities: this.entities.Insert(entity.Id, entity));
         }
 
         public Layer Remove(Entity entity)
         {
             if (!this.EntityExists(entity))
                 throw new ArgumentException("The layer does not contain the specified entity.");
-            return this.Update(entities: this.Entities.Except(new[] { entity }));
+            return this.Update(entities: this.entities.Delete(entity.Id));
         }
 
         public Layer Replace(Entity oldEntity, Entity newEntity)
         {
             if (!this.EntityExists(oldEntity))
                 throw new ArgumentException("The layer does not contain the specified entity.");
-            return this.Update(entities: this.Entities.Except(new[] { oldEntity }).Concat(new[] { newEntity }));
+            return this.Update(entities: this.entities.Delete(oldEntity.Id).Insert(newEntity.Id, newEntity));
         }
 
-        public Layer Update(string name = null, Color? color = null, bool? isVisible = null, IEnumerable<Entity> entities = null)
+        public Layer Update(string name = null, Color? color = null, bool? isVisible = null, ReadOnlyTree<uint, Entity> entities = null)
         {
             return new Layer(
                 name ?? this.Name,
                 color ?? this.Color,
                 isVisible ?? this.isVisible,
-                entities ?? this.Entities);
+                entities ?? this.entities);
         }
 
         public override string ToString()

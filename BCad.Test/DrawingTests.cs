@@ -13,7 +13,7 @@ namespace BCad.Test
             Workspace.AddLayer("Other");
             Workspace.SetCurrentLayer("Other");
             Workspace.AddToCurrentLayer(Entities.Line());
-            Assert.Equal(1, Workspace.GetLayer("Other").Entities.Count);
+            Assert.Equal(1, Workspace.GetLayer("Other").EntityCount);
             Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
         }
 
@@ -23,7 +23,7 @@ namespace BCad.Test
             Workspace.AddLayer("Other");
             Workspace.SetCurrentLayer("Other");
             Workspace.Add(Workspace.GetLayer("0"), Entities.Line());
-            Assert.Equal(1, Workspace.GetLayer("0").Entities.Count);
+            Assert.Equal(1, Workspace.GetLayer("0").EntityCount);
             Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
         }
 

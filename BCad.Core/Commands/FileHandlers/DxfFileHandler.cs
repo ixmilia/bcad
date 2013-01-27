@@ -111,7 +111,7 @@ namespace BCad.Commands.FileHandlers
             foreach (var layer in workspace.Drawing.Layers.Values.OrderBy(x => x.Name))
             {
                 file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
-                foreach (var item in layer.Entities.OrderBy(e => e.Id))
+                foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
                 {
                     DxfEntity entity = null;
                     switch (item.Kind)

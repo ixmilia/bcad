@@ -507,14 +507,14 @@ Result PShader(Input pixel)
                 foreach (var layer in drawing.Layers.Values.Where(l => l.IsVisible))
                 {
                     // TODO: parallelize this.  requires `lines` to be concurrent dictionary
-                    foreach (var entity in layer.Entities)
+                    foreach (var entity in layer.GetEntities())
                     {
                         lines[entity.Id] = GenerateEntitySegments(entity, layer.Color);
                     }
                 }
 
                 // populate the snap points
-                snapPoints = drawing.Layers.Values.SelectMany(l => l.Entities.SelectMany(o => o.GetSnapPoints()))
+                snapPoints = drawing.Layers.Values.SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
                     .Select(sp => new TransformedSnapPoint(sp.Point, sp.Point.ToVector3(), sp.Kind)).ToArray();
                 
                 // ensure they have correct values
@@ -1212,7 +1212,7 @@ Result PShader(Input pixel)
             else
             {
                 start = DateTime.UtcNow;
-                var entity = drawing.Layers.Values.SelectMany(l => l.Entities).Single(en => en.Id == selected.EntityId);
+                var entity = drawing.GetEntityById(selected.EntityId);
                 var elapsed2 = (DateTime.UtcNow - start).TotalMilliseconds;
                 inputService.WriteLineDebug("GetHitEntity(selection) in {0} ms", elapsed2);
                 return new SelectedEntity(entity, selected.SelectionPoint);

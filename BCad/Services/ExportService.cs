@@ -32,11 +32,11 @@ namespace BCad.Services
             // project all entities
             var entities = new List<ProjectedEntity>();
             foreach (var layer in from l in drawing.Layers.Values
-                                  where l.Entities.Count > 0
+                                  where l.EntityCount > 0
                                   orderby l.Name
                                   select l)
             {
-                foreach (var entity in layer.Entities.OrderBy(x => x.Id))
+                foreach (var entity in layer.GetEntities().OrderBy(x => x.Id))
                 {
                     var projected = Project(entity, layer, transform);
                     if (projected != null)

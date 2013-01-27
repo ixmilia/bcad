@@ -113,7 +113,17 @@ namespace BCad
         /// <returns>A collection of all entities in the drawing.</returns>
         public static IEnumerable<Entity> GetEntities(this Drawing drawing)
         {
-            return drawing.Layers.Values.SelectMany(l => l.Entities);
+            return drawing.Layers.Values.SelectMany(l => l.GetEntities());
+        }
+
+        /// <summary>
+        /// Returns the entity specified by the ID.
+        /// </summary>
+        /// <param name="id">The ID of the entity.</param>
+        /// <returns>The appropriate entity, or null.</returns>
+        public static Entity GetEntityById(this Drawing drawing, uint id)
+        {
+            return drawing.Layers.Values.Select(l => l.GetEntityById(id)).Where(e => e != null).SingleOrDefault();
         }
 
         /// <summary>
