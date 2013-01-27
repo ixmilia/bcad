@@ -135,39 +135,144 @@ namespace BCad.Collections
             }
 
             // re-spine the tree
-            current = newNode;
-            while (path.Count > 0)
+            var newRoot = BalanceAndReSpine(newNode, path, true);
+            return new ReadOnlyTree<TKey, TValue>(newRoot);
+        }
+
+        /// <summary>
+        /// Delete the specified value and return the resultant tree.
+        /// </summary>
+        public ReadOnlyTree<TKey, TValue> Delete(TKey key)
+        {
+            var current = root;
+            var path = new Stack<Node>();
+            while (current != null)
+            {
+                var comp = key.CompareTo(current.Key);
+                if (comp < 0)
+                {
+                    // go left
+                    path.Push(current);
+                    current = current.Left;
+                }
+                else if (comp > 0)
+                {
+                    // go right
+                    path.Push(current);
+                    current = current.Right;
+                }
+                else
+                {
+                    // found it
+                    break;
+                }
+            }
+
+            if (current == null)
+                return this; // key not found, no change
+
+            Node newRoot;
+            if (current.Left == null && current.Right == null)
+            {
+                // just delete this node
+                if (path.Count == 0)
+                {
+                    // deleting the only node
+                    newRoot = null;
+                }
+                else
+                {
+                    var parent = path.Pop().Clone();
+                    if (current.Key.CompareTo(parent.Key) < 0)
+                        parent.Left = null;
+                    else
+                        parent.Right = null;
+                    newRoot = BalanceAndReSpine(parent, path, false);
+                }
+            }
+            else if (current.Left == null && current.Right != null)
+            {
+                // the right child takes the node's place, and rebalance to the top
+                var newNode = current.Right.Clone();
+                newRoot = BalanceAndReSpine(newNode, path, false);
+            }
+            else if (current.Left != null && current.Right == null)
+            {
+                // the left child takes the node's place, and rebalance to the top
+                var newNode = current.Left.Clone();
+                newRoot = BalanceAndReSpine(newNode, path, false);
+            }
+            else
+            {
+                // both children are present.  replace node with immediate successor and custom respine
+                var immediateSuccessor = current.Right;
+                while (immediateSuccessor.Left != null)
+                {
+                    path.Push(immediateSuccessor);
+                    immediateSuccessor = immediateSuccessor.Left;
+                }
+
+                current = immediateSuccessor;
+                while (path.Count > 0)
+                {
+                    // recreate parent
+                    var newParent = path.Pop().Clone();
+                    if (newParent.Key.CompareTo(key) == 0)
+                    {
+                        // this is the replacement node
+                        newParent.Key = immediateSuccessor.Key;
+                        newParent.Value = immediateSuccessor.Value;
+                    }
+                    else
+                    {
+                        if (current.Key.CompareTo(newParent.Key) < 0)
+                            newParent.Left = current;
+                        else
+                            newParent.Right = current;
+                    }
+
+                    current = Rebalance(newParent, false);
+                }
+
+                newRoot = current;
+            }
+
+            return new ReadOnlyTree<TKey, TValue>(newRoot);
+        }
+
+        private static Node BalanceAndReSpine(Node current, Stack<Node> ancestors, bool insert)
+        {
+            while (ancestors.Count > 0)
             {
                 // re-create parent
-                var newParent = path.Pop().Clone();
+                var newParent = ancestors.Pop().Clone();
                 if (current.Key.CompareTo(newParent.Key) < 0)
                     newParent.Left = current;
                 else
                     newParent.Right = current;
-                current = InsertReBalance(newParent);
+                current = Rebalance(newParent, insert);
             }
 
-            var newRoot = current;
-            return new ReadOnlyTree<TKey, TValue>(newRoot);
+            return current;
         }
 
-        private static Node InsertReBalance(Node node)
+        private static Node Rebalance(Node node, bool insert)
         {
             var balanceFactor = node.BalanceFactor;
             if (Math.Abs(balanceFactor) <= 1)
                 return node; // no balance necessary
             Debug.Assert(Math.Abs(balanceFactor) == 2);
             if (balanceFactor == -2) // right-right or right-left
-                return RightRebalance(node);
+                return RightRebalance(node, insert);
             else // left-left or left-right
-                return LeftRebalance(node);
+                return LeftRebalance(node, insert);
         }
 
-        private static Node RightRebalance(Node node)
+        private static Node RightRebalance(Node node, bool insert)
         {
             var r = node.Right;
-            Debug.Assert(Math.Abs(r.BalanceFactor) == 1);
-            if (r.BalanceFactor == -1)
+            var bf = r.BalanceFactor;
+            if (bf == -1 || (!insert && bf == 0))
                 return RightRightRebalance(node);
             else
                 return RightLeftRebalance(node);
@@ -193,11 +298,11 @@ namespace BCad.Collections
             return RightRightRebalance(newRoot);
         }
 
-        private static Node LeftRebalance(Node node)
+        private static Node LeftRebalance(Node node, bool insert)
         {
             var l = node.Left;
-            Debug.Assert(Math.Abs(l.BalanceFactor) == 1);
-            if (l.BalanceFactor == 1)
+            var bf = l.BalanceFactor;
+            if (bf == 1 || (!insert && bf == 0))
                 return LeftLeftRebalance(node);
             else
                 return LeftRightRebalance(node);

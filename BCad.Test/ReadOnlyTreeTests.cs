@@ -48,5 +48,61 @@ namespace BCad.Test
                 Assert.Equal(i * i, value);
             }
         }
+
+        [Fact]
+        public void DeleteWhenEmptyTest()
+        {
+            var tree = CreateTree();
+            tree = tree.Delete(0);
+            Assert.Equal(0, tree.Count);
+        }
+
+        [Fact]
+        public void DeleteSingleItemTest()
+        {
+            var tree = CreateTree(0);
+            tree = tree.Delete(0);
+            Assert.Equal(0, tree.Count);
+        }
+
+        [Fact]
+        public void DeleteWithNoRebalancingTest()
+        {
+            var tree = CreateTree(2, 1, 3);
+            
+            tree = tree.Delete(1);
+            Assert.Equal(2, tree.Count);
+            Assert.False(tree.KeyExists(1));
+            Assert.True(tree.KeyExists(2));
+            Assert.True(tree.KeyExists(3));
+
+            tree = tree.Delete(3);
+            Assert.Equal(1, tree.Count);
+            Assert.False(tree.KeyExists(1));
+            Assert.True(tree.KeyExists(2));
+            Assert.False(tree.KeyExists(3));
+        }
+
+        [Fact]
+        public void DeleteFullTreeTest()
+        {
+            var numbers = Enumerable.Range(0, 20).ToArray();
+            var tree = CreateTree(numbers);
+
+            for (var i = 19; i >= 0; i--)
+            {
+                tree = tree.Delete(i);
+                Assert.Equal(i, tree.Count);
+            }
+        }
+
+        private ReadOnlyTree<int, int> CreateTree(params int[] values)
+        {
+            var tree = new ReadOnlyTree<int, int>();
+            foreach (var v in values)
+                tree = tree.Insert(v, v * v);
+            Assert.Equal(values.Length, tree.Count);
+            return tree;
+        }
     }
 }
