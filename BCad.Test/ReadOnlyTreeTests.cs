@@ -97,6 +97,14 @@ namespace BCad.Test
             }
         }
 
+        [Fact]
+        public void ToListTest()
+        {
+            var values = new int[]{ 4, 2, 6, 1, 5, 3, 7 };
+            var tree = CreateTree(values); // create a balanced tree
+            Assert.Equal(values.OrderBy(x => x).ToArray(), tree.GetKeys().ToArray());
+        }
+
         private ReadOnlyTree<int, int> CreateTree(params int[] values)
         {
             var tree = new ReadOnlyTree<int, int>();

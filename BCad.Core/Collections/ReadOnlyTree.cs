@@ -56,6 +56,15 @@ namespace BCad.Collections
                 get { return GetHeight(Left) - GetHeight(Right); }
             }
 
+            public void ForEach(Action<TKey, TValue> action)
+            {
+                if (Left != null)
+                    Left.ForEach(action);
+                action(Key, Value);
+                if (Right != null)
+                    Right.ForEach(action);
+            }
+
             private void RecalculateHeight()
             {
                 Height = Math.Max(GetHeight(Left), GetHeight(Right)) + 1;
@@ -249,6 +258,26 @@ namespace BCad.Collections
             }
 
             return new ReadOnlyTree<TKey, TValue>(newRoot);
+        }
+
+        public void ForEach(Action<TKey, TValue> action)
+        {
+            if (root != null)
+                root.ForEach(action);
+        }
+
+        public List<TKey> GetKeys()
+        {
+            var list = new List<TKey>(Count);
+            ForEach((key, _value) => list.Add(key));
+            return list;
+        }
+
+        public List<TValue> GetValues()
+        {
+            var list = new List<TValue>(Count);
+            ForEach((_key, value) => list.Add(value));
+            return list;
         }
 
         private static Node BalanceAndReSpine(Node current, Stack<Node> ancestors, bool insert)
