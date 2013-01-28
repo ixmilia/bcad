@@ -8,7 +8,11 @@ namespace BCad.Dxf
         R11,
         R12,
         R13,
-        R14
+        R14,
+        R2000,
+        R2004,
+        R2007,
+        R2010
     }
 
     public static class DxfAcadVersionStrings
@@ -18,6 +22,10 @@ namespace BCad.Dxf
         public const string R12 = "AC1009";
         public const string R13 = "AC1012";
         public const string R14 = "AC1014";
+        public const string R2000 = "AC1015";
+        public const string R2004 = "AC1018";
+        public const string R2007 = "AC1021";
+        public const string R2010 = "AC1024";
 
         public static string VersionToString(DxfAcadVersion version)
         {
@@ -33,6 +41,14 @@ namespace BCad.Dxf
                     return R13;
                 case DxfAcadVersion.R14:
                     return R14;
+                case DxfAcadVersion.R2000:
+                    return R2000;
+                case DxfAcadVersion.R2004:
+                    return R2004;
+                case DxfAcadVersion.R2007:
+                    return R2007;
+                case DxfAcadVersion.R2010:
+                    return R2010;
                 default:
                     throw new NotSupportedException();
             }
@@ -51,6 +67,14 @@ namespace BCad.Dxf
                     return DxfAcadVersion.R13;
                 case R14:
                     return DxfAcadVersion.R14;
+                case R2000:
+                    return DxfAcadVersion.R2000;
+                case R2004:
+                    return DxfAcadVersion.R2004;
+                case R2007:
+                    return DxfAcadVersion.R2007;
+                case R2010:
+                    return DxfAcadVersion.R2010;
                 default:
                     throw new NotSupportedException();
             }

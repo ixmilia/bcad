@@ -20,11 +20,13 @@ namespace BCad.Dxf.Sections
 
     public class DxfHeaderSection : DxfSection
     {
-        public string CurrentLayer { get; set; }
+        public short MaintenanceVersion { get; set; }
         public DxfAcadVersion Version { get; set; }
+        public string CurrentLayer { get; set; }
         public DxfUnitFormat UnitFormat { get; set; }
         public short UnitPrecision { get; set; }
 
+        private const string ACADMAINTVER = "$ACADMAINTVER";
         private const string ACADVER = "$ACADVER";
         private const string CLAYER = "$CLAYER";
         private const string LUNITS = "$LUNITS";
@@ -44,6 +46,12 @@ namespace BCad.Dxf.Sections
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
+            if (MaintenanceVersion != 0)
+            {
+                yield return new DxfCodePair(9, ACADMAINTVER);
+                yield return new DxfCodePair(70, MaintenanceVersion);
+            }
+
             if (Version != DxfAcadVersion.R14)
             {
                 yield return new DxfCodePair(9, ACADVER);
@@ -98,6 +106,10 @@ namespace BCad.Dxf.Sections
                     // the value of the setting
                     switch (keyName)
                     {
+                        case ACADMAINTVER:
+                            EnsureCode(pair, 70);
+                            section.MaintenanceVersion = pair.ShortValue;
+                            break;
                         case ACADVER:
                             EnsureCode(pair, 1);
                             section.Version = DxfAcadVersionStrings.StringToVersion(pair.StringValue);

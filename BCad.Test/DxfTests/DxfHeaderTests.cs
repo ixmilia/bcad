@@ -16,6 +16,7 @@ namespace BCad.Test.DxfTests
         {
             var file = Section("HEADER", "");
             Assert.Null(file.HeaderSection.CurrentLayer);
+            Assert.Equal(0, file.HeaderSection.MaintenanceVersion);
             Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
             Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
             Assert.Equal(0, file.HeaderSection.UnitPrecision);
@@ -25,6 +26,10 @@ namespace BCad.Test.DxfTests
         public void SpecificHeaderValuesTest()
         {
             var file = Section("HEADER", @"
+  9
+$ACADMAINTVER
+ 70
+16
   9
 $ACADVER
   1
@@ -43,6 +48,7 @@ $LUPREC
 7
 ");
             Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
+            Assert.Equal(16, file.HeaderSection.MaintenanceVersion);
             Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
             Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
             Assert.Equal(7, file.HeaderSection.UnitPrecision);
@@ -240,6 +246,7 @@ ENDTAB
         public void WriteSpecificHeaderValuesTest()
         {
             var file = new DxfFile();
+            file.HeaderSection.MaintenanceVersion = 16;
             file.HeaderSection.CurrentLayer = "<current layer>";
             file.HeaderSection.Version = DxfAcadVersion.R13;
             file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
@@ -249,6 +256,10 @@ ENDTAB
 SECTION
   2
 HEADER
+  9
+$ACADMAINTVER
+ 70
+16
   9
 $ACADVER
   1
