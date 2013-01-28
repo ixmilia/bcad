@@ -17,6 +17,8 @@ namespace BCad.Test.DxfTests
             var file = Section("HEADER", "");
             Assert.Null(file.HeaderSection.CurrentLayer);
             Assert.Equal(0, file.HeaderSection.MaintenanceVersion);
+            Assert.Equal(0.0, file.HeaderSection.AngleZeroDirection);
+            Assert.Equal(DxfAngleDirection.CounterClockwise, file.HeaderSection.AngleDirection);
             Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
             Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
             Assert.Equal(0, file.HeaderSection.UnitPrecision);
@@ -35,6 +37,14 @@ $ACADVER
   1
 AC1012
   9
+$ANGBASE
+ 50
+5.5E1
+  9
+$ANGDIR
+ 70
+1
+  9
 $CLAYER
   8
 <current layer>
@@ -49,6 +59,8 @@ $LUPREC
 ");
             Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(16, file.HeaderSection.MaintenanceVersion);
+            Assert.Equal(55.0, file.HeaderSection.AngleZeroDirection);
+            Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
             Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
             Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
             Assert.Equal(7, file.HeaderSection.UnitPrecision);
@@ -248,6 +260,8 @@ ENDTAB
             var file = new DxfFile();
             file.HeaderSection.MaintenanceVersion = 16;
             file.HeaderSection.CurrentLayer = "<current layer>";
+            file.HeaderSection.AngleZeroDirection = 55.0;
+            file.HeaderSection.AngleDirection = DxfAngleDirection.Clockwise;
             file.HeaderSection.Version = DxfAcadVersion.R13;
             file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
             file.HeaderSection.UnitPrecision = 4;
@@ -264,6 +278,14 @@ $ACADMAINTVER
 $ACADVER
   1
 AC1012
+  9
+$ANGBASE
+ 50
+5.5000000000000000E+001
+  9
+$ANGDIR
+ 70
+1
   9
 $CLAYER
   8

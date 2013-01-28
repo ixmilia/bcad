@@ -18,16 +18,26 @@ namespace BCad.Dxf.Sections
         Fractional = 7,
     }
 
+    public enum DxfAngleDirection
+    {
+        CounterClockwise = 0,
+        Clockwise = 1
+    }
+
     public class DxfHeaderSection : DxfSection
     {
         public short MaintenanceVersion { get; set; }
         public DxfAcadVersion Version { get; set; }
+        public double AngleZeroDirection { get; set; }
+        public DxfAngleDirection AngleDirection { get; set; }
         public string CurrentLayer { get; set; }
         public DxfUnitFormat UnitFormat { get; set; }
         public short UnitPrecision { get; set; }
 
         private const string ACADMAINTVER = "$ACADMAINTVER";
         private const string ACADVER = "$ACADVER";
+        private const string ANGBASE = "$ANGBASE";
+        private const string ANGDIR = "$ANGDIR";
         private const string CLAYER = "$CLAYER";
         private const string LUNITS = "$LUNITS";
         private const string LUPREC = "$LUPREC";
@@ -56,6 +66,18 @@ namespace BCad.Dxf.Sections
             {
                 yield return new DxfCodePair(9, ACADVER);
                 yield return new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(Version));
+            }
+
+            if (AngleZeroDirection != 0.0)
+            {
+                yield return new DxfCodePair(9, ANGBASE);
+                yield return new DxfCodePair(50, AngleZeroDirection);
+            }
+
+            if (AngleDirection != DxfAngleDirection.CounterClockwise)
+            {
+                yield return new DxfCodePair(9, ANGDIR);
+                yield return new DxfCodePair(70, (short)AngleDirection);
             }
 
             if (!string.IsNullOrEmpty(CurrentLayer))
@@ -113,6 +135,14 @@ namespace BCad.Dxf.Sections
                         case ACADVER:
                             EnsureCode(pair, 1);
                             section.Version = DxfAcadVersionStrings.StringToVersion(pair.StringValue);
+                            break;
+                        case ANGBASE:
+                            EnsureCode(pair, 50);
+                            section.AngleZeroDirection = pair.DoubleValue;
+                            break;
+                        case ANGDIR:
+                            EnsureCode(pair, 70);
+                            section.AngleDirection = (pair.ShortValue == (short)0) ? DxfAngleDirection.CounterClockwise : DxfAngleDirection.Clockwise;
                             break;
                         case CLAYER:
                             EnsureCode(pair, 8);
