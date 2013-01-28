@@ -24,12 +24,21 @@ namespace BCad.Dxf.Sections
         Clockwise = 1
     }
 
+    public enum DxfAttributeVisibility
+    {
+        None = 0,
+        Normal = 1,
+        All = 2
+    }
+
     public class DxfHeaderSection : DxfSection
     {
         public short MaintenanceVersion { get; set; }
         public DxfAcadVersion Version { get; set; }
         public double AngleZeroDirection { get; set; }
         public DxfAngleDirection AngleDirection { get; set; }
+        public DxfAttributeVisibility AttributeVisibility { get; set; }
+        public DxfUnitFormat AngleUnitFormat { get; set; }
         public string CurrentLayer { get; set; }
         public DxfUnitFormat UnitFormat { get; set; }
         public short UnitPrecision { get; set; }
@@ -38,6 +47,8 @@ namespace BCad.Dxf.Sections
         private const string ACADVER = "$ACADVER";
         private const string ANGBASE = "$ANGBASE";
         private const string ANGDIR = "$ANGDIR";
+        private const string ATTMODE = "$ATTMODE";
+        private const string AUNITS = "$AUNITS";
         private const string CLAYER = "$CLAYER";
         private const string LUNITS = "$LUNITS";
         private const string LUPREC = "$LUPREC";
@@ -56,47 +67,24 @@ namespace BCad.Dxf.Sections
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            if (MaintenanceVersion != 0)
-            {
-                yield return new DxfCodePair(9, ACADMAINTVER);
-                yield return new DxfCodePair(70, MaintenanceVersion);
-            }
+            var values = new List<DxfCodePair>();
+            Action<string, int, object> addValue = (name, code, value) =>
+                {
+                    values.Add(new DxfCodePair(9, name));
+                    values.Add(new DxfCodePair(code, value));
+                };
 
-            if (Version != DxfAcadVersion.R14)
-            {
-                yield return new DxfCodePair(9, ACADVER);
-                yield return new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(Version));
-            }
+            if (MaintenanceVersion != 0) addValue(ACADMAINTVER, 70, MaintenanceVersion);
+            if (Version != DxfAcadVersion.R14) addValue(ACADVER, 1, DxfAcadVersionStrings.VersionToString(Version));
+            if (AngleZeroDirection != 0.0) addValue(ANGBASE, 50, AngleZeroDirection);
+            if (AngleDirection != DxfAngleDirection.CounterClockwise) addValue(ANGDIR, 70, (short)AngleDirection);
+            if (AttributeVisibility != DxfAttributeVisibility.None) addValue(ATTMODE, 70, (short)AttributeVisibility);
+            if (AngleUnitFormat != DxfUnitFormat.None) addValue(AUNITS, 70, (short)AngleUnitFormat);
+            if (!string.IsNullOrEmpty(CurrentLayer)) addValue(CLAYER, 8, CurrentLayer);
+            if (UnitFormat != DxfUnitFormat.None) addValue(LUNITS, 70, (short)UnitFormat);
+            if (UnitPrecision != 0) addValue(LUPREC, 70, (short)UnitPrecision);
 
-            if (AngleZeroDirection != 0.0)
-            {
-                yield return new DxfCodePair(9, ANGBASE);
-                yield return new DxfCodePair(50, AngleZeroDirection);
-            }
-
-            if (AngleDirection != DxfAngleDirection.CounterClockwise)
-            {
-                yield return new DxfCodePair(9, ANGDIR);
-                yield return new DxfCodePair(70, (short)AngleDirection);
-            }
-
-            if (!string.IsNullOrEmpty(CurrentLayer))
-            {
-                yield return new DxfCodePair(9, CLAYER);
-                yield return new DxfCodePair(8, CurrentLayer);
-            }
-
-            if (UnitFormat != DxfUnitFormat.None)
-            {
-                yield return new DxfCodePair(9, LUNITS);
-                yield return new DxfCodePair(70, (short)UnitFormat);
-            }
-
-            if (UnitPrecision != 0)
-            {
-                yield return new DxfCodePair(9, LUPREC);
-                yield return new DxfCodePair(70, UnitPrecision);
-            }
+            return values;
         }
 
         internal static DxfHeaderSection HeaderSectionFromBuffer(DxfCodePairBufferReader buffer)
@@ -142,7 +130,15 @@ namespace BCad.Dxf.Sections
                             break;
                         case ANGDIR:
                             EnsureCode(pair, 70);
-                            section.AngleDirection = (pair.ShortValue == (short)0) ? DxfAngleDirection.CounterClockwise : DxfAngleDirection.Clockwise;
+                            section.AngleDirection = (DxfAngleDirection)pair.ShortValue;
+                            break;
+                        case ATTMODE:
+                            EnsureCode(pair, 70);
+                            section.AttributeVisibility = (DxfAttributeVisibility)pair.ShortValue;
+                            break;
+                        case AUNITS:
+                            EnsureCode(pair, 70);
+                            section.AngleUnitFormat = (DxfUnitFormat)pair.ShortValue;
                             break;
                         case CLAYER:
                             EnsureCode(pair, 8);

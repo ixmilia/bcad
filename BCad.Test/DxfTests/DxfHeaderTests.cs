@@ -15,11 +15,13 @@ namespace BCad.Test.DxfTests
         public void DefaultHeaderValuesTest()
         {
             var file = Section("HEADER", "");
-            Assert.Null(file.HeaderSection.CurrentLayer);
             Assert.Equal(0, file.HeaderSection.MaintenanceVersion);
+            Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
             Assert.Equal(0.0, file.HeaderSection.AngleZeroDirection);
             Assert.Equal(DxfAngleDirection.CounterClockwise, file.HeaderSection.AngleDirection);
-            Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
+            Assert.Equal(DxfAttributeVisibility.None, file.HeaderSection.AttributeVisibility);
+            Assert.Equal(DxfUnitFormat.None, file.HeaderSection.AngleUnitFormat);
+            Assert.Null(file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
             Assert.Equal(0, file.HeaderSection.UnitPrecision);
         }
@@ -45,6 +47,14 @@ $ANGDIR
  70
 1
   9
+$ATTMODE
+ 70
+1
+  9
+$AUNITS
+ 70
+3
+  9
 $CLAYER
   8
 <current layer>
@@ -57,11 +67,13 @@ $LUPREC
  70
 7
 ");
-            Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(16, file.HeaderSection.MaintenanceVersion);
+            Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
             Assert.Equal(55.0, file.HeaderSection.AngleZeroDirection);
             Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
-            Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
+            Assert.Equal(DxfAttributeVisibility.Normal, file.HeaderSection.AttributeVisibility);
+            Assert.Equal(DxfUnitFormat.Engineering, file.HeaderSection.AngleUnitFormat);
+            Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
             Assert.Equal(7, file.HeaderSection.UnitPrecision);
         }
@@ -263,6 +275,8 @@ ENDTAB
             file.HeaderSection.AngleZeroDirection = 55.0;
             file.HeaderSection.AngleDirection = DxfAngleDirection.Clockwise;
             file.HeaderSection.Version = DxfAcadVersion.R13;
+            file.HeaderSection.AttributeVisibility = DxfAttributeVisibility.All;
+            file.HeaderSection.AngleUnitFormat = DxfUnitFormat.Fractional;
             file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
             file.HeaderSection.UnitPrecision = 4;
             VerifyFileContains(file, @"
@@ -286,6 +300,14 @@ $ANGBASE
 $ANGDIR
  70
 1
+  9
+$ATTMODE
+ 70
+2
+  9
+$AUNITS
+ 70
+7
   9
 $CLAYER
   8
