@@ -94,10 +94,8 @@ namespace BCad.Dxf.Entities
                 yield return new DxfCodePair(41, EndingWidth);
             if (Bulge != 0.0)
                 yield return new DxfCodePair(42, Bulge);
-            if (CurveFitTangentDirection != 0.0)
-                yield return new DxfCodePair(50, CurveFitTangentDirection);
-            if (vertexFlags != 0)
-                yield return new DxfCodePair(70, (short)vertexFlags);
+            yield return new DxfCodePair(70, (short)vertexFlags);
+            yield return new DxfCodePair(50, CurveFitTangentDirection);
             if (PolyfaceMeshVertexIndex1 != 0.0)
                 yield return new DxfCodePair(71, PolyfaceMeshVertexIndex1);
             if (PolyfaceMeshVertexIndex2 != 0.0)

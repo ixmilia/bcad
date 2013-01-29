@@ -35,11 +35,11 @@ namespace BCad.Dxf.Entities
         {
             foreach (var pair in base.GetCommonValuePairs())
                 yield return pair;
+            if (Thickness != 0.0)
+                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(10, Center.X);
             yield return new DxfCodePair(20, Center.Y);
             yield return new DxfCodePair(30, Center.Z);
-            if (Thickness != 0.0)
-                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(40, Radius);
             if (Normal != new DxfVector(0, 0, 1))
             {

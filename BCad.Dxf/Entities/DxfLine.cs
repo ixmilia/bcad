@@ -33,16 +33,14 @@ namespace BCad.Dxf.Entities
         {
             foreach (var pair in base.GetCommonValuePairs())
                 yield return pair;
+            if (Thickness != 0.0)
+                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(10, P1.X);
             yield return new DxfCodePair(20, P1.Y);
             yield return new DxfCodePair(30, P1.Z);
             yield return new DxfCodePair(11, P2.X);
             yield return new DxfCodePair(21, P2.Y);
             yield return new DxfCodePair(31, P2.Z);
-            if (Thickness != 0.0)
-            {
-                yield return new DxfCodePair(39, Thickness);
-            }
             if (ExtrusionDirection != DxfVector.ZAxis)
             {
                 yield return new DxfCodePair(210, ExtrusionDirection.X);

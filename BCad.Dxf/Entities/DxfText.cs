@@ -92,21 +92,21 @@ namespace BCad.Dxf.Entities
         {
             foreach (var pair in base.GetCommonValuePairs())
                 yield return pair;
-            yield return new DxfCodePair(1, Value);
-            if (TextStyleName != null && TextStyleName != "STANDARD")
-                yield return new DxfCodePair(7, TextStyleName);
+            if (Thickness != 0.0)
+                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(10, Location.X);
             yield return new DxfCodePair(20, Location.Y);
             yield return new DxfCodePair(30, Location.Z);
-            if (Thickness != 0.0)
-                yield return new DxfCodePair(39, Thickness);
             yield return new DxfCodePair(40, TextHeight);
-            if (RelativeXScaleFactor != 1.0)
-                yield return new DxfCodePair(41, RelativeXScaleFactor);
+            yield return new DxfCodePair(1, Value);
             if (Rotation != 0.0)
                 yield return new DxfCodePair(50, Rotation);
+            if (RelativeXScaleFactor != 1.0)
+                yield return new DxfCodePair(41, RelativeXScaleFactor);
             if (ObliqueAngle != 0.0)
                 yield return new DxfCodePair(51, ObliqueAngle);
+            if (TextStyleName != null && TextStyleName != "STANDARD")
+                yield return new DxfCodePair(7, TextStyleName);
             if (textGenerationFlags != 0)
                 yield return new DxfCodePair(71, (short)textGenerationFlags);
             if (HorizontalTextJustification != HorizontalTextJustification.Left)
@@ -117,14 +117,14 @@ namespace BCad.Dxf.Entities
                 yield return new DxfCodePair(21, SecondAlignmentPoint.Y);
                 yield return new DxfCodePair(31, SecondAlignmentPoint.Z);
             }
-            if (VerticalTextJustification != Entities.VerticalTextJustification.Baseline)
-                yield return new DxfCodePair(73, (short)VerticalTextJustification);
             if (Normal != DxfVector.ZAxis)
             {
                 yield return new DxfCodePair(210, Normal.X);
                 yield return new DxfCodePair(220, Normal.Y);
                 yield return new DxfCodePair(230, Normal.Z);
             }
+            if (VerticalTextJustification != Entities.VerticalTextJustification.Baseline)
+                yield return new DxfCodePair(73, (short)VerticalTextJustification);            
         }
 
         internal static DxfText TextFromBuffer(DxfCodePairBufferReader buffer)

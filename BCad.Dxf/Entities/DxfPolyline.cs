@@ -112,12 +112,12 @@ namespace BCad.Dxf.Entities
             yield return new DxfCodePair(30, Elevation);
             if (Thickness != 0.0)
                 yield return new DxfCodePair(39, Thickness);
+            if (bitField != 0)
+                yield return new DxfCodePair(70, (short)bitField);
             if (DefaultStartingWidth != 0.0)
                 yield return new DxfCodePair(40, DefaultStartingWidth);
             if (DefaultEndingWidth != 0.0)
                 yield return new DxfCodePair(41, DefaultEndingWidth);
-            if (bitField != 0)
-                yield return new DxfCodePair(70, (short)bitField);
             if (PolygonMeshMVertexCount != 0)
                 yield return new DxfCodePair(71, PolygonMeshMVertexCount);
             if (PolygonMeshNVertexCount != 0)
