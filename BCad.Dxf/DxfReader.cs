@@ -47,8 +47,14 @@ namespace BCad.Dxf
                 c = binReader.ReadChar();
             }
 
-            // if sentinel, continue with binary reader
+            // trim BOM
             var line = sb.ToString();
+            if (line.Length > 0 && line[0] == 0xFEFF)
+            {
+                line = line.Substring(1);
+            }
+
+            // if sentinel, continue with binary reader
             if (line.StartsWith(DxfFile.BinarySentinel))
             {
                 readText = false;
