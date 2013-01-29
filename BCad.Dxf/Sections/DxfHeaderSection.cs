@@ -39,6 +39,7 @@ namespace BCad.Dxf.Sections
         public DxfAngleDirection AngleDirection { get; set; }
         public DxfAttributeVisibility AttributeVisibility { get; set; }
         public DxfUnitFormat AngleUnitFormat { get; set; }
+        public short AngleUnitPrecision { get; set; }
         public string CurrentLayer { get; set; }
         public DxfUnitFormat UnitFormat { get; set; }
         public short UnitPrecision { get; set; }
@@ -49,6 +50,7 @@ namespace BCad.Dxf.Sections
         private const string ANGDIR = "$ANGDIR";
         private const string ATTMODE = "$ATTMODE";
         private const string AUNITS = "$AUNITS";
+        private const string AUPREC = "$AUPREC";
         private const string CLAYER = "$CLAYER";
         private const string LUNITS = "$LUNITS";
         private const string LUPREC = "$LUPREC";
@@ -80,6 +82,7 @@ namespace BCad.Dxf.Sections
             if (AngleDirection != DxfAngleDirection.CounterClockwise) addValue(ANGDIR, 70, (short)AngleDirection);
             if (AttributeVisibility != DxfAttributeVisibility.None) addValue(ATTMODE, 70, (short)AttributeVisibility);
             if (AngleUnitFormat != DxfUnitFormat.None) addValue(AUNITS, 70, (short)AngleUnitFormat);
+            if (AngleUnitPrecision != 0) addValue(AUPREC, 70, AngleUnitPrecision);
             if (!string.IsNullOrEmpty(CurrentLayer)) addValue(CLAYER, 8, CurrentLayer);
             if (UnitFormat != DxfUnitFormat.None) addValue(LUNITS, 70, (short)UnitFormat);
             if (UnitPrecision != 0) addValue(LUPREC, 70, (short)UnitPrecision);
@@ -139,6 +142,10 @@ namespace BCad.Dxf.Sections
                         case AUNITS:
                             EnsureCode(pair, 70);
                             section.AngleUnitFormat = (DxfUnitFormat)pair.ShortValue;
+                            break;
+                        case AUPREC:
+                            EnsureCode(pair, 70);
+                            section.AngleUnitPrecision = pair.ShortValue;
                             break;
                         case CLAYER:
                             EnsureCode(pair, 8);

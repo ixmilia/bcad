@@ -21,6 +21,7 @@ namespace BCad.Test.DxfTests
             Assert.Equal(DxfAngleDirection.CounterClockwise, file.HeaderSection.AngleDirection);
             Assert.Equal(DxfAttributeVisibility.None, file.HeaderSection.AttributeVisibility);
             Assert.Equal(DxfUnitFormat.None, file.HeaderSection.AngleUnitFormat);
+            Assert.Equal(0, file.HeaderSection.AngleUnitPrecision);
             Assert.Null(file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
             Assert.Equal(0, file.HeaderSection.UnitPrecision);
@@ -55,6 +56,10 @@ $AUNITS
  70
 3
   9
+$AUPREC
+ 70
+7
+  9
 $CLAYER
   8
 <current layer>
@@ -73,6 +78,7 @@ $LUPREC
             Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
             Assert.Equal(DxfAttributeVisibility.Normal, file.HeaderSection.AttributeVisibility);
             Assert.Equal(DxfUnitFormat.Engineering, file.HeaderSection.AngleUnitFormat);
+            Assert.Equal(7, file.HeaderSection.AngleUnitPrecision);
             Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
             Assert.Equal(7, file.HeaderSection.UnitPrecision);
@@ -271,12 +277,13 @@ ENDTAB
         {
             var file = new DxfFile();
             file.HeaderSection.MaintenanceVersion = 16;
-            file.HeaderSection.CurrentLayer = "<current layer>";
             file.HeaderSection.AngleZeroDirection = 55.0;
             file.HeaderSection.AngleDirection = DxfAngleDirection.Clockwise;
             file.HeaderSection.Version = DxfAcadVersion.R13;
             file.HeaderSection.AttributeVisibility = DxfAttributeVisibility.All;
             file.HeaderSection.AngleUnitFormat = DxfUnitFormat.Fractional;
+            file.HeaderSection.AngleUnitPrecision = 12;
+            file.HeaderSection.CurrentLayer = "<current layer>";
             file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
             file.HeaderSection.UnitPrecision = 4;
             VerifyFileContains(file, @"
@@ -308,6 +315,10 @@ $ATTMODE
 $AUNITS
  70
 7
+  9
+$AUPREC
+ 70
+12
   9
 $CLAYER
   8
