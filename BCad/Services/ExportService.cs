@@ -104,8 +104,13 @@ namespace BCad.Services
             var m = transform.Transform(arc.Center);
             var circle = ProjectedCircle.FromConjugateDiameters(null, layer, m, pt, qt);
 
-            // a projected arc is a center, start/end point, x/y radius, rotation
-            return null;
+            // find the new start and end angles
+            var startPoint = (Point)transform.Transform(arc.EndPoint1);
+            var endPoint = (Point)transform.Transform(arc.EndPoint2);
+            var startAngle = (startPoint - circle.Center).ToAngle();
+            var endAngle = (endPoint - circle.Center).ToAngle();
+
+            return new ProjectedArc(arc, layer, circle.Center, circle.RadiusX, circle.RadiusY, circle.Rotation, startAngle, endAngle, startPoint, endPoint);
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)

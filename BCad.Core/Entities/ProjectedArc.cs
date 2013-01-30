@@ -1,4 +1,7 @@
-﻿namespace BCad.Entities
+﻿using System;
+using BCad.Extensions;
+
+namespace BCad.Entities
 {
     public class ProjectedArc : ProjectedEntity
     {
@@ -25,9 +28,10 @@
 
         public Point EndPoint { get; private set; }
 
-        public ProjectedArc(Arc arc, Layer layer, Point center, double radiusX, double radiusY, double rotation, double startAngle, double endAngle)
+        public ProjectedArc(Arc arc, Layer layer, Point center, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, Point startPoint, Point endPoint)
             : base(layer)
         {
+            // copy values
             OriginalArc = arc;
             Center = center;
             RadiusX = radiusX;
@@ -35,6 +39,8 @@
             Rotation = rotation;
             StartAngle = startAngle;
             EndAngle = endAngle;
+            StartPoint = startPoint;
+            EndPoint = endPoint;
         }
     }
 }

@@ -126,11 +126,17 @@ namespace BCad.Commands.FileHandlers
                 0, // x axis rotation
                 0, // flag
                 0, // flag
+                arc.EndPoint.X - arc.StartPoint.X,
+                arc.EndPoint.Y - arc.StartPoint.Y);
+            var lineData = string.Format("M {0} {1} L {2} {3}",
+                arc.StartPoint.X,
+                arc.StartPoint.Y,
                 arc.EndPoint.X,
                 arc.EndPoint.Y);
             var xml = new XElement(Xmlns + "path",
                 new XAttribute("d", pathData),
                 new XAttribute("fill-opacity", 0));
+            AddRotationTransform(xml, arc.Rotation, arc.Center);
             AddStrokeIfNotDefault(xml, arc.OriginalArc.Color);
             return xml;
         }

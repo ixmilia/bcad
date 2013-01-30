@@ -86,7 +86,7 @@ namespace BCad.Ribbons
             else
             {
                 // work machine
-                inputFile = @"C:\Users\brettfo\Documents\GitHub\BCad\BCad\test.dxf";
+                inputFile = @"C:\Users\brettfo\Documents\GitHub\BCad\BCad\RoundyHouse.dxf";
                 outputFile = @"D:\Private\Desktop\test.svg";
             }
 

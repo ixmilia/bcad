@@ -36,7 +36,8 @@ namespace BCad.Commands.FileHandlers
             var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
             autoColor = System.Drawing.Color.FromArgb((0xFF << 24) | color);
 
-            var image = new Bitmap(500, 500);
+            var height = (int)workspace.ActiveViewPort.ViewHeight;
+            var image = new Bitmap(height * 2, height);
             using (var graphics = Graphics.FromImage(image))
             {
                 graphics.FillRectangle(Brushes.Black, new Rectangle(0, 0, image.Width, image.Height));
@@ -86,20 +87,6 @@ namespace BCad.Commands.FileHandlers
             }
         }
 
-        private Pen ColorToPen(System.Drawing.Color color)
-        {
-            if (penCache.ContainsKey(color))
-            {
-                return penCache[color];
-            }
-            else
-            {
-                var pen = new Pen(ColorToBrush(color));
-                penCache.Add(color, pen);
-                return pen;
-            }
-        }
-
         private void DrawEntity(Graphics graphics, ProjectedLine line, Color layerColor)
         {
             graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color)), line.P1, line.P2);
@@ -120,6 +107,20 @@ namespace BCad.Commands.FileHandlers
             var x = (float)text.Location.X;
             var y = (float)(text.Location.Y - text.Height);
             graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.DrawingColor), x, y);
+        }
+
+        private Pen ColorToPen(System.Drawing.Color color)
+        {
+            if (penCache.ContainsKey(color))
+            {
+                return penCache[color];
+            }
+            else
+            {
+                var pen = new Pen(ColorToBrush(color));
+                penCache.Add(color, pen);
+                return pen;
+            }
         }
 
         private System.Drawing.Color GetDisplayColor(Color layerColor, Color primitiveColor)
