@@ -80,7 +80,7 @@ namespace BCad
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
 
         [ImportMany]
-        private IEnumerable<IFileWriter> FileWriters = null;
+        private IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> FileWriters = null;
 
         #endregion
 

@@ -62,9 +62,11 @@
     <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
+    <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
     <Compile Include="Commands\FileHandlers\DxfFileHandler.cs" />
     <Compile Include="Commands\FileHandlers\PngFileHandler.cs" />
+    <Compile Include="Commands\FileHandlers\SvgFilePlotter.cs" />
     <Compile Include="Commands\FileHandlers\SvgFileHandler.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandMetadata.cs" />
@@ -97,6 +99,12 @@
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.RoundedDouble.cs" />
+    <Compile Include="FileHandlers\ExportFilePlotterAttribute.cs" />
+    <Compile Include="FileHandlers\IFilePlotter.cs" />
+    <Compile Include="FileHandlers\IFilePlotterMetadata.cs" />
+    <Compile Include="FileHandlers\IFileReaderMetadata.cs" />
+    <Compile Include="FileHandlers\IFileWriterMetadata.cs" />
+    <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />

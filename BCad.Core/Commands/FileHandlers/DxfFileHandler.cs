@@ -17,9 +17,73 @@ using System.Diagnostics;
 
 namespace BCad.Commands.FileHandlers
 {
-    [ExportFileReader(DxfFileHandler.DisplayName, DxfFileHandler.FileExtension)]
-    [ExportFileWriter(DxfFileHandler.DisplayName, DxfFileHandler.FileExtension)]
-    internal class DxfFileHandler : IFileReader, IFileWriter
+    [ExportFileWriter(DxfFileReader.DisplayName, DxfFileReader.FileExtension)]
+    internal class DxfFileWriter : IFileWriter
+    {
+        public void WriteFile(IWorkspace workspace, Stream stream)
+        {
+            var file = new DxfFile();
+
+            // save layers and entities
+            file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
+            file.HeaderSection.UnitFormat = workspace.Drawing.Settings.UnitFormat.ToDxfUnitFormat();
+            file.HeaderSection.UnitPrecision = (short)workspace.Drawing.Settings.UnitPrecision;
+            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(x => x.Name))
+            {
+                file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
+                foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
+                {
+                    DxfEntity entity = null;
+                    switch (item.Kind)
+                    {
+                        case EntityKind.Arc:
+                            // if start/end angles are a full circle, write it that way instead
+                            var arc = (Arc)item;
+                            if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
+                                entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
+                            else
+                                entity = ((Arc)item).ToDxfArc(layer);
+                            break;
+                        case EntityKind.Circle:
+                            entity = ((Circle)item).ToDxfCircle(layer);
+                            break;
+                        case EntityKind.Ellipse:
+                            entity = ((Ellipse)item).ToDxfEllipse(layer);
+                            break;
+                        case EntityKind.Line:
+                            entity = ((Line)item).ToDxfLine(layer);
+                            break;
+                        case EntityKind.Polyline:
+                            entity = ((Polyline)item).ToDxfPolyline(layer);
+                            break;
+                        case EntityKind.Text:
+                            entity = ((Text)item).ToDxfText(layer);
+                            break;
+                        default:
+                            Debug.Fail("Unsupported entity type: " + item.GetType().Name);
+                            break;
+                    }
+
+                    if (entity != null)
+                        file.EntitiesSection.Entities.Add(entity);
+                }
+            }
+
+            // save viewport
+            var vp = workspace.ActiveViewPort;
+            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort()
+            {
+                LowerLeft = vp.BottomLeft.ToDxfPoint(),
+                ViewDirection = vp.Sight.ToDxfVector(),
+                ViewHeight = vp.ViewHeight
+            });
+
+            file.Save(stream);
+        }
+    }
+
+    [ExportFileReader(DxfFileReader.DisplayName, DxfFileReader.FileExtension)]
+    internal class DxfFileReader : IFileReader
     {
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
@@ -98,67 +162,6 @@ namespace BCad.Commands.FileHandlers
                     Vector.YAxis,
                     10.0);
             }
-        }
-
-        public void WriteFile(IWorkspace workspace, Stream stream)
-        {
-            var file = new DxfFile();
-
-            // save layers and entities
-            file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
-            file.HeaderSection.UnitFormat = workspace.Drawing.Settings.UnitFormat.ToDxfUnitFormat();
-            file.HeaderSection.UnitPrecision = (short)workspace.Drawing.Settings.UnitPrecision;
-            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(x => x.Name))
-            {
-                file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
-                foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
-                {
-                    DxfEntity entity = null;
-                    switch (item.Kind)
-                    {
-                        case EntityKind.Arc:
-                            // if start/end angles are a full circle, write it that way instead
-                            var arc = (Arc)item;
-                            if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
-                                entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
-                            else
-                                entity = ((Arc)item).ToDxfArc(layer);
-                            break;
-                        case EntityKind.Circle:
-                            entity = ((Circle)item).ToDxfCircle(layer);
-                            break;
-                        case EntityKind.Ellipse:
-                            entity = ((Ellipse)item).ToDxfEllipse(layer);
-                            break;
-                        case EntityKind.Line:
-                            entity = ((Line)item).ToDxfLine(layer);
-                            break;
-                        case EntityKind.Polyline:
-                            entity = ((Polyline)item).ToDxfPolyline(layer);
-                            break;
-                        case EntityKind.Text:
-                            entity = ((Text)item).ToDxfText(layer);
-                            break;
-                        default:
-                            Debug.Fail("Unsupported entity type: " + item.GetType().Name);
-                            break;
-                    }
-
-                    if (entity != null)
-                        file.EntitiesSection.Entities.Add(entity);
-                }
-            }
-
-            // save viewport
-            var vp = workspace.ActiveViewPort;
-            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort()
-            {
-                LowerLeft = vp.BottomLeft.ToDxfPoint(),
-                ViewDirection = vp.Sight.ToDxfVector(),
-                ViewHeight = vp.ViewHeight
-            });
-
-            file.Save(stream);
         }
     }
 

@@ -7,7 +7,7 @@ namespace BCad.Commands
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class ExportCommandAttribute : ExportAttribute
+    public class ExportCommandAttribute : ExportAttribute, ICommandMetadata
     {
         public ExportCommandAttribute(string name, params string[] aliases)
             : this(name, ModifierKeys.None, Key.None, aliases)

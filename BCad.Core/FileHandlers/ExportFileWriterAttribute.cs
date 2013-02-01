@@ -6,7 +6,9 @@ using System.Text;
 
 namespace BCad.FileHandlers
 {
-    public class ExportFileWriterAttribute : ExportAttribute
+    [MetadataAttribute]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class ExportFileWriterAttribute : ExportAttribute, IFileWriterMetadata
     {
         public string DisplayName { get; private set; }
 

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BCad.FileHandlers;
-using Microsoft.Win32;
+using BCad.Helpers;
 
 namespace BCad.Commands
 {
@@ -16,7 +16,7 @@ namespace BCad.Commands
         private IWorkspace Workspace = null;
 
         [ImportMany]
-        private IEnumerable<IFileWriter> FileWriters = null;
+        private IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> FileWriters = null;
 
         public bool Execute(object arg)
         {
@@ -26,11 +26,11 @@ namespace BCad.Commands
             return Execute(Workspace, FileWriters, fileName);
         }
 
-        public static bool Execute(IWorkspace workspace, IEnumerable<IFileWriter> fileWriters, string fileName)
+        public static bool Execute(IWorkspace workspace, IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> fileWriters, string fileName)
         {
             if (fileName == null)
             {
-                fileName = GetFilenameFromUser(fileWriters);
+                fileName = UIHelper.GetFilenameFromUserForSave(fileWriters.Select(fw => new FileSpecification(fw.Metadata.DisplayName, fw.Metadata.FileExtensions)));
                 if (fileName == null)
                     return false;
             }
@@ -64,51 +64,12 @@ namespace BCad.Commands
             get { return "SAVEAS"; }
         }
 
-        private static IFileWriter WriterFromExtension(IEnumerable<IFileWriter> fileWriters, string extension)
+        private static IFileWriter WriterFromExtension(IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> fileWriters, string extension)
         {
-            return fileWriters.FirstOrDefault(r => r.Extensions().Contains(extension));
-        }
-
-        private static string GetFilenameFromUser(IEnumerable<IFileWriter> fileWriters)
-        {
-            var filter = string.Join("|",
-                from w in fileWriters
-                let exts = string.Join(";", w.Extensions().Select(x => "*" + x))
-                select string.Format("{0}|{1}", w.DisplayName(), exts));
-
-            var dialog = new SaveFileDialog();
-            dialog.DefaultExt = fileWriters.First().Extensions().First();
-            dialog.Filter = filter;
-            var result = dialog.ShowDialog();
-            if (result != true)
+            var writer = fileWriters.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension));
+            if (writer == null)
                 return null;
-
-            return dialog.FileName;
-        }
-    }
-
-    internal static class FileWriterExtensions
-    {
-        public static IEnumerable<string> Extensions(this IFileWriter writer)
-        {
-            var att = writer.ExportAttribute();
-            if (att == null)
-                return null;
-            return att.FileExtensions;
-        }
-
-        public static string DisplayName(this IFileWriter writer)
-        {
-            var att = writer.ExportAttribute();
-            if (att == null)
-                return null;
-            return att.DisplayName;
-        }
-
-        private static ExportFileWriterAttribute ExportAttribute(this IFileWriter writer)
-        {
-            var type = writer.GetType();
-            return type.GetCustomAttributes(false).OfType<ExportFileWriterAttribute>().FirstOrDefault();
+            return writer.Value;
         }
     }
 }

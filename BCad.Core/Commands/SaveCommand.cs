@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Windows.Input;
 using BCad.FileHandlers;
@@ -12,7 +13,7 @@ namespace BCad.Commands
         private IWorkspace Workspace = null;
 
         [ImportMany]
-        private IEnumerable<IFileWriter> FileWriters = null;
+        private IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> FileWriters = null;
 
         public bool Execute(object arg)
         {

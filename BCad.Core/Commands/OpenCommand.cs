@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Input;
 using BCad.FileHandlers;
+using BCad.Helpers;
 using BCad.Services;
-using Microsoft.Win32;
 
 namespace BCad.Commands
 {
@@ -14,17 +14,20 @@ namespace BCad.Commands
     public class OpenCommand : ICommand
     {
         [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace Workspace = null;
 
         [Import]
-        public IUndoRedoService UndoRedoService { get; set; }
+        private IUndoRedoService UndoRedoService = null;
 
         [ImportMany]
-        public IEnumerable<IFileReader> FileReaders { get; set; }
+        private IEnumerable<Lazy<IFileReader, IFileReaderMetadata>> FileReaders = null;
 
         private IFileReader ReaderFromExtension(string extension)
         {
-            return FileReaders.FirstOrDefault(r => r.Extensions().Contains(extension));
+            var reader = FileReaders.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension));
+            if (reader == null)
+                return null;
+            return reader.Value;
         }
 
         public bool Execute(object arg)
@@ -37,24 +40,9 @@ namespace BCad.Commands
                 filename = (string)arg;
             if (filename == null)
             {
-                var filter = string.Join("|",
-                    from r in FileReaders
-                    let exts = string.Join(";", r.Extensions().Select(x => "*" + x))
-                    select string.Format("{0}|{1}", r.DisplayName(), exts));
-
-                var all = string.Format("{0}|{1}",
-                    "All supported types",
-                    string.Join(";", FileReaders.SelectMany(f => f.Extensions()).Select(x => "*" + x)));
-
-                filter = string.Join("|", all, filter);
-
-                var dialog = new OpenFileDialog();
-                dialog.DefaultExt = FileReaders.First().Extensions().First();
-                dialog.Filter = filter;
-                var result = dialog.ShowDialog();
-                if (result != true)
+                filename = UIHelper.GetFilenameFromUserForOpen(FileReaders.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
+                if (filename == null)
                     return false;
-                filename = dialog.FileName;
             }
 
             var extension = Path.GetExtension(filename);
@@ -81,31 +69,6 @@ namespace BCad.Commands
         public string DisplayName
         {
             get { return "OPEN"; }
-        }
-    }
-
-    internal static class FileReaderExtensions
-    {
-        public static IEnumerable<string> Extensions(this IFileReader reader)
-        {
-            var att = reader.ExportAttribute();
-            if (att == null)
-                return null;
-            return att.FileExtensions;
-        }
-
-        public static string DisplayName(this IFileReader reader)
-        {
-            var att = reader.ExportAttribute();
-            if (att == null)
-                return null;
-            return att.DisplayName;
-        }
-
-        private static ExportFileReaderAttribute ExportAttribute(this IFileReader reader)
-        {
-            var type = reader.GetType();
-            return type.GetCustomAttributes(false).OfType<ExportFileReaderAttribute>().FirstOrDefault();
         }
     }
 }
