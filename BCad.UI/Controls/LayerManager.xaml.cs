@@ -74,6 +74,12 @@ namespace BCad.UI.Controls
             // do nothing (changes are uncommitted)
         }
 
+        public override bool Validate()
+        {
+            // TODO: validate stuff
+            return true;
+        }
+
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             this.layers.Add(new MutableLayer(

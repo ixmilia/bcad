@@ -35,9 +35,13 @@ namespace BCad.UI
 
         private void OK_Click(object sender, RoutedEventArgs e)
         {
-            this.Control.Commit();
-            this.DialogResult = true;
-            this.Close();
+            if (this.Control.Validate())
+            {
+                this.Control.Commit();
+                this.Control = null;
+                this.DialogResult = true;
+                this.Close();
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

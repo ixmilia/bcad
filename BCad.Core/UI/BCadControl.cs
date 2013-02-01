@@ -13,5 +13,10 @@ namespace BCad.UI
         public virtual void Cancel()
         {
         }
+
+        public virtual bool Validate()
+        {
+            return true;
+        }
     }
 }
