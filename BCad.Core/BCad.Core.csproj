@@ -67,7 +67,6 @@
     <Compile Include="Commands\FileHandlers\DxfFileHandler.cs" />
     <Compile Include="Commands\FileHandlers\PngFileHandler.cs" />
     <Compile Include="Commands\FileHandlers\SvgFilePlotter.cs" />
-    <Compile Include="Commands\FileHandlers\SvgFileHandler.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandMetadata.cs" />
     <Compile Include="Commands\LayersCommand.cs" />
