@@ -14,7 +14,7 @@ namespace BCad.Commands
 
         public bool Execute(object arg)
         {
-            var result = DialogFactory.ShowDialog(Workspace.SettingsManager.LayerDialogId);
+            var result = DialogFactory.ShowDialog("Layer", Workspace.SettingsManager.LayerDialogId);
             return result == true;
         }
 

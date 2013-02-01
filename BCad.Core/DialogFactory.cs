@@ -11,21 +11,27 @@ namespace BCad
     internal class DialogFactory : IDialogFactory
     {
         [ImportMany]
-        public IEnumerable<Lazy<IControlFactory, IControlFactoryMetadata>> ControlFactories { get; set; }
+        public IEnumerable<Lazy<BCadControl, IControlMetadata>> Controls { get; set; }
 
-        public bool? ShowDialog(string id)
+        public bool? ShowDialog(string type, string id)
         {
-            var factory = ControlFactories.First(f => f.Metadata.ControlId == id);
-            return (bool?)Application.Current.Dispatcher.Invoke(new Func<bool?>(() =>
+            var lazyControl = Controls.FirstOrDefault(c => c.Metadata.ControlType == type && c.Metadata.ControlId == id);
+            if (lazyControl == null)
             {
-                var control = factory.Value.Generate();
-                using (var window = new BCadDialog(control))
+                // TODO: throw
+                MessageBox.Show("Unable to find specified dialog.");
+                return false;
+            }
+            return (bool?)Application.Current.Dispatcher.Invoke(new Func<bool?>(() =>
                 {
-                    window.Title = factory.Metadata.Title;
-                    window.Owner = Application.Current.MainWindow;
-                    return window.ShowDialog();
-                }
-            }));
+                    var control = lazyControl.Value;
+                    using (var window = new BCadDialog(control))
+                    {
+                        window.Title = lazyControl.Metadata.Title;
+                        window.Owner = Application.Current.MainWindow;
+                        return window.ShowDialog();
+                    }
+                }));
         }
     }
 }

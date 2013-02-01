@@ -12,6 +12,7 @@ namespace BCad
     public class SettingsManager : ISettingsManager
     {
         private string layerDialogId = null;
+        private string plotDialogId = null;
         private string viewControlId = null;
         private string consoleControlId = null;
         private double snapPointDist = 0.0;
@@ -42,6 +43,18 @@ namespace BCad
                     return;
                 this.layerDialogId = value;
                 OnPropertyChanged("LayerDialogId");
+            }
+        }
+
+        public string PlotDialogId
+        {
+            get { return this.plotDialogId; }
+            set
+            {
+                if (this.plotDialogId == value)
+                    return;
+                this.plotDialogId = value;
+                OnPropertyChanged("PlotDialogId");
             }
         }
 
@@ -338,6 +351,7 @@ namespace BCad
         private void LoadDefaults()
         {
             LayerDialogId = "Default";
+            PlotDialogId = "Default";
             ViewControlId = "Default";
             ConsoleControlId = "Default";
             SnapPointDistance = 15.0;

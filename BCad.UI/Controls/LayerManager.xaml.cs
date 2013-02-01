@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -13,6 +14,7 @@ namespace BCad.UI.Controls
     /// <summary>
     /// Interaction logic for LayerManager.xaml
     /// </summary>
+    [ExportControl("Layer", "Default", "Layers")]
     public partial class LayerManager : BCadControl
     {
         private IWorkspace workspace = null;
@@ -30,12 +32,13 @@ namespace BCad.UI.Controls
             get { return this.availableColors; }
         }
 
-        [Obsolete("The default constructor is only for the designer.  Use the parameterized one instead.")]
+        [Obsolete("The default constructor is only for the designer.  MEF import this item instead.")]
         public LayerManager()
         {
             InitializeComponent();
         }
 
+        [ImportingConstructor]
         public LayerManager(IWorkspace workspace)
         {
             this.workspace = workspace;

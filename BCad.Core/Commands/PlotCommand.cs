@@ -22,11 +22,16 @@ namespace BCad.Commands
         [Import]
         private IExportService ExportService = null;
 
+        [Import]
+        private IDialogFactory DialogFactory = null;
+
         [ImportMany]
         private IEnumerable<Lazy<IFilePlotter, IFilePlotterMetadata>> FilePlotters = null;
 
         public bool Execute(object arg)
         {
+            DialogFactory.ShowDialog("Plot", Workspace.SettingsManager.PlotDialogId);
+
             string filename = null;
             if (arg is string)
                 filename = (string)arg;
