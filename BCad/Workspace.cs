@@ -169,10 +169,12 @@ namespace BCad
             }
         }
 
-        private async Task<bool> Execute(BCad.Commands.ICommand command, object arg)
+        private async Task<bool> Execute(Tuple<BCad.Commands.ICommand, string> commandPair, object arg)
         {
+            var command = commandPair.Item1;
+            var display = commandPair.Item2;
             OnCommandExecuting(new CommandExecutingEventArgs(command));
-            InputService.WriteLine(command.DisplayName);
+            InputService.WriteLine(display);
             bool result = await command.Execute(arg);
             OnCommandExecuted(new CommandExecutedEventArgs(command));
             return result;
@@ -193,15 +195,15 @@ namespace BCad
             }
 
             commandName = commandName ?? lastCommand;
-            var command = GetCommand(commandName);
-            if (command == null)
+            var commandPair = GetCommand(commandName);
+            if (commandPair == null)
             {
                 InputService.WriteLine("Command {0} not found", commandName);
                 isExecuting = false;
                 return false;
             }
 
-            bool result = await Execute(command, arg);
+            bool result = await Execute(commandPair, arg);
             lastCommand = commandName;
             lock (executeGate)
             {
@@ -268,14 +270,14 @@ namespace BCad
         private string lastCommand = null;
         private object executeGate = new object();
 
-        private BCad.Commands.ICommand GetCommand(string commandName)
+        private Tuple<BCad.Commands.ICommand, string> GetCommand(string commandName)
         {
             var command = (from c in Commands
                            let data = c.Metadata
                            where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
                               || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
                            select c).SingleOrDefault();
-            return command == null ? null : command.Value;
+            return command == null ? null : Tuple.Create(command.Value, command.Metadata.DisplayName);
         }
 
         private const string ConfigFile = "BCad.config";

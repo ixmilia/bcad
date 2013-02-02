@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Plot", "plot")]
+    [ExportCommand("File.Plot", "PLOT", "plot")]
     public class PlotCommand : ICommand
     {
         [Import]
@@ -16,11 +16,6 @@ namespace BCad.Commands
         {
             var result = await DialogFactory.ShowDialog("Plot", Workspace.SettingsManager.PlotDialogId);
             return result == true;
-        }
-
-        public string DisplayName
-        {
-            get { return "PLOT"; }
         }
     }
 }

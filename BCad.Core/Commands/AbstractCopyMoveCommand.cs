@@ -17,8 +17,6 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        protected abstract string CommandDisplayName { get; }
-
         protected abstract Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta);
 
         public async Task<bool> Execute(object arg)
@@ -56,11 +54,6 @@ namespace BCad.Commands
             var delta = destination.Value - origin.Value;
             Workspace.Update(drawing: DoEdit(Workspace.Drawing, entities.Value, delta));
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return CommandDisplayName; }
         }
     }
 }

@@ -6,7 +6,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Draw.Line", "line", "l")]
+    [ExportCommand("Draw.Line", "LINE", "line", "l")]
     public class DrawLineCommand : ICommand
     {
         [Import]
@@ -50,11 +50,6 @@ namespace BCad.Commands
             }
 
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "LINE"; }
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Layers", ModifierKeys.Control, Key.L, "layers", "lay", "la")]
+    [ExportCommand("Edit.Layers", "LAYERS", ModifierKeys.Control, Key.L, "layers", "lay", "la")]
     public class LayersCommand : ICommand
     {
         [Import]
@@ -17,11 +17,6 @@ namespace BCad.Commands
         {
             var result = await DialogFactory.ShowDialog("Layer", Workspace.SettingsManager.LayerDialogId);
             return result == true;
-        }
-
-        public string DisplayName
-        {
-            get { return "LAYERS"; }
         }
     }
 }

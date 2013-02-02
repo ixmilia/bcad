@@ -6,7 +6,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Draw.Text", "text", "t")]
+    [ExportCommand("Draw.Text", "TEXT", "text", "t")]
     public class DrawTextCommand : ICommand
     {
         [Import]
@@ -39,11 +39,6 @@ namespace BCad.Commands
             Workspace.AddToCurrentLayer(new Text(text, location, Workspace.DrawingPlane.Normal, height, 0.0, Color.Default));
 
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "TEXT"; }
         }
     }
 }

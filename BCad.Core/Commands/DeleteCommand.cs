@@ -6,7 +6,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Delete", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
+    [ExportCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
     public class DeleteCommand : ICommand
     {
         [Import]
@@ -36,11 +36,6 @@ namespace BCad.Commands
 
             Workspace.Update(drawing: dwg);
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "DELETE"; }
         }
     }
 }

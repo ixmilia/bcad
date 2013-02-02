@@ -8,7 +8,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("View.Properties", "properties", "prop", "p")]
+    [ExportCommand("View.Properties", "PROPERTIES", "properties", "prop", "p")]
     internal class EntityPropertiesCommand : ICommand
     {
         [Import]
@@ -61,11 +61,6 @@ namespace BCad.Commands
                 return string.Format("{0}: {1}", x, value);
             });
             return string.Join("\n", details);
-        }
-
-        public string DisplayName
-        {
-            get { return "PROPERTIES"; }
         }
     }
 }

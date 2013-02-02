@@ -10,7 +10,7 @@ using BCad.Helpers;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.SaveAs", "saveas", "sa")]
+    [ExportCommand("File.SaveAs", "SAVEAS", "saveas", "sa")]
     public class SaveAsCommand : ICommand
     {
         [Import]
@@ -58,11 +58,6 @@ namespace BCad.Commands
             }
             
             return Task.FromResult<bool>(true);
-        }
-
-        public string DisplayName
-        {
-            get { return "SAVEAS"; }
         }
 
         private static IFileWriter WriterFromExtension(IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> fileWriters, string extension)

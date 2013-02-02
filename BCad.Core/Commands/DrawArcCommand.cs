@@ -10,7 +10,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Draw.Arc", "arc", "a")]
+    [ExportCommand("Draw.Arc", "ARC", "arc", "a")]
     internal class DrawArcCommand : ICommand
     {
         [Import]
@@ -65,11 +65,6 @@ namespace BCad.Commands
             }
 
             return false;
-        }
-
-        public string DisplayName
-        {
-            get { return "ARC"; }
         }
     }
 }

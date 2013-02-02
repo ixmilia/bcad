@@ -9,6 +9,5 @@ namespace BCad.Commands
     public interface ICommand
     {
         Task<bool> Execute(object arg = null);
-        string DisplayName { get; }
     }
 }

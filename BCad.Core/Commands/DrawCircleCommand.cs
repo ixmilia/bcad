@@ -7,7 +7,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Draw.Circle", "circle", "c", "cir")]
+    [ExportCommand("Draw.Circle", "CIRCLE", "circle", "c", "cir")]
     public class DrawCircleCommand : ICommand
     {
         [Import]
@@ -155,11 +155,6 @@ namespace BCad.Commands
             }
 
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "CIRCLE"; }
         }
     }
 }

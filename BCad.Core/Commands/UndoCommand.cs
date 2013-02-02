@@ -5,7 +5,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Undo", ModifierKeys.Control, Key.Z, "undo", "u")]
+    [ExportCommand("Edit.Undo", "UNDO", ModifierKeys.Control, Key.Z, "undo", "u")]
     public class UndoCommandCommand : ICommand
     {
         [Import]
@@ -18,11 +18,6 @@ namespace BCad.Commands
 
             UndoRedoService.Undo();
             return Task.FromResult<bool>(true);
-        }
-
-        public string DisplayName
-        {
-            get { return "UNDO"; }
         }
     }
 }

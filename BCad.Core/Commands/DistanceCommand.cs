@@ -6,7 +6,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("View.Distance", "distance", "di", "dist")]
+    [ExportCommand("View.Distance", "DIST", "distance", "di", "dist")]
     public class DistanceCommand : ICommand
     {
         [Import]
@@ -40,11 +40,6 @@ namespace BCad.Commands
         {
             var settings = Workspace.Drawing.Settings;
             return DrawingSettings.FormatUnits(value, settings.UnitFormat, settings.UnitPrecision);
-        }
-
-        public string DisplayName
-        {
-            get { return "DIST"; }
         }
     }
 }

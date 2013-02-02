@@ -5,16 +5,11 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Move", "move", "mov", "m")]
+    [ExportCommand("Edit.Move", "MOVE", "move", "mov", "m")]
     internal class MoveCommand : AbstractCopyMoveCommand
     {
         [Import]
         private IEditService EditService = null;
-
-        protected override string CommandDisplayName
-        {
-            get { return "MOVE"; }
-        }
 
         protected override Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta)
         {

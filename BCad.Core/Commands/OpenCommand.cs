@@ -11,7 +11,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Open", ModifierKeys.Control, Key.O, "open", "o")]
+    [ExportCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
     public class OpenCommand : ICommand
     {
         [Import]
@@ -65,11 +65,6 @@ namespace BCad.Commands
             }
 
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "OPEN"; }
         }
     }
 }

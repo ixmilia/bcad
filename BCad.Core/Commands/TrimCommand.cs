@@ -7,7 +7,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Trim", "trim", "tr")]
+    [ExportCommand("Edit.Trim", "TRIM", "trim", "tr")]
     public class TrimCommand : ICommand
     {
         [Import]
@@ -57,11 +57,6 @@ namespace BCad.Commands
 
             Workspace.SelectedEntities.Clear();
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "TRIM"; }
         }
     }
 }

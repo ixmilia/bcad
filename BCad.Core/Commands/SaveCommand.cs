@@ -7,7 +7,7 @@ using BCad.FileHandlers;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Save", ModifierKeys.Control, Key.S, "save", "s")]
+    [ExportCommand("File.Save", "SAVE", ModifierKeys.Control, Key.S, "save", "s")]
     public class SaveCommand : ICommand
     {
         [Import]
@@ -19,11 +19,6 @@ namespace BCad.Commands
         public Task<bool> Execute(object arg)
         {
             return SaveAsCommand.Execute(Workspace, FileWriters, Workspace.Drawing.Settings.FileName);
-        }
-
-        public string DisplayName
-        {
-            get { return "SAVE"; }
         }
     }
 }

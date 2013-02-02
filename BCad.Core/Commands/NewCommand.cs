@@ -5,7 +5,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.New", ModifierKeys.Control, Key.N, "new", "n")]
+    [ExportCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
     public class NewCommand : ICommand
     {
         [Import]
@@ -25,11 +25,6 @@ namespace BCad.Commands
             Workspace.Update(drawing: new Drawing());
             UndoRedoService.ClearHistory();
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "NEW"; }
         }
     }
 }

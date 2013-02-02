@@ -8,7 +8,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Offset", "offset", "off", "of")]
+    [ExportCommand("Edit.Offset", "OFFSET", "offset", "off", "of")]
     public class OffsetCommand : ICommand
     {
         [Import]
@@ -90,11 +90,6 @@ namespace BCad.Commands
             }
 
             return true;
-        }
-
-        public string DisplayName
-        {
-            get { return "OFFSET"; }
         }
     }
 }
