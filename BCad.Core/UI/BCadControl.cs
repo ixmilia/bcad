@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace BCad.UI
 {

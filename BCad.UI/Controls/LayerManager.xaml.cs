@@ -32,7 +32,6 @@ namespace BCad.UI.Controls
             get { return this.availableColors; }
         }
 
-        [Obsolete("The default constructor is only for the designer.  MEF import this item instead.")]
         public LayerManager()
         {
             InitializeComponent();
