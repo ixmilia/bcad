@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
@@ -11,9 +12,9 @@ namespace BCad.Commands
         [Import]
         private IDialogFactory DialogFactory = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var result = DialogFactory.ShowDialog("Plot", Workspace.SettingsManager.PlotDialogId);
+            var result = await DialogFactory.ShowDialog("Plot", Workspace.SettingsManager.PlotDialogId);
             return result == true;
         }
 

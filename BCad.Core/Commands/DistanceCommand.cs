@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using BCad.Primitives;
 using BCad.Services;
 
@@ -14,12 +15,12 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var start = InputService.GetPoint(new UserDirective("Distance from"));
+            var start = await InputService.GetPoint(new UserDirective("Distance from"));
             if (start.Cancel || !start.HasValue) return false;
             var first = start.Value;
-            var end = InputService.GetPoint(new UserDirective("Distance to"), (p) =>
+            var end = await InputService.GetPoint(new UserDirective("Distance to"), (p) =>
                 {
                     return new[] { new PrimitiveLine(first, p, Color.Default) };
                 });

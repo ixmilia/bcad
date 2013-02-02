@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using BCad.Collections;
 using BCad.Entities;
 using BCad.EventArguments;
@@ -37,12 +38,11 @@ namespace BCad
 
         ISettingsManager SettingsManager { get; }
         void SaveSettings();
-        bool ExecuteCommandSynchronous(string commandName, object arg = null);
-        void ExecuteCommand(string commandName, object arg = null);
+        Task<bool> ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
         bool CanExecute();
         event CommandExecutingEventHandler CommandExecuting;
         event CommandExecutedEventHandler CommandExecuted;
-        UnsavedChangesResult PromptForUnsavedChanges();
+        Task<UnsavedChangesResult> PromptForUnsavedChanges();
     }
 }

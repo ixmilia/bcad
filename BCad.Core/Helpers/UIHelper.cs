@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 
 namespace BCad.Helpers
@@ -36,7 +37,7 @@ namespace BCad.Helpers
             return dialog.FileName;
         }
 
-        public static string GetFilenameFromUserForOpen(IEnumerable<FileSpecification> fileSpecifications)
+        public static Task<string> GetFilenameFromUserForOpen(IEnumerable<FileSpecification> fileSpecifications)
         {
             var filter = string.Join("|",
                     from r in fileSpecifications
@@ -54,8 +55,8 @@ namespace BCad.Helpers
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != true)
-                return null;
-            return dialog.FileName;
+                return Task.FromResult<string>(null);
+            return Task.FromResult<string>(dialog.FileName);
         }
     }
 }

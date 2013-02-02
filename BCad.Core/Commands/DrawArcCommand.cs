@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
 using BCad.Services;
@@ -18,12 +19,12 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var first = InputService.GetPoint(new UserDirective("First point"));
+            var first = await InputService.GetPoint(new UserDirective("First point"));
             if (!first.Cancel && first.HasValue)
             {
-                var second = InputService.GetPoint(new UserDirective("Second point"), (p) =>
+                var second = await InputService.GetPoint(new UserDirective("Second point"), (p) =>
                     {
                         return new[]
                         {
@@ -32,7 +33,7 @@ namespace BCad.Commands
                     });
                 if (!second.Cancel && second.HasValue)
                 {
-                    var third = InputService.GetPoint(new UserDirective("Third point"), (p) =>
+                    var third = await InputService.GetPoint(new UserDirective("Third point"), (p) =>
                         {
                             var a = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, p);
                             if (a == null)

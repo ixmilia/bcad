@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Primitives;
@@ -26,13 +27,13 @@ namespace BCad.Services
 
     public interface IInputService
     {
-        RubberBandGenerator PrimitiveGenerator { get; }
-        ValueOrDirective<double> GetDistance(string prompt = null, double? defaultDistance = null);
-        ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
-        ValueOrDirective<SelectedEntity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
-        ValueOrDirective<IEnumerable<Entity>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
-        ValueOrDirective<string> GetText(string prompt = null);
         Point LastPoint { get; }
+        RubberBandGenerator PrimitiveGenerator { get; }
+        Task<ValueOrDirective<double>> GetDistance(string prompt = null, double? defaultDistance = null);
+        Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null);
+        Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
+        Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
+        Task<ValueOrDirective<string>> GetText(string prompt = null);
 
         void WriteLine(string text);
         void WriteLine(string text, params object[] param);

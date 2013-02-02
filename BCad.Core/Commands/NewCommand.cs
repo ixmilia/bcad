@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using BCad.Services;
 
@@ -13,9 +14,9 @@ namespace BCad.Commands
         [Import]
         private IUndoRedoService UndoRedoService = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var unsaved = Workspace.PromptForUnsavedChanges();
+            var unsaved = await Workspace.PromptForUnsavedChanges();
             if (unsaved == UnsavedChangesResult.Cancel)
             {
                 return false;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using BCad.FileHandlers;
 using BCad.Helpers;
@@ -30,9 +31,9 @@ namespace BCad.Commands
             return reader.Value;
         }
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            if (Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
+            if (await Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
                 return false;
 
             string filename = null;
@@ -40,7 +41,7 @@ namespace BCad.Commands
                 filename = (string)arg;
             if (filename == null)
             {
-                filename = UIHelper.GetFilenameFromUserForOpen(FileReaders.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
+                filename = await UIHelper.GetFilenameFromUserForOpen(FileReaders.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
                 if (filename == null)
                     return false;
             }

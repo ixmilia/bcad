@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Services;
 
@@ -18,9 +19,9 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var boundaries = InputService.GetEntities("Select cutting edges");
+            var boundaries = await InputService.GetEntities("Select cutting edges");
             if (boundaries.Cancel || !boundaries.HasValue || !boundaries.Value.Any())
             {
                 return false;
@@ -31,7 +32,7 @@ namespace BCad.Commands
 
             var drawing = Workspace.Drawing;
             var directive = new UserDirective("Entity to trim");
-            var selected = InputService.GetEntity(directive);
+            var selected = await InputService.GetEntity(directive);
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
             string entityLayerName;
@@ -51,7 +52,7 @@ namespace BCad.Commands
                     Workspace.Update(drawing: drawing);
 
                 // get next entity to trim
-                selected = InputService.GetEntity(directive);
+                selected = await InputService.GetEntity(directive);
             }
 
             Workspace.SelectedEntities.Clear();

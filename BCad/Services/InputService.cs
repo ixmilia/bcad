@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Primitives;
@@ -80,7 +81,7 @@ namespace BCad.Services
 
         private UserDirective currentDirective = null;
 
-        public ValueOrDirective<double> GetDistance(string prompt = null, double? defaultDistance = null)
+        public async Task<ValueOrDirective<double>> GetDistance(string prompt = null, double? defaultDistance = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Distance | InputType.Point));
             if (prompt == null)
@@ -93,7 +94,7 @@ namespace BCad.Services
                 prompt += string.Format(" [{0}]", defaultDistance.Value);
             }
 
-            WaitFor(InputType.Distance | InputType.Point, new UserDirective(prompt), null);
+            await WaitFor(InputType.Distance | InputType.Point, new UserDirective(prompt), null);
             ValueOrDirective<double> result;
             switch (lastType)
             {
@@ -108,8 +109,8 @@ namespace BCad.Services
                     break;
                 case PushedValueType.Point:
                     var first = pushedPoint;
-                    WaitDone();
-                    var second = GetPoint(new UserDirective("Second point of offset distance"), p =>
+                    ResetWaiters();
+                    var second = await GetPoint(new UserDirective("Second point of offset distance"), p =>
                         {
                             return new[] { new PrimitiveLine(first, p) };
                         });
@@ -131,14 +132,14 @@ namespace BCad.Services
                     throw new Exception("Unexpected pushed value");
             }
 
-            WaitDone();
+            ResetWaiters();
             return result;
         }
 
-        public ValueOrDirective<Point> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null)
+        public async Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Point | InputType.Directive));
-            WaitFor(InputType.Point | InputType.Directive, directive, onCursorMove);
+            await WaitFor(InputType.Point | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<Point> result;
             switch (lastType)
             {
@@ -158,14 +159,14 @@ namespace BCad.Services
                     throw new Exception("Unexpected pushed value");
             }
 
-            WaitDone();
+            ResetWaiters();
             return result;
         }
 
-        public ValueOrDirective<SelectedEntity> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
+        public async Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Entity | InputType.Directive));
-            WaitFor(InputType.Entity | InputType.Directive, directive, onCursorMove);
+            await WaitFor(InputType.Entity | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<SelectedEntity> result;
             switch (lastType)
             {
@@ -185,11 +186,11 @@ namespace BCad.Services
                     throw new Exception("Unexpected pushed value");
             }
 
-            WaitDone();
+            ResetWaiters();
             return result;
         }
 
-        public ValueOrDirective<IEnumerable<Entity>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null)
+        public async Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Entities | InputType.Directive));
             ValueOrDirective<IEnumerable<Entity>>? result = null;
@@ -197,7 +198,7 @@ namespace BCad.Services
             bool awaitingMore = true;
             while (awaitingMore)
             {
-                WaitFor(InputType.Entities | InputType.Directive, new UserDirective(prompt ?? "Select entities", "all"), onCursorMove);
+                await WaitFor(InputType.Entities | InputType.Directive, new UserDirective(prompt ?? "Select entities", "all"), onCursorMove);
                 switch (lastType)
                 {
                     case PushedValueType.Cancel:
@@ -229,15 +230,15 @@ namespace BCad.Services
                 }
             }
 
-            WaitDone();
+            ResetWaiters();
             Debug.Assert(result != null, "result should never be null");
             return result.Value;
         }
 
-        public ValueOrDirective<string> GetText(string prompt = null)
+        public async Task<ValueOrDirective<string>> GetText(string prompt = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Text));
-            WaitFor(InputType.Text, new UserDirective(prompt ?? "Enter text"), null);
+            await WaitFor(InputType.Text, new UserDirective(prompt ?? "Enter text"), null);
             ValueOrDirective<string> result;
             switch (lastType)
             {
@@ -254,12 +255,13 @@ namespace BCad.Services
                     throw new Exception("Unexpected pushed value");
             }
 
-            WaitDone();
+            ResetWaiters();
             return result;
         }
 
-        private void WaitFor(InputType type, UserDirective directive, RubberBandGenerator onCursorMove)
+        private Task WaitFor(InputType type, UserDirective directive, RubberBandGenerator onCursorMove)
         {
+            pushValueDone = new TaskCompletionSource<bool>();
             SetPrompt(directive.Prompt);
             currentDirective = directive;
             AllowedInputTypes = type;
@@ -269,11 +271,22 @@ namespace BCad.Services
             pushedDirective = null;
             pushedString = null;
             PrimitiveGenerator = onCursorMove;
-            pushValueDone.Reset();
-            pushValueDone.WaitOne();
+            return pushValueDone.Task;
+            //return new Task((Action)(() =>
+            //    {
+            //        SetPrompt(directive.Prompt);
+            //        currentDirective = directive;
+            //        AllowedInputTypes = type;
+            //        lastType = PushedValueType.None;
+            //        pushedPoint = default(Point);
+            //        pushedEntity = null;
+            //        pushedDirective = null;
+            //        pushedString = null;
+            //        PrimitiveGenerator = onCursorMove;
+            //    }));
         }
 
-        private void WaitDone()
+        private void ResetWaiters()
         {
             AllowedInputTypes = InputType.Command;
             lastType = PushedValueType.None;
@@ -283,6 +296,7 @@ namespace BCad.Services
             pushedString = null;
             PrimitiveGenerator = null;
             currentDirective = null;
+            pushValueDone = null;
         }
 
         private enum PushedValueType
@@ -305,7 +319,7 @@ namespace BCad.Services
         private string pushedString = null;
         private SelectedEntity pushedEntity = null;
         private IEnumerable<Entity> pushedEntities = null;
-        private ManualResetEvent pushValueDone = new ManualResetEvent(false);
+        private TaskCompletionSource<bool> pushValueDone = null;
 
         public void Cancel()
         {
@@ -313,7 +327,7 @@ namespace BCad.Services
             {
                 lastType = PushedValueType.Cancel;
                 AllowedInputTypes = InputType.Command;
-                pushValueDone.Set();
+                pushValueDone.SetResult(false);
             }
         }
 
@@ -521,9 +535,10 @@ namespace BCad.Services
                     break;
             }
 
+            if (pushValueDone != null)
+                pushValueDone.SetResult(true);
             if (ValueReceived != null)
                 ValueReceived(this, e);
-            pushValueDone.Set();
         }
 
         public event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;

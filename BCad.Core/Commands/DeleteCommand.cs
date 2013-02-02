@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using BCad.Services;
 
@@ -14,9 +15,9 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var entities = InputService.GetEntities();
+            var entities = await InputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;

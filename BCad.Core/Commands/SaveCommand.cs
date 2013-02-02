@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using BCad.FileHandlers;
 
@@ -15,7 +16,7 @@ namespace BCad.Commands
         [ImportMany]
         private IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> FileWriters = null;
 
-        public bool Execute(object arg)
+        public Task<bool> Execute(object arg)
         {
             return SaveAsCommand.Execute(Workspace, FileWriters, Workspace.Drawing.Settings.FileName);
         }

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
     public interface ICommand
     {
-        bool Execute(object arg = null);
+        Task<bool> Execute(object arg = null);
         string DisplayName { get; }
     }
 }

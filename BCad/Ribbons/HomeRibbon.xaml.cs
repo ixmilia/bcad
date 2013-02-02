@@ -90,8 +90,8 @@ namespace BCad.Ribbons
                 outputFile = @"D:\Private\Desktop\test.svg";
             }
 
-            workspace.ExecuteCommandSynchronous("File.Open", inputFile);
-            workspace.ExecuteCommandSynchronous("File.SaveAs", outputFile);
+            workspace.ExecuteCommand("File.Open", inputFile).Wait();
+            workspace.ExecuteCommand("File.SaveAs", outputFile).Wait();
             System.Diagnostics.Process.Start(outputFile);
         }
     }

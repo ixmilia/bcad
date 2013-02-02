@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
@@ -21,10 +22,10 @@ namespace BCad.Commands
 
         private static double lastOffsetDistance = 0.0;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
             var drawingPlane = Workspace.DrawingPlane;
-            var distance = InputService.GetDistance(defaultDistance: lastOffsetDistance);
+            var distance = await InputService.GetDistance(defaultDistance: lastOffsetDistance);
             if (distance.Cancel)
             {
                 return false;
@@ -42,27 +43,27 @@ namespace BCad.Commands
 
             InputService.WriteLine("Using offset distance of {0}", dist);
             lastOffsetDistance = dist;
-            var selection = InputService.GetEntity(new UserDirective("Select entity"));
+            var selection = await InputService.GetEntity(new UserDirective("Select entity"));
             while (!selection.Cancel && selection.HasValue)
             {
                 var ent = selection.Value.Entity;
                 if (!EditService.CanOffsetEntity(ent))
                 {
                     InputService.WriteLine("Unable to offset {0}", ent.Kind);
-                    selection = InputService.GetEntity(new UserDirective("Select entity"));
+                    selection = await InputService.GetEntity(new UserDirective("Select entity"));
                     continue;
                 }
 
                 if (!drawingPlane.Contains(ent))
                 {
                     InputService.WriteLine("Entity must be entirely on the drawing plane to offset");
-                    selection = InputService.GetEntity(new UserDirective("Select entity"));
+                    selection = await InputService.GetEntity(new UserDirective("Select entity"));
                     continue;
                 }
 
                 Workspace.SelectedEntities.Clear();
                 Workspace.SelectedEntities.Add(ent);
-                var point = InputService.GetPoint(new UserDirective("Side to offset"));
+                var point = await InputService.GetPoint(new UserDirective("Side to offset"));
                 if (point.Cancel || !point.HasValue)
                 {
                     break;
@@ -71,7 +72,7 @@ namespace BCad.Commands
                 if (!drawingPlane.Contains(point.Value))
                 {
                     InputService.WriteLine("Point must be on the drawing plane to offset");
-                    selection = InputService.GetEntity(new UserDirective("Select entity"));
+                    selection = await InputService.GetEntity(new UserDirective("Select entity"));
                     continue;
                 }
 
@@ -85,7 +86,7 @@ namespace BCad.Commands
                 }
 
                 Workspace.SelectedEntities.Clear();
-                selection = InputService.GetEntity(new UserDirective("Select entity"));
+                selection = await InputService.GetEntity(new UserDirective("Select entity"));
             }
 
             return true;

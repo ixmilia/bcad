@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Services;
 
@@ -13,9 +14,9 @@ namespace BCad.Commands
         [Import]
         private IInputService InputService = null;
 
-        public bool Execute(object arg = null)
+        public async Task<bool> Execute(object arg = null)
         {
-            var entity = InputService.GetEntity(new UserDirective("Select entity"));
+            var entity = await InputService.GetEntity(new UserDirective("Select entity"));
             if (!entity.HasValue || entity.Cancel)
                 return false;
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
@@ -20,9 +21,9 @@ namespace BCad.Commands
 
         protected abstract Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta);
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var entities = InputService.GetEntities();
+            var entities = await InputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
@@ -33,14 +34,14 @@ namespace BCad.Commands
                 return true;
             }
 
-            var origin = InputService.GetPoint(new UserDirective("Origin point"));
+            var origin = await InputService.GetPoint(new UserDirective("Origin point"));
             if (origin.Cancel || !origin.HasValue)
             {
                 return false;
             }
 
             var primitives = entities.Value.SelectMany(e => e.GetPrimitives());
-            var destination = InputService.GetPoint(new UserDirective("Destination point"), p =>
+            var destination = await InputService.GetPoint(new UserDirective("Destination point"), p =>
             {
                 var offset = p - origin.Value;
                 return primitives.Select(pr => pr.Move(offset))

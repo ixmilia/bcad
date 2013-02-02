@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
 using BCad.Services;
@@ -14,16 +15,16 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var input = InputService.GetPoint(new UserDirective("From"));
+            var input = await InputService.GetPoint(new UserDirective("From"));
             if (input.Cancel) return false;
             if (!input.HasValue) return true;
             var first = input.Value;
             Point last = first;
             while (true)
             {
-                var current = InputService.GetPoint(new UserDirective("Next or [c]lose", "c"), (p) =>
+                var current = await InputService.GetPoint(new UserDirective("Next or [c]lose", "c"), (p) =>
                 {
                     return new[] { new PrimitiveLine(last, p, Color.Default) };
                 });

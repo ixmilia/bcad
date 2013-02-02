@@ -5,6 +5,7 @@ using System.ComponentModel.Composition.Primitives;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Serialization;
 using BCad.Collections;
@@ -168,16 +169,16 @@ namespace BCad
             }
         }
 
-        private bool Execute(BCad.Commands.ICommand command, object arg)
+        private async Task<bool> Execute(BCad.Commands.ICommand command, object arg)
         {
             OnCommandExecuting(new CommandExecutingEventArgs(command));
             InputService.WriteLine(command.DisplayName);
-            bool result = command.Execute(arg);
+            bool result = await command.Execute(arg);
             OnCommandExecuted(new CommandExecutedEventArgs(command));
             return result;
         }
 
-        public bool ExecuteCommandSynchronous(string commandName, object arg)
+        public async Task<bool> ExecuteCommand(string commandName, object arg)
         {
             if (commandName == null && lastCommand == null)
             {
@@ -200,7 +201,7 @@ namespace BCad
                 return false;
             }
 
-            bool result = Execute(command, arg);
+            bool result = await Execute(command, arg);
             lastCommand = commandName;
             lock (executeGate)
             {
@@ -208,11 +209,6 @@ namespace BCad
             }
 
             return result;
-        }
-
-        public void ExecuteCommand(string commandName, object arg)
-        {
-            ThreadPool.QueueUserWorkItem(_ => ExecuteCommandSynchronous(commandName, arg));
         }
 
         public bool CommandExists(string commandName)
@@ -225,7 +221,7 @@ namespace BCad
             return !this.isExecuting;
         }
 
-        public UnsavedChangesResult PromptForUnsavedChanges()
+        public async Task<UnsavedChangesResult> PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
             if (this.IsDirty)
@@ -238,7 +234,7 @@ namespace BCad
                 {
                     case MessageBoxResult.Yes:
                         // TODO: can't execute another command
-                        if (SaveAsCommand.Execute(this, FileWriters, Drawing.Settings.FileName))
+                        if (await SaveAsCommand.Execute(this, FileWriters, Drawing.Settings.FileName))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;

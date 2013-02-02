@@ -10,6 +10,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace BCad.UI.Controls
 {
@@ -96,22 +97,22 @@ namespace BCad.UI.Controls
             }
         }
 
-        private void SelectAreaClick(object sender, RoutedEventArgs e)
+        private async void SelectAreaClick(object sender, RoutedEventArgs e)
         {
             Hide();
-            GetExportArea();
+            await GetExportArea();
             Show();
         }
 
-        private void GetExportArea()
+        private async Task GetExportArea()
         {
             // TODO: generalize getting viewports for zoom, etc.
             // prompt for viewport
-            var firstPoint = inputService.GetPoint(new UserDirective("First corner of view box"));
+            var firstPoint = await inputService.GetPoint(new UserDirective("First corner of view box"));
             if (firstPoint.Cancel || !firstPoint.HasValue)
                 return;
 
-            var secondPoint = inputService.GetPoint(new UserDirective("Second corner of view box"), (p) =>
+            var secondPoint = await inputService.GetPoint(new UserDirective("Second corner of view box"), (p) =>
             {
                 var a = firstPoint.Value;
                 var b = new Point(p.X, firstPoint.Value.Y, firstPoint.Value.Z);

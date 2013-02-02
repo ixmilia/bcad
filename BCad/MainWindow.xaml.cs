@@ -191,9 +191,9 @@ namespace BCad
                 this.ribbon.Title = string.Format("BCad [{0}]{1}", filename, Workspace.IsDirty ? " *" : "")));
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
+            if (await Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
             {
                 e.Cancel = true;
                 return;

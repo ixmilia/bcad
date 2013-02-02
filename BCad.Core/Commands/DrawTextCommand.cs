@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
 using BCad.Services;
@@ -16,21 +17,21 @@ namespace BCad.Commands
 
         private static double lastHeight = 1.0;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
             // get location
-            var input = InputService.GetPoint(new UserDirective("Location"));
+            var input = await InputService.GetPoint(new UserDirective("Location"));
             if (input.Cancel || !input.HasValue) return false;
             var location = input.Value;
 
             // get height
-            var heightInput = InputService.GetDistance("Text height or first point", lastHeight);
+            var heightInput = await InputService.GetDistance("Text height or first point", lastHeight);
             if (heightInput.Cancel || !heightInput.HasValue) return false;
             var height = heightInput.Value;
             lastHeight = height;
 
             // get text
-            var textInput = InputService.GetText();
+            var textInput = await InputService.GetText();
             if (textInput.Cancel || !textInput.HasValue) return false;
             var text = textInput.Value;
 

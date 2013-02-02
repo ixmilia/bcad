@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
@@ -18,12 +19,12 @@ namespace BCad.Commands
         [Import]
         private IWorkspace Workspace = null;
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
             Circle circle = null;
             var drawingPlane = Workspace.DrawingPlane;
 
-            var cen = InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
+            var cen = await InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
             if (cen.Cancel) return false;
             if (cen.HasValue)
             {
@@ -32,7 +33,7 @@ namespace BCad.Commands
                 {
                     if (getRadius)
                     {
-                        var rad = InputService.GetPoint(new UserDirective("Enter radius or [d]iameter", "d"), (p) =>
+                        var rad = await InputService.GetPoint(new UserDirective("Enter radius or [d]iameter", "d"), (p) =>
                         {
                             return new IPrimitive[]
                             {
@@ -62,7 +63,7 @@ namespace BCad.Commands
                     }
                     else // get diameter
                     {
-                        var diameter = InputService.GetPoint(new UserDirective("Enter diameter or [r]adius", "r"), (p) =>
+                        var diameter = await InputService.GetPoint(new UserDirective("Enter diameter or [r]adius", "r"), (p) =>
                         {
                             return new IPrimitive[]
                             {
@@ -92,13 +93,13 @@ namespace BCad.Commands
                 switch (cen.Directive)
                 {
                     case "ttr":
-                        var firstEntity = InputService.GetEntity(new UserDirective("First entity"));
+                        var firstEntity = await InputService.GetEntity(new UserDirective("First entity"));
                         if (firstEntity.Cancel || !firstEntity.HasValue)
                             break;
-                        var secondEntity = InputService.GetEntity(new UserDirective("Second entity"));
+                        var secondEntity = await InputService.GetEntity(new UserDirective("Second entity"));
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
-                        var radius = InputService.GetDistance();
+                        var radius = await InputService.GetDistance();
                         var ellipse = EditService.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
                         if (ellipse != null)
                         {
@@ -108,17 +109,17 @@ namespace BCad.Commands
                     case "2":
                         break;
                     case "th":
-                        var first = InputService.GetPoint(new UserDirective("First point"));
+                        var first = await InputService.GetPoint(new UserDirective("First point"));
                         if (first.Cancel || !first.HasValue)
                             break;
-                        var second = InputService.GetPoint(new UserDirective("Second point"), p =>
+                        var second = await InputService.GetPoint(new UserDirective("Second point"), p =>
                             new[]
                             {
                                 new PrimitiveLine(first.Value, p)
                             });
                         if (second.Cancel || !second.HasValue)
                             break;
-                        var third = InputService.GetPoint(new UserDirective("Third point"), p =>
+                        var third = await InputService.GetPoint(new UserDirective("Third point"), p =>
                             {
                                 var c = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, p);
                                 if (c == null)

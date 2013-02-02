@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace BCad.Commands
@@ -12,9 +13,9 @@ namespace BCad.Commands
         [Import]
         public IDialogFactory DialogFactory { get; set; }
 
-        public bool Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
-            var result = DialogFactory.ShowDialog("Layer", Workspace.SettingsManager.LayerDialogId);
+            var result = await DialogFactory.ShowDialog("Layer", Workspace.SettingsManager.LayerDialogId);
             return result == true;
         }
 
