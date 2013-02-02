@@ -66,6 +66,7 @@
     <Compile Include="PrimitiveTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadOnlyTreeTests.cs" />
+    <Compile Include="StlTests\StlReaderTests.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestHost.cs" />
     <Compile Include="TrimExtendTests.cs" />
@@ -80,6 +81,10 @@
     <ProjectReference Include="..\BCad.Dxf\BCad.Dxf.csproj">
       <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
       <Name>BCad.Dxf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
+      <Project>{b6a2dc99-a13c-43ec-92be-79e579e10f57}</Project>
+      <Name>BCad.Stl</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad\BCad.csproj">
       <Project>{a978c366-6cc2-4f82-908a-8c830f7e6113}</Project>
