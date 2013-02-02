@@ -783,7 +783,7 @@ Result PShader(Input pixel)
             var scale = workspace.SettingsManager.SnapPointSize;
             geometry.Pen = new Media.Pen(new Media.SolidColorBrush(color ?? workspace.SettingsManager.SnapPointColor), 0.2);
             var di = new Media.DrawingImage(geometry);
-            var icon = new Image();
+            var icon = new Image(); // TODO: reuse icons if possible
             icon.Source = di;
             icon.Stretch = Media.Stretch.None;
             icon.LayoutTransform = new Media.ScaleTransform(scale, scale);
