@@ -24,16 +24,13 @@ namespace BCad
                 return Task.FromResult<bool?>(false);
             }
 
-            return Task.Run<bool?>(() =>
-                {
-                    var control = lazyControl.Value;
-                    using (var window = new BCadDialog(control))
-                    {
-                        window.Title = lazyControl.Metadata.Title;
-                        window.Owner = Application.Current.MainWindow;
-                        return window.ShowDialog();
-                    }
-                });
+            var control = lazyControl.Value;
+            using (var window = new BCadDialog(control))
+            {
+                window.Title = lazyControl.Metadata.Title;
+                window.Owner = Application.Current.MainWindow;
+                return Task.FromResult<bool?>(window.ShowDialog());
+            }
         }
     }
 }
