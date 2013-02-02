@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,6 +21,8 @@ namespace BCad.UI
     public partial class BCadDialog : Window, IDisposable
     {
         public BCadControl Control { get; private set; }
+
+        private TaskCompletionSource<bool?> completionAwaiter = new TaskCompletionSource<bool?>();
 
         public BCadDialog(BCadControl control)
         {
@@ -40,8 +43,8 @@ namespace BCad.UI
             {
                 this.Control.Commit();
                 this.Control = null;
-                this.DialogResult = true;
                 this.Close();
+                completionAwaiter.SetResult(true);
             }
         }
 
@@ -53,8 +56,8 @@ namespace BCad.UI
         private void Cancel()
         {
             this.Control.Cancel();
-            this.DialogResult = false;
             this.Close();
+            completionAwaiter.SetResult(false);
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -63,6 +66,12 @@ namespace BCad.UI
             {
                 Cancel();
             }
+        }
+
+        public Task<bool?> ShowHideableDialog()
+        {
+            this.Show();
+            return completionAwaiter.Task;
         }
     }
 }

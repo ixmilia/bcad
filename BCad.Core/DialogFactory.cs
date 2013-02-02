@@ -14,14 +14,14 @@ namespace BCad
         [ImportMany]
         public IEnumerable<Lazy<BCadControl, IControlMetadata>> Controls { get; set; }
 
-        public Task<bool?> ShowDialog(string type, string id)
+        public async Task<bool?> ShowDialog(string type, string id)
         {
             var lazyControl = Controls.FirstOrDefault(c => c.Metadata.ControlType == type && c.Metadata.ControlId == id);
             if (lazyControl == null)
             {
                 // TODO: throw
                 MessageBox.Show("Unable to find specified dialog.");
-                return Task.FromResult<bool?>(false);
+                return false;
             }
 
             var control = lazyControl.Value;
@@ -29,7 +29,7 @@ namespace BCad
             {
                 window.Title = lazyControl.Metadata.Title;
                 window.Owner = Application.Current.MainWindow;
-                return Task.FromResult<bool?>(window.ShowDialog());
+                return await window.ShowHideableDialog();
             }
         }
     }
