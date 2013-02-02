@@ -26,6 +26,7 @@ namespace BCad.UI
             InitializeComponent();
 
             this.Control = control;
+            this.Control.SetWindowParent(this);
             this.controlSurface.Content = this.Control;
         }
 

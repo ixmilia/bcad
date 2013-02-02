@@ -9,6 +9,7 @@ using BCad.FileHandlers;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
+using System.Threading;
 
 namespace BCad.UI.Controls
 {
@@ -40,6 +41,7 @@ namespace BCad.UI.Controls
             this.workspace = workspace;
             this.inputService = inputService;
             this.exportService = exportService;
+            this.filePlotters = filePlotters;
         }
 
         public override void Commit()
@@ -96,12 +98,9 @@ namespace BCad.UI.Controls
 
         private void SelectAreaClick(object sender, RoutedEventArgs e)
         {
-            var parent = this.Parent as Window;
-            if (parent == null)
-                return;
-            parent.Hide();
+            Hide();
             GetExportArea();
-            parent.Show();
+            Show();
         }
 
         private void GetExportArea()
