@@ -16,6 +16,7 @@ namespace BCad.Entities
         private readonly Point endPoint2;
         private readonly Point midPoint;
         private readonly IPrimitive[] primitives;
+        private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
 
         public Point Center { get { return center; } }
@@ -49,6 +50,13 @@ namespace BCad.Entities
             this.midPoint = points[2];
 
             this.primitives = new[] { new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color) };
+            this.snapPoints = new SnapPoint[]
+            {
+                new CenterPoint(Center),
+                new EndPoint(EndPoint1),
+                new EndPoint(EndPoint2),
+                new MidPoint(MidPoint)
+            };
             this.boundingBox = BoundingBox.FromPoints(Circle.TransformedPoints(this.center, this.normal, right, this.radius, this.radius, 0, 90, 180, 270));
         }
 
@@ -65,13 +73,7 @@ namespace BCad.Entities
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return new SnapPoint[]
-            {
-                new CenterPoint(Center),
-                new EndPoint(EndPoint1),
-                new EndPoint(EndPoint2),
-                new MidPoint(MidPoint)
-            };
+            return this.snapPoints;
         }
 
         public override EntityKind Kind { get { return EntityKind.Arc; } }

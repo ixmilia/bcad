@@ -19,6 +19,7 @@ namespace BCad.Entities
         private readonly Point quadrant3;
         private readonly Point quadrant4;
         private readonly IPrimitive[] primitives;
+        private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
 
         public Point Center { get { return center; } }
@@ -44,6 +45,14 @@ namespace BCad.Entities
             quadrant4 = points[3];
 
             this.primitives = new[] { new PrimitiveEllipse(Center, Radius, Normal, Color) };
+            this.snapPoints = new SnapPoint[]
+            {
+                new CenterPoint(Center),
+                new QuadrantPoint(quadrant1),
+                new QuadrantPoint(quadrant2),
+                new QuadrantPoint(quadrant3),
+                new QuadrantPoint(quadrant4)
+            };
             this.boundingBox = BoundingBox.FromPoints(points);
         }
 
@@ -54,14 +63,7 @@ namespace BCad.Entities
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return new SnapPoint[]
-            {
-                new CenterPoint(Center),
-                new QuadrantPoint(quadrant1),
-                new QuadrantPoint(quadrant2),
-                new QuadrantPoint(quadrant3),
-                new QuadrantPoint(quadrant4)
-            };
+            return this.snapPoints;
         }
 
         public override EntityKind Kind { get { return EntityKind.Circle; } }

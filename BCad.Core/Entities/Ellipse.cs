@@ -21,6 +21,7 @@ namespace BCad.Entities
         private readonly Point endPoint2;
         private readonly Point midPoint;
         private readonly IPrimitive[] primitives;
+        private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
 
         public Point Center { get { return center; } }
@@ -58,20 +59,10 @@ namespace BCad.Entities
             midPoint = points[6];
 
             this.primitives = new[] { new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color) };
-            this.boundingBox = BoundingBox.FromPoints(quadrant1, quadrant2, quadrant3, quadrant4);
-        }
-
-        public override IEnumerable<IPrimitive> GetPrimitives()
-        {
-            return this.primitives;
-        }
-
-        public override IEnumerable<SnapPoint> GetSnapPoints()
-        {
             if (this.startAngle == 0.0 && this.endAngle == 360.0)
             {
                 // treat it like a circle
-                return new SnapPoint[]
+                this.snapPoints = new SnapPoint[]
                 {
                     new CenterPoint(Center),
                     new QuadrantPoint(quadrant1),
@@ -83,7 +74,7 @@ namespace BCad.Entities
             else
             {
                 // treat it like an arc
-                return new SnapPoint[]
+                this.snapPoints = new SnapPoint[]
                 {
                     new CenterPoint(Center),
                     new EndPoint(endPoint1),
@@ -91,6 +82,17 @@ namespace BCad.Entities
                     new MidPoint(midPoint)
                 };
             }
+            this.boundingBox = BoundingBox.FromPoints(quadrant1, quadrant2, quadrant3, quadrant4);
+        }
+
+        public override IEnumerable<IPrimitive> GetPrimitives()
+        {
+            return this.primitives;
+        }
+
+        public override IEnumerable<SnapPoint> GetSnapPoints()
+        {
+            return this.snapPoints;
         }
 
         public override EntityKind Kind { get { return EntityKind.Ellipse; } }

@@ -10,6 +10,7 @@ namespace BCad.Entities
         private readonly Point p2;
         private readonly Color color;
         private readonly IPrimitive[] primitives;
+        private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
 
         public Point P1 { get { return p1; } }
@@ -25,6 +26,12 @@ namespace BCad.Entities
             this.color = color;
 
             this.primitives = new[] { new PrimitiveLine(P1, P2, Color) };
+            this.snapPoints = new SnapPoint[]
+            {
+                new EndPoint(P1),
+                new EndPoint(P2),
+                new MidPoint((P1 + P2) / 2.0)
+            };
             this.boundingBox = BoundingBox.FromPoints(P1, P2);
         }
 
@@ -35,12 +42,7 @@ namespace BCad.Entities
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return new SnapPoint[]
-            {
-                new EndPoint(P1),
-                new EndPoint(P2),
-                new MidPoint((P1 + P2) / 2.0)
-            };
+            return this.snapPoints;
         }
 
         public override EntityKind Kind { get { return EntityKind.Line; } }
