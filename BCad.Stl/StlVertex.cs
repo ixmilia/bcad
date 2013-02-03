@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BCad.Stl
+﻿namespace BCad.Stl
 {
     public struct StlVertex
     {
-        public double X;
-        public double Y;
-        public double Z;
+        public float X;
+        public float Y;
+        public float Z;
 
-        public StlVertex(double x, double y, double z)
+        public StlVertex(float x, float y, float z)
             : this()
         {
             X = x;

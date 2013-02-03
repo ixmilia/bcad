@@ -51,7 +51,6 @@ namespace BCad.Entities
             primitives = new[] { new PrimitiveText(value, location, height, normal, rotation, color) };
             snapPoints = new[] { new EndPoint(location) };
 
-
             var size = TextRenderer.MeasureText(this.value, System.Drawing.SystemFonts.DefaultFont);
             var width = (this.height * (double)size.Width) / (double)size.Height;
             var rad = this.rotation * MathHelper.DegreesToRadians;

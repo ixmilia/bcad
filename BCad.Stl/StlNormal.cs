@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BCad.Stl
 {
     public struct StlNormal
     {
-        public double X;
-        public double Y;
-        public double Z;
+        public float X;
+        public float Y;
+        public float Z;
 
-        public StlNormal(double x, double y, double z)
+        public StlNormal(float x, float y, float z)
             : this()
         {
             X = x;
@@ -22,8 +18,8 @@ namespace BCad.Stl
 
         public StlNormal Normalize()
         {
-            var length = Math.Sqrt(X * X + Y * Y + Z * Z);
-            if (length == 0.0)
+            var length = (float)Math.Sqrt(X * X + Y * Y + Z * Z);
+            if (length == 0.0f)
                 return new StlNormal();
             return new StlNormal(X / length, Y / length, Z / length);
         }

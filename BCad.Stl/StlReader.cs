@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace BCad.Stl
 {
@@ -14,6 +14,9 @@ namespace BCad.Stl
         private BinaryReader binReader;
         private string[] tokens;
         private int tokenPos;
+        private bool isAscii;
+        private uint triangleCount;
+        private Regex headerReg = new Regex("^solid (.*)$", RegexOptions.Compiled);
 
         public StlReader(Stream stream)
         {
@@ -23,19 +26,42 @@ namespace BCad.Stl
 
         public string ReadSolidName()
         {
+            int i;
+            bool headerComplete = false;
             var sb = new StringBuilder();
-            for (int i = 0; i < 5; i++)
+            for (i = 0; i < 80 && !headerComplete; i++)
             {
-                sb.Append(binReader.ReadChar());
+                var b = binReader.ReadByte();
+                if (b == '\n')
+                {
+                    isAscii = true;
+                    headerComplete = true;
+                }
+                else if (b == 0)
+                {
+                    isAscii = false;
+                    headerComplete = true;
+                }
+                else
+                {
+                    sb.Append((char)b);
+                }
             }
 
-            if (sb.ToString() == "solid")
+            var header = sb.ToString().Trim();
+            var match = headerReg.Match(header);
+            if (match.Success)
             {
-                // eat one more space
-                var c = binReader.ReadChar();
-                Debug.Assert(c == ' ');
+                header = match.Groups[1].Value;
+            }
+            else
+            {
+                header = null;
+            }
 
-                // read all whitespace-separated tokens
+            if (isAscii)
+            {
+                // pre-parse all string tokens
                 var textReader = new StreamReader(baseStream);
                 tokens = textReader.ReadToEnd()
                     .Split(" \t\n\r\f\v".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
@@ -46,54 +72,86 @@ namespace BCad.Stl
             }
             else
             {
-                // swallow the remainder of the 80 byte header
-                for (int i = 0; i < 75; i++)
-                {
-                    binReader.ReadChar();
-                }
+                // swallow the remainder of the header
+                for (; i < 80; i++)
+                    binReader.ReadByte();
+                Debug.Assert(binReader.BaseStream.Position == 80);
 
-                return null;
+                // get count
+                triangleCount = binReader.ReadUInt32();
             }
+
+            return header;
         }
 
         public List<StlTriangle> ReadTriangles()
         {
             var triangles = new List<StlTriangle>();
-            var t = ReadTriangle();
-            while (t != null)
+            if (isAscii)
             {
-                triangles.Add(t);
-                t = ReadTriangle();
+                var t = ReadTriangle();
+                while (t != null)
+                {
+                    triangles.Add(t);
+                    t = ReadTriangle();
+                }
+            }
+            else
+            {
+                for (uint i = 0; i < triangleCount; i++)
+                {
+                    // normal should equal (v3-v2)x(v1-v1)
+                    var normal = new StlNormal(ReadFloatBinary(), ReadFloatBinary(), ReadFloatBinary());
+                    var v1 = ReadVertexBinary();
+                    var v2 = ReadVertexBinary();
+                    var v3 = ReadVertexBinary();
+                    binReader.ReadUInt16(); // attribute byte count; garbage value
+                    var t = new StlTriangle(v1, v2, v3, normal);
+                    triangles.Add(t);
+                }
             }
 
             return triangles;
         }
 
+        private float ReadFloatBinary()
+        {
+            return binReader.ReadSingle();
+        }
+
+        private StlVertex ReadVertexBinary()
+        {
+            return new StlVertex(ReadFloatBinary(), ReadFloatBinary(), ReadFloatBinary());
+        }
+
         private StlTriangle ReadTriangle()
         {
             StlTriangle triangle = null;
-            switch (PeekToken())
+            if (isAscii)
             {
-                case "facet":
-                    AdvanceToken();
-                    SwallowToken("normal");
-                    var normal = new StlNormal(ConsumeNumber(), ConsumeNumber(), ConsumeNumber());
-                    SwallowToken("outer");
-                    SwallowToken("loop");
-                    SwallowToken("vertex");
-                    var v1 = ConsumeVertex();
-                    SwallowToken("vertex");
-                    var v2 = ConsumeVertex();
-                    SwallowToken("vertex");
-                    var v3 = ConsumeVertex();
-                    SwallowToken("endloop");
-                    SwallowToken("endfacet");
-                    triangle = new StlTriangle(v1, v2, v3, normal);
-                    break;
-                case "endsolid":
-                    return null;
-                default:
-                    throw new StlReadException("Unexpected token " + PeekToken());
+                switch (PeekToken())
+                {
+                    case "facet":
+                        AdvanceToken();
+                        SwallowToken("normal");
+                        var normal = new StlNormal(ConsumeNumberToken(), ConsumeNumberToken(), ConsumeNumberToken());
+                        SwallowToken("outer");
+                        SwallowToken("loop");
+                        SwallowToken("vertex");
+                        var v1 = ConsumeVertexToken();
+                        SwallowToken("vertex");
+                        var v2 = ConsumeVertexToken();
+                        SwallowToken("vertex");
+                        var v3 = ConsumeVertexToken();
+                        SwallowToken("endloop");
+                        SwallowToken("endfacet");
+                        triangle = new StlTriangle(v1, v2, v3, normal);
+                        break;
+                    case "endsolid":
+                        return null;
+                    default:
+                        throw new StlReadException("Unexpected token " + PeekToken());
+                }
             }
 
             return triangle;
@@ -111,19 +169,19 @@ namespace BCad.Stl
             }
         }
 
-        private double ConsumeNumber()
+        private float ConsumeNumberToken()
         {
             var text = PeekToken();
             AdvanceToken();
-            double value;
-            if (!double.TryParse(text, out value))
+            float value;
+            if (!float.TryParse(text, out value))
                 throw new StlReadException("Expected number");
             return value;
         }
 
-        private StlVertex ConsumeVertex()
+        private StlVertex ConsumeVertexToken()
         {
-            return new StlVertex(ConsumeNumber(), ConsumeNumber(), ConsumeNumber());
+            return new StlVertex(ConsumeNumberToken(), ConsumeNumberToken(), ConsumeNumberToken());
         }
 
         private string PeekToken()
