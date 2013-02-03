@@ -10,6 +10,8 @@ namespace BCad.Stl
         {
             if (asAscii)
                 WriteAscii(file, stream);
+            else
+                WriteBinary(file, stream);
         }
 
         private void WriteAscii(StlFile file, Stream stream)
