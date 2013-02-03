@@ -282,6 +282,7 @@ namespace BCad.Collections
 
         private static Node BalanceAndReSpine(Node current, Stack<Node> ancestors, bool insert)
         {
+            // TODO: add flag for mutable re-balancing; useful for batch inserts/creation
             while (ancestors.Count > 0)
             {
                 // re-create parent

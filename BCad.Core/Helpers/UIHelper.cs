@@ -23,7 +23,7 @@ namespace BCad.Helpers
         public static string GetFilenameFromUserForSave(IEnumerable<FileSpecification> fileSpecifications)
         {
             var filter = string.Join("|",
-                from fs in fileSpecifications
+                from fs in fileSpecifications.OrderBy(f => f.DisplayName)
                 let exts = string.Join(";", fs.FileExtensions.Select(x => "*" + x))
                 select string.Format("{0}|{1}", fs.DisplayName, exts));
 
@@ -40,13 +40,13 @@ namespace BCad.Helpers
         public static Task<string> GetFilenameFromUserForOpen(IEnumerable<FileSpecification> fileSpecifications)
         {
             var filter = string.Join("|",
-                    from r in fileSpecifications
+                    from r in fileSpecifications.OrderBy(f => f.DisplayName)
                     let exts = string.Join(";", r.FileExtensions.Select(x => "*" + x))
                     select string.Format("{0}|{1}", r.DisplayName, exts));
 
             var all = string.Format("{0}|{1}",
                 "All supported types",
-                string.Join(";", fileSpecifications.SelectMany(f => f.FileExtensions).Select(x => "*" + x)));
+                string.Join(";", fileSpecifications.SelectMany(f => f.FileExtensions).Select(x => "*" + x).OrderBy(x => x)));
 
             filter = string.Join("|", all, filter);
 
