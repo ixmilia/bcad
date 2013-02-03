@@ -68,7 +68,6 @@ namespace BCad.Stl
                     .Select(s => s.Trim())
                     .ToArray();
                 tokenPos = 0;
-                return tokens[tokenPos++];
             }
             else
             {
