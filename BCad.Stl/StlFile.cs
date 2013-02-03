@@ -14,6 +14,12 @@ namespace BCad.Stl
             Triangles = new List<StlTriangle>();
         }
 
+        public void Save(Stream stream, bool asAscii = true)
+        {
+            var writer = new StlWriter();
+            writer.Write(this, stream, asAscii);
+        }
+
         public static StlFile Load(Stream stream)
         {
             var file = new StlFile();
