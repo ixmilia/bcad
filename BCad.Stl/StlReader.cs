@@ -105,7 +105,7 @@ namespace BCad.Stl
                     var v2 = ReadVertexBinary();
                     var v3 = ReadVertexBinary();
                     binReader.ReadUInt16(); // attribute byte count; garbage value
-                    var t = new StlTriangle(v1, v2, v3, normal);
+                    var t = new StlTriangle(normal, v1, v2, v3);
                     triangles.Add(t);
                 }
             }
@@ -144,7 +144,7 @@ namespace BCad.Stl
                         var v3 = ConsumeVertexToken();
                         SwallowToken("endloop");
                         SwallowToken("endfacet");
-                        triangle = new StlTriangle(v1, v2, v3, normal);
+                        triangle = new StlTriangle(normal, v1, v2, v3);
                         break;
                     case "endsolid":
                         return null;
