@@ -31,6 +31,42 @@ namespace BCad.Stl
             writer.Flush();
         }
 
+        private void WriteBinary(StlFile file, Stream stream)
+        {
+            var writer = new BinaryWriter(stream);
+
+            // write header
+            var header = new byte[80]; // can be a garbage value
+            writer.Write(header);
+
+            // write vertex count
+            writer.Write((uint)file.Triangles.Count);
+
+            // write triangles
+            foreach (var triangle in file.Triangles)
+            {
+                writer.Write(triangle.Normal.X);
+                writer.Write(triangle.Normal.Y);
+                writer.Write(triangle.Normal.Z);
+
+                writer.Write(triangle.Vertex1.X);
+                writer.Write(triangle.Vertex1.Y);
+                writer.Write(triangle.Vertex1.Z);
+
+                writer.Write(triangle.Vertex2.X);
+                writer.Write(triangle.Vertex2.Y);
+                writer.Write(triangle.Vertex2.Z);
+
+                writer.Write(triangle.Vertex3.X);
+                writer.Write(triangle.Vertex3.Y);
+                writer.Write(triangle.Vertex3.Z);
+
+                writer.Write((ushort)0); // garbage value
+            }
+
+            writer.Flush();
+        }
+
         private static string NormalToString(StlNormal normal)
         {
             return string.Format("{0} {1} {2}", normal.X.ToString(FloatFormat), normal.Y.ToString(FloatFormat), normal.Z.ToString(FloatFormat));
