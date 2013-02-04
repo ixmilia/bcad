@@ -4,3 +4,6 @@
 DWG reference:
 	http://www.gnu.org/software/libredwg/
 	http://savannah.gnu.org/projects/libredwg/
+
+IGS reference:
+	http://www.3dmodelzone.com/iges-format.html
