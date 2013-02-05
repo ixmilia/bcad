@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="IgsException.cs" />
     <Compile Include="IgsFile.cs" />
+    <Compile Include="IgsGlobalSection.cs" />
     <Compile Include="IgsSection.cs" />
     <Compile Include="IgsStartSection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

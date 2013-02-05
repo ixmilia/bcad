@@ -18,19 +18,7 @@ namespace BCad.Igs
 
         public override IEnumerable<string> GetData()
         {
-            var data = new List<string>();
-            if (Data != null)
-            {
-                int index = 0;
-                while (index < Data.Length)
-                {
-                    var length = Math.Min(MaxDataLength, Data.Length - index);
-                    data.Add(Data.Substring(index, length));
-                    index += length;
-                }
-            }
-
-            return data;
+            return IgsSection.SplitString(this.Data);
         }
     }
 }
