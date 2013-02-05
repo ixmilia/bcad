@@ -5,18 +5,19 @@ namespace BCad.Igs
 {
     internal enum IgsSectionType
     {
-        Start,
-        Global,
-        DirectoryEntry,
-        ParameterData,
-        Terminate
+        None = 0,
+        Start = 1,
+        Global = 2,
+        DirectoryEntry = 3,
+        ParameterData = 4,
+        Terminate = 5
     }
 
     internal abstract class IgsSection
     {
         public const int MaxDataLength = 72;
 
-        protected abstract IgsSectionType SectionType { get; }
+        public abstract IgsSectionType SectionType { get; }
 
         public abstract IEnumerable<string> GetData();
 
@@ -39,6 +40,8 @@ namespace BCad.Igs
 
         protected static string Format(string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return string.Empty;
             return string.Format("{0}H{1}", str.Length, str);
         }
 

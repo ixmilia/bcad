@@ -11,7 +11,7 @@ namespace BCad.Igs
         {
         }
 
-        protected override IgsSectionType SectionType
+        public override IgsSectionType SectionType
         {
             get { return IgsSectionType.Start; }
         }

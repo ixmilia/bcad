@@ -53,7 +53,7 @@ namespace BCad.Igs
         private char parameterDelimiter = ',';
         private char recordDelimiter = ';';
 
-        protected override IgsSectionType SectionType
+        public override IgsSectionType SectionType
         {
             get { return IgsSectionType.Global; }
         }
