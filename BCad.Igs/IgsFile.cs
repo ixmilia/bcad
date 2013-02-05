@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace BCad.Igs
 {
@@ -24,6 +23,21 @@ namespace BCad.Igs
         public int DecimalDigits { get; set; }
         public int DoubleMagnitude { get; set; }
         public int DoublePrecision { get; set; }
+        public string Identifier { get; set; }
+        public double ModelSpaceScale { get; set; }
+        public IgsUnits ModelUnits { get; set; }
+        public string CustomModelUnits { get; set; }
+        public int MaxLineWeightGraduations { get; set; }
+        public double MaxLineWeight { get; set; }
+        public DateTime TimeStamp { get; set; }
+        public double MinimumResolution { get; set; }
+        public double MaxCoordinateValue { get; set; }
+        public string Author { get; set; }
+        public string Organization { get; set; }
+        public IegsVersion IegsVersion { get; set; }
+        public IgsDraftingStandard DraftingStandard { get; set; }
+        public DateTime ModifiedTime { get; set; }
+        public string ApplicationProtocol { get; set; }
 
         public IgsFile()
         {
@@ -34,6 +48,13 @@ namespace BCad.Igs
             DecimalDigits = 23;
             DoubleMagnitude = 11;
             DoublePrecision = 52;
+            ModelSpaceScale = 1.0;
+            ModelUnits = IgsUnits.Inches;
+            MaxLineWeight = 1.0;
+            TimeStamp = DateTime.Now;
+            MinimumResolution = 1.0e-10;
+            IegsVersion = Igs.IegsVersion.v5_3;
+            DraftingStandard = IgsDraftingStandard.None;
         }
 
         public void Save(Stream stream)
@@ -84,8 +105,8 @@ namespace BCad.Igs
                 else
                 {
                     sectionLines[sectionType].Add(data);
-                    //if (sectionLines[sectionType].Count != lineNumber)
-                    //    throw new IgsException("Unordered line number");
+                    if (sectionLines[sectionType].Count != lineNumber)
+                        throw new IgsException("Unordered line number");
                 }
             }
 
@@ -99,21 +120,25 @@ namespace BCad.Igs
         private static void ParseGlobalLines(IgsFile file, List<string> lines)
         {
             var fullString = string.Join(string.Empty, lines).TrimEnd();
-            Debug.Assert(fullString.Length >= 6);
 
-            if (!delimiterReg.IsMatch(fullString.Substring(0, 3)))
-                throw new IgsException("Expected field delimiter");
-            file.FieldDelimiter = fullString[2];
-
-            if (!delimiterReg.IsMatch(fullString.Substring(4, 3)))
-                throw new IgsException("Expected record delimiter");
-            file.RecordDelimiter = fullString[6];
-
-            int index = 8;
-            for (int field = 3; field <= 26; field++)
+            string temp;
+            int index = 0;
+            for (int field = 1; field <= 26; field++)
             {
                 switch (field)
                 {
+                    case 1:
+                        temp = file.ParseString(fullString, ref index);
+                        if (temp == null || temp.Length != 1)
+                            throw new IgsException("Expected delimiter of length 1");
+                        file.FieldDelimiter = temp[0];
+                        break;
+                    case 2:
+                        temp = file.ParseString(fullString, ref index);
+                        if (temp == null || temp.Length != 1)
+                            throw new IgsException("Expected delimiter of length 1");
+                        file.RecordDelimiter = temp[0];
+                        break;
                     case 3:
                         file.Identification = file.ParseString(fullString, ref index);
                         break;
@@ -141,6 +166,51 @@ namespace BCad.Igs
                     case 11:
                         file.DoublePrecision = file.ParseInt(fullString, ref index);
                         break;
+                    case 12:
+                        file.Identifier = file.ParseString(fullString, ref index);
+                        break;
+                    case 13:
+                        file.ModelSpaceScale = file.ParseDouble(fullString, ref index);
+                        break;
+                    case 14:
+                        file.ModelUnits = (IgsUnits)file.ParseInt(fullString, ref index);
+                        break;
+                    case 15:
+                        file.CustomModelUnits = file.ParseString(fullString, ref index);
+                        break;
+                    case 16:
+                        file.MaxLineWeightGraduations = file.ParseInt(fullString, ref index);
+                        break;
+                    case 17:
+                        file.MaxLineWeight = file.ParseDouble(fullString, ref index);
+                        break;
+                    case 18:
+                        file.TimeStamp = ParseDateTime(file.ParseString(fullString, ref index));
+                        break;
+                    case 19:
+                        file.MinimumResolution = file.ParseDouble(fullString, ref index);
+                        break;
+                    case 20:
+                        file.MaxCoordinateValue = file.ParseDouble(fullString, ref index);
+                        break;
+                    case 21:
+                        file.Author = file.ParseString(fullString, ref index);
+                        break;
+                    case 22:
+                        file.Organization = file.ParseString(fullString, ref index);
+                        break;
+                    case 23:
+                        file.IegsVersion = (IegsVersion)file.ParseInt(fullString, ref index);
+                        break;
+                    case 24:
+                        file.DraftingStandard = (IgsDraftingStandard)file.ParseInt(fullString, ref index);
+                        break;
+                    case 25:
+                        file.ModifiedTime = ParseDateTime(file.ParseString(fullString, ref index));
+                        break;
+                    case 26:
+                        file.ApplicationProtocol = file.ParseString(fullString, ref index);
+                        break;
                 }
             }
         }
@@ -154,6 +224,13 @@ namespace BCad.Igs
         private string ParseString(string str, ref int index)
         {
             var sb = new StringBuilder();
+
+            if (index < str.Length && (str[index] == FieldDelimiter || str[index] == RecordDelimiter))
+            {
+                // swallow the delimiter and return nothing
+                index++;
+                return null;
+            }
 
             // parse length
             for (; index < str.Length; index++)
@@ -203,6 +280,43 @@ namespace BCad.Igs
 
             return int.Parse(sb.ToString());
         }
+
+        private double ParseDouble(string str, ref int index)
+        {
+            var sb = new StringBuilder();
+            for (; index < str.Length; index++)
+            {
+                var c = str[index];
+                if (c == FieldDelimiter || c == RecordDelimiter)
+                {
+                    index++; // swallow it
+                    break;
+                }
+                sb.Append(c);
+            }
+
+            return double.Parse(sb.ToString());
+        }
+
+        private static DateTime ParseDateTime(string value)
+        {
+            var match = dateTimeReg.Match(value);
+            if (!match.Success)
+                throw new IgsException("Invalid date/time format");
+            Debug.Assert(match.Groups.Count == 9);
+            int year = int.Parse(match.Groups[1].Value);
+            int month = int.Parse(match.Groups[4].Value);
+            int day = int.Parse(match.Groups[5].Value);
+            int hour = int.Parse(match.Groups[6].Value);
+            int minute = int.Parse(match.Groups[7].Value);
+            int second = int.Parse(match.Groups[8].Value);
+            if (match.Groups[1].Value.Length == 2)
+                year += 1900;
+            return new DateTime(year, month, day, hour, minute, second);
+        }
+
+        private static Regex dateTimeReg = new Regex(@"((\d{2})|(\d{4}))(\d{2})(\d{2})\.(\d{2})(\d{2})(\d{2})", RegexOptions.Compiled);
+        //                                             12       3       4      5        6      7      8
 
         private void SwallowDelimiter(string str, char delim, ref int index)
         {

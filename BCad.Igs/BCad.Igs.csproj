@@ -39,9 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IegsVersion.cs" />
+    <Compile Include="IgsDraftingStandard.cs" />
     <Compile Include="IgsException.cs" />
     <Compile Include="IgsFile.cs" />
     <Compile Include="IgsSectionType.cs" />
+    <Compile Include="IgsUnits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
