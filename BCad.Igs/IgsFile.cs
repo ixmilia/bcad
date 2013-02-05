@@ -128,13 +128,13 @@ namespace BCad.Igs
                 switch (field)
                 {
                     case 1:
-                        temp = file.ParseString(fullString, ref index);
+                        temp = file.ParseString(fullString, ref index, file.FieldDelimiter.ToString());
                         if (temp == null || temp.Length != 1)
                             throw new IgsException("Expected delimiter of length 1");
                         file.FieldDelimiter = temp[0];
                         break;
                     case 2:
-                        temp = file.ParseString(fullString, ref index);
+                        temp = file.ParseString(fullString, ref index, file.RecordDelimiter.ToString());
                         if (temp == null || temp.Length != 1)
                             throw new IgsException("Expected delimiter of length 1");
                         file.RecordDelimiter = temp[0];
@@ -173,7 +173,7 @@ namespace BCad.Igs
                         file.ModelSpaceScale = file.ParseDouble(fullString, ref index);
                         break;
                     case 14:
-                        file.ModelUnits = (IgsUnits)file.ParseInt(fullString, ref index);
+                        file.ModelUnits = (IgsUnits)file.ParseInt(fullString, ref index, (int)file.ModelUnits);
                         break;
                     case 15:
                         file.CustomModelUnits = file.ParseString(fullString, ref index);
@@ -185,7 +185,7 @@ namespace BCad.Igs
                         file.MaxLineWeight = file.ParseDouble(fullString, ref index);
                         break;
                     case 18:
-                        file.TimeStamp = ParseDateTime(file.ParseString(fullString, ref index));
+                        file.TimeStamp = ParseDateTime(file.ParseString(fullString, ref index), file.TimeStamp);
                         break;
                     case 19:
                         file.MinimumResolution = file.ParseDouble(fullString, ref index);
@@ -206,7 +206,7 @@ namespace BCad.Igs
                         file.DraftingStandard = (IgsDraftingStandard)file.ParseInt(fullString, ref index);
                         break;
                     case 25:
-                        file.ModifiedTime = ParseDateTime(file.ParseString(fullString, ref index));
+                        file.ModifiedTime = ParseDateTime(file.ParseString(fullString, ref index), file.ModifiedTime);
                         break;
                     case 26:
                         file.ApplicationProtocol = file.ParseString(fullString, ref index);
@@ -221,16 +221,16 @@ namespace BCad.Igs
                 throw new IgsException("Expected an even number of lines");
         }
 
-        private string ParseString(string str, ref int index)
+        private string ParseString(string str, ref int index, string defaultValue = null)
         {
-            var sb = new StringBuilder();
-
             if (index < str.Length && (str[index] == FieldDelimiter || str[index] == RecordDelimiter))
             {
-                // swallow the delimiter and return nothing
+                // swallow the delimiter and return the default
                 index++;
-                return null;
+                return defaultValue;
             }
+
+            var sb = new StringBuilder();
 
             // parse length
             for (; index < str.Length; index++)
@@ -262,8 +262,15 @@ namespace BCad.Igs
             return value;
         }
 
-        private int ParseInt(string str, ref int index)
+        private int ParseInt(string str, ref int index, int defaultValue = 0)
         {
+            if (index < str.Length && (str[index] == FieldDelimiter || str[index] == RecordDelimiter))
+            {
+                // swallow the delimiter and return the default
+                index++;
+                return defaultValue;
+            }
+
             var sb = new StringBuilder();
             for (; index < str.Length; index++)
             {
@@ -281,8 +288,15 @@ namespace BCad.Igs
             return int.Parse(sb.ToString());
         }
 
-        private double ParseDouble(string str, ref int index)
+        private double ParseDouble(string str, ref int index, double defaultValue = 0.0)
         {
+            if (index < str.Length && (str[index] == FieldDelimiter || str[index] == RecordDelimiter))
+            {
+                // swallow the delimiter and return the default
+                index++;
+                return defaultValue;
+            }
+
             var sb = new StringBuilder();
             for (; index < str.Length; index++)
             {
@@ -298,8 +312,13 @@ namespace BCad.Igs
             return double.Parse(sb.ToString());
         }
 
-        private static DateTime ParseDateTime(string value)
+        private static DateTime ParseDateTime(string value, DateTime defaultValue)
         {
+            if (string.IsNullOrEmpty(value))
+            {
+                return DateTime.Now;
+            }
+
             var match = dateTimeReg.Match(value);
             if (!match.Success)
                 throw new IgsException("Invalid date/time format");
