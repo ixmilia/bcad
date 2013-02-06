@@ -74,7 +74,7 @@ namespace BCad.Igs
 
             ParseGlobalLines();
             ParseParameterLines();
-            ParseEntities();
+            ParseDirectoryLines();
 
             return file;
         }
@@ -195,26 +195,49 @@ namespace BCad.Igs
                         throw new IgsException("At least two fields necessary");
                     var entityType = (IgsEntityType)int.Parse(fields[0]);
                     var data = IgsParameterData.ParseFields(entityType, fields.Skip(1).ToList());
-                    parameterData.Add(index, data);
+                    if (data != null)
+                        parameterData.Add(index, data);
                     index = i + 2; // +1 for zero offset, +1 to skip to the next line
                     sb.Clear();
                 }
             }
         }
 
-        private void ParseEntities()
+        private void ParseDirectoryLines()
         {
             if (directoryLines.Count % 2 != 0)
                 throw new IgsException("Expected an even number of lines");
 
             for (int i = 0; i < directoryLines.Count; i += 2)
             {
-                var entityType = (IgsEntityType)int.Parse(GetField(directoryLines[i], 1));
-                var pointerId = int.Parse(GetField(directoryLines[i], 2));
-                var data = parameterData[pointerId];
-                var entity = data.ToEntity();
-                if (entity != null)
-                    file.Entities.Add(entity);
+                var line1 = directoryLines[i];
+                var line2 = directoryLines[i + 1];
+                var entityTypeNumber = int.Parse(GetField(line1, 1));
+                if (entityTypeNumber != 0)
+                {
+                    // only parse non-null entities
+                    var parameterPointer = int.Parse(GetField(line1, 2));
+                    var structure = int.Parse(GetField(line1, 3));
+                    var lineFontPattern = int.Parse(GetField(line1, 4));
+                    var level = int.Parse(GetField(line1, 5));
+                    var view = int.Parse(GetField(line1, 6));
+                    var transformationMatrix = int.Parse(GetField(line1, 7));
+                    var labelDisplay = int.Parse(GetField(line1, 8));
+                    var statusNumber = int.Parse(GetField(line1, 9));
+
+                    var lineWeight = int.Parse(GetField(line2, 2));
+                    var colorNumber = int.Parse(GetField(line2, 3));
+                    var parameterLineCount = int.Parse(GetField(line2, 4));
+                    var formNumber = int.Parse(GetField(line2, 5));
+                    var entitySubscript = int.Parse(GetField(line2, 9));
+
+                    if (parameterData.ContainsKey(parameterPointer))
+                    {
+                        var data = parameterData[parameterPointer];
+                        var entity = data.ToEntity();
+                        file.Entities.Add(entity);
+                    }
+                }
             }
         }
 

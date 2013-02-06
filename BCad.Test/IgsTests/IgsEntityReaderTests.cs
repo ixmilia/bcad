@@ -23,6 +23,18 @@ namespace BCad.Test.IgsTests
         #endregion
 
         [Fact]
+        public void UnsupportedEntityReadTest()
+        {
+            // entity id 888 is invalid
+            var file = IgsReaderTests.CreateFile(@"
+     888       1       0       0       0       0       0       0       0D      1
+     888       1       0       0       0       0       0       0       0D      2
+888,11,22,33,44,55,66;                                                  P      1
+".Trim('\r', '\n'));
+            Assert.Equal(0, file.Entities.Count);
+        }
+
+        [Fact]
         public void LineReadTest()
         {
             var line = (IgsLine)ParseSingleEntity(@"

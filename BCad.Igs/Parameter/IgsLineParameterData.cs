@@ -1,4 +1,5 @@
 ﻿using BCad.Igs.Entities;
+
 namespace BCad.Igs.Parameter
 {
     internal class IgsLineParameterData : IgsParameterData
@@ -11,9 +12,9 @@ namespace BCad.Igs.Parameter
         public double Y2 { get; set; }
         public double Z2 { get; set; }
 
-        public override Entities.IgsEntity ToEntity()
+        public override IgsEntity ToEntity()
         {
-            return new IgsLine(X1, Y1, Z1, X2, Y2, Z2);
+            return new IgsLine(IgsBounding.BoundOnBothSides, X1, Y1, Z1, X2, Y2, Z2);
         }
     }
 }

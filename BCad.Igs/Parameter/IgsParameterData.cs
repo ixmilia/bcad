@@ -14,7 +14,7 @@ namespace BCad.Igs.Parameter
                 case IgsEntityType.Line:
                     return ParseLine(fields);
                 default:
-                    throw new IgsException("Unsupported entity type");
+                    return null;
             }
         }
 

@@ -9,5 +9,7 @@ namespace BCad.Igs.Entities
     public abstract class IgsEntity
     {
         public abstract IgsEntityType Type { get; }
+
+        public IgsColorNumber Color { get; set; }
     }
 }

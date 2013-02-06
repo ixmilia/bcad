@@ -39,10 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\IgsBounding.cs" />
     <Compile Include="Entities\IgsEntity.cs" />
     <Compile Include="Entities\IgsEntityType.cs" />
     <Compile Include="Entities\IgsLine.cs" />
     <Compile Include="IegsVersion.cs" />
+    <Compile Include="IgsColorNumber.cs" />
     <Compile Include="IgsDraftingStandard.cs" />
     <Compile Include="IgsException.cs" />
     <Compile Include="IgsFile.cs" />

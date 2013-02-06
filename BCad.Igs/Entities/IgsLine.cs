@@ -10,6 +10,8 @@ namespace BCad.Igs.Entities
     {
         public override IgsEntityType Type { get { return IgsEntityType.Line; } }
 
+        public IgsBounding Bounding { get; set; }
+
         public double X1 { get; set; }
         public double Y1 { get; set; }
         public double Z1 { get; set; }
@@ -18,8 +20,9 @@ namespace BCad.Igs.Entities
         public double Y2 { get; set; }
         public double Z2 { get; set; }
 
-        public IgsLine(double x1, double y1, double z1, double x2, double y2, double z2)
+        public IgsLine(IgsBounding bounding, double x1, double y1, double z1, double x2, double y2, double z2)
         {
+            Bounding = bounding;
             X1 = x1;
             Y1 = y1;
             Z1 = z1;
