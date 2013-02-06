@@ -44,6 +44,21 @@ namespace BCad.Igs
                     if (terminateLine != null)
                         throw new IgsException("Unexpected duplicate terminate line");
                     terminateLine = data;
+
+                    // verify terminate data and quit
+                    var startCount = int.Parse(terminateLine.Substring(1, 7));
+                    var globalCount = int.Parse(terminateLine.Substring(9, 7));
+                    var directoryCount = int.Parse(terminateLine.Substring(17, 7));
+                    var parameterCount = int.Parse(terminateLine.Substring(25, 7));
+                    if (startLines.Count != startCount)
+                        throw new IgsException("Incorrect number of start lines reported");
+                    if (globalLines.Count != globalCount)
+                        throw new IgsException("Incorrect number of global lines reported");
+                    if (directoryLines.Count != directoryCount)
+                        throw new IgsException("Incorrect number of directory lines reported");
+                    if (parameterLines.Count != parameterCount)
+                        throw new IgsException("Incorrect number of parameter lines reported");
+                    break;
                 }
                 else
                 {
@@ -55,17 +70,20 @@ namespace BCad.Igs
                 }
             }
 
+            // don't worry if terminate line isn't present
+
             ParseGlobalLines();
+            ParseParameterLines();
             ParseEntities();
 
             return file;
         }
 
-        private static Regex delimiterReg = new Regex("1H.", RegexOptions.Compiled);
-
         private void ParseGlobalLines()
         {
             var fullString = string.Join(string.Empty, globalLines).TrimEnd();
+            if (string.IsNullOrEmpty(fullString))
+                return;
 
             string temp;
             int index = 0;
@@ -161,6 +179,29 @@ namespace BCad.Igs
             }
         }
 
+        private void ParseParameterLines()
+        {
+            // group parameter lines together
+            int index = 1;
+            var sb = new StringBuilder();
+            for (int i = 0; i < parameterLines.Count; i++)
+            {
+                var line = parameterLines[i].Substring(0, 64); // last 16 bytes aren't needed
+                sb.Append(line);
+                if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString())) // TODO: string may contain delimiter
+                {
+                    var fields = SplitFields(line, file.FieldDelimiter, file.RecordDelimiter);
+                    if (fields.Count < 2)
+                        throw new IgsException("At least two fields necessary");
+                    var entityType = (IgsEntityType)int.Parse(fields[0]);
+                    var data = IgsParameterData.ParseFields(entityType, fields.Skip(1).ToList());
+                    parameterData.Add(index, data);
+                    index = i + 2; // +1 for zero offset, +1 to skip to the next line
+                    sb.Clear();
+                }
+            }
+        }
+
         private void ParseEntities()
         {
             if (directoryLines.Count % 2 != 0)
@@ -170,15 +211,8 @@ namespace BCad.Igs
             {
                 var entityType = (IgsEntityType)int.Parse(GetField(directoryLines[i], 1));
                 var pointerId = int.Parse(GetField(directoryLines[i], 2));
-                var parameterData = GetParameterData(pointerId);
-                IgsEntity entity = null;
-                switch (entityType)
-                {
-                    case IgsEntityType.Line:
-                        entity = parameterData.ToEntity();
-                        break;
-                }
-
+                var data = parameterData[pointerId];
+                var entity = data.ToEntity();
                 if (entity != null)
                     file.Entities.Add(entity);
             }
@@ -189,31 +223,6 @@ namespace BCad.Igs
             var size = 8;
             var offset = (field - 1) * size;
             return str.Substring(offset, size).Trim();
-        }
-
-        private IgsParameterData GetParameterData(int pointerId)
-        {
-            if (parameterData.ContainsKey(pointerId))
-                return parameterData[pointerId];
-
-            // gather whole string
-            var sb = new StringBuilder();
-            for (int i = pointerId - 1; i < parameterLines.Count; i++)
-            {
-                var line = parameterLines[i];
-                sb.Append(line);
-                if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString()))
-                    break;
-            }
-
-            var wholeLine = sb.ToString();
-            var firstDelim = wholeLine.IndexOf(file.FieldDelimiter);
-            var entityTypeString = wholeLine.Substring(0, firstDelim);
-            var entityType = (IgsEntityType)int.Parse(entityTypeString);
-            var fields = SplitFields(wholeLine.Substring(firstDelim + 1), file.FieldDelimiter, file.RecordDelimiter);
-            var data = IgsParameterData.ParseFields(entityType, fields);
-            parameterData[pointerId] = data;
-            return data;
         }
 
         private static List<string> SplitFields(string input, char fieldDelimiter, char recordDelimiter)
