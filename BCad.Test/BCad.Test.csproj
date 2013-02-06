@@ -60,6 +60,7 @@
     <Compile Include="DxfTests\DxfEntityTests.cs" />
     <Compile Include="DxfTests\DxfHeaderTests.cs" />
     <Compile Include="DxfTests\DxfReaderWriterTests.cs" />
+    <Compile Include="IgsTests\IgsEntityReaderTests.cs" />
     <Compile Include="IgsTests\IgsReaderTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />

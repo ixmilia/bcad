@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\IgsEntity.cs" />
+    <Compile Include="Entities\IgsEntityType.cs" />
+    <Compile Include="Entities\IgsLine.cs" />
     <Compile Include="IegsVersion.cs" />
     <Compile Include="IgsDraftingStandard.cs" />
     <Compile Include="IgsException.cs" />
@@ -46,6 +49,8 @@
     <Compile Include="IgsFileReader.cs" />
     <Compile Include="IgsSectionType.cs" />
     <Compile Include="IgsUnits.cs" />
+    <Compile Include="Parameter\IgsLineParameterData.cs" />
+    <Compile Include="Parameter\IgsParameterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

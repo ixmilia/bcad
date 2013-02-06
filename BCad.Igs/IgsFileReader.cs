@@ -5,23 +5,31 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using BCad.Igs.Entities;
+using BCad.Igs.Parameter;
 
 namespace BCad.Igs
 {
-    internal static class IgsFileReader
+    internal class IgsFileReader
     {
-        public static IgsFile Load(Stream stream)
+        private IgsFile file = new IgsFile();
+        private List<string> startLines = new List<string>();
+        private List<string> globalLines = new List<string>();
+        private List<string> directoryLines = new List<string>();
+        private List<string> parameterLines = new List<string>();
+        private string terminateLine = null;
+        private Dictionary<int, IgsParameterData> parameterData = new Dictionary<int, IgsParameterData>();
+
+        public IgsFile Load(Stream stream)
         {
-            var file = new IgsFile();
             var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd());
             var sectionLines = new Dictionary<IgsSectionType, List<string>>()
                 {
-                    { IgsSectionType.Start, new List<string>() },
-                    { IgsSectionType.Global, new List<string>() },
-                    { IgsSectionType.Directory, new List<string>() },
-                    { IgsSectionType.Parameter, new List<string>() }
+                    { IgsSectionType.Start, startLines },
+                    { IgsSectionType.Global, globalLines },
+                    { IgsSectionType.Directory, directoryLines },
+                    { IgsSectionType.Parameter, parameterLines }
                 };
-            string terminateLine = null;
 
             foreach (var line in allLines)
             {
@@ -39,22 +47,25 @@ namespace BCad.Igs
                 }
                 else
                 {
+                    if (sectionType == IgsSectionType.Parameter)
+                        data = data.Substring(0, data.Length - 8); // parameter data doesn't need its last 8 bytes
                     sectionLines[sectionType].Add(data);
                     if (sectionLines[sectionType].Count != lineNumber)
                         throw new IgsException("Unordered line number");
                 }
             }
 
-            ParseGlobalLines(file, sectionLines[IgsSectionType.Global]);
+            ParseGlobalLines();
+            ParseEntities();
 
             return file;
         }
 
         private static Regex delimiterReg = new Regex("1H.", RegexOptions.Compiled);
 
-        private static void ParseGlobalLines(IgsFile file, List<string> lines)
+        private void ParseGlobalLines()
         {
-            var fullString = string.Join(string.Empty, lines).TrimEnd();
+            var fullString = string.Join(string.Empty, globalLines).TrimEnd();
 
             string temp;
             int index = 0;
@@ -150,10 +161,85 @@ namespace BCad.Igs
             }
         }
 
-        private static void ParseDirectoryLines(IgsFile file, List<string> lines)
+        private void ParseEntities()
         {
-            if (lines.Count % 2 != 0)
+            if (directoryLines.Count % 2 != 0)
                 throw new IgsException("Expected an even number of lines");
+
+            for (int i = 0; i < directoryLines.Count; i += 2)
+            {
+                var entityType = (IgsEntityType)int.Parse(GetField(directoryLines[i], 1));
+                var pointerId = int.Parse(GetField(directoryLines[i], 2));
+                var parameterData = GetParameterData(pointerId);
+                IgsEntity entity = null;
+                switch (entityType)
+                {
+                    case IgsEntityType.Line:
+                        entity = parameterData.ToEntity();
+                        break;
+                }
+
+                if (entity != null)
+                    file.Entities.Add(entity);
+            }
+        }
+
+        private static string GetField(string str, int field)
+        {
+            var size = 8;
+            var offset = (field - 1) * size;
+            return str.Substring(offset, size).Trim();
+        }
+
+        private IgsParameterData GetParameterData(int pointerId)
+        {
+            if (parameterData.ContainsKey(pointerId))
+                return parameterData[pointerId];
+
+            // gather whole string
+            var sb = new StringBuilder();
+            for (int i = pointerId - 1; i < parameterLines.Count; i++)
+            {
+                var line = parameterLines[i];
+                sb.Append(line);
+                if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString()))
+                    break;
+            }
+
+            var wholeLine = sb.ToString();
+            var firstDelim = wholeLine.IndexOf(file.FieldDelimiter);
+            var entityTypeString = wholeLine.Substring(0, firstDelim);
+            var entityType = (IgsEntityType)int.Parse(entityTypeString);
+            var fields = SplitFields(wholeLine.Substring(firstDelim + 1), file.FieldDelimiter, file.RecordDelimiter);
+            var data = IgsParameterData.ParseFields(entityType, fields);
+            parameterData[pointerId] = data;
+            return data;
+        }
+
+        private static List<string> SplitFields(string input, char fieldDelimiter, char recordDelimiter)
+        {
+            // TODO: watch for strings containing delimiters
+            var fields = new List<string>();
+            var sb = new StringBuilder();
+            for (int i = 0; i < input.Length; i++)
+            {
+                var c = input[i];
+                if (c == fieldDelimiter || c == recordDelimiter)
+                {
+                    fields.Add(sb.ToString());
+                    sb.Clear();
+                    if (c == recordDelimiter)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return fields;
         }
 
         private static string ParseString(IgsFile file, string str, ref int index, string defaultValue = null)

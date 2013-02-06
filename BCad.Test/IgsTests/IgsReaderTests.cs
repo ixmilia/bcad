@@ -7,7 +7,7 @@ namespace BCad.Test.IgsTests
 {
     public class IgsReaderTests
     {
-        private static IgsFile CreateFile(string content)
+        internal static IgsFile CreateFile(string content)
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);

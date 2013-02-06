@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using BCad.Igs.Entities;
 
 namespace BCad.Igs
 {
@@ -34,6 +36,8 @@ namespace BCad.Igs
         public DateTime ModifiedTime { get; set; }
         public string ApplicationProtocol { get; set; }
 
+        public List<IgsEntity> Entities { get; private set; }
+
         public IgsFile()
         {
             FieldDelimiter = ',';
@@ -50,6 +54,8 @@ namespace BCad.Igs
             MinimumResolution = 1.0e-10;
             IegsVersion = Igs.IegsVersion.v5_3;
             DraftingStandard = IgsDraftingStandard.None;
+
+            Entities = new List<IgsEntity>();
         }
 
         public void Save(Stream stream)
@@ -72,7 +78,7 @@ namespace BCad.Igs
 
         public static IgsFile Load(Stream stream)
         {
-            return IgsFileReader.Load(stream);
+            return new IgsFileReader().Load(stream);
         }
     }
 }
