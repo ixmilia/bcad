@@ -43,6 +43,7 @@
     <Compile Include="IgsDraftingStandard.cs" />
     <Compile Include="IgsException.cs" />
     <Compile Include="IgsFile.cs" />
+    <Compile Include="IgsFileReader.cs" />
     <Compile Include="IgsSectionType.cs" />
     <Compile Include="IgsUnits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
