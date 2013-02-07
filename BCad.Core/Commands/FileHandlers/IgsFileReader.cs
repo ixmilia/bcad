@@ -52,7 +52,12 @@ namespace BCad.Commands.FileHandlers
 
         private static Line ToLine(IgsLine line)
         {
-            return new Line(new Point(line.X1, line.Y1, line.Z1), new Point(line.X2, line.Y2, line.Z2), Color.Auto);
+            return new Line(new Point(line.X1, line.Y1, line.Z1), new Point(line.X2, line.Y2, line.Z2), ToColor(line.Color));
+        }
+
+        private static Color ToColor(IgsColorNumber color)
+        {
+            return new Color((byte)color);
         }
     }
 }

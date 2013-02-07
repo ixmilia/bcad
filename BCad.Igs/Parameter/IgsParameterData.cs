@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using BCad.Igs.Directory;
 using BCad.Igs.Entities;
 
 namespace BCad.Igs.Parameter
 {
     internal abstract class IgsParameterData
     {
-        public abstract IgsEntity ToEntity();
+        public abstract IgsEntity ToEntity(IgsDirectoryData dir);
 
         public static IgsParameterData ParseFields(IgsEntityType type, List<string> fields)
         {

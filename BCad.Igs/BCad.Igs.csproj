@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Directory\IgsDirectoryData.cs" />
     <Compile Include="Entities\IgsBounding.cs" />
     <Compile Include="Entities\IgsEntity.cs" />
     <Compile Include="Entities\IgsEntityType.cs" />

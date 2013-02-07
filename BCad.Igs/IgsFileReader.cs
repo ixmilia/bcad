@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using BCad.Igs.Directory;
 using BCad.Igs.Entities;
 using BCad.Igs.Parameter;
 
@@ -215,37 +216,39 @@ namespace BCad.Igs
                 var entityTypeNumber = int.Parse(GetField(line1, 1));
                 if (entityTypeNumber != 0)
                 {
-                    // only parse non-null entities
-                    var parameterPointer = int.Parse(GetField(line1, 2));
-                    var structure = int.Parse(GetField(line1, 3));
-                    var lineFontPattern = int.Parse(GetField(line1, 4));
-                    var level = int.Parse(GetField(line1, 5));
-                    var view = int.Parse(GetField(line1, 6));
-                    var transformationMatrix = int.Parse(GetField(line1, 7));
-                    var labelDisplay = int.Parse(GetField(line1, 8));
-                    var statusNumber = int.Parse(GetField(line1, 9));
+                    var dir = new IgsDirectoryData();
+                    dir.EntityType = (IgsEntityType)entityTypeNumber;
+                    dir.ParameterPointer = int.Parse(GetField(line1, 2));
+                    dir.Structure = int.Parse(GetField(line1, 3));
+                    dir.LineFontPattern = int.Parse(GetField(line1, 4));
+                    dir.Level = int.Parse(GetField(line1, 5));
+                    dir.View = int.Parse(GetField(line1, 6, "0"));
+                    dir.TransformationMatrixPointer = int.Parse(GetField(line1, 7, "0"));
+                    dir.LableDisplay = int.Parse(GetField(line1, 8, "0"));
+                    dir.StatusNumber = int.Parse(GetField(line1, 9));
 
-                    var lineWeight = int.Parse(GetField(line2, 2));
-                    var colorNumber = int.Parse(GetField(line2, 3));
-                    var parameterLineCount = int.Parse(GetField(line2, 4));
-                    var formNumber = int.Parse(GetField(line2, 5));
-                    var entitySubscript = int.Parse(GetField(line2, 9));
+                    dir.LineWeight = int.Parse(GetField(line2, 2));
+                    dir.Color = (IgsColorNumber)int.Parse(GetField(line2, 3));
+                    dir.LineCount = int.Parse(GetField(line2, 4));
+                    dir.FormNumber = int.Parse(GetField(line2, 5));
+                    dir.EntityLabel = GetField(line2, 9);
 
-                    if (parameterData.ContainsKey(parameterPointer))
+                    if (parameterData.ContainsKey(dir.ParameterPointer))
                     {
-                        var data = parameterData[parameterPointer];
-                        var entity = data.ToEntity();
+                        var data = parameterData[dir.ParameterPointer];
+                        var entity = data.ToEntity(dir);
                         file.Entities.Add(entity);
                     }
                 }
             }
         }
 
-        private static string GetField(string str, int field)
+        private static string GetField(string str, int field, string defaultValue = "")
         {
             var size = 8;
             var offset = (field - 1) * size;
-            return str.Substring(offset, size).Trim();
+            var value = str.Substring(offset, size).Trim();
+            return string.IsNullOrEmpty(value) ? defaultValue : value;
         }
 
         private static List<string> SplitFields(string input, char fieldDelimiter, char recordDelimiter)
