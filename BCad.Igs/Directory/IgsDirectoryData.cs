@@ -19,5 +19,6 @@ namespace BCad.Igs.Directory
         public int LineCount { get; set; }
         public int FormNumber { get; set; }
         public string EntityLabel { get; set; }
+        public int EntitySubscript { get; set; }
     }
 }

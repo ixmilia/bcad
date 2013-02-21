@@ -20,6 +20,7 @@ namespace BCad.Igs
         private List<string> parameterLines = new List<string>();
         private string terminateLine = null;
         private Dictionary<int, IgsParameterData> parameterData = new Dictionary<int, IgsParameterData>();
+        private Dictionary<int, IgsEntity> entityMap = new Dictionary<int, IgsEntity>();
 
         public IgsFile Load(Stream stream)
         {
@@ -211,6 +212,7 @@ namespace BCad.Igs
 
             for (int i = 0; i < directoryLines.Count; i += 2)
             {
+                var lineNumber = i + 1;
                 var line1 = directoryLines[i];
                 var line2 = directoryLines[i + 1];
                 var entityTypeNumber = int.Parse(GetField(line1, 1));
@@ -222,28 +224,33 @@ namespace BCad.Igs
                     dir.Structure = int.Parse(GetField(line1, 3));
                     dir.LineFontPattern = int.Parse(GetField(line1, 4));
                     dir.Level = int.Parse(GetField(line1, 5));
-                    dir.View = int.Parse(GetField(line1, 6, "0"));
-                    dir.TransformationMatrixPointer = int.Parse(GetField(line1, 7, "0"));
-                    dir.LableDisplay = int.Parse(GetField(line1, 8, "0"));
+                    dir.View = int.Parse(GetField(line1, 6));
+                    dir.TransformationMatrixPointer = int.Parse(GetField(line1, 7));
+                    dir.LableDisplay = int.Parse(GetField(line1, 8));
                     dir.StatusNumber = int.Parse(GetField(line1, 9));
 
                     dir.LineWeight = int.Parse(GetField(line2, 2));
-                    dir.Color = (IgsColorNumber)int.Parse(GetField(line2, 3));
+                    dir.Color = (IgsColorNumber)int.Parse(GetField(line2, 3)); // TODO: could be a negative pointer
                     dir.LineCount = int.Parse(GetField(line2, 4));
                     dir.FormNumber = int.Parse(GetField(line2, 5));
-                    dir.EntityLabel = GetField(line2, 9);
+                    dir.EntityLabel = GetField(line2, 8, null);
+                    dir.EntitySubscript = int.Parse(GetField(line2, 9));
+
+                    if (dir.TransformationMatrixPointer >= lineNumber)
+                        throw new IgsException("Pointer must point back");
 
                     if (parameterData.ContainsKey(dir.ParameterPointer))
                     {
                         var data = parameterData[dir.ParameterPointer];
-                        var entity = data.ToEntity(dir);
+                        var entity = data.ToEntity(dir); // TODO: pass in transformation matrix
+                        entityMap.Add(lineNumber, entity);
                         file.Entities.Add(entity);
                     }
                 }
             }
         }
 
-        private static string GetField(string str, int field, string defaultValue = "")
+        private static string GetField(string str, int field, string defaultValue = "0")
         {
             var size = 8;
             var offset = (field - 1) * size;

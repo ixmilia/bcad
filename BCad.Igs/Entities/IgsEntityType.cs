@@ -8,6 +8,7 @@ namespace BCad.Igs.Entities
 {
     public enum IgsEntityType
     {
-        Line = 110
+        Line = 110,
+        TransformationMatrix = 124
     }
 }

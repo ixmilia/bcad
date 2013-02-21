@@ -14,6 +14,8 @@ namespace BCad.Igs.Parameter
             {
                 case IgsEntityType.Line:
                     return ParseLine(fields);
+                case IgsEntityType.TransformationMatrix:
+                    return ParseTransformationMatrix(fields);
                 default:
                     return null;
             }
@@ -31,6 +33,15 @@ namespace BCad.Igs.Parameter
                 X2 = ParseDouble(fields[3]),
                 Y2 = ParseDouble(fields[4]),
                 Z2 = ParseDouble(fields[5])
+            };
+        }
+
+        private static IgsTransformationMatrixParameterData ParseTransformationMatrix(List<string> fields)
+        {
+            if (fields.Count != 12)
+                throw new IgsException("Incorrect number of fields");
+            return new IgsTransformationMatrixParameterData()
+            {
             };
         }
 

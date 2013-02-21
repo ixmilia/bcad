@@ -54,6 +54,7 @@
     <Compile Include="IgsUnits.cs" />
     <Compile Include="Parameter\IgsLineParameterData.cs" />
     <Compile Include="Parameter\IgsParameterData.cs" />
+    <Compile Include="Parameter\IgsTransformationMatrixParameterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

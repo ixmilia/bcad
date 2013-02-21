@@ -17,10 +17,29 @@ namespace BCad.Igs.Parameter
         {
             if (dir.LineCount != 1)
                 throw new IgsException("Invalid line count");
-            return new IgsLine(IgsBounding.BoundOnBothSides, X1, Y1, Z1, X2, Y2, Z2)
+            return new IgsLine()
             {
+                X1 = X1,
+                Y1 = Y1,
+                Z1 = Z1,
+                X2 = X2,
+                Y2 = Y2,
+                Z2 = Z2,
+                Bounding = GetBounding(dir.FormNumber),
                 Color = dir.Color
             };
+        }
+
+        private static IgsBounding GetBounding(int form)
+        {
+            switch (form)
+            {
+                case 0: return IgsBounding.BoundOnBothSides;
+                case 1: return IgsBounding.BoundOnStart;
+                case 2: return IgsBounding.Unbound;
+                default:
+                    throw new IgsException("Invalid line bounding value");
+            }
         }
     }
 }
