@@ -155,7 +155,7 @@ namespace BCad.Test
         }
 
         [Fact]
-        public void DeleteWithBothChildrenNotRoot()
+        public void DeleteWithBothChildrenNotRoot1()
         {
             // bug fix
             //   2
@@ -171,6 +171,25 @@ namespace BCad.Test
             //    /
             //   3
             Assert.Equal(new int[] { 1, 2, 3, 5 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
+        public void DeleteWithBothChildrenNotRoot2()
+        {
+            // bug fix
+            //     4
+            //    / \
+            //   2   5
+            //  / \
+            // 1   3
+            var tree = CreateTree(4, 2, 5, 1, 3);
+            tree = tree.Delete(2);
+            //   4
+            //  / \
+            // 1   5
+            //  \
+            //   3
+            Assert.Equal(new int[] { 1, 3, 4, 5 }, tree.GetKeys().ToArray());
         }
 
         private ReadOnlyTree<int, int> CreateTree(params int[] values)

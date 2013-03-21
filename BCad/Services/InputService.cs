@@ -327,7 +327,11 @@ namespace BCad.Services
             {
                 lastType = PushedValueType.Cancel;
                 AllowedInputTypes = InputType.Command;
-                pushValueDone.SetResult(false);
+                var pvd = pushValueDone;
+                if (pvd != null)
+                {
+                    pvd.SetResult(false);
+                }
             }
         }
 
