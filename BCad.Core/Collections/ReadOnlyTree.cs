@@ -191,6 +191,7 @@ namespace BCad.Collections
             if (current == null)
                 return this; // key not found, no change
 
+            Node toDelete = current;
             Node newRoot;
             if (current.Left == null && current.Right == null)
             {
@@ -226,6 +227,7 @@ namespace BCad.Collections
             {
                 // both children are present.  replace node with immediate successor and custom respine
                 var immediateSuccessor = current.Right;
+                path.Push(current);
                 while (immediateSuccessor.Left != null)
                 {
                     path.Push(immediateSuccessor);
@@ -237,11 +239,13 @@ namespace BCad.Collections
                 {
                     // recreate parent
                     var newParent = path.Pop().Clone();
-                    if (newParent.Key.CompareTo(key) == 0)
+                    if (newParent.Key.CompareTo(toDelete.Key) == 0)
                     {
                         // this is the replacement node
                         newParent.Key = immediateSuccessor.Key;
                         newParent.Value = immediateSuccessor.Value;
+                        newParent.Left = toDelete.Left;
+                        newParent.Right = newParent.Right.Right;
                     }
                     else
                     {

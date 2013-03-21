@@ -103,16 +103,10 @@ namespace BCad.UI.Consoles
         {
             var text = inputLine.Text;
 
-            if (InputService.AllowedInputTypes.HasFlag(InputType.Directive))
+            if (InputService.AllowedInputTypes.HasFlag(InputType.Directive) &&
+                InputService.AllowedDirectives.Contains(text))
             {
-                if (InputService.AllowedDirectives.Contains(text))
-                {
-                    InputService.PushDirective(text);
-                }
-                else
-                {
-                    InputService.PushNone();
-                }
+                InputService.PushDirective(text);
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Distance))
             {

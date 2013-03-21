@@ -105,6 +105,74 @@ namespace BCad.Test
             Assert.Equal(values.OrderBy(x => x).ToArray(), tree.GetKeys().ToArray());
         }
 
+        [Fact]
+        public void DeleteWithBothChildren()
+        {
+            // bug fix
+            //   2
+            //  / \
+            // 1   3
+            var tree = CreateTree(2, 1, 3);
+            tree = tree.Delete(2);
+            //   3
+            //  /
+            // 1
+            Assert.Equal(new int[] { 1, 3 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
+        public void DeleteWithLeftAndRightChildren1()
+        {
+            // bug fix
+            //   2
+            //  / \
+            // 1   3
+            //      \
+            //       4
+            var tree = CreateTree(2, 1, 3, 4);
+            tree = tree.Delete(2);
+            //   3
+            //  / \
+            // 1   4
+            Assert.Equal(new int[] { 1, 3, 4 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
+        public void DeleteWithLeftAndRightChildren2()
+        {
+            // bug fix
+            //     3
+            //    / \
+            //   2   4
+            //  /
+            // 1
+            var tree = CreateTree(3, 2, 4, 1);
+            tree = tree.Delete(3);
+            //   3
+            //  / \
+            // 1   4
+            Assert.Equal(new int[] { 1, 2, 4 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
+        public void DeleteWithBothChildrenNotRoot()
+        {
+            // bug fix
+            //   2
+            //  / \
+            // 1   4
+            //    / \
+            //   3   5
+            var tree = CreateTree(2, 1, 4, 3, 5);
+            tree = tree.Delete(4);
+            //   2
+            //  / \
+            // 1   5
+            //    /
+            //   3
+            Assert.Equal(new int[] { 1, 2, 3, 5 }, tree.GetKeys().ToArray());
+        }
+
         private ReadOnlyTree<int, int> CreateTree(params int[] values)
         {
             var tree = new ReadOnlyTree<int, int>();

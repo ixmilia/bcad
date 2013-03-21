@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BCad.Entities;
 
@@ -15,6 +16,7 @@ namespace BCad
         public static Drawing Add(this Drawing drawing, Layer layer, Entity entity)
         {
             var updatedLayer = layer.Add(entity);
+            Debug.Assert(updatedLayer.EntityCount - layer.EntityCount == 1, "Expected to add 1 entity.");
             return drawing.Replace(layer, updatedLayer);
         }
 
@@ -57,6 +59,7 @@ namespace BCad
         public static Drawing Replace(this Drawing drawing, Layer layer, Entity oldEntity, Entity newEntity)
         {
             var updatedLayer = layer.Replace(oldEntity, newEntity);
+            Debug.Assert(layer.EntityCount - updatedLayer.EntityCount == 1, "Expected the same number of entities.");
             return drawing.Replace(layer, updatedLayer);
         }
 
@@ -70,6 +73,7 @@ namespace BCad
         public static Drawing Remove(this Drawing drawing, Layer layer, Entity entity)
         {
             var updatedLayer = layer.Remove(entity);
+            Debug.Assert(layer.EntityCount - updatedLayer.EntityCount == 1, "Expected to remove 1 entity.");
             return drawing.Replace(layer, updatedLayer);
         }
 
