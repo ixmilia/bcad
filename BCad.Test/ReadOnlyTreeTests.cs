@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BCad.Collections;
 using Xunit;
 
@@ -148,7 +150,7 @@ namespace BCad.Test
             // 1
             var tree = CreateTree(3, 2, 4, 1);
             tree = tree.Delete(3);
-            //   3
+            //   2
             //  / \
             // 1   4
             Assert.Equal(new int[] { 1, 2, 4 }, tree.GetKeys().ToArray());
@@ -190,6 +192,78 @@ namespace BCad.Test
             //  \
             //   3
             Assert.Equal(new int[] { 1, 3, 4, 5 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
+        public void DeleteWhenRightChildOnlyHasLeftChild()
+        {
+            // bug fix
+            //   1
+            //  / \
+            // 0   3
+            //    /
+            //   2
+            var tree = CreateTree(1, 0, 3, 2);
+            tree = tree.Delete(1);
+            //   2
+            //  / \
+            // 0   3
+            Assert.Equal(new int[] { 0, 2, 3 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
+        public void RandomTreeTest()
+        {
+            var rand = new Random();
+            var max = 10;
+            for (int i = 0; i < 1000; i++)
+            {
+                var insertOrder = new List<int>();
+                var deleteOrder = new List<int>();
+                var operation = "insert";
+                try
+                {
+                    var tree = CreateTree();
+
+                    // insert into the tree
+                    operation = "insert";
+                    for (int j = 0; j < max; j++)
+                    {
+                        var key = rand.Next(max);
+                        if (!tree.KeyExists(key))
+                        {
+                            var preCount = tree.Count;
+                            tree = tree.Insert(key, 0);
+                            insertOrder.Add(key);
+                            var postCount = tree.Count;
+                            Assert.Equal(1, postCount - preCount);
+                        }
+                    }
+
+                    // remove from the tree
+                    operation = "delete";
+                    while (tree.Count > 0)
+                    {
+                        var key = rand.Next(max);
+                        if (tree.KeyExists(key))
+                        {
+                            var preCount = tree.Count;
+                            tree = tree.Delete(key);
+                            deleteOrder.Add(key);
+                            var postCount = tree.Count;
+                            Assert.Equal(1, preCount - postCount);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(string.Format("Error doing operation {0}: insert order: [{1}], delete order: [{2}]",
+                        operation,
+                        string.Join(", ", insertOrder),
+                        string.Join(", ", deleteOrder)),
+                        ex);
+                }
+            }
         }
 
         private ReadOnlyTree<int, int> CreateTree(params int[] values)

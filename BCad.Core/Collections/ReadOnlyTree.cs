@@ -226,39 +226,55 @@ namespace BCad.Collections
             else
             {
                 // both children are present.  replace node with immediate successor and custom respine
+                path.Push(toDelete);
                 var immediateSuccessor = current.Right;
-                path.Push(current);
+                path.Push(immediateSuccessor);
                 while (immediateSuccessor.Left != null)
                 {
-                    path.Push(immediateSuccessor);
                     immediateSuccessor = immediateSuccessor.Left;
+                    path.Push(immediateSuccessor);
                 }
 
-                current = immediateSuccessor;
+                var child = immediateSuccessor;
+                var childKey = child.Key;
                 while (path.Count > 0)
                 {
-                    // recreate parent
-                    var newParent = path.Pop().Clone();
-                    if (newParent.Key.CompareTo(toDelete.Key) == 0)
+                    var newNode = path.Pop().Clone();
+                    if (newNode.Key.CompareTo(immediateSuccessor.Key) == 0)
                     {
-                        // this is the replacement node
-                        newParent.Key = immediateSuccessor.Key;
-                        newParent.Value = immediateSuccessor.Value;
-                        newParent.Left = toDelete.Left;
-                        newParent.Right = newParent.Right.Right;
+                        // the immediate successor gets slipped out
+                        newNode = newNode.Right;
+                    }
+                    else if (newNode.Key.CompareTo(toDelete.Key) == 0)
+                    {
+                        // this is the node being deleted; replace its values
+                        newNode = immediateSuccessor.Clone();
+                        newNode.Left = toDelete.Left;
+                        if (newNode.Key.CompareTo(toDelete.Right.Key) != 0)
+                        {
+                            newNode.Right = child;
+                        }
+                    }
+                    else if (childKey.CompareTo(newNode.Key) < 0)
+                    {
+                        // this was the left child
+                        newNode.Left = child;
                     }
                     else
                     {
-                        if (current.Key.CompareTo(newParent.Key) < 0)
-                            newParent.Left = current;
-                        else
-                            newParent.Right = current;
+                        // this was the right child
+                        newNode.Right = child;
                     }
 
-                    current = Rebalance(newParent, false);
+                    child = Rebalance(newNode, false);
+                    if (child != null)
+                    {
+                        childKey = child.Key;
+                        Debug.Assert(Math.Abs(child.BalanceFactor) <= 1);
+                    }
                 }
 
-                newRoot = current;
+                newRoot = child;
             }
 
             return new ReadOnlyTree<TKey, TValue>(newRoot);
@@ -303,6 +319,8 @@ namespace BCad.Collections
 
         private static Node Rebalance(Node node, bool insert)
         {
+            if (node == null)
+                return node; // do nothing on an empty node
             var balanceFactor = node.BalanceFactor;
             if (Math.Abs(balanceFactor) <= 1)
                 return node; // no balance necessary
