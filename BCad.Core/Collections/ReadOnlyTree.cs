@@ -320,15 +320,26 @@ namespace BCad.Collections
         private static Node Rebalance(Node node, bool insert)
         {
             if (node == null)
-                return node; // do nothing on an empty node
+                return null;
+
+            Node result;
             var balanceFactor = node.BalanceFactor;
             if (Math.Abs(balanceFactor) <= 1)
-                return node; // no balance necessary
-            Debug.Assert(Math.Abs(balanceFactor) == 2);
-            if (balanceFactor == -2) // right-right or right-left
-                return RightRebalance(node, insert);
-            else // left-left or left-right
-                return LeftRebalance(node, insert);
+            {
+                result = node;
+            }
+            else
+            {
+                if (balanceFactor == 2)
+                    result = LeftRebalance(node, insert);
+                else if (balanceFactor == -2)
+                    result = RightRebalance(node, insert);
+                else
+                    throw new Exception("Unexpected balance: " + balanceFactor);
+            }
+
+            Debug.Assert(Math.Abs(result.BalanceFactor) <= 1);
+            return result;
         }
 
         private static Node RightRebalance(Node node, bool insert)
