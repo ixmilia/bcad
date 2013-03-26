@@ -208,6 +208,7 @@ namespace BCad.Collections
                         parent.Left = null;
                     else
                         parent.Right = null;
+                    parent = Rebalance(parent, false);
                     newRoot = BalanceAndReSpine(parent, path, false);
                 }
             }
@@ -303,7 +304,6 @@ namespace BCad.Collections
         private static Node BalanceAndReSpine(Node current, Stack<Node> ancestors, bool insert)
         {
             // TODO: add flag for mutable re-balancing; useful for batch inserts/creation
-            current = Rebalance(current, insert);
             while (ancestors.Count > 0)
             {
                 // re-create parent

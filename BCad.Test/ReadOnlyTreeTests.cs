@@ -225,7 +225,7 @@ namespace BCad.Test
         public void RandomTreeTest()
         {
             var rand = new Random();
-            var max = 10;
+            var max = 100;
             for (int i = 0; i < 1000; i++)
             {
                 var insertOrder = new List<int>();
