@@ -59,7 +59,7 @@ namespace BCad
         public static Drawing Replace(this Drawing drawing, Layer layer, Entity oldEntity, Entity newEntity)
         {
             var updatedLayer = layer.Replace(oldEntity, newEntity);
-            Debug.Assert(layer.EntityCount - updatedLayer.EntityCount == 1, "Expected the same number of entities.");
+            Debug.Assert(layer.EntityCount - updatedLayer.EntityCount == 0, "Expected the same number of entities.");
             return drawing.Replace(layer, updatedLayer);
         }
 
