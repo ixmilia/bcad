@@ -212,6 +212,16 @@ namespace BCad.Test
         }
 
         [Fact]
+        public void DeleteRebalanceTest()
+        {
+            // bug fix
+            var tree = CreateTree(6, 4, 3, 7, 8, 9, 2);
+            tree = tree.Delete(6);
+            tree = tree.Delete(8);
+            Assert.Equal(new int[] { 2, 3, 4, 7, 9 }, tree.GetKeys().ToArray());
+        }
+
+        [Fact]
         public void RandomTreeTest()
         {
             var rand = new Random();
@@ -233,8 +243,8 @@ namespace BCad.Test
                         if (!tree.KeyExists(key))
                         {
                             var preCount = tree.Count;
-                            tree = tree.Insert(key, 0);
                             insertOrder.Add(key);
+                            tree = tree.Insert(key, 0);
                             var postCount = tree.Count;
                             Assert.Equal(1, postCount - preCount);
                         }
@@ -248,8 +258,8 @@ namespace BCad.Test
                         if (tree.KeyExists(key))
                         {
                             var preCount = tree.Count;
-                            tree = tree.Delete(key);
                             deleteOrder.Add(key);
+                            tree = tree.Delete(key);
                             var postCount = tree.Count;
                             Assert.Equal(1, preCount - postCount);
                         }
