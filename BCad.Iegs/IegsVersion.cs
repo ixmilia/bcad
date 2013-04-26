@@ -1,4 +1,4 @@
-﻿namespace BCad.Igs
+﻿namespace BCad.Iegs
 {
     public enum IegsVersion
     {

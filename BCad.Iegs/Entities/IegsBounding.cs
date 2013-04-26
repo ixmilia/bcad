@@ -1,4 +1,4 @@
-﻿namespace BCad.Igs.Entities
+﻿namespace BCad.Iegs.Entities
 {
     public enum IegsBounding
     {

@@ -65,7 +65,7 @@
     <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
-    <Compile Include="Commands\FileHandlers\IgsFileReader.cs" />
+    <Compile Include="Commands\FileHandlers\IegsFileReader.cs" />
     <Compile Include="Commands\FileHandlers\StlFileReader.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
@@ -192,9 +192,9 @@
       <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
       <Name>BCad.Dxf</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BCad.Igs\BCad.Igs.csproj">
+    <ProjectReference Include="..\BCad.Iegs\BCad.Iegs.csproj">
       <Project>{59b09ca5-1837-4c2b-858c-91e997939c79}</Project>
-      <Name>BCad.Igs</Name>
+      <Name>BCad.Iegs</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
       <Project>{b6a2dc99-a13c-43ec-92be-79e579e10f57}</Project>

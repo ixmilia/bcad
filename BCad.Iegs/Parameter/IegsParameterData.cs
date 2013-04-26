@@ -1,31 +1,31 @@
 ﻿using System.Collections.Generic;
-using BCad.Igs.Directory;
-using BCad.Igs.Entities;
+using BCad.Iegs.Directory;
+using BCad.Iegs.Entities;
 
-namespace BCad.Igs.Parameter
+namespace BCad.Iegs.Parameter
 {
-    internal abstract class IgsParameterData
+    internal abstract class IegsParameterData
     {
-        public abstract IgsEntity ToEntity(IgsDirectoryData dir);
+        public abstract IegsEntity ToEntity(IegsDirectoryData dir);
 
-        public static IgsParameterData ParseFields(IgsEntityType type, List<string> fields)
+        public static IegsParameterData ParseFields(IegsEntityType type, List<string> fields)
         {
             switch (type)
             {
-                case IgsEntityType.Line:
+                case IegsEntityType.Line:
                     return ParseLine(fields);
-                case IgsEntityType.TransformationMatrix:
+                case IegsEntityType.TransformationMatrix:
                     return ParseTransformationMatrix(fields);
                 default:
                     return null;
             }
         }
 
-        private static IgsLineParameterData ParseLine(List<string> fields)
+        private static IegsLineParameterData ParseLine(List<string> fields)
         {
             if (fields.Count != 6)
-                throw new IgsException("Incorrect number of fields");
-            return new IgsLineParameterData()
+                throw new IegsException("Incorrect number of fields");
+            return new IegsLineParameterData()
             {
                 X1 = ParseDouble(fields[0]),
                 Y1 = ParseDouble(fields[1]),
@@ -36,11 +36,11 @@ namespace BCad.Igs.Parameter
             };
         }
 
-        private static IgsTransformationMatrixParameterData ParseTransformationMatrix(List<string> fields)
+        private static IegsTransformationMatrixParameterData ParseTransformationMatrix(List<string> fields)
         {
             if (fields.Count != 12)
-                throw new IgsException("Incorrect number of fields");
-            return new IgsTransformationMatrixParameterData()
+                throw new IegsException("Incorrect number of fields");
+            return new IegsTransformationMatrixParameterData()
             {
             };
         }

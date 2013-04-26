@@ -1,6 +1,6 @@
-﻿namespace BCad.Igs
+﻿namespace BCad.Iegs
 {
-    public enum IgsDraftingStandard
+    public enum IegsDraftingStandard
     {
         None = 0,
         ISO = 1,

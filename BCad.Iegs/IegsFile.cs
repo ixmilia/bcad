@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using BCad.Igs.Entities;
+using BCad.Iegs.Entities;
 
-namespace BCad.Igs
+namespace BCad.Iegs
 {
-    public class IgsFile
+    public class IegsFile
     {
         internal const int MaxDataLength = 72;
 
@@ -22,7 +22,7 @@ namespace BCad.Igs
         public int DoublePrecision { get; set; }
         public string Identifier { get; set; }
         public double ModelSpaceScale { get; set; }
-        public IgsUnits ModelUnits { get; set; }
+        public IegsUnits ModelUnits { get; set; }
         public string CustomModelUnits { get; set; }
         public int MaxLineWeightGraduations { get; set; }
         public double MaxLineWeight { get; set; }
@@ -32,13 +32,13 @@ namespace BCad.Igs
         public string Author { get; set; }
         public string Organization { get; set; }
         public IegsVersion IegsVersion { get; set; }
-        public IgsDraftingStandard DraftingStandard { get; set; }
+        public IegsDraftingStandard DraftingStandard { get; set; }
         public DateTime ModifiedTime { get; set; }
         public string ApplicationProtocol { get; set; }
 
-        public List<IgsEntity> Entities { get; private set; }
+        public List<IegsEntity> Entities { get; private set; }
 
-        public IgsFile()
+        public IegsFile()
         {
             FieldDelimiter = ',';
             RecordDelimiter = ';';
@@ -48,14 +48,14 @@ namespace BCad.Igs
             DoubleMagnitude = 11;
             DoublePrecision = 52;
             ModelSpaceScale = 1.0;
-            ModelUnits = IgsUnits.Inches;
+            ModelUnits = IegsUnits.Inches;
             MaxLineWeight = 1.0;
             TimeStamp = DateTime.Now;
             MinimumResolution = 1.0e-10;
-            IegsVersion = Igs.IegsVersion.v5_3;
-            DraftingStandard = IgsDraftingStandard.None;
+            IegsVersion = Iegs.IegsVersion.v5_3;
+            DraftingStandard = IegsDraftingStandard.None;
 
-            Entities = new List<IgsEntity>();
+            Entities = new List<IegsEntity>();
         }
 
         public void Save(Stream stream)
@@ -63,7 +63,7 @@ namespace BCad.Igs
             var writer = new StreamWriter(stream);
 
             //// write start section
-            //foreach (var section in new IgsSection[] { startSection, globalSection })
+            //foreach (var section in new IegsSection[] { startSection, globalSection })
             //{
             //    int line = 1;
             //    foreach (var data in section.GetData())
@@ -76,9 +76,9 @@ namespace BCad.Igs
             writer.Flush();
         }
 
-        public static IgsFile Load(Stream stream)
+        public static IegsFile Load(Stream stream)
         {
-            return new IgsFileReader().Load(stream);
+            return new IegsFileReader().Load(stream);
         }
     }
 }

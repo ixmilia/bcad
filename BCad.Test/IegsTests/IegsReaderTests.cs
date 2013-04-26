@@ -3,9 +3,9 @@ using System.IO;
 using BCad.Iegs;
 using Xunit;
 
-namespace BCad.Test.IgsTests
+namespace BCad.Test.IegsTests
 {
-    public class IgsReaderTests
+    public class IegsReaderTests
     {
         internal static IegsFile CreateFile(string content)
         {

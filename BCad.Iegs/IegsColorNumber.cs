@@ -1,6 +1,6 @@
-﻿namespace BCad.Igs
+﻿namespace BCad.Iegs
 {
-    public enum IgsColorNumber
+    public enum IegsColorNumber
     {
         Color0 = 0,
         Color1 = 1,

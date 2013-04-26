@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BCad.Igs.Directory;
-using BCad.Igs.Entities;
+using BCad.Iegs.Directory;
+using BCad.Iegs.Entities;
 
-namespace BCad.Igs.Parameter
+namespace BCad.Iegs.Parameter
 {
     internal class IegsTransformationMatrixParameterData : IegsParameterData
     {

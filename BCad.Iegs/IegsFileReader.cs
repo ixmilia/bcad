@@ -5,46 +5,46 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using BCad.Igs.Directory;
-using BCad.Igs.Entities;
-using BCad.Igs.Parameter;
+using BCad.Iegs.Directory;
+using BCad.Iegs.Entities;
+using BCad.Iegs.Parameter;
 
-namespace BCad.Igs
+namespace BCad.Iegs
 {
-    internal class IgsFileReader
+    internal class IegsFileReader
     {
-        private IgsFile file = new IgsFile();
+        private IegsFile file = new IegsFile();
         private List<string> startLines = new List<string>();
         private List<string> globalLines = new List<string>();
         private List<string> directoryLines = new List<string>();
         private List<string> parameterLines = new List<string>();
         private string terminateLine = null;
-        private Dictionary<int, IgsParameterData> parameterData = new Dictionary<int, IgsParameterData>();
-        private Dictionary<int, IgsEntity> entityMap = new Dictionary<int, IgsEntity>();
+        private Dictionary<int, IegsParameterData> parameterData = new Dictionary<int, IegsParameterData>();
+        private Dictionary<int, IegsEntity> entityMap = new Dictionary<int, IegsEntity>();
 
-        public IgsFile Load(Stream stream)
+        public IegsFile Load(Stream stream)
         {
             var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd());
-            var sectionLines = new Dictionary<IgsSectionType, List<string>>()
+            var sectionLines = new Dictionary<IegsSectionType, List<string>>()
                 {
-                    { IgsSectionType.Start, startLines },
-                    { IgsSectionType.Global, globalLines },
-                    { IgsSectionType.Directory, directoryLines },
-                    { IgsSectionType.Parameter, parameterLines }
+                    { IegsSectionType.Start, startLines },
+                    { IegsSectionType.Global, globalLines },
+                    { IegsSectionType.Directory, directoryLines },
+                    { IegsSectionType.Parameter, parameterLines }
                 };
 
             foreach (var line in allLines)
             {
                 if (line.Length != 80)
-                    throw new IgsException("Expected line length of 80 characters.");
-                var data = line.Substring(0, IgsFile.MaxDataLength);
-                var sectionType = SectionTypeFromCharacter(line[IgsFile.MaxDataLength]);
-                var lineNumber = int.Parse(line.Substring(IgsFile.MaxDataLength + 1).TrimStart());
+                    throw new IegsException("Expected line length of 80 characters.");
+                var data = line.Substring(0, IegsFile.MaxDataLength);
+                var sectionType = SectionTypeFromCharacter(line[IegsFile.MaxDataLength]);
+                var lineNumber = int.Parse(line.Substring(IegsFile.MaxDataLength + 1).TrimStart());
 
-                if (sectionType == IgsSectionType.Terminate)
+                if (sectionType == IegsSectionType.Terminate)
                 {
                     if (terminateLine != null)
-                        throw new IgsException("Unexpected duplicate terminate line");
+                        throw new IegsException("Unexpected duplicate terminate line");
                     terminateLine = data;
 
                     // verify terminate data and quit
@@ -53,22 +53,22 @@ namespace BCad.Igs
                     var directoryCount = int.Parse(terminateLine.Substring(17, 7));
                     var parameterCount = int.Parse(terminateLine.Substring(25, 7));
                     if (startLines.Count != startCount)
-                        throw new IgsException("Incorrect number of start lines reported");
+                        throw new IegsException("Incorrect number of start lines reported");
                     if (globalLines.Count != globalCount)
-                        throw new IgsException("Incorrect number of global lines reported");
+                        throw new IegsException("Incorrect number of global lines reported");
                     if (directoryLines.Count != directoryCount)
-                        throw new IgsException("Incorrect number of directory lines reported");
+                        throw new IegsException("Incorrect number of directory lines reported");
                     if (parameterLines.Count != parameterCount)
-                        throw new IgsException("Incorrect number of parameter lines reported");
+                        throw new IegsException("Incorrect number of parameter lines reported");
                     break;
                 }
                 else
                 {
-                    if (sectionType == IgsSectionType.Parameter)
+                    if (sectionType == IegsSectionType.Parameter)
                         data = data.Substring(0, data.Length - 8); // parameter data doesn't need its last 8 bytes
                     sectionLines[sectionType].Add(data);
                     if (sectionLines[sectionType].Count != lineNumber)
-                        throw new IgsException("Unordered line number");
+                        throw new IegsException("Unordered line number");
                 }
             }
 
@@ -96,13 +96,13 @@ namespace BCad.Igs
                     case 1:
                         temp = ParseString(file, fullString, ref index, file.FieldDelimiter.ToString());
                         if (temp == null || temp.Length != 1)
-                            throw new IgsException("Expected delimiter of length 1");
+                            throw new IegsException("Expected delimiter of length 1");
                         file.FieldDelimiter = temp[0];
                         break;
                     case 2:
                         temp = ParseString(file, fullString, ref index, file.RecordDelimiter.ToString());
                         if (temp == null || temp.Length != 1)
-                            throw new IgsException("Expected delimiter of length 1");
+                            throw new IegsException("Expected delimiter of length 1");
                         file.RecordDelimiter = temp[0];
                         break;
                     case 3:
@@ -139,7 +139,7 @@ namespace BCad.Igs
                         file.ModelSpaceScale = ParseDouble(file, fullString, ref index);
                         break;
                     case 14:
-                        file.ModelUnits = (IgsUnits)ParseInt(file, fullString, ref index, (int)file.ModelUnits);
+                        file.ModelUnits = (IegsUnits)ParseInt(file, fullString, ref index, (int)file.ModelUnits);
                         break;
                     case 15:
                         file.CustomModelUnits = ParseString(file, fullString, ref index);
@@ -169,7 +169,7 @@ namespace BCad.Igs
                         file.IegsVersion = (IegsVersion)ParseInt(file, fullString, ref index);
                         break;
                     case 24:
-                        file.DraftingStandard = (IgsDraftingStandard)ParseInt(file, fullString, ref index);
+                        file.DraftingStandard = (IegsDraftingStandard)ParseInt(file, fullString, ref index);
                         break;
                     case 25:
                         file.ModifiedTime = ParseDateTime(ParseString(file, fullString, ref index), file.ModifiedTime);
@@ -194,9 +194,9 @@ namespace BCad.Igs
                 {
                     var fields = SplitFields(line, file.FieldDelimiter, file.RecordDelimiter);
                     if (fields.Count < 2)
-                        throw new IgsException("At least two fields necessary");
-                    var entityType = (IgsEntityType)int.Parse(fields[0]);
-                    var data = IgsParameterData.ParseFields(entityType, fields.Skip(1).ToList());
+                        throw new IegsException("At least two fields necessary");
+                    var entityType = (IegsEntityType)int.Parse(fields[0]);
+                    var data = IegsParameterData.ParseFields(entityType, fields.Skip(1).ToList());
                     if (data != null)
                         parameterData.Add(index, data);
                     index = i + 2; // +1 for zero offset, +1 to skip to the next line
@@ -208,7 +208,7 @@ namespace BCad.Igs
         private void ParseDirectoryLines()
         {
             if (directoryLines.Count % 2 != 0)
-                throw new IgsException("Expected an even number of lines");
+                throw new IegsException("Expected an even number of lines");
 
             for (int i = 0; i < directoryLines.Count; i += 2)
             {
@@ -218,8 +218,8 @@ namespace BCad.Igs
                 var entityTypeNumber = int.Parse(GetField(line1, 1));
                 if (entityTypeNumber != 0)
                 {
-                    var dir = new IgsDirectoryData();
-                    dir.EntityType = (IgsEntityType)entityTypeNumber;
+                    var dir = new IegsDirectoryData();
+                    dir.EntityType = (IegsEntityType)entityTypeNumber;
                     dir.ParameterPointer = int.Parse(GetField(line1, 2));
                     dir.Structure = int.Parse(GetField(line1, 3));
                     dir.LineFontPattern = int.Parse(GetField(line1, 4));
@@ -230,14 +230,14 @@ namespace BCad.Igs
                     dir.StatusNumber = int.Parse(GetField(line1, 9));
 
                     dir.LineWeight = int.Parse(GetField(line2, 2));
-                    dir.Color = (IgsColorNumber)int.Parse(GetField(line2, 3)); // TODO: could be a negative pointer
+                    dir.Color = (IegsColorNumber)int.Parse(GetField(line2, 3)); // TODO: could be a negative pointer
                     dir.LineCount = int.Parse(GetField(line2, 4));
                     dir.FormNumber = int.Parse(GetField(line2, 5));
                     dir.EntityLabel = GetField(line2, 8, null);
                     dir.EntitySubscript = int.Parse(GetField(line2, 9));
 
                     if (dir.TransformationMatrixPointer >= lineNumber)
-                        throw new IgsException("Pointer must point back");
+                        throw new IegsException("Pointer must point back");
 
                     if (parameterData.ContainsKey(dir.ParameterPointer))
                     {
@@ -284,7 +284,7 @@ namespace BCad.Igs
             return fields;
         }
 
-        private static string ParseString(IgsFile file, string str, ref int index, string defaultValue = null)
+        private static string ParseString(IegsFile file, string str, ref int index, string defaultValue = null)
         {
             if (index < str.Length && (str[index] == file.FieldDelimiter || str[index] == file.RecordDelimiter))
             {
@@ -305,7 +305,7 @@ namespace BCad.Igs
                     break;
                 }
                 if (!char.IsDigit(c))
-                    throw new IgsException("Expected digit");
+                    throw new IegsException("Expected digit");
                 sb.Append(c);
             }
 
@@ -325,7 +325,7 @@ namespace BCad.Igs
             return value;
         }
 
-        private static int ParseInt(IgsFile file, string str, ref int index, int defaultValue = 0)
+        private static int ParseInt(IegsFile file, string str, ref int index, int defaultValue = 0)
         {
             if (index < str.Length && (str[index] == file.FieldDelimiter || str[index] == file.RecordDelimiter))
             {
@@ -344,14 +344,14 @@ namespace BCad.Igs
                     break;
                 }
                 if (!char.IsDigit(c))
-                    throw new IgsException("Expected digit");
+                    throw new IegsException("Expected digit");
                 sb.Append(c);
             }
 
             return int.Parse(sb.ToString());
         }
 
-        private static double ParseDouble(IgsFile file, string str, ref int index, double defaultValue = 0.0)
+        private static double ParseDouble(IegsFile file, string str, ref int index, double defaultValue = 0.0)
         {
             if (index < str.Length && (str[index] == file.FieldDelimiter || str[index] == file.RecordDelimiter))
             {
@@ -384,7 +384,7 @@ namespace BCad.Igs
 
             var match = dateTimeReg.Match(value);
             if (!match.Success)
-                throw new IgsException("Invalid date/time format");
+                throw new IegsException("Invalid date/time format");
             Debug.Assert(match.Groups.Count == 9);
             int year = int.Parse(match.Groups[1].Value);
             int month = int.Parse(match.Groups[4].Value);
@@ -403,36 +403,36 @@ namespace BCad.Igs
         private static void SwallowDelimiter(string str, char delim, ref int index)
         {
             if (index >= str.Length)
-                throw new IgsException("Unexpected end of string");
+                throw new IegsException("Unexpected end of string");
             if (str[index++] != delim)
-                throw new IgsException("Expected delimiter");
+                throw new IegsException("Expected delimiter");
         }
 
-        private static char SectionTypeChar(IgsSectionType type)
+        private static char SectionTypeChar(IegsSectionType type)
         {
             switch (type)
             {
-                case IgsSectionType.Start: return 'S';
-                case IgsSectionType.Global: return 'G';
-                case IgsSectionType.Directory: return 'D';
-                case IgsSectionType.Parameter: return 'P';
-                case IgsSectionType.Terminate: return 'T';
+                case IegsSectionType.Start: return 'S';
+                case IegsSectionType.Global: return 'G';
+                case IegsSectionType.Directory: return 'D';
+                case IegsSectionType.Parameter: return 'P';
+                case IegsSectionType.Terminate: return 'T';
                 default:
-                    throw new IgsException("Unexpected section type " + type);
+                    throw new IegsException("Unexpected section type " + type);
             }
         }
 
-        private static IgsSectionType SectionTypeFromCharacter(char c)
+        private static IegsSectionType SectionTypeFromCharacter(char c)
         {
             switch (c)
             {
-                case 'S': return IgsSectionType.Start;
-                case 'G': return IgsSectionType.Global;
-                case 'D': return IgsSectionType.Directory;
-                case 'P': return IgsSectionType.Parameter;
-                case 'T': return IgsSectionType.Terminate;
+                case 'S': return IegsSectionType.Start;
+                case 'G': return IegsSectionType.Global;
+                case 'D': return IegsSectionType.Directory;
+                case 'P': return IegsSectionType.Parameter;
+                case 'T': return IegsSectionType.Terminate;
                 default:
-                    throw new IgsException("Invalid section type " + c);
+                    throw new IegsException("Invalid section type " + c);
             }
         }
     }

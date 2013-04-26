@@ -1,9 +1,9 @@
-﻿using BCad.Igs.Directory;
-using BCad.Igs.Entities;
+﻿using BCad.Iegs.Directory;
+using BCad.Iegs.Entities;
 
-namespace BCad.Igs.Parameter
+namespace BCad.Iegs.Parameter
 {
-    internal class IegsLineParameterData : IgsParameterData
+    internal class IegsLineParameterData : IegsParameterData
     {
         public double X1 { get; set; }
         public double Y1 { get; set; }
@@ -16,7 +16,7 @@ namespace BCad.Igs.Parameter
         public override IegsEntity ToEntity(IegsDirectoryData dir)
         {
             if (dir.LineCount != 1)
-                throw new IgsException("Invalid line count");
+                throw new IegsException("Invalid line count");
             return new IegsLine()
             {
                 X1 = X1,
@@ -38,7 +38,7 @@ namespace BCad.Igs.Parameter
                 case 1: return IegsBounding.BoundOnStart;
                 case 2: return IegsBounding.Unbound;
                 default:
-                    throw new IgsException("Invalid line bounding value");
+                    throw new IegsException("Invalid line bounding value");
             }
         }
     }

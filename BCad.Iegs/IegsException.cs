@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BCad.Igs
+namespace BCad.Iegs
 {
     public class IegsException : Exception
     {

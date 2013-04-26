@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BCad.Igs.Entities
+namespace BCad.Iegs.Entities
 {
-    public enum IgsEntityType
+    public enum IegsEntityType
     {
         Line = 110,
         TransformationMatrix = 124

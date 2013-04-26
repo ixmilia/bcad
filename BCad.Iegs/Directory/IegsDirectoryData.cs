@@ -1,10 +1,10 @@
-﻿using BCad.Igs.Entities;
+﻿using BCad.Iegs.Entities;
 
-namespace BCad.Igs.Directory
+namespace BCad.Iegs.Directory
 {
     internal class IegsDirectoryData
     {
-        public IgsEntityType EntityType { get; set; }
+        public IegsEntityType EntityType { get; set; }
         public int ParameterPointer { get; set; }
         public int Structure { get; set; }
         public int LineFontPattern { get; set; }
@@ -15,7 +15,7 @@ namespace BCad.Igs.Directory
         public int StatusNumber { get; set; }
 
         public int LineWeight { get; set; }
-        public IgsColorNumber Color { get; set; }
+        public IegsColorNumber Color { get; set; }
         public int LineCount { get; set; }
         public int FormNumber { get; set; }
         public string EntityLabel { get; set; }

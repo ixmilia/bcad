@@ -7,16 +7,16 @@ using BCad.Iegs;
 using BCad.Iegs.Entities;
 using Xunit;
 
-namespace BCad.Test.IgsTests
+namespace BCad.Test.IegsTests
 {
-    public class IgsEntityReaderTests
+    public class IegsEntityReaderTests
     {
 
         #region Private methods
 
         private static IegsEntity ParseSingleEntity(string content)
         {
-            var file = IgsReaderTests.CreateFile(content.Trim('\r', '\n'));
+            var file = IegsReaderTests.CreateFile(content.Trim('\r', '\n'));
             Assert.Equal(1, file.Entities.Count);
             return file.Entities[0];
         }
@@ -27,7 +27,7 @@ namespace BCad.Test.IgsTests
         public void UnsupportedEntityReadTest()
         {
             // entity id 888 is invalid
-            var file = IgsReaderTests.CreateFile(@"
+            var file = IegsReaderTests.CreateFile(@"
      888       1       0       0       0                               0D      1
      888       0       0       0       0                               0D      2
 888,11,22,33,44,55,66;                                                  P      1

@@ -7,8 +7,8 @@
     <ProjectGuid>{59B09CA5-1837-4C2B-858C-91E997939C79}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BCad.Igs</RootNamespace>
-    <AssemblyName>BCad.Igs</AssemblyName>
+    <RootNamespace>BCad.Iegs</RootNamespace>
+    <AssemblyName>BCad.Iegs</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,22 +39,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Directory\IgsDirectoryData.cs" />
-    <Compile Include="Entities\IgsBounding.cs" />
-    <Compile Include="Entities\IgsEntity.cs" />
-    <Compile Include="Entities\IgsEntityType.cs" />
-    <Compile Include="Entities\IgsLine.cs" />
+    <Compile Include="Directory\IegsDirectoryData.cs" />
+    <Compile Include="Entities\IegsBounding.cs" />
+    <Compile Include="Entities\IegsEntity.cs" />
+    <Compile Include="Entities\IegsEntityType.cs" />
+    <Compile Include="Entities\IegsLine.cs" />
     <Compile Include="IegsVersion.cs" />
-    <Compile Include="IgsColorNumber.cs" />
-    <Compile Include="IgsDraftingStandard.cs" />
-    <Compile Include="IgsException.cs" />
-    <Compile Include="IgsFile.cs" />
-    <Compile Include="IgsFileReader.cs" />
-    <Compile Include="IgsSectionType.cs" />
-    <Compile Include="IgsUnits.cs" />
-    <Compile Include="Parameter\IgsLineParameterData.cs" />
-    <Compile Include="Parameter\IgsParameterData.cs" />
-    <Compile Include="Parameter\IgsTransformationMatrixParameterData.cs" />
+    <Compile Include="IegsColorNumber.cs" />
+    <Compile Include="IegsDraftingStandard.cs" />
+    <Compile Include="IegsException.cs" />
+    <Compile Include="IegsFile.cs" />
+    <Compile Include="IegsFileReader.cs" />
+    <Compile Include="IegsSectionType.cs" />
+    <Compile Include="IegsUnits.cs" />
+    <Compile Include="Parameter\IegsLineParameterData.cs" />
+    <Compile Include="Parameter\IegsParameterData.cs" />
+    <Compile Include="Parameter\IegsTransformationMatrixParameterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
