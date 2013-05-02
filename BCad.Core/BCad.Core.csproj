@@ -107,7 +107,6 @@
     <Compile Include="FileHandlers\IFilePlotterMetadata.cs" />
     <Compile Include="FileHandlers\IFileReaderMetadata.cs" />
     <Compile Include="FileHandlers\IFileWriterMetadata.cs" />
-    <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
@@ -129,6 +128,7 @@
     <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
+    <Compile Include="Services\FileSpecification.cs" />
     <Compile Include="Services\IExportService.cs" />
     <Compile Include="Services\IFileSystemService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />

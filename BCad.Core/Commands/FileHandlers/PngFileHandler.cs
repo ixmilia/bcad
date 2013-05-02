@@ -25,18 +25,18 @@ namespace BCad.Commands.FileHandlers
         private Dictionary<System.Drawing.Color, Pen> penCache = new Dictionary<System.Drawing.Color, Pen>();
         private System.Drawing.Color autoColor = System.Drawing.Color.Black;
 
-        public void WriteFile(IWorkspace workspace, Stream stream)
+        public void WriteFile(string fileName, Stream stream, Drawing drawing, ViewPort activeViewPort)
         {
-            var projected = ExportService.ProjectTo2D(workspace.Drawing, workspace.ActiveViewPort);
+            var projected = ExportService.ProjectTo2D(drawing, activeViewPort);
 
             // set autocolor
-            var bg = workspace.SettingsManager.BackgroundColor;
+            var bg = System.Windows.Media.Colors.Black; // TODO: choose color
             var backgroundColor = (bg.R << 16) | (bg.G << 8) | bg.B;
             var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
             var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
             autoColor = System.Drawing.Color.FromArgb((0xFF << 24) | color);
 
-            var height = (int)workspace.ActiveViewPort.ViewHeight;
+            var height = (int)activeViewPort.ViewHeight;
             var image = new Bitmap(height * 2, height);
             using (var graphics = Graphics.FromImage(image))
             {

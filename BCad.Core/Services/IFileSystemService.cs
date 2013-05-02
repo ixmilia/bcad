@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 
 namespace BCad.Services
 {
     public interface IFileSystemService
     {
-        void WriteDrawing(Drawing drawing, Stream output);
-        Drawing ReadDrawing(Stream input);
+        string GetFileNameFromUserForSave();
+        string GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications);
+        string GetFileNameFromUserForOpen();
+        bool TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort);
+        bool TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort);
     }
 }

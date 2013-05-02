@@ -4,13 +4,11 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using BCad.FileHandlers;
-using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BCad.UI.Controls
 {
@@ -23,6 +21,7 @@ namespace BCad.UI.Controls
         private IWorkspace workspace = null;
         private IInputService inputService = null;
         private IExportService exportService = null;
+        private IFileSystemService fileSystemService = null;
         private IEnumerable<Lazy<IFilePlotter, IFilePlotterMetadata>> filePlotters = null;
 
         private PlotDialogViewModel viewModel = null;
@@ -36,12 +35,13 @@ namespace BCad.UI.Controls
         }
 
         [ImportingConstructor]
-        public PlotDialog(IWorkspace workspace, IInputService inputService, IExportService exportService, [ImportMany] IEnumerable<Lazy<IFilePlotter, IFilePlotterMetadata>> filePlotters)
+        public PlotDialog(IWorkspace workspace, IInputService inputService, IExportService exportService, IFileSystemService fileSystemService, [ImportMany] IEnumerable<Lazy<IFilePlotter, IFilePlotterMetadata>> filePlotters)
             : this()
         {
             this.workspace = workspace;
             this.inputService = inputService;
             this.exportService = exportService;
+            this.fileSystemService = fileSystemService;
             this.filePlotters = filePlotters;
         }
 
@@ -90,7 +90,7 @@ namespace BCad.UI.Controls
 
         private void BrowseClick(object sender, RoutedEventArgs e)
         {
-            var filename = UIHelper.GetFilenameFromUserForSave(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
+            var filename = fileSystemService.GetFileNameFromUserForWrite(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
             if (filename != null)
             {
                 viewModel.FileName = filename;
