@@ -20,9 +20,9 @@ namespace BCad.Services
             // find all intersection points
             var intersectionPoints = boundaryPrimitives
                 .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel)))
-                .Where(p => p != null)
+                .WhereNotNull()
                 .SelectMany(b => b)
-                .Where(p => p != null);
+                .WhereNotNull();
 
             if (intersectionPoints.Any())
             {
@@ -38,7 +38,40 @@ namespace BCad.Services
                         TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
-                        Debug.Fail("only lines are supported");
+                        Debug.Fail("unsupported trim entity: " + entityToTrim.Entity.Kind);
+                        removed = new List<Entity>();
+                        added = new List<Entity>();
+                        break;
+                }
+            }
+            else
+            {
+                removed = new List<Entity>();
+                added = new List<Entity>();
+            }
+        }
+
+        public void Extend(SelectedEntity entityToExtend, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var selectionPrimitives = entityToExtend.Entity.GetPrimitives();
+
+            // find all intersection points on boundary primitives but not on the entity to extend
+            var intersectionPoints = boundaryPrimitives
+                .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel, false)))
+                .WhereNotNull()
+                .SelectMany(b => b)
+                .WhereNotNull()
+                .Where(p => boundaryPrimitives.Any(b => b.ContainsPoint(p)) && !selectionPrimitives.Any(b => b.ContainsPoint(p)));
+
+            if (intersectionPoints.Any())
+            {
+                switch (entityToExtend.Entity.Kind)
+                {
+                    case EntityKind.Line:
+                        ExtendLine((Line)entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
+                        break;
+                    default:
+                        Debug.Fail("unsupported extend entity: " + entityToExtend.Entity.Kind);
                         removed = new List<Entity>();
                         added = new List<Entity>();
                         break;
@@ -443,6 +476,34 @@ namespace BCad.Services
 
             added = addedList;
             removed = removedList;
+        }
+
+        private static void ExtendLine(Line lineToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var removedList = new List<Entity>();
+            var addedList = new List<Entity>();
+
+            // find closest intersection point to the selection
+            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
+            if (closestRealPoint != null)
+            {
+                removedList.Add(lineToExtend);
+                var p1Dist = (lineToExtend.P1 - selectionPoint).LengthSquared;
+                var p2Dist = (lineToExtend.P2 - selectionPoint).LengthSquared;
+                if (p1Dist < p2Dist)
+                {
+                    // p1 gets replaced
+                    addedList.Add(lineToExtend.Update(p1: closestRealPoint));
+                }
+                else
+                {
+                    // p2 gets replaced
+                    addedList.Add(lineToExtend.Update(p2: closestRealPoint));
+                }
+            }
+
+            removed = removedList;
+            added = addedList;
         }
     }
 }

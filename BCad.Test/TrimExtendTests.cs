@@ -50,6 +50,44 @@ namespace BCad.Test
             Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
+        private void DoExtend(IEnumerable<Entity> existingEntities,
+            Entity entityToExtend,
+            Point selectionPoint,
+            bool expectExtend,
+            IEnumerable<Entity> expectedAdded)
+        {
+            expectedAdded = expectedAdded ?? new Entity[0];
+
+            // prepare the drawing
+            foreach (var ent in existingEntities)
+            {
+                Workspace.AddToCurrentLayer(ent);
+            }
+            var boundary = Workspace.Drawing.GetEntities().SelectMany(e => e.GetPrimitives());
+            Workspace.AddToCurrentLayer(entityToExtend);
+
+            // extend
+            IEnumerable<Entity> removed;
+            IEnumerable<Entity> added;
+            EditService.Extend(
+                new SelectedEntity(entityToExtend, selectionPoint),
+                boundary,
+                out removed,
+                out added);
+
+            // verify deleted
+            Assert.Equal(expectExtend, removed.Any());
+            if (expectExtend)
+            {
+                Assert.Equal(1, removed.Count());
+                Assert.True(removed.Single().EquivalentTo(entityToExtend));
+            }
+
+            // verify added
+            Assert.Equal(expectedAdded.Count(), added.Count());
+            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+        }
+
         #endregion
 
         [Fact]
@@ -121,6 +159,26 @@ namespace BCad.Test
                 new[]
                 {
                     new Arc(Point.Origin, 1.0, 0.0, 90.0, Vector.ZAxis, Color.Auto)
+                });
+        }
+
+        [Fact]
+        public void SimpleExtendTest()
+        {
+            //          |  =>           |
+            // ----o    |      ---------|
+            //          |               |
+            DoExtend(
+                new[]
+                {
+                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), Color.Auto)
+                },
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Point(1.0, 0.0, 0.0),
+                true,
+                new[]
+                {
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0), Color.Auto)
                 });
         }
     }

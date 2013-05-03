@@ -65,6 +65,7 @@
     <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
+    <Compile Include="Commands\ExtendCommand.cs" />
     <Compile Include="Commands\FileHandlers\StlFileReader.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Entities\ProjectedText.cs" />
     <Compile Include="Entities\Text.cs" />
     <Compile Include="EventArguments\WorkspaceChangeEventArgs.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\PlaneExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />

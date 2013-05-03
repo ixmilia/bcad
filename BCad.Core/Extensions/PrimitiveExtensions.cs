@@ -729,5 +729,48 @@ namespace BCad.Extensions
                     throw new ArgumentException("primitive.Kind");
             }
         }
+
+        public static bool ContainsPoint(this IPrimitive primitive, Point point)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Line:
+                    return ContainsPoint((PrimitiveLine)primitive, point);
+                case PrimitiveKind.Ellipse:
+                    return ContainsPoint((PrimitiveEllipse)primitive, point);
+                case PrimitiveKind.Text:
+                    return ContainsPoint((PrimitiveText)primitive, point);
+                default:
+                    Debug.Fail("unexpected primitive: " + primitive.Kind);
+                    return false;
+            }
+        }
+
+        private static bool ContainsPoint(this PrimitiveLine line, Point point)
+        {
+            if (point == line.P1)
+                return true;
+            var lineVector = line.P2 - line.P1;
+            var pointVector = point - line.P1;
+            return (lineVector.Normalize() == pointVector.Normalize()) // on the same line
+                && pointVector.LengthSquared <= lineVector.LengthSquared;
+        }
+
+        private static bool ContainsPoint(this PrimitiveEllipse el, Point point)
+        {
+            var unitMatrix = el.FromUnitCircleProjection();
+            unitMatrix.Invert();
+            var unitPoint = point.Transform(unitMatrix);
+            return unitPoint.Z == 0.0 // on the XY plane
+                && MathHelper.CloseTo((unitPoint - Point.Origin).LengthSquared - 1.0, 0.0) // within the unit circle
+                && el.IsAngleContained(Math.Atan2(unitPoint.Y, unitPoint.X) * MathHelper.RadiansToDegrees); // within angle bounds
+        }
+
+        private static bool ContainsPoint(this PrimitiveText text, Point point)
+        {
+            // TODO: always return false or something more complicated?
+            Debug.Fail("NYI");
+            return false;
+        }
     }
 }
