@@ -57,6 +57,7 @@
     <Compile Include="Color.cs" />
     <Compile Include="ColorExtensions.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
+    <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
     <Compile Include="Commands\CopyCommand.cs" />
     <Compile Include="Commands\DeleteCommand.cs" />
     <Compile Include="Commands\DistanceCommand.cs" />
