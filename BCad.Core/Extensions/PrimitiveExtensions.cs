@@ -753,7 +753,7 @@ namespace BCad.Extensions
             var lineVector = line.P2 - line.P1;
             var pointVector = point - line.P1;
             return (lineVector.Normalize().CloseTo(pointVector.Normalize())) // on the same line
-                && MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared);
+                && MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared); // and between the points
         }
 
         private static bool ContainsPoint(this PrimitiveEllipse el, Point point)
@@ -761,7 +761,7 @@ namespace BCad.Extensions
             var unitMatrix = el.FromUnitCircleProjection();
             unitMatrix.Invert();
             var unitPoint = point.Transform(unitMatrix);
-            return unitPoint.Z == 0.0 // on the XY plane
+            return MathHelper.CloseTo(0.0, unitPoint.Z) // on the XY plane
                 && MathHelper.CloseTo((unitPoint - Point.Origin).LengthSquared - 1.0, 0.0) // within the unit circle
                 && el.IsAngleContained(Math.Atan2(unitPoint.Y, unitPoint.X) * MathHelper.RadiansToDegrees); // within angle bounds
         }
