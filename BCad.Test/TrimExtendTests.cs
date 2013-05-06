@@ -181,5 +181,22 @@ namespace BCad.Test
                     new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0), Color.Auto)
                 });
         }
+
+        [Fact]
+        public void NoExtendFromFurtherPointTest()
+        {
+            //          |  =>           |
+            // -o---    |      ---------|
+            //          |               |
+            DoExtend(
+                new[]
+                {
+                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), Color.Auto)
+                },
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Point(0.1, 0.0, 0.0),
+                false,
+                null);
+        }
     }
 }

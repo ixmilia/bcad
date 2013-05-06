@@ -57,7 +57,7 @@ namespace BCad.Services
 
             // find all intersection points on boundary primitives but not on the entity to extend
             var intersectionPoints = boundaryPrimitives
-                .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel, false)))
+                .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel, withinBounds: false)))
                 .WhereNotNull()
                 .SelectMany(b => b)
                 .WhereNotNull()
@@ -487,18 +487,28 @@ namespace BCad.Services
             var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
             if (closestRealPoint != null)
             {
-                removedList.Add(lineToExtend);
-                var p1Dist = (lineToExtend.P1 - selectionPoint).LengthSquared;
-                var p2Dist = (lineToExtend.P2 - selectionPoint).LengthSquared;
-                if (p1Dist < p2Dist)
+                // find closest end point to the selection
+                var closestEndPoint = (lineToExtend.P1 - selectionPoint).LengthSquared < (lineToExtend.P2 - selectionPoint).LengthSquared
+                    ? lineToExtend.P1
+                    : lineToExtend.P2;
+
+                // if closest intersection point and closest end point are on the same side of the midpoint, do extend
+                var midPoint = lineToExtend.MidPoint();
+                var selectionVector = (closestRealPoint - midPoint).Normalize();
+                var endVector = (closestEndPoint - midPoint).Normalize();
+                if (selectionVector.CloseTo(endVector))
                 {
-                    // p1 gets replaced
-                    addedList.Add(lineToExtend.Update(p1: closestRealPoint));
-                }
-                else
-                {
-                    // p2 gets replaced
-                    addedList.Add(lineToExtend.Update(p2: closestRealPoint));
+                    removedList.Add(lineToExtend);
+                    if (closestEndPoint.CloseTo(lineToExtend.P1))
+                    {
+                        // replace p1
+                        addedList.Add(lineToExtend.Update(p1: closestRealPoint));
+                    }
+                    else
+                    {
+                        // replace p2
+                        addedList.Add(lineToExtend.Update(p2: closestRealPoint));
+                    }
                 }
             }
 
