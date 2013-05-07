@@ -62,5 +62,7 @@ namespace BCad.Services
         event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;
 
         void Reset();
+
+        bool TryParsePoint(string text, Point currentCursor, Point lastPoint, out Point point);
     }
 }

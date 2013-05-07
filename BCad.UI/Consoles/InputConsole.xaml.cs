@@ -122,8 +122,8 @@ namespace BCad.UI.Consoles
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
-                var point = ParsePoint(text);
-                if (point != null)
+                Point point;
+                if (InputService.TryParsePoint(text, Workspace.ViewControl.GetCursorPoint(), InputService.LastPoint, out point))
                     InputService.PushPoint(point);
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
@@ -136,75 +136,6 @@ namespace BCad.UI.Consoles
             }
 
             inputLine.Text = string.Empty;
-        }
-
-        private static Regex numberPattern = new Regex("^" + Point.NumberPattern + "$", RegexOptions.Compiled);
-
-        private static Regex relativePoint = new Regex(string.Format("^@{0},{0},{0}$", Point.NumberPattern), RegexOptions.Compiled);
-
-        private static Regex relativeAngle = new Regex(string.Format("^.*<{0}$", Point.NumberPattern), RegexOptions.Compiled);
-
-        private Point ParsePoint(string text)
-        {
-            // if only 2 coordinates given
-            if (text.Count(c => c == ',') == 1)
-                text += ",0";
-
-            Point p;
-            double value = 0.0;
-            if (DrawingSettings.TryParseUnits(text, out value))
-            {
-                // length on current vector
-                var length = value;
-                var cursor = Workspace.ViewControl.GetCursorPoint();
-                var vec = cursor - InputService.LastPoint;
-                if (vec.LengthSquared == 0.0)
-                {
-                    // if no change report the last point
-                    p = InputService.LastPoint;
-                }
-                else
-                {
-                    vec = vec.Normalize() * length;
-                    p = InputService.LastPoint + vec;
-                }
-            }
-            else if (relativePoint.IsMatch(text))
-            {
-                // offset from last point
-                var offset = Point.Parse(text.Substring(1));
-                p = InputService.LastPoint + offset;
-            }
-            else if (relativeAngle.IsMatch(text))
-            {
-                // distance and angle
-                var parts = text.Split("<".ToCharArray(), 2);
-                if (DrawingSettings.TryParseUnits(parts[0], out value))
-                {
-                    var dist = value;
-                    var angle = double.Parse(parts[1]);
-                    var radians = angle * MathHelper.DegreesToRadians;
-                    var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
-                    p = InputService.LastPoint + offset;
-                }
-                else
-                {
-                    // failed to parse distance
-                    p = null;
-                }
-            }
-            else if (Point.PointPattern.IsMatch(text))
-            {
-                // absolute point
-                p = Point.Parse(text);
-            }
-            else
-            {
-                // invalid point
-                p = null;
-            }
-
-            return p;
         }
 
         private void UserControl_GotFocus(object sender, RoutedEventArgs e)
