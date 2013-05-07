@@ -70,6 +70,7 @@ namespace BCad.Test
             TestParse("15<180", new Point(-14.0, 1.0, 1.0), last: new Point(1.0, 1.0, 1.0));
 
             // absolute point
+            TestParse("1,2", new Point(1.0, 2.0, 0.0));
             TestParse("1,2,3", new Point(1.0, 2.0, 3.0));
         }
     }
