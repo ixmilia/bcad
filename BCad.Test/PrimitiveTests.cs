@@ -436,5 +436,13 @@ namespace BCad.Test
                     new Point(0.0, 0.0, 0.0)
                 });
         }
+
+        [Fact]
+        public void PointInTextTest()
+        {
+            TestPointContainment(new PrimitiveText("", new Point(0.0, 0.0, 0.0), 12.0, Vector.ZAxis, 0.0, Color.Auto),
+                contained: null,
+                excluded: null);
+        }
     }
 }

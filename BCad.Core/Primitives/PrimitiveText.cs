@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace BCad.Primitives
 {
@@ -13,6 +14,7 @@ namespace BCad.Primitives
         public Point Location { get; private set; }
         public Vector Normal { get; private set; }
         public double Height { get; private set; }
+        public double Width { get; private set; }
         public double Rotation { get; private set; }
         public string Value { get; private set; }
 
@@ -24,6 +26,9 @@ namespace BCad.Primitives
             this.Normal = normal;
             this.Rotation = rotation;
             this.Color = color;
+
+            var size = TextRenderer.MeasureText(value, System.Drawing.SystemFonts.DefaultFont);
+            this.Width= (this.Height * (double)size.Width) / (double)size.Height;
         }
     }
 }

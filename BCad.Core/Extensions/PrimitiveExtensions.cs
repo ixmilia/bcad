@@ -768,8 +768,19 @@ namespace BCad.Extensions
 
         private static bool ContainsPoint(this PrimitiveText text, Point point)
         {
-            // TODO: always return false or something more complicated?
-            Debug.Fail("NYI");
+            // check for plane containment
+            var plane = new Plane(text.Location, text.Normal);
+            if (plane.Contains(point))
+            {
+                // check for horizontal/vertical containment
+                var projected = plane.ToXYPlane(point);
+                if (MathHelper.Between(0.0, text.Width, projected.X) &&
+                    MathHelper.Between(0.0, text.Height, projected.Y))
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
     }

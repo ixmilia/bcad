@@ -18,6 +18,7 @@ namespace BCad.Entities
         private readonly Point location;
         private readonly Vector normal;
         private readonly double height;
+        private readonly double width;
         private readonly double rotation;
         private readonly Color color;
         private readonly BoundingBox boundingBox;
@@ -29,6 +30,8 @@ namespace BCad.Entities
         public Vector Normal { get { return this.normal; } }
 
         public double Height { get { return this.height; } }
+
+        public double Width { get; { return this.width; } }
 
         public double Rotation { get { return this.rotation; } }
 
@@ -48,11 +51,12 @@ namespace BCad.Entities
             this.rotation = rotation;
             this.color = color;
 
-            primitives = new[] { new PrimitiveText(value, location, height, normal, rotation, color) };
+            var textPrimitive = new PrimitiveText(value, location, height, normal, rotation, color);
+
+            primitives = new[] { textPrimitive };
             snapPoints = new[] { new EndPoint(location) };
 
-            var size = TextRenderer.MeasureText(this.value, System.Drawing.SystemFonts.DefaultFont);
-            var width = (this.height * (double)size.Width) / (double)size.Height;
+            this.width = textPrimitive.Width;
             var rad = this.rotation * MathHelper.DegreesToRadians;
             var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * width;
             var up = normal.Cross(right).Normalize() * this.height;
