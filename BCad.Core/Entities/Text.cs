@@ -31,7 +31,7 @@ namespace BCad.Entities
 
         public double Height { get { return this.height; } }
 
-        public double Width { get; { return this.width; } }
+        public double Width { get { return this.width; } }
 
         public double Rotation { get { return this.rotation; } }
 

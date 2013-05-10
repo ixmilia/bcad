@@ -773,7 +773,12 @@ namespace BCad.Extensions
             if (plane.Contains(point))
             {
                 // check for horizontal/vertical containment
-                var projected = plane.ToXYPlane(point);
+                var right = Vector.RightVectorFromNormal(text.Normal);
+                var up = text.Normal.Cross(right).Normalize();
+                var projection = FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
+                projection.Invert();
+
+                var projected = point.Transform(projection);
                 if (MathHelper.Between(0.0, text.Width, projected.X) &&
                     MathHelper.Between(0.0, text.Height, projected.Y))
                 {

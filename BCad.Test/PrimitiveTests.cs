@@ -440,9 +440,27 @@ namespace BCad.Test
         [Fact]
         public void PointInTextTest()
         {
-            TestPointContainment(new PrimitiveText("", new Point(0.0, 0.0, 0.0), 12.0, Vector.ZAxis, 0.0, Color.Auto),
-                contained: null,
-                excluded: null);
+            // text width = 9.23076923076923
+            TestPointContainment(new PrimitiveText(" ", new Point(0.0, 0.0, 0.0), 12.0, Vector.ZAxis, 0.0, Color.Auto),
+                contained: new[]
+                {
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(9.0, 12.0, 0.0)
+                },
+                excluded: new[]
+                {
+                    new Point(0.0, 12.1, 0.0)
+                });
+            TestPointContainment(new PrimitiveText(" ", new Point(5.0, 5.0, 5.0), 12.0, Vector.ZAxis, 0.0, Color.Auto),
+                contained: new[]
+                {
+                    new Point(5.0, 5.0, 5.0),
+                    new Point(14.0, 17.0, 5.0)
+                },
+                excluded: new[]
+                {
+                    new Point(5.0, 17.1, 5.0)
+                });
         }
     }
 }
