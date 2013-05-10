@@ -144,9 +144,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bugs.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="BCad.ico" />
   </ItemGroup>
   <ItemGroup>
