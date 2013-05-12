@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
+using BCad.Helpers;
 using Xunit;
 
 namespace BCad.Test
@@ -197,6 +198,28 @@ namespace BCad.Test
                 new Point(0.1, 0.0, 0.0),
                 false,
                 null);
+        }
+
+        [Fact]
+        public void SimpleArcExtendTest()
+        {
+            //    o   /        --\  /
+            //  /   /         /   /
+            // |  /      =>  |  /
+            //  \   /         \   /
+            //   ---           ---
+            DoExtend(
+                new[]
+                {
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                },
+                new Arc(new Point(0.0, 0.0, 0.0), 1.0, 90.0, 360.0, Vector.ZAxis, Color.Auto),
+                new Point(0.0, 1.0, 0.0),
+                true,
+                new[]
+                {
+                    new Arc(new Point(0.0, 0.0, 0.0), 1.0, 45.0, 360.0, Vector.ZAxis, Color.Auto)
+                });
         }
     }
 }

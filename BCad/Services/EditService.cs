@@ -67,6 +67,11 @@ namespace BCad.Services
             {
                 switch (entityToExtend.Entity.Kind)
                 {
+                    case EntityKind.Arc:
+                    case EntityKind.Circle:
+                    case EntityKind.Ellipse:
+                        ExtendEllipse(entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
+                        break;
                     case EntityKind.Line:
                         ExtendLine((Line)entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
@@ -510,6 +515,79 @@ namespace BCad.Services
                         addedList.Add(lineToExtend.Update(p2: closestRealPoint));
                     }
                 }
+            }
+
+            removed = removedList;
+            added = addedList;
+        }
+
+        private static void ExtendEllipse(Entity ellipseToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var removedList = new List<Entity>();
+            var addedList = new List<Entity>();
+
+            // get primitive ellipse object
+            var primitives = ellipseToExtend.GetPrimitives();
+            Debug.Assert(primitives.Count() == 1);
+            var primitive = primitives.Single();
+            Debug.Assert(primitive.Kind == PrimitiveKind.Ellipse);
+            var ellipse = (PrimitiveEllipse)primitive;
+
+            // prepare transformation matrix
+            var fromUnitMatrix = ellipse.FromUnitCircleProjection();
+            var toUnitMatrix = fromUnitMatrix;
+            toUnitMatrix.Invert();
+            var selectionUnit = selectionPoint.Transform(toUnitMatrix);
+
+            // find closest intersection point to the selection
+            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
+            if (closestRealPoint != null)
+            {
+                var closestUnitPoint = closestRealPoint.Transform(toUnitMatrix);
+                var newAngle = Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees;
+
+                // find the closest end point to the selection
+                var startPoint = ellipse.GetStartPoint().Transform(toUnitMatrix);
+                var endPoint = ellipse.GetEndPoint().Transform(toUnitMatrix);
+                var startAngle = ellipse.StartAngle;
+                var endAngle = ellipse.EndAngle;
+                if ((startPoint - selectionUnit).LengthSquared < (endPoint - selectionUnit).LengthSquared)
+                {
+                    // start point should get replaced
+                    startAngle = newAngle;
+                }
+                else
+                {
+                    // end point should get replaced
+                    endAngle = newAngle;
+                }
+
+                // remove the old ellipse
+                removedList.Add(ellipseToExtend);
+
+                // create the new ellipse
+                Entity entityToAdd;
+                if (MathHelper.CloseTo(1.0, ellipse.MinorAxisRatio))
+                {
+                    // circle or arc
+                    if (MathHelper.CloseTo(0.0, startAngle) && MathHelper.CloseTo(360.0, endAngle))
+                    {
+                        // circle
+                        entityToAdd = new Circle(ellipse.Center, ellipse.MajorAxis.Length, ellipse.Normal, ellipse.Color);
+                    }
+                    else
+                    {
+                        // arc
+                        entityToAdd = new Arc(ellipse.Center, ellipse.MajorAxis.Length, startAngle, endAngle, ellipse.Normal, ellipse.Color);
+                    }
+                }
+                else
+                {
+                    // ellipse
+                    entityToAdd = new Ellipse(ellipse.Center, ellipse.MajorAxis, ellipse.MinorAxisRatio, startAngle, endAngle, ellipse.Normal, ellipse.Color);
+                }
+
+                addedList.Add(entityToAdd);
             }
 
             removed = removedList;

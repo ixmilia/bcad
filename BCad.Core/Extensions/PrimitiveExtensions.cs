@@ -66,11 +66,20 @@ namespace BCad.Extensions
 
         public static bool IsAngleContained(this PrimitiveEllipse ellipse, double angle)
         {
+            angle = angle.CorrectAngleDegrees();
             var startAngle = ellipse.StartAngle;
             var endAngle = ellipse.EndAngle;
-            return MathHelper.Between(startAngle, endAngle, angle)
-                || MathHelper.Between(startAngle - 360.0, endAngle, angle)
-                || MathHelper.Between(startAngle, endAngle + 360.0, angle);
+            if (endAngle < startAngle)
+            {
+                // we pass zero.  angle should either be [startAngle, 360.0] or [0.0, endAngle]
+                return MathHelper.Between(startAngle, 360.0, angle)
+                    || MathHelper.Between(0.0, endAngle, angle);
+            }
+            else
+            {
+                // we're within normal bounds
+                return MathHelper.Between(startAngle, endAngle, angle);
+            }
         }
 
         public static PrimitiveLine Transform(this PrimitiveLine line, Matrix3D matrix)
@@ -762,7 +771,7 @@ namespace BCad.Extensions
             unitMatrix.Invert();
             var unitPoint = point.Transform(unitMatrix);
             return MathHelper.CloseTo(0.0, unitPoint.Z) // on the XY plane
-                && MathHelper.CloseTo((unitPoint - Point.Origin).LengthSquared - 1.0, 0.0) // within the unit circle
+                && MathHelper.CloseTo(1.0, ((Vector)unitPoint).LengthSquared) // on the unit circle
                 && el.IsAngleContained(Math.Atan2(unitPoint.Y, unitPoint.X) * MathHelper.RadiansToDegrees); // within angle bounds
         }
 
@@ -787,6 +796,25 @@ namespace BCad.Extensions
             }
 
             return false;
+        }
+
+        public static Point GetPoint(this PrimitiveEllipse ellipse, double angle)
+        {
+            var projection = ellipse.FromUnitCircleProjection();
+            projection.Invert();
+            var pointUnit = new Point(Math.Cos(angle * MathHelper.DegreesToRadians), Math.Sin(angle * MathHelper.DegreesToRadians), 0.0);
+            var pointTransformed = pointUnit.Transform(projection);
+            return pointTransformed;
+        }
+
+        public static Point GetStartPoint(this PrimitiveEllipse ellipse)
+        {
+            return ellipse.GetPoint(ellipse.StartAngle);
+        }
+
+        public static Point GetEndPoint(this PrimitiveEllipse ellipse)
+        {
+            return ellipse.GetPoint(ellipse.EndAngle);
         }
     }
 }
