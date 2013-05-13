@@ -177,6 +177,49 @@
             </GeometryDrawing>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <DrawingImage x:Key="DrawEllipseLarge">
+        <DrawingImage.Drawing>
+            <GeometryDrawing>
+                <GeometryDrawing.Brush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="LightGray" Offset="0" />
+                        <GradientStop Color="Transparent" Offset="1" />
+                    </LinearGradientBrush>
+                </GeometryDrawing.Brush>
+                <GeometryDrawing.Pen>
+                    <Pen Brush="Black" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <GeometryGroup>
+                        <RectangleGeometry Rect="-1.5,-1.5,3,3" />
+                        <EllipseGeometry Center="0,0" RadiusX="16" RadiusY="8" />
+                        <LineGeometry StartPoint="1.5,-1.5" EndPoint="11.31,-5.31" />
+                    </GeometryGroup>
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+    <DrawingImage x:Key="DrawEllipseSmall">
+        <DrawingImage.Drawing>
+            <GeometryDrawing>
+                <GeometryDrawing.Brush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="LightGray" Offset="0" />
+                        <GradientStop Color="Transparent" Offset="1" />
+                    </LinearGradientBrush>
+                </GeometryDrawing.Brush>
+                <GeometryDrawing.Pen>
+                    <Pen Brush="Black" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <GeometryGroup>
+                        <EllipseGeometry Center="0,0" RadiusX="8" RadiusY="4" />
+                        <LineGeometry StartPoint="0,0" EndPoint="5.66,-2.66" />
+                    </GeometryGroup>
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
     <DrawingImage x:Key="DrawTextLarge">
         <DrawingImage.Drawing>
             <GeometryDrawing>

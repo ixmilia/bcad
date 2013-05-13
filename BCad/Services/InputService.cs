@@ -139,8 +139,9 @@ namespace BCad.Services
             return result;
         }
 
-        public async Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null)
+        public async Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Point lastPoint = null)
         {
+            this.LastPoint = lastPoint ?? this.LastPoint;
             OnValueRequested(new ValueRequestedEventArgs(InputType.Point | InputType.Directive));
             await WaitFor(InputType.Point | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<Point> result;
