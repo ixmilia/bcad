@@ -544,7 +544,7 @@ namespace BCad.Services
             if (closestRealPoint != null)
             {
                 var closestUnitPoint = closestRealPoint.Transform(toUnitMatrix);
-                var newAngle = Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees;
+                var newAngle = (Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
 
                 // find the closest end point to the selection
                 var startPoint = ellipse.GetStartPoint().Transform(toUnitMatrix);

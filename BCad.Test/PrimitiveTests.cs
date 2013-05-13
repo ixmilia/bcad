@@ -478,5 +478,19 @@ namespace BCad.Test
             Assert.True(el.IsAngleContained(360.0));
             Assert.False(el.IsAngleContained(45.0));
         }
+
+        [Fact]
+        public void EllipseGetPointTest()
+        {
+            var el = new PrimitiveEllipse(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto);
+            Assert.True(el.GetStartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
+            Assert.True(el.GetEndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
+            Assert.True(el.GetPoint(90.0).CloseTo(new Point(0.0, 1.0, 0.0)));
+
+            el = new PrimitiveEllipse(new Point(1.0, 1.0, 0.0), 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto);
+            Assert.True(el.GetStartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
+            Assert.True(el.GetEndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
+            Assert.True(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));
+        }
     }
 }

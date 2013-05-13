@@ -221,5 +221,22 @@ namespace BCad.Test
                     new Arc(new Point(0.0, 0.0, 0.0), 1.0, 45.0, 360.0, Vector.ZAxis, Color.Auto)
                 });
         }
+
+        [Fact]
+        public void SimpleExtendArcNotAtOriginTest()
+        {
+            DoExtend(
+                new[]
+                {
+                    new Line(new Point(1.0, 1.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto)
+                },
+                new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 180.0, Vector.ZAxis, Color.Auto),
+                new Point(0.0, 1.0, 0.0),
+                true,
+                new[]
+                {
+                    new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 270.0, Vector.ZAxis, Color.Auto)
+                });
+        }
     }
 }

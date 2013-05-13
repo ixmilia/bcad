@@ -78,7 +78,8 @@ namespace BCad.Extensions
             else
             {
                 // we're within normal bounds
-                return MathHelper.Between(startAngle, endAngle, angle);
+                return MathHelper.Between(startAngle, endAngle, angle)
+                    || MathHelper.Between(startAngle, endAngle, angle + 360.0);
             }
         }
 
@@ -801,7 +802,6 @@ namespace BCad.Extensions
         public static Point GetPoint(this PrimitiveEllipse ellipse, double angle)
         {
             var projection = ellipse.FromUnitCircleProjection();
-            projection.Invert();
             var pointUnit = new Point(Math.Cos(angle * MathHelper.DegreesToRadians), Math.Sin(angle * MathHelper.DegreesToRadians), 0.0);
             var pointTransformed = pointUnit.Transform(projection);
             return pointTransformed;
