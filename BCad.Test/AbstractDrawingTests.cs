@@ -20,7 +20,6 @@ namespace BCad.Test
         protected TestHost Host { get; set; }
         protected IWorkspace Workspace { get { return Host.Workspace; } }
         protected IInputService InputService { get { return Host.InputService; } }
-        protected IEditService EditService { get { return Host.EditService; } }
 
         protected void AssertClose(double expected, double actual)
         {

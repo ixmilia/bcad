@@ -4,6 +4,7 @@ using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
+using BCad.Utilities;
 using Xunit;
 
 namespace BCad.Test
@@ -32,7 +33,7 @@ namespace BCad.Test
             // trim
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
-            EditService.Trim(
+            EditUtilities.Trim(
                 new SelectedEntity(entityToTrim, selectionPoint),
                 boundary,
                 out removed,
@@ -70,7 +71,7 @@ namespace BCad.Test
             // extend
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
-            EditService.Extend(
+            EditUtilities.Extend(
                 new SelectedEntity(entityToExtend, selectionPoint),
                 boundary,
                 out removed,

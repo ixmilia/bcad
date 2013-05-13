@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BCad.Entities;
+using BCad.Utilities;
 
 namespace BCad.Commands
 {
@@ -18,7 +19,7 @@ namespace BCad.Commands
 
         protected override void DoTrimExtend(SelectedEntity selectedEntity, IEnumerable<Primitives.IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
-            EditService.Extend(selectedEntity, boundaryPrimitives, out removed, out added);
+            EditUtilities.Extend(selectedEntity, boundaryPrimitives, out removed, out added);
         }
     }
 }

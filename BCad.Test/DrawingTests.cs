@@ -1,6 +1,7 @@
 ﻿using System;
 using BCad.Entities;
 using BCad.Extensions;
+using BCad.Utilities;
 using Xunit;
 
 namespace BCad.Test
@@ -48,7 +49,7 @@ namespace BCad.Test
         [Fact]
         public void CircleTtrTest()
         {
-            var ellipse = EditService.Ttr(
+            var ellipse = EditUtilities.Ttr(
                 Workspace.DrawingPlane,
                 new SelectedEntity(new Line(Point.Origin, new Point(3, 0, 0), Color.Auto), new Point(1, 0, 0)),
                 new SelectedEntity(new Line(Point.Origin, new Point(0, 3, 0), Color.Auto), new Point(0, 1, 0)),
@@ -63,7 +64,7 @@ namespace BCad.Test
         public void CircleTtrWithCirclesTest()
         {
             // from test.dxf
-            var el = EditService.Ttr(
+            var el = EditUtilities.Ttr(
                 Workspace.DrawingPlane,
                 new SelectedEntity(new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, Color.Auto), new Point(140, 30, 0)),
                 new SelectedEntity(new Circle(new Point(100, 100, 0), 50, Vector.ZAxis, Color.Auto), new Point(140, 70, 0)),

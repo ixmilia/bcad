@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
-using System;
 
-namespace BCad.Services
+namespace BCad.Utilities
 {
-    [Export(typeof(IEditService))]
-    internal class EditService : IEditService
+    public static class EditUtilities
     {
-        public void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var selectionPrimitives = entityToTrim.Entity.GetPrimitives();
 
@@ -51,7 +49,7 @@ namespace BCad.Services
             }
         }
 
-        public void Extend(SelectedEntity entityToExtend, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        public static void Extend(SelectedEntity entityToExtend, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var selectionPrimitives = entityToExtend.Entity.GetPrimitives();
 
@@ -89,7 +87,7 @@ namespace BCad.Services
             }
         }
 
-        public bool CanOffsetEntity(Entity entityToOffset)
+        public static bool CanOffsetEntity(Entity entityToOffset)
         {
             switch (entityToOffset.Kind)
             {
@@ -106,7 +104,7 @@ namespace BCad.Services
             }
         }
 
-        public IPrimitive Offset(Plane drawingPlane, IPrimitive primitive, Point offsetDirection, double offsetDistance)
+        public static IPrimitive Offset(Plane drawingPlane, IPrimitive primitive, Point offsetDirection, double offsetDistance)
         {
             if (!drawingPlane.Contains(offsetDirection))
                 return null;
@@ -182,7 +180,7 @@ namespace BCad.Services
             return result;
         }
 
-        public Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
+        public static Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
         {
             switch (entityToOffset.Kind)
             {
@@ -204,7 +202,7 @@ namespace BCad.Services
             }
         }
 
-        public PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
+        public static PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
         {
             var first = firstEntity.Entity;
             var second = secondEntity.Entity;
@@ -233,10 +231,10 @@ namespace BCad.Services
                                   .Where(x => x != null);
 
             var center = candidatePoints.OrderBy(x =>
-                {
-                    return (x - firstEntity.SelectionPoint).LengthSquared
-                        * (x - secondEntity.SelectionPoint).LengthSquared;
-                })
+            {
+                return (x - firstEntity.SelectionPoint).LengthSquared
+                    * (x - secondEntity.SelectionPoint).LengthSquared;
+            })
                 .FirstOrDefault();
 
             if (center == null)
@@ -245,7 +243,7 @@ namespace BCad.Services
             return new PrimitiveEllipse(center, radius, drawingPlane.Normal, Color.Auto);
         }
 
-        public Entity Move(Entity entity, Vector offset)
+        public static Entity Move(Entity entity, Vector offset)
         {
             switch (entity.Kind)
             {
@@ -272,7 +270,7 @@ namespace BCad.Services
             }
         }
 
-        private IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
+        private static IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
         {
             switch (primitive.Kind)
             {

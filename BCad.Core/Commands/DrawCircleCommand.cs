@@ -4,6 +4,7 @@ using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
 using BCad.Services;
+using BCad.Utilities;
 
 namespace BCad.Commands
 {
@@ -12,9 +13,6 @@ namespace BCad.Commands
     {
         [Import]
         private IInputService InputService = null;
-
-        [Import]
-        private IEditService EditService = null;
 
         [Import]
         private IWorkspace Workspace = null;
@@ -100,7 +98,7 @@ namespace BCad.Commands
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
                         var radius = await InputService.GetDistance();
-                        var ellipse = EditService.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
+                        var ellipse = EditUtilities.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
                         if (ellipse != null)
                         {
                             circle = (Circle)ellipse.ToEntity();

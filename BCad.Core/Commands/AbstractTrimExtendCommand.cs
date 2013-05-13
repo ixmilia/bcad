@@ -14,9 +14,6 @@ namespace BCad.Commands
         protected IInputService InputService = null;
 
         [Import]
-        protected IEditService EditService = null;
-
-        [Import]
         protected IWorkspace Workspace = null;
 
         public async Task<bool> Execute(object arg)

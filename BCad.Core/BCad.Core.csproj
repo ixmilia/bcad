@@ -151,7 +151,6 @@
     <Compile Include="Primitives\PrimitiveText.cs" />
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
     <Compile Include="SelectedEntity.cs" />
-    <Compile Include="Services\IEditService.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />
@@ -160,6 +159,7 @@
     <Compile Include="UI\ExportControlAttribute.cs" />
     <Compile Include="UI\IControlMetadata.cs" />
     <Compile Include="UnitFormat.cs" />
+    <Compile Include="Utilities\EditUtilities.cs" />
     <Compile Include="ValueOrDirective`1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnapPoints\MidPoint.cs" />

@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using BCad.Entities;
 using BCad.Extensions;
-using BCad.Primitives;
 using BCad.Services;
+using BCad.Utilities;
 
 namespace BCad.Commands
 {
@@ -13,9 +11,6 @@ namespace BCad.Commands
     {
         [Import]
         private IInputService InputService = null;
-
-        [Import]
-        private IEditService EditService = null;
 
         [Import]
         private IWorkspace Workspace = null;
@@ -47,7 +42,7 @@ namespace BCad.Commands
             while (!selection.Cancel && selection.HasValue)
             {
                 var ent = selection.Value.Entity;
-                if (!EditService.CanOffsetEntity(ent))
+                if (!EditUtilities.CanOffsetEntity(ent))
                 {
                     InputService.WriteLine("Unable to offset {0}", ent.Kind);
                     selection = await InputService.GetEntity(new UserDirective("Select entity"));
@@ -77,7 +72,7 @@ namespace BCad.Commands
                 }
 
                 // do the actual offset
-                var updated = EditService.Offset(Workspace, ent, point.Value, dist);
+                var updated = EditUtilities.Offset(Workspace, ent, point.Value, dist);
 
                 if (updated != null)
                 {
