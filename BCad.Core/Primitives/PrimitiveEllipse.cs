@@ -1,4 +1,6 @@
-﻿using BCad.Extensions;
+﻿using System.Diagnostics;
+using BCad.Extensions;
+using BCad.Helpers;
 
 namespace BCad.Primitives
 {
@@ -18,6 +20,8 @@ namespace BCad.Primitives
         /// </summary>
         public PrimitiveEllipse(Point center, Vector majorAxis, Vector normal, double minorAxisRatio, double startAngle, double endAngle, Color color)
         {
+            Debug.Assert(MathHelper.Between(0.0, 360.0, startAngle));
+            Debug.Assert(MathHelper.Between(0.0, 360.0, endAngle));
             this.Center = center;
             this.MajorAxis = majorAxis;
             this.Normal = normal;
