@@ -78,6 +78,11 @@ namespace BCad.Dxf
                     buffer.Advance();
                     break;
                 }
+                else if (DxfCodePair.IsComment(pair))
+                {
+                    // swallow comments
+                    buffer.Advance();
+                }
             }
 
             Debug.Assert(!buffer.ItemsRemain);
