@@ -26,6 +26,12 @@ namespace BCad.Commands
             if (arg is string)
                 filename = (string)arg;
 
+            if (filename == null)
+                filename = FileSystemService.GetFileNameFromUserForOpen();
+
+            if (filename == null)
+                return false; // cancel
+
             Drawing drawing;
             ViewPort activeViewPort;
             FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);

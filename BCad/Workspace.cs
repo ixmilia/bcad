@@ -203,11 +203,24 @@ namespace BCad
                 return false;
             }
 
-            bool result = await Execute(commandPair, arg);
-            lastCommand = commandName;
-            lock (executeGate)
+            bool result;
+
+            try
             {
-                isExecuting = false;
+                result = await Execute(commandPair, arg);
+                lastCommand = commandName;
+            }
+            catch (Exception ex)
+            {
+                InputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
+                result = false;
+            }
+            finally
+            {
+                lock (executeGate)
+                {
+                    isExecuting = false;
+                }
             }
 
             return result;
