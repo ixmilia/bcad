@@ -20,15 +20,15 @@ namespace BCad.Commands.FileHandlers
     [ExportFileWriter(DxfFileReader.DisplayName, DxfFileReader.FileExtension)]
     internal class DxfFileWriter : IFileWriter
     {
-        public void WriteFile(IWorkspace workspace, Stream stream)
+        public void WriteFile(string fileName, Stream stream, Drawing drawing, ViewPort activeViewPort)
         {
             var file = new DxfFile();
 
             // save layers and entities
-            file.HeaderSection.CurrentLayer = workspace.Drawing.CurrentLayer.Name;
-            file.HeaderSection.UnitFormat = workspace.Drawing.Settings.UnitFormat.ToDxfUnitFormat();
-            file.HeaderSection.UnitPrecision = (short)workspace.Drawing.Settings.UnitPrecision;
-            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(x => x.Name))
+            file.HeaderSection.CurrentLayer = drawing.CurrentLayer.Name;
+            file.HeaderSection.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
+            file.HeaderSection.UnitPrecision = (short)drawing.Settings.UnitPrecision;
+            foreach (var layer in drawing.GetLayers().OrderBy(x => x.Name))
             {
                 file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
@@ -70,12 +70,11 @@ namespace BCad.Commands.FileHandlers
             }
 
             // save viewport
-            var vp = workspace.ActiveViewPort;
             file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort()
             {
-                LowerLeft = vp.BottomLeft.ToDxfPoint(),
-                ViewDirection = vp.Sight.ToDxfVector(),
-                ViewHeight = vp.ViewHeight
+                LowerLeft = activeViewPort.BottomLeft.ToDxfPoint(),
+                ViewDirection = activeViewPort.Sight.ToDxfVector(),
+                ViewHeight = activeViewPort.ViewHeight
             });
 
             file.Save(stream);

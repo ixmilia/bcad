@@ -72,6 +72,11 @@
                         LargeImageSource="{StaticResource DrawArcLarge}"
                         SmallImageSource="{StaticResource DrawArcSmall}"
                         CommandParameter="Draw.Arc" />
+        <r:RibbonButton Label="Ellipse"
+                        Command="commands:RibbonCommands.CADCommand"
+                        LargeImageSource="{StaticResource DrawEllipseLarge}"
+                        SmallImageSource="{StaticResource DrawEllipseSmall}"
+                        CommandParameter="Draw.Ellipse" />
         <r:RibbonButton Label="Text"
                         Command="commands:RibbonCommands.CADCommand"
                         LargeImageSource="{StaticResource DrawTextLarge}"

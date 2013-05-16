@@ -8,6 +8,8 @@ namespace BCad.Dxf
 {
     public class DxfCodePair
     {
+        public const int CommentCode = 999;
+
         private KeyValuePair<int, object> data;
 
         public int Code
@@ -180,6 +182,11 @@ namespace BCad.Dxf
         public static bool IsEof(DxfCodePair pair)
         {
             return pair.Code == 0 && pair.StringValue == DxfFile.EofText;
+        }
+
+        public static bool IsComment(DxfCodePair pair)
+        {
+            return pair.Code == CommentCode;
         }
     }
 }

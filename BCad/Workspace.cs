@@ -73,15 +73,15 @@ namespace BCad
         [Import]
         private IInputService InputService = null;
 
+        [Import]
+        private IFileSystemService FileSystemService = null;
+
         // required so that the service is created before the undo or redo commands are fired
         [Import]
         private IUndoRedoService UndoRedoService { get; set; }
 
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
-
-        [ImportMany]
-        private IEnumerable<Lazy<IFileWriter, IFileWriterMetadata>> FileWriters = null;
 
         #endregion
 
@@ -203,11 +203,24 @@ namespace BCad
                 return false;
             }
 
-            bool result = await Execute(commandPair, arg);
-            lastCommand = commandName;
-            lock (executeGate)
+            bool result;
+
+            try
             {
-                isExecuting = false;
+                result = await Execute(commandPair, arg);
+                lastCommand = commandName;
+            }
+            catch (Exception ex)
+            {
+                InputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
+                result = false;
+            }
+            finally
+            {
+                lock (executeGate)
+                {
+                    isExecuting = false;
+                }
             }
 
             return result;
@@ -223,7 +236,7 @@ namespace BCad
             return !this.isExecuting;
         }
 
-        public async Task<UnsavedChangesResult> PromptForUnsavedChanges()
+        public Task<UnsavedChangesResult> PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
             if (this.IsDirty)
@@ -235,8 +248,12 @@ namespace BCad
                 switch (dialog)
                 {
                     case MessageBoxResult.Yes:
-                        // TODO: can't execute another command
-                        if (await SaveAsCommand.Execute(this, FileWriters, Drawing.Settings.FileName))
+                        var fileName = Drawing.Settings.FileName;
+                        if (fileName == null)
+                            fileName = FileSystemService.GetFileNameFromUserForSave();
+                        if (fileName == null)
+                            result = UnsavedChangesResult.Cancel;
+                        else if (FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;
@@ -254,7 +271,7 @@ namespace BCad
                 result = UnsavedChangesResult.Saved;
             }
 
-            return result;
+            return Task.FromResult<UnsavedChangesResult>(result);
         }
 
         public void Focus()

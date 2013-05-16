@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using BCad.Helpers;
@@ -56,7 +57,7 @@ namespace BCad
             value = default(double);
             if (string.IsNullOrWhiteSpace(text))
                 return false;
-            if (double.TryParse(text, out value))
+            if (double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out value))
                 return true;
 
             var match = FullArchitecturalPattern.Match(text);

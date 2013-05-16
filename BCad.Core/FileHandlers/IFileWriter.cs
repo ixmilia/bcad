@@ -4,6 +4,6 @@ namespace BCad.FileHandlers
 {
     public interface IFileWriter
     {
-        void WriteFile(IWorkspace workspace, Stream stream);
+        void WriteFile(string fileName, Stream stream, Drawing drawing, ViewPort activeViewPort);
     }
 }

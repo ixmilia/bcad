@@ -701,7 +701,6 @@ Result PShader(Input pixel)
             snapLayer.Children.Add(GetSnapIcon(snapPoint));
         }
 
-        private static Queue<double> updateCalls = new Queue<double>(10);
         private Matrix lastSnapPointMatrix = Matrix.Identity;
 
         private void UpdateSnapPoints(Matrix matrix, bool force = false)
@@ -713,7 +712,6 @@ Result PShader(Input pixel)
             }
 
             lastSnapPointMatrix = matrix;
-            var start = DateTime.UtcNow;
             if (snapPoints.Length > 0)
             {
                 var vp = Device.Viewport;
@@ -745,11 +743,6 @@ Result PShader(Input pixel)
                         }
                     }));
             }
-            var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            updateCalls.Enqueue(elapsed);
-            if (updateCalls.Count > 10)
-                updateCalls.Dequeue();
-            inputService.WriteLine(string.Format("UpdateSnapPoints: {0}ms", updateCalls.Average()));
         }
 
         private Image GetSnapIcon(TransformedSnapPoint snapPoint, Media.Color? color = null)

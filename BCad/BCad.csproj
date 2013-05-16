@@ -75,7 +75,6 @@
     <Compile Include="Ribbons\HomeRibbon.xaml.cs">
       <DependentUpon>HomeRibbon.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Services\EditService.cs" />
     <Compile Include="Services\ExportService.cs" />
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
@@ -128,7 +127,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="BellevueHouse.dxf" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -146,9 +144,6 @@
       <Project>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</Project>
       <Name>BCad.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="bugs.txt" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="BCad.ico" />

@@ -191,6 +191,7 @@ namespace BCad.Collections
             if (current == null)
                 return this; // key not found, no change
 
+            Node toDelete = current;
             Node newRoot;
             if (current.Left == null && current.Right == null)
             {
@@ -207,6 +208,7 @@ namespace BCad.Collections
                         parent.Left = null;
                     else
                         parent.Right = null;
+                    parent = Rebalance(parent, false);
                     newRoot = BalanceAndReSpine(parent, path, false);
                 }
             }
@@ -225,36 +227,55 @@ namespace BCad.Collections
             else
             {
                 // both children are present.  replace node with immediate successor and custom respine
+                path.Push(toDelete);
                 var immediateSuccessor = current.Right;
+                path.Push(immediateSuccessor);
                 while (immediateSuccessor.Left != null)
                 {
-                    path.Push(immediateSuccessor);
                     immediateSuccessor = immediateSuccessor.Left;
+                    path.Push(immediateSuccessor);
                 }
 
-                current = immediateSuccessor;
+                var child = immediateSuccessor;
+                var childKey = child.Key;
                 while (path.Count > 0)
                 {
-                    // recreate parent
-                    var newParent = path.Pop().Clone();
-                    if (newParent.Key.CompareTo(key) == 0)
+                    var newNode = path.Pop().Clone();
+                    if (newNode.Key.CompareTo(immediateSuccessor.Key) == 0)
                     {
-                        // this is the replacement node
-                        newParent.Key = immediateSuccessor.Key;
-                        newParent.Value = immediateSuccessor.Value;
+                        // the immediate successor gets slipped out
+                        newNode = newNode.Right;
+                    }
+                    else if (newNode.Key.CompareTo(toDelete.Key) == 0)
+                    {
+                        // this is the node being deleted; replace its values
+                        newNode = immediateSuccessor.Clone();
+                        newNode.Left = toDelete.Left;
+                        if (newNode.Key.CompareTo(toDelete.Right.Key) != 0)
+                        {
+                            newNode.Right = child;
+                        }
+                    }
+                    else if (childKey.CompareTo(newNode.Key) < 0)
+                    {
+                        // this was the left child
+                        newNode.Left = child;
                     }
                     else
                     {
-                        if (current.Key.CompareTo(newParent.Key) < 0)
-                            newParent.Left = current;
-                        else
-                            newParent.Right = current;
+                        // this was the right child
+                        newNode.Right = child;
                     }
 
-                    current = Rebalance(newParent, false);
+                    child = Rebalance(newNode, false);
+                    if (child != null)
+                    {
+                        childKey = child.Key;
+                        Debug.Assert(Math.Abs(child.BalanceFactor) <= 1);
+                    }
                 }
 
-                newRoot = current;
+                newRoot = child;
             }
 
             return new ReadOnlyTree<TKey, TValue>(newRoot);
@@ -299,14 +320,27 @@ namespace BCad.Collections
 
         private static Node Rebalance(Node node, bool insert)
         {
+            if (node == null)
+                return null;
+
+            Node result;
             var balanceFactor = node.BalanceFactor;
             if (Math.Abs(balanceFactor) <= 1)
-                return node; // no balance necessary
-            Debug.Assert(Math.Abs(balanceFactor) == 2);
-            if (balanceFactor == -2) // right-right or right-left
-                return RightRebalance(node, insert);
-            else // left-left or left-right
-                return LeftRebalance(node, insert);
+            {
+                result = node;
+            }
+            else
+            {
+                if (balanceFactor == 2)
+                    result = LeftRebalance(node, insert);
+                else if (balanceFactor == -2)
+                    result = RightRebalance(node, insert);
+                else
+                    throw new Exception("Unexpected balance: " + balanceFactor);
+            }
+
+            Debug.Assert(Math.Abs(result.BalanceFactor) <= 1);
+            return result;
         }
 
         private static Node RightRebalance(Node node, bool insert)

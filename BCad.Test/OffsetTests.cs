@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BCad.Entities;
+using BCad.Utilities;
 using Xunit;
 
 namespace BCad.Test
@@ -12,7 +13,7 @@ namespace BCad.Test
         [Fact]
         public void CircleOffsetInsideTest()
         {
-            var offset = EditService.Offset(
+            var offset = EditUtilities.Offset(
                 Workspace,
                 new Circle(Point.Origin, 2.0, Vector.ZAxis, Color.Auto),
                 Point.Origin,
@@ -26,7 +27,7 @@ namespace BCad.Test
         [Fact]
         public void CircleOffsetOutsideTest()
         {
-            var circle = (Circle)EditService.Offset(
+            var circle = (Circle)EditUtilities.Offset(
                 Workspace,
                 new Circle(Point.Origin, 2.0, Vector.ZAxis, Color.Auto),
                 new Point(3, 0, 0),
@@ -38,7 +39,7 @@ namespace BCad.Test
         [Fact]
         public void VerticalLineOffsetLeftTest()
         {
-            var offset = (Line)EditService.Offset(
+            var offset = (Line)EditUtilities.Offset(
                 Workspace,
                 new Line(new Point(1, 0, 0), new Point(1, 1, 0), Color.Auto),
                 Point.Origin,
@@ -50,7 +51,7 @@ namespace BCad.Test
         [Fact]
         public void VerticalLineOffsetRightTest()
         {
-            var offset = (Line)EditService.Offset(
+            var offset = (Line)EditUtilities.Offset(
                 Workspace,
                 new Line(new Point(1, 0, 0), new Point(1, 1, 0), Color.Auto),
                 new Point(2, 0, 0),
@@ -62,7 +63,7 @@ namespace BCad.Test
         [Fact]
         public void HorizontalLineOffsetUpTest()
         {
-            var offset = (Line)EditService.Offset(
+            var offset = (Line)EditUtilities.Offset(
                 Workspace,
                 new Line(new Point(0, 1, 0), new Point(1, 1, 0), Color.Auto),
                 new Point(0, 2, 0),
@@ -74,7 +75,7 @@ namespace BCad.Test
         [Fact]
         public void HorizontalLineOffsetDownTest()
         {
-            var offset = (Line)EditService.Offset(
+            var offset = (Line)EditUtilities.Offset(
                 Workspace,
                 new Line(new Point(0, 1, 0), new Point(1, 1, 0), Color.Auto),
                 Point.Origin,
@@ -86,7 +87,7 @@ namespace BCad.Test
         [Fact]
         public void DiagonalLineOffsetTest()
         {
-            var offset = (Line)EditService.Offset(
+            var offset = (Line)EditUtilities.Offset(
                 Workspace,
                 new Line(new Point(0, 1, 0), new Point(1, 2, 0), Color.Auto),
                 Point.Origin,
@@ -99,7 +100,7 @@ namespace BCad.Test
         public void OffsetPointDirectlyOnEntity()
         {
             // line
-            var offset = EditService.Offset(
+            var offset = EditUtilities.Offset(
                 Workspace,
                 new Line(new Point(-1, 0, 0), new Point(1, 0, 0), Color.Auto),
                 Point.Origin,
@@ -107,7 +108,7 @@ namespace BCad.Test
             Assert.Null(offset);
             
             // circle
-            offset = EditService.Offset(
+            offset = EditUtilities.Offset(
                 Workspace,
                 new Circle(Point.Origin, 1.0, Vector.ZAxis, Color.Auto),
                 new Point(1.0, 0, 0),
@@ -120,7 +121,7 @@ namespace BCad.Test
         {
             // enuse we're using the correct projection matrix when verifying
             // whether the offset point is inside the circle or not
-            var offset = (Circle)EditService.Offset(
+            var offset = (Circle)EditUtilities.Offset(
                 Workspace,
                 new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, Color.Auto),
                 new Point(100, 0, 0),

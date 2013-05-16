@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
@@ -9,6 +11,9 @@ namespace BCad.Test
 {
     public class PrimitiveTests
     {
+
+        #region Helpers
+
         private static void TestIntersection(IPrimitive first, IPrimitive second, bool withinBounds, params Point[] points)
         {
             var p = first.IntersectionPoints(second, withinBounds).OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
@@ -69,6 +74,16 @@ namespace BCad.Test
         {
             return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360, Color.Auto);
         }
+
+        private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null)
+        {
+            if (contained != null)
+                Assert.True(contained.All(p => primitive.ContainsPoint(p)));
+            if (excluded != null)
+                Assert.True(excluded.All(p => !primitive.ContainsPoint(p)));
+        }
+
+        #endregion
 
         [Fact]
         public void LineIntersectionTest()
@@ -366,6 +381,116 @@ namespace BCad.Test
                 true,
                 new Point(1, -1, 0),
                 new Point(1, 1, 0));
+        }
+
+        [Fact]
+        public void PointOnLineTest()
+        {
+            TestPointContainment(Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
+                contained: new[]
+                {
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(0.5, 0.0, 0.0),
+                    new Point(1.0, 0.0, 0.0)
+                });
+            TestPointContainment(Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 1.0)),
+                contained: new[]
+                {
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(0.5, 0.5, 0.5),
+                    new Point(1.0, 1.0, 1.0)
+                });
+        }
+
+        [Fact]
+        public void PointOnCircleTest()
+        {
+            var x = Math.Sin(45.0 * MathHelper.DegreesToRadians);
+            TestPointContainment(Circle(new Point(0.0, 0.0, 0.0), 1.0),
+                contained: new[]
+                {
+                    new Point(1.0, 0.0, 0.0),
+                    new Point(0.0, 1.0, 0.0),
+                    new Point(-1.0, 0.0, 0.0),
+                    new Point(0.0, -1.0, 0.0),
+                    new Point(x, x, 0.0)
+                },
+                excluded: new[]
+                {
+                    new Point(0.5, 0.0, 0.0),
+                    new Point(1.5, 0.0, 0.0),
+                });
+            TestPointContainment(Circle(new Point(1.0, 1.0, 0.0), 1.0),
+                contained: new[]
+                {
+                    new Point(2.0, 1.0, 0.0),
+                    new Point(1.0, 2.0, 0.0),
+                    new Point(0.0, 1.0, 0.0),
+                    new Point(1.0, 0.0, 0.0),
+                    new Point(x + 1.0, x + 1.0, 0.0)
+                });
+            TestPointContainment(Arc(new Point(0.0, 0.0, 0.0), 1.0, 90.0, 180.0),
+                contained: new[]
+                {
+                    new Point(0.0, 1.0, 0.0), // 90 degrees
+                    new Point(-1.0, 0.0, 0.0) // 180 degrees
+                },
+                excluded: new[]
+                {
+                    new Point(0.0, -1.0, 0.0), // 270 degrees
+                    new Point(0.0, 0.0, 0.0) // 0/360 degrees
+                });
+        }
+
+        [Fact]
+        public void PointInTextTest()
+        {
+            // text width = 9.23076923076923
+            TestPointContainment(new PrimitiveText(" ", new Point(0.0, 0.0, 0.0), 12.0, Vector.ZAxis, 0.0, Color.Auto),
+                contained: new[]
+                {
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(9.0, 12.0, 0.0)
+                },
+                excluded: new[]
+                {
+                    new Point(0.0, 12.1, 0.0)
+                });
+            TestPointContainment(new PrimitiveText(" ", new Point(5.0, 5.0, 5.0), 12.0, Vector.ZAxis, 0.0, Color.Auto),
+                contained: new[]
+                {
+                    new Point(5.0, 5.0, 5.0),
+                    new Point(14.0, 17.0, 5.0)
+                },
+                excluded: new[]
+                {
+                    new Point(5.0, 17.1, 5.0)
+                });
+        }
+
+        [Fact]
+        public void EllipseAngleContainmentTest()
+        {
+            var el = new PrimitiveEllipse(Point.Origin, 1.0, 90.0, 360.0, Vector.ZAxis, Color.Auto);
+            Assert.True(el.IsAngleContained(90.0));
+            Assert.True(el.IsAngleContained(180.0));
+            Assert.True(el.IsAngleContained(270.0));
+            Assert.True(el.IsAngleContained(360.0));
+            Assert.False(el.IsAngleContained(45.0));
+        }
+
+        [Fact]
+        public void EllipseGetPointTest()
+        {
+            var el = new PrimitiveEllipse(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto);
+            Assert.True(el.GetStartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
+            Assert.True(el.GetEndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
+            Assert.True(el.GetPoint(90.0).CloseTo(new Point(0.0, 1.0, 0.0)));
+
+            el = new PrimitiveEllipse(new Point(1.0, 1.0, 0.0), 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto);
+            Assert.True(el.GetStartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
+            Assert.True(el.GetEndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
+            Assert.True(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));
         }
     }
 }

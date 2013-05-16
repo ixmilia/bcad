@@ -1,28 +1,26 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
-using System;
 
-namespace BCad.Services
+namespace BCad.Utilities
 {
-    [Export(typeof(IEditService))]
-    internal class EditService : IEditService
+    public static class EditUtilities
     {
-        public void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var selectionPrimitives = entityToTrim.Entity.GetPrimitives();
 
             // find all intersection points
             var intersectionPoints = boundaryPrimitives
                 .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel)))
-                .Where(p => p != null)
+                .WhereNotNull()
                 .SelectMany(b => b)
-                .Where(p => p != null);
+                .WhereNotNull();
 
             if (intersectionPoints.Any())
             {
@@ -38,7 +36,7 @@ namespace BCad.Services
                         TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
-                        Debug.Fail("only lines are supported");
+                        Debug.Fail("unsupported trim entity: " + entityToTrim.Entity.Kind);
                         removed = new List<Entity>();
                         added = new List<Entity>();
                         break;
@@ -51,7 +49,45 @@ namespace BCad.Services
             }
         }
 
-        public bool CanOffsetEntity(Entity entityToOffset)
+        public static void Extend(SelectedEntity entityToExtend, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var selectionPrimitives = entityToExtend.Entity.GetPrimitives();
+
+            // find all intersection points on boundary primitives but not on the entity to extend
+            var intersectionPoints = boundaryPrimitives
+                .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel, withinBounds: false)))
+                .WhereNotNull()
+                .SelectMany(b => b)
+                .WhereNotNull()
+                .Where(p => boundaryPrimitives.Any(b => b.ContainsPoint(p)) && !selectionPrimitives.Any(b => b.ContainsPoint(p)));
+
+            if (intersectionPoints.Any())
+            {
+                switch (entityToExtend.Entity.Kind)
+                {
+                    case EntityKind.Arc:
+                    case EntityKind.Circle:
+                    case EntityKind.Ellipse:
+                        ExtendEllipse(entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
+                        break;
+                    case EntityKind.Line:
+                        ExtendLine((Line)entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
+                        break;
+                    default:
+                        Debug.Fail("unsupported extend entity: " + entityToExtend.Entity.Kind);
+                        removed = new List<Entity>();
+                        added = new List<Entity>();
+                        break;
+                }
+            }
+            else
+            {
+                removed = new List<Entity>();
+                added = new List<Entity>();
+            }
+        }
+
+        public static bool CanOffsetEntity(Entity entityToOffset)
         {
             switch (entityToOffset.Kind)
             {
@@ -68,7 +104,7 @@ namespace BCad.Services
             }
         }
 
-        public IPrimitive Offset(Plane drawingPlane, IPrimitive primitive, Point offsetDirection, double offsetDistance)
+        public static IPrimitive Offset(Plane drawingPlane, IPrimitive primitive, Point offsetDirection, double offsetDistance)
         {
             if (!drawingPlane.Contains(offsetDirection))
                 return null;
@@ -144,7 +180,7 @@ namespace BCad.Services
             return result;
         }
 
-        public Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
+        public static Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
         {
             switch (entityToOffset.Kind)
             {
@@ -166,7 +202,7 @@ namespace BCad.Services
             }
         }
 
-        public PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
+        public static PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
         {
             var first = firstEntity.Entity;
             var second = secondEntity.Entity;
@@ -195,10 +231,10 @@ namespace BCad.Services
                                   .Where(x => x != null);
 
             var center = candidatePoints.OrderBy(x =>
-                {
-                    return (x - firstEntity.SelectionPoint).LengthSquared
-                        * (x - secondEntity.SelectionPoint).LengthSquared;
-                })
+            {
+                return (x - firstEntity.SelectionPoint).LengthSquared
+                    * (x - secondEntity.SelectionPoint).LengthSquared;
+            })
                 .FirstOrDefault();
 
             if (center == null)
@@ -207,7 +243,7 @@ namespace BCad.Services
             return new PrimitiveEllipse(center, radius, drawingPlane.Normal, Color.Auto);
         }
 
-        public Entity Move(Entity entity, Vector offset)
+        public static Entity Move(Entity entity, Vector offset)
         {
             switch (entity.Kind)
             {
@@ -234,7 +270,7 @@ namespace BCad.Services
             }
         }
 
-        private IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
+        private static IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
         {
             switch (primitive.Kind)
             {
@@ -443,6 +479,117 @@ namespace BCad.Services
 
             added = addedList;
             removed = removedList;
+        }
+
+        private static void ExtendLine(Line lineToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var removedList = new List<Entity>();
+            var addedList = new List<Entity>();
+
+            // find closest intersection point to the selection
+            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
+            if (closestRealPoint != null)
+            {
+                // find closest end point to the selection
+                var closestEndPoint = (lineToExtend.P1 - selectionPoint).LengthSquared < (lineToExtend.P2 - selectionPoint).LengthSquared
+                    ? lineToExtend.P1
+                    : lineToExtend.P2;
+
+                // if closest intersection point and closest end point are on the same side of the midpoint, do extend
+                var midPoint = lineToExtend.MidPoint();
+                var selectionVector = (closestRealPoint - midPoint).Normalize();
+                var endVector = (closestEndPoint - midPoint).Normalize();
+                if (selectionVector.CloseTo(endVector))
+                {
+                    removedList.Add(lineToExtend);
+                    if (closestEndPoint.CloseTo(lineToExtend.P1))
+                    {
+                        // replace p1
+                        addedList.Add(lineToExtend.Update(p1: closestRealPoint));
+                    }
+                    else
+                    {
+                        // replace p2
+                        addedList.Add(lineToExtend.Update(p2: closestRealPoint));
+                    }
+                }
+            }
+
+            removed = removedList;
+            added = addedList;
+        }
+
+        private static void ExtendEllipse(Entity ellipseToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var removedList = new List<Entity>();
+            var addedList = new List<Entity>();
+
+            // get primitive ellipse object
+            var primitives = ellipseToExtend.GetPrimitives();
+            Debug.Assert(primitives.Count() == 1);
+            var primitive = primitives.Single();
+            Debug.Assert(primitive.Kind == PrimitiveKind.Ellipse);
+            var ellipse = (PrimitiveEllipse)primitive;
+
+            // prepare transformation matrix
+            var fromUnitMatrix = ellipse.FromUnitCircleProjection();
+            var toUnitMatrix = fromUnitMatrix;
+            toUnitMatrix.Invert();
+            var selectionUnit = selectionPoint.Transform(toUnitMatrix);
+
+            // find closest intersection point to the selection
+            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
+            if (closestRealPoint != null)
+            {
+                var closestUnitPoint = closestRealPoint.Transform(toUnitMatrix);
+                var newAngle = (Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
+
+                // find the closest end point to the selection
+                var startPoint = ellipse.GetStartPoint().Transform(toUnitMatrix);
+                var endPoint = ellipse.GetEndPoint().Transform(toUnitMatrix);
+                var startAngle = ellipse.StartAngle;
+                var endAngle = ellipse.EndAngle;
+                if ((startPoint - selectionUnit).LengthSquared < (endPoint - selectionUnit).LengthSquared)
+                {
+                    // start point should get replaced
+                    startAngle = newAngle;
+                }
+                else
+                {
+                    // end point should get replaced
+                    endAngle = newAngle;
+                }
+
+                // remove the old ellipse
+                removedList.Add(ellipseToExtend);
+
+                // create the new ellipse
+                Entity entityToAdd;
+                if (MathHelper.CloseTo(1.0, ellipse.MinorAxisRatio))
+                {
+                    // circle or arc
+                    if (MathHelper.CloseTo(0.0, startAngle) && MathHelper.CloseTo(360.0, endAngle))
+                    {
+                        // circle
+                        entityToAdd = new Circle(ellipse.Center, ellipse.MajorAxis.Length, ellipse.Normal, ellipse.Color);
+                    }
+                    else
+                    {
+                        // arc
+                        entityToAdd = new Arc(ellipse.Center, ellipse.MajorAxis.Length, startAngle, endAngle, ellipse.Normal, ellipse.Color);
+                    }
+                }
+                else
+                {
+                    // ellipse
+                    entityToAdd = new Ellipse(ellipse.Center, ellipse.MajorAxis, ellipse.MinorAxisRatio, startAngle, endAngle, ellipse.Normal, ellipse.Color);
+                }
+
+                addedList.Add(entityToAdd);
+            }
+
+            removed = removedList;
+            added = addedList;
         }
     }
 }
