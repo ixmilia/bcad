@@ -28,7 +28,21 @@ namespace BCad.Iegs.Parameter
 
         public override IegsEntity ToEntity(IegsDirectoryData dir)
         {
-            return new IegsTransformationMatrix();
+            return new IegsTransformationMatrix()
+            {
+                R11 = R11,
+                R12 = R12,
+                R13 = R13,
+                R21 = R21,
+                R22 = R22,
+                R23 = R23,
+                R31 = R31,
+                R32 = R32,
+                R33 = R33,
+                T1 = T1,
+                T2 = T2,
+                T3 = T3
+            };
         }
     }
 }

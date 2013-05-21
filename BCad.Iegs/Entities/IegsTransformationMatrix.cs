@@ -10,7 +10,21 @@ namespace BCad.Iegs.Entities
     {
         public override IegsEntityType Type { get { return IegsEntityType.TransformationMatrix; } }
 
-        // TODO: add matrix data
+        public double R11 { get; set; }
+        public double R12 { get; set; }
+        public double R13 { get; set; }
+
+        public double R21 { get; set; }
+        public double R22 { get; set; }
+        public double R23 { get; set; }
+
+        public double R31 { get; set; }
+        public double R32 { get; set; }
+        public double R33 { get; set; }
+
+        public double T1 { get; set; }
+        public double T2 { get; set; }
+        public double T3 { get; set; }
 
         public IegsTransformationMatrix()
         {
@@ -18,7 +32,10 @@ namespace BCad.Iegs.Entities
 
         public IegsPoint Transform(IegsPoint point)
         {
-            throw new NotImplementedException();
+            return new IegsPoint(
+                (R11 * point.X + R12 * point.Y + R13 * point.Z) + T1,
+                (R21 * point.X + R22 * point.Y + R23 * point.Z) + T2,
+                (R31 * point.X + R32 * point.Y + R33 * point.Z) + T3);
         }
     }
 }
