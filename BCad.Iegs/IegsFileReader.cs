@@ -13,18 +13,16 @@ namespace BCad.Iegs
 {
     internal class IegsFileReader
     {
-        private IegsFile file = new IegsFile();
-        private List<string> startLines = new List<string>();
-        private List<string> globalLines = new List<string>();
-        private List<string> directoryLines = new List<string>();
-        private List<string> parameterLines = new List<string>();
-        private string terminateLine = null;
-        private Dictionary<int, IegsParameterData> parameterData = new Dictionary<int, IegsParameterData>();
-        private Dictionary<int, IegsEntity> entityMap = new Dictionary<int, IegsEntity>();
-
         public IegsFile Load(Stream stream)
         {
+            var file = new IegsFile();
             var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd());
+            string terminateLine = null;
+            var startLines = new List<string>();
+            var globalLines = new List<string>();
+            var directoryLines = new List<string>();
+            var parameterLines = new List<string>();
+            var parameterData = new Dictionary<int, IegsParameterData>();
             var sectionLines = new Dictionary<IegsSectionType, List<string>>()
                 {
                     { IegsSectionType.Start, startLines },
@@ -74,14 +72,14 @@ namespace BCad.Iegs
 
             // don't worry if terminate line isn't present
 
-            ParseGlobalLines();
-            ParseParameterLines();
-            ParseDirectoryLines();
+            ParseGlobalLines(file, globalLines);
+            ParseParameterLines(file, parameterLines, parameterData);
+            ParseDirectoryLines(file, directoryLines, parameterData);
 
             return file;
         }
 
-        private void ParseGlobalLines()
+        private static void ParseGlobalLines(IegsFile file, List<string> globalLines)
         {
             var fullString = string.Join(string.Empty, globalLines).TrimEnd();
             if (string.IsNullOrEmpty(fullString))
@@ -181,7 +179,7 @@ namespace BCad.Iegs
             }
         }
 
-        private void ParseParameterLines()
+        private static void ParseParameterLines(IegsFile file, List<string> parameterLines, Dictionary<int, IegsParameterData> parameterData)
         {
             // group parameter lines together
             int index = 1;
@@ -205,10 +203,12 @@ namespace BCad.Iegs
             }
         }
 
-        private void ParseDirectoryLines()
+        private static void ParseDirectoryLines(IegsFile file, List<string> directoryLines, Dictionary<int, IegsParameterData> parameterData)
         {
             if (directoryLines.Count % 2 != 0)
                 throw new IegsException("Expected an even number of lines");
+
+            var transformationMatricies = new Dictionary<int, IegsTransformationMatrix>();
 
             for (int i = 0; i < directoryLines.Count; i += 2)
             {
@@ -242,8 +242,11 @@ namespace BCad.Iegs
                     if (parameterData.ContainsKey(dir.ParameterPointer))
                     {
                         var data = parameterData[dir.ParameterPointer];
-                        var entity = data.ToEntity(dir); // TODO: pass in transformation matrix
-                        entityMap.Add(lineNumber, entity);
+                        var entity = IegsEntity.CreateEntity(data, dir, transformationMatricies);
+                        if (entity.Type == IegsEntityType.TransformationMatrix)
+                        {
+                            transformationMatricies.Add(lineNumber, (IegsTransformationMatrix)entity);
+                        }
                         file.Entities.Add(entity);
                     }
                 }

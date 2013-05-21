@@ -21,8 +21,7 @@ namespace BCad.Iegs.Parameter
             {
                 P1 = new IegsPoint(X1, Y1, Z1),
                 P2 = new IegsPoint(X2, Y2, Z2),
-                Bounding = GetBounding(dir.FormNumber),
-                Color = dir.Color
+                Bounding = GetBounding(dir.FormNumber)
             };
         }
 
