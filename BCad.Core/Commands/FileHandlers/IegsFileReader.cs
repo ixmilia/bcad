@@ -52,12 +52,17 @@ namespace BCad.Commands.FileHandlers
 
         private static Line ToLine(IegsLine line)
         {
-            return new Line(new Point(line.X1, line.Y1, line.Z1), new Point(line.X2, line.Y2, line.Z2), ToColor(line.Color));
+            return new Line(ToPoint(line.P1), ToPoint(line.P2), ToColor(line.Color));
         }
 
         private static Color ToColor(IegsColorNumber color)
         {
             return new Color((byte)color);
+        }
+
+        private static Point ToPoint(IegsPoint point)
+        {
+            return new Point(point.X, point.Y, point.Z);
         }
     }
 }

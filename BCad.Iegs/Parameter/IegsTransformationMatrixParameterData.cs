@@ -10,9 +10,25 @@ namespace BCad.Iegs.Parameter
 {
     internal class IegsTransformationMatrixParameterData : IegsParameterData
     {
+        public double R11 { get; set; }
+        public double R12 { get; set; }
+        public double R13 { get; set; }
+
+        public double R21 { get; set; }
+        public double R22 { get; set; }
+        public double R23 { get; set; }
+
+        public double R31 { get; set; }
+        public double R32 { get; set; }
+        public double R33 { get; set; }
+
+        public double T1 { get; set; }
+        public double T2 { get; set; }
+        public double T3 { get; set; }
+
         public override IegsEntity ToEntity(IegsDirectoryData dir)
         {
-            throw new NotImplementedException();
+            return new IegsTransformationMatrix();
         }
     }
 }

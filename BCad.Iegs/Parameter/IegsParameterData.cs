@@ -42,6 +42,18 @@ namespace BCad.Iegs.Parameter
                 throw new IegsException("Incorrect number of fields");
             return new IegsTransformationMatrixParameterData()
             {
+                R11 = ParseDouble(fields[0]),
+                R12 = ParseDouble(fields[1]),
+                R13 = ParseDouble(fields[2]),
+                T1 = ParseDouble(fields[3]),
+                R21 = ParseDouble(fields[4]),
+                R22 = ParseDouble(fields[5]),
+                R23 = ParseDouble(fields[6]),
+                T2 = ParseDouble(fields[7]),
+                R31 = ParseDouble(fields[8]),
+                R32 = ParseDouble(fields[9]),
+                R33 = ParseDouble(fields[10]),
+                T3 = ParseDouble(fields[11])
             };
         }
 

@@ -19,12 +19,8 @@ namespace BCad.Iegs.Parameter
                 throw new IegsException("Invalid line count");
             return new IegsLine()
             {
-                X1 = X1,
-                Y1 = Y1,
-                Z1 = Z1,
-                X2 = X2,
-                Y2 = Y2,
-                Z2 = Z2,
+                P1 = new IegsPoint(X1, Y1, Z1),
+                P2 = new IegsPoint(X2, Y2, Z2),
                 Bounding = GetBounding(dir.FormNumber),
                 Color = dir.Color
             };
