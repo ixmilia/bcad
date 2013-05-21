@@ -37,5 +37,27 @@ namespace BCad.Iegs.Entities
                 (R21 * point.X + R22 * point.Y + R23 * point.Z) + T2,
                 (R31 * point.X + R32 * point.Y + R33 * point.Z) + T3);
         }
+
+        public static IegsTransformationMatrix Identity
+        {
+            get
+            {
+                return new IegsTransformationMatrix()
+                {
+                    R11 = 1.0,
+                    R12 = 0.0,
+                    R13 = 0.0,
+                    R21 = 0.0,
+                    R22 = 1.0,
+                    R23 = 0.0,
+                    R31 = 0.0,
+                    R32 = 0.0,
+                    R33 = 1.0,
+                    T1 = 0.0,
+                    T2 = 0.0,
+                    T3 = 0.0
+                };
+            }
+        }
     }
 }

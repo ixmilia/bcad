@@ -62,6 +62,7 @@
     <Compile Include="DxfTests\DxfReaderWriterTests.cs" />
     <Compile Include="IegsTests\IegsEntityReaderTests.cs" />
     <Compile Include="IegsTests\IegsReaderTests.cs" />
+    <Compile Include="IegsTests\IegsTransformMatrixTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />
     <Compile Include="PointTests.cs" />

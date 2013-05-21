@@ -16,13 +16,17 @@ namespace BCad.Iegs.Entities
 
         public IegsTransformationMatrix TransformationMatrix { get; set; }
 
-        public static IegsEntity CreateEntity(IegsParameterData parameterData, IegsDirectoryData directoryData, Dictionary<int, IegsTransformationMatrix> transformationMatricies)
+        internal static IegsEntity CreateEntity(IegsParameterData parameterData, IegsDirectoryData directoryData, Dictionary<int, IegsTransformationMatrix> transformationMatricies)
         {
             var entity = parameterData.ToEntity(directoryData);
             entity.Color = directoryData.Color;
             if (directoryData.TransformationMatrixPointer != 0)
             {
                 entity.TransformationMatrix = transformationMatricies[directoryData.TransformationMatrixPointer];
+            }
+            else
+            {
+                entity.TransformationMatrix = IegsTransformationMatrix.Identity;
             }
 
             return entity;
