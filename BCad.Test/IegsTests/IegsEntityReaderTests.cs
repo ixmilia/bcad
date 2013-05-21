@@ -91,7 +91,6 @@ namespace BCad.Test.IegsTests
         [Fact]
         public void TransformationMatrixFromEntityTest()
         {
-            // entity id 888 is invalid
             var file = IegsReaderTests.CreateFile(@"
      110       1       0       0       0               3               0D      1
      110       0       3       1       0                               0D      2
