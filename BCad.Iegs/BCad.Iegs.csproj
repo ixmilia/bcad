@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Directory\IegsDirectoryData.cs" />
     <Compile Include="Entities\IegsBounding.cs" />
+    <Compile Include="Entities\IegsCircle.cs" />
     <Compile Include="Entities\IegsEntity.cs" />
     <Compile Include="Entities\IegsEntityType.cs" />
     <Compile Include="Entities\IegsLine.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="IegsFileReader.cs" />
     <Compile Include="IegsSectionType.cs" />
     <Compile Include="IegsUnits.cs" />
+    <Compile Include="Parameter\IegsCircleParameterData.cs" />
     <Compile Include="Parameter\IegsLineParameterData.cs" />
     <Compile Include="Parameter\IegsParameterData.cs" />
     <Compile Include="Parameter\IegsTransformationMatrixParameterData.cs" />

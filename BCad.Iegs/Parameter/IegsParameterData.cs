@@ -12,6 +12,8 @@ namespace BCad.Iegs.Parameter
         {
             switch (type)
             {
+                case IegsEntityType.Circle:
+                    return ParseCircle(fields);
                 case IegsEntityType.Line:
                     return ParseLine(fields);
                 case IegsEntityType.TransformationMatrix:
@@ -21,10 +23,24 @@ namespace BCad.Iegs.Parameter
             }
         }
 
+        private static IegsCircleParameterData ParseCircle(List<string> fields)
+        {
+            EnsureFieldCount(7, fields);
+            return new IegsCircleParameterData()
+            {
+                ZT = ParseDouble(fields[0]),
+                X1 = ParseDouble(fields[1]),
+                Y1 = ParseDouble(fields[2]),
+                X2 = ParseDouble(fields[3]),
+                Y2 = ParseDouble(fields[4]),
+                X3 = ParseDouble(fields[5]),
+                Y3 = ParseDouble(fields[6])
+            };
+        }
+
         private static IegsLineParameterData ParseLine(List<string> fields)
         {
-            if (fields.Count != 6)
-                throw new IegsException("Incorrect number of fields");
+            EnsureFieldCount(6, fields);
             return new IegsLineParameterData()
             {
                 X1 = ParseDouble(fields[0]),
@@ -38,8 +54,7 @@ namespace BCad.Iegs.Parameter
 
         private static IegsTransformationMatrixParameterData ParseTransformationMatrix(List<string> fields)
         {
-            if (fields.Count != 12)
-                throw new IegsException("Incorrect number of fields");
+            EnsureFieldCount(12, fields);
             return new IegsTransformationMatrixParameterData()
             {
                 R11 = ParseDouble(fields[0]),
@@ -60,6 +75,12 @@ namespace BCad.Iegs.Parameter
         private static double ParseDouble(string value)
         {
             return double.Parse(value);
+        }
+
+        private static void EnsureFieldCount(int expectedFields, List<string> fields)
+        {
+            if (fields.Count != expectedFields)
+                throw new IegsException("Incorrect number of fields");
         }
     }
 }

@@ -8,6 +8,7 @@ namespace BCad.Iegs.Entities
 {
     public enum IegsEntityType
     {
+        Circle = 100,
         Line = 110,
         TransformationMatrix = 124
     }

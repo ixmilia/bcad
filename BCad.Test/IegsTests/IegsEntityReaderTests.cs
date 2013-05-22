@@ -113,5 +113,26 @@ namespace BCad.Test.IegsTests
             Assert.Equal(11.0, matrix.R33);
             Assert.Equal(12.0, matrix.T3);
         }
-    }
+
+        [Fact]
+        public void CircleReadTest()
+        {
+            var circle = (IegsCircle)ParseSingleEntity(@"
+     100       1       0       0       0                               0D      1
+     100       0       3       1       0                               0D      2
+100,11,22,33,44,55,66,77                                                P      1
+");
+            Assert.Equal(11.0, circle.PlaneDisplacement);
+            Assert.Equal(22.0, circle.Center.X);
+            Assert.Equal(33.0, circle.Center.Y);
+            Assert.Equal(0.0, circle.Center.Z);
+            Assert.Equal(44.0, circle.StartPoint.X);
+            Assert.Equal(55.0, circle.StartPoint.Y);
+            Assert.Equal(0.0, circle.StartPoint.Z);
+            Assert.Equal(66.0, circle.EndPoint.X);
+            Assert.Equal(77.0, circle.EndPoint.Y);
+            Assert.Equal(0.0, circle.EndPoint.Z);
+            Assert.Equal(IegsColorNumber.Color3, circle.Color);
+        }
+        }
 }
