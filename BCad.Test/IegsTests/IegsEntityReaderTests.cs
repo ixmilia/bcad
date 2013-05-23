@@ -72,7 +72,7 @@ namespace BCad.Test.IegsTests
             var matrix = (IegsTransformationMatrix)ParseSingleEntity(@"
      124       1       0       0       0                               0D      1
      124       0       0       4       0                               0D      2
-124,1,2,3,4,5,6,7,8,9,10,11,12                                          P      1
+124,1,2,3,4,5,6,7,8,9,10,11,12;                                         P      1
 ");
             Assert.Equal(1.0, matrix.R11);
             Assert.Equal(2.0, matrix.R12);
@@ -92,14 +92,14 @@ namespace BCad.Test.IegsTests
         public void TransformationMatrixFromEntityTest()
         {
             var file = IegsReaderTests.CreateFile(@"
-     110       1       0       0       0               3               0D      1
-     110       0       3       1       0                               0D      2
-     124       1       0       0       0                               0D      3
-     124       0       0       4       0                               0D      4
-110,11,22,33,44,55,66;                                                  P      1
-124,1,2,3,4,5,6,7,8,9,10,11,12                                          P      2
+     124       1       0       0       0                               0D      1
+     124       0       0       4       0                               0D      2
+     110       2       0       0       0               1               0D      3
+     110       0       3       1       0                               0D      4
+124,1,2,3,4,5,6,7,8,9,10,11,12;                                         P      1
+110,11,22,33,44,55,66;                                                  P      2
 ".Trim('\r', '\n'));
-            var matrix = file.Entities.Single().TransformationMatrix;
+            var matrix = file.Entities.Single(e => e.Type == IegsEntityType.Line).TransformationMatrix;
             Assert.Equal(1.0, matrix.R11);
             Assert.Equal(2.0, matrix.R12);
             Assert.Equal(3.0, matrix.R13);
@@ -120,7 +120,7 @@ namespace BCad.Test.IegsTests
             var circle = (IegsCircle)ParseSingleEntity(@"
      100       1       0       0       0                               0D      1
      100       0       3       1       0                               0D      2
-100,11,22,33,44,55,66,77                                                P      1
+100,11,22,33,44,55,66,77;                                               P      1
 ");
             Assert.Equal(11.0, circle.PlaneDisplacement);
             Assert.Equal(22.0, circle.Center.X);
