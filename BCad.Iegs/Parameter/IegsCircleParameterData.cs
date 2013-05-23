@@ -28,5 +28,19 @@ namespace BCad.Iegs.Parameter
                 EndPoint = new IegsPoint(X3, Y3, 0.0)
             };
         }
+
+        protected override object[] GetFields()
+        {
+            return new object[]
+            {
+                ZT,
+                X1,
+                Y1,
+                X2,
+                Y2,
+                X3,
+                Y3
+            };
+        }
     }
 }

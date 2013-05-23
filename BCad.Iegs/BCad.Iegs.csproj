@@ -46,6 +46,7 @@
     <Compile Include="Entities\IegsEntityType.cs" />
     <Compile Include="Entities\IegsLine.cs" />
     <Compile Include="Entities\IegsTransformationMatrix.cs" />
+    <Compile Include="IegsFileWriter.cs" />
     <Compile Include="IegsPoint.cs" />
     <Compile Include="IegsVersion.cs" />
     <Compile Include="IegsColorNumber.cs" />

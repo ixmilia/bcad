@@ -44,5 +44,24 @@ namespace BCad.Iegs.Parameter
                 T3 = T3
             };
         }
+
+        protected override object[] GetFields()
+        {
+            return new object[]
+            {
+                R11,
+                R12,
+                R13,
+                T1,
+                R21,
+                R22,
+                R23,
+                T2,
+                R31,
+                R32,
+                R33,
+                T3
+            };
+        }
     }
 }

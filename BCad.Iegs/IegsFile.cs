@@ -60,20 +60,7 @@ namespace BCad.Iegs
 
         public void Save(Stream stream)
         {
-            var writer = new StreamWriter(stream);
-
-            //// write start section
-            //foreach (var section in new IegsSection[] { startSection, globalSection })
-            //{
-            //    int line = 1;
-            //    foreach (var data in section.GetData())
-            //    {
-            //        writer.WriteLine(string.Format("{0,72}{1,1}{2,7}", data, SectionTypeChar(section.SectionType), line));
-            //        line++;
-            //    }
-            //}
-
-            writer.Flush();
+            new IegsFileWriter().Write(this, stream);
         }
 
         public static IegsFile Load(Stream stream)

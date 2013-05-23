@@ -25,6 +25,19 @@ namespace BCad.Iegs.Parameter
             };
         }
 
+        protected override object[] GetFields()
+        {
+            return new object[]
+            {
+                X1,
+                Y1,
+                Z1,
+                X2,
+                Y2,
+                Z2
+            };
+        }
+
         private static IegsBounding GetBounding(int form)
         {
             switch (form)
