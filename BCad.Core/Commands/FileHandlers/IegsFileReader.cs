@@ -42,6 +42,9 @@ namespace BCad.Commands.FileHandlers
             Entity result = null;
             switch (entity.Type)
             {
+                case IegsEntityType.Circle:
+                    result = ToCircle((IegsCircle)entity);
+                    break;
                 case IegsEntityType.Line:
                     result = ToLine((IegsLine)entity);
                     break;
@@ -52,7 +55,18 @@ namespace BCad.Commands.FileHandlers
 
         private static Line ToLine(IegsLine line)
         {
+            // TODO: transforms
             return new Line(ToPoint(line.P1), ToPoint(line.P2), ToColor(line.Color));
+        }
+
+        private static Circle ToCircle(IegsCircle circle)
+        {
+            // TODO: handle start/end points and arcs
+            var center = ToPoint(circle.Center);
+            var other = ToPoint(circle.StartPoint);
+            var radius = (other - center).Length;
+            // TODO: transforms and normal
+            return new Circle(center, radius, Vector.ZAxis, ToColor(circle.Color));
         }
 
         private static Color ToColor(IegsColorNumber color)
