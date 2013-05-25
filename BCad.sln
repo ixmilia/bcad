@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 12
+VisualStudioVersion = 12.0.20430.1 PREVIEW
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Core", "BCad.Core\BCad.Core.csproj", "{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}"
@@ -13,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.UI", "BCad.UI\BCad.UI.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Stl", "BCad.Stl\BCad.Stl.csproj", "{B6A2DC99-A13C-43EC-92BE-79E579E10F57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Iegs", "BCad.Iegs\BCad.Iegs.csproj", "{59B09CA5-1837-4C2B-858C-91E997939C79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Iges", "BCad.Iges\BCad.Iges.csproj", "{59B09CA5-1837-4C2B-858C-91E997939C79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
