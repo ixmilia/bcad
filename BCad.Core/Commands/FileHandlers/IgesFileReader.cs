@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using BCad.Collections;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.FileHandlers;
+using BCad.Helpers;
 using BCad.Iges;
 using BCad.Iges.Entities;
+using BCad.Primitives;
 
 namespace BCad.Commands.FileHandlers
 {
@@ -44,7 +48,7 @@ namespace BCad.Commands.FileHandlers
             switch (entity.Type)
             {
                 case IgesEntityType.Circle:
-                    result = ToCircle((IgesCircle)entity);
+                    result = ToArc((IgesCircle)entity);
                     break;
                 case IgesEntityType.Line:
                     result = ToLine((IgesLine)entity);
@@ -56,18 +60,50 @@ namespace BCad.Commands.FileHandlers
 
         private static Line ToLine(IgesLine line)
         {
-            // TODO: transforms
-            return new Line(ToPoint(line.P1), ToPoint(line.P2), ToColor(line.Color));
+            // TODO: handle different forms (segment, ray, continuous)
+            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), ToColor(line.Color));
         }
 
-        private static Circle ToCircle(IgesCircle circle)
+        private static Entity ToArc(IgesCircle arc)
         {
-            // TODO: handle start/end points and arcs
-            var center = ToPoint(circle.Center);
-            var other = ToPoint(circle.StartPoint);
-            var radius = (other - center).Length;
-            // TODO: transforms and normal
-            return new Circle(center, radius, Vector.ZAxis, ToColor(circle.Color));
+            var center = TransformPoint(arc, arc.Center);
+            var startPoint = TransformPoint(arc, arc.StartPoint);
+            var endPoint = TransformPoint(arc, arc.EndPoint);
+
+            // generate normal; points are given CCW
+            var startVector = startPoint - center;
+            var endVector = endPoint - center;
+            Vector normal;
+            if (((Point)startVector).CloseTo(endVector))
+                normal = Vector.NormalFromRightVector(startVector.Normalize());
+            else
+                normal = startVector.Cross(endVector).Normalize();
+            Debug.Assert(startVector.IsOrthoganalTo(normal));
+            Debug.Assert(endVector.IsOrthoganalTo(normal));
+
+            // find radius from start/end points
+            var startRadius = startVector.Length;
+            var endRadius = endVector.Length;
+            Debug.Assert(MathHelper.CloseTo(startRadius, endRadius));
+            var radius = startRadius;
+
+            // if start/end points are the same, it's a circle.  otherwise it's an arc
+            if (startPoint.CloseTo(endPoint))
+            {
+                return new Circle(center, radius, normal, ToColor(arc.Color));
+            }
+            else
+            {
+                // project back to unit circle to find start/end angles
+                var primitiveCircle = new PrimitiveEllipse(center, radius, normal);
+                var toUnit = primitiveCircle.FromUnitCircleProjection();
+                toUnit.Invert();
+                var startUnit = startPoint.Transform(toUnit);
+                var endUnit = endPoint.Transform(toUnit);
+                var startAngle = ((Vector)startUnit).ToAngle();
+                var endAngle = ((Vector)endUnit).ToAngle();
+                return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color));
+            }
         }
 
         private static Color ToColor(IgesColorNumber color)
@@ -75,9 +111,10 @@ namespace BCad.Commands.FileHandlers
             return new Color((byte)color);
         }
 
-        private static Point ToPoint(IgesPoint point)
+        private static Point TransformPoint(IgesEntity entity, IgesPoint point)
         {
-            return new Point(point.X, point.Y, point.Z);
+            var transformed = entity.TransformationMatrix.Transform(point);
+            return new Point(transformed.X, transformed.Y, transformed.Z);
         }
     }
 }

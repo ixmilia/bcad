@@ -176,6 +176,12 @@ namespace BCad
             return up.Cross(normal).Normalize();
         }
 
+        public static Vector NormalFromRightVector(Vector right)
+        {
+            // these two functions are identical, but the separate name makes them easier to understand
+            return RightVectorFromNormal(right);
+        }
+
         /// <summary>
         /// Returns the angle between the two vectors in degrees.
         /// </summary>
