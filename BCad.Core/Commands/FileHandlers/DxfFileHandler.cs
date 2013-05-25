@@ -114,21 +114,31 @@ namespace BCad.Commands.FileHandlers
 
                 // create the entity
                 Entity entity = null;
-                if (item is DxfLine)
-                    entity = ((DxfLine)item).ToLine();
-                else if (item is DxfCircle)
-                    entity = ((DxfCircle)item).ToCircle();
-                else if (item is DxfArc)
-                    entity = ((DxfArc)item).ToArc();
-                else if (item is DxfEllipse)
-                    entity = ((DxfEllipse)item).ToEllipse();
-                else if (item is DxfPolyline)
-                    entity = ((DxfPolyline)item).ToPolyline();
-                else if (item is DxfText)
-                    entity = ((DxfText)item).ToText();
-                else
+                switch (item.EntityType)
                 {
-                    //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
+                    case DxfEntityType.Arc:
+                        entity = ((DxfArc)item).ToArc();
+                        break;
+                    case DxfEntityType.Circle:
+                        entity = ((DxfCircle)item).ToCircle();
+                        break;
+                    case DxfEntityType.Ellipse:
+                        entity = ((DxfEllipse)item).ToEllipse();
+                        break;
+                    case DxfEntityType.Line:
+                        entity = ((DxfLine)item).ToLine();
+                        break;
+                    case DxfEntityType.Polyline:
+                        entity = ((DxfPolyline)item).ToPolyline();
+                        break;
+                    case DxfEntityType.Text:
+                        entity = ((DxfText)item).ToText();
+                        break;
+                    case DxfEntityType.Attribute:
+                    case DxfEntityType.Seqend:
+                    case DxfEntityType.Vertex:
+                        //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
+                        break;
                 }
 
                 // add the entity to the appropriate layer
