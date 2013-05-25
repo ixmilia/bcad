@@ -7,11 +7,12 @@ using BCad.Iges.Entities;
 
 namespace BCad.Commands.FileHandlers
 {
-    [ExportFileReader(IgesFileReader.DisplayName, IgesFileReader.FileExtension)]
+    [ExportFileReader(IgesFileReader.DisplayName, IgesFileReader.FileExtension1, IgesFileReader.FileExtension2)]
     internal class IgesFileReader : IFileReader
     {
-        public const string DisplayName = "IGES Files (" + FileExtension + ")";
-        public const string FileExtension = ".igs";
+        public const string DisplayName = "IGES Files (" + FileExtension1 + ", " + FileExtension2 + ")";
+        public const string FileExtension1 = ".igs";
+        public const string FileExtension2 = ".iges";
 
         public void ReadFile(string fileName, Stream stream, out Drawing drawing, out ViewPort activeViewPort)
         {
