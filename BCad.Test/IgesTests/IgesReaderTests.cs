@@ -55,5 +55,59 @@ S      1G      3D      0P      0                                        T      1
             Assert.Equal(new DateTime(1987, 5, 8, 12, 34, 56), file.ModifiedTime);
             Assert.Equal("protocol", file.ApplicationProtocol);
         }
+
+        [Fact]
+        public void GlobalParseWithLeadingWhitespaceTest()
+        {
+            var file = CreateFile(@"
+0123456789012345678901234567890123456789012345678901234567890123456789--S      1
+1H,,1H;,10Hidentifier,28HC:\path\to\full\filename.igs,4HBCAD,3H1.0,16,7,G      1
+22,10,51,6Hident2,0.75,10,,4,0.8,15H19831123.130811, 1.0E-003,500,5HBretG      2
+t,7HIxMilia, 8,4,13H870508.123456,8Hprotocol;                           G      3
+S      1G      3D      0P      0                                        T      1
+");
+            Assert.Equal(0.001, file.MinimumResolution); // leading space on double
+            Assert.Equal(IgesVersion.v5_0, file.IgesVersion); // leading space on int
+            Assert.Equal("protocol", file.ApplicationProtocol); // leading space on string
+        }
+
+        [Fact]
+        public void GlobalParseWithMissingStringField()
+        {
+            var file = CreateFile(@"
+0123456789012345678901234567890123456789012345678901234567890123456789--S      1
+1H,,1H;,10Hidentifier,28HC:\path\to\full\filename.igs,4HBCAD,3H1.0,16,7,G      1
+22,10,51,6Hident2,0.75,10,,4,0.8,15H19831123.130811,1.0E-003,500,5HBrettG      2
+,7HIxMilia,8,4,13H870508.123456,;                                       G      3
+S      1G      3D      0P      0                                        T      1
+");
+            Assert.Equal(null, file.ApplicationProtocol);
+        }
+
+        [Fact]
+        public void GlobalParseWithMissingIntField()
+        {
+            var file = CreateFile(@"
+0123456789012345678901234567890123456789012345678901234567890123456789--S      1
+1H,,1H;,10Hidentifier,28HC:\path\to\full\filename.igs,4HBCAD,3H1.0,16,7,G      1
+22,10,51,6Hident2,0.75,10,,4,0.8,15H19831123.130811,1.0E-003,500,5HBrettG      2
+,7HIxMilia,8,,13H870508.123456,8Hprotocol;                              G      3
+S      1G      3D      0P      0                                        T      1
+");
+            Assert.Equal(IgesDraftingStandard.None, file.DraftingStandard);
+        }
+
+        [Fact]
+        public void GlobalParseWithMissingDoubleField()
+        {
+            var file = CreateFile(@"
+0123456789012345678901234567890123456789012345678901234567890123456789--S      1
+1H,,1H;,10Hidentifier,28HC:\path\to\full\filename.igs,4HBCAD,3H1.0,16,7,G      1
+22,10,51,6Hident2,0.75,10,,4,0.8,15H19831123.130811,,500,5HBrett,7HIxMilG      2
+ia,8,4,13H870508.123456,8Hprotocol;                                     G      3
+S      1G      3D      0P      0                                        T      1
+");
+            Assert.Equal(0.0, file.MinimumResolution);
+        }
     }
 }

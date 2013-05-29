@@ -296,6 +296,8 @@ namespace BCad.Iges
                 return defaultValue;
             }
 
+            SwallowWhitespace(str, ref index);
+
             var sb = new StringBuilder();
 
             // parse length
@@ -312,7 +314,13 @@ namespace BCad.Iges
                 sb.Append(c);
             }
 
-            int length = int.Parse(sb.ToString());
+            var lengthString = sb.ToString();
+            if (string.IsNullOrWhiteSpace(lengthString))
+            {
+                return defaultValue;
+            }
+
+            int length = int.Parse(lengthString);
             sb.Clear();
 
             // parse content
@@ -336,6 +344,8 @@ namespace BCad.Iges
                 index++;
                 return defaultValue;
             }
+
+            SwallowWhitespace(str, ref index);
 
             var sb = new StringBuilder();
             for (; index < str.Length; index++)
@@ -362,6 +372,8 @@ namespace BCad.Iges
                 index++;
                 return defaultValue;
             }
+
+            SwallowWhitespace(str, ref index);
 
             var sb = new StringBuilder();
             for (; index < str.Length; index++)
@@ -398,6 +410,16 @@ namespace BCad.Iges
             if (match.Groups[1].Value.Length == 2)
                 year += 1900;
             return new DateTime(year, month, day, hour, minute, second);
+        }
+
+        private static void SwallowWhitespace(string str, ref int index)
+        {
+            for (; index < str.Length; index++)
+            {
+                var c = str[index];
+                if (!char.IsWhiteSpace(c))
+                    break;
+            }
         }
 
         private static Regex dateTimeReg = new Regex(@"((\d{2})|(\d{4}))(\d{2})(\d{2})\.(\d{2})(\d{2})(\d{2})", RegexOptions.Compiled);
