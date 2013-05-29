@@ -92,16 +92,10 @@ namespace BCad.Iges
                 switch (field)
                 {
                     case 1:
-                        temp = ParseString(file, fullString, ref index, file.FieldDelimiter.ToString());
-                        if (temp == null || temp.Length != 1)
-                            throw new IgesException("Expected delimiter of length 1");
-                        file.FieldDelimiter = temp[0];
+                        ParseDelimiterCharacter(file, fullString, ref index, true);
                         break;
                     case 2:
-                        temp = ParseString(file, fullString, ref index, file.RecordDelimiter.ToString());
-                        if (temp == null || temp.Length != 1)
-                            throw new IgesException("Expected delimiter of length 1");
-                        file.RecordDelimiter = temp[0];
+                        ParseDelimiterCharacter(file, fullString, ref index, false);
                         break;
                     case 3:
                         file.Identification = ParseString(file, fullString, ref index);
@@ -288,6 +282,41 @@ namespace BCad.Iges
             return fields;
         }
 
+        private static void ParseDelimiterCharacter(IgesFile file, string str, ref int index, bool readFieldSeparator)
+        {
+            // verify length
+            if (index >= str.Length)
+                throw new IgesException("Unexpected end of input");
+            if (str[index] != '1')
+                throw new IgesException("Expected delimiter of length 1");
+            index++;
+
+            // verify 'H' separator
+            if (index >= str.Length)
+                throw new IgesException("Unexpected end of input");
+            if (str[index] != IgesFile.StringSentinelCharacter)
+                throw new IgesException("Unexpected string sentinel character");
+            index++;
+
+            // get the separator character and set it
+            if (index >= str.Length)
+                throw new IgesException("Expected delimiter character");
+            var separator = str[index];
+            if (readFieldSeparator)
+                file.FieldDelimiter = separator;
+            else
+                file.RecordDelimiter = separator;
+            index++;
+
+            // verify delimiter
+            if (index >= str.Length)
+                throw new IgesException("Unexpected end of input");
+            separator = str[index];
+            if (separator != file.FieldDelimiter && separator != file.RecordDelimiter)
+                throw new IgesException("Expected field or record delimiter");
+            index++; // swallow it
+        }
+
         private static string ParseString(IgesFile file, string str, ref int index, string defaultValue = null)
         {
             if (index < str.Length && (str[index] == file.FieldDelimiter || str[index] == file.RecordDelimiter))
@@ -305,7 +334,7 @@ namespace BCad.Iges
             for (; index < str.Length; index++)
             {
                 var c = str[index];
-                if (c == 'H')
+                if (c == IgesFile.StringSentinelCharacter)
                 {
                     index++; // swallow H
                     break;
@@ -362,7 +391,11 @@ namespace BCad.Iges
                 sb.Append(c);
             }
 
-            return int.Parse(sb.ToString());
+            var intString = sb.ToString();
+            if (string.IsNullOrWhiteSpace(intString))
+                return defaultValue;
+            else
+                return int.Parse(sb.ToString());
         }
 
         private static double ParseDouble(IgesFile file, string str, ref int index, double defaultValue = 0.0)
@@ -388,7 +421,11 @@ namespace BCad.Iges
                 sb.Append(c);
             }
 
-            return double.Parse(sb.ToString());
+            var doubleString = sb.ToString();
+            if (string.IsNullOrWhiteSpace(doubleString))
+                return defaultValue;
+            else
+                return double.Parse(sb.ToString());
         }
 
         private static DateTime ParseDateTime(string value, DateTime defaultValue)

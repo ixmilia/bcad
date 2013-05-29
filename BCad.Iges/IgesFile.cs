@@ -38,10 +38,16 @@ namespace BCad.Iges
 
         public List<IgesEntity> Entities { get; private set; }
 
+        public const char DefaultFieldDelimiter = ',';
+
+        public const char DefaultRecordDelimiter = ';';
+
+        public const char StringSentinelCharacter = 'H';
+
         public IgesFile()
         {
-            FieldDelimiter = ',';
-            RecordDelimiter = ';';
+            FieldDelimiter = DefaultFieldDelimiter;
+            RecordDelimiter = DefaultRecordDelimiter;
             IntegerSize = 32;
             SingleSize = 8;
             DecimalDigits = 23;

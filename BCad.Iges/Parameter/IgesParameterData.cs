@@ -12,11 +12,7 @@ namespace BCad.Iges.Parameter
 
         protected abstract object[] GetFields();
 
-        private const string Separator = ","; // TODO: parameterize this
-
-        private const string Terminator = ";";
-
-        public string ToString(IgesEntityType type, int lineNumber)
+        public string ToString(IgesFile file, IgesEntityType type, int lineNumber)
         {
             var sb = new StringBuilder();
             sb.Append((int)type);
@@ -24,11 +20,11 @@ namespace BCad.Iges.Parameter
             for (int i = 0; i < fields.Length; i++)
             {
                 // TODO: break, don't wrap, long lines
-                sb.Append(Separator);
+                sb.Append(file.FieldDelimiter);
                 sb.Append(ParameterToString(fields[i]));
             }
 
-            sb.Append(Terminator);
+            sb.Append(file.RecordDelimiter);
             return sb.ToString();
         }
 

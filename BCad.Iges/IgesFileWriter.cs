@@ -38,7 +38,7 @@ namespace BCad.Iges
                 var parameter = IgesParameterData.FromEntity(entity);
 
                 directoryLines.Add(directory.ToString(directoryLine));
-                parameterLines.Add(parameter.ToString(entity.Type, parameterLine));
+                parameterLines.Add(parameter.ToString(file, entity.Type, parameterLine));
             }
 
             writer.Flush();

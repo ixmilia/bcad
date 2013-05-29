@@ -109,5 +109,18 @@ S      1G      3D      0P      0                                        T      1
 ");
             Assert.Equal(0.0, file.MinimumResolution);
         }
+
+        [Fact]
+        public void FileWithNonStandardDelimitersTest()
+        {
+            var file = CreateFile(@"
+                                                                        S      1
+1H//1H#/10Hidentifier/12Hfilename.igs#                                  G      1
+");
+            Assert.Equal('/', file.FieldDelimiter);
+            Assert.Equal('#', file.RecordDelimiter);
+            Assert.Equal("identifier", file.Identification);
+            Assert.Equal("filename.igs", file.FullFileName);
+        }
     }
 }
