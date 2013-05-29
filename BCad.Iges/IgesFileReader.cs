@@ -190,7 +190,8 @@ namespace BCad.Iges
                 sb.Append(line);
                 if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString())) // TODO: string may contain delimiter
                 {
-                    var fields = SplitFields(line, file.FieldDelimiter, file.RecordDelimiter);
+                    var fullLine = sb.ToString();
+                    var fields = SplitFields(fullLine, file.FieldDelimiter, file.RecordDelimiter);
                     if (fields.Count < 2)
                         throw new IgesException("At least two fields necessary");
                     var entityType = (IgesEntityType)int.Parse(fields[0]);
