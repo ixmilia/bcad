@@ -122,5 +122,15 @@ S      1G      3D      0P      0                                        T      1
             Assert.Equal("identifier", file.Identification);
             Assert.Equal("filename.igs", file.FullFileName);
         }
+
+        [Fact]
+        public void StringContainingDelimiterValuesTest()
+        {
+            var file = CreateFile(@"
+                                                                        S      1
+1H,,1H;,6H,;,;,;;                                                       G      1
+");
+            Assert.Equal(",;,;,;", file.Identification);
+        }
     }
 }
