@@ -67,7 +67,7 @@
     <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
-    <Compile Include="Commands\FileHandlers\IgesFileReader.cs" />
+    <Compile Include="Commands\FileHandlers\IgesFileHandler.cs" />
     <Compile Include="Commands\ExtendCommand.cs" />
     <Compile Include="Commands\FileHandlers\StlFileReader.cs" />
     <Compile Include="Commands\PlotCommand.cs" />

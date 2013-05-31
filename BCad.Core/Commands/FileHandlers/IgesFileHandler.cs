@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using BCad.Collections;
 using BCad.Entities;
@@ -11,6 +12,71 @@ using BCad.Primitives;
 
 namespace BCad.Commands.FileHandlers
 {
+    [ExportFileWriter(IgesFileReader.DisplayName, IgesFileReader.FileExtension1, IgesFileReader.FileExtension2)]
+    internal class IgesFileWriter : IFileWriter
+    {
+        public void WriteFile(string fileName, Stream stream, Drawing drawing, ViewPort activeViewPort)
+        {
+            var file = new IgesFile();
+            file.Author = Environment.UserName;
+            file.FullFileName = fileName;
+            file.Identification = Path.GetFileName(fileName);
+            file.Identifier = Path.GetFileName(fileName);
+            file.ModelUnits = ToIgesUnits(drawing.Settings.UnitFormat);
+            file.ModifiedTime = DateTime.Now;
+            file.SystemIdentifier = "BCad";
+            file.SystemVersion = "1.0";
+            foreach (var entity in drawing.GetEntities())
+            {
+                IgesEntity igesEntity = null;
+                switch (entity.Kind)
+                {
+                    case EntityKind.Line:
+                        igesEntity = ToIgesLine((Line)entity);
+                        break;
+                    default:
+                        Debug.Fail("Unsupported entity type: " + entity.Kind);
+                        break;
+                }
+
+                if (igesEntity != null)
+                    file.Entities.Add(igesEntity);
+            }
+
+            file.Save(stream);
+        }
+
+        private static IgesLine ToIgesLine(Line line)
+        {
+            return new IgesLine()
+            {
+                Bounding = IgesBounding.BoundOnBothSides,
+                Color = IgesColorNumber.Color0,
+                P1 = ToIgesPoint(line.P1),
+                P2 = ToIgesPoint(line.P2)
+            };
+        }
+
+        private static IgesPoint ToIgesPoint(Point point)
+        {
+            return new IgesPoint(point.X, point.Y, point.Z);
+        }
+
+        private static IgesUnits ToIgesUnits(UnitFormat unitFormat)
+        {
+            switch (unitFormat)
+            {
+                case UnitFormat.Architectural:
+                case UnitFormat.None:
+                    return IgesUnits.Inches;
+                case UnitFormat.Metric:
+                    return IgesUnits.Millimeters;
+                default:
+                    throw new Exception("Unsupported unit type: " + unitFormat);
+            }
+        }
+    }
+
     [ExportFileReader(IgesFileReader.DisplayName, IgesFileReader.FileExtension1, IgesFileReader.FileExtension2)]
     internal class IgesFileReader : IFileReader
     {
