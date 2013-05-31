@@ -134,5 +134,5 @@ namespace BCad.Test.IgesTests
             Assert.Equal(0.0, circle.EndPoint.Z);
             Assert.Equal(IgesColorNumber.Color3, circle.Color);
         }
-        }
+    }
 }
