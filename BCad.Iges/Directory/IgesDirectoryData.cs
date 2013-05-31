@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BCad.Iges.Entities;
 
 namespace BCad.Iges.Directory
@@ -22,11 +23,10 @@ namespace BCad.Iges.Directory
         public string EntityLabel { get; set; }
         public int EntitySubscript { get; set; }
 
-        public string ToString(int lineNumber)
+        public void ToString(List<string> directoryLines)
         {
-            return string.Format(
-                "{0,8}{1,8}{2,8}{3,8}{4,8}{5,8}{6,8}{7,8}{8,8}D{9,7}\n" +
-                "{10,8}{11,8}{12,8}{13,8}{14,8}{15,8}{16,8}                D{17,7}",
+            var line1 = string.Format(
+                "{0,8}{1,8}{2,8}{3,8}{4,8}{5,8}{6,8}{7,8}{8,8}",
                 (int)EntityType,
                 ParameterPointer,
                 Structure,
@@ -35,17 +35,18 @@ namespace BCad.Iges.Directory
                 ToStringOrDefault(View),
                 ToStringOrDefault(TransformationMatrixPointer),
                 ToStringOrDefault(LableDisplay),
-                StatusNumber,
-                lineNumber,
-                
+                StatusNumber);
+            var line2 = string.Format(
+                "{0,8}{1,8}{2,8}{3,8}{4,8}{5,8}{6,8}",
                 (int)EntityType,
                 LineWeight,
                 (int)Color,
                 LineCount,
                 FormNumber,
                 ToStringOrDefault(EntityLabel),
-                ToStringOrDefault(EntitySubscript),
-                lineNumber + 1);
+                ToStringOrDefault(EntitySubscript));
+            directoryLines.Add(line1);
+            directoryLines.Add(line2);
         }
 
         private static string ToStringOrDefault(int value)
@@ -76,8 +77,8 @@ namespace BCad.Iges.Directory
             dir.StatusNumber = 0;
             dir.LineWeight = 0;
             dir.Color = entity.Color;
-            dir.LineCount = 0;
-            dir.FormNumber = 0; // TODO: get this from the entity.
+            dir.LineCount = entity.LineCount;
+            dir.FormNumber = entity.Form;
             dir.EntityLabel = string.Empty;
             dir.EntitySubscript = 0;
             return dir;

@@ -9,6 +9,8 @@ namespace BCad.Iges
     {
         internal const int MaxDataLength = 72;
 
+        internal const int MaxParameterLength = 64;
+
         public char FieldDelimiter { get; set; }
         public char RecordDelimiter { get; set; }
         public string Identification { get; set; }

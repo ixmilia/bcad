@@ -63,6 +63,7 @@
     <Compile Include="IgesTests\IgesEntityReaderTests.cs" />
     <Compile Include="IgesTests\IgesReaderTests.cs" />
     <Compile Include="IgesTests\IgesTransformMatrixTests.cs" />
+    <Compile Include="IgesTests\IgesWriterTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />
     <Compile Include="PointTests.cs" />

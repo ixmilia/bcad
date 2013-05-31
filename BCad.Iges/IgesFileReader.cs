@@ -85,7 +85,6 @@ namespace BCad.Iges
             if (string.IsNullOrEmpty(fullString))
                 return;
 
-            string temp;
             int index = 0;
             for (int field = 1; field <= 26; field++)
             {
@@ -180,9 +179,9 @@ namespace BCad.Iges
             var sb = new StringBuilder();
             for (int i = 0; i < parameterLines.Count; i++)
             {
-                var line = parameterLines[i].Substring(0, 64); // last 16 bytes aren't needed
+                var line = parameterLines[i].Substring(0, IgesFile.MaxParameterLength); // last 16 bytes aren't needed
                 sb.Append(line);
-                if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString())) // TODO: string may contain delimiter
+                if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString()))
                 {
                     var fullLine = sb.ToString();
                     var fields = SplitFields(fullLine, file.FieldDelimiter, file.RecordDelimiter);
@@ -191,7 +190,10 @@ namespace BCad.Iges
                     var entityType = (IgesEntityType)int.Parse(fields[0]);
                     var data = IgesParameterData.ParseFields(entityType, fields.Skip(1).ToList());
                     if (data != null)
+                    {
+                        // TODO: parse and populate directory pointer
                         parameterData.Add(index, data);
+                    }
                     index = i + 2; // +1 for zero offset, +1 to skip to the next line
                     sb.Clear();
                 }
@@ -469,20 +471,6 @@ namespace BCad.Iges
                 throw new IgesException("Unexpected end of string");
             if (str[index++] != delim)
                 throw new IgesException("Expected delimiter");
-        }
-
-        private static char SectionTypeChar(IgesSectionType type)
-        {
-            switch (type)
-            {
-                case IgesSectionType.Start: return 'S';
-                case IgesSectionType.Global: return 'G';
-                case IgesSectionType.Directory: return 'D';
-                case IgesSectionType.Parameter: return 'P';
-                case IgesSectionType.Terminate: return 'T';
-                default:
-                    throw new IgesException("Unexpected section type " + type);
-            }
         }
 
         private static IgesSectionType SectionTypeFromCharacter(char c)

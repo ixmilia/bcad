@@ -10,6 +10,8 @@ namespace BCad.Iges.Entities
     {
         public override IgesEntityType Type { get { return IgesEntityType.TransformationMatrix; } }
 
+        public override int LineCount { get { return 0; } }
+
         public double R11 { get; set; }
         public double R12 { get; set; }
         public double R13 { get; set; }

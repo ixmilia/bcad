@@ -16,6 +16,10 @@ namespace BCad.Iges.Entities
 
         public IgesTransformationMatrix TransformationMatrix { get; set; }
 
+        public int Form { get; internal set; }
+
+        public abstract int LineCount { get; }
+
         internal static IgesEntity CreateEntity(IgesParameterData parameterData, IgesDirectoryData directoryData, Dictionary<int, IgesTransformationMatrix> transformationMatricies)
         {
             var entity = parameterData.ToEntity(directoryData);

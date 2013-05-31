@@ -4,6 +4,8 @@
     {
         public override IgesEntityType Type { get { return IgesEntityType.Circle; } }
 
+        public override int LineCount { get { return 1; } }
+
         public double PlaneDisplacement { get; set; }
 
         public IgesPoint Center { get; set; }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using BCad.Iges.Directory;
@@ -8,24 +9,22 @@ namespace BCad.Iges.Parameter
 {
     internal abstract class IgesParameterData
     {
+        public int DirectoryPointer { get; set; }
+
         public abstract IgesEntity ToEntity(IgesDirectoryData dir);
 
         protected abstract object[] GetFields();
 
-        public string ToString(IgesFile file, IgesEntityType type, int lineNumber)
+        internal void ToString(List<string> parameterLines, IgesFile file, IgesEntityType type)
         {
-            var sb = new StringBuilder();
-            sb.Append((int)type);
             var fields = GetFields();
-            for (int i = 0; i < fields.Length; i++)
-            {
-                // TODO: break, don't wrap, long lines
-                sb.Append(file.FieldDelimiter);
-                sb.Append(ParameterToString(fields[i]));
-            }
+            var parameters = new object[fields.Length + 1];
+            parameters[0] = (int)type;
+            Array.Copy(fields, 0, parameters, 1, fields.Length);
 
-            sb.Append(file.RecordDelimiter);
-            return sb.ToString();
+            IgesFileWriter.AddParametersToStringList(parameters, parameterLines, file.FieldDelimiter, file.RecordDelimiter,
+                maxLength: IgesFile.MaxParameterLength,
+                lineSuffix: string.Format(" {0,7}", DirectoryPointer));
         }
 
         public static IgesParameterData ParseFields(IgesEntityType type, List<string> fields)
@@ -43,7 +42,7 @@ namespace BCad.Iges.Parameter
             }
         }
 
-        public static IgesParameterData FromEntity(IgesEntity entity)
+        internal static IgesParameterData FromEntity(IgesEntity entity, int directoryPointer)
         {
             IgesParameterData data;
             switch (entity.Type)
@@ -95,32 +94,9 @@ namespace BCad.Iges.Parameter
                     throw new IgesException("Unsupported entity type: " + entity.Type.ToString());
             }
 
+            data.DirectoryPointer = directoryPointer;
+
             return data;
-        }
-
-        private static string ParameterToString(object parameter)
-        {
-            var type = parameter.GetType();
-            if (type == typeof(double))
-                return ParameterToString((double)parameter);
-            else if (type == typeof(string))
-                return ParameterToString((string)parameter);
-            else
-            {
-                Debug.Fail("Unsupported parameter type: " + type.ToString());
-                return string.Empty;
-            }
-        }
-
-        private static string ParameterToString(double parameter)
-        {
-            return parameter.ToString();
-        }
-
-        private static string ParameterToString(string parameter)
-        {
-            parameter = parameter ?? string.Empty;
-            return string.Format("{0}H{1}", parameter.Length, parameter);
         }
 
         private static IgesCircleParameterData ParseCircle(List<string> fields)

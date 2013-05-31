@@ -21,7 +21,8 @@ namespace BCad.Iges.Parameter
             {
                 P1 = new IgesPoint(X1, Y1, Z1),
                 P2 = new IgesPoint(X2, Y2, Z2),
-                Bounding = GetBounding(dir.FormNumber)
+                Bounding = GetBounding(dir.FormNumber),
+                Form = 1 // TODO: set proper form value
             };
         }
 
