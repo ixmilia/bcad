@@ -73,7 +73,7 @@
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
     <Compile Include="Commands\FileHandlers\DxfFileHandler.cs" />
-    <Compile Include="Commands\FileHandlers\PngFileHandler.cs" />
+    <Compile Include="Commands\FileHandlers\PngFilePlotter.cs" />
     <Compile Include="Commands\FileHandlers\SvgFilePlotter.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandMetadata.cs" />

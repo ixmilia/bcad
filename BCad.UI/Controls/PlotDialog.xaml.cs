@@ -9,6 +9,11 @@ using System.Windows;
 using BCad.FileHandlers;
 using BCad.Primitives;
 using BCad.Services;
+using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Drawing.Printing;
+using BCad.Entities;
+using System.Drawing;
 
 namespace BCad.UI.Controls
 {
@@ -47,19 +52,61 @@ namespace BCad.UI.Controls
 
         public override void Commit()
         {
-            var extension = Path.GetExtension(viewModel.FileName);
-            var plotter = PlotterFromExtension(extension);
-            if (plotter == null) // invalid file selected
-                throw new Exception("Unknown file extension " + extension);
-
+            IFilePlotter plotter;
+            Stream stream;
             var viewPort = GenerateViewPort();
             var width = Math.Abs(viewModel.TopRight.X - viewModel.BottomLeft.X);
             var height = Math.Abs(viewModel.TopRight.Y - viewModel.BottomLeft.Y);
-            using (var file = new FileStream(viewModel.FileName, FileMode.Create))
+            switch (viewModel.PlotType)
             {
-                var entities = exportService.ProjectTo2D(workspace.Drawing, viewPort);
-                plotter.Plot(entities, width, height, file);
+                case "File":
+                    var extension = Path.GetExtension(viewModel.FileName);
+                    plotter = PlotterFromExtension(extension);
+                    if (plotter == null) // invalid file selected
+                        throw new Exception("Unknown file extension " + extension);
+
+                    stream = new FileStream(viewModel.FileName, FileMode.Create);
+                    break;
+                case "Print":
+                    // fake it with the png plotter
+                    plotter = filePlotters.FirstOrDefault(plt => plt.Metadata.FileExtensions.Contains(".png")).Value;
+                    stream = new MemoryStream();
+                    break;
+                default:
+                    throw new NotImplementedException(); // TODO: remove this
             }
+
+            var entities = exportService.ProjectTo2D(workspace.Drawing, viewPort);
+            plotter.Plot(entities, width, height, stream);
+
+            switch (viewModel.PlotType)
+            {
+                case "Print":
+                    var dialog = new System.Windows.Forms.PrintDialog();
+                    dialog.AllowPrintToFile = true;
+                    dialog.PrintToFile = false;
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        // stream should be a png
+                        stream.Flush();
+                        stream.Seek(0, SeekOrigin.Begin);
+                        var image = new Bitmap(stream);
+                        var document = new PrintDocument();
+                        document.PrinterSettings = dialog.PrinterSettings;
+                        document.DefaultPageSettings.PaperSize = new PaperSize("LTR", 850, 1100);
+                        document.PrinterSettings.PrintToFile = true;
+                        document.PrintPage += (sender, e) =>
+                            {
+                                e.Graphics.DrawImage(image, new PointF());
+                            };
+                        document.Print();
+                    }
+                    break;
+            }
+
+            stream.Close();
+            stream.Dispose();
+            stream = null;
         }
 
         public override void Cancel()
@@ -142,7 +189,7 @@ namespace BCad.UI.Controls
     {
         public IEnumerable<string> AvailablePlotTypes
         {
-            get { return new[] { "File" }; }
+            get { return new[] { "File", "Print" }; }
         }
 
         private string plotType;
@@ -210,8 +257,9 @@ namespace BCad.UI.Controls
 
         protected void OnPropertyChanged(string property)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            var changed = PropertyChanged;
+            if (changed != null)
+                changed(this, new PropertyChangedEventArgs(property));
         }
     }
 }
