@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using BCad.FileHandlers;
+using System.Windows.Forms;
+using BCad.FilePlotters;
 using BCad.Primitives;
 using BCad.Services;
-using System.Windows.Controls;
-using System.Windows.Forms;
-using System.Drawing.Printing;
-using BCad.Entities;
-using System.Drawing;
 
 namespace BCad.UI.Controls
 {

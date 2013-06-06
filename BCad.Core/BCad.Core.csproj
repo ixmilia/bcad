@@ -55,7 +55,7 @@
     <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Color.cs" />
-    <Compile Include="ColorExtensions.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
     <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
     <Compile Include="Commands\CopyCommand.cs" />
@@ -70,8 +70,8 @@
     <Compile Include="Commands\ExtendCommand.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
-    <Compile Include="Commands\FileHandlers\PngFilePlotter.cs" />
-    <Compile Include="Commands\FileHandlers\SvgFilePlotter.cs" />
+    <Compile Include="FilePlotters\PngFilePlotter.cs" />
+    <Compile Include="FilePlotters\SvgFilePlotter.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandMetadata.cs" />
     <Compile Include="Commands\LayersCommand.cs" />
@@ -112,10 +112,10 @@
     <Compile Include="Extensions\PrimitiveExtensions.RoundedDouble.cs" />
     <Compile Include="DrawingFiles\DxfDrawingFile.cs" />
     <Compile Include="FileHandlers\DxfFileHandler.cs" />
-    <Compile Include="FileHandlers\ExportFilePlotterAttribute.cs" />
+    <Compile Include="FilePlotters\ExportFilePlotterAttribute.cs" />
     <Compile Include="FileHandlers\IFileHandler.cs" />
-    <Compile Include="FileHandlers\IFilePlotter.cs" />
-    <Compile Include="FileHandlers\IFilePlotterMetadata.cs" />
+    <Compile Include="FilePlotters\IFilePlotter.cs" />
+    <Compile Include="FilePlotters\IFilePlotterMetadata.cs" />
     <Compile Include="FileHandlers\IFileHandlerMetadata.cs" />
     <Compile Include="FileHandlers\IgesFileHandler.cs" />
     <Compile Include="FileHandlers\StlFileHandler.cs" />

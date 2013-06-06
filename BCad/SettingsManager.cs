@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using BCad.Extensions;
 using BCad.Services;
 using Media = System.Windows.Media;
 
