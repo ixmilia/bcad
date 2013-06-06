@@ -67,12 +67,9 @@
     <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
-    <Compile Include="Commands\FileHandlers\IgesFileHandler.cs" />
     <Compile Include="Commands\ExtendCommand.cs" />
-    <Compile Include="Commands\FileHandlers\StlFileReader.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
-    <Compile Include="Commands\FileHandlers\DxfFileHandler.cs" />
     <Compile Include="Commands\FileHandlers\PngFilePlotter.cs" />
     <Compile Include="Commands\FileHandlers\SvgFilePlotter.cs" />
     <Compile Include="Commands\ICommand.cs" />
@@ -89,8 +86,14 @@
     <Compile Include="Commands\TrimCommand.cs" />
     <Compile Include="Commands\UndoCommand.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Converters\DxfConverter.cs" />
+    <Compile Include="Converters\IDrawingConverter.cs" />
+    <Compile Include="Converters\IgesConverter.cs" />
+    <Compile Include="Converters\StlConverter.cs" />
     <Compile Include="DialogFactory.cs" />
     <Compile Include="Drawing.cs" />
+    <Compile Include="DrawingFiles\IgesDrawingFile.cs" />
+    <Compile Include="DrawingFiles\StlDrawingFile.cs" />
     <Compile Include="DrawingSettings.cs" />
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
@@ -107,11 +110,16 @@
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.RoundedDouble.cs" />
+    <Compile Include="DrawingFiles\DxfDrawingFile.cs" />
+    <Compile Include="FileHandlers\DxfFileHandler.cs" />
     <Compile Include="FileHandlers\ExportFilePlotterAttribute.cs" />
+    <Compile Include="FileHandlers\IFileHandler.cs" />
     <Compile Include="FileHandlers\IFilePlotter.cs" />
     <Compile Include="FileHandlers\IFilePlotterMetadata.cs" />
-    <Compile Include="FileHandlers\IFileReaderMetadata.cs" />
-    <Compile Include="FileHandlers\IFileWriterMetadata.cs" />
+    <Compile Include="FileHandlers\IFileHandlerMetadata.cs" />
+    <Compile Include="FileHandlers\IgesFileHandler.cs" />
+    <Compile Include="FileHandlers\StlFileHandler.cs" />
+    <Compile Include="DrawingFiles\IDrawingFile.cs" />
     <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
@@ -125,10 +133,7 @@
     <Compile Include="Extensions\EntityExtensions.cs" />
     <Compile Include="Extensions\ShapeExtensions.cs" />
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
-    <Compile Include="FileHandlers\ExportFileReaderAttribute.cs" />
-    <Compile Include="FileHandlers\ExportFileWriterAttribute.cs" />
-    <Compile Include="FileHandlers\IFileReader.cs" />
-    <Compile Include="FileHandlers\IFileWriter.cs" />
+    <Compile Include="FileHandlers\ExportFileHandlerAttribute.cs" />
     <Compile Include="Helpers\MathHelper.cs" />
     <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
@@ -205,6 +210,7 @@
       <Name>BCad.Stl</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

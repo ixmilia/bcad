@@ -2,20 +2,51 @@
 using System.Diagnostics;
 using System.IO;
 using BCad.Collections;
+using BCad.DrawingFiles;
 using BCad.Entities;
 using BCad.Extensions;
-using BCad.FileHandlers;
 using BCad.Helpers;
 using BCad.Iges;
 using BCad.Iges.Entities;
 using BCad.Primitives;
 
-namespace BCad.Commands.FileHandlers
+namespace BCad.Converters
 {
-    [ExportFileWriter(IgesFileReader.DisplayName, IgesFileReader.FileExtension1, IgesFileReader.FileExtension2)]
-    internal class IgesFileWriter : IFileWriter
+    public class IgesConverter : IDrawingConverter
     {
-        public void WriteFile(string fileName, Stream stream, Drawing drawing, ViewPort activeViewPort)
+        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort)
+        {
+            if (drawingFile == null)
+                throw new ArgumentNullException("drawingFile");
+            var igesFile = drawingFile as IgesDrawingFile;
+            if (igesFile == null)
+                throw new ArgumentException("Drawing file was not an IGES file.");
+            if (igesFile.File == null)
+                throw new ArgumentException("Drawing file had no internal IGES file.");
+            var layer = new Layer("igs", Color.Auto);
+            foreach (var entity in igesFile.File.Entities)
+            {
+                var cadEntity = ToEntity(entity);
+                if (cadEntity != null)
+                {
+                    layer = layer.Add(cadEntity);
+                }
+            }
+
+            drawing = new Drawing(
+                new DrawingSettings(fileName, UnitFormat.None, -1),
+                new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
+
+            viewPort = new ViewPort(
+                Point.Origin,
+                Vector.ZAxis,
+                Vector.YAxis,
+                100.0);
+
+            return true;
+        }
+
+        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
         {
             var file = new IgesFile();
             file.Author = Environment.UserName;
@@ -43,7 +74,8 @@ namespace BCad.Commands.FileHandlers
                     file.Entities.Add(igesEntity);
             }
 
-            file.Save(stream);
+            drawingFile = new IgesDrawingFile(file);
+            return true;
         }
 
         private static IgesLine ToIgesLine(Line line)
@@ -74,38 +106,6 @@ namespace BCad.Commands.FileHandlers
                 default:
                     throw new Exception("Unsupported unit type: " + unitFormat);
             }
-        }
-    }
-
-    [ExportFileReader(IgesFileReader.DisplayName, IgesFileReader.FileExtension1, IgesFileReader.FileExtension2)]
-    internal class IgesFileReader : IFileReader
-    {
-        public const string DisplayName = "IGES Files (" + FileExtension1 + ", " + FileExtension2 + ")";
-        public const string FileExtension1 = ".igs";
-        public const string FileExtension2 = ".iges";
-
-        public void ReadFile(string fileName, Stream stream, out Drawing drawing, out ViewPort activeViewPort)
-        {
-            var file = IgesFile.Load(stream);
-            var layer = new Layer("igs", Color.Auto);
-            foreach (var entity in file.Entities)
-            {
-                var cadEntity = ToEntity(entity);
-                if (cadEntity != null)
-                {
-                    layer = layer.Add(cadEntity);
-                }
-            }
-
-            drawing = new Drawing(
-                new DrawingSettings(fileName, UnitFormat.None, -1),
-                new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
-
-            activeViewPort = new ViewPort(
-                Point.Origin,
-                Vector.ZAxis,
-                Vector.YAxis,
-                100.0);
         }
 
         private static Entity ToEntity(IgesEntity entity)
