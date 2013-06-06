@@ -18,7 +18,7 @@ namespace BCad.Services
 
         public string GetFileNameFromUserForSave()
         {
-            var x = FileHandlers.Select(fw => new FileSpecification(fw.Metadata.DisplayName, fw.Metadata.FileExtensions));
+            var x = FileHandlers.Where(fw => fw.Metadata.CanWrite).Select(fw => new FileSpecification(fw.Metadata.DisplayName, fw.Metadata.FileExtensions));
             return GetFileNameFromUserForWrite(x);
         }
 
@@ -41,7 +41,7 @@ namespace BCad.Services
 
         public string GetFileNameFromUserForOpen()
         {
-            var fileSpecifications = FileHandlers.Select(fr => new FileSpecification(fr.Metadata.DisplayName, fr.Metadata.FileExtensions));
+            var fileSpecifications = FileHandlers.Where(fr => fr.Metadata.CanRead).Select(fr => new FileSpecification(fr.Metadata.DisplayName, fr.Metadata.FileExtensions));
             var filter = string.Join("|",
                     from r in fileSpecifications.OrderBy(f => f.DisplayName)
                     let exts = string.Join(";", r.FileExtensions.Select(x => "*" + x))
