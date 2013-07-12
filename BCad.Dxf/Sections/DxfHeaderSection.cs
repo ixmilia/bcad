@@ -31,16 +31,44 @@ namespace BCad.Dxf.Sections
         All = 2
     }
 
+    public enum DxfJustification
+    {
+        Top = 0,
+        Middle = 1,
+        Bottom = 2
+    }
+
+    public enum DxfCoordinateDisplay
+    {
+        Static = 0,
+        ContinuousUpdate = 1,
+        DistanceAngleFormat = 2
+    }
+
     public class DxfHeaderSection : DxfSection
     {
         public short MaintenanceVersion { get; set; }
         public DxfAcadVersion Version { get; set; }
         public double AngleZeroDirection { get; set; }
         public DxfAngleDirection AngleDirection { get; set; }
+        public bool AttributeEntityDialogs { get; set; }
         public DxfAttributeVisibility AttributeVisibility { get; set; }
+        public bool AttributePromptDuringInsert { get; set; }
         public DxfUnitFormat AngleUnitFormat { get; set; }
         public short AngleUnitPrecision { get; set; }
+        public bool BlipMode { get; set; }
+        public DxfColor CurrentEntityColor { get; set; }
+        public double CurrentEntityLinetypeScale { get; set; }
+        public string CurrentEntityLinetypeName { get; set; }
+        public double FirstChamferDistance { get; set; }
+        public double SecondChamferDistance { get; set; }
+        public double ChamferLength { get; set; }
+        public double ChamferAngle { get; set; }
         public string CurrentLayer { get; set; }
+        public DxfJustification CurrentMultilineJustification { get; set; }
+        public double CurrentMultilineScale { get; set; }
+        public string CurrentMultilineStyleName { get; set; }
+        public DxfCoordinateDisplay CoordinateDisplay { get; set; }
         public DxfUnitFormat UnitFormat { get; set; }
         public short UnitPrecision { get; set; }
 
@@ -48,15 +76,33 @@ namespace BCad.Dxf.Sections
         private const string ACADVER = "$ACADVER";
         private const string ANGBASE = "$ANGBASE";
         private const string ANGDIR = "$ANGDIR";
+        private const string ATTDIA = "$ATTDIA";
         private const string ATTMODE = "$ATTMODE";
+        private const string ATTREQ = "$ATTREQ";
         private const string AUNITS = "$AUNITS";
         private const string AUPREC = "$AUPREC";
+        private const string BLIPMODE = "$BLIPMODE";
+        private const string CECOLOR = "$CECOLOR";
+        private const string CELTSCALE = "$CELTSCALE";
+        private const string CELTYPE = "$CELTYPE";
+        private const string CHAMFERA = "$CHAMFERA";
+        private const string CHAMFERB = "$CHAMFERB";
+        private const string CHAMFERC = "$CHAMFERC";
+        private const string CHAMFERD = "$CHAMFERD";
         private const string CLAYER = "$CLAYER";
+        private const string CMLJUST = "$CMLJUST";
+        private const string CMLSCALE = "$CMLSCALE";
+        private const string CMLSTYLE = "$CMLSTYLE";
+        private const string COORDS = "$COORDS";
         private const string LUNITS = "$LUNITS";
         private const string LUPREC = "$LUPREC";
 
         public DxfHeaderSection()
         {
+            CurrentEntityColor = DxfColor.ByBlock;
+            CurrentEntityLinetypeScale = 1.0;
+            CurrentEntityLinetypeName = "BYBLOCK";
+            CurrentMultilineScale = 1.0;
             CurrentLayer = null;
             Version = DxfAcadVersion.R14;
             UnitFormat = DxfUnitFormat.None;
@@ -76,16 +122,32 @@ namespace BCad.Dxf.Sections
                     values.Add(new DxfCodePair(code, value));
                 };
 
-            if (MaintenanceVersion != 0) addValue(ACADMAINTVER, 70, MaintenanceVersion);
-            if (Version != DxfAcadVersion.R14) addValue(ACADVER, 1, DxfAcadVersionStrings.VersionToString(Version));
-            if (AngleZeroDirection != 0.0) addValue(ANGBASE, 50, AngleZeroDirection);
-            if (AngleDirection != DxfAngleDirection.CounterClockwise) addValue(ANGDIR, 70, (short)AngleDirection);
-            if (AttributeVisibility != DxfAttributeVisibility.None) addValue(ATTMODE, 70, (short)AttributeVisibility);
-            if (AngleUnitFormat != DxfUnitFormat.None) addValue(AUNITS, 70, (short)AngleUnitFormat);
-            if (AngleUnitPrecision != 0) addValue(AUPREC, 70, AngleUnitPrecision);
-            if (!string.IsNullOrEmpty(CurrentLayer)) addValue(CLAYER, 8, CurrentLayer);
-            if (UnitFormat != DxfUnitFormat.None) addValue(LUNITS, 70, (short)UnitFormat);
-            if (UnitPrecision != 0) addValue(LUPREC, 70, (short)UnitPrecision);
+            Func<bool, short> boolToShort = (value) => (short)(value ? 1 : 0);
+
+            addValue(ACADMAINTVER, 70, MaintenanceVersion);
+            addValue(ACADVER, 1, DxfAcadVersionStrings.VersionToString(Version));
+            addValue(ANGBASE, 50, AngleZeroDirection);
+            addValue(ANGDIR, 70, (short)AngleDirection);
+            addValue(ATTDIA, 70, boolToShort(AttributeEntityDialogs));
+            addValue(ATTMODE, 70, (short)AttributeVisibility);
+            addValue(ATTREQ, 70, boolToShort(AttributePromptDuringInsert));
+            addValue(AUNITS, 70, (short)AngleUnitFormat);
+            addValue(AUPREC, 70, AngleUnitPrecision);
+            addValue(BLIPMODE, 70, boolToShort(BlipMode));
+            addValue(CECOLOR, 62, CurrentEntityColor.RawValue);
+            addValue(CELTSCALE, 40, CurrentEntityLinetypeScale);
+            addValue(CELTYPE, 6, CurrentEntityLinetypeName);
+            addValue(CHAMFERA, 40, FirstChamferDistance);
+            addValue(CHAMFERB, 40, SecondChamferDistance);
+            addValue(CHAMFERC, 40, ChamferLength);
+            addValue(CHAMFERD, 40, ChamferAngle);
+            addValue(CLAYER, 8, CurrentLayer);
+            addValue(CMLJUST, 70, (short)CurrentMultilineJustification);
+            addValue(CMLSCALE, 40, CurrentMultilineScale);
+            addValue(CMLSTYLE, 2, CurrentMultilineStyleName);
+            addValue(COORDS, 70, (short)CoordinateDisplay);
+            addValue(LUNITS, 70, (short)UnitFormat);
+            addValue(LUPREC, 70, (short)UnitPrecision);
 
             return values;
         }
@@ -135,9 +197,17 @@ namespace BCad.Dxf.Sections
                             EnsureCode(pair, 70);
                             section.AngleDirection = (DxfAngleDirection)pair.ShortValue;
                             break;
+                        case ATTDIA:
+                            EnsureCode(pair, 70);
+                            section.AttributeEntityDialogs = pair.ShortValue == 1;
+                            break;
                         case ATTMODE:
                             EnsureCode(pair, 70);
                             section.AttributeVisibility = (DxfAttributeVisibility)pair.ShortValue;
+                            break;
+                        case ATTREQ:
+                            EnsureCode(pair, 70);
+                            section.AttributePromptDuringInsert = pair.ShortValue == 1;
                             break;
                         case AUNITS:
                             EnsureCode(pair, 70);
@@ -147,9 +217,57 @@ namespace BCad.Dxf.Sections
                             EnsureCode(pair, 70);
                             section.AngleUnitPrecision = pair.ShortValue;
                             break;
+                        case BLIPMODE:
+                            EnsureCode(pair, 70);
+                            section.BlipMode = pair.ShortValue != 0;
+                            break;
+                        case CECOLOR:
+                            EnsureCode(pair, 62);
+                            section.CurrentEntityColor = DxfColor.FromRawValue(pair.ShortValue);
+                            break;
+                        case CELTSCALE:
+                            EnsureCode(pair, 40);
+                            section.CurrentEntityLinetypeScale = pair.DoubleValue;
+                            break;
+                        case CELTYPE:
+                            EnsureCode(pair, 6);
+                            section.CurrentEntityLinetypeName = pair.StringValue;
+                            break;
+                        case CHAMFERA:
+                            EnsureCode(pair, 40);
+                            section.FirstChamferDistance = pair.DoubleValue;
+                            break;
+                        case CHAMFERB:
+                            EnsureCode(pair, 40);
+                            section.SecondChamferDistance = pair.DoubleValue;
+                            break;
+                        case CHAMFERC:
+                            EnsureCode(pair, 40);
+                            section.ChamferLength = pair.DoubleValue;
+                            break;
+                        case CHAMFERD:
+                            EnsureCode(pair, 40);
+                            section.ChamferAngle = pair.DoubleValue;
+                            break;
                         case CLAYER:
                             EnsureCode(pair, 8);
                             section.CurrentLayer = pair.StringValue;
+                            break;
+                        case CMLJUST:
+                            EnsureCode(pair, 70);
+                            section.CurrentMultilineJustification = (DxfJustification)pair.ShortValue;
+                            break;
+                        case CMLSCALE:
+                            EnsureCode(pair, 40);
+                            section.CurrentMultilineScale = pair.DoubleValue;
+                            break;
+                        case CMLSTYLE:
+                            EnsureCode(pair, 2);
+                            section.CurrentMultilineStyleName = pair.StringValue;
+                            break;
+                        case COORDS:
+                            EnsureCode(pair, 70);
+                            section.CoordinateDisplay = (DxfCoordinateDisplay)pair.ShortValue;
                             break;
                         case LUNITS:
                             EnsureCode(pair, 70);
