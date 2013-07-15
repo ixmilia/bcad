@@ -12,7 +12,8 @@ namespace BCad.Dxf
         R2000,
         R2004,
         R2007,
-        R2010
+        R2010,
+        R2013
     }
 
     public static class DxfAcadVersionStrings
@@ -26,6 +27,7 @@ namespace BCad.Dxf
         public const string R2004 = "AC1018";
         public const string R2007 = "AC1021";
         public const string R2010 = "AC1024";
+        public const string R2013 = "AC1027";
 
         public static string VersionToString(DxfAcadVersion version)
         {
@@ -49,6 +51,8 @@ namespace BCad.Dxf
                     return R2007;
                 case DxfAcadVersion.R2010:
                     return R2010;
+                case DxfAcadVersion.R2013:
+                    return R2013;
                 default:
                     throw new NotSupportedException();
             }
@@ -75,6 +79,8 @@ namespace BCad.Dxf
                     return DxfAcadVersion.R2007;
                 case R2010:
                     return DxfAcadVersion.R2010;
+                case R2013:
+                    return DxfAcadVersion.R2013;
                 default:
                     throw new NotSupportedException();
             }
