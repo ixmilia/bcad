@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Spec xmlns="http://IxMilia.com/Dxf/DxfSpec">
+  <Variable Name="ACADMAINTVER" Code="70" Type="short" Property="MaintenenceVersion" DefaultValue="0" />
+  <Variable Name="ACADVER" Code="1" Type="DxfAcadVersion" Property="Version" DefaultValue="DxfAcadVersion.R14" ReadConverter="DxfAcadVersionStrings.StringToVersion" WriteConverter="DxfAcadVersionStrings.VersionToString" />
+  <Variable Name="ANGBASE" Code="50" Type="double" Property="AngleZeroDirection" DefaultValue="0.0" />
+  <Variable Name="ANGDIR" Code="70" Type="DxfAngleDirection" Property="AngleDirection" DefaultValue="DxfAngleDirection.CounterClockwise" ReadConverter="(DxfAngleDirection)" />
+  <Variable Name="ATTDIA" Code="70" Type="bool" Property="ShowAttributeEntryDialogs" DefaultValue="false" ReadConverter="ShortToBool" WriteConverter="BoolToShort" />
+  <Variable Name="ATTMODE" Code="70" Type="DxfAttributeVisibility" Property="AttributeVisibility" DefaultValue="DxfAttributeVisibility.None" ReadConverter="(DxfAttributeVisibility)" />
+  <Variable Name="ATTREQ" Code="70" Type="bool" Property="AttReq" DefaultValue="true" ReadConverter="ShortToBool" WriteConverter="BoolToShort" />
+  <Variable Name="CLAYER" Code="8" Type="string" Property="CurrentLayer" DefaultValue='"0"' />
+  <Variable Name="LUNITS" Code="70" Type="DxfUnitFormat" Property="UnitFormat" DefaultValue="DxfUnitFormat.None" ReadConverter="(DxfUnitFormat)" />
+  <Variable Name="LUPREC" Code="70" Type="short" Property="UnitPrecision" DefaultValue="12" />
+</Spec>
