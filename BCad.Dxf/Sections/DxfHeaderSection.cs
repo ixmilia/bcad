@@ -8,7 +8,6 @@ namespace BCad.Dxf.Sections
 {
     public enum DxfUnitFormat
     {
-        None = 0,
         Scientific = 1,
         Decimal = 2,
         Engineering = 3,
@@ -79,6 +78,13 @@ namespace BCad.Dxf.Sections
         MoveEitherForBestFit = 3
     }
 
+    public enum DxfDragMode
+    {
+        Off = 0,
+        On = 1,
+        Auto = 2
+    }
+
     public partial class DxfHeaderSection : DxfSection
     {
         public DxfHeaderSection()
@@ -98,14 +104,19 @@ namespace BCad.Dxf.Sections
             return values;
         }
 
-        internal static bool ShortToBool(short s)
+        internal static bool BoolShort(short s)
         {
             return s != 0;
         }
 
-        internal static short BoolToShort(bool b)
+        internal static short BoolShort(bool b)
         {
             return (short)(b ? 1 : 0);
+        }
+
+        internal static short RawValue(DxfColor c)
+        {
+            return c.RawValue;
         }
 
         internal static DxfHeaderSection HeaderSectionFromBuffer(DxfCodePairBufferReader buffer)
@@ -143,6 +154,24 @@ namespace BCad.Dxf.Sections
             if (pair.Code != code)
             {
                 throw new DxfReadException(string.Format("Expected code {0}, got {1}", code, pair.Code));
+            }
+        }
+
+        private static void SetPoint(DxfCodePair pair, DxfPoint point)
+        {
+            switch (pair.Code)
+            {
+                case 10:
+                    point.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    point.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    point.Z = pair.DoubleValue;
+                    break;
+                default:
+                    break;
             }
         }
     }

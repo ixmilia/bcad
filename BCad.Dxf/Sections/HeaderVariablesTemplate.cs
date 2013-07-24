@@ -14,21 +14,193 @@ namespace BCad.Dxf.Sections
         private const string ATTDIA = "$ATTDIA";
         private const string ATTMODE = "$ATTMODE";
         private const string ATTREQ = "$ATTREQ";
+        private const string AUNITS = "$AUNITS";
+        private const string AUPREC = "$AUPREC";
+        private const string BLIPMODE = "$BLIPMODE";
+        private const string CECOLOR = "$CECOLOR";
+        private const string CELTSCALE = "$CELTSCALE";
+        private const string CELTYPE = "$CELTYPE";
+        private const string CHAMFERA = "$CHAMFERA";
+        private const string CHAMFERB = "$CHAMFERB";
+        private const string CHAMFERC = "$CHAMFERC";
+        private const string CHAMFERD = "$CHAMFERD";
         private const string CLAYER = "$CLAYER";
+        private const string CMLJUST = "$CMLJUST";
+        private const string CMLSCALE = "$CMLSCALE";
+        private const string CMLSTYLE = "$CMLSTYLE";
+        private const string COORDS = "$COORDS";
+        private const string DELOBJ = "$DELOBJ";
+        private const string DIMALT = "$DIMALT";
+        private const string DIMALTD = "$DIMALTD";
+        private const string DIMALTF = "$DIMALTF";
+        private const string DIMALTTD = "$DIMALTTD";
+        private const string DIMALTTZ = "$DIMALTTZ";
+        private const string DIMALTU = "$DIMALTU";
+        private const string DIMALTZ = "$DIMALTZ";
+        private const string DIMAPOST = "$DIMAPOST";
+        private const string DIMASO = "$DIMASO";
+        private const string DIMASZ = "$DIMASZ";
+        private const string DIMAUNIT = "$DIMAUNIT";
+        private const string DIMBLK = "$DIMBLK";
+        private const string DIMBLK1 = "$DIMBLK1";
+        private const string DIMBLK2 = "$DIMBLK2";
+        private const string DIMCEN = "$DIMCEN";
+        private const string DIMCLRD = "$DIMCLRD";
+        private const string DIMCLRE = "$DIMCLRE";
+        private const string DIMCLRT = "$DIMCLRT";
+        private const string DIMDEC = "$DIMDEC";
+        private const string DIMDLE = "$DIMDLE";
+        private const string DIMDLI = "$DIMDLI";
+        private const string DIMEXE = "$DIMEXE";
+        private const string DIMEXO = "$DIMEXO";
+        private const string DIMFIT = "$DIMFIT";
+        private const string DIMGAP = "$DIMGAP";
+        private const string DIMJUST = "$DIMJUST";
+        private const string DIMLFAC = "$DIMLFAC";
+        private const string DIMLIM = "$DIMLIM";
+        private const string DIMPOST = "$DIMPOST";
+        private const string DIMRND = "$DIMRND";
+        private const string DIMSAH = "$DIMSAH";
+        private const string DIMSCALE = "$DIMSCALE";
+        private const string DIMSD1 = "$DIMSD1";
+        private const string DIMSD2 = "$DIMSD2";
+        private const string DIMSHO = "$DIMSHO";
+        private const string DIMSOXD = "$DIMSOXD";
+        private const string DIMSTYLE = "$DIMSTYLE";
+        private const string DIMTAD = "$DIMTAD";
+        private const string DIMTDEC = "$DIMTDEC";
+        private const string DIMTFAC = "$DIMTFAC";
+        private const string DIMTIH = "$DIMTIH";
+        private const string DIMTIX = "$DIMTIX";
+        private const string DIMTM = "$DIMTM";
+        private const string DIMTOFL = "$DIMTOFL";
+        private const string DIMTOH = "$DIMTOH";
+        private const string DIMTOL = "$DIMTOL";
+        private const string DIMTOLJ = "$DIMTOLJ";
+        private const string DIMTP = "$DIMTP";
+        private const string DIMTSZ = "$DIMTSZ";
+        private const string DIMTVP = "$DIMTVP";
+        private const string DIMTXSTY = "$DIMTXSTY";
+        private const string DIMTXT = "$DIMTXT";
+        private const string DIMTZIN = "$DIMTZIN";
+        private const string DIMUNIT = "$DIMUNIT";
+        private const string DIMUPT = "$DIMUPT";
+        private const string DIMZIN = "$DIMZIN";
+        private const string DISPSILH = "$DISPSILH";
+        private const string DRAGMODE = "$DRAGMODE";
+        private const string DWGCODEPAGE = "$DWGCODEPAGE";
+        private const string ELEVATION = "$ELEVATION";
+        private const string EXTMAX = "$EXTMAX";
+        private const string EXTMIN = "$EXTMIN";
+        private const string FILLETRAD = "$FILLETRAD";
+        private const string FILLMODE = "$FILLMODE";
+        private const string HANDLING = "$HANDLING";
+        private const string INSBASE = "$INSBASE";
+        private const string LIMCHECK = "$LIMCHECK";
+        private const string LIMMAX = "$LIMMAX";
+        private const string LIMMIN = "$LIMMIN";
+        private const string LTSCALE = "$LTSCALE";
         private const string LUNITS = "$LUNITS";
         private const string LUPREC = "$LUPREC";
+        private const string MAXACTVP = "$MAXACTVP";
 
         // properties
-        public short MaintenenceVersion { get; set; }
-        public DxfAcadVersion Version { get; set; }
-        public double AngleZeroDirection { get; set; }
-        public DxfAngleDirection AngleDirection { get; set; }
-        public bool ShowAttributeEntryDialogs { get; set; }
-        public DxfAttributeVisibility AttributeVisibility { get; set; }
-        public bool AttReq { get; set; }
-        public string CurrentLayer { get; set; }
-        public DxfUnitFormat UnitFormat { get; set; }
-        public short UnitPrecision { get; set; }
+        public short MaintenenceVersion { get; set; } // ACADMAINTVER
+        public DxfAcadVersion Version { get; set; } // ACADVER
+        public double AngleZeroDirection { get; set; } // ANGBASE
+        public DxfAngleDirection AngleDirection { get; set; } // ANGDIR
+        public bool ShowAttributeEntryDialogs { get; set; } // ATTDIA
+        public DxfAttributeVisibility AttributeVisibility { get; set; } // ATTMODE
+        public bool PromptForAttributeOnInsert { get; set; } // ATTREQ
+        public DxfAngleFormat AngleUnitFormat { get; set; } // AUNITS
+        public short AngleUnitPrecision { get; set; } // AUPREC
+        public bool BlipMode { get; set; } // BLIPMODE
+        public DxfColor CurrentEntityColor { get; set; } // CECOLOR
+        public double CurrentEntityLinetypeScale { get; set; } // CELTSCALE
+        public string CurrentEntityLinetype { get; set; } // CELTYPE
+        public double FirstChamferDistance { get; set; } // CHAMFERA
+        public double SecondChamferDistance { get; set; } // CHAMFERB
+        public double ChamferLength { get; set; } // CHAMFERC
+        public double ChamferAngle { get; set; } // CHAMFERD
+        public string CurrentLayer { get; set; } // CLAYER
+        public DxfJustification CurrentMultilineJustification { get; set; } // CMLJUST
+        public double CurrentMultilineScale { get; set; } // CMLSCALE
+        public string CurrentMultilineStyle { get; set; } // CMLSTYLE
+        public DxfCoordinateDisplay CoordinateDisplay { get; set; } // COORDS
+        public bool RetainDeletedObjects { get; set; } // DELOBJ
+        public bool UseAlternateDimensioning { get; set; } // DIMALT
+        public short AlternateDimensioningDecimalPlaces { get; set; } // DIMALTD
+        public double AlternateDimensioningScaleFactor { get; set; } // DIMALTF
+        public short AlternateDimensioningToleranceDecimalPlaces { get; set; } // DIMALTTD
+        public DxfUnitZeroSuppression AlternateDimensioningToleranceZeroSupression { get; set; } // DIMALTTZ
+        public DxfUnitFormat AlternateDimensioningUnits { get; set; } // DIMALTU
+        public DxfUnitZeroSuppression AlternateDimensioningZeroSupression { get; set; } // DIMALTZ
+        public string AlternateDimensioningSuffix { get; set; } // DIMAPOST
+        public bool CreateAssociativeDimensioning { get; set; } // DIMASO
+        public double DimensioningArrowSize { get; set; } // DIMASZ
+        public DxfAngleFormat DimensioningAngleFormat { get; set; } // DIMAUNIT
+        public string ArrowBlockName { get; set; } // DIMBLK
+        public string FirstArrowBlockName { get; set; } // DIMBLK1
+        public string SecondArrowBlockName { get; set; } // DIMBLK2
+        public double CenterMarkSize { get; set; } // DIMCEN
+        public DxfColor DimensionLineColor { get; set; } // DIMCLRD
+        public DxfColor DimensionExtensionLineColor { get; set; } // DIMCLRE
+        public DxfColor DimensionTextColor { get; set; } // DIMCLRT
+        public short DimensionUnitToleranceDecimalPlaces { get; set; } // DIMDEC
+        public double DimensionLineExtension { get; set; } // DIMDLE
+        public double DimensionLineIncrement { get; set; } // DIMDLI
+        public double DimensionExtensionLineExtension { get; set; } // DIMEXE
+        public double DimensionExtensionLineOffset { get; set; } // DIMEXO
+        public DxfDimensionFit DimensionTextAndArrowPlacement { get; set; } // DIMFIT
+        public double DimensionLineGap { get; set; } // DIMGAP
+        public DxfDimensionTextJustification DimensionTextJustification { get; set; } // DIMJUST
+        public double DimensionLinearMeasurementsScaleFactor { get; set; } // DIMLFAC
+        public bool GenerateDimensionLimits { get; set; } // DIMLIM
+        public string DimensioningSuffix { get; set; } // DIMPOST
+        public double DimensionDistanceRoundingValue { get; set; } // DIMRND
+        public bool UseSeparateArrowBlocksForDimensions { get; set; } // DIMSAH
+        public double DimensioningScaleFactor { get; set; } // DIMSCALE
+        public bool SuppressFirstDimensionExtensionLine { get; set; } // DIMSD1
+        public bool SuppressSecondDimensionExtensionLine { get; set; } // DIMSD2
+        public bool RecomputeDimensionsWhileDragging { get; set; } // DIMSHO
+        public bool SuppressOutsideExtensionDimensionLines { get; set; } // DIMSOXD
+        public string DimensionStyleName { get; set; } // DIMSTYLE
+        public bool TextAboveDimensionLine { get; set; } // DIMTAD
+        public short DimensionToleranceDecimalPlaces { get; set; } // DIMTDEC
+        public double DimensionToleranceDisplayScaleFactor { get; set; } // DIMTFAC
+        public bool DimensionTextInsideHorizontal { get; set; } // DIMTIH
+        public bool ForceDimensionTextInsideExtensions { get; set; } // DIMTIX
+        public double DimensionMinusTolerance { get; set; } // DIMTM
+        public bool ForceDimensionLineExtensionsOutsideIfTextIs { get; set; } // DIMTOFL
+        public bool DimensionTextOutsideHorizontal { get; set; } // DIMTOH
+        public bool GenerateDimensionTolerances { get; set; } // DIMTOL
+        public DxfJustification DimensionToleranceVerticalJustification { get; set; } // DIMTOLJ
+        public double DimensionPlusTolerance { get; set; } // DIMTP
+        public double DimensioningTickSize { get; set; } // DIMTSZ
+        public double DimensionVerticalTextPosition { get; set; } // DIMTVP
+        public string DimensionTextStyle { get; set; } // DIMTXSTY
+        public double DimensioningTextHeight { get; set; } // DIMTXT
+        public DxfUnitZeroSuppression DimensionToleranceZeroSuppression { get; set; } // DIMTZIN
+        public DxfUnitFormat DimensionUnitFormat { get; set; } // DIMUNIT
+        public bool DimensionCursorControlsTextPosition { get; set; } // DIMUPT
+        public DxfUnitZeroSuppression DimensionUnitZeroSuppression { get; set; } // DIMZIN
+        public bool DisplaySilhouetteCurvesInWireframeMode { get; set; } // DISPSILH
+        public DxfDragMode DragMode { get; set; } // DRAGMODE
+        public string DrawingCodePage { get; set; } // DWGCODEPAGE
+        public double Elevation { get; set; } // ELEVATION
+        public DxfPoint MaximumDrawingExtents { get; set; } // EXTMAX
+        public DxfPoint MinimumDrawingExtents { get; set; } // EXTMIN
+        public double FilletRadius { get; set; } // FILLETRAD
+        public bool FillModeOn { get; set; } // FILLMODE
+        public int NextAvailableHandle { get; set; } // HANDLING
+        public DxfPoint InsertionBase { get; set; } // INSBASE
+        public bool UseLimitsChecking { get; set; } // LIMCHECK
+        public DxfPoint MaximumDrawingLimits { get; set; } // LIMMAX
+        public DxfPoint MinimumDrawingLimits { get; set; } // LIMMIN
+        public double LinetypeScale { get; set; } // LTSCALE
+        public DxfUnitFormat UnitFormat { get; set; } // LUNITS
+        public short UnitPrecision { get; set; } // LUPREC
+        public short MaximumActiveViewports { get; set; } // MAXACTVP
 
         // set defaults
         private void SetDefaults()
@@ -39,10 +211,96 @@ namespace BCad.Dxf.Sections
             this.AngleDirection = DxfAngleDirection.CounterClockwise; // ANGDIR
             this.ShowAttributeEntryDialogs = false; // ATTDIA
             this.AttributeVisibility = DxfAttributeVisibility.None; // ATTMODE
-            this.AttReq = true; // ATTREQ
+            this.PromptForAttributeOnInsert = true; // ATTREQ
+            this.AngleUnitFormat = DxfAngleFormat.DecimalDegrees; // AUNITS
+            this.AngleUnitPrecision = 12; // AUPREC
+            this.BlipMode = false; // BLIPMODE
+            this.CurrentEntityColor = DxfColor.ByBlock; // CECOLOR
+            this.CurrentEntityLinetypeScale = 1.0; // CELTSCALE
+            this.CurrentEntityLinetype = "BYBLOCK"; // CELTYPE
+            this.FirstChamferDistance = 0.0; // CHAMFERA
+            this.SecondChamferDistance = 0.0; // CHAMFERB
+            this.ChamferLength = 0.0; // CHAMFERC
+            this.ChamferAngle = 0.0; // CHAMFERD
             this.CurrentLayer = "0"; // CLAYER
-            this.UnitFormat = DxfUnitFormat.None; // LUNITS
+            this.CurrentMultilineJustification = DxfJustification.Top; // CMLJUST
+            this.CurrentMultilineScale = 1.0; // CMLSCALE
+            this.CurrentMultilineStyle = null; // CMLSTYLE
+            this.CoordinateDisplay = DxfCoordinateDisplay.Static; // COORDS
+            this.RetainDeletedObjects = false; // DELOBJ
+            this.UseAlternateDimensioning = false; // DIMALT
+            this.AlternateDimensioningDecimalPlaces = 0; // DIMALTD
+            this.AlternateDimensioningScaleFactor = 1.0; // DIMALTF
+            this.AlternateDimensioningToleranceDecimalPlaces = 0; // DIMALTTD
+            this.AlternateDimensioningToleranceZeroSupression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMALTTZ
+            this.AlternateDimensioningUnits = DxfUnitFormat.Scientific; // DIMALTU
+            this.AlternateDimensioningZeroSupression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMALTZ
+            this.AlternateDimensioningSuffix = null; // DIMAPOST
+            this.CreateAssociativeDimensioning = true; // DIMASO
+            this.DimensioningArrowSize = 1.0; // DIMASZ
+            this.DimensioningAngleFormat = DxfAngleFormat.DecimalDegrees; // DIMAUNIT
+            this.ArrowBlockName = null; // DIMBLK
+            this.FirstArrowBlockName = null; // DIMBLK1
+            this.SecondArrowBlockName = null; // DIMBLK2
+            this.CenterMarkSize = 1.0; // DIMCEN
+            this.DimensionLineColor = DxfColor.ByBlock; // DIMCLRD
+            this.DimensionExtensionLineColor = DxfColor.ByBlock; // DIMCLRE
+            this.DimensionTextColor = DxfColor.ByBlock; // DIMCLRT
+            this.DimensionUnitToleranceDecimalPlaces = 12; // DIMDEC
+            this.DimensionLineExtension = 0.0; // DIMDLE
+            this.DimensionLineIncrement = 0.0; // DIMDLI
+            this.DimensionExtensionLineExtension = 0.0; // DIMEXE
+            this.DimensionExtensionLineOffset = 0.0; // DIMEXO
+            this.DimensionTextAndArrowPlacement = DxfDimensionFit.TextAndArrowsOutsideLines; // DIMFIT
+            this.DimensionLineGap = 0.0; // DIMGAP
+            this.DimensionTextJustification = DxfDimensionTextJustification.AboveLineCenter; // DIMJUST
+            this.DimensionLinearMeasurementsScaleFactor = 1.0; // DIMLFAC
+            this.GenerateDimensionLimits = false; // DIMLIM
+            this.DimensioningSuffix = null; // DIMPOST
+            this.DimensionDistanceRoundingValue = 0.001; // DIMRND
+            this.UseSeparateArrowBlocksForDimensions = false; // DIMSAH
+            this.DimensioningScaleFactor = 1.0; // DIMSCALE
+            this.SuppressFirstDimensionExtensionLine = false; // DIMSD1
+            this.SuppressSecondDimensionExtensionLine = false; // DIMSD2
+            this.RecomputeDimensionsWhileDragging = true; // DIMSHO
+            this.SuppressOutsideExtensionDimensionLines = false; // DIMSOXD
+            this.DimensionStyleName = null; // DIMSTYLE
+            this.TextAboveDimensionLine = false; // DIMTAD
+            this.DimensionToleranceDecimalPlaces = 12; // DIMTDEC
+            this.DimensionToleranceDisplayScaleFactor = 1.0; // DIMTFAC
+            this.DimensionTextInsideHorizontal = false; // DIMTIH
+            this.ForceDimensionTextInsideExtensions = false; // DIMTIX
+            this.DimensionMinusTolerance = 0.0; // DIMTM
+            this.ForceDimensionLineExtensionsOutsideIfTextIs = false; // DIMTOFL
+            this.DimensionTextOutsideHorizontal = false; // DIMTOH
+            this.GenerateDimensionTolerances = false; // DIMTOL
+            this.DimensionToleranceVerticalJustification = DxfJustification.Top; // DIMTOLJ
+            this.DimensionPlusTolerance = 0.0; // DIMTP
+            this.DimensioningTickSize = 0.0; // DIMTSZ
+            this.DimensionVerticalTextPosition = 0.0; // DIMTVP
+            this.DimensionTextStyle = null; // DIMTXSTY
+            this.DimensioningTextHeight = 10.0; // DIMTXT
+            this.DimensionToleranceZeroSuppression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMTZIN
+            this.DimensionUnitFormat = DxfUnitFormat.Scientific; // DIMUNIT
+            this.DimensionCursorControlsTextPosition = true; // DIMUPT
+            this.DimensionUnitZeroSuppression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMZIN
+            this.DisplaySilhouetteCurvesInWireframeMode = false; // DISPSILH
+            this.DragMode = DxfDragMode.Auto; // DRAGMODE
+            this.DrawingCodePage = "437"; // DWGCODEPAGE
+            this.Elevation = 0.0; // ELEVATION
+            this.MaximumDrawingExtents = DxfPoint.Origin; // EXTMAX
+            this.MinimumDrawingExtents = DxfPoint.Origin; // EXTMIN
+            this.FilletRadius = 0.0; // FILLETRAD
+            this.FillModeOn = true; // FILLMODE
+            this.NextAvailableHandle = 0; // HANDLING
+            this.InsertionBase = DxfPoint.Origin; // INSBASE
+            this.UseLimitsChecking = false; // LIMCHECK
+            this.MaximumDrawingLimits = DxfPoint.Origin; // LIMMAX
+            this.MinimumDrawingLimits = DxfPoint.Origin; // LIMMIN
+            this.LinetypeScale = 1.0; // LTSCALE
+            this.UnitFormat = DxfUnitFormat.Scientific; // LUNITS
             this.UnitPrecision = 12; // LUPREC
+            this.MaximumActiveViewports = 3; // MAXACTVP
         }
 
         // build list of code value pairs
@@ -66,7 +324,7 @@ namespace BCad.Dxf.Sections
 
             // ATTDIA
             list.Add(new DxfCodePair(9, ATTDIA));
-			list.Add(new DxfCodePair(70, BoolToShort(header.ShowAttributeEntryDialogs)));
+			list.Add(new DxfCodePair(70, BoolShort(header.ShowAttributeEntryDialogs)));
 
             // ATTMODE
             list.Add(new DxfCodePair(9, ATTMODE));
@@ -74,11 +332,359 @@ namespace BCad.Dxf.Sections
 
             // ATTREQ
             list.Add(new DxfCodePair(9, ATTREQ));
-			list.Add(new DxfCodePair(70, BoolToShort(header.AttReq)));
+			list.Add(new DxfCodePair(70, BoolShort(header.PromptForAttributeOnInsert)));
+
+            // AUNITS
+            list.Add(new DxfCodePair(9, AUNITS));
+			list.Add(new DxfCodePair(70, (header.AngleUnitFormat)));
+
+            // AUPREC
+            list.Add(new DxfCodePair(9, AUPREC));
+			list.Add(new DxfCodePair(70, (header.AngleUnitPrecision)));
+
+            // BLIPMODE
+            list.Add(new DxfCodePair(9, BLIPMODE));
+			list.Add(new DxfCodePair(70, BoolShort(header.BlipMode)));
+
+            // CECOLOR
+            list.Add(new DxfCodePair(9, CECOLOR));
+			list.Add(new DxfCodePair(62, RawValue(header.CurrentEntityColor)));
+
+            // CELTSCALE
+            list.Add(new DxfCodePair(9, CELTSCALE));
+			list.Add(new DxfCodePair(40, (header.CurrentEntityLinetypeScale)));
+
+            // CELTYPE
+            list.Add(new DxfCodePair(9, CELTYPE));
+			list.Add(new DxfCodePair(6, (header.CurrentEntityLinetype)));
+
+            // CHAMFERA
+            list.Add(new DxfCodePair(9, CHAMFERA));
+			list.Add(new DxfCodePair(40, (header.FirstChamferDistance)));
+
+            // CHAMFERB
+            list.Add(new DxfCodePair(9, CHAMFERB));
+			list.Add(new DxfCodePair(40, (header.SecondChamferDistance)));
+
+            // CHAMFERC
+            list.Add(new DxfCodePair(9, CHAMFERC));
+			list.Add(new DxfCodePair(40, (header.ChamferLength)));
+
+            // CHAMFERD
+            list.Add(new DxfCodePair(9, CHAMFERD));
+			list.Add(new DxfCodePair(40, (header.ChamferAngle)));
 
             // CLAYER
             list.Add(new DxfCodePair(9, CLAYER));
 			list.Add(new DxfCodePair(8, (header.CurrentLayer)));
+
+            // CMLJUST
+            list.Add(new DxfCodePair(9, CMLJUST));
+			list.Add(new DxfCodePair(70, (header.CurrentMultilineJustification)));
+
+            // CMLSCALE
+            list.Add(new DxfCodePair(9, CMLSCALE));
+			list.Add(new DxfCodePair(40, (header.CurrentMultilineScale)));
+
+            // CMLSTYLE
+            list.Add(new DxfCodePair(9, CMLSTYLE));
+			list.Add(new DxfCodePair(2, (header.CurrentMultilineStyle)));
+
+            // COORDS
+            list.Add(new DxfCodePair(9, COORDS));
+			list.Add(new DxfCodePair(70, (header.CoordinateDisplay)));
+
+            // DELOBJ
+            list.Add(new DxfCodePair(9, DELOBJ));
+			list.Add(new DxfCodePair(70, BoolShort(header.RetainDeletedObjects)));
+
+            // DIMALT
+            list.Add(new DxfCodePair(9, DIMALT));
+			list.Add(new DxfCodePair(70, BoolShort(header.UseAlternateDimensioning)));
+
+            // DIMALTD
+            list.Add(new DxfCodePair(9, DIMALTD));
+			list.Add(new DxfCodePair(70, (header.AlternateDimensioningDecimalPlaces)));
+
+            // DIMALTF
+            list.Add(new DxfCodePair(9, DIMALTF));
+			list.Add(new DxfCodePair(70, (header.AlternateDimensioningScaleFactor)));
+
+            // DIMALTTD
+            list.Add(new DxfCodePair(9, DIMALTTD));
+			list.Add(new DxfCodePair(70, (header.AlternateDimensioningToleranceDecimalPlaces)));
+
+            // DIMALTTZ
+            list.Add(new DxfCodePair(9, DIMALTTZ));
+			list.Add(new DxfCodePair(70, (header.AlternateDimensioningToleranceZeroSupression)));
+
+            // DIMALTU
+            list.Add(new DxfCodePair(9, DIMALTU));
+			list.Add(new DxfCodePair(70, (header.AlternateDimensioningUnits)));
+
+            // DIMALTZ
+            list.Add(new DxfCodePair(9, DIMALTZ));
+			list.Add(new DxfCodePair(70, (header.AlternateDimensioningZeroSupression)));
+
+            // DIMAPOST
+            list.Add(new DxfCodePair(9, DIMAPOST));
+			list.Add(new DxfCodePair(1, (header.AlternateDimensioningSuffix)));
+
+            // DIMASO
+            list.Add(new DxfCodePair(9, DIMASO));
+			list.Add(new DxfCodePair(70, BoolShort(header.CreateAssociativeDimensioning)));
+
+            // DIMASZ
+            list.Add(new DxfCodePair(9, DIMASZ));
+			list.Add(new DxfCodePair(40, (header.DimensioningArrowSize)));
+
+            // DIMAUNIT
+            list.Add(new DxfCodePair(9, DIMAUNIT));
+			list.Add(new DxfCodePair(70, (header.DimensioningAngleFormat)));
+
+            // DIMBLK
+            list.Add(new DxfCodePair(9, DIMBLK));
+			list.Add(new DxfCodePair(1, (header.ArrowBlockName)));
+
+            // DIMBLK1
+            list.Add(new DxfCodePair(9, DIMBLK1));
+			list.Add(new DxfCodePair(1, (header.FirstArrowBlockName)));
+
+            // DIMBLK2
+            list.Add(new DxfCodePair(9, DIMBLK2));
+			list.Add(new DxfCodePair(1, (header.SecondArrowBlockName)));
+
+            // DIMCEN
+            list.Add(new DxfCodePair(9, DIMCEN));
+			list.Add(new DxfCodePair(40, (header.CenterMarkSize)));
+
+            // DIMCLRD
+            list.Add(new DxfCodePair(9, DIMCLRD));
+			list.Add(new DxfCodePair(70, RawValue(header.DimensionLineColor)));
+
+            // DIMCLRE
+            list.Add(new DxfCodePair(9, DIMCLRE));
+			list.Add(new DxfCodePair(70, RawValue(header.DimensionExtensionLineColor)));
+
+            // DIMCLRT
+            list.Add(new DxfCodePair(9, DIMCLRT));
+			list.Add(new DxfCodePair(70, RawValue(header.DimensionTextColor)));
+
+            // DIMDEC
+            list.Add(new DxfCodePair(9, DIMDEC));
+			list.Add(new DxfCodePair(70, (header.DimensionUnitToleranceDecimalPlaces)));
+
+            // DIMDLE
+            list.Add(new DxfCodePair(9, DIMDLE));
+			list.Add(new DxfCodePair(40, (header.DimensionLineExtension)));
+
+            // DIMDLI
+            list.Add(new DxfCodePair(9, DIMDLI));
+			list.Add(new DxfCodePair(40, (header.DimensionLineIncrement)));
+
+            // DIMEXE
+            list.Add(new DxfCodePair(9, DIMEXE));
+			list.Add(new DxfCodePair(40, (header.DimensionExtensionLineExtension)));
+
+            // DIMEXO
+            list.Add(new DxfCodePair(9, DIMEXO));
+			list.Add(new DxfCodePair(40, (header.DimensionExtensionLineOffset)));
+
+            // DIMFIT
+            list.Add(new DxfCodePair(9, DIMFIT));
+			list.Add(new DxfCodePair(70, (header.DimensionTextAndArrowPlacement)));
+
+            // DIMGAP
+            list.Add(new DxfCodePair(9, DIMGAP));
+			list.Add(new DxfCodePair(40, (header.DimensionLineGap)));
+
+            // DIMJUST
+            list.Add(new DxfCodePair(9, DIMJUST));
+			list.Add(new DxfCodePair(70, (header.DimensionTextJustification)));
+
+            // DIMLFAC
+            list.Add(new DxfCodePair(9, DIMLFAC));
+			list.Add(new DxfCodePair(40, (header.DimensionLinearMeasurementsScaleFactor)));
+
+            // DIMLIM
+            list.Add(new DxfCodePair(9, DIMLIM));
+			list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionLimits)));
+
+            // DIMPOST
+            list.Add(new DxfCodePair(9, DIMPOST));
+			list.Add(new DxfCodePair(1, (header.DimensioningSuffix)));
+
+            // DIMRND
+            list.Add(new DxfCodePair(9, DIMRND));
+			list.Add(new DxfCodePair(40, (header.DimensionDistanceRoundingValue)));
+
+            // DIMSAH
+            list.Add(new DxfCodePair(9, DIMSAH));
+			list.Add(new DxfCodePair(70, BoolShort(header.UseSeparateArrowBlocksForDimensions)));
+
+            // DIMSCALE
+            list.Add(new DxfCodePair(9, DIMSCALE));
+			list.Add(new DxfCodePair(40, (header.DimensioningScaleFactor)));
+
+            // DIMSD1
+            list.Add(new DxfCodePair(9, DIMSD1));
+			list.Add(new DxfCodePair(70, BoolShort(header.SuppressFirstDimensionExtensionLine)));
+
+            // DIMSD2
+            list.Add(new DxfCodePair(9, DIMSD2));
+			list.Add(new DxfCodePair(70, BoolShort(header.SuppressSecondDimensionExtensionLine)));
+
+            // DIMSHO
+            list.Add(new DxfCodePair(9, DIMSHO));
+			list.Add(new DxfCodePair(70, BoolShort(header.RecomputeDimensionsWhileDragging)));
+
+            // DIMSOXD
+            list.Add(new DxfCodePair(9, DIMSOXD));
+			list.Add(new DxfCodePair(70, BoolShort(header.SuppressOutsideExtensionDimensionLines)));
+
+            // DIMSTYLE
+            list.Add(new DxfCodePair(9, DIMSTYLE));
+			list.Add(new DxfCodePair(2, (header.DimensionStyleName)));
+
+            // DIMTAD
+            list.Add(new DxfCodePair(9, DIMTAD));
+			list.Add(new DxfCodePair(70, BoolShort(header.TextAboveDimensionLine)));
+
+            // DIMTDEC
+            list.Add(new DxfCodePair(9, DIMTDEC));
+			list.Add(new DxfCodePair(70, (header.DimensionToleranceDecimalPlaces)));
+
+            // DIMTFAC
+            list.Add(new DxfCodePair(9, DIMTFAC));
+			list.Add(new DxfCodePair(40, (header.DimensionToleranceDisplayScaleFactor)));
+
+            // DIMTIH
+            list.Add(new DxfCodePair(9, DIMTIH));
+			list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextInsideHorizontal)));
+
+            // DIMTIX
+            list.Add(new DxfCodePair(9, DIMTIX));
+			list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionTextInsideExtensions)));
+
+            // DIMTM
+            list.Add(new DxfCodePair(9, DIMTM));
+			list.Add(new DxfCodePair(40, (header.DimensionMinusTolerance)));
+
+            // DIMTOFL
+            list.Add(new DxfCodePair(9, DIMTOFL));
+			list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionLineExtensionsOutsideIfTextIs)));
+
+            // DIMTOH
+            list.Add(new DxfCodePair(9, DIMTOH));
+			list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextOutsideHorizontal)));
+
+            // DIMTOL
+            list.Add(new DxfCodePair(9, DIMTOL));
+			list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionTolerances)));
+
+            // DIMTOLJ
+            list.Add(new DxfCodePair(9, DIMTOLJ));
+			list.Add(new DxfCodePair(70, (header.DimensionToleranceVerticalJustification)));
+
+            // DIMTP
+            list.Add(new DxfCodePair(9, DIMTP));
+			list.Add(new DxfCodePair(40, (header.DimensionPlusTolerance)));
+
+            // DIMTSZ
+            list.Add(new DxfCodePair(9, DIMTSZ));
+			list.Add(new DxfCodePair(40, (header.DimensioningTickSize)));
+
+            // DIMTVP
+            list.Add(new DxfCodePair(9, DIMTVP));
+			list.Add(new DxfCodePair(40, (header.DimensionVerticalTextPosition)));
+
+            // DIMTXSTY
+            list.Add(new DxfCodePair(9, DIMTXSTY));
+			list.Add(new DxfCodePair(7, (header.DimensionTextStyle)));
+
+            // DIMTXT
+            list.Add(new DxfCodePair(9, DIMTXT));
+			list.Add(new DxfCodePair(40, (header.DimensioningTextHeight)));
+
+            // DIMTZIN
+            list.Add(new DxfCodePair(9, DIMTZIN));
+			list.Add(new DxfCodePair(70, (header.DimensionToleranceZeroSuppression)));
+
+            // DIMUNIT
+            list.Add(new DxfCodePair(9, DIMUNIT));
+			list.Add(new DxfCodePair(70, (header.DimensionUnitFormat)));
+
+            // DIMUPT
+            list.Add(new DxfCodePair(9, DIMUPT));
+			list.Add(new DxfCodePair(70, BoolShort(header.DimensionCursorControlsTextPosition)));
+
+            // DIMZIN
+            list.Add(new DxfCodePair(9, DIMZIN));
+			list.Add(new DxfCodePair(70, (header.DimensionUnitZeroSuppression)));
+
+            // DISPSILH
+            list.Add(new DxfCodePair(9, DISPSILH));
+			list.Add(new DxfCodePair(70, BoolShort(header.DisplaySilhouetteCurvesInWireframeMode)));
+
+            // DRAGMODE
+            list.Add(new DxfCodePair(9, DRAGMODE));
+			list.Add(new DxfCodePair(70, (header.DragMode)));
+
+            // DWGCODEPAGE
+            list.Add(new DxfCodePair(9, DWGCODEPAGE));
+			list.Add(new DxfCodePair(3, (header.DrawingCodePage)));
+
+            // ELEVATION
+            list.Add(new DxfCodePair(9, ELEVATION));
+			list.Add(new DxfCodePair(40, (header.Elevation)));
+
+            // EXTMAX
+            list.Add(new DxfCodePair(9, EXTMAX));
+            list.Add(new DxfCodePair(10, header.MaximumDrawingExtents.X));
+            list.Add(new DxfCodePair(20, header.MaximumDrawingExtents.Y));
+            list.Add(new DxfCodePair(30, header.MaximumDrawingExtents.Z));
+
+            // EXTMIN
+            list.Add(new DxfCodePair(9, EXTMIN));
+            list.Add(new DxfCodePair(10, header.MinimumDrawingExtents.X));
+            list.Add(new DxfCodePair(20, header.MinimumDrawingExtents.Y));
+            list.Add(new DxfCodePair(30, header.MinimumDrawingExtents.Z));
+
+            // FILLETRAD
+            list.Add(new DxfCodePair(9, FILLETRAD));
+			list.Add(new DxfCodePair(40, (header.FilletRadius)));
+
+            // FILLMODE
+            list.Add(new DxfCodePair(9, FILLMODE));
+			list.Add(new DxfCodePair(70, BoolShort(header.FillModeOn)));
+
+            // HANDLING
+            list.Add(new DxfCodePair(9, HANDLING));
+			list.Add(new DxfCodePair(70, (short)(header.NextAvailableHandle)));
+
+            // INSBASE
+            list.Add(new DxfCodePair(9, INSBASE));
+            list.Add(new DxfCodePair(10, header.InsertionBase.X));
+            list.Add(new DxfCodePair(20, header.InsertionBase.Y));
+            list.Add(new DxfCodePair(30, header.InsertionBase.Z));
+
+            // LIMCHECK
+            list.Add(new DxfCodePair(9, LIMCHECK));
+			list.Add(new DxfCodePair(70, BoolShort(header.UseLimitsChecking)));
+
+            // LIMMAX
+            list.Add(new DxfCodePair(9, LIMMAX));
+            list.Add(new DxfCodePair(10, header.MaximumDrawingLimits.X));
+            list.Add(new DxfCodePair(20, header.MaximumDrawingLimits.Y));
+
+            // LIMMIN
+            list.Add(new DxfCodePair(9, LIMMIN));
+            list.Add(new DxfCodePair(10, header.MinimumDrawingLimits.X));
+            list.Add(new DxfCodePair(20, header.MinimumDrawingLimits.Y));
+
+            // LTSCALE
+            list.Add(new DxfCodePair(9, LTSCALE));
+			list.Add(new DxfCodePair(40, (header.LinetypeScale)));
 
             // LUNITS
             list.Add(new DxfCodePair(9, LUNITS));
@@ -87,6 +693,10 @@ namespace BCad.Dxf.Sections
             // LUPREC
             list.Add(new DxfCodePair(9, LUPREC));
 			list.Add(new DxfCodePair(70, (header.UnitPrecision)));
+
+            // MAXACTVP
+            list.Add(new DxfCodePair(9, MAXACTVP));
+			list.Add(new DxfCodePair(70, (header.MaximumActiveViewports)));
 
         }
 
@@ -113,7 +723,7 @@ namespace BCad.Dxf.Sections
                     break;
                 case ATTDIA:
                     EnsureCode(pair, 70);
-                    header.ShowAttributeEntryDialogs = ShortToBool(pair.ShortValue);
+                    header.ShowAttributeEntryDialogs = BoolShort(pair.ShortValue);
                     break;
                 case ATTMODE:
                     EnsureCode(pair, 70);
@@ -121,11 +731,346 @@ namespace BCad.Dxf.Sections
                     break;
                 case ATTREQ:
                     EnsureCode(pair, 70);
-                    header.AttReq = ShortToBool(pair.ShortValue);
+                    header.PromptForAttributeOnInsert = BoolShort(pair.ShortValue);
+                    break;
+                case AUNITS:
+                    EnsureCode(pair, 70);
+                    header.AngleUnitFormat = (DxfAngleFormat)(pair.ShortValue);
+                    break;
+                case AUPREC:
+                    EnsureCode(pair, 70);
+                    header.AngleUnitPrecision = (pair.ShortValue);
+                    break;
+                case BLIPMODE:
+                    EnsureCode(pair, 70);
+                    header.BlipMode = BoolShort(pair.ShortValue);
+                    break;
+                case CECOLOR:
+                    EnsureCode(pair, 62);
+                    header.CurrentEntityColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case CELTSCALE:
+                    EnsureCode(pair, 40);
+                    header.CurrentEntityLinetypeScale = (pair.DoubleValue);
+                    break;
+                case CELTYPE:
+                    EnsureCode(pair, 6);
+                    header.CurrentEntityLinetype = (pair.StringValue);
+                    break;
+                case CHAMFERA:
+                    EnsureCode(pair, 40);
+                    header.FirstChamferDistance = (pair.DoubleValue);
+                    break;
+                case CHAMFERB:
+                    EnsureCode(pair, 40);
+                    header.SecondChamferDistance = (pair.DoubleValue);
+                    break;
+                case CHAMFERC:
+                    EnsureCode(pair, 40);
+                    header.ChamferLength = (pair.DoubleValue);
+                    break;
+                case CHAMFERD:
+                    EnsureCode(pair, 40);
+                    header.ChamferAngle = (pair.DoubleValue);
                     break;
                 case CLAYER:
                     EnsureCode(pair, 8);
                     header.CurrentLayer = (pair.StringValue);
+                    break;
+                case CMLJUST:
+                    EnsureCode(pair, 70);
+                    header.CurrentMultilineJustification = (DxfJustification)(pair.ShortValue);
+                    break;
+                case CMLSCALE:
+                    EnsureCode(pair, 40);
+                    header.CurrentMultilineScale = (pair.DoubleValue);
+                    break;
+                case CMLSTYLE:
+                    EnsureCode(pair, 2);
+                    header.CurrentMultilineStyle = (pair.StringValue);
+                    break;
+                case COORDS:
+                    EnsureCode(pair, 70);
+                    header.CoordinateDisplay = (DxfCoordinateDisplay)(pair.ShortValue);
+                    break;
+                case DELOBJ:
+                    EnsureCode(pair, 70);
+                    header.RetainDeletedObjects = BoolShort(pair.ShortValue);
+                    break;
+                case DIMALT:
+                    EnsureCode(pair, 70);
+                    header.UseAlternateDimensioning = BoolShort(pair.ShortValue);
+                    break;
+                case DIMALTD:
+                    EnsureCode(pair, 70);
+                    header.AlternateDimensioningDecimalPlaces = (pair.ShortValue);
+                    break;
+                case DIMALTF:
+                    EnsureCode(pair, 70);
+                    header.AlternateDimensioningScaleFactor = (pair.ShortValue);
+                    break;
+                case DIMALTTD:
+                    EnsureCode(pair, 70);
+                    header.AlternateDimensioningToleranceDecimalPlaces = (pair.ShortValue);
+                    break;
+                case DIMALTTZ:
+                    EnsureCode(pair, 70);
+                    header.AlternateDimensioningToleranceZeroSupression = (DxfUnitZeroSuppression)(pair.ShortValue);
+                    break;
+                case DIMALTU:
+                    EnsureCode(pair, 70);
+                    header.AlternateDimensioningUnits = (DxfUnitFormat)(pair.ShortValue);
+                    break;
+                case DIMALTZ:
+                    EnsureCode(pair, 70);
+                    header.AlternateDimensioningZeroSupression = (DxfUnitZeroSuppression)(pair.ShortValue);
+                    break;
+                case DIMAPOST:
+                    EnsureCode(pair, 1);
+                    header.AlternateDimensioningSuffix = (pair.StringValue);
+                    break;
+                case DIMASO:
+                    EnsureCode(pair, 70);
+                    header.CreateAssociativeDimensioning = BoolShort(pair.ShortValue);
+                    break;
+                case DIMASZ:
+                    EnsureCode(pair, 40);
+                    header.DimensioningArrowSize = (pair.DoubleValue);
+                    break;
+                case DIMAUNIT:
+                    EnsureCode(pair, 70);
+                    header.DimensioningAngleFormat = (DxfAngleFormat)(pair.ShortValue);
+                    break;
+                case DIMBLK:
+                    EnsureCode(pair, 1);
+                    header.ArrowBlockName = (pair.StringValue);
+                    break;
+                case DIMBLK1:
+                    EnsureCode(pair, 1);
+                    header.FirstArrowBlockName = (pair.StringValue);
+                    break;
+                case DIMBLK2:
+                    EnsureCode(pair, 1);
+                    header.SecondArrowBlockName = (pair.StringValue);
+                    break;
+                case DIMCEN:
+                    EnsureCode(pair, 40);
+                    header.CenterMarkSize = (pair.DoubleValue);
+                    break;
+                case DIMCLRD:
+                    EnsureCode(pair, 70);
+                    header.DimensionLineColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case DIMCLRE:
+                    EnsureCode(pair, 70);
+                    header.DimensionExtensionLineColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case DIMCLRT:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case DIMDEC:
+                    EnsureCode(pair, 70);
+                    header.DimensionUnitToleranceDecimalPlaces = (pair.ShortValue);
+                    break;
+                case DIMDLE:
+                    EnsureCode(pair, 40);
+                    header.DimensionLineExtension = (pair.DoubleValue);
+                    break;
+                case DIMDLI:
+                    EnsureCode(pair, 40);
+                    header.DimensionLineIncrement = (pair.DoubleValue);
+                    break;
+                case DIMEXE:
+                    EnsureCode(pair, 40);
+                    header.DimensionExtensionLineExtension = (pair.DoubleValue);
+                    break;
+                case DIMEXO:
+                    EnsureCode(pair, 40);
+                    header.DimensionExtensionLineOffset = (pair.DoubleValue);
+                    break;
+                case DIMFIT:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextAndArrowPlacement = (DxfDimensionFit)(pair.ShortValue);
+                    break;
+                case DIMGAP:
+                    EnsureCode(pair, 40);
+                    header.DimensionLineGap = (pair.DoubleValue);
+                    break;
+                case DIMJUST:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextJustification = (DxfDimensionTextJustification)(pair.ShortValue);
+                    break;
+                case DIMLFAC:
+                    EnsureCode(pair, 40);
+                    header.DimensionLinearMeasurementsScaleFactor = (pair.DoubleValue);
+                    break;
+                case DIMLIM:
+                    EnsureCode(pair, 70);
+                    header.GenerateDimensionLimits = BoolShort(pair.ShortValue);
+                    break;
+                case DIMPOST:
+                    EnsureCode(pair, 1);
+                    header.DimensioningSuffix = (pair.StringValue);
+                    break;
+                case DIMRND:
+                    EnsureCode(pair, 40);
+                    header.DimensionDistanceRoundingValue = (pair.DoubleValue);
+                    break;
+                case DIMSAH:
+                    EnsureCode(pair, 70);
+                    header.UseSeparateArrowBlocksForDimensions = BoolShort(pair.ShortValue);
+                    break;
+                case DIMSCALE:
+                    EnsureCode(pair, 40);
+                    header.DimensioningScaleFactor = (pair.DoubleValue);
+                    break;
+                case DIMSD1:
+                    EnsureCode(pair, 70);
+                    header.SuppressFirstDimensionExtensionLine = BoolShort(pair.ShortValue);
+                    break;
+                case DIMSD2:
+                    EnsureCode(pair, 70);
+                    header.SuppressSecondDimensionExtensionLine = BoolShort(pair.ShortValue);
+                    break;
+                case DIMSHO:
+                    EnsureCode(pair, 70);
+                    header.RecomputeDimensionsWhileDragging = BoolShort(pair.ShortValue);
+                    break;
+                case DIMSOXD:
+                    EnsureCode(pair, 70);
+                    header.SuppressOutsideExtensionDimensionLines = BoolShort(pair.ShortValue);
+                    break;
+                case DIMSTYLE:
+                    EnsureCode(pair, 2);
+                    header.DimensionStyleName = (pair.StringValue);
+                    break;
+                case DIMTAD:
+                    EnsureCode(pair, 70);
+                    header.TextAboveDimensionLine = BoolShort(pair.ShortValue);
+                    break;
+                case DIMTDEC:
+                    EnsureCode(pair, 70);
+                    header.DimensionToleranceDecimalPlaces = (pair.ShortValue);
+                    break;
+                case DIMTFAC:
+                    EnsureCode(pair, 40);
+                    header.DimensionToleranceDisplayScaleFactor = (pair.DoubleValue);
+                    break;
+                case DIMTIH:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextInsideHorizontal = BoolShort(pair.ShortValue);
+                    break;
+                case DIMTIX:
+                    EnsureCode(pair, 70);
+                    header.ForceDimensionTextInsideExtensions = BoolShort(pair.ShortValue);
+                    break;
+                case DIMTM:
+                    EnsureCode(pair, 40);
+                    header.DimensionMinusTolerance = (pair.DoubleValue);
+                    break;
+                case DIMTOFL:
+                    EnsureCode(pair, 70);
+                    header.ForceDimensionLineExtensionsOutsideIfTextIs = BoolShort(pair.ShortValue);
+                    break;
+                case DIMTOH:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextOutsideHorizontal = BoolShort(pair.ShortValue);
+                    break;
+                case DIMTOL:
+                    EnsureCode(pair, 70);
+                    header.GenerateDimensionTolerances = BoolShort(pair.ShortValue);
+                    break;
+                case DIMTOLJ:
+                    EnsureCode(pair, 70);
+                    header.DimensionToleranceVerticalJustification = (DxfJustification)(pair.ShortValue);
+                    break;
+                case DIMTP:
+                    EnsureCode(pair, 40);
+                    header.DimensionPlusTolerance = (pair.DoubleValue);
+                    break;
+                case DIMTSZ:
+                    EnsureCode(pair, 40);
+                    header.DimensioningTickSize = (pair.DoubleValue);
+                    break;
+                case DIMTVP:
+                    EnsureCode(pair, 40);
+                    header.DimensionVerticalTextPosition = (pair.DoubleValue);
+                    break;
+                case DIMTXSTY:
+                    EnsureCode(pair, 7);
+                    header.DimensionTextStyle = (pair.StringValue);
+                    break;
+                case DIMTXT:
+                    EnsureCode(pair, 40);
+                    header.DimensioningTextHeight = (pair.DoubleValue);
+                    break;
+                case DIMTZIN:
+                    EnsureCode(pair, 70);
+                    header.DimensionToleranceZeroSuppression = (DxfUnitZeroSuppression)(pair.ShortValue);
+                    break;
+                case DIMUNIT:
+                    EnsureCode(pair, 70);
+                    header.DimensionUnitFormat = (DxfUnitFormat)(pair.ShortValue);
+                    break;
+                case DIMUPT:
+                    EnsureCode(pair, 70);
+                    header.DimensionCursorControlsTextPosition = BoolShort(pair.ShortValue);
+                    break;
+                case DIMZIN:
+                    EnsureCode(pair, 70);
+                    header.DimensionUnitZeroSuppression = (DxfUnitZeroSuppression)(pair.ShortValue);
+                    break;
+                case DISPSILH:
+                    EnsureCode(pair, 70);
+                    header.DisplaySilhouetteCurvesInWireframeMode = BoolShort(pair.ShortValue);
+                    break;
+                case DRAGMODE:
+                    EnsureCode(pair, 70);
+                    header.DragMode = (DxfDragMode)(pair.ShortValue);
+                    break;
+                case DWGCODEPAGE:
+                    EnsureCode(pair, 3);
+                    header.DrawingCodePage = (pair.StringValue);
+                    break;
+                case ELEVATION:
+                    EnsureCode(pair, 40);
+                    header.Elevation = (pair.DoubleValue);
+                    break;
+                case EXTMAX:
+                    SetPoint(pair, header.MaximumDrawingExtents);
+                    break;
+                case EXTMIN:
+                    SetPoint(pair, header.MinimumDrawingExtents);
+                    break;
+                case FILLETRAD:
+                    EnsureCode(pair, 40);
+                    header.FilletRadius = (pair.DoubleValue);
+                    break;
+                case FILLMODE:
+                    EnsureCode(pair, 70);
+                    header.FillModeOn = BoolShort(pair.ShortValue);
+                    break;
+                case HANDLING:
+                    EnsureCode(pair, 70);
+                    header.NextAvailableHandle = (int)(pair.ShortValue);
+                    break;
+                case INSBASE:
+                    SetPoint(pair, header.InsertionBase);
+                    break;
+                case LIMCHECK:
+                    EnsureCode(pair, 70);
+                    header.UseLimitsChecking = BoolShort(pair.ShortValue);
+                    break;
+                case LIMMAX:
+                    SetPoint(pair, header.MaximumDrawingLimits);
+                    break;
+                case LIMMIN:
+                    SetPoint(pair, header.MinimumDrawingLimits);
+                    break;
+                case LTSCALE:
+                    EnsureCode(pair, 40);
+                    header.LinetypeScale = (pair.DoubleValue);
                     break;
                 case LUNITS:
                     EnsureCode(pair, 70);
@@ -134,6 +1079,10 @@ namespace BCad.Dxf.Sections
                 case LUPREC:
                     EnsureCode(pair, 70);
                     header.UnitPrecision = (pair.ShortValue);
+                    break;
+                case MAXACTVP:
+                    EnsureCode(pair, 70);
+                    header.MaximumActiveViewports = (pair.ShortValue);
                     break;
                 default:
                     // unsupported variable

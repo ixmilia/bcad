@@ -15,7 +15,7 @@ namespace BCad.Test.DxfTests
         public void DefaultHeaderValuesTest()
         {
             var file = Section("HEADER", "");
-            Assert.Equal(0, file.HeaderSection.MaintenanceVersion);
+            Assert.Equal(0, file.HeaderSection.MaintenenceVersion);
             Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
             Assert.Equal(0.0, file.HeaderSection.AngleZeroDirection);
             Assert.Equal(DxfAngleDirection.CounterClockwise, file.HeaderSection.AngleDirection);
@@ -72,7 +72,7 @@ $LUPREC
  70
 7
 ");
-            Assert.Equal(16, file.HeaderSection.MaintenanceVersion);
+            Assert.Equal(16, file.HeaderSection.MaintenenceVersion);
             Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
             Assert.Equal(55.0, file.HeaderSection.AngleZeroDirection);
             Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
@@ -379,7 +379,7 @@ EOF");
         public void WriteSpecificHeaderValuesTest()
         {
             var file = new DxfFile();
-            file.HeaderSection.MaintenanceVersion = 16;
+            file.HeaderSection.MaintenenceVersion = 16;
             file.HeaderSection.AngleZeroDirection = 55.0;
             file.HeaderSection.AngleDirection = DxfAngleDirection.Clockwise;
             file.HeaderSection.AttributeEntityDialogs = true;
