@@ -79,6 +79,7 @@
     <Compile Include="Tables\DxfLayerTable.cs" />
     <Compile Include="Tables\DxfTable.cs" />
     <Compile Include="Tables\DxfTableType.cs" />
+    <Compile Include="Tables\DxfViewMode.cs" />
     <Compile Include="Tables\DxfViewPort.cs" />
     <Compile Include="Tables\DxfViewPortTable.cs" />
   </ItemGroup>
@@ -98,6 +99,9 @@
     <None Include="Sections\HeaderVariablesSpec.xml">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="completed.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
