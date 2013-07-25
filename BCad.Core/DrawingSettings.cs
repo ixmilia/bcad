@@ -18,7 +18,7 @@ namespace BCad
         public int UnitPrecision { get { return this.unitPrecision; } }
 
         public DrawingSettings()
-            : this(null, UnitFormat.None, -1)
+            : this(null, UnitFormat.Architectural, -1)
         {
         }
 
@@ -41,8 +41,6 @@ namespace BCad
         {
             switch (unitFormat)
             {
-                case BCad.UnitFormat.None:
-                    return value.ToString();
                 case BCad.UnitFormat.Architectural:
                     return FormatArchitectural(value, unitPrecision);
                 case BCad.UnitFormat.Metric:

@@ -85,6 +85,34 @@ namespace BCad.Dxf.Sections
         Auto = 2
     }
 
+    public enum DxfDrawingUnits
+    {
+        English = 0,
+        Metric = 1
+    }
+
+    public enum DxfPickStyle
+    {
+        None = 0,
+        Group = 1,
+        AssociativeHatch = 2,
+        GroupAndAssociativeHatch = 3
+    }
+
+    public enum DxfShadeEdgeMode
+    {
+        FacesShadedEdgeNotHighlighted = 0,
+        FacesShadedEdgesHighlightedInBlack = 1,
+        FacesNotFilledEdgesInEntityColor = 2,
+        FacesInEntityColorEdgesInBlack = 3
+    }
+
+    public enum DxfPolySketchMode
+    {
+        SketchLines = 0,
+        SketchPolylines = 1
+    }
+
     public partial class DxfHeaderSection : DxfSection
     {
         public DxfHeaderSection()
@@ -104,6 +132,109 @@ namespace BCad.Dxf.Sections
             return values;
         }
 
+        // object snap flags
+
+        public bool EndPointSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 1); }
+            set { SetFlag(value, 1); }
+        }
+
+        public bool MidPointSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 2); }
+            set { SetFlag(value, 2); }
+        }
+
+        public bool CenterSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 4); }
+            set { SetFlag(value, 4); }
+        }
+
+        public bool NodeSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 8); }
+            set { SetFlag(value, 8); }
+        }
+
+        public bool QuadrantSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 16); }
+            set { SetFlag(value, 16); }
+        }
+
+        public bool IntersectionSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 32); }
+            set { SetFlag(value, 32); }
+        }
+
+        public bool InsertionSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 64); }
+            set { SetFlag(value, 64); }
+        }
+
+        public bool PerpendicularSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 128); }
+            set { SetFlag(value, 128); }
+        }
+
+        public bool TangentSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 256); }
+            set { SetFlag(value, 256); }
+        }
+
+        public bool NearestSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 512); }
+            set { SetFlag(value, 512); }
+        }
+
+        public bool ApparentIntersectionSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 2048); }
+            set { SetFlag(value, 2048); }
+        }
+
+        public bool ExtensionSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 4096); }
+            set { SetFlag(value, 4096); }
+        }
+
+        public bool ParallelSnap
+        {
+            get { return GetFlag(ObjectSnapFlags, 8192); }
+            set { SetFlag(value, 8192); }
+        }
+
+        private void SetFlag(bool value, int mask)
+        {
+            var flags = ObjectSnapFlags;
+            if (value) SetFlag(ref flags, mask);
+            else ClearFlag(ref flags, mask);
+            ObjectSnapFlags = flags;
+        }
+
+        private static void SetFlag(ref int flags, int mask)
+        {
+            flags |= mask;
+        }
+
+        private static void ClearFlag(ref int flags, int mask)
+        {
+            flags &= ~mask;
+        }
+
+        private static bool GetFlag(int flags, int mask)
+        {
+            return (flags & mask) != 0;
+        }
+
         internal static bool BoolShort(short s)
         {
             return s != 0;
@@ -112,6 +243,28 @@ namespace BCad.Dxf.Sections
         internal static short BoolShort(bool b)
         {
             return (short)(b ? 1 : 0);
+        }
+
+        private const double JulianOffset = 2415018.999733797;
+
+        internal static DateTime DateDouble(double d)
+        {
+            return DateTime.FromOADate(d - JulianOffset);
+        }
+
+        internal static double DateDouble(DateTime d)
+        {
+            return d.ToOADate() + JulianOffset;
+        }
+
+        internal static TimeSpan TimeSpanDouble(double d)
+        {
+            return TimeSpan.FromDays(d);
+        }
+
+        internal static double TimeSpanDouble(TimeSpan t)
+        {
+            return t.TotalDays;
         }
 
         internal static short RawValue(DxfColor c)

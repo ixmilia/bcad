@@ -310,8 +310,6 @@ namespace BCad.Converters
                     return DxfUnitFormat.Architectural;
                 case UnitFormat.Metric:
                     return DxfUnitFormat.Decimal;
-                case UnitFormat.None:
-                    return DxfUnitFormat.None;
                 default:
                     throw new ArgumentException("Unsupported unit format");
             }
@@ -330,8 +328,6 @@ namespace BCad.Converters
                 case DxfUnitFormat.Engineering:
                 case DxfUnitFormat.Scientific:
                     return UnitFormat.Metric;
-                case DxfUnitFormat.None:
-                    return UnitFormat.None;
                 default:
                     throw new ArgumentException("Unsupported unit format");
             }

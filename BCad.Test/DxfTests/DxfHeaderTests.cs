@@ -12,22 +12,6 @@ namespace BCad.Test.DxfTests
         #region Read tests
 
         [Fact]
-        public void DefaultHeaderValuesTest()
-        {
-            var file = Section("HEADER", "");
-            Assert.Equal(0, file.HeaderSection.MaintenenceVersion);
-            Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
-            Assert.Equal(0.0, file.HeaderSection.AngleZeroDirection);
-            Assert.Equal(DxfAngleDirection.CounterClockwise, file.HeaderSection.AngleDirection);
-            Assert.Equal(DxfAttributeVisibility.None, file.HeaderSection.AttributeVisibility);
-            Assert.Equal(DxfUnitFormat.None, file.HeaderSection.AngleUnitFormat);
-            Assert.Equal(0, file.HeaderSection.AngleUnitPrecision);
-            Assert.Null(file.HeaderSection.CurrentLayer);
-            Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
-            Assert.Equal(0, file.HeaderSection.UnitPrecision);
-        }
-
-        [Fact]
         public void SpecificHeaderValuesTest()
         {
             var file = Section("HEADER", @"
@@ -77,7 +61,7 @@ $LUPREC
             Assert.Equal(55.0, file.HeaderSection.AngleZeroDirection);
             Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
             Assert.Equal(DxfAttributeVisibility.Normal, file.HeaderSection.AttributeVisibility);
-            Assert.Equal(DxfUnitFormat.Engineering, file.HeaderSection.AngleUnitFormat);
+            Assert.Equal(DxfAngleFormat.Radians, file.HeaderSection.AngleUnitFormat);
             Assert.Equal(7, file.HeaderSection.AngleUnitPrecision);
             Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
             Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
@@ -269,243 +253,24 @@ ENDTAB
         [Fact]
         public void WriteDefaultHeaderValuesTest()
         {
-            VerifyFileIsExactly(new DxfFile(), @"  0
-SECTION
-  2
-HEADER
+            VerifyFileContains(new DxfFile(), @"
   9
-$ACADMAINTVER
- 70
-0
-  9
-$ACADVER
-  1
-AC1014
-  9
-$ANGBASE
- 50
-0.0000000000000000E+000
-  9
-$ANGDIR
- 70
-0
-  9
-$ATTDIA
- 70
-0
-  9
-$ATTMODE
- 70
-0
-  9
-$ATTREQ
- 70
-0
-  9
-$AUNITS
- 70
-0
-  9
-$AUPREC
- 70
-0
-  9
-$BLIPMODE
- 70
-0
-  9
-$CECOLOR
- 62
-0
-  9
-$CELTSCALE
- 40
-1.0000000000000000E+000
-  9
-$CELTYPE
-  6
-BYBLOCK
-  9
-$CHAMFERA
+$DIMGAP
  40
 0.0000000000000000E+000
-  9
-$CHAMFERB
- 40
-0.0000000000000000E+000
-  9
-$CHAMFERC
- 40
-0.0000000000000000E+000
-  9
-$CHAMFERD
- 40
-0.0000000000000000E+000
-  9
-$CLAYER
-  8
-
-  9
-$CMLJUST
- 70
-0
-  9
-$CMLSCALE
- 40
-1.0000000000000000E+000
-  9
-$CMLSTYLE
-  2
-
-  9
-$COORDS
- 70
-0
-  9
-$LUNITS
- 70
-0
-  9
-$LUPREC
- 70
-0
-  0
-ENDSEC
-  0
-EOF");
+");
         }
 
         [Fact]
         public void WriteSpecificHeaderValuesTest()
         {
             var file = new DxfFile();
-            file.HeaderSection.MaintenenceVersion = 16;
-            file.HeaderSection.AngleZeroDirection = 55.0;
-            file.HeaderSection.AngleDirection = DxfAngleDirection.Clockwise;
-            file.HeaderSection.AttributeEntityDialogs = true;
-            file.HeaderSection.Version = DxfAcadVersion.R13;
-            file.HeaderSection.AttributeVisibility = DxfAttributeVisibility.All;
-            file.HeaderSection.AttributePromptDuringInsert = true;
-            file.HeaderSection.AngleUnitFormat = DxfUnitFormat.Fractional;
-            file.HeaderSection.AngleUnitPrecision = 12;
-            file.HeaderSection.BlipMode = true;
-            file.HeaderSection.CurrentEntityColor = DxfColor.FromIndex(7);
-            file.HeaderSection.CurrentEntityLinetypeScale = 2.0;
-            file.HeaderSection.CurrentEntityLinetypeName = "<ce linetype>";
-            file.HeaderSection.FirstChamferDistance = 1.0;
-            file.HeaderSection.SecondChamferDistance = 2.0;
-            file.HeaderSection.ChamferLength = 3.0;
-            file.HeaderSection.ChamferAngle = 4.0;
-            file.HeaderSection.CurrentLayer = "<current layer>";
-            file.HeaderSection.CurrentMultilineJustification = DxfJustification.Middle;
-            file.HeaderSection.CurrentMultilineScale = 2.0;
-            file.HeaderSection.CurrentMultilineStyleName = "<cml style>";
-            file.HeaderSection.CoordinateDisplay = DxfCoordinateDisplay.ContinuousUpdate;
-            file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
-            file.HeaderSection.UnitPrecision = 4;
+            file.HeaderSection.DimensionLineGap = 11.0;
             VerifyFileContains(file, @"
-  0
-SECTION
-  2
-HEADER
   9
-$ACADMAINTVER
- 70
-16
-  9
-$ACADVER
-  1
-AC1012
-  9
-$ANGBASE
- 50
-5.5000000000000000E+001
-  9
-$ANGDIR
- 70
-1
-  9
-$ATTDIA
- 70
-1
-  9
-$ATTMODE
- 70
-2
-  9
-$ATTREQ
- 70
-1
-  9
-$AUNITS
- 70
-7
-  9
-$AUPREC
- 70
-12
-  9
-$BLIPMODE
- 70
-1
-  9
-$CECOLOR
- 62
-7
-  9
-$CELTSCALE
+$DIMGAP
  40
-2.0000000000000000E+000
-  9
-$CELTYPE
-  6
-<ce linetype>
-  9
-$CHAMFERA
- 40
-1.0000000000000000E+000
-  9
-$CHAMFERB
- 40
-2.0000000000000000E+000
-  9
-$CHAMFERC
- 40
-3.0000000000000000E+000
-  9
-$CHAMFERD
- 40
-4.0000000000000000E+000
-  9
-$CLAYER
-  8
-<current layer>
-  9
-$CMLJUST
- 70
-1
-  9
-$CMLSCALE
- 40
-2.0000000000000000E+000
-  9
-$CMLSTYLE
-  2
-<cml style>
-  9
-$COORDS
- 70
-1
-  9
-$LUNITS
- 70
-3
-  9
-$LUPREC
- 70
-4
-  0
-ENDSEC
+1.1000000000000000E+001
 ");
         }
 

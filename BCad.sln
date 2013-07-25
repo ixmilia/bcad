@@ -11,6 +11,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Core", "BCad.Core\BCad.Core.csproj", "{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Test", "BCad.Test\BCad.Test.csproj", "{399E6364-BB96-4BA8-965D-537B732DEE19}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D577269F-EA58-4EA1-A97D-A1A3FC9259B2} = {D577269F-EA58-4EA1-A97D-A1A3FC9259B2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Dxf", "BCad.Dxf\BCad.Dxf.csproj", "{8C5A1440-8C5F-40AA-948F-67E8A2227000}"
 	ProjectSection(ProjectDependencies) = postProject

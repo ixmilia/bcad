@@ -95,7 +95,7 @@ namespace BCad.Dxf
 
         private void WriteValue(int code, object value)
         {
-            var type = DxfCodePair.ExpectedTypeForCode(code);
+            var type = DxfCodePair.ExpectedType(code);
             if (type == typeof(string))
                 WriteString((string)value);
             else if (type == typeof(double))

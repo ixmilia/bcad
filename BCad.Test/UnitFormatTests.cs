@@ -9,12 +9,6 @@ namespace BCad.Test
     public class UnitFormatTests
     {
         [Fact]
-        public void NoneFormatTest()
-        {
-            Assert.Equal("3.5", DrawingSettings.FormatUnits(3.5, UnitFormat.None, 0));
-        }
-
-        [Fact]
         public void MetricFormatTest()
         {
             // nearest whole number

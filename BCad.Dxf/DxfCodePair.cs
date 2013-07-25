@@ -6,7 +6,7 @@ using BCad.Dxf.Sections;
 
 namespace BCad.Dxf
 {
-    public class DxfCodePair
+    public partial class DxfCodePair
     {
         public const int CommentCode = 999;
 

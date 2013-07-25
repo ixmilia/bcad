@@ -34,7 +34,7 @@ namespace BCad.Converters
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName, UnitFormat.None, -1),
+                new DrawingSettings(fileName, UnitFormat.Architectural, -1),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
 
             viewPort = new ViewPort(
@@ -99,7 +99,6 @@ namespace BCad.Converters
             switch (unitFormat)
             {
                 case UnitFormat.Architectural:
-                case UnitFormat.None:
                     return IgesUnits.Inches;
                 case UnitFormat.Metric:
                     return IgesUnits.Millimeters;

@@ -3,11 +3,11 @@
   <Variable Name="ACADMAINTVER" Code="70" Type="short" Property="MaintenenceVersion" DefaultValue="0" />
   <Variable Name="ACADVER" Code="1" Type="DxfAcadVersion" Property="Version" DefaultValue="DxfAcadVersion.R14" ReadConverter="DxfAcadVersionStrings.StringToVersion" WriteConverter="DxfAcadVersionStrings.VersionToString" />
   <Variable Name="ANGBASE" Code="50" Type="double" Property="AngleZeroDirection" DefaultValue="0.0" />
-  <Variable Name="ANGDIR" Code="70" Type="DxfAngleDirection" Property="AngleDirection" DefaultValue="DxfAngleDirection.CounterClockwise" ReadConverter="(DxfAngleDirection)" />
+  <Variable Name="ANGDIR" Code="70" Type="DxfAngleDirection" Property="AngleDirection" DefaultValue="DxfAngleDirection.CounterClockwise" ReadConverter="(DxfAngleDirection)" WriteConverter="(short)" />
   <Variable Name="ATTDIA" Code="70" Type="bool" Property="ShowAttributeEntryDialogs" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
-  <Variable Name="ATTMODE" Code="70" Type="DxfAttributeVisibility" Property="AttributeVisibility" DefaultValue="DxfAttributeVisibility.None" ReadConverter="(DxfAttributeVisibility)" />
+  <Variable Name="ATTMODE" Code="70" Type="DxfAttributeVisibility" Property="AttributeVisibility" DefaultValue="DxfAttributeVisibility.None" ReadConverter="(DxfAttributeVisibility)" WriteConverter="(short)" />
   <Variable Name="ATTREQ" Code="70" Type="bool" Property="PromptForAttributeOnInsert" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
-  <Variable Name="AUNITS" Code="70" Type="DxfAngleFormat" Property="AngleUnitFormat" DefaultValue="DxfAngleFormat.DecimalDegrees" ReadConverter="(DxfAngleFormat)" />
+  <Variable Name="AUNITS" Code="70" Type="DxfAngleFormat" Property="AngleUnitFormat" DefaultValue="DxfAngleFormat.DecimalDegrees" ReadConverter="(DxfAngleFormat)" WriteConverter="(short)" />
   <Variable Name="AUPREC" Code="70" Type="short" Property="AngleUnitPrecision" DefaultValue="12" />
   <Variable Name="BLIPMODE" Code="70" Type="bool" Property="BlipMode" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="CECOLOR" Code="62" Type="DxfColor" Property="CurrentEntityColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" />
@@ -18,22 +18,22 @@
   <Variable Name="CHAMFERC" Code="40" Type="double" Property="ChamferLength" DefaultValue="0.0" />
   <Variable Name="CHAMFERD" Code="40" Type="double" Property="ChamferAngle" DefaultValue="0.0" />
   <Variable Name="CLAYER" Code="8" Type="string" Property="CurrentLayer" DefaultValue="0" />
-  <Variable Name="CMLJUST" Code="70" Type="DxfJustification" Property="CurrentMultilineJustification" DefaultValue="DxfJustification.Top" ReadConverter="(DxfJustification)" />
+  <Variable Name="CMLJUST" Code="70" Type="DxfJustification" Property="CurrentMultilineJustification" DefaultValue="DxfJustification.Top" ReadConverter="(DxfJustification)" WriteConverter="(short)" />
   <Variable Name="CMLSCALE" Code="40" Type="double" Property="CurrentMultilineScale" DefaultValue="1.0" />
   <Variable Name="CMLSTYLE" Code="2" Type="string" Property="CurrentMultilineStyle" DefaultValue="null" />
-  <Variable Name="COORDS" Code="70" Type="DxfCoordinateDisplay" Property="CoordinateDisplay" DefaultValue="DxfCoordinateDisplay.Static" ReadConverter="(DxfCoordinateDisplay)" />
+  <Variable Name="COORDS" Code="70" Type="DxfCoordinateDisplay" Property="CoordinateDisplay" DefaultValue="DxfCoordinateDisplay.Static" ReadConverter="(DxfCoordinateDisplay)" WriteConverter="(short)" />
   <Variable Name="DELOBJ" Code="70" Type="bool" Property="RetainDeletedObjects" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="DIMALT" Code="70" Type="bool" Property="UseAlternateDimensioning" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="DIMALTD" Code="70" Type="short" Property="AlternateDimensioningDecimalPlaces" DefaultValue="0" />
-  <Variable Name="DIMALTF" Code="70" Type="double" Property="AlternateDimensioningScaleFactor" DefaultValue="1.0" />
+  <Variable Name="DIMALTF" Code="40" Type="double" Property="AlternateDimensioningScaleFactor" DefaultValue="1.0" />
   <Variable Name="DIMALTTD" Code="70" Type="short" Property="AlternateDimensioningToleranceDecimalPlaces" DefaultValue="0" />
-  <Variable Name="DIMALTTZ" Code="70" Type="DxfUnitZeroSuppression" Property="AlternateDimensioningToleranceZeroSupression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" />
-  <Variable Name="DIMALTU" Code="70" Type="DxfUnitFormat" Property="AlternateDimensioningUnits" DefaultValue="DxfUnitFormat.Scientific" ReadConverter="(DxfUnitFormat)" />
-  <Variable Name="DIMALTZ" Code="70" Type="DxfUnitZeroSuppression" Property="AlternateDimensioningZeroSupression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" />
+  <Variable Name="DIMALTTZ" Code="70" Type="DxfUnitZeroSuppression" Property="AlternateDimensioningToleranceZeroSupression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" WriteConverter="(short)" />
+  <Variable Name="DIMALTU" Code="70" Type="DxfUnitFormat" Property="AlternateDimensioningUnits" DefaultValue="DxfUnitFormat.Scientific" ReadConverter="(DxfUnitFormat)" WriteConverter="(short)" />
+  <Variable Name="DIMALTZ" Code="70" Type="DxfUnitZeroSuppression" Property="AlternateDimensioningZeroSupression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" WriteConverter="(short)" />
   <Variable Name="DIMAPOST" Code="1" Type="string" Property="AlternateDimensioningSuffix" DefaultValue="null" />
   <Variable Name="DIMASO" Code="70" Type="bool" Property="CreateAssociativeDimensioning" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="DIMASZ" Code="40" Type="double" Property="DimensioningArrowSize" DefaultValue="1.0" />
-  <Variable Name="DIMAUNIT" Code="70" Type="DxfAngleFormat" Property="DimensioningAngleFormat" DefaultValue="DxfAngleFormat.DecimalDegrees" ReadConverter="(DxfAngleFormat)" />
+  <Variable Name="DIMAUNIT" Code="70" Type="DxfAngleFormat" Property="DimensioningAngleFormat" DefaultValue="DxfAngleFormat.DecimalDegrees" ReadConverter="(DxfAngleFormat)" WriteConverter="(short)" />
   <Variable Name="DIMBLK" Code="1" Type="string" Property="ArrowBlockName" DefaultValue="null" />
   <Variable Name="DIMBLK1" Code="1" Type="string" Property="FirstArrowBlockName" DefaultValue="null" />
   <Variable Name="DIMBLK2" Code="1" Type="string" Property="SecondArrowBlockName" DefaultValue="null" />
@@ -46,9 +46,9 @@
   <Variable Name="DIMDLI" Code="40" Type="double" Property="DimensionLineIncrement" DefaultValue="0.0" />
   <Variable Name="DIMEXE" Code="40" Type="double" Property="DimensionExtensionLineExtension" DefaultValue="0.0" />
   <Variable Name="DIMEXO" Code="40" Type="double" Property="DimensionExtensionLineOffset" DefaultValue="0.0" />
-  <Variable Name="DIMFIT" Code="70" Type="DxfDimensionFit" Property="DimensionTextAndArrowPlacement" DefaultValue="DxfDimensionFit.TextAndArrowsOutsideLines" ReadConverter="(DxfDimensionFit)" />
+  <Variable Name="DIMFIT" Code="70" Type="DxfDimensionFit" Property="DimensionTextAndArrowPlacement" DefaultValue="DxfDimensionFit.TextAndArrowsOutsideLines" ReadConverter="(DxfDimensionFit)" WriteConverter="(short)" />
   <Variable Name="DIMGAP" Code="40" Type="double" Property="DimensionLineGap" DefaultValue="0.0" />
-  <Variable Name="DIMJUST" Code="70" Type="DxfDimensionTextJustification" Property="DimensionTextJustification" DefaultValue="DxfDimensionTextJustification.AboveLineCenter" ReadConverter="(DxfDimensionTextJustification)" />
+  <Variable Name="DIMJUST" Code="70" Type="DxfDimensionTextJustification" Property="DimensionTextJustification" DefaultValue="DxfDimensionTextJustification.AboveLineCenter" ReadConverter="(DxfDimensionTextJustification)" WriteConverter="(short)" />
   <Variable Name="DIMLFAC" Code="40" Type="double" Property="DimensionLinearMeasurementsScaleFactor" DefaultValue="1.0" />
   <Variable Name="DIMLIM" Code="70" Type="bool" Property="GenerateDimensionLimits" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="DIMPOST" Code="1" Type="string" Property="DimensioningSuffix" DefaultValue="null" />
@@ -70,18 +70,18 @@
   <Variable Name="DIMTOFL" Code="70" Type="bool" Property="ForceDimensionLineExtensionsOutsideIfTextIs" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="DIMTOH" Code="70" Type="bool" Property="DimensionTextOutsideHorizontal" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="DIMTOL" Code="70" Type="bool" Property="GenerateDimensionTolerances" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
-  <Variable Name="DIMTOLJ" Code="70" Type="DxfJustification" Property="DimensionToleranceVerticalJustification" DefaultValue="DxfJustification.Top" ReadConverter="(DxfJustification)" />
+  <Variable Name="DIMTOLJ" Code="70" Type="DxfJustification" Property="DimensionToleranceVerticalJustification" DefaultValue="DxfJustification.Top" ReadConverter="(DxfJustification)" WriteConverter="(short)" />
   <Variable Name="DIMTP" Code="40" Type="double" Property="DimensionPlusTolerance" DefaultValue="0.0" />
   <Variable Name="DIMTSZ" Code="40" Type="double" Property="DimensioningTickSize" DefaultValue="0.0" />
   <Variable Name="DIMTVP" Code="40" Type="double" Property="DimensionVerticalTextPosition" DefaultValue="0.0" />
   <Variable Name="DIMTXSTY" Code="7" Type="string" Property="DimensionTextStyle" DefaultValue="null" />
   <Variable Name="DIMTXT" Code="40" Type="double" Property="DimensioningTextHeight" DefaultValue="10.0" />
-  <Variable Name="DIMTZIN" Code="70" Type="DxfUnitZeroSuppression" Property="DimensionToleranceZeroSuppression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" />
-  <Variable Name="DIMUNIT" Code="70" Type="DxfUnitFormat" Property="DimensionUnitFormat" DefaultValue="DxfUnitFormat.Scientific" ReadConverter="(DxfUnitFormat)" />
+  <Variable Name="DIMTZIN" Code="70" Type="DxfUnitZeroSuppression" Property="DimensionToleranceZeroSuppression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" WriteConverter="(short)" />
+  <Variable Name="DIMUNIT" Code="70" Type="DxfUnitFormat" Property="DimensionUnitFormat" DefaultValue="DxfUnitFormat.Scientific" ReadConverter="(DxfUnitFormat)" WriteConverter="(short)" />
   <Variable Name="DIMUPT" Code="70" Type="bool" Property="DimensionCursorControlsTextPosition" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
-  <Variable Name="DIMZIN" Code="70" Type="DxfUnitZeroSuppression" Property="DimensionUnitZeroSuppression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" />
+  <Variable Name="DIMZIN" Code="70" Type="DxfUnitZeroSuppression" Property="DimensionUnitZeroSuppression" DefaultValue="DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches" ReadConverter="(DxfUnitZeroSuppression)" WriteConverter="(short)" />
   <Variable Name="DISPSILH" Code="70" Type="bool" Property="DisplaySilhouetteCurvesInWireframeMode" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
-  <Variable Name="DRAGMODE" Code="70" Type="DxfDragMode" Property="DragMode" DefaultValue="DxfDragMode.Auto" ReadConverter="(DxfDragMode)" />
+  <Variable Name="DRAGMODE" Code="70" Type="DxfDragMode" Property="DragMode" DefaultValue="DxfDragMode.Auto" ReadConverter="(DxfDragMode)" WriteConverter="(short)" />
   <Variable Name="DWGCODEPAGE" Code="3" Type="string" Property="DrawingCodePage" DefaultValue="437" />
   <Variable Name="ELEVATION" Code="40" Type="double" Property="Elevation" DefaultValue="0.0" />
   <Variable Name="EXTMAX" Code="-3" Type="DxfPoint" Property="MaximumDrawingExtents" DefaultValue="DxfPoint.Origin" />
@@ -94,7 +94,72 @@
   <Variable Name="LIMMAX" Code="-2" Type="DxfPoint" Property="MaximumDrawingLimits" DefaultValue="DxfPoint.Origin" />
   <Variable Name="LIMMIN" Code="-2" Type="DxfPoint" Property="MinimumDrawingLimits" DefaultValue="DxfPoint.Origin" />
   <Variable Name="LTSCALE" Code="40" Type="double" Property="LinetypeScale" DefaultValue="1.0" />
-  <Variable Name="LUNITS" Code="70" Type="DxfUnitFormat" Property="UnitFormat" DefaultValue="DxfUnitFormat.Scientific" ReadConverter="(DxfUnitFormat)" />
+  <Variable Name="LUNITS" Code="70" Type="DxfUnitFormat" Property="UnitFormat" DefaultValue="DxfUnitFormat.Scientific" ReadConverter="(DxfUnitFormat)" WriteConverter="(short)" />
   <Variable Name="LUPREC" Code="70" Type="short" Property="UnitPrecision" DefaultValue="12" />
   <Variable Name="MAXACTVP" Code="70" Type="short" Property="MaximumActiveViewports" DefaultValue="3" />
+  <Variable Name="MEASUREMENT" Code="70" Type="DxfDrawingUnits" Property="DrawingUnits" DefaultValue="DxfDrawingUnits.English" ReadConverter="(DxfDrawingUnits)" WriteConverter="(short)" />
+  <Variable Name="MENU" Code="1" Type="string" Property="FileName" DefaultValue="null" />
+  <Variable Name="MIRRTEXT" Code="70" Type="bool" Property="MirrorText" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="ORTHOMODE" Code="70" Type="bool" Property="DrawOrthoganalLines" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="OSMODE" Code="70" Type="int" Property="ObjectSnapFlags" DefaultValue="4133" ReadConverter="(int)" WriteConverter="(short)" />
+  <Variable Name="PDMODE" Code="70" Type="int" Property="PointDisplayMode" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" />
+  <Variable Name="PDSIZE" Code="40" Type="double" Property="PointDisplaySize" DefaultValue="0.0" />
+  <Variable Name="PELEVATION" Code="40" Type="double" Property="PaperspaceElevation" DefaultValue="0.0" />
+  <Variable Name="PEXTMAX" Code="-3" Type="DxfPoint" Property="PaperspaceMaximumDrawingExtents" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="PEXTMIN" Code="-3" Type="DxfPoint" Property="PaperspaceMinimumDrawingExtents" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="PICKSTYLE" Code="70" Type="DxfPickStyle" Property="PickStyle" DefaultValue="DxfPickStyle.None" ReadConverter="(DxfPickStyle)" WriteConverter="(short)" />
+  <Variable Name="PINSBASE" Code="-3" Type="DxfPoint" Property="PaperspaceInsertionBase" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="PLIMCHECK" Code="70" Type="bool" Property="LimitCheckingInPaperspace" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="PLIMMAX" Code="-2" Type="DxfPoint" Property="PaperspaceMaximumDrawingLimits" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="PLIMMIN" Code="-2" Type="DxfPoint" Property="PaperspaceMinimumDrawingLimits" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="PLINEGEN" Code="70" Type="bool" Property="IsPolylineContinuousAroundVerticies" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="PLINEWID" Code="40" Type="double" Property="DefaultPolylineWidth" DefaultValue="0.0" />
+  <Variable Name="PROXYGRAPHICS" Code="70" Type="bool" Property="SaveProxyGraphics" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="PSLTSCALE" Code="70" Type="bool" Property="ScaleLinetypesInPaperspace" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="PUCSNAME" Code="2" Type="string" Property="PaperspaceUCSName" DefaultValue="null" />
+  <Variable Name="PUCSORG" Code="-3" Type="DxfPoint" Property="PaperspaceUCSOrigin" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="PUCSXDIR" Code="-3" Type="DxfVector" Property="PaperspaceXAxis" DefaultValue="DxfVector.XAxis" />
+  <Variable Name="PUCSYDIR" Code="-3" Type="DxfVector" Property="PaperspaceYAxis" DefaultValue="DxfVector.YAxis" />
+  <Variable Name="QTEXTMODE" Code="70" Type="bool" Property="UseQuickTextMode" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="REGENMODE" Code="70" Type="bool" Property="UseRegenMode" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="SHADEDGE" Code="70" Type="DxfShadeEdgeMode" Property="EdgeShading" DefaultValue="DxfShadeEdgeMode.FacesShadedEdgeNotHighlighted" ReadConverter="(DxfShadeEdgeMode)" WriteConverter="(short)" />
+  <Variable Name="SHADEDIF" Code="70" Type="short" Property="PercentAmbientToDiffuse" DefaultValue="70" />
+  <Variable Name="SKETCHINC" Code="40" Type="double" Property="SketchRecordIncrement" DefaultValue="0.0" />
+  <Variable Name="SKPOLY" Code="70" Type="DxfPolySketchMode" Property="PolylineSketchMode" DefaultValue="DxfPolySketchMode.SketchLines" ReadConverter="(DxfPolySketchMode)" WriteConverter="(short)" />
+  <Variable Name="SPLFRAME" Code="70" Type="bool" Property="DisplaySplinePolygonControl" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="SPLINESEGS" Code="70" Type="short" Property="LineSegmentsPerSplinePatch" DefaultValue="0" />
+  <Variable Name="SPLINETYPE" Code="70" Type="short" Property="PEditSplineCurveType" DefaultValue="0" />
+  <Variable Name="SURFTAB1" Code="70" Type="short" Property="MeshTabulationsInFirstDirection" DefaultValue="0" />
+  <Variable Name="SURFTAB2" Code="70" Type="short" Property="MeshTabulationsInSecondDirection" DefaultValue="0" />
+  <Variable Name="SURFTYPE" Code="70" Type="short" Property="PEditSmoothSurfaceType" DefaultValue="0" />
+  <Variable Name="SURFU" Code="70" Type="short" Property="PEditSmoothMDensith" DefaultValue="0" />
+  <Variable Name="SURFV" Code="70" Type="short" Property="PEditSmoothNDensith" DefaultValue="0" />
+  <Variable Name="TDCREATE" Code="40" Type="DateTime" Property="CreationDate" DefaultValue="DateTime.Now" ReadConverter="DateDouble" WriteConverter="DateDouble" />
+  <Variable Name="TDINDWG" Code="40" Type="TimeSpan" Property="TimeInDrawing" DefaultValue="TimeSpan.Zero" ReadConverter="TimeSpanDouble" WriteConverter="TimeSpanDouble" />
+  <Variable Name="TDUPDATE" Code="40" Type="DateTime" Property="UpdateDate" DefaultValue="DateTime.Now" ReadConverter="DateDouble" WriteConverter="DateDouble" />
+  <Variable Name="TDUSRTIMER" Code="40" Type="TimeSpan" Property="UserElapsedTimer" DefaultValue="TimeSpan.Zero" ReadConverter="TimeSpanDouble" WriteConverter="TimeSpanDouble" />
+  <Variable Name="TEXTSIZE" Code="40" Type="double" Property="DefaultTextHeight" DefaultValue="0.0" />
+  <Variable Name="TEXTSTYLE" Code="7" Type="string" Property="TextStyle" DefaultValue="null" />
+  <Variable Name="THICKNESS" Code="40" Type="double" Property="Thickness" DefaultValue="0.0" />
+  <Variable Name="TILEMODE" Code="70" Type="bool" Property="PreviousReleaseTileCompatability" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="TRACEWID" Code="40" Type="double" Property="TraceWidth" DefaultValue="0.0" />
+  <Variable Name="TREEDEPTH" Code="70" Type="short" Property="SpacialIndexMaxDepth" DefaultValue="0" />
+  <Variable Name="UCSNAME" Code="2" Type="string" Property="UCSName" DefaultValue="null" />
+  <Variable Name="UCSORG" Code="-3" Type="DxfPoint" Property="UCSOrigin" DefaultValue="DxfPoint.Origin" />
+  <Variable Name="UCSXDIR" Code="-3" Type="DxfVector" Property="UCSXAxis" DefaultValue="DxfVector.XAxis" />
+  <Variable Name="UCSYDIR" Code="-3" Type="DxfVector" Property="UCSYAxis" DefaultValue="DxfVector.YAxis" />
+  <Variable Name="UNITMODE" Code="70" Type="bool" Property="DisplayFractionsInInput" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="USERI1" Code="70" Type="short" Property="UserInt1" DefaultValue="0" />
+  <Variable Name="USERI2" Code="70" Type="short" Property="UserInt2" DefaultValue="0" />
+  <Variable Name="USERI3" Code="70" Type="short" Property="UserInt3" DefaultValue="0" />
+  <Variable Name="USERI4" Code="70" Type="short" Property="UserInt4" DefaultValue="0" />
+  <Variable Name="USERI5" Code="70" Type="short" Property="UserInt5" DefaultValue="0" />
+  <Variable Name="USERR1" Code="40" Type="double" Property="UserReal1" DefaultValue="0.0" />
+  <Variable Name="USERR2" Code="40" Type="double" Property="UserReal2" DefaultValue="0.0" />
+  <Variable Name="USERR3" Code="40" Type="double" Property="UserReal3" DefaultValue="0.0" />
+  <Variable Name="USERR4" Code="40" Type="double" Property="UserReal4" DefaultValue="0.0" />
+  <Variable Name="USERR5" Code="40" Type="double" Property="UserReal5" DefaultValue="0.0" />
+  <Variable Name="USRTIMER" Code="70" Type="bool" Property="UserTimerOn" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="VISRETAIN" Code="70" Type="bool" Property="RetainXRefDependentVisibilitySettings" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+  <Variable Name="WORLDVIEW" Code="70" Type="bool" Property="SetUCSToWCSInDViewOrVPoint" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
 </Spec>

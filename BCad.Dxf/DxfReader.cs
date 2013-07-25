@@ -74,7 +74,7 @@ namespace BCad.Dxf
             int code = ReadCode();
             if (code == -1)
                 return null;
-            object value = ReadValue(DxfCodePair.ExpectedTypeForCode(code));
+            object value = ReadValue(DxfCodePair.ExpectedType(code));
             return new DxfCodePair(code, value);
         }
 
