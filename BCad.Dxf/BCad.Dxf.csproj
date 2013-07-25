@@ -50,6 +50,7 @@
     <Compile Include="DxfCodePair.cs" />
     <Compile Include="DxfColor.cs" />
     <Compile Include="DxfFile.cs" />
+    <Compile Include="DxfHelpers.cs" />
     <Compile Include="DxfPoint.cs" />
     <Compile Include="DxfReader.cs" />
     <Compile Include="DxfReadException.cs" />

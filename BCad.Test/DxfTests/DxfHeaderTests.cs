@@ -292,6 +292,8 @@ LAYER
 LAYER
   2
 default
+ 70
+0
  62
 0
   0

@@ -10,6 +10,26 @@ namespace BCad.Dxf.Tables
 
         public DxfColor Color { get; set; }
 
+        public bool IsFrozen
+        {
+            get { return DxfHelpers.GetFlag(Flags, 1); }
+            set { DxfHelpers.SetFlag(value, ref Flags, 1); }
+        }
+
+        public bool IsFrozenInNewViewports
+        {
+            get { return DxfHelpers.GetFlag(Flags, 2); }
+            set { DxfHelpers.SetFlag(value, ref Flags, 2); }
+        }
+
+        public bool IsLocked
+        {
+            get { return DxfHelpers.GetFlag(Flags, 4); }
+            set { DxfHelpers.SetFlag(value, ref Flags, 4); }
+        }
+
+        private int Flags;
+
         public DxfLayer()
             : this("UNDEFINED")
         {
@@ -24,12 +44,14 @@ namespace BCad.Dxf.Tables
         {
             Name = name;
             Color = color;
+            Flags = 0;
         }
 
         internal IEnumerable<DxfCodePair> GetValuePairs()
         {
             yield return new DxfCodePair(0, LayerText);
             yield return new DxfCodePair(2, Name);
+            yield return new DxfCodePair(70, (short)Flags);
             yield return new DxfCodePair(62, Color.RawValue);
         }
 
@@ -52,6 +74,9 @@ namespace BCad.Dxf.Tables
                         break;
                     case 62:
                         layer.Color.RawValue = pair.ShortValue;
+                        break;
+                    case 70:
+                        layer.Flags = pair.ShortValue;
                         break;
                 }
             }

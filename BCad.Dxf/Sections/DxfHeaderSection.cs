@@ -136,103 +136,87 @@ namespace BCad.Dxf.Sections
 
         public bool EndPointSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 1); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 1); }
             set { SetFlag(value, 1); }
         }
 
         public bool MidPointSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 2); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 2); }
             set { SetFlag(value, 2); }
         }
 
         public bool CenterSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 4); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 4); }
             set { SetFlag(value, 4); }
         }
 
         public bool NodeSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 8); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 8); }
             set { SetFlag(value, 8); }
         }
 
         public bool QuadrantSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 16); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 16); }
             set { SetFlag(value, 16); }
         }
 
         public bool IntersectionSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 32); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 32); }
             set { SetFlag(value, 32); }
         }
 
         public bool InsertionSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 64); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 64); }
             set { SetFlag(value, 64); }
         }
 
         public bool PerpendicularSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 128); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 128); }
             set { SetFlag(value, 128); }
         }
 
         public bool TangentSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 256); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 256); }
             set { SetFlag(value, 256); }
         }
 
         public bool NearestSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 512); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 512); }
             set { SetFlag(value, 512); }
         }
 
         public bool ApparentIntersectionSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 2048); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 2048); }
             set { SetFlag(value, 2048); }
         }
 
         public bool ExtensionSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 4096); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 4096); }
             set { SetFlag(value, 4096); }
         }
 
         public bool ParallelSnap
         {
-            get { return GetFlag(ObjectSnapFlags, 8192); }
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 8192); }
             set { SetFlag(value, 8192); }
         }
 
         private void SetFlag(bool value, int mask)
         {
             var flags = ObjectSnapFlags;
-            if (value) SetFlag(ref flags, mask);
-            else ClearFlag(ref flags, mask);
+            DxfHelpers.SetFlag(value, ref flags, mask);
             ObjectSnapFlags = flags;
-        }
-
-        private static void SetFlag(ref int flags, int mask)
-        {
-            flags |= mask;
-        }
-
-        private static void ClearFlag(ref int flags, int mask)
-        {
-            flags &= ~mask;
-        }
-
-        private static bool GetFlag(int flags, int mask)
-        {
-            return (flags & mask) != 0;
         }
 
         internal static bool BoolShort(short s)
