@@ -23,7 +23,7 @@ namespace BCad.Dxf.Tables
         Right = 2
     }
 
-    public class DxfViewPort
+    public class DxfViewPort : DxfSymbolTableFlags
     {
         public const string ViewPortText = "VPORT";
 
@@ -118,6 +118,7 @@ namespace BCad.Dxf.Tables
 
             pairs.Add(new DxfCodePair(0, ViewPortText));
             pairs.Add(new DxfCodePair(2, Name ?? ActiveViewPortName));
+            addIfNotDefault(70, (short)Flags, (short)0);
             addIfNotDefault(10, LowerLeft.X, 0.0);
             addIfNotDefault(20, LowerLeft.Y, 0.0);
             addIfNotDefault(11, UpperRight.X, 0.0);
@@ -247,6 +248,9 @@ namespace BCad.Dxf.Tables
                         break;
                     case 51:
                         viewPort.ViewTwistAngle = pair.DoubleValue;
+                        break;
+                    case 70:
+                        viewPort.Flags = pair.ShortValue;
                         break;
                     case 71:
                         viewPort.ViewMode = new DxfViewMode(pair.ShortValue);

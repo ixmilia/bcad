@@ -2,7 +2,7 @@
 
 namespace BCad.Dxf.Tables
 {
-    public class DxfLayer
+    public class DxfLayer : DxfSymbolTableFlags
     {
         public const string LayerText = "LAYER";
 
@@ -28,8 +28,6 @@ namespace BCad.Dxf.Tables
             set { DxfHelpers.SetFlag(value, ref Flags, 4); }
         }
 
-        private int Flags;
-
         public DxfLayer()
             : this("UNDEFINED")
         {
@@ -41,10 +39,10 @@ namespace BCad.Dxf.Tables
         }
 
         public DxfLayer(string name, DxfColor color)
+            : base()
         {
             Name = name;
             Color = color;
-            Flags = 0;
         }
 
         internal IEnumerable<DxfCodePair> GetValuePairs()

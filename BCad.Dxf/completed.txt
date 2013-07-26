@@ -1,4 +1,8 @@
 ﻿HEADER section - complete
 TABLES section
+  DIMSTYLE - complete
   LAYER - complete
+  LTYPE - complete
   VPORT - complete
+
+in progress: 
