@@ -118,6 +118,9 @@ namespace BCad.Dxf.Tables
                 case DxfTable.LTypeText:
                     result = DxfLinetypeTable.LinetypeTableFromBuffer(buffer);
                     break;
+                case DxfTable.StyleText:
+                    result = DxfStyleTable.StyleTableFromBuffer(buffer);
+                    break;
                 case DxfViewPort.ViewPortText:
                     result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
                     break;

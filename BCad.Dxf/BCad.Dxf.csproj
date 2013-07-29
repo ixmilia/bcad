@@ -81,6 +81,8 @@
     <Compile Include="Tables\DxfLayerTable.cs" />
     <Compile Include="Tables\DxfLinetype.cs" />
     <Compile Include="Tables\DxfLinetypeTable.cs" />
+    <Compile Include="Tables\DxfStyle.cs" />
+    <Compile Include="Tables\DxfStyleTable.cs" />
     <Compile Include="Tables\DxfSymbolTableFlags.cs" />
     <Compile Include="Tables\DxfTable.cs" />
     <Compile Include="Tables\DxfTableType.cs" />

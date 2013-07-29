@@ -3,6 +3,7 @@ TABLES section
   DIMSTYLE - complete
   LAYER - complete
   LTYPE - complete
+  STYLE - complete
   VPORT - complete
 
 in progress: 

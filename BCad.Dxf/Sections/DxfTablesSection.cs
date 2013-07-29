@@ -11,18 +11,24 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Tables; }
         }
 
+        public DxfDimStyleTable DimStyleTable { get; private set; }
         public DxfLayerTable LayerTable { get; private set; }
+        public DxfLinetypeTable LTypeTable { get; private set; }
+        public DxfStyleTable StyleTable { get; private set; }
         public DxfViewPortTable ViewPortTable { get; private set; }
 
         public DxfTablesSection()
         {
+            this.DimStyleTable = new DxfDimStyleTable();
             this.LayerTable = new DxfLayerTable();
+            this.LTypeTable = new DxfLinetypeTable();
+            this.StyleTable = new DxfStyleTable();
             this.ViewPortTable = new DxfViewPortTable();
         }
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            foreach (var table in new DxfTable[] { LayerTable, ViewPortTable })
+            foreach (var table in new DxfTable[] { DimStyleTable, LayerTable, LTypeTable, StyleTable, ViewPortTable })
             {
                 foreach (var pair in table.GetValuePairs())
                     yield return pair;
@@ -51,8 +57,17 @@ namespace BCad.Dxf.Sections
                 {
                     switch (table.TableType)
                     {
+                        case DxfTableType.DimStyle:
+                            section.DimStyleTable = (DxfDimStyleTable)table;
+                            break;
                         case DxfTableType.Layer:
                             section.LayerTable = (DxfLayerTable)table;
+                            break;
+                        case DxfTableType.LType:
+                            section.LTypeTable = (DxfLinetypeTable)table;
+                            break;
+                        case DxfTableType.Style:
+                            section.StyleTable = (DxfStyleTable)table;
                             break;
                         case DxfTableType.ViewPort:
                             section.ViewPortTable = (DxfViewPortTable)table;
