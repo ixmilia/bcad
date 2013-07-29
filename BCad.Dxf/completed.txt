@@ -4,6 +4,8 @@ TABLES section
   LAYER - complete
   LTYPE - complete
   STYLE - complete
+  UCS - complete
+  VIEW - complete
   VPORT - complete
 
 in progress: 

@@ -88,9 +88,11 @@
     <Compile Include="Tables\DxfTableType.cs" />
     <Compile Include="Tables\DxfUcs.cs" />
     <Compile Include="Tables\DxfUcsTable.cs" />
+    <Compile Include="Tables\DxfView.cs" />
     <Compile Include="Tables\DxfViewMode.cs" />
     <Compile Include="Tables\DxfViewPort.cs" />
     <Compile Include="Tables\DxfViewPortTable.cs" />
+    <Compile Include="Tables\DxfViewTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sections\DxfSpec.xsd">
