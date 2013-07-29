@@ -15,6 +15,7 @@ namespace BCad.Dxf.Sections
         public DxfLayerTable LayerTable { get; private set; }
         public DxfLinetypeTable LTypeTable { get; private set; }
         public DxfStyleTable StyleTable { get; private set; }
+        public DxfUcsTable UcsTable { get; private set; }
         public DxfViewPortTable ViewPortTable { get; private set; }
 
         public DxfTablesSection()
@@ -23,12 +24,13 @@ namespace BCad.Dxf.Sections
             this.LayerTable = new DxfLayerTable();
             this.LTypeTable = new DxfLinetypeTable();
             this.StyleTable = new DxfStyleTable();
+            this.UcsTable = new DxfUcsTable();
             this.ViewPortTable = new DxfViewPortTable();
         }
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            foreach (var table in new DxfTable[] { DimStyleTable, LayerTable, LTypeTable, StyleTable, ViewPortTable })
+            foreach (var table in new DxfTable[] { DimStyleTable, LayerTable, LTypeTable, StyleTable, UcsTable, ViewPortTable })
             {
                 foreach (var pair in table.GetValuePairs())
                     yield return pair;
@@ -68,6 +70,9 @@ namespace BCad.Dxf.Sections
                             break;
                         case DxfTableType.Style:
                             section.StyleTable = (DxfStyleTable)table;
+                            break;
+                        case DxfTableType.Ucs:
+                            section.UcsTable = (DxfUcsTable)table;
                             break;
                         case DxfTableType.ViewPort:
                             section.ViewPortTable = (DxfViewPortTable)table;

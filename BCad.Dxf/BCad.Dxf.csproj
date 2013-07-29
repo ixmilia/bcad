@@ -86,6 +86,8 @@
     <Compile Include="Tables\DxfSymbolTableFlags.cs" />
     <Compile Include="Tables\DxfTable.cs" />
     <Compile Include="Tables\DxfTableType.cs" />
+    <Compile Include="Tables\DxfUcs.cs" />
+    <Compile Include="Tables\DxfUcsTable.cs" />
     <Compile Include="Tables\DxfViewMode.cs" />
     <Compile Include="Tables\DxfViewPort.cs" />
     <Compile Include="Tables\DxfViewPortTable.cs" />
