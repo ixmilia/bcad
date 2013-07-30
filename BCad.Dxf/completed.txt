@@ -1,12 +1,4 @@
 ﻿HEADER section - complete
-TABLES section
-  APPID - complete
-  DIMSTYLE - complete
-  LAYER - complete
-  LTYPE - complete
-  STYLE - complete
-  UCS - complete
-  VIEW - complete
-  VPORT - complete
+TABLES section - complete
 
 in progress: 

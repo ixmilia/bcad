@@ -12,6 +12,7 @@ namespace BCad.Dxf.Sections
         }
 
         public DxfAppIdTable AppIdTable { get; private set; }
+        public DxfBlockRecordTable BlockRecordTable { get; private set; }
         public DxfDimStyleTable DimStyleTable { get; private set; }
         public DxfLayerTable LayerTable { get; private set; }
         public DxfLinetypeTable LTypeTable { get; private set; }
@@ -23,6 +24,7 @@ namespace BCad.Dxf.Sections
         public DxfTablesSection()
         {
             this.AppIdTable = new DxfAppIdTable();
+            this.BlockRecordTable = new DxfBlockRecordTable();
             this.DimStyleTable = new DxfDimStyleTable();
             this.LayerTable = new DxfLayerTable();
             this.LTypeTable = new DxfLinetypeTable();
@@ -34,7 +36,7 @@ namespace BCad.Dxf.Sections
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
         {
-            foreach (var table in new DxfTable[] { AppIdTable, DimStyleTable, LayerTable, LTypeTable, StyleTable, UcsTable, ViewTable, ViewPortTable })
+            foreach (var table in new DxfTable[] { AppIdTable, BlockRecordTable, DimStyleTable, LayerTable, LTypeTable, StyleTable, UcsTable, ViewTable, ViewPortTable })
             {
                 foreach (var pair in table.GetValuePairs())
                     yield return pair;
@@ -65,6 +67,9 @@ namespace BCad.Dxf.Sections
                     {
                         case DxfTableType.AppId:
                             section.AppIdTable = (DxfAppIdTable)table;
+                            break;
+                        case DxfTableType.BlockRecord:
+                            section.BlockRecordTable = (DxfBlockRecordTable)table;
                             break;
                         case DxfTableType.DimStyle:
                             section.DimStyleTable = (DxfDimStyleTable)table;
