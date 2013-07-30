@@ -75,6 +75,8 @@
     <Compile Include="Sections\DxfSection.cs" />
     <Compile Include="Sections\DxfSectionType.cs" />
     <Compile Include="Sections\DxfTablesSection.cs" />
+    <Compile Include="Tables\DxfAppId.cs" />
+    <Compile Include="Tables\DxfAppIdTable.cs" />
     <Compile Include="Tables\DxfDimStyle.cs" />
     <Compile Include="Tables\DxfDimStyleTable.cs" />
     <Compile Include="Tables\DxfLayer.cs" />

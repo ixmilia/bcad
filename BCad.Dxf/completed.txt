@@ -1,5 +1,6 @@
 ﻿HEADER section - complete
 TABLES section
+  APPID - complete
   DIMSTYLE - complete
   LAYER - complete
   LTYPE - complete
