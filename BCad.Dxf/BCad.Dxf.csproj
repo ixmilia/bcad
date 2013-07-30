@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DxfClass.cs" />
     <Compile Include="DxfCodePairHelper.cs" />
     <Compile Include="DxfAcadVersion.cs" />
     <Compile Include="DxfCodePairBufferReader.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Entities\DxfSeqend.cs" />
     <Compile Include="Entities\DxfText.cs" />
     <Compile Include="Entities\DxfVertex.cs" />
+    <Compile Include="Sections\DxfClassesSection.cs" />
     <Compile Include="Sections\DxfHeaderVariables.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

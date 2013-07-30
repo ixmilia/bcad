@@ -15,6 +15,7 @@ namespace BCad.Dxf
         public const string EofText = "EOF";
 
         public DxfHeaderSection HeaderSection { get; private set; }
+        public DxfClassesSection ClassSection { get; private set; }
         public DxfTablesSection TablesSection { get; private set; }
         public DxfEntitiesSection EntitiesSection { get; private set; }
 
@@ -23,6 +24,7 @@ namespace BCad.Dxf
             get
             {
                 yield return this.HeaderSection;
+                yield return this.ClassSection;
                 yield return this.TablesSection;
                 yield return this.EntitiesSection;
             }
@@ -31,6 +33,7 @@ namespace BCad.Dxf
         public DxfFile()
         {
             this.HeaderSection = new DxfHeaderSection();
+            this.ClassSection = new DxfClassesSection();
             this.TablesSection = new DxfTablesSection();
             this.EntitiesSection = new DxfEntitiesSection();
         }
@@ -62,6 +65,9 @@ namespace BCad.Dxf
                         {
                             case DxfSectionType.Entities:
                                 file.EntitiesSection = (DxfEntitiesSection)section;
+                                break;
+                            case DxfSectionType.Classes:
+                                file.ClassSection = (DxfClassesSection)section;
                                 break;
                             case DxfSectionType.Header:
                                 file.HeaderSection = (DxfHeaderSection)section;
