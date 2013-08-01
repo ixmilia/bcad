@@ -15,6 +15,7 @@ namespace BCad.Dxf.Entities
         Text,
         Polyline,
         Seqend,
+        Solid,
         Vertex
     }
 
@@ -27,6 +28,7 @@ namespace BCad.Dxf.Entities
         public const string TextType = "TEXT";
         public const string PolylineType = "POLYLINE";
         public const string SeqendType = "SEQEND";
+        public const string SolidType = "SOLID";
         public const string VertexType = "VERTEX";
 
         public const string BYLAYER = "BYLAYER";
@@ -149,6 +151,9 @@ namespace BCad.Dxf.Entities
                 case SeqendType:
                     entity = DxfSeqend.SeqendFromBuffer(buffer);
                     break;
+                case SolidType:
+                    entity = DxfSolid.SolidFromBuffer(buffer);
+                    break;
                 case TextType:
                     entity = DxfText.TextFromBuffer(buffer);
                     break;
@@ -202,6 +207,9 @@ namespace BCad.Dxf.Entities
                         break;
                     case DxfEntityType.Seqend:
                         name = SeqendType;
+                        break;
+                    case DxfEntityType.Solid:
+                        name = SolidType;
                         break;
                     case DxfEntityType.Vertex:
                         name = VertexType;

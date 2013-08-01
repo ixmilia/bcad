@@ -7,7 +7,11 @@ ENTITIES section - partial
   CIRCLE - complete
   ELLIPSE - complete
   LINE - complete
+  POLYLINE - partial
+  SEQEND - complete
+  SOLID - complete
   TEXT - complete
+  VERTEX - complete
 OBJECTS section - NYI
 
 in progress: 

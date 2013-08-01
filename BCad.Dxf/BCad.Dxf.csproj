@@ -64,6 +64,7 @@
     <Compile Include="Entities\DxfLine.cs" />
     <Compile Include="Entities\DxfPolyline.cs" />
     <Compile Include="Entities\DxfSeqend.cs" />
+    <Compile Include="Entities\DxfSolid.cs" />
     <Compile Include="Entities\DxfText.cs" />
     <Compile Include="Entities\DxfVertex.cs" />
     <Compile Include="Sections\DxfBlocksSection.cs" />

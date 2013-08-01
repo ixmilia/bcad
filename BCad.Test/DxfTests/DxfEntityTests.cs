@@ -224,6 +224,18 @@ ill-placed comment
             Assert.False(poly.IsContinuousLinetipePattern);
         }
 
+        [Fact]
+        public void ReadDefaultSolidTest()
+        {
+            var solid = (DxfSolid)EmptyEntity("SOLID");
+            Assert.Equal(DxfPoint.Origin, solid.FirstCorner);
+            Assert.Equal(DxfPoint.Origin, solid.SecondCorner);
+            Assert.Equal(DxfPoint.Origin, solid.ThirdCorner);
+            Assert.Null(solid.FourthCorner);
+            Assert.Equal(0.0, solid.Thickness);
+            Assert.Equal(DxfVector.ZAxis, solid.ExtrusionDirection);
+        }
+
         #endregion
 
         #region Read specific value tests
@@ -575,6 +587,50 @@ SEQEND
             Assert.Equal(67.0, poly.Vertices[1].Location.Z);
         }
 
+        public void ReadSolidTest()
+        {
+            var solid = (DxfSolid)Entity("SOLID", @"
+ 10
+1
+ 20
+2
+ 30
+3
+ 11
+4
+ 21
+5
+ 31
+6
+ 12
+7
+ 22
+8
+ 32
+9
+ 13
+10
+ 23
+11
+ 33
+12
+ 39
+13
+210
+14
+220
+15
+230
+16
+");
+            Assert.Equal(new DxfPoint(1, 2, 3), solid.FirstCorner);
+            Assert.Equal(new DxfPoint(4, 5, 6), solid.SecondCorner);
+            Assert.Equal(new DxfPoint(7, 8, 9), solid.ThirdCorner);
+            Assert.Equal(new DxfPoint(10, 11, 12), solid.FourthCorner);
+            Assert.Equal(13.0, solid.Thickness);
+            Assert.Equal(new DxfVector(14, 15, 16), solid.ExtrusionDirection);
+        }
+
         #endregion
 
         #region Write default value tests
@@ -728,6 +784,42 @@ AcDb2dPolyline
   0
 SEQEND
   0
+");
+        }
+
+        public void WriteDefaultSolidTest()
+        {
+            EnsureFileContainsEntity(new DxfSolid(), @"
+  0
+SOLID
+ 62
+0
+100
+AcDbTrace
+ 10
+0.0000000000000000E+000
+ 20
+0.0000000000000000E+000
+ 30
+0.0000000000000000E+000
+ 11
+0.0000000000000000E+000
+ 21
+0.0000000000000000E+000
+ 31
+0.0000000000000000E+000
+ 12
+0.0000000000000000E+000
+ 22
+0.0000000000000000E+000
+ 32
+0.0000000000000000E+000
+ 13
+0.0000000000000000E+000
+ 23
+0.0000000000000000E+000
+ 33
+0.0000000000000000E+000
 ");
         }
 
