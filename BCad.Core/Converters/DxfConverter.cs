@@ -48,20 +48,20 @@ namespace BCad.Converters
                 var layer = GetOrCreateLayer(ref layers, block.Layer);
 
                 // create the aggregate entity
-                var tree = new ReadOnlyTree<uint, Entity>();
+                var children = ReadOnlyList<Entity>.Empty();
                 foreach (var item in block.Entities)
                 {
                     var tempEnt = item.ToEntity();
                     if (tempEnt != null)
                     {
-                        tree = tree.Insert(tempEnt.Id, tempEnt);
+                        children = children.Add(tempEnt);
                     }
                 }
 
                 // add the entity to the appropriate layer
-                if (tree.Count != 0)
+                if (children.Count != 0)
                 {
-                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), tree, Color.Auto));
+                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children, Color.Auto));
                     layers = layers.Insert(layer.Name, layer);
                 }
             }
@@ -111,7 +111,7 @@ namespace BCad.Converters
                         var agg = (AggregateEntity)item;
                         var block = new DxfBlock();
                         block.Layer = layer.Name;
-                        block.Entities.AddRange(agg.Children.GetValues().Select(c => c.ToDxfEntity(layer)));
+                        block.Entities.AddRange(agg.Children.Select(c => c.ToDxfEntity(layer)));
                     }
                     else
                     {

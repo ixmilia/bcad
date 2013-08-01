@@ -10,7 +10,7 @@ namespace BCad.Entities
     public class AggregateEntity : Entity
     {
         private readonly Point location;
-        private readonly ReadOnlyTree<uint, Entity> children;
+        private readonly ReadOnlyList<Entity> children;
         private readonly Color color;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
@@ -18,16 +18,16 @@ namespace BCad.Entities
 
         public Point Location { get { return location; } }
 
-        public ReadOnlyTree<uint, Entity> Children { get { return children; } }
+        public ReadOnlyList<Entity> Children { get { return children; } }
 
         public Color Color { get { return color; } }
 
         public AggregateEntity()
-            : this(Point.Origin, new ReadOnlyTree<uint, Entity>(), Color.Auto)
+            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), Color.Auto)
         {
         }
 
-        public AggregateEntity(Point location, ReadOnlyTree<uint, Entity> children, Color color)
+        public AggregateEntity(Point location, ReadOnlyList<Entity> children, Color color)
         {
             if (location == null)
                 throw new ArgumentNullException("location");
@@ -37,12 +37,11 @@ namespace BCad.Entities
             this.children = children;
             this.color = color;
 
-            var childList = children.GetValues();
-            if (childList.Any(c => c.Kind == EntityKind.Aggregate))
+            if (children.Any(c => c.Kind == EntityKind.Aggregate))
                 throw new ArgumentOutOfRangeException("children", "Aggregate entities cannot contain other aggregate entities");
-            this.primitives = childList.SelectMany(c => c.GetPrimitives()).ToArray();
-            this.snapPoints = childList.SelectMany(c => c.GetSnapPoints()).ToArray();
-            this.boundingBox = BoundingBox.Includes(childList.Select(c => c.BoundingBox));
+            this.primitives = children.SelectMany(c => c.GetPrimitives()).ToArray();
+            this.snapPoints = children.SelectMany(c => c.GetSnapPoints()).ToArray();
+            this.boundingBox = BoundingBox.Includes(children.Select(c => c.BoundingBox));
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
@@ -59,7 +58,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public AggregateEntity Update(Point location = null, ReadOnlyTree<uint, Entity> children = null, Color? color = null)
+        public AggregateEntity Update(Point location = null, ReadOnlyList<Entity> children = null, Color? color = null)
         {
             return new AggregateEntity(
                 location ?? this.location,

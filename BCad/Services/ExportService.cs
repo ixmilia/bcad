@@ -118,7 +118,7 @@ namespace BCad.Services
         private ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix3D transform)
         {
             var loc = transform.Transform(aggregate.Location);
-            return new ProjectedAggregate(aggregate, layer, loc, aggregate.Children.GetValues().Select(c => Project(c, layer, transform)));
+            return new ProjectedAggregate(aggregate, layer, loc, aggregate.Children.Select(c => Project(c, layer, transform)));
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)
