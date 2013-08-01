@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BCad.Dxf.Sections
 {
-    public class DxfClassesSection : DxfSection
+    internal class DxfClassesSection : DxfSection
     {
         public List<DxfClass> Classes { get; private set; }
 

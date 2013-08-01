@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BCad.Dxf.Sections
 {
-    public abstract class DxfSection
+    internal abstract class DxfSection
     {
         internal const string HeaderSectionText = "HEADER";
         internal const string ClassesSectionText = "CLASSES";

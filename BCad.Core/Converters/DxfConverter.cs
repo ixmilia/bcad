@@ -5,8 +5,6 @@ using BCad.Collections;
 using BCad.DrawingFiles;
 using BCad.Dxf;
 using BCad.Dxf.Entities;
-using BCad.Dxf.Sections;
-using BCad.Dxf.Tables;
 using BCad.Entities;
 
 namespace BCad.Converters
@@ -24,12 +22,12 @@ namespace BCad.Converters
                 throw new ArgumentException("Drawing file had no internal DXF file.");
             var layers = new ReadOnlyTree<string, Layer>();
 
-            foreach (var layer in dxfFile.File.TablesSection.LayerTable.Layers)
+            foreach (var layer in dxfFile.File.Layers)
             {
                 layers = layers.Insert(layer.Name, new Layer(layer.Name, layer.Color.ToColor()));
             }
 
-            foreach (var item in dxfFile.File.EntitiesSection.Entities)
+            foreach (var item in dxfFile.File.Entities)
             {
                 Layer layer = null;
 
@@ -82,11 +80,11 @@ namespace BCad.Converters
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName, dxfFile.File.HeaderSection.UnitFormat.ToUnitFormat(), dxfFile.File.HeaderSection.UnitPrecision),
+                new DrawingSettings(fileName, dxfFile.File.Header.UnitFormat.ToUnitFormat(), dxfFile.File.Header.UnitPrecision),
                 layers,
-                dxfFile.File.HeaderSection.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First());
+                dxfFile.File.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First());
 
-            var vp = dxfFile.File.TablesSection.ViewPortTable.ViewPorts.FirstOrDefault();
+            var vp = dxfFile.File.ViewPorts.FirstOrDefault();
             if (vp != null)
             {
                 viewPort = new ViewPort(
@@ -112,12 +110,12 @@ namespace BCad.Converters
             var file = new DxfFile();
 
             // save layers and entities
-            file.HeaderSection.CurrentLayer = drawing.CurrentLayer.Name;
-            file.HeaderSection.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
-            file.HeaderSection.UnitPrecision = (short)drawing.Settings.UnitPrecision;
+            file.Header.CurrentLayer = drawing.CurrentLayer.Name;
+            file.Header.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
+            file.Header.UnitPrecision = (short)drawing.Settings.UnitPrecision;
             foreach (var layer in drawing.GetLayers().OrderBy(x => x.Name))
             {
-                file.TablesSection.LayerTable.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
+                file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
                 {
                     DxfEntity entity = null;
@@ -152,12 +150,12 @@ namespace BCad.Converters
                     }
 
                     if (entity != null)
-                        file.EntitiesSection.Entities.Add(entity);
+                        file.Entities.Add(entity);
                 }
             }
 
             // save viewport
-            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort()
+            file.ViewPorts.Add(new DxfViewPort()
             {
                 LowerLeft = viewPort.BottomLeft.ToDxfPoint(),
                 ViewDirection = viewPort.Sight.ToDxfVector(),

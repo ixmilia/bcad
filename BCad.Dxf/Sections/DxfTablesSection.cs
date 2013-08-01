@@ -4,7 +4,7 @@ using BCad.Dxf.Tables;
 
 namespace BCad.Dxf.Sections
 {
-    public class DxfTablesSection : DxfSection
+    internal class DxfTablesSection : DxfSection
     {
         public override DxfSectionType Type
         {

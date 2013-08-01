@@ -4,7 +4,7 @@ using BCad.Dxf.Blocks;
 
 namespace BCad.Dxf.Sections
 {
-    public class DxfBlocksSection : DxfSection
+    internal class DxfBlocksSection : DxfSection
     {
         public List<DxfBlock> Blocks { get; private set; }
 

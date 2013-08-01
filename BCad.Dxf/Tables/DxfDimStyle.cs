@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BCad.Dxf.Sections;
 
-namespace BCad.Dxf.Tables
+namespace BCad.Dxf
 {
     public class DxfDimStyle : DxfSymbolTableFlags
     {

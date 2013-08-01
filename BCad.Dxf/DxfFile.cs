@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using BCad.Dxf.Blocks;
 using BCad.Dxf.Entities;
 using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
@@ -14,11 +15,37 @@ namespace BCad.Dxf
         public const string BinarySentinel = "AutoCAD Binary DXF";
         public const string EofText = "EOF";
 
-        public DxfHeaderSection HeaderSection { get; private set; }
-        public DxfClassesSection ClassSection { get; private set; }
-        public DxfTablesSection TablesSection { get; private set; }
-        public DxfBlocksSection BlocksSection { get; private set; }
-        public DxfEntitiesSection EntitiesSection { get; private set; }
+        internal DxfHeaderSection HeaderSection { get; private set; }
+        internal DxfClassesSection ClassSection { get; private set; }
+        internal DxfTablesSection TablesSection { get; private set; }
+        internal DxfBlocksSection BlocksSection { get; private set; }
+        internal DxfEntitiesSection EntitiesSection { get; private set; }
+
+        public List<DxfEntity> Entities { get { return EntitiesSection.Entities; } }
+
+        public List<DxfClass> Classes { get { return ClassSection.Classes; } }
+
+        public List<DxfBlock> Blocks { get { return BlocksSection.Blocks; } }
+
+        public DxfHeader Header { get { return HeaderSection.Header; } }
+
+        public List<DxfLayer> Layers { get { return TablesSection.LayerTable.Layers; } }
+
+        public List<DxfViewPort> ViewPorts { get { return TablesSection.ViewPortTable.ViewPorts; } }
+
+        public List<DxfDimStyle> DimensionStyles { get { return TablesSection.DimStyleTable.DimensionStyles; } }
+
+        public List<DxfView> Views { get { return TablesSection.ViewTable.Views; } }
+
+        public List<DxfUcs> UserCoordinateSystems { get { return TablesSection.UcsTable.UserCoordinateSystems; } }
+
+        public List<DxfAppId> ApplicationIds { get { return TablesSection.AppIdTable.ApplicationIds; } }
+
+        public List<DxfBlockRecord> BlockRecords { get { return TablesSection.BlockRecordTable.BlockRecords; } }
+
+        public List<DxfLinetype> Linetypes { get { return TablesSection.LTypeTable.Linetypes; } }
+
+        public List<DxfStyle> Styles { get { return TablesSection.StyleTable.Styles; } }
 
         internal IEnumerable<DxfSection> Sections
         {

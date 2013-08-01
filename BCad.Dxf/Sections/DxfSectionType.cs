@@ -2,7 +2,7 @@
 
 namespace BCad.Dxf.Sections
 {
-    public enum DxfSectionType
+    internal enum DxfSectionType
     {
         None,
         Header,

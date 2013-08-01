@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BCad.Dxf.Tables
+namespace BCad.Dxf
 {
     public class DxfStyle : DxfSymbolTableFlags
     {

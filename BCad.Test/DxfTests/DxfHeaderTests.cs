@@ -56,16 +56,16 @@ $LUPREC
  70
 7
 ");
-            Assert.Equal(16, file.HeaderSection.MaintenenceVersion);
-            Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
-            Assert.Equal(55.0, file.HeaderSection.AngleZeroDirection);
-            Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
-            Assert.Equal(DxfAttributeVisibility.Normal, file.HeaderSection.AttributeVisibility);
-            Assert.Equal(DxfAngleFormat.Radians, file.HeaderSection.AngleUnitFormat);
-            Assert.Equal(7, file.HeaderSection.AngleUnitPrecision);
-            Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
-            Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
-            Assert.Equal(7, file.HeaderSection.UnitPrecision);
+            Assert.Equal(16, file.Header.MaintenenceVersion);
+            Assert.Equal(DxfAcadVersion.R13, file.Header.Version);
+            Assert.Equal(55.0, file.Header.AngleZeroDirection);
+            Assert.Equal(DxfAngleDirection.Clockwise, file.Header.AngleDirection);
+            Assert.Equal(DxfAttributeVisibility.Normal, file.Header.AttributeVisibility);
+            Assert.Equal(DxfAngleFormat.Radians, file.Header.AngleUnitFormat);
+            Assert.Equal(7, file.Header.AngleUnitPrecision);
+            Assert.Equal("<current layer>", file.Header.CurrentLayer);
+            Assert.Equal(DxfUnitFormat.Architectural, file.Header.UnitFormat);
+            Assert.Equal(7, file.Header.UnitPrecision);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ b
   0
 ENDTAB
 ");
-            var layers = file.TablesSection.LayerTable.Layers;
+            var layers = file.Layers;
             Assert.Equal(2, layers.Count);
             Assert.Equal("a", layers[0].Name);
             Assert.Equal(12, layers[0].Color.RawValue);
@@ -166,7 +166,7 @@ vport-2
   0
 ENDTAB
 ");
-            var viewPorts = file.TablesSection.ViewPortTable.ViewPorts;
+            var viewPorts = file.ViewPorts;
             Assert.Equal(2, viewPorts.Count);
 
             // defaults
@@ -265,7 +265,7 @@ $DIMGAP
         public void WriteSpecificHeaderValuesTest()
         {
             var file = new DxfFile();
-            file.HeaderSection.DimensionLineGap = 11.0;
+            file.Header.DimensionLineGap = 11.0;
             VerifyFileContains(file, @"
   9
 $DIMGAP
@@ -278,7 +278,7 @@ $DIMGAP
         public void WriteLayersTest()
         {
             var file = new DxfFile();
-            file.TablesSection.LayerTable.Layers.Add(new DxfLayer("default"));
+            file.Layers.Add(new DxfLayer("default"));
             VerifyFileContains(file, @"
   0
 SECTION
@@ -307,7 +307,7 @@ ENDSEC
         public void WriteViewportTest()
         {
             var file = new DxfFile();
-            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort());
+            file.ViewPorts.Add(new DxfViewPort());
             VerifyFileContains(file, @"
   0
 SECTION

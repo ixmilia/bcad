@@ -26,7 +26,7 @@ namespace BCad.Test.DxfTests
             writer.Flush();
             stream.Seek(0, SeekOrigin.Begin);
             var file = DxfFile.Load(stream);
-            Assert.Equal(0, file.TablesSection.LayerTable.Layers.Count);
+            Assert.Equal(0, file.Layers.Count);
         }
     }
 }

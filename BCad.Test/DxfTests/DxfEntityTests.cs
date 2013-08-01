@@ -34,7 +34,7 @@ ill-placed comment
 1
 {1}
 ", entityType, data.Trim()));
-            var entity = file.EntitiesSection.Entities.Single();
+            var entity = file.Entities.Single();
             Assert.Equal("<handle>", entity.Handle);
             Assert.Equal("<linetype-name>", entity.LinetypeName);
             Assert.Equal("<layer>", entity.Layer);
@@ -50,7 +50,7 @@ ill-placed comment
             var file = Section("ENTITIES", string.Format(@"
   0
 {0}", entityType));
-            var entity = file.EntitiesSection.Entities.Single();
+            var entity = file.Entities.Single();
             Assert.Null(entity.Handle);
             Assert.Null(entity.Layer);
             Assert.Null(entity.LinetypeName);
@@ -64,7 +64,7 @@ ill-placed comment
         private static void EnsureFileContainsEntity(DxfEntity entity, string text)
         {
             var file = new DxfFile();
-            file.EntitiesSection.Entities.Add(entity);
+            file.Entities.Add(entity);
             var stream = new MemoryStream();
             file.Save(stream);
             stream.Flush();
@@ -929,10 +929,10 @@ ENDSEC
 EOF");
 
             // 2 blocks
-            Assert.Equal(2, file.BlocksSection.Blocks.Count);
+            Assert.Equal(2, file.Blocks.Count);
 
             // first block
-            var first = file.BlocksSection.Blocks[0];
+            var first = file.Blocks[0];
             Assert.Equal("block #1", first.Name);
             Assert.Equal(new DxfPoint(1, 2, 3), first.BasePoint);
             Assert.Equal(1, first.Entities.Count);
@@ -943,7 +943,7 @@ EOF");
             Assert.Equal(new DxfPoint(11, 21, 31), line.P2);
 
             // second block
-            var second = file.BlocksSection.Blocks[1];
+            var second = file.Blocks[1];
             Assert.Equal("block #2", second.Name);
             Assert.Equal(2, second.Entities.Count);
             Assert.Equal(DxfEntityType.Circle, second.Entities[0].EntityType);

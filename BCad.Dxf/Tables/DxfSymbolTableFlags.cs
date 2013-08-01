@@ -1,4 +1,4 @@
-﻿namespace BCad.Dxf.Tables
+﻿namespace BCad.Dxf
 {
     public abstract class DxfSymbolTableFlags
     {
