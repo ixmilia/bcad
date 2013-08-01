@@ -58,6 +58,12 @@ namespace BCad.Commands.FilePlotters
                 case EntityKind.Text:
                     DrawEntity(graphics, (ProjectedText)entity, layerColor);
                     break;
+                case EntityKind.Aggregate:
+                    foreach (var child in ((ProjectedAggregate)entity).Children)
+                    {
+                        DrawEntity(graphics, child, layerColor);
+                    }
+                    break;
                 default:
                     break;
             }

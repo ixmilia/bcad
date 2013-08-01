@@ -69,6 +69,8 @@ namespace BCad.Commands.FilePlotters
                     return ToXElement((ProjectedCircle)entity);
                 case EntityKind.Text:
                     return ToXElement((ProjectedText)entity);
+                case EntityKind.Aggregate:
+                    return ToXElement((ProjectedAggregate)entity);
                 default:
                     return null;
             }
@@ -109,6 +111,14 @@ namespace BCad.Commands.FilePlotters
             AddRotationTransform(xml, circle.Rotation, circle.Center);
             AddStrokeIfNotDefault(xml, circle.OriginalCircle.Color);
             return xml;
+        }
+
+        private static XElement ToXElement(ProjectedAggregate aggregate)
+        {
+            var group = new XElement(Xmlns + "g",
+                aggregate.Children.Select(c => ToXElement(c)));
+            AddStrokeIfNotDefault(group, aggregate.Original.Color);
+            return group;
         }
 
         private static XElement ToXElement(ProjectedArc arc)

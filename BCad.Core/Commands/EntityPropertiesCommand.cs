@@ -23,6 +23,9 @@ namespace BCad.Commands
             IEnumerable<string> properties;
             switch (entity.Value.Entity.Kind)
             {
+                case EntityKind.Aggregate:
+                    properties = new[] { "Color", "Location" };
+                    break;
                 case EntityKind.Arc:
                     properties = new[] { "Center", "Color", "StartAngle", "EndAngle", "Normal", "Radius" };
                     break;

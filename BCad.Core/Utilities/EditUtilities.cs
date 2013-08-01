@@ -96,6 +96,7 @@ namespace BCad.Utilities
                 case EntityKind.Ellipse:
                 case EntityKind.Line:
                     return true;
+                case EntityKind.Aggregate:
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return false;
@@ -194,6 +195,7 @@ namespace BCad.Utilities
                         offsetDirection,
                         offsetDistance);
                     return offset == null ? null : offset.ToEntity();
+                case EntityKind.Aggregate:
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return null;
@@ -247,6 +249,9 @@ namespace BCad.Utilities
         {
             switch (entity.Kind)
             {
+                case EntityKind.Aggregate:
+                    var agg = (AggregateEntity)entity;
+                    return agg.Update(location: agg.Location + offset);
                 case EntityKind.Arc:
                     var arc = (Arc)entity;
                     return arc.Update(center: arc.Center + offset);

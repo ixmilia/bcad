@@ -59,6 +59,8 @@ namespace BCad.Services
                     return Project((Circle)entity, layer, transform);
                 case EntityKind.Arc:
                     return Project((Arc)entity, layer, transform);
+                case EntityKind.Aggregate:
+                    return Project((AggregateEntity)entity, layer, transform);
                 default:
                     return null;
             }
@@ -111,6 +113,12 @@ namespace BCad.Services
             var endAngle = (endPoint - circle.Center).ToAngle();
 
             return new ProjectedArc(arc, layer, circle.Center, circle.RadiusX, circle.RadiusY, circle.Rotation, startAngle, endAngle, startPoint, endPoint);
+        }
+
+        private ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix3D transform)
+        {
+            var loc = transform.Transform(aggregate.Location);
+            return new ProjectedAggregate(aggregate, layer, loc, aggregate.Children.GetValues().Select(c => Project(c, layer, transform)));
         }
 
         private static Matrix3D TranslationMatrix(double dx, double dy, double dz)

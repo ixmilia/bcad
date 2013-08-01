@@ -4,6 +4,7 @@ using System.Linq;
 using BCad.Collections;
 using BCad.DrawingFiles;
 using BCad.Dxf;
+using BCad.Dxf.Blocks;
 using BCad.Dxf.Entities;
 using BCad.Entities;
 
@@ -29,18 +30,7 @@ namespace BCad.Converters
 
             foreach (var item in dxfFile.File.Entities)
             {
-                Layer layer = null;
-
-                // entities without a layer go to '0'
-                string entityLayer = item.Layer == null ? "0" : item.Layer;
-                if (layers.KeyExists(entityLayer))
-                    layer = layers.GetValue(entityLayer);
-                else
-                {
-                    // add the layer if previously undefined
-                    layer = new Layer(entityLayer, Color.Auto);
-                    layers = layers.Insert(layer.Name, layer);
-                }
+                var layer = GetOrCreateLayer(ref layers, item.Layer);
 
                 // create the entity
                 var entity = item.ToEntity();
@@ -55,18 +45,7 @@ namespace BCad.Converters
 
             foreach (var block in dxfFile.File.Blocks)
             {
-                Layer layer = null;
-
-                // entities without a layer go to '0'
-                string blockLayer = block.Layer == null ? "0" : block.Layer;
-                if (layers.KeyExists(blockLayer))
-                    layer = layers.GetValue(blockLayer);
-                else
-                {
-                    // add the layer if previously undefined
-                    layer = new Layer(blockLayer, Color.Auto);
-                    layers = layers.Insert(layer.Name, layer);
-                }
+                var layer = GetOrCreateLayer(ref layers, block.Layer);
 
                 // create the aggregate entity
                 var tree = new ReadOnlyTree<uint, Entity>();
@@ -82,7 +61,7 @@ namespace BCad.Converters
                 // add the entity to the appropriate layer
                 if (tree.Count != 0)
                 {
-                    layer = layer.Add(new AggregateEntity(tree, Color.Auto));
+                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), tree, Color.Auto));
                     layers = layers.Insert(layer.Name, layer);
                 }
             }
@@ -126,39 +105,20 @@ namespace BCad.Converters
                 file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
                 foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
                 {
-                    DxfEntity entity = null;
-                    switch (item.Kind)
+                    if (item.Kind == EntityKind.Aggregate)
                     {
-                        case EntityKind.Arc:
-                            // if start/end angles are a full circle, write it that way instead
-                            var arc = (Arc)item;
-                            if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
-                                entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
-                            else
-                                entity = ((Arc)item).ToDxfArc(layer);
-                            break;
-                        case EntityKind.Circle:
-                            entity = ((Circle)item).ToDxfCircle(layer);
-                            break;
-                        case EntityKind.Ellipse:
-                            entity = ((Ellipse)item).ToDxfEllipse(layer);
-                            break;
-                        case EntityKind.Line:
-                            entity = ((Line)item).ToDxfLine(layer);
-                            break;
-                        case EntityKind.Polyline:
-                            entity = ((Polyline)item).ToDxfPolyline(layer);
-                            break;
-                        case EntityKind.Text:
-                            entity = ((Text)item).ToDxfText(layer);
-                            break;
-                        default:
-                            Debug.Fail("Unsupported entity type: " + item.GetType().Name);
-                            break;
+                        // dxf files treat aggregate entities as separate items
+                        var agg = (AggregateEntity)item;
+                        var block = new DxfBlock();
+                        block.Layer = layer.Name;
+                        block.Entities.AddRange(agg.Children.GetValues().Select(c => c.ToDxfEntity(layer)));
                     }
-
-                    if (entity != null)
-                        file.Entities.Add(entity);
+                    else
+                    {
+                        var entity = item.ToDxfEntity(layer);
+                        if (entity != null)
+                            file.Entities.Add(entity);
+                    }
                 }
             }
 
@@ -172,6 +132,24 @@ namespace BCad.Converters
 
             drawingFile = new DxfDrawingFile(file);
             return true;
+        }
+
+        private static Layer GetOrCreateLayer(ref ReadOnlyTree<string, Layer> layers, string layerName)
+        {
+            Layer layer = null;
+
+            // entities without a layer go to '0'
+            layerName = layerName ?? "0";
+            if (layers.KeyExists(layerName))
+                layer = layers.GetValue(layerName);
+            else
+            {
+                // add the layer if previously undefined
+                layer = new Layer(layerName, Color.Auto);
+                layers = layers.Insert(layer.Name, layer);
+            }
+
+            return layer;
         }
     }
 
@@ -339,6 +317,45 @@ namespace BCad.Converters
                 Normal = text.Normal.ToDxfVector(),
                 Rotation = text.Rotation
             };
+        }
+
+        public static DxfEntity ToDxfEntity(this Entity item, Layer layer)
+        {
+            DxfEntity entity = null;
+            switch (item.Kind)
+            {
+                case EntityKind.Aggregate:
+                    // no-op.  aggregates are handled separately
+                    break;
+                case EntityKind.Arc:
+                    // if start/end angles are a full circle, write it that way instead
+                    var arc = (Arc)item;
+                    if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
+                        entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
+                    else
+                        entity = ((Arc)item).ToDxfArc(layer);
+                    break;
+                case EntityKind.Circle:
+                    entity = ((Circle)item).ToDxfCircle(layer);
+                    break;
+                case EntityKind.Ellipse:
+                    entity = ((Ellipse)item).ToDxfEllipse(layer);
+                    break;
+                case EntityKind.Line:
+                    entity = ((Line)item).ToDxfLine(layer);
+                    break;
+                case EntityKind.Polyline:
+                    entity = ((Polyline)item).ToDxfPolyline(layer);
+                    break;
+                case EntityKind.Text:
+                    entity = ((Text)item).ToDxfText(layer);
+                    break;
+                default:
+                    Debug.Fail("Unsupported entity type: " + item.GetType().Name);
+                    break;
+            }
+
+            return entity;
         }
 
         public static DxfUnitFormat ToDxfUnitFormat(this UnitFormat format)
