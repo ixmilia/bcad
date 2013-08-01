@@ -781,5 +781,85 @@ AcDbLine
         }
 
         #endregion
+
+        #region Block tests
+
+        public void ReadBlockTest()
+        {
+            var file = Parse(@"
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  2
+block #1
+ 10
+1
+ 20
+2
+ 30
+3
+  0
+LINE
+ 10
+10
+ 20
+20
+ 30
+30
+ 11
+11
+ 21
+21
+ 31
+31
+  0
+ENDBLK
+  0
+BLOCK
+  2
+block #2
+  0
+CIRCLE
+ 40
+40
+  0
+ARC
+ 40
+41
+  0
+ENDBLK
+  0
+ENDSEC
+  0
+EOF");
+
+            // 2 blocks
+            Assert.Equal(2, file.BlocksSection.Blocks.Count);
+
+            // first block
+            var first = file.BlocksSection.Blocks[0];
+            Assert.Equal("block #1", first.Name);
+            Assert.Equal(new DxfPoint(1, 2, 3), first.BasePoint);
+            Assert.Equal(1, first.Entities.Count);
+            var entity = first.Entities.First();
+            Assert.Equal(DxfEntityType.Line, entity.EntityType);
+            var line = (DxfLine)entity;
+            Assert.Equal(new DxfPoint(10, 20, 30), line.P1);
+            Assert.Equal(new DxfPoint(11, 21, 31), line.P2);
+
+            // second block
+            var second = file.BlocksSection.Blocks[1];
+            Assert.Equal("block #2", second.Name);
+            Assert.Equal(2, second.Entities.Count);
+            Assert.Equal(DxfEntityType.Circle, second.Entities[0].EntityType);
+            Assert.Equal(40.0, ((DxfCircle)second.Entities[0]).Radius);
+            Assert.Equal(DxfEntityType.Arc, second.Entities[1].EntityType);
+            Assert.Equal(41.0, ((DxfArc)second.Entities[1]).Radius);
+        }
+
+        #endregion
     }
 }

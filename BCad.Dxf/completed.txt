@@ -1,5 +1,13 @@
 ﻿HEADER section - complete
 CLASSES section - complete
 TABLES section - complete
+BLOCKS section - complete
+ENTITIES section - partial
+  ARC - complete
+  CIRCLE - complete
+  ELLIPSE - complete
+  LINE - complete
+  TEXT - complete
+OBJECTS section - NYI
 
 in progress: 

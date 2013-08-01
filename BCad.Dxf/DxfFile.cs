@@ -17,6 +17,7 @@ namespace BCad.Dxf
         public DxfHeaderSection HeaderSection { get; private set; }
         public DxfClassesSection ClassSection { get; private set; }
         public DxfTablesSection TablesSection { get; private set; }
+        public DxfBlocksSection BlocksSection { get; private set; }
         public DxfEntitiesSection EntitiesSection { get; private set; }
 
         internal IEnumerable<DxfSection> Sections
@@ -26,6 +27,7 @@ namespace BCad.Dxf
                 yield return this.HeaderSection;
                 yield return this.ClassSection;
                 yield return this.TablesSection;
+                yield return this.BlocksSection;
                 yield return this.EntitiesSection;
             }
         }
@@ -35,6 +37,7 @@ namespace BCad.Dxf
             this.HeaderSection = new DxfHeaderSection();
             this.ClassSection = new DxfClassesSection();
             this.TablesSection = new DxfTablesSection();
+            this.BlocksSection = new DxfBlocksSection();
             this.EntitiesSection = new DxfEntitiesSection();
         }
 
@@ -63,6 +66,9 @@ namespace BCad.Dxf
                     {
                         switch (section.Type)
                         {
+                            case DxfSectionType.Blocks:
+                                file.BlocksSection = (DxfBlocksSection)section;
+                                break;
                             case DxfSectionType.Entities:
                                 file.EntitiesSection = (DxfEntitiesSection)section;
                                 break;

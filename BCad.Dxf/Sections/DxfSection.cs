@@ -58,6 +58,9 @@ namespace BCad.Dxf.Sections
             DxfSection section;
             switch (sectionType.StringValue)
             {
+                case BlocksSectionText:
+                    section = DxfBlocksSection.BlocksSectionFromBuffer(buffer);
+                    break;
                 case ClassesSectionText:
                     section = DxfClassesSection.ClassesSectionFromBuffer(buffer);
                     break;
