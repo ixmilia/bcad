@@ -55,6 +55,7 @@
     <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Color.cs" />
+    <Compile Include="Entities\AggregateEntity.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
     <Compile Include="Commands\AbstractTrimExtendCommand.cs" />

@@ -10,6 +10,8 @@ namespace BCad.Dxf
         private DxfCodePair[] items;
         private int position;
 
+        public int Position { get { return position; } }
+
         public DxfCodePairBufferReader(IEnumerable<DxfCodePair> pairs)
         {
             this.items = pairs.ToArray();

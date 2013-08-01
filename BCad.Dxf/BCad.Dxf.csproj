@@ -69,10 +69,11 @@
     <Compile Include="Entities\DxfVertex.cs" />
     <Compile Include="Sections\DxfBlocksSection.cs" />
     <Compile Include="Sections\DxfClassesSection.cs" />
-    <Compile Include="Sections\DxfHeaderVariables.cs">
+    <Compile Include="Sections\DxfHeader.cs" />
+    <Compile Include="Sections\DxfHeaderGenerated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DxfHeaderVariables.tt</DependentUpon>
+      <DependentUpon>DxfHeaderGenerated.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sections\DxfEntitiesSection.cs" />
@@ -107,9 +108,9 @@
     <None Include="Sections\DxfSpec.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Sections\DxfHeaderVariables.tt">
+    <None Include="Sections\DxfHeaderGenerated.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DxfHeaderVariables.cs</LastGenOutput>
+      <LastGenOutput>DxfHeaderGenerated.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

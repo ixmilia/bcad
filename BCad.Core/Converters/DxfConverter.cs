@@ -43,38 +43,46 @@ namespace BCad.Converters
                 }
 
                 // create the entity
-                Entity entity = null;
-                switch (item.EntityType)
-                {
-                    case DxfEntityType.Arc:
-                        entity = ((DxfArc)item).ToArc();
-                        break;
-                    case DxfEntityType.Circle:
-                        entity = ((DxfCircle)item).ToCircle();
-                        break;
-                    case DxfEntityType.Ellipse:
-                        entity = ((DxfEllipse)item).ToEllipse();
-                        break;
-                    case DxfEntityType.Line:
-                        entity = ((DxfLine)item).ToLine();
-                        break;
-                    case DxfEntityType.Polyline:
-                        entity = ((DxfPolyline)item).ToPolyline();
-                        break;
-                    case DxfEntityType.Text:
-                        entity = ((DxfText)item).ToText();
-                        break;
-                    case DxfEntityType.Attribute:
-                    case DxfEntityType.Seqend:
-                    case DxfEntityType.Vertex:
-                        //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
-                        break;
-                }
+                var entity = item.ToEntity();
 
                 // add the entity to the appropriate layer
                 if (entity != null)
                 {
                     layer = layer.Add(entity);
+                    layers = layers.Insert(layer.Name, layer);
+                }
+            }
+
+            foreach (var block in dxfFile.File.Blocks)
+            {
+                Layer layer = null;
+
+                // entities without a layer go to '0'
+                string blockLayer = block.Layer == null ? "0" : block.Layer;
+                if (layers.KeyExists(blockLayer))
+                    layer = layers.GetValue(blockLayer);
+                else
+                {
+                    // add the layer if previously undefined
+                    layer = new Layer(blockLayer, Color.Auto);
+                    layers = layers.Insert(layer.Name, layer);
+                }
+
+                // create the aggregate entity
+                var tree = new ReadOnlyTree<uint, Entity>();
+                foreach (var item in block.Entities)
+                {
+                    var tempEnt = item.ToEntity();
+                    if (tempEnt != null)
+                    {
+                        tree = tree.Insert(tempEnt.Id, tempEnt);
+                    }
+                }
+
+                // add the entity to the appropriate layer
+                if (tree.Count != 0)
+                {
+                    layer = layer.Add(new AggregateEntity(tree, Color.Auto));
                     layers = layers.Insert(layer.Name, layer);
                 }
             }
@@ -233,6 +241,39 @@ namespace BCad.Converters
         public static Text ToText(this DxfText text)
         {
             return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor());
+        }
+
+        public static Entity ToEntity(this DxfEntity item)
+        {
+            Entity entity = null;
+            switch (item.EntityType)
+            {
+                case DxfEntityType.Arc:
+                    entity = ((DxfArc)item).ToArc();
+                    break;
+                case DxfEntityType.Circle:
+                    entity = ((DxfCircle)item).ToCircle();
+                    break;
+                case DxfEntityType.Ellipse:
+                    entity = ((DxfEllipse)item).ToEllipse();
+                    break;
+                case DxfEntityType.Line:
+                    entity = ((DxfLine)item).ToLine();
+                    break;
+                case DxfEntityType.Polyline:
+                    entity = ((DxfPolyline)item).ToPolyline();
+                    break;
+                case DxfEntityType.Text:
+                    entity = ((DxfText)item).ToText();
+                    break;
+                case DxfEntityType.Attribute:
+                case DxfEntityType.Seqend:
+                case DxfEntityType.Vertex:
+                    //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
+                    break;
+            }
+
+            return entity;
         }
 
         public static DxfLine ToDxfLine(this Line line, Layer layer)

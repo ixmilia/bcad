@@ -102,7 +102,8 @@ namespace BCad.Dxf.Blocks
         internal static DxfBlock FromBuffer(DxfCodePairBufferReader buffer)
         {
             var block = new DxfBlock();
-            var readingBlock = true;
+            var readingBlockStart = true;
+            var readingBlockEnd = false;
             while (buffer.ItemsRemain)
             {
                 var pair = buffer.Peek();
@@ -114,13 +115,16 @@ namespace BCad.Dxf.Blocks
                 }
                 else if (IsBlockStart(pair))
                 {
-                    throw new DxfReadException("Unexpected block start");
+                    if (readingBlockStart || !readingBlockEnd)
+                        throw new DxfReadException("Unexpected block start");
+                    break;
                 }
                 else if (IsBlockEnd(pair))
                 {
-                    if (!readingBlock) throw new DxfReadException("Unexpected block end");
+                    if (!readingBlockStart) throw new DxfReadException("Unexpected block end");
+                    readingBlockStart = false;
+                    readingBlockEnd = true;
                     buffer.Advance(); // swallow (0, ENDBLK)
-                    break;
                 }
                 else if (pair.Code == 0)
                 {
@@ -132,34 +136,45 @@ namespace BCad.Dxf.Blocks
                 else
                 {
                     // read value pair
-                    if (!readingBlock) throw new DxfReadException("Unexpected key-value pair before block start");
-                    buffer.Advance();
-                    switch (pair.Code)
+                    if (readingBlockStart)
                     {
-                        case 1:
-                            block.XrefName = pair.StringValue;
-                            break;
-                        case 2:
-                            block.Name = pair.StringValue;
-                            break;
-                        case 5:
-                            block.Handle = pair.StringValue;
-                            break;
-                        case 8:
-                            block.Layer = pair.StringValue;
-                            break;
-                        case 10:
-                            block.BasePoint.X = pair.DoubleValue;
-                            break;
-                        case 20:
-                            block.BasePoint.Y = pair.DoubleValue;
-                            break;
-                        case 30:
-                            block.BasePoint.Z = pair.DoubleValue;
-                            break;
-                        case 70:
-                            block.Flags = pair.ShortValue;
-                            break;
+                        buffer.Advance();
+                        switch (pair.Code)
+                        {
+                            case 1:
+                                block.XrefName = pair.StringValue;
+                                break;
+                            case 2:
+                                block.Name = pair.StringValue;
+                                break;
+                            case 5:
+                                block.Handle = pair.StringValue;
+                                break;
+                            case 8:
+                                block.Layer = pair.StringValue;
+                                break;
+                            case 10:
+                                block.BasePoint.X = pair.DoubleValue;
+                                break;
+                            case 20:
+                                block.BasePoint.Y = pair.DoubleValue;
+                                break;
+                            case 30:
+                                block.BasePoint.Z = pair.DoubleValue;
+                                break;
+                            case 70:
+                                block.Flags = pair.ShortValue;
+                                break;
+                        }
+                    }
+                    else if (readingBlockEnd)
+                    {
+                        buffer.Advance();
+                        // TODO: could be (5, <handle) or (100, AcDbBlockEnd)
+                    }
+                    else
+                    {
+                        throw new DxfReadException("Unexpected pair in block");
                     }
                 }
             }
