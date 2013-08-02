@@ -73,6 +73,7 @@
     <Compile Include="Commands\ExtendCommand.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
+    <Compile Include="Extensions\SnapPointExtensions.cs" />
     <Compile Include="FilePlotters\PngFilePlotter.cs" />
     <Compile Include="FilePlotters\SvgFilePlotter.cs" />
     <Compile Include="Commands\ICommand.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BCad.Collections;
+using BCad.Extensions;
 using BCad.Primitives;
 using BCad.SnapPoints;
 
@@ -39,8 +40,9 @@ namespace BCad.Entities
 
             if (children.Any(c => c.Kind == EntityKind.Aggregate))
                 throw new ArgumentOutOfRangeException("children", "Aggregate entities cannot contain other aggregate entities");
-            this.primitives = children.SelectMany(c => c.GetPrimitives()).ToArray();
-            this.snapPoints = children.SelectMany(c => c.GetSnapPoints()).ToArray();
+            var offset = (Vector)location;
+            this.primitives = children.SelectMany(c => c.GetPrimitives().Select(p => p.Move(offset))).ToArray();
+            this.snapPoints = children.SelectMany(c => c.GetSnapPoints().Select(p => p.Move(offset))).ToArray();
             this.boundingBox = BoundingBox.Includes(children.Select(c => c.BoundingBox));
         }
 
