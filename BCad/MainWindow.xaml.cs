@@ -14,6 +14,7 @@ using System.Windows.Media;
 using BCad.Commands;
 using BCad.EventArguments;
 using BCad.Primitives;
+using BCad.Ribbons;
 using BCad.Services;
 using BCad.UI;
 using Microsoft.Windows.Controls.Ribbon;
@@ -39,7 +40,7 @@ namespace BCad
         private IInputService InputService = null;
 
         [ImportMany]
-        private IEnumerable<RibbonTab> RibbonTabs = null; // TODO: import lazily and sort by name
+        private IEnumerable<Lazy<RibbonTab, IRibbonTabMetadata>> RibbonTabs = null;
 
         [ImportMany]
         private IEnumerable<Lazy<ViewControl, IViewControlMetadata>> Views = null;
@@ -164,10 +165,11 @@ namespace BCad
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
             // prepare ribbon
-            // TODO: order as specified in settings
-            foreach (var tab in RibbonTabs)
+            foreach (var ribbonId in Workspace.SettingsManager.RibbonOrder)
             {
-                this.ribbon.Items.Add(tab);
+                var rib = RibbonTabs.FirstOrDefault(t => t.Metadata.Id == ribbonId);
+                if (rib != null)
+                    this.ribbon.Items.Add(rib.Value);
             }
 
             // prepare user console

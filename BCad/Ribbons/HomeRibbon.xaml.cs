@@ -12,7 +12,7 @@ namespace BCad.Ribbons
     /// <summary>
     /// Interaction logic for HomeRibbon.xaml
     /// </summary>
-    [Export(typeof(RibbonTab))]
+    [ExportRibbonTab("home")]
     public partial class HomeRibbon : RibbonTab
     {
         private IWorkspace workspace = null;

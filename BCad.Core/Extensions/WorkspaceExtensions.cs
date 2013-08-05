@@ -98,5 +98,15 @@ namespace BCad
         {
             workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layerName));
         }
+
+        /// <summary>
+        /// Update the current drawing settings.
+        /// </summary>
+        /// <param name="workspace">The workspace containing the drawing.</param>
+        /// <param name="settings">The drawing settings to set.</param>
+        public static void UpdateDrawingSettings(this IWorkspace workspace, DrawingSettings settings)
+        {
+            workspace.Update(drawing: workspace.Drawing.Update(settings: settings));
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace BCad
 {
     public interface ISettingsManager : INotifyPropertyChanged
     {
+        string[] RibbonOrder { get; set; }
         string PlotDialogId { get; set; }
         string LayerDialogId { get; set; }
         string ViewControlId { get; set; }

@@ -12,6 +12,7 @@ namespace BCad
     [Serializable]
     public class SettingsManager : ISettingsManager
     {
+        private string[] ribbonOrder = null;
         private string layerDialogId = null;
         private string plotDialogId = null;
         private string viewControlId = null;
@@ -34,6 +35,31 @@ namespace BCad
         private Media.Color snapPointColor = Media.Colors.Yellow;
 
         internal IInputService InputService { get; set; }
+
+        [XmlIgnore]
+        public string[] RibbonOrder
+        {
+            get { return ribbonOrder; }
+            set
+            {
+                ribbonOrder = value;
+                OnPropertyChanged("RibbonOrder");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName = "RibbonOrder")]
+        public string RibbonOrderString
+        {
+            get
+            {
+                return string.Join(";", ribbonOrder);
+            }
+            set
+            {
+                ribbonOrder = value.Split(';').ToArray();
+            }
+        }
 
         public string LayerDialogId
         {
@@ -351,6 +377,7 @@ namespace BCad
 
         private void LoadDefaults()
         {
+            RibbonOrder = new[] { "home", "drawing-settings" };
             LayerDialogId = "Default";
             PlotDialogId = "Default";
             ViewControlId = "Default";

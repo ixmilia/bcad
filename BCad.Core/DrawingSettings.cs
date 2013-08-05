@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using BCad.Helpers;
@@ -17,8 +18,10 @@ namespace BCad
         public UnitFormat UnitFormat { get { return this.unitFormat; } }
         public int UnitPrecision { get { return this.unitPrecision; } }
 
+        private static int[] AllowedArchitecturalPrecisions = new[] { 0, 2, 4, 8, 16, 32 };
+
         public DrawingSettings()
-            : this(null, UnitFormat.Architectural, -1)
+            : this(null, UnitFormat.Architectural, 16)
         {
         }
 
@@ -27,6 +30,19 @@ namespace BCad
             this.fileName = path;
             this.unitFormat = unitFormat;
             this.unitPrecision = unitPrecision;
+
+            switch (unitFormat)
+            {
+                case UnitFormat.Architectural:
+                    // only allowable values are 0, 2, 4, 8, 16, 32
+                    this.unitPrecision = AllowedArchitecturalPrecisions.Where(x => x <= this.unitPrecision).Max();
+                    break;
+                case UnitFormat.Metric:
+                    // only allowable values are [0, 16]
+                    this.unitPrecision = Math.Max(0, this.unitPrecision);
+                    this.unitPrecision = Math.Min(16, this.unitPrecision);
+                    break;
+            }
         }
 
         public DrawingSettings Update(string fileName = null, UnitFormat? unitFormat = null, int? unitPrecision = null)
