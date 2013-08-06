@@ -73,26 +73,5 @@ namespace BCad.Ribbons
                 workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
             }
         }
-
-        private void DebugButtonClick(object sender, System.Windows.RoutedEventArgs e)
-        {
-            string inputFile, outputFile;
-            if (string.Compare(Environment.MachineName, "bisquik", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                // home machine
-                inputFile = @"D:\Code\BCad\BCad\BellevueHouse.dxf";
-                outputFile = @"D:\Personal\Desktop\bh.svg";
-            }
-            else
-            {
-                // work machine
-                inputFile = @"C:\Users\brettfo\Documents\GitHub\BCad\BCad\RoundyHouse.dxf";
-                outputFile = @"D:\Private\Desktop\test.svg";
-            }
-
-            workspace.ExecuteCommand("File.Open", inputFile).Wait();
-            workspace.ExecuteCommand("File.SaveAs", outputFile).Wait();
-            System.Diagnostics.Process.Start(outputFile);
-        }
     }
 }

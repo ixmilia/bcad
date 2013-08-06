@@ -1,0 +1,13 @@
+﻿<r:RibbonTab x:Class="BCad.Ribbons.DebugRibbon"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
+             Header="Debug"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <r:RibbonGroup Header="Debug">
+        <Button Click="DebugButtonClick">Debug</Button>
+    </r:RibbonGroup>
+</r:RibbonTab>

@@ -158,8 +158,4 @@
                   ItemTemplate="{StaticResource LayerTemplate}" />
         
     </r:RibbonGroup>
-    
-    <r:RibbonGroup Header="Debug">
-        <Button Click="DebugButtonClick">Debug</Button>
-    </r:RibbonGroup>
 </r:RibbonTab>

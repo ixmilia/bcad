@@ -377,7 +377,7 @@ namespace BCad
 
         private void LoadDefaults()
         {
-            RibbonOrder = new[] { "home", "drawing-settings" };
+            RibbonOrder = new[] { "home", "drawing-settings", "debug" };
             LayerDialogId = "Default";
             PlotDialogId = "Default";
             ViewControlId = "Default";
