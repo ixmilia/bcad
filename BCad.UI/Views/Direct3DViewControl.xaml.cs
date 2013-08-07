@@ -1042,7 +1042,7 @@ Result PShader(Input pixel)
                 DrawSnapPoint(sp);
             }
 
-            foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage })
+            foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage, textCursorImage })
             {
                 Canvas.SetLeft(cursorImage, (int)(cursor.X - (cursorImage.ActualWidth / 2.0)));
                 Canvas.SetTop(cursorImage, (int)(cursor.Y - (cursorImage.ActualHeight / 2.0)));
@@ -1083,10 +1083,10 @@ Result PShader(Input pixel)
 
         private void SetCursorVisibility()
         {
-            Func<InputType[], System.Windows.Visibility> getVisibility = types =>
+            Func<InputType[], Visibility> getVisibility = types =>
                 types.Any(t => inputService.AllowedInputTypes.HasFlag(t))
-                    ? System.Windows.Visibility.Visible
-                    : System.Windows.Visibility.Hidden;
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
 
             this.Dispatcher.Invoke((Action)(() =>
             {
@@ -1147,6 +1147,7 @@ Result PShader(Input pixel)
                     Pen = pen
                 });
 
+            var textSize = (double)workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
             textCursorImage.Source = new Media.DrawingImage(
                 new Media.GeometryDrawing()
                 {
@@ -1155,7 +1156,7 @@ Result PShader(Input pixel)
                         Children = new Media.GeometryCollection(new[]
                         {
                             //new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
-                            new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
+                            new Media.LineGeometry(new System.Windows.Point(0, -textSize), new System.Windows.Point(0, textSize))
                         })
                     },
                     Pen = pen

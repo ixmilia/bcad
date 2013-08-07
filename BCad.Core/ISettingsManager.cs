@@ -14,6 +14,7 @@ namespace BCad
         double SnapPointSize { get; set; }
         double EntitySelectionRadius { get; set; }
         int CursorSize { get; set; }
+        int TextCursorSize { get; set; }
         bool PointSnap { get; set; }
         bool AngleSnap { get; set; }
         bool Ortho { get; set; }

@@ -21,6 +21,7 @@ namespace BCad
         private double snapPointSize = 0.0;
         private double entitySelectionRadius = 0.0;
         private int cursorSize = 0;
+        private int textCursorSize = 0;
         private bool pointSnap = false;
         private bool angleSnap = false;
         private bool ortho = false;
@@ -154,6 +155,18 @@ namespace BCad
                     return;
                 this.cursorSize = value;
                 OnPropertyChanged("CursorSize");
+            }
+        }
+
+        public int TextCursorSize
+        {
+            get { return this.textCursorSize; }
+            set
+            {
+                if (this.textCursorSize == value)
+                    return;
+                this.textCursorSize = value;
+                OnPropertyChanged("TextCursorSize");
             }
         }
 
@@ -386,6 +399,7 @@ namespace BCad
             SnapPointSize = 15.0;
             EntitySelectionRadius = 3.0;
             CursorSize = 60;
+            TextCursorSize = 18;
             PointSnap = true;
             AngleSnap = true;
             Ortho = false;
