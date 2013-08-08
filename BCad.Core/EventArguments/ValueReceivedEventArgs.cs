@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BCad.Entities;
 using BCad.Services;
 
@@ -87,6 +88,34 @@ namespace BCad.EventArguments
             }
         }
 
+        public object Value
+        {
+            get
+            {
+                switch (InputType)
+                {
+                    case InputType.Command:
+                        return Command;
+                    case InputType.Directive:
+                        return Directive;
+                    case InputType.Distance:
+                        return Distance;
+                    case InputType.Entities:
+                        return string.Join(";", Entities.Select(e => string.Format("kind={0},id={1}", e.Kind, e.Id)));
+                    case InputType.Entity:
+                        return Entity;
+                    case InputType.None:
+                        return null;
+                    case InputType.Point:
+                        return Point;
+                    case InputType.Text:
+                        return Text;
+                    default:
+                        throw new InvalidOperationException("Unsupported input type");
+                }
+            }
+        }
+
         public ValueReceivedEventArgs()
         {
             InputType = InputType.None;
@@ -126,7 +155,7 @@ namespace BCad.EventArguments
                 case InputType.Directive:
                     directive = value;
                     break;
-                case Services.InputType.Text:
+                case InputType.Text:
                     text = value;
                     break;
                 default:

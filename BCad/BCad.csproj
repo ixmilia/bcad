@@ -83,6 +83,7 @@
       <DependentUpon>HomeRibbon.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ribbons\IRibbonTabMetadata.cs" />
+    <Compile Include="Services\DebugService.cs" />
     <Compile Include="Services\ExportService.cs" />
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />

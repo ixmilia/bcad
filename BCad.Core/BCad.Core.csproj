@@ -56,6 +56,7 @@
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Color.cs" />
+    <Compile Include="Commands\DebugDumpCommand.cs" />
     <Compile Include="Entities\AggregateEntity.cs" />
     <Compile Include="Entities\ProjectedAggregate.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
     <Compile Include="Services\FileSpecification.cs" />
+    <Compile Include="Services\IDebugService.cs" />
     <Compile Include="Services\IExportService.cs" />
     <Compile Include="Services\IFileSystemService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />

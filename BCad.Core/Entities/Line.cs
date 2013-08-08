@@ -56,5 +56,10 @@ namespace BCad.Entities
                 p2 ?? this.P2,
                 color ?? this.Color);
         }
+
+        public override string ToString()
+        {
+            return string.Format("Line: {0} {1} {2}", P1, P2, Color);
+        }
     }
 }

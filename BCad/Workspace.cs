@@ -4,7 +4,6 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Primitives;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Serialization;
@@ -12,12 +11,26 @@ using BCad.Collections;
 using BCad.Commands;
 using BCad.Entities;
 using BCad.EventArguments;
-using BCad.FileHandlers;
 using BCad.Services;
 using BCad.UI;
 
 namespace BCad
 {
+    internal class WorkspaceLogEntry : LogEntry
+    {
+        public string Event { get; private set; }
+
+        public WorkspaceLogEntry(string @event)
+        {
+            Event = @event;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("workspace: {0}", Event);
+        }
+    }
+
     [Export(typeof(IWorkspace))]
     internal class Workspace : IWorkspace
     {
@@ -82,6 +95,9 @@ namespace BCad
 
         [ImportMany]
         private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
+
+        [Import]
+        public IDebugService DebugService = null;
 
         #endregion
 
@@ -169,7 +185,7 @@ namespace BCad
             }
         }
 
-        private async Task<bool> Execute(Tuple<BCad.Commands.ICommand, string> commandPair, object arg)
+        private async Task<bool> Execute(Tuple<ICommand, string> commandPair, object arg)
         {
             var command = commandPair.Item1;
             var display = commandPair.Item2;
@@ -195,6 +211,7 @@ namespace BCad
             }
 
             commandName = commandName ?? lastCommand;
+            DebugService.Add(new WorkspaceLogEntry(string.Format("execute {0}", commandName)));
             var commandPair = GetCommand(commandName);
             if (commandPair == null)
             {

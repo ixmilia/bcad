@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.EventArguments;
@@ -14,11 +13,32 @@ using BCad.Primitives;
 
 namespace BCad.Services
 {
+    internal class InputServiceLogEntry : LogEntry
+    {
+        public InputType InputType { get; private set; }
+
+        public object Value { get; private set; }
+
+        public InputServiceLogEntry(InputType inputType, object value)
+        {
+            InputType = inputType;
+            Value = value;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("input: {0} {1}", InputType, Value);
+        }
+    }
+
     [Export(typeof(IInputService))]
     internal class InputService : IInputService, IPartImportsSatisfiedNotification
     {
         [Import]
         private IWorkspace Workspace = null;
+
+        [Import]
+        private IDebugService DebugService = null;
 
         public InputService()
         {
@@ -114,9 +134,9 @@ namespace BCad.Services
                     var first = pushedPoint;
                     ResetWaiters();
                     var second = await GetPoint(new UserDirective("Second point of offset distance"), p =>
-                        {
-                            return new[] { new PrimitiveLine(first, p) };
-                        });
+                    {
+                        return new[] { new PrimitiveLine(first, p) };
+                    });
                     if (second.HasValue)
                     {
                         var dist = (second.Value - first).Length;
@@ -532,6 +552,8 @@ namespace BCad.Services
 
         protected virtual void OnValueReceived(ValueReceivedEventArgs e)
         {
+            DebugService.Add(new InputServiceLogEntry(e.InputType, e.Value));
+
             // write out received value
             switch (e.InputType)
             {

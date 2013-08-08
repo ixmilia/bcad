@@ -1104,7 +1104,6 @@ Result PShader(Input pixel)
                 });
                 textCursorImage.Visibility = getVisibility(new[]
                 {
-                    InputType.Directive,
                     InputType.Text
                 });
             }));
