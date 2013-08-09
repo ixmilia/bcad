@@ -29,7 +29,12 @@ namespace BCad.Dxf.Sections
             while (buffer.ItemsRemain)
             {
                 var pair = buffer.Peek();
-                if (DxfCodePair.IsSectionEnd(pair))
+                if (DxfCodePair.IsSectionStart(pair))
+                {
+                    // done reading blocks, onto the next section
+                    break;
+                }
+                else if (DxfCodePair.IsSectionEnd(pair))
                 {
                     // done reading blocks
                     buffer.Advance(); // swallow (0, ENDSEC)

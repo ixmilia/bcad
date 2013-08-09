@@ -116,7 +116,8 @@ namespace BCad.Commands.FilePlotters
         private static XElement ToXElement(ProjectedAggregate aggregate)
         {
             var group = new XElement(Xmlns + "g",
-                aggregate.Children.Select(c => ToXElement(c)));
+                aggregate.Children.Select(c =>ToXElement(c)));
+            AddTranslateTransform(group, (Vector)aggregate.Location);
             AddStrokeIfNotDefault(group, aggregate.Original.Color);
             return group;
         }
@@ -151,17 +152,28 @@ namespace BCad.Commands.FilePlotters
             if (!MathHelper.CloseTo(0, angle) && !MathHelper.CloseTo(360, angle))
             {
                 var rotateText = string.Format("rotate({0} {1} {2})", angle * -1.0, location.X, location.Y);
-                var transform = xml.Attribute("transform");
-                if (transform == null)
-                {
-                    // add new attribute
-                    xml.Add(new XAttribute("transform", rotateText));
-                }
-                else
-                {
-                    // append a space and the rotation
-                    transform.Value += " " + rotateText;
-                }
+                AddTransform(xml, rotateText);
+            }
+        }
+
+        private static void AddTranslateTransform(XElement xml, Vector offset)
+        {
+            var translateText = string.Format("translate({0} {1})", offset.X, offset.Y);
+            AddTransform(xml, translateText);
+        }
+
+        private static void AddTransform(XElement xml, string transform)
+        {
+            var attribute = xml.Attribute("transform");
+            if (attribute == null)
+            {
+                // add new attribute
+                xml.Add(new XAttribute("transform", transform));
+            }
+            else
+            {
+                // append a space and the transformation
+                attribute.Value += " " + transform;
             }
         }
 
