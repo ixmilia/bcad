@@ -7,3 +7,4 @@
 [Rr]elease/
 *.Tests.mdf
 *.Tests_log.ldf
+*.ide
