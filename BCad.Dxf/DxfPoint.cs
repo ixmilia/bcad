@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BCad
+namespace BCad.Dxf
 {
     public class DxfPoint
     {
