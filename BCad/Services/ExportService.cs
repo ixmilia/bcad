@@ -67,18 +67,18 @@ namespace BCad.Services
 
         private ProjectedLine Project(Line line, Layer layer, Matrix4 transform)
         {
-            var p1 = transform * line.P1;
-            var p2 = transform * line.P2;
+            var p1 = transform.Transform(line.P1);
+            var p2 = transform.Transform(line.P2);
             return new ProjectedLine(line, layer, p1, p2);
         }
 
         private ProjectedText Project(Text text, Layer layer, Matrix4 transform)
         {
-            var loc = transform * text.Location;
+            var loc = transform.Transform(text.Location);
             var rad = text.Rotation * MathHelper.DegreesToRadians;
             var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
             var up = text.Normal.Cross(right).Normalize();
-            var top = transform * (text.Location + up * text.Height);
+            var top = transform.Transform(text.Location + up * text.Height);
             var height = ((Point)top - loc).Length;
             var rotation = new Vector(((Point)top - loc)).ToAngle() * -1.0 - 90.0;
             return new ProjectedText(text, layer, loc, height, rotation.CorrectAngleDegrees());
@@ -89,9 +89,9 @@ namespace BCad.Services
             // find axis endpoints
             var rightVector = Vector.RightVectorFromNormal(circle.Normal);
             var upVector = circle.Normal.Cross(rightVector).Normalize();
-            var pt = transform * (circle.Center + (rightVector * circle.Radius));
-            var qt = transform * (circle.Center + (upVector * circle.Radius));
-            var m = transform * circle.Center;
+            var pt = transform.Transform(circle.Center + (rightVector * circle.Radius));
+            var qt = transform.Transform(circle.Center + (upVector * circle.Radius));
+            var m = transform.Transform(circle.Center);
             return ProjectedCircle.FromConjugateDiameters(circle, layer, m, pt, qt);
         }
 
@@ -100,14 +100,14 @@ namespace BCad.Services
             // find the containing circle
             var rightVector = Vector.RightVectorFromNormal(arc.Normal);
             var upVector = arc.Normal.Cross(rightVector).Normalize();
-            var pt = transform * (arc.Center + (rightVector * arc.Radius));
-            var qt = transform * (arc.Center + (upVector * arc.Radius));
-            var m = transform * arc.Center;
+            var pt = transform.Transform(arc.Center + (rightVector * arc.Radius));
+            var qt = transform.Transform(arc.Center + (upVector * arc.Radius));
+            var m = transform.Transform(arc.Center);
             var circle = ProjectedCircle.FromConjugateDiameters(null, layer, m, pt, qt);
 
             // find the new start and end angles
-            var startPoint = transform * arc.EndPoint1;
-            var endPoint = transform * arc.EndPoint2;
+            var startPoint = transform.Transform(arc.EndPoint1);
+            var endPoint = transform.Transform(arc.EndPoint2);
             var startAngle = (startPoint - circle.Center).ToAngle();
             var endAngle = (endPoint - circle.Center).ToAngle();
 
@@ -116,8 +116,8 @@ namespace BCad.Services
 
         private ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix4 transform)
         {
-            var loc = transform * aggregate.Location;
-            var newOrigin = transform * Point.Origin;
+            var loc = transform.Transform(aggregate.Location);
+            var newOrigin = transform.Transform(Point.Origin);
             var offset = (Point)loc - (Point)newOrigin;
             return new ProjectedAggregate(aggregate, layer, offset, aggregate.Children.Select(c => Project(c, layer, transform)));
         }

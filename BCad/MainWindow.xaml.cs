@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using BCad.Commands;
+using BCad.Core.UI.Extensions;
 using BCad.EventArguments;
 using BCad.Primitives;
 using BCad.Ribbons;
@@ -77,7 +78,7 @@ namespace BCad
             {
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),
-                    new KeyGesture(command.Key, command.Modifier)));
+                    new KeyGesture(command.Key.ToInputKey(), command.Modifier.ToInputModifierKeys())));
             }
 
             // add keyboard shortcuts for toggled settings
@@ -91,7 +92,7 @@ namespace BCad
                 {
                     this.InputBindings.Add(new InputBinding(
                         new ToggleSettingsCommand(Workspace.SettingsManager, setting.Name),
-                        new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
+                        new KeyGesture(setting.Shortcut.Key.ToInputKey(), setting.Shortcut.Modifier.ToInputModifierKeys())));
                 }
             }
 

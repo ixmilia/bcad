@@ -25,5 +25,31 @@
         {
             return new RealColor(a, r, g, b);
         }
+
+        public static bool operator ==(RealColor a, RealColor b)
+        {
+            return a.A == a.A && a.R == b.R && a.G == b.G && a.B == b.B;
+        }
+
+        public static bool operator !=(RealColor a, RealColor b)
+        {
+            return a.A != a.A || a.R != b.R || a.G != b.G || a.B != b.B;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is RealColor)
+            {
+                var c = (RealColor)obj;
+                return this == c;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return A.GetHashCode() ^ R.GetHashCode() ^ G.GetHashCode() ^ B.GetHashCode();
+        }
     }
 }

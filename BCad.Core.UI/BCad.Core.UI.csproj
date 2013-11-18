@@ -60,6 +60,7 @@
     <Compile Include="ExportControlAttribute.cs" />
     <Compile Include="ExportViewControlAttribute.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="Extensions\KeyExtensions.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="FilePlotters\PngFilePlotter.cs" />

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using BCad.Core.UI.Extensions;
 using BCad.Extensions;
 using BCad.Services;
 using Media = System.Windows.Media;
@@ -32,8 +33,8 @@ namespace BCad
         private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
         private KeyboardShortcut debugShortcut = null;
-        private Media.Color backgroundColor = Media.Colors.Black;
-        private Media.Color snapPointColor = Media.Colors.Yellow;
+        private RealColor backgroundColor = Media.Colors.Black.ToRealColor();
+        private RealColor snapPointColor = Media.Colors.Yellow.ToRealColor();
 
         internal IInputService InputService { get; set; }
 
@@ -296,7 +297,7 @@ namespace BCad
         }
 
         [XmlIgnore]
-        public Media.Color BackgroundColor
+        public RealColor BackgroundColor
         {
             get { return this.backgroundColor; }
             set
@@ -323,7 +324,7 @@ namespace BCad
         }
 
         [XmlIgnore]
-        public Media.Color SnapPointColor
+        public RealColor SnapPointColor
         {
             get { return this.snapPointColor; }
             set
@@ -410,9 +411,9 @@ namespace BCad
             PointSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F3);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
             DebugShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F12);
-            BackgroundColor = Media.Colors.DarkSlateGray;
+            BackgroundColor = Media.Colors.DarkSlateGray.ToRealColor();
             //BackgroundColor = 0x6495ED; // cornflower blue
-            SnapPointColor = Media.Colors.Yellow;
+            SnapPointColor = Media.Colors.Yellow.ToRealColor();
         }
     }
 }
