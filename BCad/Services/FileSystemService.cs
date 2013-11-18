@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using BCad.Core;
 using BCad.FileHandlers;
 using Microsoft.Win32;
-using System.Reflection;
-using BCad.DrawingFiles;
 
 namespace BCad.Services
 {

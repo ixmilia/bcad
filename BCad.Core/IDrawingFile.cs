@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace BCad.DrawingFiles
+namespace BCad.Core
 {
     public interface IDrawingFile
     {

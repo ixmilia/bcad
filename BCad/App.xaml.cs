@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Reflection;
-using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using BCad;
-using BCad.Entities;
 
 namespace BCad
 {
@@ -27,6 +19,8 @@ namespace BCad
             var catalog = new AggregateCatalog(
                     new AssemblyCatalog(Assembly.GetExecutingAssembly()),
                     new AssemblyCatalog("BCad.Core.dll"),
+                    new AssemblyCatalog("BCad.Core.UI.dll"),
+                    new AssemblyCatalog("BCad.FileHandlers.dll"),
                     new AssemblyCatalog("BCad.UI.dll")
                     );
             if (Container == null)

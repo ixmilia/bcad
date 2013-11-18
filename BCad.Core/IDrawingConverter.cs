@@ -1,6 +1,4 @@
-﻿using BCad.DrawingFiles;
-
-namespace BCad.Converters
+﻿namespace BCad.Core
 {
     public interface IDrawingConverter
     {

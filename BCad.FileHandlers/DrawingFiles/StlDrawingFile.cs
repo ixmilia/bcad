@@ -1,7 +1,8 @@
 ﻿using System.IO;
+using BCad.Core;
 using BCad.Stl;
 
-namespace BCad.DrawingFiles
+namespace BCad.FileHandlers.DrawingFiles
 {
     internal class StlDrawingFile : IDrawingFile
     {

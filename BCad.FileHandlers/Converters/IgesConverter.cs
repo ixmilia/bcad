@@ -2,15 +2,16 @@
 using System.Diagnostics;
 using System.IO;
 using BCad.Collections;
-using BCad.DrawingFiles;
+using BCad.Core;
 using BCad.Entities;
 using BCad.Extensions;
+using BCad.FileHandlers.DrawingFiles;
 using BCad.Helpers;
 using BCad.Iges;
 using BCad.Iges.Entities;
 using BCad.Primitives;
 
-namespace BCad.Converters
+namespace BCad.FileHandlers.Converters
 {
     public class IgesConverter : IDrawingConverter
     {
@@ -34,7 +35,7 @@ namespace BCad.Converters
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName, UnitFormat.Architectural, -1),
+                new DrawingSettings(fileName, UnitFormat.Architectural, 8),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
 
             viewPort = new ViewPort(

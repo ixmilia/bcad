@@ -1,10 +1,11 @@
 ﻿using System;
 using BCad.Collections;
-using BCad.DrawingFiles;
+using BCad.Core;
 using BCad.Entities;
+using BCad.FileHandlers.DrawingFiles;
 using BCad.Stl;
 
-namespace BCad.Converters
+namespace BCad.FileHandlers.Converters
 {
     public class StlConverter : IDrawingConverter
     {

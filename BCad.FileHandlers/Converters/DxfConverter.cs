@@ -2,13 +2,14 @@
 using System.Diagnostics;
 using System.Linq;
 using BCad.Collections;
-using BCad.DrawingFiles;
+using BCad.Core;
 using BCad.Dxf;
 using BCad.Dxf.Blocks;
 using BCad.Dxf.Entities;
 using BCad.Entities;
+using BCad.FileHandlers.DrawingFiles;
 
-namespace BCad.Converters
+namespace BCad.FileHandlers.Converters
 {
     public class DxfConverter : IDrawingConverter
     {

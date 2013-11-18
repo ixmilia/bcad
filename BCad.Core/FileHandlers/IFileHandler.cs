@@ -1,6 +1,5 @@
 ﻿using System.IO;
-using BCad.Converters;
-using BCad.DrawingFiles;
+using BCad.Core;
 
 namespace BCad.FileHandlers
 {

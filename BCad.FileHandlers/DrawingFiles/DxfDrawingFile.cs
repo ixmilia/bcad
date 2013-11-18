@@ -1,7 +1,8 @@
 ﻿using System.IO;
+using BCad.Core;
 using BCad.Dxf;
 
-namespace BCad.DrawingFiles
+namespace BCad.FileHandlers.DrawingFiles
 {
     internal class DxfDrawingFile : IDrawingFile
     {

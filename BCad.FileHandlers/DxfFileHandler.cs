@@ -1,7 +1,8 @@
 ﻿using System.IO;
-using BCad.Converters;
-using BCad.DrawingFiles;
+using BCad.Core;
 using BCad.Dxf;
+using BCad.FileHandlers.Converters;
+using BCad.FileHandlers.DrawingFiles;
 
 namespace BCad.FileHandlers
 {
