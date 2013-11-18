@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
-             xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core"
+             xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
              Header="Home"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
