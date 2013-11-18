@@ -303,7 +303,7 @@ namespace BCad.UI.Views
                 if (resources == null)
                 {
                     resources = new ResourceDictionary();
-                    resources.Source = new Uri("/BCad.Core;component/SnapPoints/SnapPointIcons.xaml", UriKind.Relative);
+                    resources.Source = new Uri("/BCad.Core.UI;component/SnapPointIcons.xaml", UriKind.Relative);
                 }
 
                 return resources;
