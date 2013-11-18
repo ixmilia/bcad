@@ -123,6 +123,7 @@
     <Compile Include="FileHandlers\IgesFileHandler.cs" />
     <Compile Include="FileHandlers\StlFileHandler.cs" />
     <Compile Include="DrawingFiles\IDrawingFile.cs" />
+    <Compile Include="IViewControl.cs" />
     <Compile Include="IWorkspace.cs" />
     <Compile Include="Key.cs" />
     <Compile Include="Matrix4.cs" />
@@ -178,7 +179,6 @@
     <Compile Include="UserDirective.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Vector.cs" />
-    <Compile Include="ViewControl.cs" />
     <Compile Include="ViewPort.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -75,7 +75,7 @@ namespace BCad
 
         public ViewPort ActiveViewPort { get; private set; }
 
-        public ViewControl ViewControl { get; private set; }
+        public IViewControl ViewControl { get; private set; }
 
         public ObservableHashSet<Entity> SelectedEntities { get; private set; }
 
@@ -109,7 +109,7 @@ namespace BCad
             Drawing drawing = null,
             Plane drawingPlane = null,
             ViewPort activeViewPort = null,
-            ViewControl viewControl = null,
+            IViewControl viewControl = null,
             bool? isDirty = true)
         {
             var e = new WorkspaceChangeEventArgs(

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using BCad.Core.UI.Extensions;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
@@ -15,6 +16,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using BCad.SnapPoints;
+using BCad.UI.Extensions;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Input = System.Windows.Input;
@@ -456,7 +458,7 @@ Result PShader(Input pixel)
             {
                 case Constants.BackgroundColorString:
                     var bg = workspace.SettingsManager.BackgroundColor;
-                    this.content.ClearColor = bg;
+                    this.content.ClearColor = bg.ToMediaColor();
                     var backgroundColor = (bg.R << 16) | (bg.G << 8) | bg.B;
                     var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
                     var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
@@ -632,7 +634,7 @@ Result PShader(Input pixel)
                     right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
                     var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
-                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc);
+                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc).ToMatrix3D();
                     display = new DisplayPrimitiveMesh(mesh, color, trans.ToMatrix(), normalPixelShader, selectedPixelShader);
                     break;
                 case PrimitiveKind.Line:
@@ -668,11 +670,11 @@ Result PShader(Input pixel)
                     var segments = new Vector3[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
-                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0);
+                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0).ToMatrix3D();
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
-                        var result = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0));
+                        var result = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0).ToPoint3D());
                         segments[i] = result.ToVector3();
                     }
                     var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
@@ -774,7 +776,7 @@ Result PShader(Input pixel)
 
             var geometry = ((Media.GeometryDrawing)SnapPointResources[name]).Clone();
             var scale = workspace.SettingsManager.SnapPointSize;
-            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(color ?? workspace.SettingsManager.SnapPointColor), 0.2);
+            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(color ?? workspace.SettingsManager.SnapPointColor.ToMediaColor()), 0.2);
             var di = new Media.DrawingImage(geometry);
             var icon = new Image(); // TODO: reuse icons if possible
             icon.Source = di;
@@ -1056,7 +1058,7 @@ Result PShader(Input pixel)
             if (e.Delta > 0.0f) scale = 0.8f; // 1.0f / 1.25f
 
             // center zoom operation on mouse
-            var cursorPoint = (Point)e.GetPosition(this);
+            var cursorPoint = e.GetPosition(this).ToPoint();
             var cursorPos = Unproject(cursorPoint.ToVector3()).ToPoint();
             var vp = workspace.ActiveViewPort;
             var botLeft = vp.BottomLeft;
@@ -1184,7 +1186,7 @@ Result PShader(Input pixel)
             var selectionRadius = workspace.SettingsManager.EntitySelectionRadius;
             var selectionRadius2 = selectionRadius * selectionRadius;
             var entities = from entityId in lines.Keys
-                           let dist = lines[entityId].ClosestPointToCursor(cursor, Project)
+                           let dist = lines[entityId].ClosestPointToCursor(cursor.ToPoint(), Project)
                            where dist != null && dist.Item1 < selectionRadius2
                            orderby dist.Item1
                            select new

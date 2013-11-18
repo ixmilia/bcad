@@ -67,6 +67,7 @@
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Direct3DExtensions.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="PointExtensions.cs" />
     <Compile Include="Views\Direct3DControl.xaml.cs">
       <DependentUpon>Direct3DControl.xaml</DependentUpon>

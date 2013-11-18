@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Collections;
 using BCad.Entities;
 using BCad.EventArguments;
-using BCad.UI;
 
 namespace BCad
 {
@@ -28,9 +26,9 @@ namespace BCad
         Drawing Drawing { get; }
         Plane DrawingPlane { get; }
         ViewPort ActiveViewPort { get; }
-        ViewControl ViewControl { get; }
+        IViewControl ViewControl { get; }
 
-        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, ViewControl viewControl = null, bool? isDirty = true);
+        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, IViewControl viewControl = null, bool? isDirty = true);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
 
