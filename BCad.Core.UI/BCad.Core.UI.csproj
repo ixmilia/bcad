@@ -20,11 +20,12 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -35,6 +36,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -57,6 +59,8 @@
     <Compile Include="ExportConsoleAttribute.cs" />
     <Compile Include="ExportControlAttribute.cs" />
     <Compile Include="ExportViewControlAttribute.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="FilePlotters\PngFilePlotter.cs" />
     <Compile Include="FilePlotters\SvgFilePlotter.cs" />
     <Compile Include="IControlMetadata.cs" />
@@ -65,10 +69,10 @@
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDictionary Include="BCadDialog.xaml">
+    <Page Include="BCadDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </CodeAnalysisDictionary>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">

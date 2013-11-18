@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using BCad.Core.UI.Extensions;
 using BCad.Entities;
 using BCad.FilePlotters;
 
@@ -85,7 +86,7 @@ namespace BCad.Commands.FilePlotters
 
         private void DrawEntity(Graphics graphics, ProjectedLine line, IndexedColor layerColor)
         {
-            graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color)), line.P1, line.P2);
+            graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color)), line.P1.ToPointF(), line.P2.ToPointF());
         }
 
         private void DrawEntity(Graphics graphics, ProjectedCircle circle, IndexedColor layerColor)
@@ -102,7 +103,7 @@ namespace BCad.Commands.FilePlotters
             // TODO: handle rotation
             var x = (float)text.Location.X;
             var y = (float)(text.Location.Y - text.Height);
-            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.DrawingColor), x, y);
+            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.ToDrawingColor()), x, y);
         }
 
         private Pen ColorToPen(System.Drawing.Color color)
@@ -123,9 +124,9 @@ namespace BCad.Commands.FilePlotters
         {
             System.Drawing.Color display;
             if (!primitiveColor.IsAuto)
-                display = primitiveColor.DrawingColor;
+                display = primitiveColor.ToDrawingColor();
             else if (!layerColor.IsAuto)
-                display = layerColor.DrawingColor;
+                display = layerColor.ToDrawingColor();
             else
                 display = autoColor;
 

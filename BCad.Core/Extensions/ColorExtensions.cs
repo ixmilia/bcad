@@ -13,7 +13,7 @@ namespace BCad.Extensions
             return RealColor.FromRgb((byte)r, (byte)g, (byte)b);
         }
 
-        public static string ToColorString(RealColor color)
+        public static string ToColorString(this RealColor color)
         {
             var r = string.Format("{0:X2}", color.R);
             var g = string.Format("{0:X2}", color.G);

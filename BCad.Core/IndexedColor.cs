@@ -28,14 +28,6 @@ namespace BCad
             get { return this.IsAuto ? "Auto" : this.Value.ToString(); }
         }
 
-        //public System.Drawing.Color DrawingColor
-        //{
-        //    get
-        //    {
-        //        return System.Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
-        //    }
-        //}
-
         public RealColor RealColor
         {
             get
@@ -90,6 +82,7 @@ namespace BCad
 
         public static IndexedColor Auto { get { return new IndexedColor(0); } }
 
+        // TODO: configurable
         private static int[] RgbValues = new int[256]
         {
             0x000000, 0xFF0000, 0xFFFF00, 0x00FF00, 0x00FFFF, 0x0000FF, 0xFF00FF, 0xFFFFFF,
@@ -125,5 +118,10 @@ namespace BCad
             0xFF003F, 0xFFAABF, 0xBD002E, 0xBD7E8D, 0x81001F, 0x815660, 0x680019, 0x68454E,
             0x4F0013, 0x4F353B, 0x333333, 0x505050, 0x696969, 0x828282, 0xBEBEBE, 0xFFFFFF
         };
+
+        public uint GetRgbValue()
+        {
+            return (uint)RgbValues[Value];
+        }
     }
 }
