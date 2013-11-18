@@ -2,7 +2,6 @@
 using BCad.Helpers;
 using BCad.Primitives;
 using System.Linq;
-using System.Windows.Media.Media3D;
 
 namespace BCad.Entities
 {
@@ -65,9 +64,9 @@ namespace BCad.Entities
             var plane = Plane.From3Points(m, p, q);
 
             // rotate P by 90 degrees around the normal
-            var rotationMatrix = Matrix3D.Identity;
+            var rotationMatrix = Matrix4.Identity;
             rotationMatrix.RotateAt(new Quaternion(plane.Normal, 90.0), m);
-            var rotp = (Point)rotationMatrix.Transform(p);
+            var rotp = rotationMatrix.Transform(p);
 
             // the angle between (rotp-M) and (Q-M) should be less than 90 degrees.  mirror if not
             if (Vector.AngleBetween(rotp - m, qm) > 90.0)

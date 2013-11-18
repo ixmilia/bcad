@@ -26,12 +26,12 @@ namespace BCad.Commands
             {
                 var current = await InputService.GetPoint(new UserDirective("Next or [c]lose", "c"), (p) =>
                 {
-                    return new[] { new PrimitiveLine(last, p, Color.Default) };
+                    return new[] { new PrimitiveLine(last, p, IndexedColor.Default) };
                 });
                 if (current.Cancel) break;
                 if (current.HasValue)
                 {
-                    Workspace.AddToCurrentLayer(new Line(last, current.Value, Color.Default));
+                    Workspace.AddToCurrentLayer(new Line(last, current.Value, IndexedColor.Default));
                     last = current.Value;
                     if (last == first) break; // closed
                 }
@@ -39,7 +39,7 @@ namespace BCad.Commands
                 {
                     if (last != first)
                     {
-                        Workspace.AddToCurrentLayer(new Line(last, first, Color.Default));
+                        Workspace.AddToCurrentLayer(new Line(last, first, IndexedColor.Default));
                     }
                     break;
                 }

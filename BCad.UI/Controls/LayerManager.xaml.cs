@@ -20,14 +20,14 @@ namespace BCad.UI.Controls
         private IWorkspace workspace = null;
 
         private ObservableCollection<MutableLayer> layers = new ObservableCollection<MutableLayer>();
-        private ObservableCollection<Color> availableColors = new ObservableCollection<Color>();
+        private ObservableCollection<IndexedColor> availableColors = new ObservableCollection<IndexedColor>();
 
         public ObservableCollection<MutableLayer> Layers
         {
             get { return this.layers; }
         }
 
-        public ObservableCollection<Color> AvailableColors
+        public ObservableCollection<IndexedColor> AvailableColors
         {
             get { return this.availableColors; }
         }
@@ -46,7 +46,7 @@ namespace BCad.UI.Controls
                 this.layers.Add(new MutableLayer(layer));
 
             for (int i = 0; i < 256; i++)
-                availableColors.Add(new Color((byte)i));
+                availableColors.Add(new IndexedColor((byte)i));
 
             InitializeComponent();
         }
@@ -85,7 +85,7 @@ namespace BCad.UI.Controls
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             this.layers.Add(new MutableLayer(
-                StringUtilities.NextUniqueName("NewLayer", this.layers.Select(l => l.Name)), Color.Auto));
+                StringUtilities.NextUniqueName("NewLayer", this.layers.Select(l => l.Name)), IndexedColor.Auto));
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)

@@ -582,7 +582,7 @@ Result PShader(Input pixel)
 
         #region Primitive generator functions
 
-        private Color4 GetDisplayColor(Color layerColor, Color primitiveColor)
+        private Color4 GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor)
         {
             Color4 display;
             if (!primitiveColor.IsAuto)
@@ -610,7 +610,7 @@ Result PShader(Input pixel)
             lastGeneratorNonNull = generator != null;
         }
 
-        private TransformedEntity GenerateEntitySegments(Entity entity, Color layerColor)
+        private TransformedEntity GenerateEntitySegments(Entity entity, IndexedColor layerColor)
         {
             return new TransformedEntity(entity,
                 entity.GetPrimitives().Select(p => GenerateDisplayPrimitive(p, GetDisplayColor(layerColor, p.Color))));

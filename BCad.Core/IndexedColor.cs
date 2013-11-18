@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
-using Media = System.Windows.Media;
 using System.Text.RegularExpressions;
 
 namespace BCad
 {
-    public struct Color
+    public struct IndexedColor
     {
         private readonly byte value;
 
@@ -19,7 +18,7 @@ namespace BCad
             get { return this.Value == 0; }
         }
 
-        public Color(byte value)
+        public IndexedColor(byte value)
         {
             this.value = value;
         }
@@ -29,15 +28,15 @@ namespace BCad
             get { return this.IsAuto ? "Auto" : this.Value.ToString(); }
         }
 
-        public System.Drawing.Color DrawingColor
-        {
-            get
-            {
-                return System.Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
-            }
-        }
+        //public System.Drawing.Color DrawingColor
+        //{
+        //    get
+        //    {
+        //        return System.Drawing.Color.FromArgb((int)(0xFF000000 | (uint)RgbValues[Value]));
+        //    }
+        //}
 
-        public Media.Color MediaColor
+        public RealColor RealColor
         {
             get
             {
@@ -46,7 +45,7 @@ namespace BCad
                 byte r = (byte)((val & 0xFF0000) >> 16);
                 byte g = (byte)((val & 0x00FF00) >> 8);
                 byte b = (byte)(val & 0x0000FF);
-                return Media.Color.FromArgb(a, r, g, b);
+                return RealColor.FromArgb(a, r, g, b);
             }
         }
 
@@ -65,21 +64,21 @@ namespace BCad
             return IsAuto ? "Auto" : Value.ToString();
         }
 
-        public static bool operator ==(Color a, Color b)
+        public static bool operator ==(IndexedColor a, IndexedColor b)
         {
             return a.Value == b.Value;
         }
 
-        public static bool operator !=(Color a, Color b)
+        public static bool operator !=(IndexedColor a, IndexedColor b)
         {
             return a.Value != b.Value;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is Color)
+            if (obj is IndexedColor)
             {
-                return this == (Color)obj;
+                return this == (IndexedColor)obj;
             }
             else
             {
@@ -87,9 +86,9 @@ namespace BCad
             }
         }
 
-        public static Color Default { get { return Auto; } }
+        public static IndexedColor Default { get { return Auto; } }
 
-        public static Color Auto { get { return new Color(0); } }
+        public static IndexedColor Auto { get { return new IndexedColor(0); } }
 
         private static int[] RgbValues = new int[256]
         {

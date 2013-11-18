@@ -61,7 +61,7 @@ namespace BCad.Converters
                 // add the entity to the appropriate layer
                 if (children.Count != 0)
                 {
-                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children, Color.Auto));
+                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children, IndexedColor.Auto));
                     layers = layers.Insert(layer.Name, layer);
                 }
             }
@@ -145,7 +145,7 @@ namespace BCad.Converters
             else
             {
                 // add the layer if previously undefined
-                layer = new Layer(layerName, Color.Auto);
+                layer = new Layer(layerName, IndexedColor.Auto);
                 layers = layers.Insert(layer.Name, layer);
             }
 
@@ -155,15 +155,15 @@ namespace BCad.Converters
 
     internal static class DxfExtensions
     {
-        public static Color ToColor(this DxfColor color)
+        public static IndexedColor ToColor(this DxfColor color)
         {
             if (color.IsIndex)
-                return new Color(color.Index);
+                return new IndexedColor(color.Index);
             else
-                return Color.Default;
+                return IndexedColor.Default;
         }
 
-        public static DxfColor ToDxfColor(this Color color)
+        public static DxfColor ToDxfColor(this IndexedColor color)
         {
             if (color.IsAuto)
                 return DxfColor.ByLayer;

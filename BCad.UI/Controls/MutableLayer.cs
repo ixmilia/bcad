@@ -12,7 +12,7 @@ namespace BCad.UI.Controls
             this.IsVisible = layer.IsVisible;
         }
 
-        public MutableLayer(string name, Color color)
+        public MutableLayer(string name, IndexedColor color)
         {
             this.DrawingLayer = null;
             this.Name = name;
@@ -60,15 +60,15 @@ namespace BCad.UI.Controls
         public static readonly DependencyProperty MyPropertyProperty =
             DependencyProperty.Register("Name", typeof(string), typeof(MutableLayer), new UIPropertyMetadata(string.Empty));
 
-        public Color Color
+        public IndexedColor Color
         {
-            get { return (Color)GetValue(ColorProperty); }
+            get { return (IndexedColor)GetValue(ColorProperty); }
             set { SetValue(ColorProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for Color.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorProperty =
-            DependencyProperty.Register("Color", typeof(Color), typeof(MutableLayer), new UIPropertyMetadata(default(Color)));
+            DependencyProperty.Register("Color", typeof(IndexedColor), typeof(MutableLayer), new UIPropertyMetadata(default(IndexedColor)));
 
         public bool? IsVisible
         {

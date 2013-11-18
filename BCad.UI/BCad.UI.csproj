@@ -67,6 +67,7 @@
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Direct3DExtensions.cs" />
+    <Compile Include="PointExtensions.cs" />
     <Compile Include="Views\Direct3DControl.xaml.cs">
       <DependentUpon>Direct3DControl.xaml</DependentUpon>
     </Compile>
@@ -126,6 +127,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BCad.Core.UI\BCad.Core.UI.csproj">
+      <Project>{b02cc174-511b-4272-b625-b492074f7bc5}</Project>
+      <Name>BCad.Core.UI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
       <Project>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</Project>
       <Name>BCad.Core</Name>

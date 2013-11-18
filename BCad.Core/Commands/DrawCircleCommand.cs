@@ -35,14 +35,14 @@ namespace BCad.Commands
                         {
                             return new IPrimitive[]
                             {
-                                new PrimitiveLine(cen.Value, p, Color.Default),
-                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, Color.Default)
+                                new PrimitiveLine(cen.Value, p, IndexedColor.Default),
+                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default)
                             };
                         });
                         if (rad.Cancel) return false;
                         if (rad.HasValue)
                         {
-                            circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, Color.Default);
+                            circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default);
                         }
                         else // switch modes
                         {
@@ -65,14 +65,14 @@ namespace BCad.Commands
                         {
                             return new IPrimitive[]
                             {
-                                new PrimitiveLine(cen.Value, p, Color.Default),
-                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length / 2.0, drawingPlane.Normal, Color.Default)
+                                new PrimitiveLine(cen.Value, p, IndexedColor.Default),
+                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length / 2.0, drawingPlane.Normal, IndexedColor.Default)
                             };
                         });
                         if (diameter.Cancel) return false;
                         if (diameter.HasValue)
                         {
-                            circle = new Circle(cen.Value, (diameter.Value - cen.Value).Length / 2.0, drawingPlane.Normal, Color.Default);
+                            circle = new Circle(cen.Value, (diameter.Value - cen.Value).Length / 2.0, drawingPlane.Normal, IndexedColor.Default);
                         }
                         else // switch modes
                         {
@@ -141,7 +141,7 @@ namespace BCad.Commands
                         var circ = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, third.Value);
                         if (circ != null)
                         {
-                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal, Color.Auto);
+                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal, IndexedColor.Auto);
                         }
                         break;
                 }

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Media = System.Windows.Media;
 
 namespace BCad
 {
@@ -25,7 +24,7 @@ namespace BCad
         KeyboardShortcut PointSnapShortcut { get; set; }
         KeyboardShortcut OrthoShortcut { get; set; }
         KeyboardShortcut DebugShortcut { get; set; }
-        Media.Color BackgroundColor { get; set; }
-        Media.Color SnapPointColor { get; set; }
+        RealColor BackgroundColor { get; set; }
+        RealColor SnapPointColor { get; set; }
     }
 }

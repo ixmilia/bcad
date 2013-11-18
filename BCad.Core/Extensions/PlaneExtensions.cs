@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Windows.Media.Media3D;
 using BCad.Entities;
 using BCad.Primitives;
 
@@ -40,7 +39,7 @@ namespace BCad.Extensions
             return entity.GetPrimitives().All(p => plane.Contains(p));
         }
 
-        public static Matrix3D ToXYPlaneProjection(this Plane plane)
+        public static Matrix4 ToXYPlaneProjection(this Plane plane)
         {
             var right = Vector.XAxis;
             if (plane.Normal.IsParallelTo(right))
@@ -53,14 +52,14 @@ namespace BCad.Extensions
 
         public static Point ToXYPlane(this Plane plane, Point point)
         {
-            return point.Transform(plane.ToXYPlaneProjection());
+            return plane.ToXYPlaneProjection().Transform(point);
         }
 
         public static Point FromXYPlane(this Plane plane, Point point)
         {
             var matrix = plane.ToXYPlaneProjection();
             matrix.Invert();
-            return point.Transform(matrix);
+            return matrix.Transform(point);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace BCad.Commands
                                 primitiveArc.StartAngle,
                                 primitiveArc.EndAngle,
                                 primitiveArc.Normal,
-                                Color.Auto);
+                                IndexedColor.Auto);
                             Workspace.AddToCurrentLayer(arc);
                             return true;
                         }

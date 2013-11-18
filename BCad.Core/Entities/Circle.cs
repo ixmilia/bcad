@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Media.Media3D;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
@@ -13,7 +12,7 @@ namespace BCad.Entities
         private readonly Point center;
         private readonly Vector normal;
         private readonly double radius;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly Point quadrant1;
         private readonly Point quadrant2;
         private readonly Point quadrant3;
@@ -28,9 +27,9 @@ namespace BCad.Entities
 
         public double Radius { get { return radius; } }
 
-        public Color Color { get { return color; } }
+        public IndexedColor Color { get { return color; } }
 
-        public Circle(Point center, double radius, Vector normal, Color color)
+        public Circle(Point center, double radius, Vector normal, IndexedColor color)
         {
             this.center = center;
             this.radius = radius;
@@ -70,7 +69,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)
+        public Circle Update(Point center = null, double? radius = null, Vector normal = null, IndexedColor? color = null)
         {
             return new Circle(
                 center ?? this.Center,
@@ -91,7 +90,7 @@ namespace BCad.Entities
             {
                 var x = Math.Cos(anglesInDegrees[i] * MathHelper.DegreesToRadians);
                 var y = Math.Sin(anglesInDegrees[i] * MathHelper.DegreesToRadians);
-                result[i] = trans.Transform(new Point3D(x, y, 0.0));
+                result[i] = trans.Transform(new Point(x, y, 0.0));
             }
 
             return result;

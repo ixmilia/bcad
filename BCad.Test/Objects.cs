@@ -10,7 +10,7 @@ namespace BCad.Test
     {
         public static Line Line()
         {
-            return new Line(Point.Origin, Point.Origin, Color.Auto);
+            return new Line(Point.Origin, Point.Origin, IndexedColor.Auto);
         }
     }
 }

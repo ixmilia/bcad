@@ -51,8 +51,8 @@ namespace BCad.Test
         {
             var ellipse = EditUtilities.Ttr(
                 Workspace.DrawingPlane,
-                new SelectedEntity(new Line(Point.Origin, new Point(3, 0, 0), Color.Auto), new Point(1, 0, 0)),
-                new SelectedEntity(new Line(Point.Origin, new Point(0, 3, 0), Color.Auto), new Point(0, 1, 0)),
+                new SelectedEntity(new Line(Point.Origin, new Point(3, 0, 0), IndexedColor.Auto), new Point(1, 0, 0)),
+                new SelectedEntity(new Line(Point.Origin, new Point(0, 3, 0), IndexedColor.Auto), new Point(0, 1, 0)),
                 1.0);
             Assert.Equal(1.0, ellipse.MinorAxisRatio);
             Assert.Equal(1.0, ellipse.MajorAxis.Length);
@@ -66,8 +66,8 @@ namespace BCad.Test
             // from test.dxf
             var el = EditUtilities.Ttr(
                 Workspace.DrawingPlane,
-                new SelectedEntity(new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, Color.Auto), new Point(140, 30, 0)),
-                new SelectedEntity(new Circle(new Point(100, 100, 0), 50, Vector.ZAxis, Color.Auto), new Point(140, 70, 0)),
+                new SelectedEntity(new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, IndexedColor.Auto), new Point(140, 30, 0)),
+                new SelectedEntity(new Circle(new Point(100, 100, 0), 50, Vector.ZAxis, IndexedColor.Auto), new Point(140, 70, 0)),
                 30.0);
             Assert.Equal(1.0, el.MinorAxisRatio);
             Assert.Equal(30, el.MajorAxis.Length);
@@ -84,10 +84,10 @@ namespace BCad.Test
                 var mp = (Vector)transform.Transform((Vector)arc.MidPoint);
                 AssertClose(midPointAngle, mp.ToAngle());
             };
-            TestMidpoint(45, new Arc(Point.Origin, 1, 315, 135, Vector.ZAxis, Color.Auto));
-            TestMidpoint(135, new Arc(Point.Origin, 1, 45, 225, Vector.ZAxis, Color.Auto));
-            TestMidpoint(315, new Arc(Point.Origin, 1, 225, 45, Vector.ZAxis, Color.Auto));
-            TestMidpoint(225, new Arc(Point.Origin, 1, 135, 315, Vector.ZAxis, Color.Auto));
+            TestMidpoint(45, new Arc(Point.Origin, 1, 315, 135, Vector.ZAxis, IndexedColor.Auto));
+            TestMidpoint(135, new Arc(Point.Origin, 1, 45, 225, Vector.ZAxis, IndexedColor.Auto));
+            TestMidpoint(315, new Arc(Point.Origin, 1, 225, 45, Vector.ZAxis, IndexedColor.Auto));
+            TestMidpoint(225, new Arc(Point.Origin, 1, 135, 315, Vector.ZAxis, IndexedColor.Auto));
         }
     }
 }

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-
-namespace BCad.Primitives
+﻿namespace BCad.Primitives
 {
     public class PrimitiveText : IPrimitive
     {
-        public Color Color { get; private set; }
+        public IndexedColor Color { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Text; } }
 
         public Point Location { get; private set; }
@@ -18,7 +12,7 @@ namespace BCad.Primitives
         public double Rotation { get; private set; }
         public string Value { get; private set; }
 
-        public PrimitiveText(string value, Point location, double height, Vector normal, double rotation, Color color)
+        public PrimitiveText(string value, Point location, double height, Vector normal, double rotation, IndexedColor color)
         {
             this.Value = value;
             this.Location = location;
@@ -27,8 +21,8 @@ namespace BCad.Primitives
             this.Rotation = rotation;
             this.Color = color;
 
-            var size = TextRenderer.MeasureText(value, System.Drawing.SystemFonts.DefaultFont);
-            this.Width= (this.Height * (double)size.Width) / (double)size.Height;
+            // currently, not a good way to measure text, but assume a character's width is 5/8 its height
+            this.Width = value.Length * this.Height * (5.0 / 8.0);
         }
     }
 }

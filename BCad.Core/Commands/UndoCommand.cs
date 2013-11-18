@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.Composition;
-using System.Windows.Input;
 using System.Threading.Tasks;
 using BCad.Services;
 
@@ -14,10 +13,10 @@ namespace BCad.Commands
         public Task<bool> Execute(object arg)
         {
             if (UndoRedoService.UndoHistorySize == 0)
-                return Task.FromResult<bool>(false);
+                return Task.FromResult(false);
 
             UndoRedoService.Undo();
-            return Task.FromResult<bool>(true);
+            return Task.FromResult(true);
         }
     }
 }

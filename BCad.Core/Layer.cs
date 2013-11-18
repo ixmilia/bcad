@@ -11,13 +11,13 @@ namespace BCad
     public class Layer
     {
         private readonly string name;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly bool isVisible;
         private readonly ReadOnlyTree<uint, Entity> entities;
 
         public string Name { get { return name; } }
 
-        public Color Color { get { return color; } }
+        public IndexedColor Color { get { return color; } }
 
         public bool IsVisible { get { return isVisible; } }
 
@@ -26,17 +26,17 @@ namespace BCad
             get { return this.entities.Count; }
         }
 
-        public Layer(string name, Color color)
+        public Layer(string name, IndexedColor color)
             : this(name, color, new ReadOnlyTree<uint, Entity>())
         {
         }
 
-        public Layer(string name, Color color, ReadOnlyTree<uint, Entity> entities)
+        public Layer(string name, IndexedColor color, ReadOnlyTree<uint, Entity> entities)
             : this(name, color, true, entities)
         {
         }
 
-        public Layer(string name, Color color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
+        public Layer(string name, IndexedColor color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
         {
             this.name = name;
             this.color = color;
@@ -86,7 +86,7 @@ namespace BCad
             return this.Update(entities: this.entities.Delete(oldEntity.Id).Insert(newEntity.Id, newEntity));
         }
 
-        public Layer Update(string name = null, Color? color = null, bool? isVisible = null, ReadOnlyTree<uint, Entity> entities = null)
+        public Layer Update(string name = null, IndexedColor? color = null, bool? isVisible = null, ReadOnlyTree<uint, Entity> entities = null)
         {
             return new Layer(
                 name ?? this.Name,

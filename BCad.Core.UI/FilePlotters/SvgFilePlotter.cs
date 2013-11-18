@@ -177,7 +177,7 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private static void AddStrokeIfNotDefault(XElement xml, Color color)
+        private static void AddStrokeIfNotDefault(XElement xml, IndexedColor color)
         {
             if (!color.IsAuto)
             {
@@ -196,7 +196,7 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private static void AddFillIfNotDefault(XElement xml, Color color)
+        private static void AddFillIfNotDefault(XElement xml, IndexedColor color)
         {
             if (!color.IsAuto)
             {

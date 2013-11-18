@@ -1,7 +1,6 @@
 ﻿using System;
 using BCad.Entities;
 using BCad.Helpers;
-using System.Windows.Media.Media3D;
 
 namespace BCad.Extensions
 {
@@ -82,7 +81,7 @@ namespace BCad.Extensions
                 throw new NotSupportedException("Unsupported entity type");
         }
 
-        public static Matrix3D GetUnitCircleProjection(this Entity entity)
+        public static Matrix4 GetUnitCircleProjection(this Entity entity)
         {
             Vector normal, right, up;
             Point center;

@@ -12,7 +12,7 @@ namespace BCad.Entities
         private readonly double minorAxisRatio;
         private readonly double startAngle;
         private readonly double endAngle;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly Point quadrant1;
         private readonly Point quadrant2;
         private readonly Point quadrant3;
@@ -36,9 +36,9 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public Color Color { get { return color; } }
+        public IndexedColor Color { get { return color; } }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, Color color)
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, IndexedColor color)
         {
             this.center = center;
             this.majorAxis = majorAxis;
@@ -99,7 +99,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
+        public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, IndexedColor? color = null)
         {
             return new Ellipse(
                 center ?? this.center,

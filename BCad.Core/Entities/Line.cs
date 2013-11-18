@@ -8,7 +8,7 @@ namespace BCad.Entities
     {
         private readonly Point p1;
         private readonly Point p2;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -17,9 +17,9 @@ namespace BCad.Entities
 
         public Point P2 { get { return p2; } }
 
-        public Color Color { get { return color; } }
+        public IndexedColor Color { get { return color; } }
 
-        public Line(Point p1, Point p2, Color color)
+        public Line(Point p1, Point p2, IndexedColor color)
         {
             this.p1 = p1;
             this.p2 = p2;
@@ -49,7 +49,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Line Update(Point p1 = null, Point p2 = null, Color? color = null)
+        public Line Update(Point p1 = null, Point p2 = null, IndexedColor? color = null)
         {
             return new Line(
                 p1 ?? this.P1,

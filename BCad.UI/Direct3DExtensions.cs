@@ -123,13 +123,13 @@ namespace BCad.UI
                     {
                         var selectionLines = new[]
                             {
-                                new PrimitiveLine(rect.TopLeft, rect.TopRight),
-                                new PrimitiveLine(rect.TopRight, rect.BottomRight),
-                                new PrimitiveLine(rect.BottomRight, rect.BottomLeft),
-                                new PrimitiveLine(rect.BottomLeft, rect.TopRight)
+                                new PrimitiveLine(rect.TopLeft.ToPoint(), rect.TopRight.ToPoint()),
+                                new PrimitiveLine(rect.TopRight.ToPoint(), rect.BottomRight.ToPoint()),
+                                new PrimitiveLine(rect.BottomRight.ToPoint(), rect.BottomLeft.ToPoint()),
+                                new PrimitiveLine(rect.BottomLeft.ToPoint(), rect.TopRight.ToPoint())
                             };
                         if (projectedPoints
-                            .Zip(projectedPoints.Skip(1), (a, b) => new PrimitiveLine(a, b))
+                            .Zip(projectedPoints.Skip(1), (a, b) => new PrimitiveLine(a.ToPoint(), b.ToPoint()))
                             .Any(l => selectionLines.Any(s => s.IntersectionPoint(l) != null)))
                         {
                             isContained = true;

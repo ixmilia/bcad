@@ -95,17 +95,17 @@ namespace BCad.Test
         [Fact]
         public void SimpleLineTrimTest()
         {
-            var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), Color.Auto);
+            var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), IndexedColor.Auto);
             DoTrim(new[]
                 {
-                    new Line(new Point(1.0, -1.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(1.0, -1.0, 0.0), new Point(1.0, 1.0, 0.0), IndexedColor.Auto)
                 },
                 line,
                 Point.Origin,
                 true,
                 new[]
                 {
-                    new Line(new Point(1, 0, 0), new Point(2, 0, 0), Color.Auto)
+                    new Line(new Point(1, 0, 0), new Point(2, 0, 0), IndexedColor.Auto)
                 });
         }
 
@@ -115,10 +115,10 @@ namespace BCad.Test
             DoTrim(
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), Color.Auto),
-                    new Line(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), IndexedColor.Auto),
+                    new Line(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 new Point(0.5, 0, 0),
                 false,
                 null);
@@ -130,14 +130,14 @@ namespace BCad.Test
             DoTrim(
                 new[]
                 {
-                    new Line(new Point(-1.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                    new Line(new Point(-1.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 },
-                new Circle(Point.Origin, 1.0, Vector.ZAxis, Color.Auto),
+                new Circle(Point.Origin, 1.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(0.0, -1.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto)
+                    new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
@@ -153,14 +153,14 @@ namespace BCad.Test
             DoTrim(
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto),
+                new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(-sqrt2 / 2.0, sqrt2 / 2.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(Point.Origin, 1.0, 0.0, 90.0, Vector.ZAxis, Color.Auto)
+                    new Arc(Point.Origin, 1.0, 0.0, 90.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
@@ -173,14 +173,14 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 new Point(1.0, 0.0, 0.0),
                 true,
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0), IndexedColor.Auto)
                 });
         }
 
@@ -193,9 +193,9 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 new Point(0.1, 0.0, 0.0),
                 false,
                 null);
@@ -212,14 +212,14 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Arc(new Point(0.0, 0.0, 0.0), 1.0, 90.0, 360.0, Vector.ZAxis, Color.Auto),
+                new Arc(new Point(0.0, 0.0, 0.0), 1.0, 90.0, 360.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(0.0, 1.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(new Point(0.0, 0.0, 0.0), 1.0, 45.0, 360.0, Vector.ZAxis, Color.Auto)
+                    new Arc(new Point(0.0, 0.0, 0.0), 1.0, 45.0, 360.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
@@ -229,14 +229,14 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(1.0, 1.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto)
+                    new Line(new Point(1.0, 1.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto)
                 },
-                new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 180.0, Vector.ZAxis, Color.Auto),
+                new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 180.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(0.0, 1.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 270.0, Vector.ZAxis, Color.Auto)
+                    new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 270.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
     }

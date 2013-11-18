@@ -11,7 +11,7 @@ namespace BCad.Entities
         private readonly double radius;
         private readonly double startAngle;
         private readonly double endAngle;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
@@ -29,9 +29,9 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public Color Color { get { return color; } }
+        public IndexedColor Color { get { return color; } }
 
-        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, Color color)
+        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color)
         {
             this.center = center;
             this.radius = radius;
@@ -80,7 +80,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
+        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, IndexedColor? color = null)
         {
             return new Arc(
                 center ?? this.Center,

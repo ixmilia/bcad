@@ -41,7 +41,7 @@ namespace BCad.Commands
                     {
                         var tempMinorAxis = p - center.Value;
                         var tempMinorAxisRatio = tempMinorAxis.Length / majorAxisLength;
-                        var el = new PrimitiveEllipse(center.Value, majorAxis, drawingPlane.Normal, tempMinorAxisRatio, 0.0, 360.0, Color.Auto);
+                        var el = new PrimitiveEllipse(center.Value, majorAxis, drawingPlane.Normal, tempMinorAxisRatio, 0.0, 360.0, IndexedColor.Auto);
                         return new IPrimitive[]
                         {
                             majorPrimitive, // major axis line
@@ -53,7 +53,7 @@ namespace BCad.Commands
                     var minorAxisRatio = minorAxis.Length / majorAxisLength;
                     if (!minorEnd.Cancel && minorEnd.HasValue)
                     {
-                        var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, Color.Auto);
+                        var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, IndexedColor.Auto);
                         Workspace.AddToCurrentLayer(el);
                         return true;
                     }

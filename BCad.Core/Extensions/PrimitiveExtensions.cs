@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Media.Media3D;
 using BCad.Entities;
 using BCad.Helpers;
 using BCad.Primitives;
@@ -83,9 +82,9 @@ namespace BCad.Extensions
             }
         }
 
-        public static PrimitiveLine Transform(this PrimitiveLine line, Matrix3D matrix)
+        public static PrimitiveLine Transform(this PrimitiveLine line, Matrix4 matrix)
         {
-            return new PrimitiveLine(line.P1.Transform(matrix), line.P2.Transform(matrix), line.Color);
+            return new PrimitiveLine(matrix.Transform(line.P1), matrix.Transform(line.P2), line.Color);
         }
 
         public static IEnumerable<Point> IntersectionPoints(this IPrimitive primitive, IPrimitive other, bool withinBounds = true)
@@ -274,14 +273,14 @@ namespace BCad.Extensions
                         points = points.Where(p => ellipse.IsAngleContained(((Vector)p).ToAngle())).ToList();
                     }
 
-                    return points.Select(p => p.Transform(transform));
+                    return points.Select(p => (Point)transform.Transform(p));
                 }
             }
             else
             {
                 // otherwise line and plane intersect in only 1 point, p
                 var d = num / denom;
-                var p = l * d + l0;
+                var p = (Point)(l * d + l0);
 
                 // verify within the line segment
                 if (withinSegment && !MathHelper.Between(0.0, 1.0, d))
@@ -290,7 +289,7 @@ namespace BCad.Extensions
                 }
 
                 // p is the point of intersection.  verify if on transformed unit circle
-                var unitVector = (Vector)p.Transform(inverse);
+                var unitVector = (Vector)inverse.Transform(p);
                 if (Math.Abs(unitVector.Length - 1.0) < MathHelper.Epsilon)
                 {
                     // point is on the unit circle
@@ -365,10 +364,9 @@ namespace BCad.Extensions
                     toUnit.Invert();
 
                     // transform second ellipse to be on the unit circle's plane
-                    var secondCenter = second.Center.Transform(toUnit);
-                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(toUnit);
-                    var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MajorAxis.Length * second.MinorAxisRatio))
-                        .Transform(toUnit);
+                    var secondCenter = toUnit.Transform(second.Center);
+                    var secondMajorEnd = toUnit.Transform(second.Center + second.MajorAxis);
+                    var secondMinorEnd = toUnit.Transform(second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MajorAxis.Length * second.MinorAxisRatio));
                     RoundedDouble a = (secondMajorEnd - secondCenter).Length;
                     RoundedDouble b = (secondMinorEnd - secondCenter).Length;
 
@@ -379,7 +377,7 @@ namespace BCad.Extensions
                         var angle = ((Vector)secondCenter).ToAngle();
                         var rotation = RotateAboutZ(angle);
                         var returnTransform = RotateAboutZ(-angle) * fromUnit;
-                        var newSecondCenter = secondCenter.Transform(rotation);
+                        var newSecondCenter = rotation.Transform(secondCenter);
                         var secondRadius = a;
 
                         if (Math.Abs(newSecondCenter.X) > secondRadius + 1.0)
@@ -400,14 +398,14 @@ namespace BCad.Extensions
                                 };
                         }
 
-                        results = results.Distinct().Select(p => p.Transform(returnTransform));
+                        results = results.Distinct().Select(p => returnTransform.Transform(p));
                     }
                     else
                     {
                         // rotate about the origin to make the major axis align with the x-axis
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
                         var rotation = RotateAboutZ(angle);
-                        var finalCenter = secondCenter.Transform(rotation);
+                        var finalCenter = rotation.Transform(secondCenter);
                         fromUnit = fromUnit * RotateAboutZ(-angle);
                         toUnit = fromUnit;
                         toUnit.Invert();
@@ -418,7 +416,7 @@ namespace BCad.Extensions
                             fromUnit = RotateAboutZ(90) * fromUnit;
                             toUnit = fromUnit;
                             toUnit.Invert();
-                            finalCenter = finalCenter.Transform(RotateAboutZ(-90));
+                            finalCenter = RotateAboutZ(-90).Transform(finalCenter);
 
                             // and swap a and b
                             var temp = a;
@@ -502,7 +500,7 @@ namespace BCad.Extensions
                             .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
                             .Where(p => !(double.IsInfinity(p.X) || double.IsInfinity(p.Y) || double.IsInfinity(p.Z)))
                             .Distinct()
-                            .Select(p => p.Transform(fromUnit))
+                            .Select(p => fromUnit.Transform(p))
                             .Select(p => new Point((RoundedDouble)p.X, (RoundedDouble)p.Y, (RoundedDouble)p.Z));
                     }
                 }
@@ -571,11 +569,11 @@ namespace BCad.Extensions
                 toSecondUnit.Invert();
                 results = from res in results
                           // verify point is within first ellipse's angles
-                          let trans1 = res.Transform(toFirstUnit)
+                          let trans1 = toFirstUnit.Transform(res)
                           let ang1 = ((Vector)trans1).ToAngle()
                           where first.IsAngleContained(ang1)
                           // and same for second
-                          let trans2 = res.Transform(toSecondUnit)
+                          let trans2 = toSecondUnit.Transform(res)
                           let ang2 = ((Vector)trans2).ToAngle()
                           where second.IsAngleContained(ang2)
                           select res;
@@ -611,9 +609,9 @@ namespace BCad.Extensions
 
         #endregion
 
-        public static Matrix3D FromUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
+        public static Matrix4 FromUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
         {
-            var transformation = Matrix3D.Identity;
+            var transformation = Matrix4.Identity;
             transformation.M11 = right.X;
             transformation.M12 = right.Y;
             transformation.M13 = right.Z;
@@ -626,14 +624,14 @@ namespace BCad.Extensions
             transformation.OffsetX = center.X;
             transformation.OffsetY = center.Y;
             transformation.OffsetZ = center.Z;
-            var scale = Matrix3D.Identity;
+            var scale = Matrix4.Identity;
             scale.M11 = scaleX;
             scale.M22 = scaleY;
             scale.M33 = scaleZ;
             return scale * transformation;
         }
 
-        public static Matrix3D FromUnitCircleProjection(this PrimitiveEllipse el)
+        public static Matrix4 FromUnitCircleProjection(this PrimitiveEllipse el)
         {
             var normal = el.Normal.Normalize();
             var right = el.MajorAxis.Normalize();
@@ -642,21 +640,21 @@ namespace BCad.Extensions
             return FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
         }
 
-        public static Matrix3D Translation(Vector offset)
+        public static Matrix4 Translation(Vector offset)
         {
-            var m = Matrix3D.Identity;
+            var m = Matrix4.Identity;
             m.OffsetX = offset.X;
             m.OffsetY = offset.Y;
             m.OffsetZ = offset.Z;
             return m;
         }
 
-        public static Matrix3D RotateAboutZ(double angleInDegrees)
+        public static Matrix4 RotateAboutZ(double angleInDegrees)
         {
             var theta = angleInDegrees * MathHelper.DegreesToRadians;
             var cos = Math.Cos(theta);
             var sin = Math.Sin(theta);
-            var m = Matrix3D.Identity;
+            var m = Matrix4.Identity;
             m.M11 = cos;
             m.M12 = -sin;
             m.M21 = sin;
@@ -770,7 +768,7 @@ namespace BCad.Extensions
         {
             var unitMatrix = el.FromUnitCircleProjection();
             unitMatrix.Invert();
-            var unitPoint = point.Transform(unitMatrix);
+            var unitPoint = unitMatrix.Transform(point);
             return MathHelper.CloseTo(0.0, unitPoint.Z) // on the XY plane
                 && MathHelper.CloseTo(1.0, ((Vector)unitPoint).LengthSquared) // on the unit circle
                 && el.IsAngleContained(Math.Atan2(unitPoint.Y, unitPoint.X) * MathHelper.RadiansToDegrees); // within angle bounds
@@ -788,7 +786,7 @@ namespace BCad.Extensions
                 var projection = FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
                 projection.Invert();
 
-                var projected = point.Transform(projection);
+                var projected = projection.Transform(point);
                 if (MathHelper.Between(0.0, text.Width, projected.X) &&
                     MathHelper.Between(0.0, text.Height, projected.Y))
                 {
@@ -803,7 +801,7 @@ namespace BCad.Extensions
         {
             var projection = ellipse.FromUnitCircleProjection();
             var pointUnit = new Point(Math.Cos(angle * MathHelper.DegreesToRadians), Math.Sin(angle * MathHelper.DegreesToRadians), 0.0);
-            var pointTransformed = pointUnit.Transform(projection);
+            var pointTransformed = projection.Transform(pointUnit);
             return pointTransformed;
         }
 

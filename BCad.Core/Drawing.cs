@@ -25,12 +25,12 @@ namespace BCad
         public ReadOnlyTree<string, Layer> Layers { get { return this.layers; } }
 
         public Drawing()
-            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", Color.Auto)), "0")
+            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", IndexedColor.Auto)), "0")
         {
         }
 
         public Drawing(DrawingSettings settings)
-            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", Color.Auto)))
+            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", IndexedColor.Auto)))
         {
         }
 
@@ -122,7 +122,7 @@ namespace BCad
             if (newLayers.Count == 0)
             {
                 // ensure there is always at least one layer
-                newLayers = newLayers.Insert("0", new Layer("0", Color.Auto));
+                newLayers = newLayers.Insert("0", new Layer("0", IndexedColor.Auto));
             }
 
             var newCurrentName = currentLayerName ?? this.currentLayerName;

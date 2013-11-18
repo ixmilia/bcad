@@ -36,7 +36,7 @@ namespace BCad.Commands
             var text = textInput.Value;
 
             // add it
-            Workspace.AddToCurrentLayer(new Text(text, location, Workspace.DrawingPlane.Normal, height, 0.0, Color.Default));
+            Workspace.AddToCurrentLayer(new Text(text, location, Workspace.DrawingPlane.Normal, height, 0.0, IndexedColor.Default));
 
             return true;
         }

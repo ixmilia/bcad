@@ -17,12 +17,12 @@ namespace BCad.Converters
                 throw new ArgumentException("Drawing file was not an STL file.");
             if (stlFile.File == null)
                 throw new ArgumentException("Drawing file had no internal STL file.");
-            var layer = new Layer(stlFile.File.SolidName ?? "stl", Color.Auto);
+            var layer = new Layer(stlFile.File.SolidName ?? "stl", IndexedColor.Auto);
             foreach (var triangle in stlFile.File.Triangles)
             {
-                layer = layer.Add(new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), Color.Auto));
-                layer = layer.Add(new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), Color.Auto));
-                layer = layer.Add(new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), Color.Auto));
+                layer = layer.Add(new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), IndexedColor.Auto));
+                layer = layer.Add(new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), IndexedColor.Auto));
+                layer = layer.Add(new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), IndexedColor.Auto));
             }
 
             drawing = new Drawing(

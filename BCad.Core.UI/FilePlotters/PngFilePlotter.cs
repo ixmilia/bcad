@@ -44,7 +44,7 @@ namespace BCad.Commands.FilePlotters
             image.Save(stream, ImageFormat.Png);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedEntity entity, Color layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedEntity entity, IndexedColor layerColor)
         {
             switch (entity.Kind)
             {
@@ -83,12 +83,12 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedLine line, Color layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedLine line, IndexedColor layerColor)
         {
             graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color)), line.P1, line.P2);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedCircle circle, Color layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedCircle circle, IndexedColor layerColor)
         {
             // TODO: handle rotation
             var width = circle.RadiusX * 2.0;
@@ -97,7 +97,7 @@ namespace BCad.Commands.FilePlotters
             graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedText text, Color layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedText text, IndexedColor layerColor)
         {
             // TODO: handle rotation
             var x = (float)text.Location.X;
@@ -119,7 +119,7 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private System.Drawing.Color GetDisplayColor(Color layerColor, Color primitiveColor)
+        private System.Drawing.Color GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor)
         {
             System.Drawing.Color display;
             if (!primitiveColor.IsAuto)

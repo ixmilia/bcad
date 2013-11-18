@@ -10,16 +10,16 @@ namespace BCad.Entities
     public class Polyline : Entity
     {
         private readonly IEnumerable<Point> points;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly SnapPoint[] snapPoints;
         private readonly IPrimitive[] primitives;
         private readonly BoundingBox boundingBox;
 
         public IEnumerable<Point> Points { get { return this.points; } }
 
-        public Color Color { get { return this.color; } }
+        public IndexedColor Color { get { return this.color; } }
 
-        public Polyline(IEnumerable<Point> points, Color color)
+        public Polyline(IEnumerable<Point> points, IndexedColor color)
         {
             this.points = new List<Point>(points); // to prevent backing changes
             this.color = color;
@@ -53,7 +53,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Polyline Update(IEnumerable<Point> points = null, Color? color = null)
+        public Polyline Update(IEnumerable<Point> points = null, IndexedColor? color = null)
         {
             return new Polyline(
                 points ?? this.Points,

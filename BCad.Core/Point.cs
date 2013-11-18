@@ -1,46 +1,29 @@
 ﻿using System.Text.RegularExpressions;
-using System.Windows.Media.Media3D;
 
 namespace BCad
 {
     public class Point
     {
-        private readonly Point3D point;
+        private readonly double x;
+        private readonly double y;
+        private readonly double z;
 
-        public double X { get { return point.X; } }
+        public double X { get { return x; } }
 
-        public double Y { get { return point.Y; } }
+        public double Y { get { return y; } }
 
-        public double Z { get { return point.Z; } }
+        public double Z { get { return z; } }
 
         public Point(double x, double y, double z)
         {
-            this.point = new Point3D(x, y, z);
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
 
         public static implicit operator Vector(Point point)
         {
             return new Vector(point.X, point.Y, point.Z);
-        }
-
-        public static implicit operator Point3D(Point point)
-        {
-            return new Point3D(point.X, point.Y, point.Z);
-        }
-
-        public static implicit operator Point(Point3D point)
-        {
-            return new Point(point.X, point.Y, point.Z);
-        }
-
-        public static implicit operator Point(System.Windows.Point point)
-        {
-            return new Point(point.X, point.Y, 0.0);
-        }
-
-        public static implicit operator System.Drawing.PointF(Point point)
-        {
-            return new System.Drawing.PointF((float)point.X, (float)point.Y);
         }
 
         public static Point Parse(string text)

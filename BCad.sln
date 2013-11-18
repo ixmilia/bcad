@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20701.1 DP
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -29,6 +29,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Dxf.Helper", "BCad.Dxf.Helper\BCad.Dxf.Helper.csproj", "{F48A89A3-6D0F-4CC8-84C4-7FF0D92723E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonToDxf", "JsonToDxf\JsonToDxf.csproj", "{3117DE90-D6F5-4202-AE35-1826735B388A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Core.UI", "BCad.Core.UI\BCad.Core.UI.csproj", "{B02CC174-511B-4272-B625-B492074F7BC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -130,6 +132,16 @@ Global
 		{3117DE90-D6F5-4202-AE35-1826735B388A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{3117DE90-D6F5-4202-AE35-1826735B388A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{3117DE90-D6F5-4202-AE35-1826735B388A}.Release|x86.ActiveCfg = Release|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B02CC174-511B-4272-B625-B492074F7BC5}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -117,8 +117,7 @@ namespace BCad.Utilities
                     var el = (PrimitiveEllipse)primitive;
                     var projection = el.FromUnitCircleProjection();
                     projection.Invert();
-                    var isInside = ((Vector)(offsetDirection).Transform(projection))
-                        .LengthSquared <= 1.0;
+                    var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
                     var majorLength = el.MajorAxis.Length;
                     if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)
                         || (offsetDistance >= majorLength))
@@ -242,7 +241,7 @@ namespace BCad.Utilities
             if (center == null)
                 return null;
 
-            return new PrimitiveEllipse(center, radius, drawingPlane.Normal, Color.Auto);
+            return new PrimitiveEllipse(center, radius, drawingPlane.Normal, IndexedColor.Auto);
         }
 
         public static Entity Move(Entity entity, Vector offset)
@@ -386,12 +385,12 @@ namespace BCad.Utilities
             inverse.Invert();
 
             var angles = intersectionPoints
-                .Select(p => p.Transform(inverse))
+                .Select(p => inverse.Transform(p))
                 .Select(p => (Math.Atan2(p.Y, p.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees())
                 .Where(a => isClosed || (!MathHelper.CloseTo(a, startAngle) && !MathHelper.CloseTo(a, endAngle)))
                 .OrderBy(a => a)
                 .ToList();
-            var unitPivot = pivot.Transform(inverse);
+            var unitPivot = inverse.Transform(pivot);
             var selectionAngle = (Math.Atan2(unitPivot.Y, unitPivot.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
             var selectionAfterIndex = angles.Where(a => a < selectionAngle).Count() - 1;
             if (selectionAfterIndex < 0)
@@ -540,18 +539,18 @@ namespace BCad.Utilities
             var fromUnitMatrix = ellipse.FromUnitCircleProjection();
             var toUnitMatrix = fromUnitMatrix;
             toUnitMatrix.Invert();
-            var selectionUnit = selectionPoint.Transform(toUnitMatrix);
+            var selectionUnit = toUnitMatrix.Transform(selectionPoint);
 
             // find closest intersection point to the selection
             var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
             if (closestRealPoint != null)
             {
-                var closestUnitPoint = closestRealPoint.Transform(toUnitMatrix);
+                var closestUnitPoint = toUnitMatrix.Transform(closestRealPoint);
                 var newAngle = (Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
 
                 // find the closest end point to the selection
-                var startPoint = ellipse.GetStartPoint().Transform(toUnitMatrix);
-                var endPoint = ellipse.GetEndPoint().Transform(toUnitMatrix);
+                var startPoint = toUnitMatrix.Transform(ellipse.GetStartPoint());
+                var endPoint = toUnitMatrix.Transform(ellipse.GetEndPoint());
                 var startAngle = ellipse.StartAngle;
                 var endAngle = ellipse.EndAngle;
                 if ((startPoint - selectionUnit).LengthSquared < (endPoint - selectionUnit).LengthSquared)

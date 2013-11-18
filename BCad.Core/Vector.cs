@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Media.Media3D;
 using BCad.Helpers;
 
 namespace BCad
@@ -34,11 +33,11 @@ namespace BCad
             this.Z = z;
         }
 
-        public Vector(Vector3D vector)
+        public Vector(Point p)
         {
-            this.X = vector.X;
-            this.Y = vector.Y;
-            this.Z = vector.Z;
+            X = p.X;
+            Y = p.Y;
+            Z = p.Z;
         }
 
         public Vector Normalize()
@@ -61,19 +60,19 @@ namespace BCad
             return new Point(vector.X, vector.Y, vector.Z);
         }
 
-        public static implicit operator Vector3D(Vector vector)
-        {
-            return new Vector3D(vector.X, vector.Y, vector.Z);
-        }
-
-        public static implicit operator Vector(Vector3D vector)
-        {
-            return new Vector(vector.X, vector.Y, vector.Z);
-        }
-
         public static Vector operator -(Vector vector)
         {
             return new Vector(-vector.X, -vector.Y, -vector.Z);
+        }
+
+        public static Vector operator +(Vector p1, Vector p2)
+        {
+            return new Vector(p1.X + p2.X, p1.Y + p2.Y, p1.Z + p2.Z);
+        }
+
+        public static Vector operator -(Vector p1, Vector p2)
+        {
+            return new Vector(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
         }
 
         public static Vector operator *(Vector vector, double operand)

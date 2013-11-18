@@ -23,7 +23,7 @@ namespace BCad.Converters
                 throw new ArgumentException("Drawing file was not an IGES file.");
             if (igesFile.File == null)
                 throw new ArgumentException("Drawing file had no internal IGES file.");
-            var layer = new Layer("igs", Color.Auto);
+            var layer = new Layer("igs", IndexedColor.Auto);
             foreach (var entity in igesFile.File.Entities)
             {
                 var cadEntity = ToEntity(entity);
@@ -163,17 +163,17 @@ namespace BCad.Converters
                 var primitiveCircle = new PrimitiveEllipse(center, radius, normal);
                 var toUnit = primitiveCircle.FromUnitCircleProjection();
                 toUnit.Invert();
-                var startUnit = startPoint.Transform(toUnit);
-                var endUnit = endPoint.Transform(toUnit);
+                var startUnit = toUnit.Transform(startPoint);
+                var endUnit = toUnit.Transform(endPoint);
                 var startAngle = ((Vector)startUnit).ToAngle();
                 var endAngle = ((Vector)endUnit).ToAngle();
                 return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color));
             }
         }
 
-        private static Color ToColor(IgesColorNumber color)
+        private static IndexedColor ToColor(IgesColorNumber color)
         {
-            return new Color((byte)color);
+            return new IndexedColor((byte)color);
         }
 
         private static Point TransformPoint(IgesEntity entity, IgesPoint point)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Windows.Input;
 
 namespace BCad.Commands
 {
@@ -17,11 +16,11 @@ namespace BCad.Commands
         public ExportCommandAttribute(string name, string displayName, ModifierKeys modifier, Key key, params string[] aliases)
             : base(typeof(ICommand))
         {
-            this.Name = name;
-            this.DisplayName = displayName;
-            this.Modifier = modifier;
-            this.Key = key;
-            this.CommandAliases = aliases ?? new string[0];
+            Name = name;
+            DisplayName = displayName;
+            Modifier = modifier;
+            Key = key;
+            CommandAliases = aliases ?? new string[0];
         }
 
         public string Name { get; set; }

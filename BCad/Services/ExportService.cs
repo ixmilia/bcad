@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Windows.Media.Media3D;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
@@ -27,7 +26,7 @@ namespace BCad.Services
                     -1.0,
                     -1.0,
                     1.0);
-            transform.Scale(new Vector3D(1.0, 1.0, 0.0));
+            transform.Scale(new Vector(1.0, 1.0, 0.0));
 
             // project all entities
             var entities = new List<ProjectedEntity>();
@@ -47,7 +46,7 @@ namespace BCad.Services
             return entities;
         }
 
-        private ProjectedEntity Project(Entity entity, Layer layer, Matrix3D transform)
+        private ProjectedEntity Project(Entity entity, Layer layer, Matrix4 transform)
         {
             switch (entity.Kind)
             {
@@ -66,66 +65,66 @@ namespace BCad.Services
             }
         }
 
-        private ProjectedLine Project(Line line, Layer layer, Matrix3D transform)
+        private ProjectedLine Project(Line line, Layer layer, Matrix4 transform)
         {
-            var p1 = transform.Transform(line.P1);
-            var p2 = transform.Transform(line.P2);
+            var p1 = transform * line.P1;
+            var p2 = transform * line.P2;
             return new ProjectedLine(line, layer, p1, p2);
         }
 
-        private ProjectedText Project(Text text, Layer layer, Matrix3D transform)
+        private ProjectedText Project(Text text, Layer layer, Matrix4 transform)
         {
-            var loc = transform.Transform(text.Location);
+            var loc = transform * text.Location;
             var rad = text.Rotation * MathHelper.DegreesToRadians;
             var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
             var up = text.Normal.Cross(right).Normalize();
-            var top = transform.Transform((text.Location + up * text.Height));
-            var height = (top - loc).Length;
-            var rotation = new Vector((top - loc)).ToAngle() * -1.0 - 90.0;
+            var top = transform * (text.Location + up * text.Height);
+            var height = ((Point)top - loc).Length;
+            var rotation = new Vector(((Point)top - loc)).ToAngle() * -1.0 - 90.0;
             return new ProjectedText(text, layer, loc, height, rotation.CorrectAngleDegrees());
         }
 
-        private ProjectedCircle Project(Circle circle, Layer layer, Matrix3D transform)
+        private ProjectedCircle Project(Circle circle, Layer layer, Matrix4 transform)
         {
             // find axis endpoints
             var rightVector = Vector.RightVectorFromNormal(circle.Normal);
             var upVector = circle.Normal.Cross(rightVector).Normalize();
-            var pt = transform.Transform((circle.Center + (rightVector * circle.Radius)));
-            var qt = transform.Transform((circle.Center + (upVector * circle.Radius)));
-            var m = transform.Transform(circle.Center);
+            var pt = transform * (circle.Center + (rightVector * circle.Radius));
+            var qt = transform * (circle.Center + (upVector * circle.Radius));
+            var m = transform * circle.Center;
             return ProjectedCircle.FromConjugateDiameters(circle, layer, m, pt, qt);
         }
 
-        private ProjectedArc Project(Arc arc, Layer layer, Matrix3D transform)
+        private ProjectedArc Project(Arc arc, Layer layer, Matrix4 transform)
         {
             // find the containing circle
             var rightVector = Vector.RightVectorFromNormal(arc.Normal);
             var upVector = arc.Normal.Cross(rightVector).Normalize();
-            var pt = transform.Transform((arc.Center + (rightVector * arc.Radius)));
-            var qt = transform.Transform((arc.Center + (upVector * arc.Radius)));
-            var m = transform.Transform(arc.Center);
+            var pt = transform * (arc.Center + (rightVector * arc.Radius));
+            var qt = transform * (arc.Center + (upVector * arc.Radius));
+            var m = transform * arc.Center;
             var circle = ProjectedCircle.FromConjugateDiameters(null, layer, m, pt, qt);
 
             // find the new start and end angles
-            var startPoint = (Point)transform.Transform(arc.EndPoint1);
-            var endPoint = (Point)transform.Transform(arc.EndPoint2);
+            var startPoint = transform * arc.EndPoint1;
+            var endPoint = transform * arc.EndPoint2;
             var startAngle = (startPoint - circle.Center).ToAngle();
             var endAngle = (endPoint - circle.Center).ToAngle();
 
             return new ProjectedArc(arc, layer, circle.Center, circle.RadiusX, circle.RadiusY, circle.Rotation, startAngle, endAngle, startPoint, endPoint);
         }
 
-        private ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix3D transform)
+        private ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix4 transform)
         {
-            var loc = transform.Transform(aggregate.Location);
-            var newOrigin = transform.Transform(Point.Origin);
+            var loc = transform * aggregate.Location;
+            var newOrigin = transform * Point.Origin;
             var offset = (Point)loc - (Point)newOrigin;
             return new ProjectedAggregate(aggregate, layer, offset, aggregate.Children.Select(c => Project(c, layer, transform)));
         }
 
-        private static Matrix3D TranslationMatrix(double dx, double dy, double dz)
+        private static Matrix4 TranslationMatrix(double dx, double dy, double dz)
         {
-            var matrix = Matrix3D.Identity;
+            var matrix = Matrix4.Identity;
             matrix.OffsetX = dx;
             matrix.OffsetY = dy;
             matrix.OffsetZ = dz;

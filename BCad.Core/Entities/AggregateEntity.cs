@@ -12,7 +12,7 @@ namespace BCad.Entities
     {
         private readonly Point location;
         private readonly ReadOnlyList<Entity> children;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -21,14 +21,14 @@ namespace BCad.Entities
 
         public ReadOnlyList<Entity> Children { get { return children; } }
 
-        public Color Color { get { return color; } }
+        public IndexedColor Color { get { return color; } }
 
         public AggregateEntity()
-            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), Color.Auto)
+            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), IndexedColor.Auto)
         {
         }
 
-        public AggregateEntity(Point location, ReadOnlyList<Entity> children, Color color)
+        public AggregateEntity(Point location, ReadOnlyList<Entity> children, IndexedColor color)
         {
             if (location == null)
                 throw new ArgumentNullException("location");
@@ -60,7 +60,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public AggregateEntity Update(Point location = null, ReadOnlyList<Entity> children = null, Color? color = null)
+        public AggregateEntity Update(Point location = null, ReadOnlyList<Entity> children = null, IndexedColor? color = null)
         {
             return new AggregateEntity(
                 location ?? this.location,

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
@@ -20,7 +17,7 @@ namespace BCad.Entities
         private readonly double height;
         private readonly double width;
         private readonly double rotation;
-        private readonly Color color;
+        private readonly IndexedColor color;
         private readonly BoundingBox boundingBox;
 
         public string Value { get { return this.value; } }
@@ -35,9 +32,9 @@ namespace BCad.Entities
 
         public double Rotation { get { return this.rotation; } }
 
-        public Color Color { get { return this.color; } }
+        public IndexedColor Color { get { return this.color; } }
 
-        public Text(string value, Point location, Vector normal, double height, double rotation, Color color)
+        public Text(string value, Point location, Vector normal, double height, double rotation, IndexedColor color)
         {
             if (value == null)
             {
@@ -81,7 +78,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Text Update(string value = null, Point location = null, Vector normal = null, double? height = null, double? rotation = null, Color? color = null)
+        public Text Update(string value = null, Point location = null, Vector normal = null, double? height = null, double? rotation = null, IndexedColor? color = null)
         {
             return new Text(
                 value ?? this.Value,

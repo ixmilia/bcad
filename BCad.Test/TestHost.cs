@@ -35,7 +35,7 @@ namespace BCad.Test
         {
             var host = CreateHost();
             foreach (string layer in layerNames)
-                host.Workspace.Add(new Layer(layer, Color.Auto));
+                host.Workspace.Add(new Layer(layer, IndexedColor.Auto));
             return host;
         }
     }
