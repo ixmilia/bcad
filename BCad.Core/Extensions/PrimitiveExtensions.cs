@@ -376,7 +376,7 @@ namespace BCad.Extensions
                         // rotate to place the center of the second circle on the x-axis
                         var angle = ((Vector)secondCenter).ToAngle();
                         var rotation = RotateAboutZ(angle);
-                        var returnTransform = RotateAboutZ(-angle) * fromUnit;
+                        var returnTransform = fromUnit * RotateAboutZ(-angle);
                         var newSecondCenter = rotation.Transform(secondCenter);
                         var secondRadius = a;
 
@@ -413,7 +413,7 @@ namespace BCad.Extensions
                         if (a < b)
                         {
                             // rotate to ensure a > b
-                            fromUnit = RotateAboutZ(90) * fromUnit;
+                            fromUnit = fromUnit * RotateAboutZ(90);
                             toUnit = fromUnit;
                             toUnit.Invert();
                             finalCenter = RotateAboutZ(-90).Transform(finalCenter);
