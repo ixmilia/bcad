@@ -375,8 +375,8 @@ namespace BCad.Extensions
                         // if second ellipse is a circle we can absolutely solve for the intersection points
                         // rotate to place the center of the second circle on the x-axis
                         var angle = ((Vector)secondCenter).ToAngle();
-                        var rotation = RotateAboutZ(angle);
-                        var returnTransform = fromUnit * RotateAboutZ(-angle);
+                        var rotation = Matrix4.RotateAboutZ(angle);
+                        var returnTransform = fromUnit * Matrix4.RotateAboutZ(-angle);
                         var newSecondCenter = rotation.Transform(secondCenter);
                         var secondRadius = a;
 
@@ -404,19 +404,19 @@ namespace BCad.Extensions
                     {
                         // rotate about the origin to make the major axis align with the x-axis
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
-                        var rotation = RotateAboutZ(angle);
+                        var rotation = Matrix4.RotateAboutZ(angle);
                         var finalCenter = rotation.Transform(secondCenter);
-                        fromUnit = fromUnit * RotateAboutZ(-angle);
+                        fromUnit = fromUnit * Matrix4.RotateAboutZ(-angle);
                         toUnit = fromUnit;
                         toUnit.Invert();
 
                         if (a < b)
                         {
                             // rotate to ensure a > b
-                            fromUnit = fromUnit * RotateAboutZ(90);
+                            fromUnit = fromUnit * Matrix4.RotateAboutZ(90);
                             toUnit = fromUnit;
                             toUnit.Invert();
-                            finalCenter = RotateAboutZ(-90).Transform(finalCenter);
+                            finalCenter = Matrix4.RotateAboutZ(-90).Transform(finalCenter);
 
                             // and swap a and b
                             var temp = a;
@@ -616,28 +616,6 @@ namespace BCad.Extensions
             var up = normal.Cross(right).Normalize();
             var radiusX = el.MajorAxis.Length;
             return Matrix4.FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
-        }
-
-        public static Matrix4 Translation(Vector offset)
-        {
-            var m = Matrix4.Identity;
-            m.M41 = offset.X;
-            m.M42 = offset.Y;
-            m.M43 = offset.Z;
-            return m;
-        }
-
-        public static Matrix4 RotateAboutZ(double angleInDegrees)
-        {
-            var theta = angleInDegrees * MathHelper.DegreesToRadians;
-            var cos = Math.Cos(theta);
-            var sin = Math.Sin(theta);
-            var m = Matrix4.Identity;
-            m.M11 = cos;
-            m.M12 = -sin;
-            m.M21 = sin;
-            m.M22 = cos;
-            return m;
         }
 
         public static Entity ToEntity(this IPrimitive primitive)

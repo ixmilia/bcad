@@ -1,4 +1,5 @@
 ﻿using System;
+using BCad.Helpers;
 
 namespace BCad
 {
@@ -443,6 +444,19 @@ namespace BCad
             }
 
             return matrix;
+        }
+
+        public static Matrix4 RotateAboutZ(double angleInDegrees)
+        {
+            var theta = angleInDegrees * MathHelper.DegreesToRadians;
+            var cos = Math.Cos(theta);
+            var sin = Math.Sin(theta);
+            var m = Identity;
+            m.M11 = cos;
+            m.M12 = sin;
+            m.M21 = -sin;
+            m.M22 = cos;
+            return m;
         }
     }
 }
