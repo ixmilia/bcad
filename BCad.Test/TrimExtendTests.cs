@@ -226,6 +226,11 @@ namespace BCad.Test
         [Fact]
         public void SimpleExtendArcNotAtOriginTest()
         {
+            //   /           /
+            //  /           /
+            // o   |   =>  |   |
+            //     |        \  |
+            //     |         \_|
             DoExtend(
                 new[]
                 {

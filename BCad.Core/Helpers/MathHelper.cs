@@ -38,5 +38,25 @@ namespace BCad.Helpers
         {
             return Between(expected - Epsilon, expected + Epsilon, actual);
         }
+
+        public static bool CloseTo(Matrix4 expected, Matrix4 actual)
+        {
+            return CloseTo(expected.M11, actual.M11)
+                && CloseTo(expected.M12, actual.M12)
+                && CloseTo(expected.M13, actual.M13)
+                && CloseTo(expected.M14, actual.M14)
+                && CloseTo(expected.M21, actual.M21)
+                && CloseTo(expected.M22, actual.M22)
+                && CloseTo(expected.M23, actual.M23)
+                && CloseTo(expected.M24, actual.M24)
+                && CloseTo(expected.M31, actual.M31)
+                && CloseTo(expected.M32, actual.M32)
+                && CloseTo(expected.M33, actual.M33)
+                && CloseTo(expected.M34, actual.M34)
+                && CloseTo(expected.M41, actual.M41)
+                && CloseTo(expected.M42, actual.M42)
+                && CloseTo(expected.M43, actual.M43)
+                && CloseTo(expected.M44, actual.M44);
+        }
     }
 }

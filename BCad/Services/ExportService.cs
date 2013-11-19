@@ -125,9 +125,9 @@ namespace BCad.Services
         private static Matrix4 TranslationMatrix(double dx, double dy, double dz)
         {
             var matrix = Matrix4.Identity;
-            matrix.OffsetX = dx;
-            matrix.OffsetY = dy;
-            matrix.OffsetZ = dz;
+            matrix.M41 = dx;
+            matrix.M42 = dy;
+            matrix.M43 = dz;
             return matrix;
         }
     }

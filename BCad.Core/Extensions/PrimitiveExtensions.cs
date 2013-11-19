@@ -621,9 +621,9 @@ namespace BCad.Extensions
             transformation.M31 = normal.X;
             transformation.M32 = normal.Y;
             transformation.M33 = normal.Z;
-            transformation.OffsetX = center.X;
-            transformation.OffsetY = center.Y;
-            transformation.OffsetZ = center.Z;
+            transformation.M41 = center.X;
+            transformation.M42 = center.Y;
+            transformation.M43 = center.Z;
             var scale = Matrix4.Identity;
             scale.M11 = scaleX;
             scale.M22 = scaleY;
@@ -643,9 +643,9 @@ namespace BCad.Extensions
         public static Matrix4 Translation(Vector offset)
         {
             var m = Matrix4.Identity;
-            m.OffsetX = offset.X;
-            m.OffsetY = offset.Y;
-            m.OffsetZ = offset.Z;
+            m.M41 = offset.X;
+            m.M42 = offset.Y;
+            m.M43 = offset.Z;
             return m;
         }
 
