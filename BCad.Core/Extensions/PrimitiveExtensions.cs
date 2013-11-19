@@ -609,35 +609,13 @@ namespace BCad.Extensions
 
         #endregion
 
-        public static Matrix4 FromUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
-        {
-            var transformation = Matrix4.Identity;
-            transformation.M11 = right.X;
-            transformation.M12 = right.Y;
-            transformation.M13 = right.Z;
-            transformation.M21 = up.X;
-            transformation.M22 = up.Y;
-            transformation.M23 = up.Z;
-            transformation.M31 = normal.X;
-            transformation.M32 = normal.Y;
-            transformation.M33 = normal.Z;
-            transformation.M41 = center.X;
-            transformation.M42 = center.Y;
-            transformation.M43 = center.Z;
-            var scale = Matrix4.Identity;
-            scale.M11 = scaleX;
-            scale.M22 = scaleY;
-            scale.M33 = scaleZ;
-            return scale * transformation;
-        }
-
         public static Matrix4 FromUnitCircleProjection(this PrimitiveEllipse el)
         {
             var normal = el.Normal.Normalize();
             var right = el.MajorAxis.Normalize();
             var up = normal.Cross(right).Normalize();
             var radiusX = el.MajorAxis.Length;
-            return FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
+            return Matrix4.FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
         }
 
         public static Matrix4 Translation(Vector offset)
@@ -783,7 +761,7 @@ namespace BCad.Extensions
                 // check for horizontal/vertical containment
                 var right = Vector.RightVectorFromNormal(text.Normal);
                 var up = text.Normal.Cross(right).Normalize();
-                var projection = FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
+                var projection = Matrix4.FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
                 projection.Invert();
 
                 var projected = projection.Transform(point);

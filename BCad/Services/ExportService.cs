@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using BCad.Entities;
-using BCad.Extensions;
 using BCad.Helpers;
 
 namespace BCad.Services
@@ -18,7 +17,7 @@ namespace BCad.Services
             var up = viewPort.Up;
             var right = up.Cross(normal).Normalize();
             var transform = TranslationMatrix(-viewPort.BottomLeft.X, -viewPort.BottomLeft.Y - viewPort.ViewHeight, 0)
-                * PrimitiveExtensions.FromUnitCircleProjection(
+                * Matrix4.FromUnitCircleProjection(
                     normal,
                     right,
                     up,

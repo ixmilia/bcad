@@ -117,7 +117,7 @@ namespace BCad.Extensions
                     throw new ArgumentException("entity");
             }
 
-            return PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, center, scaleX, scaleY, 1.0);
+            return Matrix4.FromUnitCircleProjection(normal, right, up, center, scaleX, scaleY, 1.0);
         }
 
         public static Point MidPoint(this Line line)

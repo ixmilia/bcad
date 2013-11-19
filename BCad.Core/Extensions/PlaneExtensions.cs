@@ -46,7 +46,7 @@ namespace BCad.Extensions
                 right = Vector.YAxis;
             var up = plane.Normal.Cross(right).Normalize();
             right = up.Cross(plane.Normal).Normalize();
-            var matrix = PrimitiveExtensions.FromUnitCircleProjection(plane.Normal, right, up, Point.Origin, 1.0, 1.0, 1.0);
+            var matrix = Matrix4.FromUnitCircleProjection(plane.Normal, right, up, Point.Origin, 1.0, 1.0, 1.0);
             return matrix;
         }
 

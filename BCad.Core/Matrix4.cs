@@ -364,6 +364,28 @@ namespace BCad
             _m44 = z33 * rcp;
         }
 
+        public static Matrix4 FromUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
+        {
+            var transformation = Identity;
+            transformation.M11 = right.X;
+            transformation.M12 = right.Y;
+            transformation.M13 = right.Z;
+            transformation.M21 = up.X;
+            transformation.M22 = up.Y;
+            transformation.M23 = up.Z;
+            transformation.M31 = normal.X;
+            transformation.M32 = normal.Y;
+            transformation.M33 = normal.Z;
+            transformation.M14 = center.X;
+            transformation.M24 = center.Y;
+            transformation.M34 = center.Z;
+            var scale = Identity;
+            scale.M11 = scaleX;
+            scale.M22 = scaleY;
+            scale.M33 = scaleZ;
+            return scale * transformation;
+        }
+
         internal void RotateAt(Quaternion quaternion, Point center)
         {
             var rotation = CreateRotationMatrix(quaternion, center);

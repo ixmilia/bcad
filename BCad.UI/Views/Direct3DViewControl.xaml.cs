@@ -634,7 +634,7 @@ Result PShader(Input pixel)
                     right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
                     var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
-                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc).ToMatrix3D();
+                    trans = Matrix4.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc).ToMatrix3D();
                     display = new DisplayPrimitiveMesh(mesh, color, trans.ToMatrix(), normalPixelShader, selectedPixelShader);
                     break;
                 case PrimitiveKind.Line:
@@ -670,7 +670,7 @@ Result PShader(Input pixel)
                     var segments = new Vector3[segCount];
                     var angleDelta = coveringAngle / (double)(segCount - 1);
                     var angle = startAngle;
-                    trans = PrimitiveExtensions.FromUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0).ToMatrix3D();
+                    trans = Matrix4.FromUnitCircleProjection(normal, right, up, center, radiusX, radiusY, 1.0).ToMatrix3D();
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < segCount; i++, angle += angleDelta)
                     {
