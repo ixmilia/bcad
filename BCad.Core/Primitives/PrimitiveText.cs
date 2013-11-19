@@ -21,8 +21,8 @@
             this.Rotation = rotation;
             this.Color = color;
 
-            // currently, not a good way to measure text, but assume a character's width is 5/8 its height
-            this.Width = value.Length * this.Height * (5.0 / 8.0);
+            // currently, not a good way to measure text, but assume a character's width is ~77% of its height
+            this.Width = value.Length * this.Height * 0.77;
         }
     }
 }
