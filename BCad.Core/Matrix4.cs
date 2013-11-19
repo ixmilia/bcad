@@ -383,7 +383,7 @@ namespace BCad
             scale.M11 = scaleX;
             scale.M22 = scaleY;
             scale.M33 = scaleZ;
-            return scale * transformation;
+            return transformation * scale;
         }
 
         internal void RotateAt(Quaternion quaternion, Point center)
