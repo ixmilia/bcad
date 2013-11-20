@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
@@ -12,10 +12,10 @@ namespace BCad.Commands
     internal abstract class AbstractCopyMoveCommand : ICommand
     {
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         protected abstract Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta);
 

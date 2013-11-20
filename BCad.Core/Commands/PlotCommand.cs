@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 
 namespace BCad.Commands
@@ -7,10 +7,10 @@ namespace BCad.Commands
     public class PlotCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IDialogFactory DialogFactory = null;
+        public IDialogFactory DialogFactory { get; set; }
 
         public async Task<bool> Execute(object arg)
         {

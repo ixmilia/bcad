@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Services;
 
@@ -8,10 +8,10 @@ namespace BCad.Commands
     public class NewCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IUndoRedoService UndoRedoService = null;
+        public IUndoRedoService UndoRedoService { get; set; }
 
         public async Task<bool> Execute(object arg)
         {

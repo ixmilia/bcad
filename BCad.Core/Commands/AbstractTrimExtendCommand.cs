@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
@@ -11,10 +11,10 @@ namespace BCad.Commands
     public abstract class AbstractTrimExtendCommand : ICommand
     {
         [Import]
-        protected IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        protected IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         public async Task<bool> Execute(object arg)
         {

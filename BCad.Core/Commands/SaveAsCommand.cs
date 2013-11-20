@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Services;
 
@@ -8,10 +8,10 @@ namespace BCad.Commands
     public class SaveAsCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IFileSystemService FileSystemService = null;
+        public IFileSystemService FileSystemService { get; set; }
 
         public Task<bool> Execute(object arg)
         {

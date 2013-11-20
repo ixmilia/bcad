@@ -36,7 +36,7 @@ namespace BCad.Utilities
                         TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
-                        Debug.Fail("unsupported trim entity: " + entityToTrim.Entity.Kind);
+                        Debug.Assert(false, "unsupported trim entity: " + entityToTrim.Entity.Kind);
                         removed = new List<Entity>();
                         added = new List<Entity>();
                         break;
@@ -74,7 +74,7 @@ namespace BCad.Utilities
                         ExtendLine((Line)entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
-                        Debug.Fail("unsupported extend entity: " + entityToExtend.Entity.Kind);
+                        Debug.Assert(false, "unsupported extend entity: " + entityToExtend.Entity.Kind);
                         removed = new List<Entity>();
                         added = new List<Entity>();
                         break;

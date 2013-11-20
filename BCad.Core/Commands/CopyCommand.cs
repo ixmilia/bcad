@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Windows.Input;
 using BCad.Entities;
 using BCad.Utilities;
 

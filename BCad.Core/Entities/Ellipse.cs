@@ -6,6 +6,8 @@ namespace BCad.Entities
 {
     public class Ellipse : Entity
     {
+        private const string MajorAxisText = "MajorAxis";
+        private const string MinorAxisRatioText = "MinorAxisRatio";
         private readonly Point center;
         private readonly Vector majorAxis;
         private readonly Vector normal;
@@ -93,6 +95,29 @@ namespace BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             return this.snapPoints;
+        }
+
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case CenterText:
+                    return Center;
+                case NormalText:
+                    return Normal;
+                case MajorAxisText:
+                    return MajorAxis;
+                case MinorAxisRatioText:
+                    return MinorAxisRatio;
+                case StartAngleText:
+                    return StartAngle;
+                case EndAngleText:
+                    return EndAngle;
+                case ColorText:
+                    return Color;
+                default:
+                    return base.GetProperty(propertyName);
+            }
         }
 
         public override EntityKind Kind { get { return EntityKind.Ellipse; } }

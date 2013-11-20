@@ -8,6 +8,11 @@ namespace BCad.Entities
 {
     public class Text : Entity
     {
+        private const string ValueText = "Value";
+        private const string LocationText = "Location";
+        private const string HeightText = "Height";
+        private const string WidthText = "Width";
+        private const string RotationText = "Rotation";
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
 
@@ -72,6 +77,29 @@ namespace BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             return this.snapPoints;
+        }
+
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case ValueText:
+                    return Value;
+                case LocationText:
+                    return Location;
+                case NormalText:
+                    return Normal;
+                case HeightText:
+                    return Height;
+                case WidthText:
+                    return Width;
+                case RotationText:
+                    return Rotation;
+                case ColorText:
+                    return Color;
+                default:
+                    return base.GetProperty(propertyName);
+            }
         }
 
         public override EntityKind Kind { get { return EntityKind.Text; } }

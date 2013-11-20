@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,33 +25,34 @@ namespace BCad
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : RibbonWindow, IPartImportsSatisfiedNotification
+    public partial class MainWindow : RibbonWindow
     {
         public MainWindow()
         {
             InitializeComponent();
 
-            App.Container.SatisfyImportsOnce(this);
+            App.Container.SatisfyImports(this);
         }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [ImportMany]
-        private IEnumerable<Lazy<RibbonTab, IRibbonTabMetadata>> RibbonTabs = null;
+        public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        private IEnumerable<Lazy<ViewControl, IViewControlMetadata>> Views = null;
+        public IEnumerable<Lazy<ViewControl, ViewControlMetadata>> Views { get; set; }
 
         [ImportMany]
-        private IEnumerable<Lazy<ConsoleControl, IConsoleMetadata>> Consoles = null;
+        public IEnumerable<Lazy<ConsoleControl, ConsoleMetadata>> Consoles { get; set; }
 
         [ImportMany]
-        private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
+        public IEnumerable<Lazy<Commands.ICommand, CommandMetadata>> Commands { get; set; }
 
+        [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
             Workspace.CommandExecuted += Workspace_CommandExecuted;
@@ -72,9 +73,10 @@ namespace BCad
 
             // add keyboard shortcuts for command bindings
             foreach (var command in from c in Commands
-                                    where c.Metadata.Key != Key.None
-                                       || c.Metadata.Modifier != ModifierKeys.None
-                                    select c.Metadata)
+                                    let metadata = c.Metadata
+                                    where metadata.Key != Key.None
+                                       || metadata.Modifier != ModifierKeys.None
+                                    select metadata)
             {
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),

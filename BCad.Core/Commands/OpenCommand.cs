@@ -1,6 +1,5 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using BCad.Services;
 
 namespace BCad.Commands
@@ -9,13 +8,13 @@ namespace BCad.Commands
     public class OpenCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IUndoRedoService UndoRedoService = null;
+        public IUndoRedoService UndoRedoService { get; set; }
 
         [Import]
-        private IFileSystemService FileSystemService = null;
+        public IFileSystemService FileSystemService { get; set; }
 
         public async Task<bool> Execute(object arg)
         {

@@ -1,28 +1,36 @@
-﻿using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
+﻿using System;
+using System.Composition;
+using System.Composition.Hosting;
+using System.IO;
+using System.Reflection;
 using BCad.Services;
 
 namespace BCad.Test
 {
-    public class TestHost
+    public class TestHost : IDisposable
     {
         [Import]
-        public IWorkspace Workspace { get; private set; }
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        public IInputService InputService { get; private set; }
+        public IInputService InputService { get; set; }
+
+        private CompositionHost container;
 
         private TestHost()
         {
-            var catalog = new AggregateCatalog(
-                    new AssemblyCatalog("BCad.exe"),
-                    new AssemblyCatalog("BCad.Core.dll"),
-                    new AssemblyCatalog("BCad.UI.dll")
-                    );
-            var container = new CompositionContainer(catalog);
-            var batch = new CompositionBatch();
-            container.Compose(batch);
-            container.SatisfyImportsOnce(this);
+            var currentAssembly = typeof(App).GetTypeInfo().Assembly;
+            var assemblyDir = Path.GetDirectoryName(currentAssembly.Location);
+            var configuration = new ContainerConfiguration()
+                .WithAssemblies(new[]
+                {
+                    currentAssembly,
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.exe")),
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.Core.dll")),
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.UI.dll")),
+                });
+            container = configuration.CreateContainer();
+            container.SatisfyImports(this);
             Workspace.Update(drawing: new Drawing());
         }
 
@@ -37,6 +45,15 @@ namespace BCad.Test
             foreach (string layer in layerNames)
                 host.Workspace.Add(new Layer(layer, IndexedColor.Auto));
             return host;
+        }
+
+        public void Dispose()
+        {
+            if (container != null)
+            {
+                container.Dispose();
+                container = null;
+            }
         }
     }
 }

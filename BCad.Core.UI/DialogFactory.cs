@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,7 +12,7 @@ namespace BCad
     internal class DialogFactory : IDialogFactory
     {
         [ImportMany]
-        public IEnumerable<Lazy<BCadControl, IControlMetadata>> Controls { get; set; }
+        public IEnumerable<Lazy<BCadControl, ControlMetadata>> Controls { get; set; }
 
         public async Task<bool?> ShowDialog(string type, string id)
         {

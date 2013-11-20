@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Extensions;
 using BCad.Services;
@@ -10,10 +10,10 @@ namespace BCad.Commands
     public class OffsetCommand : ICommand
     {
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         private static double lastOffsetDistance = 0.0;
 

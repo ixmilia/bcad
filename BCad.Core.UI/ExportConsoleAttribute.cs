@@ -1,11 +1,11 @@
 ﻿using System;
-using System.ComponentModel.Composition;
+using System.Composition;
 
 namespace BCad.UI
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class ExportConsoleAttribute : ExportAttribute
+    public class ExportConsoleAttribute : ExportAttribute, IConsoleMetadata
     {
         public string ControlId { get; set; }
 

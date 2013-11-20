@@ -9,6 +9,7 @@ namespace BCad.Entities
 {
     public class Polyline : Entity
     {
+        private const string PointsText = "Points";
         private readonly IEnumerable<Point> points;
         private readonly IndexedColor color;
         private readonly SnapPoint[] snapPoints;
@@ -47,6 +48,19 @@ namespace BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             return this.snapPoints;
+        }
+
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case PointsText:
+                    return Points;
+                case ColorText:
+                    return Color;
+                default:
+                    return base.GetProperty(propertyName);
+            }
         }
 
         public override EntityKind Kind { get { return EntityKind.Polyline; } }

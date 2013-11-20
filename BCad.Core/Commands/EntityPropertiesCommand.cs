@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
@@ -12,7 +12,7 @@ namespace BCad.Commands
     internal class EntityPropertiesCommand : ICommand
     {
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         public async Task<bool> Execute(object arg = null)
         {
@@ -57,12 +57,7 @@ namespace BCad.Commands
         private static string DetailsFromProperties(Entity entity, IEnumerable<string> properties)
         {
             var type = entity.GetType();
-            var details = new[] { "Kind", "Id" }.Concat(properties).Select(x =>
-            {
-                var prop = type.GetProperty(x);
-                var value = prop.GetValue(entity, null);
-                return string.Format("{0}: {1}", x, value);
-            });
+            var details = new[] { "Kind", "Id" }.Concat(properties).Select(prop => string.Format("{0}: {1}", prop, entity.GetProperty(prop)));
             return string.Join("\n", details);
         }
     }

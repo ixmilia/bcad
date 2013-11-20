@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -32,13 +32,13 @@ namespace BCad.Services
     }
 
     [Export(typeof(IInputService))]
-    internal class InputService : IInputService, IPartImportsSatisfiedNotification
+    internal class InputService : IInputService
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IDebugService DebugService = null;
+        public IDebugService DebugService { get; set; }
 
         public InputService()
         {
@@ -47,6 +47,7 @@ namespace BCad.Services
             Reset();
         }
 
+        [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
             Workspace.CommandExecuted += Workspace_CommandExecuted;
@@ -70,7 +71,7 @@ namespace BCad.Services
 
         public void WriteLineDebug(string text)
         {
-            if (Workspace.SettingsManager.Debug)
+            if (Workspace != null && Workspace.SettingsManager.Debug)
             {
                 WriteLine(text);
             }
@@ -78,7 +79,7 @@ namespace BCad.Services
 
         public void WriteLineDebug(string text, params object[] param)
         {
-            if (Workspace.SettingsManager.Debug)
+            if (Workspace != null && Workspace.SettingsManager.Debug)
             {
                 WriteLine(string.Format(text, param));
             }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
@@ -14,10 +10,10 @@ namespace BCad.Commands
     internal class DrawArcCommand : ICommand
     {
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         public async Task<bool> Execute(object arg)
         {

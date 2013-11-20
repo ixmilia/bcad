@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using BCad.Core;
+using BCad.Extensions;
 using BCad.FileHandlers;
 using Microsoft.Win32;
 
@@ -14,7 +15,7 @@ namespace BCad.Services
     internal class FileSystemService : IFileSystemService
     {
         [ImportMany]
-        private IEnumerable<Lazy<IFileHandler, IFileHandlerMetadata>> FileHandlers = null;
+        public IEnumerable<Lazy<IFileHandler, FileHandlerMetadata>> FileHandlers { get; set; }
 
         public string GetFileNameFromUserForSave()
         {

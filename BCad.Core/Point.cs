@@ -34,7 +34,7 @@ namespace BCad
 
         public static readonly string NumberPattern = @"-?(\d+(\.\d*)?|\.\d+)";
 
-        public static readonly Regex PointPattern = new Regex(string.Format("{0},{0},{0}", NumberPattern), RegexOptions.Compiled);
+        public static readonly Regex PointPattern = new Regex(string.Format("{0},{0},{0}", NumberPattern));
 
         public static bool TryParse(string text, out Point point)
         {

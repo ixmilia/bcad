@@ -102,7 +102,7 @@ namespace BCad.Extensions
                     result = Enumerable.Empty<Point>();
                     break;
                 default:
-                    Debug.Fail("Unsupported primitive type");
+                    Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
                     break;
             }
@@ -127,7 +127,7 @@ namespace BCad.Extensions
                     result = Enumerable.Empty<Point>();
                     break;
                 default:
-                    Debug.Fail("Unsupported primitive type");
+                    Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
                     break;
             }
@@ -332,7 +332,7 @@ namespace BCad.Extensions
                     result = Enumerable.Empty<Point>();
                     break;
                 default:
-                    Debug.Fail("Unsupported primitive type");
+                    Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
                     break;
             }
@@ -545,7 +545,7 @@ namespace BCad.Extensions
                 }
                 else
                 {
-                    Debug.Fail("zero-vector shouldn't get here");
+                    Debug.Assert(false, "zero-vector shouldn't get here");
                 }
 
                 var point = new Point(x, y, z);
@@ -705,7 +705,7 @@ namespace BCad.Extensions
                 case PrimitiveKind.Text:
                     return ContainsPoint((PrimitiveText)primitive, point);
                 default:
-                    Debug.Fail("unexpected primitive: " + primitive.Kind);
+                    Debug.Assert(false, "unexpected primitive: " + primitive.Kind);
                     return false;
             }
         }

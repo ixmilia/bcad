@@ -100,11 +100,11 @@ namespace BCad
             return false;
         }
 
-        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?"")?\s*$", RegexOptions.Compiled);
+        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?"")?\s*$");
         //                                                              12       3     45  6     7
         //                                                               feet '  inches  -  num /denom  "
 
-        private static Regex MixedArchitecturalPattern = new Regex(@"^\s*(\d+)'(\d+(\.\d+)?)""?\s*$", RegexOptions.Compiled);
+        private static Regex MixedArchitecturalPattern = new Regex(@"^\s*(\d+)'(\d+(\.\d+)?)""?\s*$");
         //                                                               1     2   3
         //                                                               feet 'inches.partial"
 

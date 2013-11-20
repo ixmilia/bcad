@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Linq;
 using System.Windows.Data;
 using Microsoft.Windows.Controls.Ribbon;

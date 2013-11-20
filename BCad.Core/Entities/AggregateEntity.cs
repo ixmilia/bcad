@@ -10,6 +10,8 @@ namespace BCad.Entities
 {
     public class AggregateEntity : Entity
     {
+        private const string LocationText = "Location";
+        private const string ChildrenText = "Children";
         private readonly Point location;
         private readonly ReadOnlyList<Entity> children;
         private readonly IndexedColor color;
@@ -54,6 +56,21 @@ namespace BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             return this.snapPoints;
+        }
+
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case LocationText:
+                    return Location;
+                case ChildrenText:
+                    return Children;
+                case ColorText:
+                    return Color;
+                default:
+                    return base.GetProperty(propertyName);
+            }
         }
 
         public override EntityKind Kind { get { return EntityKind.Aggregate; } }

@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Composition;
+using System.Composition;
 using BCad.EventArguments;
 
 namespace BCad.Services
 {
     [Export(typeof(IUndoRedoService))]
-    internal class UndoRedoService : IUndoRedoService, IPartImportsSatisfiedNotification
+    internal class UndoRedoService : IUndoRedoService
     {
         [Import]
-        private IWorkspace workspace = null;
+        public IWorkspace Workspace { get; set; }
+
         private Stack<Drawing> undoHistory = new Stack<Drawing>();
         private Stack<Drawing> redoHistory = new Stack<Drawing>();
         private bool ignoreDrawingChange = false;
 
+        [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
-            this.workspace.WorkspaceChanging += WorkspaceChanging;
+            Workspace.WorkspaceChanging += WorkspaceChanging;
         }
 
         private void WorkspaceChanging(object sender, WorkspaceChangeEventArgs e)
@@ -25,7 +26,7 @@ namespace BCad.Services
             if (e.IsDrawingChange && ! ignoreDrawingChange && !e.IsOnlyDirtyChange())
             {
                 // save the last snapshot
-                undoHistory.Push(workspace.Drawing);
+                undoHistory.Push(Workspace.Drawing);
                 redoHistory.Clear();
             }
         }
@@ -36,8 +37,8 @@ namespace BCad.Services
                 throw new NotSupportedException("There are no items to undo");
 
             ignoreDrawingChange = true;
-            redoHistory.Push(workspace.Drawing);
-            workspace.Update(drawing: undoHistory.Pop());
+            redoHistory.Push(Workspace.Drawing);
+            Workspace.Update(drawing: undoHistory.Pop());
             ignoreDrawingChange = false;
         }
 
@@ -47,8 +48,8 @@ namespace BCad.Services
                 throw new NotSupportedException("There are no items to redo");
 
             ignoreDrawingChange = true;
-            undoHistory.Push(workspace.Drawing);
-            workspace.Update(drawing: redoHistory.Pop());
+            undoHistory.Push(Workspace.Drawing);
+            Workspace.Update(drawing: redoHistory.Pop());
             ignoreDrawingChange = false;
         }
 

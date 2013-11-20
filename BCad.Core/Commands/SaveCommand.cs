@@ -1,6 +1,5 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using BCad.Services;
 
 namespace BCad.Commands
@@ -9,10 +8,10 @@ namespace BCad.Commands
     public class SaveCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IFileSystemService FileSystemService = null;
+        public IFileSystemService FileSystemService { get; set; }
 
         public Task<bool> Execute(object arg)
         {

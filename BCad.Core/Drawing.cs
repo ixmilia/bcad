@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
 using BCad.Collections;
-using BCad.Entities;
-using BCad.EventArguments;
 
 namespace BCad
 {

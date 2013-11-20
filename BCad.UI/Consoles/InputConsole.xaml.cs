@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using BCad.EventArguments;
-using BCad.Helpers;
 using BCad.Services;
 using Input = System.Windows.Input;
 
@@ -15,7 +13,7 @@ namespace BCad.UI.Consoles
     /// Interaction logic for InputConsole.xaml
     /// </summary>
     [ExportConsole("Default")]
-    public partial class InputConsole : ConsoleControl, IPartImportsSatisfiedNotification
+    public partial class InputConsole : ConsoleControl
     {
         public InputConsole()
         {
@@ -23,6 +21,7 @@ namespace BCad.UI.Consoles
             //inputLine.AddHandler(TextBox.KeyDownEvent, new KeyEventHandler(InputKeyDown), true);
         }
 
+        [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
             InputService.PromptChanged += HandlePromptChanged;
@@ -59,10 +58,10 @@ namespace BCad.UI.Consoles
         public UserControl Control { get { return this; } }
 
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         private void InputKeyDown(object sender, Input.KeyEventArgs e)
         {

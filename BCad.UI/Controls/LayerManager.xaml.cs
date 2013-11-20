@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
+﻿using System.Collections.ObjectModel;
+using System.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using BCad.Collections;
-using BCad.Extensions;
 using BCad.Utilities;
 
 namespace BCad.UI.Controls

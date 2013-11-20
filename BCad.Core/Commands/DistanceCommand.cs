@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Threading.Tasks;
 using BCad.Primitives;
 using BCad.Services;
@@ -10,10 +10,10 @@ namespace BCad.Commands
     public class DistanceCommand : ICommand
     {
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         public async Task<bool> Execute(object arg)
         {

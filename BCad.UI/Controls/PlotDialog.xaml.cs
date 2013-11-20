@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
@@ -25,7 +25,7 @@ namespace BCad.UI.Controls
         private IInputService inputService = null;
         private IExportService exportService = null;
         private IFileSystemService fileSystemService = null;
-        private IEnumerable<Lazy<IFilePlotter, IFilePlotterMetadata>> filePlotters = null;
+        private IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters = null;
 
         private PlotDialogViewModel viewModel = null;
 
@@ -38,7 +38,7 @@ namespace BCad.UI.Controls
         }
 
         [ImportingConstructor]
-        public PlotDialog(IWorkspace workspace, IInputService inputService, IExportService exportService, IFileSystemService fileSystemService, [ImportMany] IEnumerable<Lazy<IFilePlotter, IFilePlotterMetadata>> filePlotters)
+        public PlotDialog(IWorkspace workspace, IInputService inputService, IExportService exportService, IFileSystemService fileSystemService, [ImportMany] IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters)
             : this()
         {
             this.workspace = workspace;

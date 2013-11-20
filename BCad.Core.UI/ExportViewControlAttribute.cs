@@ -1,6 +1,5 @@
 ﻿using System;
-using System.ComponentModel.Composition;
-using System.Windows.Controls;
+using System.Composition;
 
 namespace BCad.UI
 {

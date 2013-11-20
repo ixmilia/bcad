@@ -65,6 +65,23 @@ namespace BCad.Entities
             return this.snapPoints;
         }
 
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case CenterText:
+                    return Center;
+                case NormalText:
+                    return Normal;
+                case RadiusText:
+                    return Radius;
+                case ColorText:
+                    return Color;
+                default:
+                    return base.GetProperty(propertyName);
+            }
+        }
+
         public override EntityKind Kind { get { return EntityKind.Circle; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }

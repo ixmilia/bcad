@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Services;
 
@@ -8,13 +8,13 @@ namespace BCad.Commands
     internal class DebugDumpCommand : ICommand
     {
         [Import]
-        public IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        public IDebugService DebugService = null;
+        public IDebugService DebugService { get; set; }
 
         [Import]
-        public IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         public Task<bool> Execute(object arg = null)
         {

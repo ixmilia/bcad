@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Primitives;
+using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ using BCad.Commands;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Services;
-using BCad.UI;
 
 namespace BCad
 {
@@ -31,7 +29,7 @@ namespace BCad
         }
     }
 
-    [Export(typeof(IWorkspace))]
+    [Export(typeof(IWorkspace)), Shared]
     internal class Workspace : IWorkspace
     {
         public Workspace()
@@ -84,20 +82,20 @@ namespace BCad
         #region Imports
 
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IFileSystemService FileSystemService = null;
+        public IFileSystemService FileSystemService { get; set; }
 
         // required so that the service is created before the undo or redo commands are fired
         [Import]
-        private IUndoRedoService UndoRedoService { get; set; }
+        public IUndoRedoService UndoRedoService { get; set; }
 
         [ImportMany]
-        private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
+        public IEnumerable<Lazy<ICommand, CommandMetadata>> Commands { get; set; }
 
         [Import]
-        public IDebugService DebugService = null;
+        public IDebugService DebugService { get; set; }
 
         #endregion
 
@@ -304,7 +302,7 @@ namespace BCad
         private string lastCommand = null;
         private object executeGate = new object();
 
-        private Tuple<BCad.Commands.ICommand, string> GetCommand(string commandName)
+        private Tuple<ICommand, string> GetCommand(string commandName)
         {
             var command = (from c in Commands
                            let data = c.Metadata

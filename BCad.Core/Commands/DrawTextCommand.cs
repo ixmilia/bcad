@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Entities;
-using BCad.Primitives;
 using BCad.Services;
 
 namespace BCad.Commands
@@ -10,10 +9,10 @@ namespace BCad.Commands
     public class DrawTextCommand : ICommand
     {
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         private static double lastHeight = 1.0;
 

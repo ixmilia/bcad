@@ -6,6 +6,8 @@ namespace BCad.Entities
 {
     public class Line : Entity
     {
+        private const string P1Text = "P1";
+        private const string P2Text = "P2";
         private readonly Point p1;
         private readonly Point p2;
         private readonly IndexedColor color;
@@ -43,6 +45,21 @@ namespace BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             return this.snapPoints;
+        }
+
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case P1Text:
+                    return P1;
+                case P2Text:
+                    return P2;
+                case ColorText:
+                    return Color;
+                default:
+                    return base.GetProperty(propertyName);
+            }
         }
 
         public override EntityKind Kind { get { return EntityKind.Line; } }
