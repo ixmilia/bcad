@@ -117,7 +117,7 @@
       <Name>BCad.Iges</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
-      <Project>{b6a2dc99-a13c-43ec-92be-79e579e10f57}</Project>
+      <Project>{782e0c0a-10d3-444d-9640-263d03d2b20c}</Project>
       <Name>BCad.Stl</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad\BCad.csproj">
