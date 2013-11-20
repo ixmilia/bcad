@@ -73,7 +73,7 @@ namespace BCad.Dxf
             }
         }
 
-        private static Regex handleRegex = new Regex("([a-fA-F0-9]){1,16}", RegexOptions.Compiled);
+        private static Regex handleRegex = new Regex("([a-fA-F0-9]){1,16}");
 
         public override string ToString()
         {

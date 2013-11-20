@@ -68,15 +68,6 @@ namespace BCad.Dxf
             this.EntitiesSection = new DxfEntitiesSection();
         }
 
-        // TODO: #if !SILVERLIGHT || !WIN_RT
-        public static DxfFile Load(string path)
-        {
-            using (var stream = new FileStream(path, FileMode.Open))
-            {
-                return Load(stream);
-            }
-        }
-
         public static DxfFile Load(Stream stream)
         {
             var file = new DxfFile();
@@ -127,12 +118,6 @@ namespace BCad.Dxf
             Debug.Assert(!buffer.ItemsRemain);
 
             return file;
-        }
-
-        public void Save(string filename, bool asText = true)
-        {
-            var stream = new FileStream(filename, FileMode.OpenOrCreate); 
-            WriteStream(stream, asText);
         }
 
         public void Save(Stream stream, bool asText = true)

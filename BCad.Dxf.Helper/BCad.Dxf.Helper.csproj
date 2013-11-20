@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F48A89A3-6D0F-4CC8-84C4-7FF0D92723E2}</ProjectGuid>
+    <ProjectGuid>{C2781077-67EB-498E-A0AE-3429993BA1AD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BCad.Dxf.Helper</RootNamespace>
