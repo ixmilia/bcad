@@ -184,7 +184,7 @@ namespace BCad.Iges
                 return ParameterToString((DateTime)parameter);
             else
             {
-                Debug.Fail("Unsupported parameter type: " + type.ToString());
+                Debug.Assert(false, "Unsupported parameter type: " + type.ToString());
                 return string.Empty;
             }
         }
@@ -197,7 +197,7 @@ namespace BCad.Iges
         private static string ParameterToString(double parameter)
         {
             var str = parameter.ToString();
-            if (!(str.Contains('.') || str.Contains('e') || str.Contains('E') || str.Contains('d') || str.Contains('D')))
+            if (!(str.Contains(".") || str.Contains("e") || str.Contains("E") || str.Contains("d") || str.Contains("D")))
                 str += '.'; // add trailing decimal point
             return str;
         }

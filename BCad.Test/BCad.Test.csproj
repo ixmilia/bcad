@@ -113,7 +113,7 @@
       <Name>BCad.Dxf</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Iges\BCad.Iges.csproj">
-      <Project>{59b09ca5-1837-4c2b-858c-91e997939c79}</Project>
+      <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
       <Name>BCad.Iges</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">

@@ -462,7 +462,7 @@ namespace BCad.Iges
             }
         }
 
-        private static Regex dateTimeReg = new Regex(@"((\d{2})|(\d{4}))(\d{2})(\d{2})\.(\d{2})(\d{2})(\d{2})", RegexOptions.Compiled);
+        private static Regex dateTimeReg = new Regex(@"((\d{2})|(\d{4}))(\d{2})(\d{2})\.(\d{2})(\d{2})(\d{2})");
         //                                             12       3       4      5        6      7      8
 
         private static void SwallowDelimiter(string str, char delim, ref int index)
