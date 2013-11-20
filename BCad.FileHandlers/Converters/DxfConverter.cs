@@ -352,7 +352,7 @@ namespace BCad.FileHandlers.Converters
                     entity = ((Text)item).ToDxfText(layer);
                     break;
                 default:
-                    Debug.Fail("Unsupported entity type: " + item.GetType().Name);
+                    Debug.Assert(false, "Unsupported entity type: " + item.GetType().Name);
                     break;
             }
 

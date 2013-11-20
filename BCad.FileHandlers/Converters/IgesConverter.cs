@@ -50,7 +50,7 @@ namespace BCad.FileHandlers.Converters
         public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
         {
             var file = new IgesFile();
-            file.Author = Environment.UserName;
+            file.Author = "noauthor";
             file.FullFileName = fileName;
             file.Identification = Path.GetFileName(fileName);
             file.Identifier = Path.GetFileName(fileName);
@@ -67,7 +67,7 @@ namespace BCad.FileHandlers.Converters
                         igesEntity = ToIgesLine((Line)entity);
                         break;
                     default:
-                        Debug.Fail("Unsupported entity type: " + entity.Kind);
+                        Debug.Assert(false, "Unsupported entity type: " + entity.Kind);
                         break;
                 }
 
