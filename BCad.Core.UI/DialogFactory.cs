@@ -8,7 +8,7 @@ using BCad.UI;
 
 namespace BCad
 {
-    [Export(typeof(IDialogFactory))]
+    [Export(typeof(IDialogFactory)), Shared]
     internal class DialogFactory : IDialogFactory
     {
         [ImportMany]

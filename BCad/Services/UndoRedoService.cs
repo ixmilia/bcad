@@ -5,7 +5,7 @@ using BCad.EventArguments;
 
 namespace BCad.Services
 {
-    [Export(typeof(IUndoRedoService))]
+    [Export(typeof(IUndoRedoService)), Shared]
     internal class UndoRedoService : IUndoRedoService
     {
         [Import]

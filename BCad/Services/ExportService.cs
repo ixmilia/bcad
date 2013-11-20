@@ -7,7 +7,7 @@ using BCad.Helpers;
 
 namespace BCad.Services
 {
-    [Export(typeof(IExportService))]
+    [Export(typeof(IExportService)), Shared]
     internal class ExportService : IExportService
     {
         public IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort)

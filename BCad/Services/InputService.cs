@@ -31,7 +31,7 @@ namespace BCad.Services
         }
     }
 
-    [Export(typeof(IInputService))]
+    [Export(typeof(IInputService)), Shared]
     internal class InputService : IInputService
     {
         [Import]
@@ -297,18 +297,6 @@ namespace BCad.Services
             pushedString = null;
             PrimitiveGenerator = onCursorMove;
             return pushValueDone.Task;
-            //return new Task((Action)(() =>
-            //    {
-            //        SetPrompt(directive.Prompt);
-            //        currentDirective = directive;
-            //        AllowedInputTypes = type;
-            //        lastType = PushedValueType.None;
-            //        pushedPoint = default(Point);
-            //        pushedEntity = null;
-            //        pushedDirective = null;
-            //        pushedString = null;
-            //        PrimitiveGenerator = onCursorMove;
-            //    }));
         }
 
         private void ResetWaiters()
