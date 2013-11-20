@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Composition;
 using System.Composition.Hosting;
-using System.IO;
 using System.Reflection;
 using BCad.Services;
+using BCad.UI;
 
 namespace BCad.Test
 {
@@ -19,15 +19,13 @@ namespace BCad.Test
 
         private TestHost()
         {
-            var currentAssembly = typeof(App).GetTypeInfo().Assembly;
-            var assemblyDir = Path.GetDirectoryName(currentAssembly.Location);
             var configuration = new ContainerConfiguration()
                 .WithAssemblies(new[]
                 {
-                    currentAssembly,
-                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.exe")),
-                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.Core.dll")),
-                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.UI.dll")),
+                    typeof(TestHost).GetTypeInfo().Assembly, // this assembly
+                    typeof(App).GetTypeInfo().Assembly, // BCad.exe
+                    typeof(Drawing).GetTypeInfo().Assembly, // BCad.Core.dll
+                    typeof(BCadControl).GetTypeInfo().Assembly // BCad.Core.UI.dll
                 });
             container = configuration.CreateContainer();
             container.SatisfyImports(this);
