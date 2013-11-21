@@ -34,7 +34,7 @@ namespace BCad
     {
         public Workspace()
         {
-            Drawing = new Drawing();
+            Drawing = new Drawing().Update(author: Environment.UserName);
             DrawingPlane = new Plane(Point.Origin, Vector.ZAxis);
             ActiveViewPort = new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 100.0);
             SelectedEntities = new ObservableHashSet<Entity>();
