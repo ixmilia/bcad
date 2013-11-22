@@ -8,7 +8,7 @@
     <ProjectGuid>{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BCad.Core</RootNamespace>
+    <RootNamespace>BCad</RootNamespace>
     <AssemblyName>BCad.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
@@ -157,6 +157,8 @@
     <Compile Include="Vector.cs" />
     <Compile Include="ViewControlMetadata.cs" />
     <Compile Include="ViewPort.cs" />
+    <Compile Include="WorkspaceBase.cs" />
+    <Compile Include="WorkspaceLogEntry.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Composition.AttributedModel">
