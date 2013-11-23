@@ -21,7 +21,7 @@ namespace BCad
             SelectedEntities = new ObservableHashSet<Entity>();
             ViewControl = null;
 
-            LoadSettings();
+            SettingsManager = LoadSettings();
         }
 
         #region Events
@@ -82,7 +82,7 @@ namespace BCad
 
         #region IWorkspace implementation
 
-        public ISettingsManager SettingsManager { get; protected set; }
+        public ISettingsManager SettingsManager { get; private set; }
 
         public void Update(
             Drawing drawing = null,
@@ -130,7 +130,7 @@ namespace BCad
                 handler(this, e);
         }
 
-        protected abstract void LoadSettings();
+        protected abstract ISettingsManager LoadSettings();
         public abstract void SaveSettings();
 
         private async Task<bool> Execute(Tuple<ICommand, string> commandPair, object arg)

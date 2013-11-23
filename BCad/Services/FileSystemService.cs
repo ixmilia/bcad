@@ -4,6 +4,7 @@ using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using BCad.Core;
 using BCad.Extensions;
 using BCad.FileHandlers;
@@ -17,13 +18,13 @@ namespace BCad.Services
         [ImportMany]
         public IEnumerable<Lazy<IFileHandler, FileHandlerMetadata>> FileHandlers { get; set; }
 
-        public string GetFileNameFromUserForSave()
+        public Task<string> GetFileNameFromUserForSave()
         {
             var x = FileHandlers.Where(fw => fw.Metadata.CanWrite).Select(fw => new FileSpecification(fw.Metadata.DisplayName, fw.Metadata.FileExtensions));
             return GetFileNameFromUserForWrite(x);
         }
 
-        public string GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications)
+        public Task<string> GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications)
         {
             var filter = string.Join("|",
                 from fs in fileSpecifications.OrderBy(f => f.DisplayName)
@@ -37,10 +38,10 @@ namespace BCad.Services
             if (result != true)
                 return null;
 
-            return dialog.FileName;
+            return Task.FromResult(dialog.FileName);
         }
 
-        public string GetFileNameFromUserForOpen()
+        public Task<string> GetFileNameFromUserForOpen()
         {
             var fileSpecifications = FileHandlers.Where(fr => fr.Metadata.CanRead).Select(fr => new FileSpecification(fr.Metadata.DisplayName, fr.Metadata.FileExtensions));
             var filter = string.Join("|",
@@ -61,10 +62,10 @@ namespace BCad.Services
             var result = dialog.ShowDialog();
             if (result != true)
                 return null;
-            return dialog.FileName;
+            return Task.FromResult(dialog.FileName);
         }
 
-        public bool TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort)
+        public Task<bool> TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort)
         {
             if (fileName == null)
                 throw new ArgumentNullException("fileName");
@@ -83,10 +84,10 @@ namespace BCad.Services
                 drawingFile.Save(fileStream);
             }
 
-            return true;
+            return Task.FromResult(true);
         }
 
-        public bool TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort)
+        public Task<bool> TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort)
         {
             if (fileName == null)
                 throw new ArgumentNullException("fileName");
@@ -106,7 +107,7 @@ namespace BCad.Services
                 converter.ConvertToDrawing(fileName, drawingFile, out drawing, out viewPort);
             }
 
-            return true;
+            return Task.FromResult(true);
         }
 
         private IFileHandler ReaderFromExtension(string extension)

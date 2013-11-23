@@ -51,5 +51,20 @@
         {
             return A.GetHashCode() ^ R.GetHashCode() ^ G.GetHashCode() ^ B.GetHashCode();
         }
+
+        public static RealColor Black
+        {
+            get { return FromRgb(0, 0, 0); }
+        }
+
+        public static RealColor DarkSlateGray
+        {
+            get { return FromRgb(0x2F, 0x2F, 0x2F); }
+        }
+
+        public static RealColor Yellow
+        {
+            get { return FromRgb(255, 255, 0); }
+        }
     }
 }

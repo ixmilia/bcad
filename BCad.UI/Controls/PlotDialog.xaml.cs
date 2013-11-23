@@ -133,9 +133,9 @@ namespace BCad.UI.Controls
             return plotter.Value;
         }
 
-        private void BrowseClick(object sender, RoutedEventArgs e)
+        private async void BrowseClick(object sender, RoutedEventArgs e)
         {
-            var filename = fileSystemService.GetFileNameFromUserForWrite(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
+            var filename = await fileSystemService.GetFileNameFromUserForWrite(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
             if (filename != null)
             {
                 viewModel.FileName = filename;

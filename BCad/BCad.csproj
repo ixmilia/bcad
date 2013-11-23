@@ -104,13 +104,9 @@
     </Compile>
     <Compile Include="Ribbons\IRibbonTabMetadata.cs" />
     <Compile Include="Ribbons\RibbonTabMetadata.cs" />
-    <Compile Include="Services\DebugService.cs" />
-    <Compile Include="Services\ExportService.cs" />
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
-    <Compile Include="Services\UndoRedoService.cs" />
-    <Compile Include="Services\InputService.cs" />
     <Compile Include="UserCommand.cs" />
     <Compile Include="Workspace.cs" />
     <Page Include="Ribbons\DebugRibbon.xaml">

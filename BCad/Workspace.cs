@@ -17,8 +17,9 @@ namespace BCad
             Update(drawing: Drawing.Update(author: Environment.UserName));
         }
 
-        protected override void LoadSettings()
+        protected override ISettingsManager LoadSettings()
         {
+            SettingsManager manager = null;
             if (File.Exists(ConfigFile))
             {
                 try
@@ -26,20 +27,16 @@ namespace BCad
                     var serializer = new XmlSerializer(typeof(SettingsManager));
                     using (var stream = new FileStream(ConfigFile, FileMode.Open))
                     {
-                        var manager = (SettingsManager)serializer.Deserialize(stream);
-                        manager.InputService = this.InputService;
-                        this.SettingsManager = manager;
+                        manager = (SettingsManager)serializer.Deserialize(stream);
+                        manager.SetInputService(InputService);
                     }
                 }
                 catch
                 {
-                    this.SettingsManager = new SettingsManager();
                 }
             }
-            else
-            {
-                this.SettingsManager = new SettingsManager();
-            }
+
+            return manager ?? new SettingsManager();
         }
 
         public override void SaveSettings()
@@ -51,7 +48,7 @@ namespace BCad
             }
         }
 
-        public override Task<UnsavedChangesResult> PromptForUnsavedChanges()
+        public override async Task<UnsavedChangesResult> PromptForUnsavedChanges()
         {
             var result = UnsavedChangesResult.Discarded;
             if (this.IsDirty)
@@ -65,10 +62,10 @@ namespace BCad
                     case MessageBoxResult.Yes:
                         var fileName = Drawing.Settings.FileName;
                         if (fileName == null)
-                            fileName = FileSystemService.GetFileNameFromUserForSave();
+                            fileName = await FileSystemService.GetFileNameFromUserForSave();
                         if (fileName == null)
                             result = UnsavedChangesResult.Cancel;
-                        else if (FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
+                        else if (await FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;
@@ -86,7 +83,7 @@ namespace BCad
                 result = UnsavedChangesResult.Saved;
             }
 
-            return Task.FromResult<UnsavedChangesResult>(result);
+            return result;
         }
     }
 }

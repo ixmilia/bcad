@@ -13,23 +13,23 @@ namespace BCad.Commands
         [Import]
         public IFileSystemService FileSystemService { get; set; }
 
-        public Task<bool> Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
             var drawing = Workspace.Drawing;
             string fileName = drawing.Settings.FileName;
             if (fileName == null)
             {
-                fileName = FileSystemService.GetFileNameFromUserForSave();
+                fileName = await FileSystemService.GetFileNameFromUserForSave();
                 if (fileName == null)
-                    return Task.FromResult<bool>(false);
+                    return false;
             }
 
-            if (!FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort))
-                return Task.FromResult<bool>(false);
+            if (!await FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort))
+                return false;
 
             SaveAsCommand.UpdateDrawingFileName(Workspace, fileName);
 
-            return Task.FromResult<bool>(true);
+            return true;
         }
     }
 }

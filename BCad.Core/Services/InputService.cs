@@ -231,7 +231,7 @@ namespace BCad.Services
                         awaitingMore = false;
                         break;
                     case PushedValueType.Directive:
-                        Debug.Fail("TODO: allow 'all' directive and 'r' to remove objects from selection");
+                        Debug.Assert(false, "TODO: allow 'all' directive and 'r' to remove objects from selection");
                         break;
                     case PushedValueType.None:
                         result = ValueOrDirective<IEnumerable<Entity>>.GetValue(entities);
@@ -568,9 +568,9 @@ namespace BCad.Services
                 RubberBandGeneratorChanged(this, e);
         }
 
-        private static Regex relativePoint = new Regex(string.Format("^@{0},{0},{0}$", Point.NumberPattern), RegexOptions.Compiled);
+        private static Regex relativePoint = new Regex(string.Format("^@{0},{0},{0}$", Point.NumberPattern));
 
-        private static Regex relativeAngle = new Regex(string.Format("^.*<{0}$", Point.NumberPattern), RegexOptions.Compiled);
+        private static Regex relativeAngle = new Regex(string.Format("^.*<{0}$", Point.NumberPattern));
 
         public bool TryParsePoint(string text, Point currentCursor, Point lastPoint, out Point point)
         {
@@ -581,7 +581,7 @@ namespace BCad.Services
         private static bool TryParsePointHelper(string text, Point currentCursor, Point lastPoint, out Point point)
         {
             // if only 2 coordinates given
-            if (text.Count(c => c == ',') == 1)
+            if (text.ToCharArray().Count(c => c == ',') == 1)
                 text += ",0";
 
             double value = 0.0;
