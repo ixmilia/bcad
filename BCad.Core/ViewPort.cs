@@ -45,5 +45,15 @@ namespace BCad
                 up ?? this.up,
                 viewHeight ?? this.viewHeight);
         }
+
+        public Matrix4 GetTransformationMatrix(double viewPortWidth, double viewPortHeight)
+        {
+            var scale = viewPortHeight / ViewHeight;
+            var projectionMatrix = Matrix4.Identity
+                * Matrix4.CreateTranslate(-BottomLeft.X, BottomLeft.Y, 0)
+                * Matrix4.CreateTranslate(0, viewPortHeight, 0)
+                * Matrix4.CreateScale(scale, -scale, 1.0);
+            return projectionMatrix;
+        }
     }
 }

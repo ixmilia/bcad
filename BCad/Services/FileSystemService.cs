@@ -36,7 +36,7 @@ namespace BCad.Services
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != true)
-                return null;
+                return Task.FromResult<string>(null);
 
             return Task.FromResult(dialog.FileName);
         }
@@ -61,7 +61,7 @@ namespace BCad.Services
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != true)
-                return null;
+                return Task.FromResult<string>(null);
             return Task.FromResult(dialog.FileName);
         }
 
