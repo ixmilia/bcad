@@ -28,7 +28,7 @@ namespace BCad.UI
 
         public Point GetCursorPoint()
         {
-            var transform = workspace.ActiveViewPort.GetTransformationMatrix(ActualWidth, ActualHeight);
+            var transform = workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             transform.Invert();
             var mouse = System.Windows.Input.Mouse.GetPosition(this);
             return transform.Transform(new Point(mouse.X, mouse.Y, 0));
