@@ -8,5 +8,10 @@ namespace BCad.Extensions
         {
             return new Color4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
+
+        public static Color ToColor(this RealColor color)
+        {
+            return new Color(color.R, color.G, color.B, color.A);
+        }
     }
 }

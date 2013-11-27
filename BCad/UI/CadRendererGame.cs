@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BCad.Extensions;
 using BCad.Primitives;
+using BCad.Services;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Toolkit;
@@ -16,13 +18,33 @@ namespace BCad.UI
     {
         private GraphicsDeviceManager deviceManager;
         private IWorkspace workspace;
+        private IInputService inputService;
         private BasicEffect effect;
         private PrimitiveBatch<VertexPositionColor> batch;
+        private Color autoColor;
 
-        public CadRendererGame(IWorkspace workspace)
+        public CadRendererGame(IWorkspace workspace, IInputService inputService)
         {
             deviceManager = new GraphicsDeviceManager(this);
             this.workspace = workspace;
+            this.inputService = inputService;
+
+            this.workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+
+            foreach (var prop in new[] { "BackgroundColor" })
+            {
+                SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(prop));
+            }
+        }
+
+        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "BackgroundColor":
+                    autoColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToColor();
+                    break;
+            }
         }
 
         protected override void LoadContent()
@@ -51,9 +73,8 @@ namespace BCad.UI
             effect.Projection = Matrix.Identity;
             effect.CurrentTechnique.Passes[0].Apply();
             batch.Begin();
-            batch.DrawLine(
-                new VertexPositionColor(new Vector3(0, 0, 0), Color.White),
-                new VertexPositionColor(new Vector3(0.5f, 0.5f, 0), Color.White));
+
+            // draw entities
             foreach (var layer in workspace.Drawing.GetLayers())
             {
                 foreach (var ent in layer.GetEntities())
@@ -66,16 +87,41 @@ namespace BCad.UI
                                 var line = (PrimitiveLine)prim;
                                 var p1 = transform.Transform(line.P1);
                                 var p2 = transform.Transform(line.P2);
-                                //renderTarget.DrawLine(new Vector2((float)p1.X, (float)p1.Y), new Vector2((float)p2.X, (float)p2.Y), brush);
-                                batch.DrawLine(new VertexPositionColor(p1.ToVector3(), Color.White), new VertexPositionColor(p2.ToVector3(), Color.White));
+                                var color = GetColor(layer.Color, line.Color);
+                                batch.DrawLine(new VertexPositionColor(p1.ToVector3(), Color.Red), new VertexPositionColor(p2.ToVector3(), Color.Red));
                                 break;
                         }
                     }
                 }
             }
 
+            // draw rubber band primitives
+            if (inputService.IsDrawing && inputService.PrimitiveGenerator != null)
+            {
+                //inputService.PrimitiveGenerator(GetCur)
+            }
+
             batch.End();
             base.Draw(gameTime);
+        }
+
+        private Color GetColor(IndexedColor layerColor, IndexedColor entityColor)
+        {
+            if (entityColor.IsAuto)
+            {
+                if (layerColor.IsAuto)
+                {
+                    return autoColor;
+                }
+                else
+                {
+                    return layerColor.RealColor.ToColor();
+                }
+            }
+            else
+            {
+                return entityColor.RealColor.ToColor();
+            }
         }
     }
 }
