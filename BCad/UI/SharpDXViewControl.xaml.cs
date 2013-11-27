@@ -56,7 +56,7 @@ namespace BCad.UI
             this.inputService = inputService;
             this.workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
 
-            game = new CadRendererGame(workspace, inputService);
+            game = new CadRendererGame(workspace, inputService, this);
             game.Run(surface);
         }
 
@@ -69,7 +69,7 @@ namespace BCad.UI
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
-            if (e.IsActiveViewPortChange && ActualWidth > 0.0 && ActualHeight > 0.0)
+            if (e.IsActiveViewPortChange)
             {
                 direct3DTransformationMatrix = workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(ActualWidth, ActualHeight);
                 windowsTransformationMatrix = workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
@@ -211,6 +211,9 @@ namespace BCad.UI
                 //force = true;
             }
 
+            var real = GetCursorPoint();
+            positionText.Text = string.Format("Cursor: {0},{1}; Real: {2:F0},{3:F0},{4:F0}", cursor.X, cursor.Y, real.X, real.Y, real.Z);
+
             //if (selecting)
             //{
             //    currentSelectionPoint = cursor;
@@ -309,7 +312,7 @@ namespace BCad.UI
                     else
                         world = last + new Vector(0.0, delta.Y, 0.0);
                 }
-                else if (drawingPlane.Normal == Vector.ZAxis)
+                else if (drawingPlane.Normal == Vector.YAxis)
                 {
                     if (offset.Y != last.Y && offset.Y != current.Y)
                         return null;
@@ -318,7 +321,7 @@ namespace BCad.UI
                     else
                         world = last + new Vector(0.0, 0.0, delta.Z);
                 }
-                else if (drawingPlane.Normal == Vector.ZAxis)
+                else if (drawingPlane.Normal == Vector.XAxis)
                 {
                     if (offset.X != last.X && offset.X != current.X)
                         return null;

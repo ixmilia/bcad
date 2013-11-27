@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BCad.EventArguments;
 using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using SharpDX;
-using SharpDX.Direct2D1;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
@@ -19,21 +16,26 @@ namespace BCad.UI
         private GraphicsDeviceManager deviceManager;
         private IWorkspace workspace;
         private IInputService inputService;
+        private IViewControl viewControl;
         private BasicEffect effect;
         private PrimitiveBatch<VertexPositionColor> batch;
         private Color autoColor;
+        private Matrix4 transform;
 
-        public CadRendererGame(IWorkspace workspace, IInputService inputService)
+        public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewControl viewControl)
         {
             deviceManager = new GraphicsDeviceManager(this);
             this.workspace = workspace;
             this.inputService = inputService;
+            this.viewControl = viewControl;
+        }
 
-            this.workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
-
-            foreach (var prop in new[] { "BackgroundColor" })
+        private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
+        {
+            if (e.IsActiveViewPortChange)
             {
-                SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(prop));
+                transform = Matrix4.CreateScale(1, 1, 0)
+                    * workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
             }
         }
 
@@ -57,6 +59,15 @@ namespace BCad.UI
             batch = new PrimitiveBatch<VertexPositionColor>(GraphicsDevice);
             effect = new BasicEffect(GraphicsDevice);
 
+            workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
+            workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+
+            Workspace_WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, true, true, true, true));
+            foreach (var prop in new[] { "BackgroundColor" })
+            {
+                SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(prop));
+            }
+
             base.Initialize();
         }
 
@@ -68,8 +79,6 @@ namespace BCad.UI
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(workspace.SettingsManager.BackgroundColor.ToColor4());
-            var transform = workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
-
             effect.Projection = Matrix.Identity;
             effect.CurrentTechnique.Passes[0].Apply();
             batch.Begin();
@@ -81,16 +90,7 @@ namespace BCad.UI
                 {
                     foreach (var prim in ent.GetPrimitives())
                     {
-                        switch (prim.Kind)
-                        {
-                            case PrimitiveKind.Line:
-                                var line = (PrimitiveLine)prim;
-                                var p1 = transform.Transform(line.P1);
-                                var p2 = transform.Transform(line.P2);
-                                var color = GetColor(layer.Color, line.Color);
-                                batch.DrawLine(new VertexPositionColor(p1.ToVector3(), Color.Red), new VertexPositionColor(p2.ToVector3(), Color.Red));
-                                break;
-                        }
+                        DrawPrimitive(prim, layer.Color);
                     }
                 }
             }
@@ -98,11 +98,44 @@ namespace BCad.UI
             // draw rubber band primitives
             if (inputService.IsDrawing && inputService.PrimitiveGenerator != null)
             {
-                //inputService.PrimitiveGenerator(GetCur)
+                var cursor = viewControl.GetCursorPoint();
+                var rubber = inputService.PrimitiveGenerator(cursor);
+                foreach (var prim in rubber)
+                {
+                    DrawPrimitive(prim, IndexedColor.Auto);
+                }
             }
 
             batch.End();
             base.Draw(gameTime);
+        }
+
+        private void DrawPrimitive(IPrimitive primitive, IndexedColor layerColor)
+        {
+            var color = GetColor(layerColor, primitive.Color);
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    var p1 = transform.Transform(line.P1);
+                    var p2 = transform.Transform(line.P2);
+                    batch.DrawLine(new VertexPositionColor(p1.ToVector3(), color), new VertexPositionColor(p2.ToVector3(), color));
+                    break;
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    var startAngle = el.StartAngle * MathHelper.DegreesToRadians;
+                    var endAngle = el.EndAngle * MathHelper.DegreesToRadians;
+                    var angleDelta = 1.0 * MathHelper.DegreesToRadians;
+                    var trans = transform * el.FromUnitCircleProjection();
+                    var last = trans.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
+                    for (var angle = startAngle; angle <= endAngle; angle += angleDelta)
+                    {
+                        var next = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
+                        batch.DrawLine(new VertexPositionColor(last.ToVector3(), color), new VertexPositionColor(next.ToVector3(), color));
+                        last = next;
+                    }
+                    break;
+            }
         }
 
         private Color GetColor(IndexedColor layerColor, IndexedColor entityColor)

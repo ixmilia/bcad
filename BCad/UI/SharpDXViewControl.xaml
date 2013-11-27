@@ -9,6 +9,7 @@
     <Grid>
         <!--<toolkit:SharpDXElement x:Name="surface" />-->
         <toolkit:SharpDXElement x:Name="surface" x:FieldModifier="private" SendResizeToGame="True" LowPriorityRendering="False" />
+        <TextBlock Name="positionText" Foreground="White" />
         <Canvas Name="clicker"
                 Background="White"
                 Opacity="0.001"
