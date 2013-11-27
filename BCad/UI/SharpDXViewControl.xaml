@@ -5,10 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:toolkit="clr-namespace:SharpDX.Toolkit;assembly=SharpDX.Toolkit.Game"
              mc:Ignorable="d"
+             Cursor="None"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <!--<toolkit:SharpDXElement x:Name="surface" />-->
         <toolkit:SharpDXElement x:Name="surface" x:FieldModifier="private" SendResizeToGame="True" LowPriorityRendering="False" />
+        <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
+        <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" SnapsToDevicePixels="True">
+            <Image Name="pointCursorImage" SnapsToDevicePixels="True" />
+            <Image Name="entityCursorImage" SnapsToDevicePixels="True" />
+            <Image Name="textCursorImage" SnapsToDevicePixels="True" />
+        </Canvas>
         <TextBlock Name="positionText" Foreground="White" />
         <Canvas Name="clicker"
                 Background="White"

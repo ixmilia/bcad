@@ -1,4 +1,5 @@
 ﻿using SharpDX;
+using Media = System.Windows.Media;
 
 namespace BCad.Extensions
 {
@@ -12,6 +13,11 @@ namespace BCad.Extensions
         public static Color ToColor(this RealColor color)
         {
             return new Color(color.R, color.G, color.B, color.A);
+        }
+
+        public static Media.Color ToMediaColor(this RealColor color)
+        {
+            return Media.Color.FromArgb(color.A, color.R, color.G, color.B);
         }
     }
 }

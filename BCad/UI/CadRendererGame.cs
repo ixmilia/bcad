@@ -34,16 +34,26 @@ namespace BCad.UI
         {
             if (e.IsActiveViewPortChange)
             {
-                transform = Matrix4.CreateScale(1, 1, 0)
-                    * workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
+                UpdateTransform();
             }
+        }
+
+        public void Resize()
+        {
+            UpdateTransform();
+        }
+
+        private void UpdateTransform()
+        {
+            transform = Matrix4.CreateScale(1, 1, 0)
+                    * workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case "BackgroundColor":
+                case Constants.BackgroundColorString:
                     autoColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToColor();
                     break;
             }
@@ -63,7 +73,7 @@ namespace BCad.UI
             workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
 
             Workspace_WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, true, true, true, true));
-            foreach (var prop in new[] { "BackgroundColor" })
+            foreach (var prop in new[] { Constants.BackgroundColorString })
             {
                 SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(prop));
             }
@@ -78,6 +88,7 @@ namespace BCad.UI
 
         protected override void Draw(GameTime gameTime)
         {
+            // TODO: transform is incorrect on first launch
             GraphicsDevice.Clear(workspace.SettingsManager.BackgroundColor.ToColor4());
             effect.Projection = Matrix.Identity;
             effect.CurrentTechnique.Passes[0].Apply();
@@ -96,10 +107,11 @@ namespace BCad.UI
             }
 
             // draw rubber band primitives
-            if (inputService.IsDrawing && inputService.PrimitiveGenerator != null)
+            var generator = inputService.PrimitiveGenerator;
+            if (inputService.IsDrawing && generator != null)
             {
                 var cursor = viewControl.GetCursorPoint();
-                var rubber = inputService.PrimitiveGenerator(cursor);
+                var rubber = generator(cursor);
                 foreach (var prim in rubber)
                 {
                     DrawPrimitive(prim, IndexedColor.Auto);
@@ -112,6 +124,7 @@ namespace BCad.UI
 
         private void DrawPrimitive(IPrimitive primitive, IndexedColor layerColor)
         {
+            // TODO: only draws white
             var color = GetColor(layerColor, primitive.Color);
             switch (primitive.Kind)
             {
@@ -128,6 +141,7 @@ namespace BCad.UI
                     var angleDelta = 1.0 * MathHelper.DegreesToRadians;
                     var trans = transform * el.FromUnitCircleProjection();
                     var last = trans.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
+                    // TODO: drawing for every degree could over-draw if StartAngle or EndAngle isn't whole
                     for (var angle = startAngle; angle <= endAngle; angle += angleDelta)
                     {
                         var next = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
