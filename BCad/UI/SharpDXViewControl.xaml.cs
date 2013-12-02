@@ -192,7 +192,7 @@ namespace BCad.UI
         public Point GetCursorPoint()
         {
             var mouse = Input.Mouse.GetPosition(this);
-            return Unproject(new Point(mouse.X, mouse.Y, 0));
+            return GetActiveModelPoint(mouse.ToPoint()).WorldPoint;
         }
 
         private void OnMouseDown(object sender, Input.MouseButtonEventArgs e)
