@@ -41,7 +41,6 @@ namespace BCad.UI
         private readonly IInputService inputService;
         private bool panning;
         private System.Windows.Point lastPanPoint;
-        private Matrix4 direct3DTransformationMatrix;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
@@ -154,7 +153,6 @@ namespace BCad.UI
 
         private void ViewPortChanged()
         {
-            direct3DTransformationMatrix = workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(ActualWidth, ActualHeight);
             windowsTransformationMatrix = workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             unprojectMatrix = windowsTransformationMatrix;
             unprojectMatrix.Invert();

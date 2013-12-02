@@ -146,7 +146,7 @@ namespace BCad.UI
                     var trans = transform * el.FromUnitCircleProjection();
                     var last = trans.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
                     double angle;
-                    for (angle = startAngle; angle <= endAngle; angle += angleDelta)
+                    for (angle = startAngle; angle < endAngle; angle += angleDelta)
                     {
                         var next = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
                         batch.DrawLine(new VertexPositionColor(last.ToVector3(), color), new VertexPositionColor(next.ToVector3(), color));
