@@ -29,7 +29,7 @@ namespace BCad.UI.Views
     /// Interaction logic for Direct3DViewControl.xaml
     /// </summary>
     [ExportViewControl("Direct3D")]
-    public partial class Direct3DViewControl : ViewControl, IRenderEngine
+    public partial class Direct3DViewControl : UserControl, IRenderEngine, IViewControl
     {
 
         #region IDisplayPrimitive
@@ -312,9 +312,9 @@ namespace BCad.UI.Views
 
         #endregion
 
-        #region ViewControl implementation
+        #region IViewControl implementation
 
-        public override Point GetCursorPoint()
+        public Point GetCursorPoint()
         {
             var cursor = Input.Mouse.GetPosition(this);
             var sp = GetActiveModelPoint(cursor.ToVector3());

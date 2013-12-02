@@ -98,6 +98,7 @@
     <Compile Include="TrimExtendTests.cs" />
     <Compile Include="UnitFormatTests.cs" />
     <Compile Include="VectorTests.cs" />
+    <Compile Include="ViewPortTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BCad.Core.UI\BCad.Core.UI.csproj">

@@ -13,7 +13,7 @@ namespace BCad.UI
         public string ControlId { get; private set; }
 
         public ExportViewControlAttribute(string controlId)
-            : base(typeof(ViewControl))
+            : base(typeof(IViewControl))
         {
             this.ControlId = controlId;
         }

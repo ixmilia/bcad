@@ -257,25 +257,40 @@ namespace BCad
 
         public static Matrix4 CreateTranslate(Vector vector)
         {
-            var matrix = Identity;
-            matrix.M14 = vector.X;
-            matrix.M24 = vector.Y;
-            matrix.M34 = vector.Z;
-            return matrix;
+            return CreateTranslate(vector.X, vector.Y, vector.Z);
         }
 
         public Matrix4 CreateTranslate(Point point)
         {
-            return CreateTranslate((Vector)point);
+            return CreateTranslate(point.X, point.Y, point.Z);
         }
 
-        public static Matrix4 CreateScale(Vector scale)
+        public static Matrix4 CreateTranslate(double x, double y, double z)
         {
             var matrix = Identity;
-            matrix.M11 = scale.X;
-            matrix.M22 = scale.Y;
-            matrix.M33 = scale.Z;
+            matrix.M14 = x;
+            matrix.M24 = y;
+            matrix.M34 = z;
             return matrix;
+        }
+
+        public static Matrix4 CreateScale(Vector vector)
+        {
+            return CreateScale(vector.X, vector.Y, vector.Z);
+        }
+
+        public static Matrix4 CreateScale(double xs, double ys, double zs)
+        {
+            var matrix = Identity;
+            matrix.M11 = xs;
+            matrix.M22 = ys;
+            matrix.M33 = zs;
+            return matrix;
+        }
+
+        public static Matrix4 CreateScale(double scale)
+        {
+            return CreateScale(scale, scale, scale);
         }
 
         public Vector Transform(Vector vector)

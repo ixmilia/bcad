@@ -44,7 +44,7 @@ namespace BCad
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<ViewControl, ViewControlMetadata>> Views { get; set; }
+        public IEnumerable<Lazy<IViewControl, ViewControlMetadata>> Views { get; set; }
 
         [ImportMany]
         public IEnumerable<Lazy<ConsoleControl, ConsoleMetadata>> Consoles { get; set; }

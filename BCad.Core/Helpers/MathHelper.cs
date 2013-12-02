@@ -34,6 +34,15 @@ namespace BCad.Helpers
             return angle;
         }
 
+        public static double CorrectAngleRadians(this double angle)
+        {
+            while (angle < 0.0)
+                angle += TwoPI;
+            while (angle >= TwoPI)
+                angle -= TwoPI;
+            return angle;
+        }
+
         public static bool CloseTo(double expected, double actual)
         {
             return Between(expected - Epsilon, expected + Epsilon, actual);

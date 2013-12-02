@@ -51,5 +51,36 @@
         {
             return A.GetHashCode() ^ R.GetHashCode() ^ G.GetHashCode() ^ B.GetHashCode();
         }
+
+        public RealColor GetAutoContrastingColor()
+        {
+            var brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+            return brightness < 0.67 * 255 ? White : Black;
+        }
+
+        public static RealColor Black
+        {
+            get { return FromRgb(0, 0, 0); }
+        }
+
+        public static RealColor CornflowerBlue
+        {
+            get { return FromRgb(0x64, 0x95, 0xED); }
+        }
+
+        public static RealColor DarkSlateGray
+        {
+            get { return FromRgb(0x2F, 0x2F, 0x2F); }
+        }
+
+        public static RealColor Yellow
+        {
+            get { return FromRgb(255, 255, 0); }
+        }
+
+        public static RealColor White
+        {
+            get { return FromRgb(255, 255, 255); }
+        }
     }
 }

@@ -26,14 +26,14 @@ namespace BCad.Commands
                 filename = (string)arg;
 
             if (filename == null)
-                filename = FileSystemService.GetFileNameFromUserForOpen();
+                filename = await FileSystemService.GetFileNameFromUserForOpen();
 
             if (filename == null)
                 return false; // cancel
 
             Drawing drawing;
             ViewPort activeViewPort;
-            FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            await FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
             Workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
             UndoRedoService.ClearHistory();
 

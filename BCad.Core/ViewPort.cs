@@ -45,5 +45,37 @@ namespace BCad
                 up ?? this.up,
                 viewHeight ?? this.viewHeight);
         }
+
+        /// <summary>
+        /// Origin is top-left of viewport with x increasing to the right and y increasing to the bottom.  x = [0, viewPortWidth], y = [0, viewPortHeight].
+        /// </summary>
+        /// <param name="viewPortWidth"></param>
+        /// <param name="viewPortHeight"></param>
+        /// <returns></returns>
+        public Matrix4 GetTransformationMatrixWindowsStyle(double viewPortWidth, double viewPortHeight)
+        {
+            var scale = viewPortHeight / ViewHeight;
+            var projectionMatrix = Matrix4.Identity
+                * Matrix4.CreateTranslate(0, viewPortHeight, 0)
+                * Matrix4.CreateScale(scale, -scale, 1.0)
+                * Matrix4.CreateTranslate(-BottomLeft.X, -BottomLeft.Y, 0);
+            return projectionMatrix;
+        }
+
+        /// <summary>
+        /// Origin is in the center of the view port with x increasing to the right and y increasing to the top.  x = [-1, 1], y = [-1, 1].
+        /// </summary>
+        /// <param name="viewPortWidth"></param>
+        /// <param name="viewPortHeight"></param>
+        /// <returns></returns>
+        public Matrix4 GetTransformationMatrixDirect3DStyle(double viewPortWidth, double viewPortHeight)
+        {
+            var viewWidth = ViewHeight * viewPortWidth / viewPortHeight;
+            var projectionMatrix = Matrix4.Identity
+                * Matrix4.CreateScale(2.0f / viewWidth, 2.0f / ViewHeight, 1.0f)
+                * Matrix4.CreateTranslate(-BottomLeft.X, -BottomLeft.Y, 0)
+                * Matrix4.CreateTranslate(-viewWidth / 2.0f, -ViewHeight / 2.0f, 0);
+            return projectionMatrix;
+        }
     }
 }
