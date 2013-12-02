@@ -20,6 +20,7 @@ namespace BCad.UI
         private BasicEffect effect;
         private PrimitiveBatch<VertexPositionColor> batch;
         private Color autoColor;
+        private Color backgroundColor;
         private Matrix4 transform;
 
         public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewControl viewControl)
@@ -54,6 +55,7 @@ namespace BCad.UI
             switch (e.PropertyName)
             {
                 case Constants.BackgroundColorString:
+                    backgroundColor = workspace.SettingsManager.BackgroundColor.ToColor();
                     autoColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToColor();
                     break;
             }
@@ -68,6 +70,7 @@ namespace BCad.UI
         {
             batch = new PrimitiveBatch<VertexPositionColor>(GraphicsDevice);
             effect = new BasicEffect(GraphicsDevice);
+            effect.VertexColorEnabled = true;
 
             workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
@@ -89,7 +92,7 @@ namespace BCad.UI
         protected override void Draw(GameTime gameTime)
         {
             // TODO: transform is incorrect on first launch
-            GraphicsDevice.Clear(workspace.SettingsManager.BackgroundColor.ToColor4());
+            GraphicsDevice.Clear(backgroundColor);
             effect.Projection = Matrix.Identity;
             effect.CurrentTechnique.Passes[0].Apply();
             batch.Begin();
@@ -124,7 +127,6 @@ namespace BCad.UI
 
         private void DrawPrimitive(IPrimitive primitive, IndexedColor layerColor)
         {
-            // TODO: only draws white
             var color = GetColor(layerColor, primitive.Color);
             switch (primitive.Kind)
             {
@@ -138,16 +140,26 @@ namespace BCad.UI
                     var el = (PrimitiveEllipse)primitive;
                     var startAngle = el.StartAngle * MathHelper.DegreesToRadians;
                     var endAngle = el.EndAngle * MathHelper.DegreesToRadians;
+                    if (endAngle < startAngle)
+                        endAngle += MathHelper.TwoPI;
                     var angleDelta = 1.0 * MathHelper.DegreesToRadians;
                     var trans = transform * el.FromUnitCircleProjection();
                     var last = trans.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
-                    // TODO: drawing for every degree could over-draw if StartAngle or EndAngle isn't whole
-                    for (var angle = startAngle; angle <= endAngle; angle += angleDelta)
+                    double angle;
+                    for (angle = startAngle; angle <= endAngle; angle += angleDelta)
                     {
                         var next = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
                         batch.DrawLine(new VertexPositionColor(last.ToVector3(), color), new VertexPositionColor(next.ToVector3(), color));
                         last = next;
                     }
+
+                    if (angle != endAngle)
+                    {
+                        // draw final line if needed.  this could occur if either startAngle or endAngle aren't whole numbers
+                        var next = trans.Transform(new Point(Math.Cos(endAngle), Math.Sin(endAngle), 0.0));
+                        batch.DrawLine(new VertexPositionColor(last.ToVector3(), color), new VertexPositionColor(next.ToVector3(), color));
+                    }
+
                     break;
             }
         }
