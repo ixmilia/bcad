@@ -603,13 +603,16 @@ namespace BCad.UI
                     var rad = text.Rotation * MathHelper.DegreesToRadians;
                     var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
                     var up = text.Normal.Cross(right).Normalize() * text.Height;
-                    return ClosestPoint(new[]
+                    var borderPoints = new[]
                     {
                         windowsTransformationMatrix.Transform(text.Location),
                         windowsTransformationMatrix.Transform(text.Location + right),
                         windowsTransformationMatrix.Transform(text.Location + up),
                         windowsTransformationMatrix.Transform(text.Location + right + up)
-                    }, screenPoint);
+                    };
+                    if (borderPoints.ConvexHull().PolygonContains(screenPoint))
+                        return Tuple.Create(0.0, screenPoint);
+                    return ClosestPoint(borderPoints, screenPoint);
                 default:
                     throw new InvalidOperationException();
             }

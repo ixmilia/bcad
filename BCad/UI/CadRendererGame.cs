@@ -147,6 +147,24 @@ namespace BCad.UI
                     }
 
                     break;
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    batch.DrawLine(
+                        new VertexPositionColor(transform.Transform(text.Location).ToVector3(), color),
+                        new VertexPositionColor(transform.Transform(text.Location + right).ToVector3(), color));
+                    batch.DrawLine(
+                        new VertexPositionColor(transform.Transform(text.Location + right).ToVector3(), color),
+                        new VertexPositionColor(transform.Transform(text.Location + right + up).ToVector3(), color));
+                    batch.DrawLine(
+                        new VertexPositionColor(transform.Transform(text.Location + right + up).ToVector3(), color),
+                        new VertexPositionColor(transform.Transform(text.Location + up).ToVector3(), color));
+                    batch.DrawLine(
+                        new VertexPositionColor(transform.Transform(text.Location + up).ToVector3(), color),
+                        new VertexPositionColor(transform.Transform(text.Location).ToVector3(), color));
+                    break;
             }
         }
 
