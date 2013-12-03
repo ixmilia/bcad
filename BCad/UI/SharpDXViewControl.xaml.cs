@@ -6,9 +6,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
 using BCad.Helpers;
+using BCad.Primitives;
 using BCad.Services;
 using BCad.SnapPoints;
 using Input = System.Windows.Input;
@@ -34,13 +36,15 @@ namespace BCad.UI
     /// Interaction logic for SharpDXViewControl.xaml
     /// </summary>
     [ExportViewControl("SharpDX")]
-    public partial class SharpDXViewControl : UserControl, IViewControl
+    public partial class SharpDXViewControl : UserControl, IViewHost
     {
         private readonly CadRendererGame game;
         private readonly IWorkspace workspace;
         private readonly IInputService inputService;
         private bool panning;
+        private bool selecting;
         private System.Windows.Point lastPanPoint;
+        private System.Windows.Point firstSelectionPoint;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
@@ -100,6 +104,16 @@ namespace BCad.UI
             game.Run(surface);
         }
 
+        public int DisplayHeight
+        {
+            get { return (int)ActualHeight; }
+        }
+
+        public int DisplayWidth
+        {
+            get { return (int)ActualWidth; }
+        }
+
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -118,6 +132,7 @@ namespace BCad.UI
 
         private void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
+            ClearSnapPoints();
             SetCursorVisibility();
         }
 
@@ -204,6 +219,46 @@ namespace BCad.UI
                     {
                         inputService.PushPoint(sp.WorldPoint);
                     }
+                    else if ((inputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
+                    {
+                        var selected = GetHitEntity(cursor);
+                        if (selected != null)
+                        {
+                            inputService.PushEntity(selected);
+                        }
+                    }
+                    else if ((inputService.AllowedInputTypes & InputType.Entities) == InputType.Entities)
+                    {
+                        if (selecting)
+                        {
+                            // finish selection
+                            //var rect = new System.Windows.Rect(
+                            //    new System.Windows.Point(
+                            //        Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
+                            //        Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
+                            //    new System.Windows.Size(
+                            //        Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
+                            //        Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
+                            //var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                            //selecting = false;
+                            //inputService.PushEntities(entities);
+                            //ForceRender();
+                        }
+                        else
+                        {
+                            // start selection
+                            var selected = GetHitEntity(cursor);
+                            if (selected != null)
+                            {
+                                inputService.PushEntities(new[] { selected.Entity });
+                            }
+                            else
+                            {
+                                //selecting = true;
+                                firstSelectionPoint = cursor;
+                            }
+                        }
+                    }
 
                     break;
                 case Input.MouseButton.Middle:
@@ -214,53 +269,6 @@ namespace BCad.UI
                     inputService.PushNone();
                     break;
             }
-
-            //switch (e.ChangedButton)
-            //{
-            //    case Input.MouseButton.Left:
-            //        else if (inputService.AllowedInputTypes.HasFlag(InputType.Entity))
-            //        {
-            //            var selected = GetHitEntity(cursor);
-            //            if (selected != null)
-            //            {
-            //                inputService.PushEntity(selected);
-            //            }
-            //        }
-            //        else if (inputService.AllowedInputTypes.HasFlag(InputType.Entities))
-            //        {
-            //            if (selecting)
-            //            {
-            //                // finish selection
-            //                var rect = new System.Windows.Rect(
-            //                    new System.Windows.Point(
-            //                        Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
-            //                        Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
-            //                    new System.Windows.Size(
-            //                        Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
-            //                        Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
-            //                var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
-            //                selecting = false;
-            //                inputService.PushEntities(entities);
-            //                ForceRender();
-            //            }
-            //            else
-            //            {
-            //                // start selection
-            //                var selected = GetHitEntity(cursor);
-            //                if (selected != null)
-            //                {
-            //                    inputService.PushEntities(new[] { selected.Entity });
-            //                }
-            //                else
-            //                {
-            //                    selecting = true;
-            //                    firstSelectionPoint = cursor;
-            //                }
-            //            }
-            //        }
-
-            //        break;
-            //}
         }
 
         private void OnMouseUp(object sender, Input.MouseButtonEventArgs e)
@@ -548,6 +556,83 @@ namespace BCad.UI
         {
             var world = Unproject(cursor);
             return new TransformedSnapPoint(world, cursor, SnapPointKind.None);
+        }
+
+        private SelectedEntity GetHitEntity(System.Windows.Point cursor)
+        {
+            var screenPoint = cursor.ToPoint();
+            var start = DateTime.UtcNow;
+            var selectionRadius = workspace.SettingsManager.EntitySelectionRadius;
+            var selectionRadius2 = selectionRadius * selectionRadius;
+            var entities = from entity in workspace.Drawing.GetEntities()
+                           let dist = ClosestPoint(entity, screenPoint)
+                           where dist.Item1 < selectionRadius2
+                           orderby dist.Item1
+                           select new SelectedEntity(entity, dist.Item2);
+            var selected = entities.FirstOrDefault();
+            var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            inputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
+
+            return selected;
+        }
+
+        private Tuple<double, Point> ClosestPoint(Entity entity, Point screenPoint)
+        {
+            return entity.GetPrimitives()
+                .Select(prim => ClosestPoint(prim, screenPoint))
+                .OrderBy(p => p.Item1)
+                .FirstOrDefault();
+        }
+
+        private Tuple<double, Point> ClosestPoint(IPrimitive primitive, Point screenPoint)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    return ClosestPoint(el.GetProjectedVerticies(windowsTransformationMatrix), screenPoint);
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    return ClosestPoint(new[]
+                    {
+                        windowsTransformationMatrix.Transform(line.P1),
+                        windowsTransformationMatrix.Transform(line.P2)
+                    }, screenPoint);
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    return ClosestPoint(new[]
+                    {
+                        windowsTransformationMatrix.Transform(text.Location),
+                        windowsTransformationMatrix.Transform(text.Location + right),
+                        windowsTransformationMatrix.Transform(text.Location + up),
+                        windowsTransformationMatrix.Transform(text.Location + right + up)
+                    }, screenPoint);
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        private static Tuple<double, Point> ClosestPoint(Point[] screenVerticies, Point screenPoint)
+        {
+            var points = from i in Enumerable.Range(0, screenVerticies.Length - 1)
+                         // translate line segment to screen coordinates
+                         let p1 = (screenVerticies[i])
+                         let p2 = (screenVerticies[i + 1])
+                         let segment = new PrimitiveLine(p1, p2)
+                         let closest = segment.ClosestPoint(screenPoint)
+                         let dist = (closest - screenPoint).LengthSquared
+                         orderby dist
+                         // simple unproject via interpolation
+                         let pct = (closest - p1).Length / (p2 - p1).Length
+                         let vec = screenVerticies[i + 1] - screenVerticies[i]
+                         let newLen = vec.Length * pct
+                         let offset = vec.Normalize() * newLen
+                         select Tuple.Create(dist, screenVerticies[i] + offset);
+            var selected = points.FirstOrDefault();
+            return selected;
         }
 
         private void DrawSnapPoint(TransformedSnapPoint snapPoint)

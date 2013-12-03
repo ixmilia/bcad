@@ -16,19 +16,19 @@ namespace BCad.UI
         private GraphicsDeviceManager deviceManager;
         private IWorkspace workspace;
         private IInputService inputService;
-        private IViewControl viewControl;
+        private IViewHost viewHost;
         private BasicEffect effect;
         private PrimitiveBatch<VertexPositionColor> batch;
         private Color autoColor;
         private Color backgroundColor;
         private Matrix4 transform;
 
-        public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewControl viewControl)
+        public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewHost viewControl)
         {
             deviceManager = new GraphicsDeviceManager(this);
             this.workspace = workspace;
             this.inputService = inputService;
-            this.viewControl = viewControl;
+            this.viewHost = viewControl;
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
@@ -37,11 +37,6 @@ namespace BCad.UI
             {
                 UpdateTransform();
             }
-        }
-
-        public void Resize()
-        {
-            UpdateTransform();
         }
 
         private void UpdateTransform()
@@ -91,7 +86,12 @@ namespace BCad.UI
 
         protected override void Draw(GameTime gameTime)
         {
-            // TODO: transform is incorrect on first launch
+            // transform is incorrect on first launch
+            if (viewHost.DisplayWidth != GraphicsDevice.BackBuffer.Width || viewHost.DisplayHeight != GraphicsDevice.BackBuffer.Height)
+            {
+                UpdateTransform();
+            }
+
             GraphicsDevice.Clear(backgroundColor);
             effect.Projection = Matrix.Identity;
             effect.CurrentTechnique.Passes[0].Apply();
@@ -113,7 +113,7 @@ namespace BCad.UI
             var generator = inputService.PrimitiveGenerator;
             if (inputService.IsDrawing && generator != null)
             {
-                var cursor = viewControl.GetCursorPoint();
+                var cursor = viewHost.GetCursorPoint();
                 var rubber = generator(cursor);
                 foreach (var prim in rubber)
                 {
@@ -138,26 +138,12 @@ namespace BCad.UI
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var startAngle = el.StartAngle * MathHelper.DegreesToRadians;
-                    var endAngle = el.EndAngle * MathHelper.DegreesToRadians;
-                    if (endAngle < startAngle)
-                        endAngle += MathHelper.TwoPI;
-                    var angleDelta = 1.0 * MathHelper.DegreesToRadians;
-                    var trans = transform * el.FromUnitCircleProjection();
-                    var last = trans.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
-                    double angle;
-                    for (angle = startAngle; angle < endAngle; angle += angleDelta)
+                    var verticies = el.GetProjectedVerticies(transform);
+                    for (int i = 0; i < verticies.Length - 1; i++)
                     {
-                        var next = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
-                        batch.DrawLine(new VertexPositionColor(last.ToVector3(), color), new VertexPositionColor(next.ToVector3(), color));
-                        last = next;
-                    }
-
-                    if (angle != endAngle)
-                    {
-                        // draw final line if needed.  this could occur if either startAngle or endAngle aren't whole numbers
-                        var next = trans.Transform(new Point(Math.Cos(endAngle), Math.Sin(endAngle), 0.0));
-                        batch.DrawLine(new VertexPositionColor(last.ToVector3(), color), new VertexPositionColor(next.ToVector3(), color));
+                        batch.DrawLine(
+                            new VertexPositionColor(verticies[i].ToVector3(), color),
+                            new VertexPositionColor(verticies[i + 1].ToVector3(), color));
                     }
 
                     break;
