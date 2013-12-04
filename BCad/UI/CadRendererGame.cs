@@ -23,12 +23,12 @@ namespace BCad.UI
         private Color backgroundColor;
         private Matrix4 transform;
 
-        public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewHost viewControl)
+        public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewHost viewHost)
         {
             deviceManager = new GraphicsDeviceManager(this);
             this.workspace = workspace;
             this.inputService = inputService;
-            this.viewHost = viewControl;
+            this.viewHost = viewHost;
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
@@ -63,6 +63,36 @@ namespace BCad.UI
 
         protected override void Initialize()
         {
+            //var compiled = SharpDX.D3DCompiler.ShaderBytecode.Compile(@"
+            //struct PS_IN
+            //{
+            //    float4 pos : SV_POSITION;
+            //    float4 col : COLOR;
+            //};
+
+            //float4 PS(PS_IN input) : SV_Target
+            //{
+            //    float4 res;
+            //    int p = input.pos.x + input.pos.y;
+            //    if (p % 2 == 0)
+            //        res = input.col;
+            //    else
+            //        res = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+            //    return res;
+            //}
+
+            //technique11 Render
+            //{
+            //    pass P0
+            //    {
+            //        SetGeometryShader(0);
+            //        SetPixelShader(CompileShader(ps_4_0, PS()));
+            //        SetVertexShader(0);
+            //    }
+            //}
+            //", "fx_5_0", SharpDX.D3DCompiler.ShaderFlags.None, SharpDX.D3DCompiler.EffectFlags.None);
+
             batch = new PrimitiveBatch<VertexPositionColor>(GraphicsDevice);
             effect = new BasicEffect(GraphicsDevice);
             effect.VertexColorEnabled = true;
@@ -93,7 +123,6 @@ namespace BCad.UI
             }
 
             GraphicsDevice.Clear(backgroundColor);
-            effect.Projection = Matrix.Identity;
             effect.CurrentTechnique.Passes[0].Apply();
             batch.Begin();
 
@@ -104,7 +133,7 @@ namespace BCad.UI
                 {
                     foreach (var prim in ent.GetPrimitives())
                     {
-                        DrawPrimitive(prim, layer.Color);
+                        DrawPrimitive(prim, layer.Color, true);
                     }
                 }
             }
@@ -117,7 +146,7 @@ namespace BCad.UI
                 var rubber = generator(cursor);
                 foreach (var prim in rubber)
                 {
-                    DrawPrimitive(prim, IndexedColor.Auto);
+                    DrawPrimitive(prim, IndexedColor.Auto, false);
                 }
             }
 
@@ -125,47 +154,51 @@ namespace BCad.UI
             base.Draw(gameTime);
         }
 
-        private void DrawPrimitive(IPrimitive primitive, IndexedColor layerColor)
+        private void DrawPrimitive(IPrimitive primitive, IndexedColor layerColor, bool highQuality)
         {
             var color = GetColor(layerColor, primitive.Color);
+            VertexPositionColor[] verticies;
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     var p1 = transform.Transform(line.P1);
                     var p2 = transform.Transform(line.P2);
-                    batch.DrawLine(new VertexPositionColor(p1.ToVector3(), color), new VertexPositionColor(p2.ToVector3(), color));
+                    verticies = new[]
+                    {
+                        new VertexPositionColor(p1.ToVector3(), color),
+                        new VertexPositionColor(p2.ToVector3(), color)
+                    };
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var verticies = el.GetProjectedVerticies(transform);
-                    for (int i = 0; i < verticies.Length - 1; i++)
+                    var verts = el.GetProjectedVerticies(transform, highQuality ? 360 : 72);
+                    verticies = new VertexPositionColor[verts.Length];
+                    for (int i = 0; i < verts.Length; i++)
                     {
-                        batch.DrawLine(
-                            new VertexPositionColor(verticies[i].ToVector3(), color),
-                            new VertexPositionColor(verticies[i + 1].ToVector3(), color));
+                        verticies[i] = new VertexPositionColor(verts[i].ToVector3(), color);
                     }
-
                     break;
                 case PrimitiveKind.Text:
                     var text = (PrimitiveText)primitive;
                     var rad = text.Rotation * MathHelper.DegreesToRadians;
                     var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
                     var up = text.Normal.Cross(right).Normalize() * text.Height;
-                    batch.DrawLine(
+                    verticies = new[]
+                    {
                         new VertexPositionColor(transform.Transform(text.Location).ToVector3(), color),
-                        new VertexPositionColor(transform.Transform(text.Location + right).ToVector3(), color));
-                    batch.DrawLine(
                         new VertexPositionColor(transform.Transform(text.Location + right).ToVector3(), color),
-                        new VertexPositionColor(transform.Transform(text.Location + right + up).ToVector3(), color));
-                    batch.DrawLine(
                         new VertexPositionColor(transform.Transform(text.Location + right + up).ToVector3(), color),
-                        new VertexPositionColor(transform.Transform(text.Location + up).ToVector3(), color));
-                    batch.DrawLine(
                         new VertexPositionColor(transform.Transform(text.Location + up).ToVector3(), color),
-                        new VertexPositionColor(transform.Transform(text.Location).ToVector3(), color));
+                        new VertexPositionColor(transform.Transform(text.Location).ToVector3(), color)
+                    };
+                    break;
+                default:
+                    verticies = new VertexPositionColor[0];
                     break;
             }
+
+            batch.Draw(PrimitiveType.LineStrip, verticies);
         }
 
         private Color GetColor(IndexedColor layerColor, IndexedColor entityColor)

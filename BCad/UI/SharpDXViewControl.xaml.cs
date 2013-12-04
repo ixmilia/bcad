@@ -403,25 +403,27 @@ namespace BCad.UI
         private void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
         {
             // scale everything
-            var scale = 1.25f;
-            if (e.Delta > 0.0f) scale = 0.8f; // 1.0f / 1.25f
+            var scale = 1.25;
+            if (e.Delta > 0) scale = 0.8; // 1.0 / 1.25
 
             // center zoom operation on mouse
             var cursorPoint = e.GetPosition(this);
-            var cursorPos = GetCursorPoint();
             var vp = workspace.ActiveViewPort;
-            var botLeft = vp.BottomLeft;
+            var oldHeight = vp.ViewHeight;
+            var oldWidth = ActualWidth * oldHeight / ActualHeight;
+            var newHeight = oldHeight * scale;
+            var newWidth = oldWidth * scale;
+            var heightDelta = newHeight - oldHeight;
+            var widthDelta = newWidth - oldWidth;
 
-            // find relative scales
             var relHoriz = cursorPoint.X / ActualWidth;
-            var relVert = cursorPoint.Y / ActualHeight;
-            var viewDelta = vp.ViewHeight * (scale - 1.0);
-
-            // set values
-            workspace.Update(
-                activeViewPort: vp.Update(
-                    viewHeight: vp.ViewHeight * scale, bottomLeft: botLeft - new Vector(viewDelta * relHoriz, viewDelta * relVert, 0.0)));
-            var cursor = GetActiveModelPoint(e.GetPosition(this).ToPoint());
+            var relVert = (ActualHeight - cursorPoint.Y) / ActualHeight;
+            var botLeftDelta = new Vector(relHoriz * widthDelta, relVert * heightDelta, 0.0);
+            var newVp = vp.Update(
+                bottomLeft: vp.BottomLeft - botLeftDelta,
+                viewHeight: vp.ViewHeight * scale);
+            workspace.Update(activeViewPort: newVp);
+            var cursor = GetActiveModelPoint(cursorPoint.ToPoint());
             DrawSnapPoint(cursor);
         }
 
