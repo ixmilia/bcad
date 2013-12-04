@@ -100,7 +100,7 @@ namespace BCad.UI
             workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
 
-            Workspace_WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, true, true, true, true));
+            Workspace_WorkspaceChanged(this, WorkspaceChangeEventArgs.Reset());
             foreach (var prop in new[] { Constants.BackgroundColorString })
             {
                 SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(prop));
@@ -172,7 +172,7 @@ namespace BCad.UI
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var verts = el.GetProjectedVerticies(transform, highQuality ? 360 : 72);
+                    var verts = el.GetProjectedVerticies(transform, highQuality ? 180 : 72);
                     verticies = new VertexPositionColor[verts.Length];
                     for (int i = 0; i < verts.Length; i++)
                     {

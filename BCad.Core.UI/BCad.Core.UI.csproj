@@ -74,7 +74,6 @@
     <Compile Include="DialogFactory.cs" />
     <Compile Include="ExportConsoleAttribute.cs" />
     <Compile Include="ExportControlAttribute.cs" />
-    <Compile Include="ExportViewControlAttribute.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\KeyExtensions.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />

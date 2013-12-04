@@ -44,9 +44,6 @@ namespace BCad
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<IViewControl, ViewControlMetadata>> Views { get; set; }
-
-        [ImportMany]
         public IEnumerable<Lazy<ConsoleControl, ConsoleMetadata>> Consoles { get; set; }
 
         [ImportMany]
@@ -181,10 +178,7 @@ namespace BCad
             TakeFocus();
             InputService.Reset();
 
-            // prepare view control
-            var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
-            this.viewPanel.Content = view;
-            Workspace.Update(viewControl: view, isDirty: false);
+            Workspace.Update(viewControl: viewPane, isDirty: false);
 
             SetTitle(Workspace.Drawing);
         }

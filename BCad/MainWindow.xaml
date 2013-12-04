@@ -4,6 +4,7 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
+                xmlns:ui="clr-namespace:BCad.UI"
                 xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
                 mc:Ignorable="d"
                 Height="768"
@@ -60,7 +61,7 @@
                 </r:RibbonQuickAccessToolBar>
             </r:Ribbon.QuickAccessToolBar>
         </r:Ribbon>
-        <UserControl Grid.Row="1" Name="viewPanel" />
+        <ui:ViewPane Grid.Row="1" x:Name="viewPane" />
         <GridSplitter ResizeDirection="Rows" Grid.Row="2" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         <UserControl Grid.Row="3" Name="inputPanel" />
         <StatusBar Grid.Row="4">

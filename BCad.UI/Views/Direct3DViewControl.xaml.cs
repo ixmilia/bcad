@@ -28,8 +28,8 @@ namespace BCad.UI.Views
     /// <summary>
     /// Interaction logic for Direct3DViewControl.xaml
     /// </summary>
-    [ExportViewControl("Direct3D")]
-    public partial class Direct3DViewControl : UserControl, IRenderEngine, IViewControl
+    //[ExportViewControl("Direct3D")]
+    public partial class Direct3DViewControl : UserControl, IRenderEngine//, IViewControl
     {
 
         #region IDisplayPrimitive

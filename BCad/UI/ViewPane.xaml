@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="BCad.UI.SharpDXViewControl"
+﻿<UserControl x:Class="BCad.UI.ViewPane"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,8 +8,7 @@
              Cursor="None"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <!--<toolkit:SharpDXElement x:Name="surface" />-->
-        <toolkit:SharpDXElement x:Name="surface" x:FieldModifier="private" SendResizeToGame="True" LowPriorityRendering="False" />
+        <ContentControl Name="renderer" />
         <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
         <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" SnapsToDevicePixels="True">
             <Image Name="pointCursorImage" SnapsToDevicePixels="True" />

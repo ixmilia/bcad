@@ -135,7 +135,6 @@
     <Compile Include="Services\InputService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />
     <Compile Include="Services\IInputService.cs" />
-    <Compile Include="IViewControlMetadata.cs" />
     <Compile Include="KeyboardShortcut.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Entities\Arc.cs" />
@@ -161,7 +160,6 @@
     <Compile Include="UserDirective.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Vector.cs" />
-    <Compile Include="ViewControlMetadata.cs" />
     <Compile Include="ViewPort.cs" />
     <Compile Include="WorkspaceBase.cs" />
     <Compile Include="WorkspaceLogEntry.cs" />

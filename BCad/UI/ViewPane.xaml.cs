@@ -33,14 +33,10 @@ namespace BCad.UI
     }
 
     /// <summary>
-    /// Interaction logic for SharpDXViewControl.xaml
+    /// Interaction logic for ViewPane.xaml
     /// </summary>
-    [ExportViewControl("SharpDX")]
-    public partial class SharpDXViewControl : UserControl, IViewHost
+    public partial class ViewPane : UserControl, IViewHost
     {
-        private readonly CadRendererGame game;
-        private readonly IWorkspace workspace;
-        private readonly IInputService inputService;
         private bool panning;
         private bool selecting;
         private System.Windows.Point lastPanPoint;
@@ -65,26 +61,19 @@ namespace BCad.UI
             }
         }
 
-        public SharpDXViewControl()
+        [Import]
+        public IWorkspace Workspace { get; set; }
+
+        [Import]
+        public IInputService InputService { get; set; }
+
+        [ImportMany]
+        public IEnumerable<Lazy<IRendererFactory, RenderFactoryMetadata>> RendererFactories { get; set; }
+
+        public ViewPane()
         {
             InitializeComponent();
-        }
 
-        [ImportingConstructor]
-        public SharpDXViewControl(IWorkspace workspace, IInputService inputService)
-            : this()
-        {
-            this.workspace = workspace;
-            this.inputService = inputService;
-            this.workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
-            this.workspace.CommandExecuted += Workspace_CommandExecuted;
-            this.workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
-            this.inputService.ValueRequested += InputService_ValueRequested;
-            this.inputService.ValueReceived += InputService_ValueReceived;
-
-            autoColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
-            UpdateCursor();
-            SetCursorVisibility();
             var cursors = new[]
                 {
                     pointCursorImage,
@@ -100,8 +89,27 @@ namespace BCad.UI
                     }
                 };
 
-            game = new CadRendererGame(workspace, inputService, this);
-            game.Run(surface);
+            App.Container.SatisfyImports(this);
+        }
+
+        [OnImportsSatisfied]
+        public void OnImportsSatisfied()
+        {
+            Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
+            Workspace.CommandExecuted += Workspace_CommandExecuted;
+            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+            InputService.ValueRequested += InputService_ValueRequested;
+            InputService.ValueReceived += InputService_ValueReceived;
+
+            autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
+            UpdateCursor();
+            SetCursorVisibility();
+
+            var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
+            if (factory != null)
+            {
+                renderer.Content = factory.Value.CreateRenderer(this, Workspace, InputService);
+            }
         }
 
         public int DisplayHeight
@@ -119,7 +127,7 @@ namespace BCad.UI
             switch (e.PropertyName)
             {
                 case Constants.BackgroundColorString:
-                    autoColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
+                    autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
                     UpdateCursor();
                     break;
                 case Constants.CursorSizeString:
@@ -151,7 +159,8 @@ namespace BCad.UI
         {
             base.OnRenderSizeChanged(sizeInfo);
 
-            ViewPortChanged();
+            if (Workspace != null)
+                ViewPortChanged();
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
@@ -168,7 +177,7 @@ namespace BCad.UI
 
         private void ViewPortChanged()
         {
-            windowsTransformationMatrix = workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
+            windowsTransformationMatrix = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             unprojectMatrix = windowsTransformationMatrix;
             unprojectMatrix.Invert();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
@@ -188,7 +197,7 @@ namespace BCad.UI
         private void UpdateSnapPoints()
         {
             // populate the snap points
-            snapPoints = workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
+            snapPoints = Workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
                 .Select(sp => new TransformedSnapPoint(sp.Point, Project(sp.Point), sp.Kind));
         }
 
@@ -215,19 +224,19 @@ namespace BCad.UI
             switch (e.ChangedButton)
             {
                 case Input.MouseButton.Left:
-                    if ((inputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                    if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     {
-                        inputService.PushPoint(sp.WorldPoint);
+                        InputService.PushPoint(sp.WorldPoint);
                     }
-                    else if ((inputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
+                    else if ((InputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
                     {
                         var selected = GetHitEntity(cursor);
                         if (selected != null)
                         {
-                            inputService.PushEntity(selected);
+                            InputService.PushEntity(selected);
                         }
                     }
-                    else if ((inputService.AllowedInputTypes & InputType.Entities) == InputType.Entities)
+                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities)
                     {
                         if (selecting)
                         {
@@ -241,7 +250,7 @@ namespace BCad.UI
                             //        Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
                             //var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
                             //selecting = false;
-                            //inputService.PushEntities(entities);
+                            //InputService.PushEntities(entities);
                             //ForceRender();
                         }
                         else
@@ -250,7 +259,7 @@ namespace BCad.UI
                             var selected = GetHitEntity(cursor);
                             if (selected != null)
                             {
-                                inputService.PushEntities(new[] { selected.Entity });
+                                InputService.PushEntities(new[] { selected.Entity });
                             }
                             else
                             {
@@ -266,7 +275,7 @@ namespace BCad.UI
                     lastPanPoint = cursor;
                     break;
                 case Input.MouseButton.Right:
-                    inputService.PushNone();
+                    InputService.PushNone();
                     break;
             }
         }
@@ -283,16 +292,18 @@ namespace BCad.UI
 
         private void OnMouseMove(object sender, Input.MouseEventArgs e)
         {
-            //bool force = false;
+            if (Workspace == null || InputService == null)
+                return;
+
             var cursor = e.GetPosition(this);
             var delta = lastPanPoint - cursor;
             if (panning)
             {
-                var vp = workspace.ActiveViewPort;
+                var vp = Workspace.ActiveViewPort;
                 var scale = vp.ViewHeight / this.ActualHeight;
                 var dx = vp.BottomLeft.X + delta.X * scale;
                 var dy = vp.BottomLeft.Y - delta.Y * scale;
-                workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
+                Workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
                 lastPanPoint = cursor;
                 //firstSelectionPoint -= delta;
                 //force = true;
@@ -307,7 +318,7 @@ namespace BCad.UI
             //    force = true;
             //}
 
-            if ((inputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+            if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
                 var sp = GetActiveModelPoint(cursor.ToPoint());
                 DrawSnapPoint(sp);
@@ -324,7 +335,7 @@ namespace BCad.UI
         {
             var pen = new Media.Pen(new Media.SolidColorBrush(autoColor), 1);
 
-            var cursorSize = workspace.SettingsManager.CursorSize / 2.0 + 0.5;
+            var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
             pointCursorImage.Source = new Media.DrawingImage(
                 new Media.GeometryDrawing()
             {
@@ -339,7 +350,7 @@ namespace BCad.UI
                 Pen = pen
             });
 
-            var entitySize = workspace.SettingsManager.EntitySelectionRadius;
+            var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
             entityCursorImage.Source = new Media.DrawingImage(
                 new Media.GeometryDrawing()
             {
@@ -356,7 +367,7 @@ namespace BCad.UI
                 Pen = pen
             });
 
-            var textSize = workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
+            var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
             textCursorImage.Source = new Media.DrawingImage(
                 new Media.GeometryDrawing()
             {
@@ -375,7 +386,7 @@ namespace BCad.UI
         private void SetCursorVisibility()
         {
             Func<InputType[], Visibility> getVisibility = types =>
-                types.Any(t => (inputService.AllowedInputTypes & t) == t)
+                types.Any(t => (InputService.AllowedInputTypes & t) == t)
                     ? Visibility.Visible
                     : Visibility.Hidden;
 
@@ -408,7 +419,7 @@ namespace BCad.UI
 
             // center zoom operation on mouse
             var cursorPoint = e.GetPosition(this);
-            var vp = workspace.ActiveViewPort;
+            var vp = Workspace.ActiveViewPort;
             var oldHeight = vp.ViewHeight;
             var oldWidth = ActualWidth * oldHeight / ActualHeight;
             var newHeight = oldHeight * scale;
@@ -422,7 +433,7 @@ namespace BCad.UI
             var newVp = vp.Update(
                 bottomLeft: vp.BottomLeft - botLeftDelta,
                 viewHeight: vp.ViewHeight * scale);
-            workspace.Update(activeViewPort: newVp);
+            Workspace.Update(activeViewPort: newVp);
             var cursor = GetActiveModelPoint(cursorPoint.ToPoint());
             DrawSnapPoint(cursor);
         }
@@ -437,9 +448,9 @@ namespace BCad.UI
 
         private TransformedSnapPoint GetActiveSnapPoint(Point cursor)
         {
-            if (workspace.SettingsManager.PointSnap && (inputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+            if (Workspace.SettingsManager.PointSnap && (InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
-                var maxDistSq = (float)(workspace.SettingsManager.SnapPointDistance * workspace.SettingsManager.SnapPointDistance);
+                var maxDistSq = (float)(Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance);
                 var points = from sp in snapPoints
                              let dist = (cursor - sp.ControlPoint).LengthSquared
                              where dist <= maxDistSq
@@ -453,13 +464,13 @@ namespace BCad.UI
 
         private TransformedSnapPoint GetOrthoPoint(Point cursor)
         {
-            if (inputService.IsDrawing && workspace.SettingsManager.Ortho)
+            if (InputService.IsDrawing && Workspace.SettingsManager.Ortho)
             {
                 // if both are on the drawing plane
-                var last = inputService.LastPoint;
+                var last = InputService.LastPoint;
                 var current = Unproject(cursor);
                 var delta = current - last;
-                var drawingPlane = workspace.DrawingPlane;
+                var drawingPlane = Workspace.DrawingPlane;
                 var offset = drawingPlane.Point;
                 Point world;
 
@@ -504,10 +515,10 @@ namespace BCad.UI
 
         private TransformedSnapPoint GetAngleSnapPoint(Point cursor)
         {
-            if (inputService.IsDrawing && workspace.SettingsManager.AngleSnap)
+            if (InputService.IsDrawing && Workspace.SettingsManager.AngleSnap)
             {
                 // get distance to last point
-                var last = inputService.LastPoint;
+                var last = InputService.LastPoint;
                 var current = Unproject(cursor);
                 var vector = current - last;
                 var dist = vector.Length;
@@ -516,7 +527,7 @@ namespace BCad.UI
                 Func<double, Vector> snapVector = rad =>
                 {
                     Vector radVector = null;
-                    var drawingPlane = workspace.DrawingPlane;
+                    var drawingPlane = Workspace.DrawingPlane;
                     var offset = drawingPlane.Point;
                     if (drawingPlane.Normal == Vector.ZAxis)
                     {
@@ -538,12 +549,12 @@ namespace BCad.UI
                     return radVector.Normalize() * dist;
                 };
 
-                var points = from sa in workspace.SettingsManager.SnapAngles
+                var points = from sa in Workspace.SettingsManager.SnapAngles
                              let rad = sa * MathHelper.DegreesToRadians
                              let radVector = snapVector(rad)
                              let snapPoint = last + radVector
                              let di = (cursor - Project(snapPoint)).Length
-                             where di <= workspace.SettingsManager.SnapAngleDistance
+                             where di <= Workspace.SettingsManager.SnapAngleDistance
                              orderby di
                              select new TransformedSnapPoint(snapPoint, Project(snapPoint), SnapPointKind.None);
 
@@ -564,16 +575,16 @@ namespace BCad.UI
         {
             var screenPoint = cursor.ToPoint();
             var start = DateTime.UtcNow;
-            var selectionRadius = workspace.SettingsManager.EntitySelectionRadius;
+            var selectionRadius = Workspace.SettingsManager.EntitySelectionRadius;
             var selectionRadius2 = selectionRadius * selectionRadius;
-            var entities = from entity in workspace.Drawing.GetEntities()
+            var entities = from entity in Workspace.Drawing.GetEntities()
                            let dist = ClosestPoint(entity, screenPoint)
                            where dist.Item1 < selectionRadius2
                            orderby dist.Item1
                            select new SelectedEntity(entity, dist.Item2);
             var selected = entities.FirstOrDefault();
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            inputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
+            InputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
 
             return selected;
         }
@@ -676,8 +687,8 @@ namespace BCad.UI
                 return null;
 
             var geometry = ((Media.GeometryDrawing)SnapPointResources[name]).Clone();
-            var scale = workspace.SettingsManager.SnapPointSize;
-            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(workspace.SettingsManager.SnapPointColor.ToMediaColor()), 0.2);
+            var scale = Workspace.SettingsManager.SnapPointSize;
+            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 0.2);
             var di = new Media.DrawingImage(geometry);
             var icon = new Image(); // TODO: reuse icons if possible
             icon.Source = di;

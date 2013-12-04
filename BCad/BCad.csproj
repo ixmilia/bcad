@@ -141,9 +141,13 @@
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
     <Compile Include="UI\CadRendererGame.cs" />
+    <Compile Include="UI\ExportRendererFactoryAttribute.cs" />
+    <Compile Include="UI\IRendererFactory.cs" />
     <Compile Include="UI\IViewHost.cs" />
-    <Compile Include="UI\SharpDXViewControl.xaml.cs">
-      <DependentUpon>SharpDXViewControl.xaml</DependentUpon>
+    <Compile Include="UI\RenderFactoryMetadata.cs" />
+    <Compile Include="UI\SharpDXRendererFactory.cs" />
+    <Compile Include="UI\ViewPane.xaml.cs">
+      <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserCommand.cs" />
     <Compile Include="Workspace.cs" />
@@ -175,7 +179,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SharpDXViewControl.xaml">
+    <Page Include="UI\ViewPane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

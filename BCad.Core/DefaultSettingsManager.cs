@@ -12,7 +12,7 @@ namespace BCad
         private string[] ribbonOrder = null;
         private string layerDialogId = null;
         private string plotDialogId = null;
-        private string viewControlId = null;
+        private string rendererId = null;
         private string consoleControlId = null;
         private double snapPointDist = 0.0;
         private double snapPointSize = 0.0;
@@ -83,15 +83,15 @@ namespace BCad
             }
         }
 
-        public string ViewControlId
+        public string RendererId
         {
-            get { return this.viewControlId; }
+            get { return this.rendererId; }
             set
             {
-                if (this.viewControlId == value)
+                if (this.rendererId == value)
                     return;
-                this.viewControlId = value;
-                OnPropertyChanged("ViewControlId");
+                this.rendererId = value;
+                OnPropertyChanged("RendererId");
             }
         }
 
@@ -371,7 +371,7 @@ namespace BCad
             RibbonOrder = new[] { "home", "drawing-settings", "debug" };
             LayerDialogId = "Default";
             PlotDialogId = "Default";
-            ViewControlId = "Default";
+            RendererId = "Default";
             ConsoleControlId = "Default";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;

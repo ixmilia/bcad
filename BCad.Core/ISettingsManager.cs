@@ -7,7 +7,7 @@ namespace BCad
         string[] RibbonOrder { get; set; }
         string PlotDialogId { get; set; }
         string LayerDialogId { get; set; }
-        string ViewControlId { get; set; }
+        string RendererId { get; set; }
         string ConsoleControlId { get; set; }
         double SnapPointDistance { get; set; }
         double SnapPointSize { get; set; }
