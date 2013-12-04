@@ -11,7 +11,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace BCad.UI
 {
-    public class CadRendererGame : Game
+    public class SharpDXRenderer : Game
     {
         private GraphicsDeviceManager deviceManager;
         private IWorkspace workspace;
@@ -23,7 +23,7 @@ namespace BCad.UI
         private Color backgroundColor;
         private Matrix4 transform;
 
-        public CadRendererGame(IWorkspace workspace, IInputService inputService, IViewHost viewHost)
+        public SharpDXRenderer(IWorkspace workspace, IInputService inputService, IViewHost viewHost)
         {
             deviceManager = new GraphicsDeviceManager(this);
             this.workspace = workspace;

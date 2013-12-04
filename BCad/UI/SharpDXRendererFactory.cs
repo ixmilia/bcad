@@ -12,7 +12,7 @@ namespace BCad.UI
             var element = new SharpDXElement();
             element.SendResizeToGame = true;
             element.LowPriorityRendering = false;
-            var game = new CadRendererGame(workspace, inputService, viewHost);
+            var game = new SharpDXRenderer(workspace, inputService, viewHost);
             game.Run(element);
             return element;
         }

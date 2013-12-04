@@ -26,11 +26,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 using System;
-using System.Diagnostics;
 
-namespace BCad.UI.Views
+namespace BCad.UI
 {
-    public interface IRenderEngine
+    public interface ISlimDXRenderEngine
     {
         void OnDeviceCreated(object sender, EventArgs e);
         void OnDeviceDestroyed(object sender, EventArgs e);

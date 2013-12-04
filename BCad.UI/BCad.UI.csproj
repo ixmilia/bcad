@@ -86,16 +86,6 @@
     <Compile Include="Controls\PlotDialog.xaml.cs">
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Direct3DExtensions.cs" />
-    <Compile Include="Extensions\ColorExtensions.cs" />
-    <Compile Include="PointExtensions.cs" />
-    <Compile Include="Views\Direct3DControl.xaml.cs">
-      <DependentUpon>Direct3DControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Direct3DViewControl.xaml.cs">
-      <DependentUpon>Direct3DViewControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\IRenderEngine.cs" />
     <Page Include="Consoles\InputConsole.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -111,14 +101,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Controls\PlotDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Direct3DControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Direct3DViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

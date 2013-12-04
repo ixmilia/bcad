@@ -41,7 +41,7 @@ using SlimDX;
 using SlimDX.Direct3D9;
 
 //[assembly: CLSCompliant(true)]
-namespace BCad.UI.Views
+namespace BCad.UI
 {
     public enum DirectXStatus
     {
@@ -52,14 +52,14 @@ namespace BCad.UI.Views
         Unavailable_Unknown
     };
 
-    public partial class Direct3DControl : ContentControl
+    public partial class SlimDXControl : ContentControl
     {
-        public Direct3DControl()
+        public SlimDXControl()
         {
             InitializeComponent();
         }
 
-        public void SetRenderEngine(IRenderEngine renderEngine)
+        public void SetRenderEngine(ISlimDXRenderEngine renderEngine)
         {
             RenderEngine = renderEngine;
 
@@ -94,7 +94,7 @@ namespace BCad.UI.Views
         #endregion
 
         #region Properties
-        public IRenderEngine RenderEngine { private set; get; }
+        public ISlimDXRenderEngine RenderEngine { private set; get; }
 
         public Image Image
         {

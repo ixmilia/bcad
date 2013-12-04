@@ -81,6 +81,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\SharpDX.Toolkit.Graphics.dll</HintPath>
     </Reference>
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\SlimDX.4.0.13.43\lib\NET40\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Composition.AttributedModel, Version=1.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -125,6 +129,7 @@
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
+    <Compile Include="Extensions\SlimDXExtensions.cs" />
     <Compile Include="Ribbons\DebugRibbon.xaml.cs">
       <DependentUpon>DebugRibbon.xaml</DependentUpon>
     </Compile>
@@ -140,12 +145,18 @@
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
-    <Compile Include="UI\CadRendererGame.cs" />
+    <Compile Include="UI\SharpDXRenderer.cs" />
+    <Compile Include="UI\ISlimDXRenderEngine.cs" />
+    <Compile Include="UI\SlimDXControl.xaml.cs">
+      <DependentUpon>SlimDXControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\ExportRendererFactoryAttribute.cs" />
     <Compile Include="UI\IRendererFactory.cs" />
     <Compile Include="UI\IViewHost.cs" />
     <Compile Include="UI\RenderFactoryMetadata.cs" />
     <Compile Include="UI\SharpDXRendererFactory.cs" />
+    <Compile Include="UI\SlimDXRenderEngine.cs" />
+    <Compile Include="UI\SlimDXRendererFactory.cs" />
     <Compile Include="UI\ViewPane.xaml.cs">
       <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
@@ -178,6 +189,10 @@
     <Page Include="Ribbons\HomeRibbon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SlimDXControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\ViewPane.xaml">
       <SubType>Designer</SubType>
