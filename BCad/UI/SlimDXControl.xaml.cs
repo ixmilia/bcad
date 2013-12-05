@@ -26,10 +26,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // uncomment this to force your Vista or Win7 box to act more like an XP box...
-//#define USE_XP_MODE
+#define USE_XP_MODE
 
 // uncomment this to render each and every frame, as opposed to only when the user signals an update is needed
-//#define USE_ALWAYSRENDER_MODE
+#define USE_ALWAYSRENDER_MODE
 
 using System;
 using System.Diagnostics;

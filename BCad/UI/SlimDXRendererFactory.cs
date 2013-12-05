@@ -10,7 +10,6 @@ namespace BCad.UI
         {
             var element = new SlimDXControl();
             var engine = new SlimDXRenderEngine(element, viewHost, workspace, inputService);
-            element.SetRenderEngine(engine);
             return element;
         }
     }

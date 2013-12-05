@@ -142,11 +142,11 @@ namespace BCad.UI
         private ShaderBytecode selectedMeshBytecode;
         private PixelShader normalPixelShader;
         private PixelShader selectedPixelShader;
-        private Matrix projectionMatrix;
-        private Matrix projectionWorldMatrix;
-        private Matrix projectionViewWorldMatrix;
-        private Matrix worldMatrix;
-        private Matrix viewMatrix;
+        private Matrix projectionMatrix = Matrix.Identity;
+        private Matrix projectionWorldMatrix = Matrix.Identity;
+        private Matrix projectionViewWorldMatrix = Matrix.Identity;
+        private Matrix worldMatrix = Matrix.Identity;
+        private Matrix viewMatrix = Matrix.Scaling(1.0f, 1.0f, 0.0f);
         private object drawingGate = new object();
         private Dictionary<uint, TransformedEntity> lines = new Dictionary<uint, TransformedEntity>();
         private IDisplayPrimitive[] rubberBandLines = null;
@@ -154,7 +154,6 @@ namespace BCad.UI
         private System.Windows.Point firstSelectionPoint = new System.Windows.Point();
         private System.Windows.Point currentSelectionPoint = new System.Windows.Point();
         private Color4 autoColor = new Color4();
-        private bool lastGeneratorNonNull;
         private SlimDXControl control;
 
         private const int FullCircleDrawingSegments = 101;
@@ -182,6 +181,8 @@ namespace BCad.UI
             // load settings
             foreach (var setting in new[] { Constants.BackgroundColorString })
                 SettingsManagerPropertyChanged(this.workspace.SettingsManager, new PropertyChangedEventArgs(setting));
+
+            control.SetRenderEngine(this);
         }
 
         public void OnDeviceCreated(object sender, EventArgs e)
@@ -248,7 +249,7 @@ Result PShader(Input pixel)
             Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
             Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
             ViewPortChanged();
-            //DrawingChanged(drawing);
+            DrawingChanged(drawing);
         }
 
         public void OnMainLoop(object sender, EventArgs args)
@@ -279,6 +280,8 @@ Result PShader(Input pixel)
                     }
                 }
 
+                if (inputService.PrimitiveGenerator != null)
+                    GenerateRubberBandLines(viewHost.GetCursorPoint());
                 if (rubberBandLines != null)
                 {
                     for (int i = 0; i < rubberBandLines.Length; i++)
@@ -310,7 +313,6 @@ Result PShader(Input pixel)
 
         private void SettingsManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            bool redraw = false;
             switch (e.PropertyName)
             {
                 case Constants.BackgroundColorString:
@@ -320,21 +322,9 @@ Result PShader(Input pixel)
                     var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
                     var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
                     autoColor = new Color4((0xFF << 24) | color);
-                    ForceRender();
-                    break;
-                case Constants.AngleSnapString:
-                case Constants.OrthoString:
-                case Constants.PointSnapString:
-                    redraw = true;
                     break;
                 default:
                     break;
-            }
-
-            if (redraw)
-            {
-                var sp = viewHost.GetCursorPoint();
-                GenerateRubberBandLines(sp);
             }
         }
 
@@ -370,8 +360,6 @@ Result PShader(Input pixel)
                 var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                 inputService.WriteLineDebug("DrawingChanged in {0} ms", elapsed);
             }
-
-            ForceRender();
         }
 
         private void ViewPortChanged()
@@ -385,32 +373,27 @@ Result PShader(Input pixel)
                 * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
             projectionWorldMatrix = projectionMatrix * worldMatrix;
             projectionViewWorldMatrix = projectionMatrix * viewMatrix * worldMatrix;
-            ForceRender();
         }
 
         private void SelectedEntitiesCollectionChanged(object sender, EventArgs e)
         {
-            ForceRender();
         }
 
         private void CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             rubberBandLines = null;
             selecting = false;
-            ForceRender();
         }
 
         private void InputServiceValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
-            ForceRender();
         }
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
         {
             GenerateRubberBandLines(viewHost.GetCursorPoint());
             selecting = false;
-            ForceRender();
         }
 
         #endregion
@@ -436,13 +419,6 @@ Result PShader(Input pixel)
             rubberBandLines = generator == null
                 ? null
                 : generator(worldPoint).Select(p => GenerateDisplayPrimitive(p, autoColor, false)).ToArray();
-
-            if (generator != null || lastGeneratorNonNull)
-            {
-                ForceRender();
-            }
-
-            lastGeneratorNonNull = generator != null;
         }
 
         private TransformedEntity GenerateEntitySegments(Entity entity, IndexedColor layerColor)
@@ -526,42 +502,5 @@ Result PShader(Input pixel)
 
         #endregion
 
-        #region Misc functions
-
-        private void ForceRender()
-        {
-            control.ForceRendering();
-        }
-
-        private Vector3 Project(Vector3 point)
-        {
-            var screenPoint = Vector3.Project(
-                point,
-                Device.Viewport.X,
-                Device.Viewport.Y,
-                Device.Viewport.Width,
-                Device.Viewport.Height,
-                Device.Viewport.MinZ,
-                Device.Viewport.MaxZ,
-                projectionViewWorldMatrix);
-            return screenPoint;
-        }
-
-        private Vector3 Unproject(Vector3 point)
-        {
-            // not using view matrix because that scales z at 0 for display
-            var worldPoint = Vector3.Unproject(
-                point,
-                Device.Viewport.X,
-                Device.Viewport.Y,
-                Device.Viewport.Width,
-                Device.Viewport.Height,
-                Device.Viewport.MinZ,
-                Device.Viewport.MaxZ,
-                projectionWorldMatrix);
-            return worldPoint;
-        }
-
-        #endregion
     }
 }
