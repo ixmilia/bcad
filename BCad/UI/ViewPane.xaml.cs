@@ -45,6 +45,7 @@ namespace BCad.UI
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
         private Media.Color autoColor;
+        private IRenderer renderer;
 
         private ResourceDictionary resources = null;
         private ResourceDictionary SnapPointResources
@@ -108,7 +109,8 @@ namespace BCad.UI
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
             if (factory != null)
             {
-                renderer.Content = factory.Value.CreateRenderer(this, Workspace, InputService);
+                renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
+                renderControl.Content = renderer;
             }
         }
 
@@ -306,7 +308,6 @@ namespace BCad.UI
                 Workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
                 lastPanPoint = cursor;
                 //firstSelectionPoint -= delta;
-                //force = true;
             }
 
             var real = GetCursorPoint();
@@ -315,8 +316,12 @@ namespace BCad.UI
             //if (selecting)
             //{
             //    currentSelectionPoint = cursor;
-            //    force = true;
             //}
+
+            if (InputService.PrimitiveGenerator != null)
+            {
+                renderer.ForceRendering();
+            }
 
             if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {

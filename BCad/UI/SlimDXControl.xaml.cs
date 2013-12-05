@@ -52,7 +52,7 @@ namespace BCad.UI
         Unavailable_Unknown
     };
 
-    public partial class SlimDXControl : ContentControl
+    public partial class SlimDXControl : ContentControl, IRenderer
     {
         public SlimDXControl()
         {

@@ -281,6 +281,7 @@ Result PShader(Input pixel)
                     }
                 }
 
+                GenerateRubberBandLines(viewHost.GetCursorPoint());
                 if (rubberBandLines != null)
                 {
                     for (int i = 0; i < rubberBandLines.Length; i++)

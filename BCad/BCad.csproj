@@ -145,6 +145,7 @@
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
+    <Compile Include="UI\IRenderer.cs" />
     <Compile Include="UI\SharpDXRenderer.cs" />
     <Compile Include="UI\ISlimDXRenderEngine.cs" />
     <Compile Include="UI\SlimDXControl.xaml.cs">
