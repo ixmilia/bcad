@@ -155,6 +155,7 @@ namespace BCad.UI
         private System.Windows.Point currentSelectionPoint = new System.Windows.Point();
         private Color4 autoColor = new Color4();
         private SlimDXControl control;
+        private bool lastGeneratorNonNull;
 
         private const int FullCircleDrawingSegments = 101;
         private const int LowQualityCircleDrawingSegments = 51;
@@ -280,8 +281,6 @@ Result PShader(Input pixel)
                     }
                 }
 
-                if (inputService.PrimitiveGenerator != null)
-                    GenerateRubberBandLines(viewHost.GetCursorPoint());
                 if (rubberBandLines != null)
                 {
                     for (int i = 0; i < rubberBandLines.Length; i++)
@@ -322,6 +321,7 @@ Result PShader(Input pixel)
                     var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
                     var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
                     autoColor = new Color4((0xFF << 24) | color);
+                    ForceRender();
                     break;
                 default:
                     break;
@@ -360,6 +360,8 @@ Result PShader(Input pixel)
                 var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                 inputService.WriteLineDebug("DrawingChanged in {0} ms", elapsed);
             }
+
+            ForceRender();
         }
 
         private void ViewPortChanged()
@@ -373,10 +375,12 @@ Result PShader(Input pixel)
                 * Matrix.Scaling(2.0f / width, 2.0f / height, 1.0f);
             projectionWorldMatrix = projectionMatrix * worldMatrix;
             projectionViewWorldMatrix = projectionMatrix * viewMatrix * worldMatrix;
+            ForceRender();
         }
 
         private void SelectedEntitiesCollectionChanged(object sender, EventArgs e)
         {
+            ForceRender();
         }
 
         private void CommandExecuted(object sender, CommandExecutedEventArgs e)
@@ -388,12 +392,14 @@ Result PShader(Input pixel)
         private void InputServiceValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
+            ForceRender();
         }
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
         {
             GenerateRubberBandLines(viewHost.GetCursorPoint());
             selecting = false;
+            ForceRender();
         }
 
         #endregion
@@ -419,6 +425,13 @@ Result PShader(Input pixel)
             rubberBandLines = generator == null
                 ? null
                 : generator(worldPoint).Select(p => GenerateDisplayPrimitive(p, autoColor, false)).ToArray();
+
+            if (generator != null || lastGeneratorNonNull)
+            {
+                ForceRender();
+            }
+
+            lastGeneratorNonNull = generator != null;
         }
 
         private TransformedEntity GenerateEntitySegments(Entity entity, IndexedColor layerColor)
@@ -501,6 +514,11 @@ Result PShader(Input pixel)
         }
 
         #endregion
+
+        private void ForceRender()
+        {
+            control.ForceRendering();
+        }
 
     }
 }

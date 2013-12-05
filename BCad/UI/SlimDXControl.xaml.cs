@@ -29,7 +29,7 @@
 #define USE_XP_MODE
 
 // uncomment this to render each and every frame, as opposed to only when the user signals an update is needed
-#define USE_ALWAYSRENDER_MODE
+//#define USE_ALWAYSRENDER_MODE
 
 using System;
 using System.Diagnostics;
