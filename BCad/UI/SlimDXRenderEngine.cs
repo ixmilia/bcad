@@ -157,8 +157,8 @@ namespace BCad.UI
         private SlimDXControl control;
         private bool lastGeneratorNonNull;
 
-        private const int FullCircleDrawingSegments = 101;
-        private const int LowQualityCircleDrawingSegments = 51;
+        private const int FullCircleDrawingSegments = 180;
+        private const int LowQualityCircleDrawingSegments = 72;
 
         public SlimDXRenderEngine(SlimDXControl control, IViewHost viewHost, IWorkspace workspace, IInputService inputService)
         {
@@ -456,7 +456,7 @@ Result PShader(Input pixel)
                     normal = text.Normal;
                     right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize();
                     up = normal.Cross(right).Normalize();
-                    var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.0f : 0.1f, float.Epsilon);
+                    var mesh = Mesh.CreateText(Device, f, text.Value, highQuality ? 0.2f : 0.5f, float.Epsilon);
                     trans = Matrix4.FromUnitCircleProjection(normal, right, up, text.Location, sc, sc, sc);
                     display = new DisplayPrimitiveMesh(mesh, color, trans.ToMatrix(), normalPixelShader, selectedPixelShader);
                     break;

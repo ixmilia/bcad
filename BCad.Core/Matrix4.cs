@@ -384,9 +384,9 @@ namespace BCad
         {
             var transformation = Identity;
             transformation.M11 = right.X;
-            transformation.M12 = right.Y;
+            transformation.M12 = up.X; // right.y
             transformation.M13 = right.Z;
-            transformation.M21 = up.X;
+            transformation.M21 = right.Y; // up.x
             transformation.M22 = up.Y;
             transformation.M23 = up.Z;
             transformation.M31 = normal.X;
