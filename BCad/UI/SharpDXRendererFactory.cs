@@ -14,12 +14,12 @@ namespace BCad.UI
             element.LowPriorityRendering = true;
             var game = new SharpDXRenderer(workspace, inputService, viewHost);
             game.Run(element);
-            var grid = new RendererGrid();
-            grid.Content = element;
-            return grid;
+            var container = new RenderContainer();
+            container.Content = element;
+            return container;
         }
 
-        private class RendererGrid : UserControl, IRenderer
+        private class RenderContainer : UserControl, IRenderer
         {
             public void RenderRubberBandLines()
             {

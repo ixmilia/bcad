@@ -84,7 +84,7 @@ namespace BCad
 
         public ISettingsManager SettingsManager { get; private set; }
 
-        public void Update(
+        public virtual void Update(
             Drawing drawing = null,
             Plane drawingPlane = null,
             ViewPort activeViewPort = null,
