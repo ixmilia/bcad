@@ -320,7 +320,7 @@ namespace BCad.UI
 
             if (InputService.PrimitiveGenerator != null)
             {
-                renderer.ForceRendering();
+                renderer.RenderRubberBandLines();
             }
 
             if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)

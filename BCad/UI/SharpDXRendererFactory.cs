@@ -15,13 +15,13 @@ namespace BCad.UI
             var game = new SharpDXRenderer(workspace, inputService, viewHost);
             game.Run(element);
             var grid = new RendererGrid();
-            grid.Children.Add(element);
+            grid.Content = element;
             return grid;
         }
 
-        private class RendererGrid : Grid, IRenderer
+        private class RendererGrid : UserControl, IRenderer
         {
-            public void ForceRendering()
+            public void RenderRubberBandLines()
             {
                 // SharpDXRenderer always renders, anyways
             }

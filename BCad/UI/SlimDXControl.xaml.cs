@@ -439,6 +439,11 @@ namespace BCad.UI
             }
         }
 
+        public void RenderRubberBandLines()
+        {
+            ForceRendering();
+        }
+
         private bool ResetForceRendering()
         {
             bool ret;

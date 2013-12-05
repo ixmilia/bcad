@@ -2,6 +2,6 @@
 {
     public interface IRenderer
     {
-        void ForceRendering();
+        void RenderRubberBandLines();
     }
 }
