@@ -150,9 +150,6 @@ namespace BCad.UI
         private object drawingGate = new object();
         private Dictionary<uint, TransformedEntity> lines = new Dictionary<uint, TransformedEntity>();
         private IDisplayPrimitive[] rubberBandLines = null;
-        private bool selecting = false;
-        private System.Windows.Point firstSelectionPoint = new System.Windows.Point();
-        private System.Windows.Point currentSelectionPoint = new System.Windows.Point();
         private Color4 autoColor = new Color4();
         private SlimDXControl control;
         private bool lastGeneratorNonNull;
@@ -289,23 +286,6 @@ Result PShader(Input pixel)
                         rubberBandLines[i].RenderNormal(Device, projectionMatrix, viewMatrix);
                     }
                 }
-
-                if (selecting)
-                {
-                    var line = currentSelectionPoint.X < firstSelectionPoint.X
-                        ? dashedLine
-                        : solidLine;
-                    var a = new Vector2((float)currentSelectionPoint.X, (float)currentSelectionPoint.Y);
-                    var b = new Vector2((float)currentSelectionPoint.X, (float)firstSelectionPoint.Y);
-                    var c = new Vector2((float)firstSelectionPoint.X, (float)firstSelectionPoint.Y);
-                    var d = new Vector2((float)firstSelectionPoint.X, (float)currentSelectionPoint.Y);
-                    var e = new Vector2((float)currentSelectionPoint.X, (float)currentSelectionPoint.Y);
-                    line.Draw(new[] { a, b }, autoColor);
-                    line.Draw(new[] { b, c }, autoColor);
-                    line.Draw(new[] { c, d }, autoColor);
-                    line.Draw(new[] { d, e }, autoColor);
-                    line.Draw(new[] { e, a }, autoColor);
-                }
             }
         }
 
@@ -387,19 +367,16 @@ Result PShader(Input pixel)
         private void CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             rubberBandLines = null;
-            selecting = false;
         }
 
         private void InputServiceValueReceived(object sender, ValueReceivedEventArgs e)
         {
-            selecting = false;
             ForceRender();
         }
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
         {
             GenerateRubberBandLines(viewHost.GetCursorPoint());
-            selecting = false;
             ForceRender();
         }
 

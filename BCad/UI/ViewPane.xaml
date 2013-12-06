@@ -11,6 +11,11 @@
         <ContentControl Name="renderControl" />
         <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
         <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" SnapsToDevicePixels="True">
+            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" />
+            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" />
+            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" />
+            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Hidden" />
+            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Hidden" />
             <Image Name="pointCursorImage" SnapsToDevicePixels="True" />
             <Image Name="entityCursorImage" SnapsToDevicePixels="True" />
             <Image Name="textCursorImage" SnapsToDevicePixels="True" />

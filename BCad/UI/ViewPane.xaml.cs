@@ -41,11 +41,14 @@ namespace BCad.UI
         private bool selecting;
         private System.Windows.Point lastPanPoint;
         private System.Windows.Point firstSelectionPoint;
+        private System.Windows.Point currentSelectionPoint;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
         private Media.Color autoColor;
         private IRenderer renderer;
+        private Media.DoubleCollection solidLine = new Media.DoubleCollection();
+        private Media.DoubleCollection dashedLine = new Media.DoubleCollection(new[] { 4.0, 4.0 });
 
         private ResourceDictionary resources = null;
         private ResourceDictionary SnapPointResources
@@ -102,8 +105,7 @@ namespace BCad.UI
             InputService.ValueRequested += InputService_ValueRequested;
             InputService.ValueReceived += InputService_ValueReceived;
 
-            autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
-            UpdateCursor();
+            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.BackgroundColorString));
             SetCursorVisibility();
 
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
@@ -130,6 +132,12 @@ namespace BCad.UI
             {
                 case Constants.BackgroundColorString:
                     autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
+                    var brush = new Media.SolidColorBrush(autoColor);
+                    selectionLine1.Stroke = brush;
+                    selectionLine2.Stroke = brush;
+                    selectionLine3.Stroke = brush;
+                    selectionLine4.Stroke = brush;
+                    selectionRect.Fill = new Media.SolidColorBrush(Media.Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
                     UpdateCursor();
                     break;
                 case Constants.CursorSizeString:
@@ -142,19 +150,25 @@ namespace BCad.UI
 
         private void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
+            selecting = false;
             ClearSnapPoints();
             SetCursorVisibility();
+            SetSelectionLineVisibility(Visibility.Hidden);
         }
 
         private void InputService_ValueRequested(object sender, ValueRequestedEventArgs e)
         {
+            selecting = false;
             SetCursorVisibility();
+            SetSelectionLineVisibility(Visibility.Hidden);
         }
 
         private void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
+            selecting = false;
             ClearSnapPoints();
             SetCursorVisibility();
+            SetSelectionLineVisibility(Visibility.Hidden);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -243,17 +257,17 @@ namespace BCad.UI
                         if (selecting)
                         {
                             // finish selection
-                            //var rect = new System.Windows.Rect(
-                            //    new System.Windows.Point(
-                            //        Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
-                            //        Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
-                            //    new System.Windows.Size(
-                            //        Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
-                            //        Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
-                            //var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
-                            //selecting = false;
-                            //InputService.PushEntities(entities);
-                            //ForceRender();
+                            var rect = new Rect(
+                                new System.Windows.Point(
+                                    Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
+                                    Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
+                                new Size(
+                                    Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
+                                    Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
+                            var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                            selecting = false;
+                            SetSelectionLineVisibility(Visibility.Hidden);
+                            InputService.PushEntities(entities);
                         }
                         else
                         {
@@ -265,8 +279,10 @@ namespace BCad.UI
                             }
                             else
                             {
-                                //selecting = true;
+                                selecting = true;
                                 firstSelectionPoint = cursor;
+                                currentSelectionPoint = cursor;
+                                SetSelectionLineVisibility(Visibility.Visible);
                             }
                         }
                     }
@@ -307,16 +323,17 @@ namespace BCad.UI
                 var dy = vp.BottomLeft.Y - delta.Y * scale;
                 Workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
                 lastPanPoint = cursor;
-                //firstSelectionPoint -= delta;
+                firstSelectionPoint -= delta;
             }
 
             var real = GetCursorPoint();
             positionText.Text = string.Format("Cursor: {0},{1}; Real: {2:F0},{3:F0},{4:F0}", cursor.X, cursor.Y, real.X, real.Y, real.Z);
 
-            //if (selecting)
-            //{
-            //    currentSelectionPoint = cursor;
-            //}
+            if (selecting)
+            {
+                currentSelectionPoint = cursor;
+                UpdateSelectionLines();
+            }
 
             if (InputService.PrimitiveGenerator != null)
             {
@@ -386,6 +403,58 @@ namespace BCad.UI
                 },
                 Pen = pen
             });
+        }
+
+        private void SetSelectionLineVisibility(Visibility vis)
+        {
+            if (vis == Visibility.Visible)
+            {
+                UpdateSelectionLines();
+            }
+
+            selectionLine1.Visibility = vis;
+            selectionLine2.Visibility = vis;
+            selectionLine3.Visibility = vis;
+            selectionLine4.Visibility = vis;
+            selectionRect.Visibility = vis;
+        }
+
+        private void UpdateSelectionLines()
+        {
+            selectionLine1.X1 = currentSelectionPoint.X;
+            selectionLine1.Y1 = currentSelectionPoint.Y;
+            selectionLine1.X2 = currentSelectionPoint.X;
+            selectionLine1.Y2 = firstSelectionPoint.Y;
+
+            selectionLine2.X1 = currentSelectionPoint.X;
+            selectionLine2.Y1 = firstSelectionPoint.Y;
+            selectionLine2.X2 = firstSelectionPoint.X;
+            selectionLine2.Y2 = firstSelectionPoint.Y;
+
+            selectionLine3.X1 = firstSelectionPoint.X;
+            selectionLine3.Y1 = firstSelectionPoint.Y;
+            selectionLine3.X2 = firstSelectionPoint.X;
+            selectionLine3.Y2 = currentSelectionPoint.Y;
+
+            selectionLine4.X1 = firstSelectionPoint.X;
+            selectionLine4.Y1 = currentSelectionPoint.Y;
+            selectionLine4.X2 = currentSelectionPoint.X;
+            selectionLine4.Y2 = currentSelectionPoint.Y;
+
+            var dash = currentSelectionPoint.X < firstSelectionPoint.X
+                ? dashedLine
+                : solidLine;
+            selectionLine1.StrokeDashArray = dash;
+            selectionLine2.StrokeDashArray = dash;
+            selectionLine3.StrokeDashArray = dash;
+            selectionLine4.StrokeDashArray = dash;
+
+            var left = Math.Min(currentSelectionPoint.X, firstSelectionPoint.X);
+            var top = Math.Min(currentSelectionPoint.Y, firstSelectionPoint.Y);
+            selectionRect.Width = Math.Abs(currentSelectionPoint.X - firstSelectionPoint.X);
+            selectionRect.Height = Math.Abs(currentSelectionPoint.Y - firstSelectionPoint.Y);
+            Canvas.SetLeft(selectionRect, left);
+            Canvas.SetTop(selectionRect, top);
         }
 
         private void SetCursorVisibility()
@@ -574,6 +643,58 @@ namespace BCad.UI
         {
             var world = Unproject(cursor);
             return new TransformedSnapPoint(world, cursor, SnapPointKind.None);
+        }
+
+        private IEnumerable<Point> ProjectedChain(Entity entity)
+        {
+            return entity.GetPrimitives().SelectMany(p => ProjectedChain(p));
+        }
+
+        private IEnumerable<Point> ProjectedChain(IPrimitive primitive)
+        {
+            IEnumerable<Point> points;
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    points = el.GetProjectedVerticies(windowsTransformationMatrix);
+                    break;
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    points = new[]
+                    {
+                        windowsTransformationMatrix.Transform(line.P1),
+                        windowsTransformationMatrix.Transform(line.P2)
+                    };
+                    break;
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    points = new[]
+                    {
+                        windowsTransformationMatrix.Transform(text.Location),
+                        windowsTransformationMatrix.Transform(text.Location + right),
+                        windowsTransformationMatrix.Transform(text.Location + right + up),
+                        windowsTransformationMatrix.Transform(text.Location + up),
+                        windowsTransformationMatrix.Transform(text.Location)
+                    };
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            return points;
+        }
+
+        private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
+        {
+            var start = DateTime.UtcNow;
+            var entities = Workspace.Drawing.GetEntities().Where(e => selectionRect.Contains(ProjectedChain(e), includePartial));
+            var ellapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            InputService.WriteLineDebug("GetContainedEntites in {0} ms", ellapsed);
+            return entities;
         }
 
         private SelectedEntity GetHitEntity(System.Windows.Point cursor)
