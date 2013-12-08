@@ -13,6 +13,10 @@ namespace BCad.UI
             this.windowParent = window;
         }
 
+        public virtual void OnShowing()
+        {
+        }
+
         public virtual void Commit()
         {
         }

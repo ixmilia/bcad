@@ -60,6 +60,7 @@ namespace BCad.UI
 
         public Task<bool?> ShowHideableDialog()
         {
+            Control.OnShowing();
             this.Show();
             return completionAwaiter.Task;
         }

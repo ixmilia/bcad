@@ -36,16 +36,19 @@ namespace BCad.UI.Controls
 
         [ImportingConstructor]
         public LayerManager(IWorkspace workspace)
+            : this()
         {
             this.workspace = workspace;
+        }
+
+        public override void OnShowing()
+        {
             this.layers.Clear();
             foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
                 this.layers.Add(new MutableLayer(layer));
 
             for (int i = 0; i < 256; i++)
                 availableColors.Add(new IndexedColor((byte)i));
-
-            InitializeComponent();
         }
 
         public override void Commit()
