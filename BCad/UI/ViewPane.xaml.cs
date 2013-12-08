@@ -707,7 +707,7 @@ namespace BCad.UI
                            let dist = ClosestPoint(entity, screenPoint)
                            where dist.Item1 < selectionRadius2
                            orderby dist.Item1
-                           select new SelectedEntity(entity, dist.Item2);
+                           select new SelectedEntity(entity, Unproject(dist.Item2));
             var selected = entities.FirstOrDefault();
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
             InputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
