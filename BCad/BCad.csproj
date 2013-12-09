@@ -146,6 +146,17 @@
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
+    <Compile Include="UI\BoolToVisibilityConverter.cs" />
+    <Compile Include="UI\Consoles\InputConsole.xaml.cs">
+      <DependentUpon>InputConsole.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\LayerManager.xaml.cs">
+      <DependentUpon>LayerManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\MutableLayer.cs" />
+    <Compile Include="UI\Controls\PlotDialog.xaml.cs">
+      <DependentUpon>PlotDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\View\IRenderer.cs" />
     <Compile Include="UI\View\SharpDXRenderer.cs" />
     <Compile Include="UI\View\ISlimDXRenderEngine.cs" />
@@ -191,6 +202,18 @@
     <Page Include="Ribbons\HomeRibbon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Consoles\InputConsole.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\LayerManager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\PlotDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\View\SlimDXControl.xaml">
       <Generator>MSBuild:Compile</Generator>
