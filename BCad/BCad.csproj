@@ -146,20 +146,20 @@
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
-    <Compile Include="UI\IRenderer.cs" />
-    <Compile Include="UI\SharpDXRenderer.cs" />
-    <Compile Include="UI\ISlimDXRenderEngine.cs" />
-    <Compile Include="UI\SlimDXControl.xaml.cs">
+    <Compile Include="UI\View\IRenderer.cs" />
+    <Compile Include="UI\View\SharpDXRenderer.cs" />
+    <Compile Include="UI\View\ISlimDXRenderEngine.cs" />
+    <Compile Include="UI\View\SlimDXControl.xaml.cs">
       <DependentUpon>SlimDXControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\ExportRendererFactoryAttribute.cs" />
-    <Compile Include="UI\IRendererFactory.cs" />
-    <Compile Include="UI\IViewHost.cs" />
-    <Compile Include="UI\RenderFactoryMetadata.cs" />
-    <Compile Include="UI\SharpDXRendererFactory.cs" />
-    <Compile Include="UI\SlimDXRenderEngine.cs" />
-    <Compile Include="UI\SlimDXRendererFactory.cs" />
-    <Compile Include="UI\ViewPane.xaml.cs">
+    <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
+    <Compile Include="UI\View\IRendererFactory.cs" />
+    <Compile Include="UI\View\IViewHost.cs" />
+    <Compile Include="UI\View\RenderFactoryMetadata.cs" />
+    <Compile Include="UI\View\SharpDXRendererFactory.cs" />
+    <Compile Include="UI\View\SlimDXRenderEngine.cs" />
+    <Compile Include="UI\View\SlimDXRendererFactory.cs" />
+    <Compile Include="UI\View\ViewPane.xaml.cs">
       <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserCommand.cs" />
@@ -192,11 +192,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SlimDXControl.xaml">
+    <Page Include="UI\View\SlimDXControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI\ViewPane.xaml">
+    <Page Include="UI\View\ViewPane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
