@@ -690,7 +690,7 @@ namespace BCad.UI
                            let dist = ClosestPoint(entity, screenPoint)
                            where dist.Item1 < selectionRadius2
                            orderby dist.Item1
-                           select new SelectedEntity(entity, Unproject(dist.Item2));
+                           select new SelectedEntity(entity, dist.Item2);
             var selected = entities.FirstOrDefault();
             var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
             InputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
@@ -740,7 +740,7 @@ namespace BCad.UI
             }
         }
 
-        private static Tuple<double, Point> ClosestPoint(Point[] screenVerticies, Point screenPoint)
+        private Tuple<double, Point> ClosestPoint(Point[] screenVerticies, Point screenPoint)
         {
             var points = from i in Enumerable.Range(0, screenVerticies.Length - 1)
                          // translate line segment to screen coordinates
@@ -755,7 +755,7 @@ namespace BCad.UI
                          let vec = screenVerticies[i + 1] - screenVerticies[i]
                          let newLen = vec.Length * pct
                          let offset = vec.Normalize() * newLen
-                         select Tuple.Create(dist, screenVerticies[i] + offset);
+                         select Tuple.Create(dist, Unproject(screenVerticies[i] + offset));
             var selected = points.FirstOrDefault();
             return selected;
         }
