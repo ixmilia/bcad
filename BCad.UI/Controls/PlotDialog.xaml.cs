@@ -48,6 +48,10 @@ namespace BCad.UI.Controls
             this.filePlotters = filePlotters;
         }
 
+        public override void OnShowing()
+        {
+        }
+
         public override void Commit()
         {
             IFilePlotter plotter;

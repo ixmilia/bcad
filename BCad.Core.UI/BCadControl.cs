@@ -4,7 +4,7 @@ using System.Windows.Controls;
 
 namespace BCad.UI
 {
-    public class BCadControl : UserControl
+    public abstract class BCadControl : UserControl
     {
         private Window windowParent;
 
@@ -13,9 +13,7 @@ namespace BCad.UI
             this.windowParent = window;
         }
 
-        public virtual void OnShowing()
-        {
-        }
+        public abstract void OnShowing();
 
         public virtual void Commit()
         {

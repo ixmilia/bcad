@@ -5,7 +5,6 @@
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core.UI"
                 xmlns:local="clr-namespace:BCad.UI"
-                Name="mainControl"
                 mc:Ignorable="d" Width="480" Height="300">
     <ui:BCadControl.Resources>
         <local:BoolToVisibilityConverter x:Key="boolToVis" />
