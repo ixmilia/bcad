@@ -198,6 +198,7 @@ namespace BCad.UI
             unprojectMatrix.Invert();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateSnapPoints();
+            UpdateCursorText();
         }
 
         private void DrawingChanged()
@@ -326,8 +327,7 @@ namespace BCad.UI
                 firstSelectionPoint -= delta;
             }
 
-            var real = GetCursorPoint();
-            positionText.Text = string.Format("Cursor: {0},{1}; Real: {2:F0},{3:F0},{4:F0}", cursor.X, cursor.Y, real.X, real.Y, real.Z);
+            UpdateCursorText();
 
             if (selecting)
             {
@@ -351,6 +351,16 @@ namespace BCad.UI
                 Canvas.SetLeft(cursorImage, (int)(cursor.X - (cursorImage.ActualWidth / 2.0)));
                 Canvas.SetTop(cursorImage, (int)(cursor.Y - (cursorImage.ActualHeight / 2.0)));
             }
+        }
+
+        private void UpdateCursorText()
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    var cursor = Input.Mouse.GetPosition(this);
+                    var real = GetCursorPoint();
+                    positionText.Text = string.Format("Cursor: {0},{1}; Real: {2:F0},{3:F0},{4:F0}", cursor.X, cursor.Y, real.X, real.Y, real.Z);
+                }));
         }
 
         private void UpdateCursor()
@@ -647,45 +657,18 @@ namespace BCad.UI
 
         private IEnumerable<Point> ProjectedChain(Entity entity)
         {
-            return entity.GetPrimitives().SelectMany(p => ProjectedChain(p));
+            return entity.GetPrimitives().SelectMany(p => p.GetProjectedVerticies(windowsTransformationMatrix));
         }
 
         private IEnumerable<Point> ProjectedChain(IPrimitive primitive)
         {
-            IEnumerable<Point> points;
             switch (primitive.Kind)
             {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    points = el.GetProjectedVerticies(windowsTransformationMatrix);
-                    break;
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    points = new[]
-                    {
-                        windowsTransformationMatrix.Transform(line.P1),
-                        windowsTransformationMatrix.Transform(line.P2)
-                    };
-                    break;
-                case PrimitiveKind.Text:
-                    var text = (PrimitiveText)primitive;
-                    var rad = text.Rotation * MathHelper.DegreesToRadians;
-                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
-                    var up = text.Normal.Cross(right).Normalize() * text.Height;
-                    points = new[]
-                    {
-                        windowsTransformationMatrix.Transform(text.Location),
-                        windowsTransformationMatrix.Transform(text.Location + right),
-                        windowsTransformationMatrix.Transform(text.Location + right + up),
-                        windowsTransformationMatrix.Transform(text.Location + up),
-                        windowsTransformationMatrix.Transform(text.Location)
-                    };
-                    break;
-                default:
-                    throw new InvalidOperationException();
+            case PrimitiveKind.Ellipse:
+                return ((PrimitiveEllipse)primitive).GetProjectedVerticies(windowsTransformationMatrix, 360);
+            default:
+                return primitive.GetProjectedVerticies(windowsTransformationMatrix);
             }
-
-            return points;
         }
 
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
@@ -729,7 +712,7 @@ namespace BCad.UI
             {
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    return ClosestPoint(el.GetProjectedVerticies(windowsTransformationMatrix), screenPoint);
+                    return ClosestPoint(el.GetProjectedVerticies(windowsTransformationMatrix, 360).ToArray(), screenPoint);
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     return ClosestPoint(new[]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using BCad.EventArguments;
 using BCad.Extensions;
 using BCad.Helpers;
@@ -172,7 +173,7 @@ namespace BCad.UI
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var verts = el.GetProjectedVerticies(transform, highQuality ? 180 : 72);
+                    var verts = el.GetProjectedVerticies(transform, highQuality ? 180 : 72).ToArray();
                     verticies = new VertexPositionColor[verts.Length];
                     for (int i = 0; i < verts.Length; i++)
                     {

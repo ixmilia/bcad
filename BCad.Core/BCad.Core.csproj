@@ -38,6 +38,7 @@
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Commands\CommandMetadata.cs" />
+    <Compile Include="Commands\ZoomExtentsCommand.cs" />
     <Compile Include="ConsoleMetadata.cs" />
     <Compile Include="DefaultSettingsManager.cs" />
     <Compile Include="FileHandlers\FileHandlerMetadata.cs" />

@@ -770,5 +770,64 @@ namespace BCad.Extensions
         {
             return ellipse.GetPoint(ellipse.EndAngle);
         }
+
+        public static Point[] GetInterestingPoints(this IPrimitive primitive)
+        {
+            Point[] points;
+            switch (primitive.Kind)
+            {
+            case PrimitiveKind.Ellipse:
+                var ellipse = (PrimitiveEllipse)primitive;
+                points = ellipse.GetInterestingPoints(360);
+                break;
+            case PrimitiveKind.Line:
+                var line = (PrimitiveLine)primitive;
+                points = new[] { line.P1, line.P2 };
+                break;
+            case PrimitiveKind.Text:
+                var text = (PrimitiveText)primitive;
+                var rad = text.Rotation * MathHelper.DegreesToRadians;
+                var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                var up = text.Normal.Cross(right).Normalize() * text.Height;
+                points = new[]
+                    {
+                        text.Location,
+                        text.Location + right,
+                        text.Location + right + up,
+                        text.Location + up,
+                        text.Location
+                    };
+                break;
+            default:
+                throw new InvalidOperationException();
+            }
+
+            return points;
+        }
+
+        public static Point[] GetInterestingPoints(this PrimitiveEllipse ellipse, int maxSeg)
+        {
+            var startAngleDeg = ellipse.StartAngle;
+            var endAngleDeg = ellipse.EndAngle;
+            if (endAngleDeg < startAngleDeg)
+                endAngleDeg += MathHelper.ThreeSixty;
+            var startAngleRad = startAngleDeg * MathHelper.DegreesToRadians;
+            var endAngleRad = endAngleDeg * MathHelper.DegreesToRadians;
+            if (endAngleRad < startAngleRad)
+                endAngleRad += MathHelper.TwoPI;
+            var vertexCount = (int)Math.Ceiling((endAngleDeg - startAngleDeg) / MathHelper.ThreeSixty * maxSeg);
+            var points = new Point[vertexCount + 1];
+            var angleDelta = MathHelper.ThreeSixty / maxSeg * MathHelper.DegreesToRadians;
+            var trans = ellipse.FromUnitCircleProjection();
+            double angle;
+            int i;
+            for (angle = startAngleRad, i = 0; i < vertexCount; angle += angleDelta, i++)
+            {
+                points[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
+            }
+
+            points[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
+            return points;
+        }
     }
 }

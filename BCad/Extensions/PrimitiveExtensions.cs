@@ -1,38 +1,30 @@
 ﻿using System;
-using BCad.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 using BCad.Primitives;
 
 namespace BCad.Extensions
 {
     public static class PrimitiveExtensions
     {
-        private const double ThreeSixty = 360.0;
-        public const int MaxSegmentCount = 360;
-
-        public static Point[] GetProjectedVerticies(this PrimitiveEllipse ellipse, Matrix4 projectionMatrix, int maxSegmentCount = MaxSegmentCount)
+        public static IEnumerable<Point> GetProjectedVerticies(this IPrimitive primitive, Matrix4 transformationMatrix)
         {
-            var startAngleDeg = ellipse.StartAngle;
-            var endAngleDeg = ellipse.EndAngle;
-            if (endAngleDeg < startAngleDeg)
-                endAngleDeg += ThreeSixty;
-            var startAngleRad = startAngleDeg * MathHelper.DegreesToRadians;
-            var endAngleRad = endAngleDeg * MathHelper.DegreesToRadians;
-            if (endAngleRad < startAngleRad)
-                endAngleRad += MathHelper.TwoPI;
-            var vertexCount = (int)Math.Ceiling((endAngleDeg - startAngleDeg) / ThreeSixty * maxSegmentCount);
-            var verticies = new Point[vertexCount + 1];
-            var angleDelta = ThreeSixty / maxSegmentCount * MathHelper.DegreesToRadians;
-            var trans = projectionMatrix * ellipse.FromUnitCircleProjection();
-            double angle;
-            int i;
-            for (angle = startAngleRad, i = 0; i < vertexCount; angle += angleDelta, i++)
+            switch (primitive.Kind)
             {
-                verticies[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
+                case PrimitiveKind.Line:
+                case PrimitiveKind.Text:
+                    return primitive.GetInterestingPoints().Select(p => transformationMatrix.Transform(p));
+                case PrimitiveKind.Ellipse:
+                    return ((PrimitiveEllipse)primitive).GetProjectedVerticies(transformationMatrix, 360);
+                default:
+                    throw new InvalidOperationException();
             }
+        }
 
-            verticies[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
-
-            return verticies;
+        public static IEnumerable<Point> GetProjectedVerticies(this PrimitiveEllipse ellipse, Matrix4 transformationMatrix, int maxSeg)
+        {
+            return ellipse.GetInterestingPoints(maxSeg)
+                .Select(p => transformationMatrix.Transform(p));
         }
     }
 }

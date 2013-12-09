@@ -6,8 +6,10 @@ namespace BCad.Helpers
     {
         public const int Precision = 12;
         public const double PI = 3.1415926535898;
-        public const double RadiansToDegrees = 180.0 / MathHelper.PI;
-        public const double DegreesToRadians = MathHelper.PI / 180.0;
+        public const double OneEighty = 180.0;
+        public const double ThreeSixty = 360.0;
+        public const double RadiansToDegrees = OneEighty / MathHelper.PI;
+        public const double DegreesToRadians = MathHelper.PI / OneEighty;
         public const double TwoPI = MathHelper.PI * 2.0;
         public const double Epsilon = 0.000000000001;
 
