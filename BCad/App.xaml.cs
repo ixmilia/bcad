@@ -26,8 +26,7 @@ namespace BCad
                     currentAssembly,
                     Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.Core.dll")),
                     Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.Core.UI.dll")),
-                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.FileHandlers.dll")),
-                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.UI.dll")),
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.FileHandlers.dll"))
                 });
             Container = configuration.CreateContainer();
         }
