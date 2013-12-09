@@ -45,7 +45,7 @@ namespace BCad.Commands
             var unproj = planeProjection;
             unproj.Invert();
             var bottomLeft = unproj.Transform(new Point(minx, miny, 0));
-            var height = Math.Abs(maxy - miny);
+            var height = Math.Abs(maxy - miny); // TODO: doesn't account for viewport width
 
             var newVp = Workspace.ActiveViewPort.Update(bottomLeft: bottomLeft, viewHeight: height);
             Workspace.Update(activeViewPort: newVp);
