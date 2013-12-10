@@ -160,6 +160,12 @@ namespace BCad.Dxf
             }
         }
 
+        private static bool IsPropertySupported(string propertyName, DxfAcadVersion version)
+        {
+            var supported = SupportedVersions(propertyName);
+            return version >= supported.Item1 && version <= supported.Item2;
+        }
+
         private static DateTime FromOADate(double value)
         {
             return new DateTime(DoubleDateToTicks(value), DateTimeKind.Unspecified);

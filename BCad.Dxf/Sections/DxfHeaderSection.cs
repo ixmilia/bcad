@@ -130,10 +130,10 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Header; }
         }
 
-        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
             var values = new List<DxfCodePair>();
-            DxfHeader.AddValueToList(values, this.Header);
+            DxfHeader.AddValueToList(values, this.Header, version);
             return values;
         }
 

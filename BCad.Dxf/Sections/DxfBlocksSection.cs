@@ -18,7 +18,7 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Blocks; }
         }
 
-        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
             return this.Blocks.SelectMany(e => e.GetValuePairs());
         }

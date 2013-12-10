@@ -133,7 +133,7 @@ namespace BCad.Dxf
             // write sections
             foreach (var section in Sections)
             {
-                foreach (var pair in section.GetValuePairs())
+                foreach (var pair in section.GetValuePairs(Header.Version))
                     writer.WriteCodeValuePair(pair);
             }
 

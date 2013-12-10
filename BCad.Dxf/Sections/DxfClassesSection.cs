@@ -17,7 +17,7 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Classes; }
         }
 
-        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
            return this.Classes.SelectMany(e => e.GetValuePairs());
         }

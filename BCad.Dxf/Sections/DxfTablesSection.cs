@@ -34,7 +34,7 @@ namespace BCad.Dxf.Sections
             this.ViewPortTable = new DxfViewPortTable();
         }
 
-        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
             foreach (var table in new DxfTable[] { AppIdTable, BlockRecordTable, DimStyleTable, LayerTable, LTypeTable, StyleTable, UcsTable, ViewTable, ViewPortTable })
             {

@@ -5,6 +5,21 @@
     xmlns="http://IxMilia.com/Dxf/DxfSpec"
     xmlns:mstns="http://IxMilia.com/Dxf/DxfSpec"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:simpleType name="VersionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="R10" />
+      <xs:enumeration value="R11" />
+      <xs:enumeration value="R12" />
+      <xs:enumeration value="R13" />
+      <xs:enumeration value="R14" />
+      <xs:enumeration value="R2000" />
+      <xs:enumeration value="R2004" />
+      <xs:enumeration value="R2007" />
+      <xs:enumeration value="R2010" />
+      <xs:enumeration value="R2013" />
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:element name="Variable">
     <xs:complexType>
@@ -15,6 +30,8 @@
       <xs:attribute name="DefaultValue" type="xs:string" use="required" />
       <xs:attribute name="ReadConverter" type="xs:string" use="optional" />
       <xs:attribute name="WriteConverter" type="xs:string" use="optional" />
+      <xs:attribute name="MinVersion" type="VersionType" use="optional" />
+      <xs:attribute name="MaxVersion" type="VersionType" use="optional" />
     </xs:complexType>
   </xs:element>
 
