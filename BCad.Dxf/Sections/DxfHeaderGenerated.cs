@@ -101,6 +101,7 @@ namespace BCad.Dxf
         private const string FILLETRAD = "$FILLETRAD";
         private const string FILLMODE = "$FILLMODE";
         private const string HANDLING = "$HANDLING";
+        private const string HANDSEED = "$HANDSEED";
         private const string INSBASE = "$INSBASE";
         private const string LIMCHECK = "$LIMCHECK";
         private const string LIMMAX = "$LIMMAX";
@@ -264,6 +265,7 @@ namespace BCad.Dxf
         public double FilletRadius { get; set; } // FILLETRAD
         public bool FillModeOn { get; set; } // FILLMODE
         public int NextAvailableHandle { get; set; } // HANDLING
+        public string NextAvailableHandle2 { get; set; } // HANDSEED
         public DxfPoint InsertionBase { get; set; } // INSBASE
         public bool UseLimitsChecking { get; set; } // LIMCHECK
         public DxfPoint MaximumDrawingLimits { get; set; } // LIMMAX
@@ -429,6 +431,7 @@ namespace BCad.Dxf
             this.FilletRadius = 0.0; // FILLETRAD
             this.FillModeOn = true; // FILLMODE
             this.NextAvailableHandle = 0; // HANDLING
+            this.NextAvailableHandle2 = ""; // HANDSEED
             this.InsertionBase = DxfPoint.Origin; // INSBASE
             this.UseLimitsChecking = false; // LIMCHECK
             this.MaximumDrawingLimits = DxfPoint.Origin; // LIMMAX
@@ -508,1673 +511,1167 @@ namespace BCad.Dxf
         internal static void AddValueToList(List<DxfCodePair> list, DxfHeader header, DxfAcadVersion version)
         {
             // ACADMAINTVER
-            if (IsPropertySupported(ACADMAINTVER, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ACADMAINTVER));
-			    list.Add(new DxfCodePair(70, (header.MaintenenceVersion)));
+                list.Add(new DxfCodePair(70, (header.MaintenenceVersion)));
             }
 
             // ACADVER
-            if (IsPropertySupported(ACADVER, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ACADVER));
-			    list.Add(new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(header.Version)));
+                list.Add(new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(header.Version)));
             }
 
             // ANGBASE
-            if (IsPropertySupported(ANGBASE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ANGBASE));
-			    list.Add(new DxfCodePair(50, (header.AngleZeroDirection)));
+                list.Add(new DxfCodePair(50, (header.AngleZeroDirection)));
             }
 
             // ANGDIR
-            if (IsPropertySupported(ANGDIR, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ANGDIR));
-			    list.Add(new DxfCodePair(70, (short)(header.AngleDirection)));
+                list.Add(new DxfCodePair(70, (short)(header.AngleDirection)));
             }
 
             // ATTDIA
-            if (IsPropertySupported(ATTDIA, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ATTDIA));
-			    list.Add(new DxfCodePair(70, BoolShort(header.ShowAttributeEntryDialogs)));
+                list.Add(new DxfCodePair(70, BoolShort(header.ShowAttributeEntryDialogs)));
             }
 
             // ATTMODE
-            if (IsPropertySupported(ATTMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ATTMODE));
-			    list.Add(new DxfCodePair(70, (short)(header.AttributeVisibility)));
+                list.Add(new DxfCodePair(70, (short)(header.AttributeVisibility)));
             }
 
             // ATTREQ
-            if (IsPropertySupported(ATTREQ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ATTREQ));
-			    list.Add(new DxfCodePair(70, BoolShort(header.PromptForAttributeOnInsert)));
+                list.Add(new DxfCodePair(70, BoolShort(header.PromptForAttributeOnInsert)));
             }
 
             // AUNITS
-            if (IsPropertySupported(AUNITS, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, AUNITS));
-			    list.Add(new DxfCodePair(70, (short)(header.AngleUnitFormat)));
+                list.Add(new DxfCodePair(70, (short)(header.AngleUnitFormat)));
             }
 
             // AUPREC
-            if (IsPropertySupported(AUPREC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, AUPREC));
-			    list.Add(new DxfCodePair(70, (header.AngleUnitPrecision)));
+                list.Add(new DxfCodePair(70, (header.AngleUnitPrecision)));
             }
 
             // BLIPMODE
-            if (IsPropertySupported(BLIPMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, BLIPMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.BlipMode)));
+                list.Add(new DxfCodePair(70, BoolShort(header.BlipMode)));
             }
 
             // CECOLOR
-            if (IsPropertySupported(CECOLOR, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CECOLOR));
-			    list.Add(new DxfCodePair(62, RawValue(header.CurrentEntityColor)));
+                list.Add(new DxfCodePair(62, RawValue(header.CurrentEntityColor)));
             }
 
             // CELTSCALE
-            if (IsPropertySupported(CELTSCALE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CELTSCALE));
-			    list.Add(new DxfCodePair(40, (header.CurrentEntityLinetypeScale)));
+                list.Add(new DxfCodePair(40, (header.CurrentEntityLinetypeScale)));
             }
 
             // CELTYPE
-            if (IsPropertySupported(CELTYPE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CELTYPE));
-			    list.Add(new DxfCodePair(6, (header.CurrentEntityLinetype)));
+                list.Add(new DxfCodePair(6, (header.CurrentEntityLinetype)));
             }
 
             // CHAMFERA
-            if (IsPropertySupported(CHAMFERA, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CHAMFERA));
-			    list.Add(new DxfCodePair(40, (header.FirstChamferDistance)));
+                list.Add(new DxfCodePair(40, (header.FirstChamferDistance)));
             }
 
             // CHAMFERB
-            if (IsPropertySupported(CHAMFERB, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CHAMFERB));
-			    list.Add(new DxfCodePair(40, (header.SecondChamferDistance)));
+                list.Add(new DxfCodePair(40, (header.SecondChamferDistance)));
             }
 
             // CHAMFERC
-            if (IsPropertySupported(CHAMFERC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CHAMFERC));
-			    list.Add(new DxfCodePair(40, (header.ChamferLength)));
+                list.Add(new DxfCodePair(40, (header.ChamferLength)));
             }
 
             // CHAMFERD
-            if (IsPropertySupported(CHAMFERD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CHAMFERD));
-			    list.Add(new DxfCodePair(40, (header.ChamferAngle)));
+                list.Add(new DxfCodePair(40, (header.ChamferAngle)));
             }
 
             // CLAYER
-            if (IsPropertySupported(CLAYER, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CLAYER));
-			    list.Add(new DxfCodePair(8, (header.CurrentLayer)));
+                list.Add(new DxfCodePair(8, (header.CurrentLayer)));
             }
 
             // CMLJUST
-            if (IsPropertySupported(CMLJUST, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CMLJUST));
-			    list.Add(new DxfCodePair(70, (short)(header.CurrentMultilineJustification)));
+                list.Add(new DxfCodePair(70, (short)(header.CurrentMultilineJustification)));
             }
 
             // CMLSCALE
-            if (IsPropertySupported(CMLSCALE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CMLSCALE));
-			    list.Add(new DxfCodePair(40, (header.CurrentMultilineScale)));
+                list.Add(new DxfCodePair(40, (header.CurrentMultilineScale)));
             }
 
             // CMLSTYLE
-            if (IsPropertySupported(CMLSTYLE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, CMLSTYLE));
-			    list.Add(new DxfCodePair(2, (header.CurrentMultilineStyle)));
+                list.Add(new DxfCodePair(2, (header.CurrentMultilineStyle)));
             }
 
             // COORDS
-            if (IsPropertySupported(COORDS, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, COORDS));
-			    list.Add(new DxfCodePair(70, (short)(header.CoordinateDisplay)));
+                list.Add(new DxfCodePair(70, (short)(header.CoordinateDisplay)));
             }
 
             // DELOBJ
-            if (IsPropertySupported(DELOBJ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DELOBJ));
-			    list.Add(new DxfCodePair(70, BoolShort(header.RetainDeletedObjects)));
+                list.Add(new DxfCodePair(70, BoolShort(header.RetainDeletedObjects)));
             }
 
             // DIMALT
-            if (IsPropertySupported(DIMALT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALT));
-			    list.Add(new DxfCodePair(70, BoolShort(header.UseAlternateDimensioning)));
+                list.Add(new DxfCodePair(70, BoolShort(header.UseAlternateDimensioning)));
             }
 
             // DIMALTD
-            if (IsPropertySupported(DIMALTD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALTD));
-			    list.Add(new DxfCodePair(70, (header.AlternateDimensioningDecimalPlaces)));
+                list.Add(new DxfCodePair(70, (header.AlternateDimensioningDecimalPlaces)));
             }
 
             // DIMALTF
-            if (IsPropertySupported(DIMALTF, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALTF));
-			    list.Add(new DxfCodePair(40, (header.AlternateDimensioningScaleFactor)));
+                list.Add(new DxfCodePair(40, (header.AlternateDimensioningScaleFactor)));
             }
 
             // DIMALTTD
-            if (IsPropertySupported(DIMALTTD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALTTD));
-			    list.Add(new DxfCodePair(70, (header.AlternateDimensioningToleranceDecimalPlaces)));
+                list.Add(new DxfCodePair(70, (header.AlternateDimensioningToleranceDecimalPlaces)));
             }
 
             // DIMALTTZ
-            if (IsPropertySupported(DIMALTTZ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALTTZ));
-			    list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningToleranceZeroSupression)));
+                list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningToleranceZeroSupression)));
             }
 
             // DIMALTU
-            if (IsPropertySupported(DIMALTU, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALTU));
-			    list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningUnits)));
+                list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningUnits)));
             }
 
             // DIMALTZ
-            if (IsPropertySupported(DIMALTZ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMALTZ));
-			    list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningZeroSupression)));
+                list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningZeroSupression)));
             }
 
             // DIMAPOST
-            if (IsPropertySupported(DIMAPOST, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMAPOST));
-			    list.Add(new DxfCodePair(1, (header.AlternateDimensioningSuffix)));
+                list.Add(new DxfCodePair(1, (header.AlternateDimensioningSuffix)));
             }
 
             // DIMASO
-            if (IsPropertySupported(DIMASO, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMASO));
-			    list.Add(new DxfCodePair(70, BoolShort(header.CreateAssociativeDimensioning)));
+                list.Add(new DxfCodePair(70, BoolShort(header.CreateAssociativeDimensioning)));
             }
 
             // DIMASZ
-            if (IsPropertySupported(DIMASZ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMASZ));
-			    list.Add(new DxfCodePair(40, (header.DimensioningArrowSize)));
+                list.Add(new DxfCodePair(40, (header.DimensioningArrowSize)));
             }
 
             // DIMAUNIT
-            if (IsPropertySupported(DIMAUNIT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMAUNIT));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensioningAngleFormat)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensioningAngleFormat)));
             }
 
             // DIMBLK
-            if (IsPropertySupported(DIMBLK, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMBLK));
-			    list.Add(new DxfCodePair(1, (header.ArrowBlockName)));
+                list.Add(new DxfCodePair(1, (header.ArrowBlockName)));
             }
 
             // DIMBLK1
-            if (IsPropertySupported(DIMBLK1, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMBLK1));
-			    list.Add(new DxfCodePair(1, (header.FirstArrowBlockName)));
+                list.Add(new DxfCodePair(1, (header.FirstArrowBlockName)));
             }
 
             // DIMBLK2
-            if (IsPropertySupported(DIMBLK2, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMBLK2));
-			    list.Add(new DxfCodePair(1, (header.SecondArrowBlockName)));
+                list.Add(new DxfCodePair(1, (header.SecondArrowBlockName)));
             }
 
             // DIMCEN
-            if (IsPropertySupported(DIMCEN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMCEN));
-			    list.Add(new DxfCodePair(40, (header.CenterMarkSize)));
+                list.Add(new DxfCodePair(40, (header.CenterMarkSize)));
             }
 
             // DIMCLRD
-            if (IsPropertySupported(DIMCLRD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMCLRD));
-			    list.Add(new DxfCodePair(70, RawValue(header.DimensionLineColor)));
+                list.Add(new DxfCodePair(70, RawValue(header.DimensionLineColor)));
             }
 
             // DIMCLRE
-            if (IsPropertySupported(DIMCLRE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMCLRE));
-			    list.Add(new DxfCodePair(70, RawValue(header.DimensionExtensionLineColor)));
+                list.Add(new DxfCodePair(70, RawValue(header.DimensionExtensionLineColor)));
             }
 
             // DIMCLRT
-            if (IsPropertySupported(DIMCLRT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMCLRT));
-			    list.Add(new DxfCodePair(70, RawValue(header.DimensionTextColor)));
+                list.Add(new DxfCodePair(70, RawValue(header.DimensionTextColor)));
             }
 
             // DIMDEC
-            if (IsPropertySupported(DIMDEC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMDEC));
-			    list.Add(new DxfCodePair(70, (header.DimensionUnitToleranceDecimalPlaces)));
+                list.Add(new DxfCodePair(70, (header.DimensionUnitToleranceDecimalPlaces)));
             }
 
             // DIMDLE
-            if (IsPropertySupported(DIMDLE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMDLE));
-			    list.Add(new DxfCodePair(40, (header.DimensionLineExtension)));
+                list.Add(new DxfCodePair(40, (header.DimensionLineExtension)));
             }
 
             // DIMDLI
-            if (IsPropertySupported(DIMDLI, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMDLI));
-			    list.Add(new DxfCodePair(40, (header.DimensionLineIncrement)));
+                list.Add(new DxfCodePair(40, (header.DimensionLineIncrement)));
             }
 
             // DIMEXE
-            if (IsPropertySupported(DIMEXE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMEXE));
-			    list.Add(new DxfCodePair(40, (header.DimensionExtensionLineExtension)));
+                list.Add(new DxfCodePair(40, (header.DimensionExtensionLineExtension)));
             }
 
             // DIMEXO
-            if (IsPropertySupported(DIMEXO, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMEXO));
-			    list.Add(new DxfCodePair(40, (header.DimensionExtensionLineOffset)));
+                list.Add(new DxfCodePair(40, (header.DimensionExtensionLineOffset)));
             }
 
             // DIMFIT
-            if (IsPropertySupported(DIMFIT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMFIT));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensionTextAndArrowPlacement)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionTextAndArrowPlacement)));
             }
 
             // DIMGAP
-            if (IsPropertySupported(DIMGAP, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMGAP));
-			    list.Add(new DxfCodePair(40, (header.DimensionLineGap)));
+                list.Add(new DxfCodePair(40, (header.DimensionLineGap)));
             }
 
             // DIMJUST
-            if (IsPropertySupported(DIMJUST, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMJUST));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensionTextJustification)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionTextJustification)));
             }
 
             // DIMLFAC
-            if (IsPropertySupported(DIMLFAC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMLFAC));
-			    list.Add(new DxfCodePair(40, (header.DimensionLinearMeasurementsScaleFactor)));
+                list.Add(new DxfCodePair(40, (header.DimensionLinearMeasurementsScaleFactor)));
             }
 
             // DIMLIM
-            if (IsPropertySupported(DIMLIM, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMLIM));
-			    list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionLimits)));
+                list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionLimits)));
             }
 
             // DIMPOST
-            if (IsPropertySupported(DIMPOST, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMPOST));
-			    list.Add(new DxfCodePair(1, (header.DimensioningSuffix)));
+                list.Add(new DxfCodePair(1, (header.DimensioningSuffix)));
             }
 
             // DIMRND
-            if (IsPropertySupported(DIMRND, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMRND));
-			    list.Add(new DxfCodePair(40, (header.DimensionDistanceRoundingValue)));
+                list.Add(new DxfCodePair(40, (header.DimensionDistanceRoundingValue)));
             }
 
             // DIMSAH
-            if (IsPropertySupported(DIMSAH, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSAH));
-			    list.Add(new DxfCodePair(70, BoolShort(header.UseSeparateArrowBlocksForDimensions)));
+                list.Add(new DxfCodePair(70, BoolShort(header.UseSeparateArrowBlocksForDimensions)));
             }
 
             // DIMSCALE
-            if (IsPropertySupported(DIMSCALE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSCALE));
-			    list.Add(new DxfCodePair(40, (header.DimensioningScaleFactor)));
+                list.Add(new DxfCodePair(40, (header.DimensioningScaleFactor)));
             }
 
             // DIMSD1
-            if (IsPropertySupported(DIMSD1, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSD1));
-			    list.Add(new DxfCodePair(70, BoolShort(header.SuppressFirstDimensionExtensionLine)));
+                list.Add(new DxfCodePair(70, BoolShort(header.SuppressFirstDimensionExtensionLine)));
             }
 
             // DIMSD2
-            if (IsPropertySupported(DIMSD2, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSD2));
-			    list.Add(new DxfCodePair(70, BoolShort(header.SuppressSecondDimensionExtensionLine)));
+                list.Add(new DxfCodePair(70, BoolShort(header.SuppressSecondDimensionExtensionLine)));
             }
 
             // DIMSHO
-            if (IsPropertySupported(DIMSHO, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSHO));
-			    list.Add(new DxfCodePair(70, BoolShort(header.RecomputeDimensionsWhileDragging)));
+                list.Add(new DxfCodePair(70, BoolShort(header.RecomputeDimensionsWhileDragging)));
             }
 
             // DIMSOXD
-            if (IsPropertySupported(DIMSOXD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSOXD));
-			    list.Add(new DxfCodePair(70, BoolShort(header.SuppressOutsideExtensionDimensionLines)));
+                list.Add(new DxfCodePair(70, BoolShort(header.SuppressOutsideExtensionDimensionLines)));
             }
 
             // DIMSTYLE
-            if (IsPropertySupported(DIMSTYLE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMSTYLE));
-			    list.Add(new DxfCodePair(2, (header.DimensionStyleName)));
+                list.Add(new DxfCodePair(2, (header.DimensionStyleName)));
             }
 
             // DIMTAD
-            if (IsPropertySupported(DIMTAD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTAD));
-			    list.Add(new DxfCodePair(70, BoolShort(header.TextAboveDimensionLine)));
+                list.Add(new DxfCodePair(70, BoolShort(header.TextAboveDimensionLine)));
             }
 
             // DIMTDEC
-            if (IsPropertySupported(DIMTDEC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTDEC));
-			    list.Add(new DxfCodePair(70, (header.DimensionToleranceDecimalPlaces)));
+                list.Add(new DxfCodePair(70, (header.DimensionToleranceDecimalPlaces)));
             }
 
             // DIMTFAC
-            if (IsPropertySupported(DIMTFAC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTFAC));
-			    list.Add(new DxfCodePair(40, (header.DimensionToleranceDisplayScaleFactor)));
+                list.Add(new DxfCodePair(40, (header.DimensionToleranceDisplayScaleFactor)));
             }
 
             // DIMTIH
-            if (IsPropertySupported(DIMTIH, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTIH));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextInsideHorizontal)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextInsideHorizontal)));
             }
 
             // DIMTIX
-            if (IsPropertySupported(DIMTIX, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTIX));
-			    list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionTextInsideExtensions)));
+                list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionTextInsideExtensions)));
             }
 
             // DIMTM
-            if (IsPropertySupported(DIMTM, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTM));
-			    list.Add(new DxfCodePair(40, (header.DimensionMinusTolerance)));
+                list.Add(new DxfCodePair(40, (header.DimensionMinusTolerance)));
             }
 
             // DIMTOFL
-            if (IsPropertySupported(DIMTOFL, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTOFL));
-			    list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionLineExtensionsOutsideIfTextIs)));
+                list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionLineExtensionsOutsideIfTextIs)));
             }
 
             // DIMTOH
-            if (IsPropertySupported(DIMTOH, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTOH));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextOutsideHorizontal)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextOutsideHorizontal)));
             }
 
             // DIMTOL
-            if (IsPropertySupported(DIMTOL, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTOL));
-			    list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionTolerances)));
+                list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionTolerances)));
             }
 
             // DIMTOLJ
-            if (IsPropertySupported(DIMTOLJ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTOLJ));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceVerticalJustification)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceVerticalJustification)));
             }
 
             // DIMTP
-            if (IsPropertySupported(DIMTP, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTP));
-			    list.Add(new DxfCodePair(40, (header.DimensionPlusTolerance)));
+                list.Add(new DxfCodePair(40, (header.DimensionPlusTolerance)));
             }
 
             // DIMTSZ
-            if (IsPropertySupported(DIMTSZ, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTSZ));
-			    list.Add(new DxfCodePair(40, (header.DimensioningTickSize)));
+                list.Add(new DxfCodePair(40, (header.DimensioningTickSize)));
             }
 
             // DIMTVP
-            if (IsPropertySupported(DIMTVP, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTVP));
-			    list.Add(new DxfCodePair(40, (header.DimensionVerticalTextPosition)));
+                list.Add(new DxfCodePair(40, (header.DimensionVerticalTextPosition)));
             }
 
             // DIMTXSTY
-            if (IsPropertySupported(DIMTXSTY, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTXSTY));
-			    list.Add(new DxfCodePair(7, (header.DimensionTextStyle)));
+                list.Add(new DxfCodePair(7, (header.DimensionTextStyle)));
             }
 
             // DIMTXT
-            if (IsPropertySupported(DIMTXT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTXT));
-			    list.Add(new DxfCodePair(40, (header.DimensioningTextHeight)));
+                list.Add(new DxfCodePair(40, (header.DimensioningTextHeight)));
             }
 
             // DIMTZIN
-            if (IsPropertySupported(DIMTZIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMTZIN));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceZeroSuppression)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceZeroSuppression)));
             }
 
             // DIMUNIT
-            if (IsPropertySupported(DIMUNIT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMUNIT));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensionUnitFormat)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionUnitFormat)));
             }
 
             // DIMUPT
-            if (IsPropertySupported(DIMUPT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMUPT));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DimensionCursorControlsTextPosition)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DimensionCursorControlsTextPosition)));
             }
 
             // DIMZIN
-            if (IsPropertySupported(DIMZIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DIMZIN));
-			    list.Add(new DxfCodePair(70, (short)(header.DimensionUnitZeroSuppression)));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionUnitZeroSuppression)));
             }
 
             // DISPSILH
-            if (IsPropertySupported(DISPSILH, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DISPSILH));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DisplaySilhouetteCurvesInWireframeMode)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DisplaySilhouetteCurvesInWireframeMode)));
             }
 
             // DRAGMODE
-            if (IsPropertySupported(DRAGMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DRAGMODE));
-			    list.Add(new DxfCodePair(70, (short)(header.DragMode)));
+                list.Add(new DxfCodePair(70, (short)(header.DragMode)));
             }
 
             // DWGCODEPAGE
-            if (IsPropertySupported(DWGCODEPAGE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, DWGCODEPAGE));
-			    list.Add(new DxfCodePair(3, (header.DrawingCodePage)));
+                list.Add(new DxfCodePair(3, (header.DrawingCodePage)));
             }
 
             // ELEVATION
-            if (IsPropertySupported(ELEVATION, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ELEVATION));
-			    list.Add(new DxfCodePair(40, (header.Elevation)));
+                list.Add(new DxfCodePair(40, (header.Elevation)));
             }
 
             // EXTMAX
-            if (IsPropertySupported(EXTMAX, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, EXTMAX));
                 list.Add(new DxfCodePair(10, header.MaximumDrawingExtents.X));
                 list.Add(new DxfCodePair(20, header.MaximumDrawingExtents.Y));
                 list.Add(new DxfCodePair(30, header.MaximumDrawingExtents.Z));
-
             }
 
             // EXTMIN
-            if (IsPropertySupported(EXTMIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, EXTMIN));
                 list.Add(new DxfCodePair(10, header.MinimumDrawingExtents.X));
                 list.Add(new DxfCodePair(20, header.MinimumDrawingExtents.Y));
                 list.Add(new DxfCodePair(30, header.MinimumDrawingExtents.Z));
-
             }
 
             // FILLETRAD
-            if (IsPropertySupported(FILLETRAD, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, FILLETRAD));
-			    list.Add(new DxfCodePair(40, (header.FilletRadius)));
+                list.Add(new DxfCodePair(40, (header.FilletRadius)));
             }
 
             // FILLMODE
-            if (IsPropertySupported(FILLMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, FILLMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.FillModeOn)));
+                list.Add(new DxfCodePair(70, BoolShort(header.FillModeOn)));
             }
 
             // HANDLING
-            if (IsPropertySupported(HANDLING, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, HANDLING));
-			    list.Add(new DxfCodePair(70, (short)(header.NextAvailableHandle)));
+                list.Add(new DxfCodePair(70, (short)(header.NextAvailableHandle)));
+            }
+
+            // HANDSEED
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            {
+                list.Add(new DxfCodePair(9, HANDSEED));
+                list.Add(new DxfCodePair(5, (header.NextAvailableHandle2)));
             }
 
             // INSBASE
-            if (IsPropertySupported(INSBASE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, INSBASE));
                 list.Add(new DxfCodePair(10, header.InsertionBase.X));
                 list.Add(new DxfCodePair(20, header.InsertionBase.Y));
                 list.Add(new DxfCodePair(30, header.InsertionBase.Z));
-
             }
 
             // LIMCHECK
-            if (IsPropertySupported(LIMCHECK, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, LIMCHECK));
-			    list.Add(new DxfCodePair(70, BoolShort(header.UseLimitsChecking)));
+                list.Add(new DxfCodePair(70, BoolShort(header.UseLimitsChecking)));
             }
 
             // LIMMAX
-            if (IsPropertySupported(LIMMAX, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, LIMMAX));
                 list.Add(new DxfCodePair(10, header.MaximumDrawingLimits.X));
                 list.Add(new DxfCodePair(20, header.MaximumDrawingLimits.Y));
-
             }
 
             // LIMMIN
-            if (IsPropertySupported(LIMMIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, LIMMIN));
                 list.Add(new DxfCodePair(10, header.MinimumDrawingLimits.X));
                 list.Add(new DxfCodePair(20, header.MinimumDrawingLimits.Y));
-
             }
 
             // LTSCALE
-            if (IsPropertySupported(LTSCALE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, LTSCALE));
-			    list.Add(new DxfCodePair(40, (header.LinetypeScale)));
+                list.Add(new DxfCodePair(40, (header.LinetypeScale)));
             }
 
             // LUNITS
-            if (IsPropertySupported(LUNITS, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, LUNITS));
-			    list.Add(new DxfCodePair(70, (short)(header.UnitFormat)));
+                list.Add(new DxfCodePair(70, (short)(header.UnitFormat)));
             }
 
             // LUPREC
-            if (IsPropertySupported(LUPREC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, LUPREC));
-			    list.Add(new DxfCodePair(70, (header.UnitPrecision)));
+                list.Add(new DxfCodePair(70, (header.UnitPrecision)));
             }
 
             // MAXACTVP
-            if (IsPropertySupported(MAXACTVP, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, MAXACTVP));
-			    list.Add(new DxfCodePair(70, (header.MaximumActiveViewports)));
+                list.Add(new DxfCodePair(70, (header.MaximumActiveViewports)));
             }
 
             // MEASUREMENT
-            if (IsPropertySupported(MEASUREMENT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, MEASUREMENT));
-			    list.Add(new DxfCodePair(70, (short)(header.DrawingUnits)));
+                list.Add(new DxfCodePair(70, (short)(header.DrawingUnits)));
             }
 
             // MENU
-            if (IsPropertySupported(MENU, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, MENU));
-			    list.Add(new DxfCodePair(1, (header.FileName)));
+                list.Add(new DxfCodePair(1, (header.FileName)));
             }
 
             // MIRRTEXT
-            if (IsPropertySupported(MIRRTEXT, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, MIRRTEXT));
-			    list.Add(new DxfCodePair(70, BoolShort(header.MirrorText)));
+                list.Add(new DxfCodePair(70, BoolShort(header.MirrorText)));
             }
 
             // ORTHOMODE
-            if (IsPropertySupported(ORTHOMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, ORTHOMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DrawOrthoganalLines)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DrawOrthoganalLines)));
             }
 
             // OSMODE
-            if (IsPropertySupported(OSMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, OSMODE));
-			    list.Add(new DxfCodePair(70, (short)(header.ObjectSnapFlags)));
+                list.Add(new DxfCodePair(70, (short)(header.ObjectSnapFlags)));
             }
 
             // PDMODE
-            if (IsPropertySupported(PDMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PDMODE));
-			    list.Add(new DxfCodePair(70, (short)(header.PointDisplayMode)));
+                list.Add(new DxfCodePair(70, (short)(header.PointDisplayMode)));
             }
 
             // PDSIZE
-            if (IsPropertySupported(PDSIZE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PDSIZE));
-			    list.Add(new DxfCodePair(40, (header.PointDisplaySize)));
+                list.Add(new DxfCodePair(40, (header.PointDisplaySize)));
             }
 
             // PELEVATION
-            if (IsPropertySupported(PELEVATION, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PELEVATION));
-			    list.Add(new DxfCodePair(40, (header.PaperspaceElevation)));
+                list.Add(new DxfCodePair(40, (header.PaperspaceElevation)));
             }
 
             // PEXTMAX
-            if (IsPropertySupported(PEXTMAX, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PEXTMAX));
                 list.Add(new DxfCodePair(10, header.PaperspaceMaximumDrawingExtents.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceMaximumDrawingExtents.Y));
                 list.Add(new DxfCodePair(30, header.PaperspaceMaximumDrawingExtents.Z));
-
             }
 
             // PEXTMIN
-            if (IsPropertySupported(PEXTMIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PEXTMIN));
                 list.Add(new DxfCodePair(10, header.PaperspaceMinimumDrawingExtents.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceMinimumDrawingExtents.Y));
                 list.Add(new DxfCodePair(30, header.PaperspaceMinimumDrawingExtents.Z));
-
             }
 
             // PICKSTYLE
-            if (IsPropertySupported(PICKSTYLE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PICKSTYLE));
-			    list.Add(new DxfCodePair(70, (short)(header.PickStyle)));
+                list.Add(new DxfCodePair(70, (short)(header.PickStyle)));
             }
 
             // PINSBASE
-            if (IsPropertySupported(PINSBASE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PINSBASE));
                 list.Add(new DxfCodePair(10, header.PaperspaceInsertionBase.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceInsertionBase.Y));
                 list.Add(new DxfCodePair(30, header.PaperspaceInsertionBase.Z));
-
             }
 
             // PLIMCHECK
-            if (IsPropertySupported(PLIMCHECK, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PLIMCHECK));
-			    list.Add(new DxfCodePair(70, BoolShort(header.LimitCheckingInPaperspace)));
+                list.Add(new DxfCodePair(70, BoolShort(header.LimitCheckingInPaperspace)));
             }
 
             // PLIMMAX
-            if (IsPropertySupported(PLIMMAX, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PLIMMAX));
                 list.Add(new DxfCodePair(10, header.PaperspaceMaximumDrawingLimits.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceMaximumDrawingLimits.Y));
-
             }
 
             // PLIMMIN
-            if (IsPropertySupported(PLIMMIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PLIMMIN));
                 list.Add(new DxfCodePair(10, header.PaperspaceMinimumDrawingLimits.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceMinimumDrawingLimits.Y));
-
             }
 
             // PLINEGEN
-            if (IsPropertySupported(PLINEGEN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PLINEGEN));
-			    list.Add(new DxfCodePair(70, BoolShort(header.IsPolylineContinuousAroundVerticies)));
+                list.Add(new DxfCodePair(70, BoolShort(header.IsPolylineContinuousAroundVerticies)));
             }
 
             // PLINEWID
-            if (IsPropertySupported(PLINEWID, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PLINEWID));
-			    list.Add(new DxfCodePair(40, (header.DefaultPolylineWidth)));
+                list.Add(new DxfCodePair(40, (header.DefaultPolylineWidth)));
             }
 
             // PROXYGRAPHICS
-            if (IsPropertySupported(PROXYGRAPHICS, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PROXYGRAPHICS));
-			    list.Add(new DxfCodePair(70, BoolShort(header.SaveProxyGraphics)));
+                list.Add(new DxfCodePair(70, BoolShort(header.SaveProxyGraphics)));
             }
 
             // PSLTSCALE
-            if (IsPropertySupported(PSLTSCALE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PSLTSCALE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.ScaleLinetypesInPaperspace)));
+                list.Add(new DxfCodePair(70, BoolShort(header.ScaleLinetypesInPaperspace)));
             }
 
             // PUCSNAME
-            if (IsPropertySupported(PUCSNAME, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PUCSNAME));
-			    list.Add(new DxfCodePair(2, (header.PaperspaceUCSName)));
+                list.Add(new DxfCodePair(2, (header.PaperspaceUCSName)));
             }
 
             // PUCSORG
-            if (IsPropertySupported(PUCSORG, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PUCSORG));
                 list.Add(new DxfCodePair(10, header.PaperspaceUCSOrigin.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceUCSOrigin.Y));
                 list.Add(new DxfCodePair(30, header.PaperspaceUCSOrigin.Z));
-
             }
 
             // PUCSXDIR
-            if (IsPropertySupported(PUCSXDIR, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PUCSXDIR));
                 list.Add(new DxfCodePair(10, header.PaperspaceXAxis.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceXAxis.Y));
                 list.Add(new DxfCodePair(30, header.PaperspaceXAxis.Z));
-
             }
 
             // PUCSYDIR
-            if (IsPropertySupported(PUCSYDIR, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, PUCSYDIR));
                 list.Add(new DxfCodePair(10, header.PaperspaceYAxis.X));
                 list.Add(new DxfCodePair(20, header.PaperspaceYAxis.Y));
                 list.Add(new DxfCodePair(30, header.PaperspaceYAxis.Z));
-
             }
 
             // QTEXTMODE
-            if (IsPropertySupported(QTEXTMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, QTEXTMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.UseQuickTextMode)));
+                list.Add(new DxfCodePair(70, BoolShort(header.UseQuickTextMode)));
             }
 
             // REGENMODE
-            if (IsPropertySupported(REGENMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, REGENMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.UseRegenMode)));
+                list.Add(new DxfCodePair(70, BoolShort(header.UseRegenMode)));
             }
 
             // SHADEDGE
-            if (IsPropertySupported(SHADEDGE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SHADEDGE));
-			    list.Add(new DxfCodePair(70, (short)(header.EdgeShading)));
+                list.Add(new DxfCodePair(70, (short)(header.EdgeShading)));
             }
 
             // SHADEDIF
-            if (IsPropertySupported(SHADEDIF, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SHADEDIF));
-			    list.Add(new DxfCodePair(70, (header.PercentAmbientToDiffuse)));
+                list.Add(new DxfCodePair(70, (header.PercentAmbientToDiffuse)));
             }
 
             // SKETCHINC
-            if (IsPropertySupported(SKETCHINC, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SKETCHINC));
-			    list.Add(new DxfCodePair(40, (header.SketchRecordIncrement)));
+                list.Add(new DxfCodePair(40, (header.SketchRecordIncrement)));
             }
 
             // SKPOLY
-            if (IsPropertySupported(SKPOLY, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SKPOLY));
-			    list.Add(new DxfCodePair(70, (short)(header.PolylineSketchMode)));
+                list.Add(new DxfCodePair(70, (short)(header.PolylineSketchMode)));
             }
 
             // SPLFRAME
-            if (IsPropertySupported(SPLFRAME, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SPLFRAME));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DisplaySplinePolygonControl)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DisplaySplinePolygonControl)));
             }
 
             // SPLINESEGS
-            if (IsPropertySupported(SPLINESEGS, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SPLINESEGS));
-			    list.Add(new DxfCodePair(70, (header.LineSegmentsPerSplinePatch)));
+                list.Add(new DxfCodePair(70, (header.LineSegmentsPerSplinePatch)));
             }
 
             // SPLINETYPE
-            if (IsPropertySupported(SPLINETYPE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SPLINETYPE));
-			    list.Add(new DxfCodePair(70, (header.PEditSplineCurveType)));
+                list.Add(new DxfCodePair(70, (header.PEditSplineCurveType)));
             }
 
             // SURFTAB1
-            if (IsPropertySupported(SURFTAB1, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SURFTAB1));
-			    list.Add(new DxfCodePair(70, (header.MeshTabulationsInFirstDirection)));
+                list.Add(new DxfCodePair(70, (header.MeshTabulationsInFirstDirection)));
             }
 
             // SURFTAB2
-            if (IsPropertySupported(SURFTAB2, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SURFTAB2));
-			    list.Add(new DxfCodePair(70, (header.MeshTabulationsInSecondDirection)));
+                list.Add(new DxfCodePair(70, (header.MeshTabulationsInSecondDirection)));
             }
 
             // SURFTYPE
-            if (IsPropertySupported(SURFTYPE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SURFTYPE));
-			    list.Add(new DxfCodePair(70, (header.PEditSmoothSurfaceType)));
+                list.Add(new DxfCodePair(70, (header.PEditSmoothSurfaceType)));
             }
 
             // SURFU
-            if (IsPropertySupported(SURFU, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SURFU));
-			    list.Add(new DxfCodePair(70, (header.PEditSmoothMDensith)));
+                list.Add(new DxfCodePair(70, (header.PEditSmoothMDensith)));
             }
 
             // SURFV
-            if (IsPropertySupported(SURFV, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, SURFV));
-			    list.Add(new DxfCodePair(70, (header.PEditSmoothNDensith)));
+                list.Add(new DxfCodePair(70, (header.PEditSmoothNDensith)));
             }
 
             // TDCREATE
-            if (IsPropertySupported(TDCREATE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TDCREATE));
-			    list.Add(new DxfCodePair(40, DateDouble(header.CreationDate)));
+                list.Add(new DxfCodePair(40, DateDouble(header.CreationDate)));
             }
 
             // TDINDWG
-            if (IsPropertySupported(TDINDWG, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TDINDWG));
-			    list.Add(new DxfCodePair(40, TimeSpanDouble(header.TimeInDrawing)));
+                list.Add(new DxfCodePair(40, TimeSpanDouble(header.TimeInDrawing)));
             }
 
             // TDUPDATE
-            if (IsPropertySupported(TDUPDATE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TDUPDATE));
-			    list.Add(new DxfCodePair(40, DateDouble(header.UpdateDate)));
+                list.Add(new DxfCodePair(40, DateDouble(header.UpdateDate)));
             }
 
             // TDUSRTIMER
-            if (IsPropertySupported(TDUSRTIMER, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TDUSRTIMER));
-			    list.Add(new DxfCodePair(40, TimeSpanDouble(header.UserElapsedTimer)));
+                list.Add(new DxfCodePair(40, TimeSpanDouble(header.UserElapsedTimer)));
             }
 
             // TEXTSIZE
-            if (IsPropertySupported(TEXTSIZE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TEXTSIZE));
-			    list.Add(new DxfCodePair(40, (header.DefaultTextHeight)));
+                list.Add(new DxfCodePair(40, (header.DefaultTextHeight)));
             }
 
             // TEXTSTYLE
-            if (IsPropertySupported(TEXTSTYLE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TEXTSTYLE));
-			    list.Add(new DxfCodePair(7, (header.TextStyle)));
+                list.Add(new DxfCodePair(7, (header.TextStyle)));
             }
 
             // THICKNESS
-            if (IsPropertySupported(THICKNESS, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, THICKNESS));
-			    list.Add(new DxfCodePair(40, (header.Thickness)));
+                list.Add(new DxfCodePair(40, (header.Thickness)));
             }
 
             // TILEMODE
-            if (IsPropertySupported(TILEMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TILEMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.PreviousReleaseTileCompatability)));
+                list.Add(new DxfCodePair(70, BoolShort(header.PreviousReleaseTileCompatability)));
             }
 
             // TRACEWID
-            if (IsPropertySupported(TRACEWID, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TRACEWID));
-			    list.Add(new DxfCodePair(40, (header.TraceWidth)));
+                list.Add(new DxfCodePair(40, (header.TraceWidth)));
             }
 
             // TREEDEPTH
-            if (IsPropertySupported(TREEDEPTH, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, TREEDEPTH));
-			    list.Add(new DxfCodePair(70, (header.SpacialIndexMaxDepth)));
+                list.Add(new DxfCodePair(70, (header.SpacialIndexMaxDepth)));
             }
 
             // UCSNAME
-            if (IsPropertySupported(UCSNAME, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, UCSNAME));
-			    list.Add(new DxfCodePair(2, (header.UCSName)));
+                list.Add(new DxfCodePair(2, (header.UCSName)));
             }
 
             // UCSORG
-            if (IsPropertySupported(UCSORG, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, UCSORG));
                 list.Add(new DxfCodePair(10, header.UCSOrigin.X));
                 list.Add(new DxfCodePair(20, header.UCSOrigin.Y));
                 list.Add(new DxfCodePair(30, header.UCSOrigin.Z));
-
             }
 
             // UCSXDIR
-            if (IsPropertySupported(UCSXDIR, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, UCSXDIR));
                 list.Add(new DxfCodePair(10, header.UCSXAxis.X));
                 list.Add(new DxfCodePair(20, header.UCSXAxis.Y));
                 list.Add(new DxfCodePair(30, header.UCSXAxis.Z));
-
             }
 
             // UCSYDIR
-            if (IsPropertySupported(UCSYDIR, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, UCSYDIR));
                 list.Add(new DxfCodePair(10, header.UCSYAxis.X));
                 list.Add(new DxfCodePair(20, header.UCSYAxis.Y));
                 list.Add(new DxfCodePair(30, header.UCSYAxis.Z));
-
             }
 
             // UNITMODE
-            if (IsPropertySupported(UNITMODE, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, UNITMODE));
-			    list.Add(new DxfCodePair(70, BoolShort(header.DisplayFractionsInInput)));
+                list.Add(new DxfCodePair(70, BoolShort(header.DisplayFractionsInInput)));
             }
 
             // USERI1
-            if (IsPropertySupported(USERI1, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERI1));
-			    list.Add(new DxfCodePair(70, (header.UserInt1)));
+                list.Add(new DxfCodePair(70, (header.UserInt1)));
             }
 
             // USERI2
-            if (IsPropertySupported(USERI2, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERI2));
-			    list.Add(new DxfCodePair(70, (header.UserInt2)));
+                list.Add(new DxfCodePair(70, (header.UserInt2)));
             }
 
             // USERI3
-            if (IsPropertySupported(USERI3, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERI3));
-			    list.Add(new DxfCodePair(70, (header.UserInt3)));
+                list.Add(new DxfCodePair(70, (header.UserInt3)));
             }
 
             // USERI4
-            if (IsPropertySupported(USERI4, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERI4));
-			    list.Add(new DxfCodePair(70, (header.UserInt4)));
+                list.Add(new DxfCodePair(70, (header.UserInt4)));
             }
 
             // USERI5
-            if (IsPropertySupported(USERI5, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERI5));
-			    list.Add(new DxfCodePair(70, (header.UserInt5)));
+                list.Add(new DxfCodePair(70, (header.UserInt5)));
             }
 
             // USERR1
-            if (IsPropertySupported(USERR1, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERR1));
-			    list.Add(new DxfCodePair(40, (header.UserReal1)));
+                list.Add(new DxfCodePair(40, (header.UserReal1)));
             }
 
             // USERR2
-            if (IsPropertySupported(USERR2, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERR2));
-			    list.Add(new DxfCodePair(40, (header.UserReal2)));
+                list.Add(new DxfCodePair(40, (header.UserReal2)));
             }
 
             // USERR3
-            if (IsPropertySupported(USERR3, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERR3));
-			    list.Add(new DxfCodePair(40, (header.UserReal3)));
+                list.Add(new DxfCodePair(40, (header.UserReal3)));
             }
 
             // USERR4
-            if (IsPropertySupported(USERR4, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERR4));
-			    list.Add(new DxfCodePair(40, (header.UserReal4)));
+                list.Add(new DxfCodePair(40, (header.UserReal4)));
             }
 
             // USERR5
-            if (IsPropertySupported(USERR5, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USERR5));
-			    list.Add(new DxfCodePair(40, (header.UserReal5)));
+                list.Add(new DxfCodePair(40, (header.UserReal5)));
             }
 
             // USRTIMER
-            if (IsPropertySupported(USRTIMER, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, USRTIMER));
-			    list.Add(new DxfCodePair(70, BoolShort(header.UserTimerOn)));
+                list.Add(new DxfCodePair(70, BoolShort(header.UserTimerOn)));
             }
 
             // VISRETAIN
-            if (IsPropertySupported(VISRETAIN, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, VISRETAIN));
-			    list.Add(new DxfCodePair(70, BoolShort(header.RetainXRefDependentVisibilitySettings)));
+                list.Add(new DxfCodePair(70, BoolShort(header.RetainXRefDependentVisibilitySettings)));
             }
 
             // WORLDVIEW
-            if (IsPropertySupported(WORLDVIEW, version))
+            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
             {
                 list.Add(new DxfCodePair(9, WORLDVIEW));
-			    list.Add(new DxfCodePair(70, BoolShort(header.SetUCSToWCSInDViewOrVPoint)));
+                list.Add(new DxfCodePair(70, BoolShort(header.SetUCSToWCSInDViewOrVPoint)));
             }
 
-        }
-
-        // determine if the property is supported in the specified file version
-        private static Tuple<DxfAcadVersion, DxfAcadVersion> SupportedVersions(string propertyName)
-        {
-            Tuple<DxfAcadVersion, DxfAcadVersion> result;
-            switch (propertyName)
-            {
-                case ACADMAINTVER:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ACADVER:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ANGBASE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ANGDIR:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ATTDIA:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ATTMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ATTREQ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case AUNITS:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case AUPREC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case BLIPMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CECOLOR:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CELTSCALE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CELTYPE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CHAMFERA:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CHAMFERB:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CHAMFERC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CHAMFERD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CLAYER:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CMLJUST:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CMLSCALE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case CMLSTYLE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case COORDS:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DELOBJ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALTD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALTF:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALTTD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALTTZ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALTU:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMALTZ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMAPOST:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMASO:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMASZ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMAUNIT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMBLK:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMBLK1:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMBLK2:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMCEN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMCLRD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMCLRE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMCLRT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMDEC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMDLE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMDLI:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMEXE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMEXO:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMFIT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMGAP:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMJUST:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMLFAC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMLIM:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMPOST:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMRND:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSAH:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSCALE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSD1:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSD2:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSHO:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSOXD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMSTYLE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTAD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTDEC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTFAC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTIH:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTIX:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTM:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTOFL:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTOH:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTOL:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTOLJ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTP:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTSZ:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTVP:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTXSTY:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTXT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMTZIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMUNIT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMUPT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DIMZIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DISPSILH:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DRAGMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case DWGCODEPAGE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ELEVATION:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case EXTMAX:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case EXTMIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case FILLETRAD:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case FILLMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case HANDLING:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case INSBASE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case LIMCHECK:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case LIMMAX:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case LIMMIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case LTSCALE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case LUNITS:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case LUPREC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case MAXACTVP:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case MEASUREMENT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case MENU:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case MIRRTEXT:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case ORTHOMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case OSMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PDMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PDSIZE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PELEVATION:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PEXTMAX:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PEXTMIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PICKSTYLE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PINSBASE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PLIMCHECK:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PLIMMAX:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PLIMMIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PLINEGEN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PLINEWID:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PROXYGRAPHICS:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PSLTSCALE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PUCSNAME:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PUCSORG:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PUCSXDIR:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case PUCSYDIR:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case QTEXTMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case REGENMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SHADEDGE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SHADEDIF:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SKETCHINC:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SKPOLY:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SPLFRAME:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SPLINESEGS:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SPLINETYPE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SURFTAB1:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SURFTAB2:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SURFTYPE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SURFU:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case SURFV:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TDCREATE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TDINDWG:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TDUPDATE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TDUSRTIMER:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TEXTSIZE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TEXTSTYLE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case THICKNESS:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TILEMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TRACEWID:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case TREEDEPTH:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case UCSNAME:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case UCSORG:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case UCSXDIR:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case UCSYDIR:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case UNITMODE:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERI1:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERI2:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERI3:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERI4:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERI5:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERR1:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERR2:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERR3:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERR4:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USERR5:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case USRTIMER:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case VISRETAIN:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                case WORLDVIEW:
-                    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-                default:
-				    result = Tuple.Create(DxfAcadVersion.R10, DxfAcadVersion.R2013);
-                    break;
-            }
-
-            return result;
         }
 
         // setter method
@@ -2531,6 +2028,10 @@ namespace BCad.Dxf
                 case HANDLING:
                     EnsureCode(pair, 70);
                     header.NextAvailableHandle = (int)(pair.ShortValue);
+                    break;
+                case HANDSEED:
+                    EnsureCode(pair, 5);
+                    header.NextAvailableHandle2 = (pair.StringValue);
                     break;
                 case INSBASE:
                     SetPoint(pair, header.InsertionBase);

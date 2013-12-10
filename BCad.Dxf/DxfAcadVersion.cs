@@ -13,7 +13,9 @@ namespace BCad.Dxf
         R2004,
         R2007,
         R2010,
-        R2013
+        R2013,
+        Min = R10,
+        Max = R2013
     }
 
     public static class DxfAcadVersionStrings

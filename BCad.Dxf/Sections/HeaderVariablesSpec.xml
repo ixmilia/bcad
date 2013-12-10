@@ -89,6 +89,7 @@
   <Variable Name="FILLETRAD" Code="40" Type="double" Property="FilletRadius" DefaultValue="0.0" />
   <Variable Name="FILLMODE" Code="70" Type="bool" Property="FillModeOn" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="HANDLING" Code="70" Type="int" Property="NextAvailableHandle" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" />
+  <Variable Name="HANDSEED" Code="5" Type="string" Property="NextAvailableHandle2" DefaultValue='""' />
   <Variable Name="INSBASE" Code="-3" Type="DxfPoint" Property="InsertionBase" DefaultValue="DxfPoint.Origin" />
   <Variable Name="LIMCHECK" Code="70" Type="bool" Property="UseLimitsChecking" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="LIMMAX" Code="-2" Type="DxfPoint" Property="MaximumDrawingLimits" DefaultValue="DxfPoint.Origin" />
