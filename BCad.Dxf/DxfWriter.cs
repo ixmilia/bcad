@@ -99,6 +99,8 @@ namespace BCad.Dxf
                 WriteInt((int)value);
             else if (type == typeof(long))
                 WriteLong((long)value);
+            else if (type == typeof(bool))
+                WriteBool((bool)value);
             else
                 throw new DxfReadException("No writer available");
         }
@@ -144,6 +146,11 @@ namespace BCad.Dxf
                 textWriter.WriteLine(value);
             else if (binWriter != null)
                 binWriter.Write(value);
+        }
+
+        private void WriteBool(bool value)
+        {
+            WriteShort(value ? (short)1 : (short)0);
         }
 
         private static byte[] GetAsciiBytes(string value)

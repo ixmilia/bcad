@@ -8,90 +8,21 @@ namespace BCad.Dxf
 {
     public partial class DxfHeader
     {
-        // object snap flags
-        public bool EndPointSnap
+        internal DxfHeader()
         {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 1); }
-            set { SetFlag(value, 1); }
+            SetDefaults();
         }
 
-        public bool MidPointSnap
+        public bool IsViewportScaledToFit
         {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 2); }
-            set { SetFlag(value, 2); }
+            get { return ViewportViewScaleFactor == 0.0; }
+            set { ViewportViewScaleFactor = value ? 0.0 : 1.0; }
         }
 
-        public bool CenterSnap
+        public object this[string variableName]
         {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 4); }
-            set { SetFlag(value, 4); }
-        }
-
-        public bool NodeSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 8); }
-            set { SetFlag(value, 8); }
-        }
-
-        public bool QuadrantSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 16); }
-            set { SetFlag(value, 16); }
-        }
-
-        public bool IntersectionSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 32); }
-            set { SetFlag(value, 32); }
-        }
-
-        public bool InsertionSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 64); }
-            set { SetFlag(value, 64); }
-        }
-
-        public bool PerpendicularSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 128); }
-            set { SetFlag(value, 128); }
-        }
-
-        public bool TangentSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 256); }
-            set { SetFlag(value, 256); }
-        }
-
-        public bool NearestSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 512); }
-            set { SetFlag(value, 512); }
-        }
-
-        public bool ApparentIntersectionSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 2048); }
-            set { SetFlag(value, 2048); }
-        }
-
-        public bool ExtensionSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 4096); }
-            set { SetFlag(value, 4096); }
-        }
-
-        public bool ParallelSnap
-        {
-            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 8192); }
-            set { SetFlag(value, 8192); }
-        }
-
-        private void SetFlag(bool value, int mask)
-        {
-            var flags = ObjectSnapFlags;
-            DxfHelpers.SetFlag(value, ref flags, mask);
-            ObjectSnapFlags = flags;
+            get { return GetValue(variableName); }
+            set { SetValue(variableName, value); }
         }
 
         private static bool BoolShort(short s)
@@ -102,6 +33,16 @@ namespace BCad.Dxf
         private static short BoolShort(bool b)
         {
             return (short)(b ? 1 : 0);
+        }
+
+        private static string GuidString(Guid g)
+        {
+            return g.ToString();
+        }
+
+        private static Guid GuidString(string s)
+        {
+            return new Guid(s);
         }
 
         private const double JulianOffset = 2415018.999733797;

@@ -7,11 +7,6 @@ namespace BCad.Dxf
 {
     public partial class DxfHeader
     {
-        internal DxfHeader()
-        {
-            SetDefaults();
-        }
-
         // key names
         private const string ACADMAINTVER = "$ACADMAINTVER";
         private const string ACADVER = "$ACADVER";
@@ -26,6 +21,9 @@ namespace BCad.Dxf
         private const string CECOLOR = "$CECOLOR";
         private const string CELTSCALE = "$CELTSCALE";
         private const string CELTYPE = "$CELTYPE";
+        private const string CELWEIGHT = "$CELWEIGHT";
+        private const string CEPSNID = "$CEPSNID";
+        private const string CEPSNTYPE = "$CEPSNTYPE";
         private const string CHAMFERA = "$CHAMFERA";
         private const string CHAMFERB = "$CHAMFERB";
         private const string CHAMFERC = "$CHAMFERC";
@@ -35,18 +33,25 @@ namespace BCad.Dxf
         private const string CMLSCALE = "$CMLSCALE";
         private const string CMLSTYLE = "$CMLSTYLE";
         private const string COORDS = "$COORDS";
+        private const string CPSNID = "$CPSNID";
+        private const string CSHADOW = "$CSHADOW";
         private const string DELOBJ = "$DELOBJ";
+        private const string DIMADEC = "$DIMADEC";
         private const string DIMALT = "$DIMALT";
         private const string DIMALTD = "$DIMALTD";
         private const string DIMALTF = "$DIMALTF";
+        private const string DIMALTRND = "$DIMALTRND";
         private const string DIMALTTD = "$DIMALTTD";
         private const string DIMALTTZ = "$DIMALTTZ";
         private const string DIMALTU = "$DIMALTU";
         private const string DIMALTZ = "$DIMALTZ";
         private const string DIMAPOST = "$DIMAPOST";
         private const string DIMASO = "$DIMASO";
+        private const string DIMASSOC = "$DIMASSOC";
         private const string DIMASZ = "$DIMASZ";
+        private const string DIMATFIT = "$DIMATFIT";
         private const string DIMAUNIT = "$DIMAUNIT";
+        private const string DIMAZIN = "$DIMAZIN";
         private const string DIMBLK = "$DIMBLK";
         private const string DIMBLK1 = "$DIMBLK1";
         private const string DIMBLK2 = "$DIMBLK2";
@@ -57,13 +62,17 @@ namespace BCad.Dxf
         private const string DIMDEC = "$DIMDEC";
         private const string DIMDLE = "$DIMDLE";
         private const string DIMDLI = "$DIMDLI";
+        private const string DIMDSEP = "$DIMDSEP";
         private const string DIMEXE = "$DIMEXE";
         private const string DIMEXO = "$DIMEXO";
+        private const string DIMFAC = "$DIMFAC";
         private const string DIMFIT = "$DIMFIT";
         private const string DIMGAP = "$DIMGAP";
         private const string DIMJUST = "$DIMJUST";
+        private const string DIMLDRBLK = "$DIMLDRBLK";
         private const string DIMLFAC = "$DIMLFAC";
         private const string DIMLIM = "$DIMLIM";
+        private const string DIMLUNIT = "$DIMLUNIT";
         private const string DIMPOST = "$DIMPOST";
         private const string DIMRND = "$DIMRND";
         private const string DIMSAH = "$DIMSAH";
@@ -79,6 +88,7 @@ namespace BCad.Dxf
         private const string DIMTIH = "$DIMTIH";
         private const string DIMTIX = "$DIMTIX";
         private const string DIMTM = "$DIMTM";
+        private const string DIMTMOVE = "$DIMTMOVE";
         private const string DIMTOFL = "$DIMTOFL";
         private const string DIMTOH = "$DIMTOH";
         private const string DIMTOL = "$DIMTOL";
@@ -94,25 +104,43 @@ namespace BCad.Dxf
         private const string DIMZIN = "$DIMZIN";
         private const string DISPSILH = "$DISPSILH";
         private const string DRAGMODE = "$DRAGMODE";
+        private const string DRAGVS = "$DRAGVS";
         private const string DWGCODEPAGE = "$DWGCODEPAGE";
         private const string ELEVATION = "$ELEVATION";
+        private const string ENDCAPS = "$ENDCAPS";
         private const string EXTMAX = "$EXTMAX";
         private const string EXTMIN = "$EXTMIN";
+        private const string EXTNAMES = "$EXTNAMES";
         private const string FILLETRAD = "$FILLETRAD";
         private const string FILLMODE = "$FILLMODE";
+        private const string FINGERPRINTGUID = "$FINGERPRINTGUID";
+        private const string HALOGAP = "$HALOGAP";
         private const string HANDLING = "$HANDLING";
         private const string HANDSEED = "$HANDSEED";
+        private const string HIDETEXT = "$HIDETEXT";
+        private const string HYPERLINKBASE = "$HYPERLINKBASE";
+        private const string INDEXCTL = "$INDEXCTL";
         private const string INSBASE = "$INSBASE";
+        private const string INSUNITS = "$INSUNITS";
+        private const string INTERFERECOLOR = "$INTERFERECOLOR";
+        private const string INTERFEREOBJVS = "$INTERFEREOBJVS";
+        private const string INTERFEREVPVS = "$INTERFEREVPVS";
+        private const string INTERSECTIONCOLOR = "$INTERSECTIONCOLOR";
+        private const string INTERSECTIONDISPLAY = "$INTERSECTIONDISPLAY";
+        private const string JOINSTYLE = "$JOINSTYLE";
         private const string LIMCHECK = "$LIMCHECK";
         private const string LIMMAX = "$LIMMAX";
         private const string LIMMIN = "$LIMMIN";
         private const string LTSCALE = "$LTSCALE";
         private const string LUNITS = "$LUNITS";
         private const string LUPREC = "$LUPREC";
+        private const string LWDISPLAY = "$LWDISPLAY";
         private const string MAXACTVP = "$MAXACTVP";
         private const string MEASUREMENT = "$MEASUREMENT";
         private const string MENU = "$MENU";
         private const string MIRRTEXT = "$MIRRTEXT";
+        private const string OBSCOLOR = "$OBSCOLOR";
+        private const string OBSLTYPE = "$OBSLTYPE";
         private const string ORTHOMODE = "$ORTHOMODE";
         private const string OSMODE = "$OSMODE";
         private const string PDMODE = "$PDMODE";
@@ -127,18 +155,32 @@ namespace BCad.Dxf
         private const string PLIMMIN = "$PLIMMIN";
         private const string PLINEGEN = "$PLINEGEN";
         private const string PLINEWID = "$PLINEWID";
+        private const string PROJECTNAME = "$PROJECTNAME";
         private const string PROXYGRAPHICS = "$PROXYGRAPHICS";
         private const string PSLTSCALE = "$PSLTSCALE";
+        private const string PSTYLEMODE = "$PSTYLEMODE";
+        private const string PSVPSCALE = "$PSVPSCALE";
+        private const string PUCSBASE = "$PUCSBASE";
         private const string PUCSNAME = "$PUCSNAME";
         private const string PUCSORG = "$PUCSORG";
+        private const string PUCSORGBACK = "$PUCSORGBACK";
+        private const string PUCSORGBOTTOM = "$PUCSORGBOTTOM";
+        private const string PUCSORGFRONT = "$PUCSORGFRONT";
+        private const string PUCSORGLEFT = "$PUCSORGLEFT";
+        private const string PUCSORGRIGHT = "$PUCSORGRIGHT";
+        private const string PUCSORGTOP = "$PUCSORGTOP";
+        private const string PUCSORTHOREF = "$PUCSORTHOREF";
+        private const string PUCSORTHOVIEW = "$PUCSORTHOVIEW";
         private const string PUCSXDIR = "$PUCSXDIR";
         private const string PUCSYDIR = "$PUCSYDIR";
         private const string QTEXTMODE = "$QTEXTMODE";
         private const string REGENMODE = "$REGENMODE";
         private const string SHADEDGE = "$SHADEDGE";
         private const string SHADEDIF = "$SHADEDIF";
+        private const string SHADOWPLANELOCATION = "$SHADOWPLANELOCATION";
         private const string SKETCHINC = "$SKETCHINC";
         private const string SKPOLY = "$SKPOLY";
+        private const string SORTENTS = "$SORTENTS";
         private const string SPLFRAME = "$SPLFRAME";
         private const string SPLINESEGS = "$SPLINESEGS";
         private const string SPLINETYPE = "$SPLINETYPE";
@@ -149,16 +191,27 @@ namespace BCad.Dxf
         private const string SURFV = "$SURFV";
         private const string TDCREATE = "$TDCREATE";
         private const string TDINDWG = "$TDINDWG";
+        private const string TDUCREATE = "$TDUCREATE";
         private const string TDUPDATE = "$TDUPDATE";
         private const string TDUSRTIMER = "$TDUSRTIMER";
+        private const string TDUUPDATE = "$TDUUPDATE";
         private const string TEXTSIZE = "$TEXTSIZE";
         private const string TEXTSTYLE = "$TEXTSTYLE";
         private const string THICKNESS = "$THICKNESS";
         private const string TILEMODE = "$TILEMODE";
         private const string TRACEWID = "$TRACEWID";
         private const string TREEDEPTH = "$TREEDEPTH";
+        private const string UCSBASE = "$UCSBASE";
         private const string UCSNAME = "$UCSNAME";
         private const string UCSORG = "$UCSORG";
+        private const string UCSORGBACK = "$UCSORGBACK";
+        private const string UCSORGBOTTOM = "$UCSORGBOTTOM";
+        private const string UCSORGFRONT = "$UCSORGFRONT";
+        private const string UCSORGLEFT = "$UCSORGLEFT";
+        private const string UCSORGRIGHT = "$UCSORGRIGHT";
+        private const string UCSORGTOP = "$UCSORGTOP";
+        private const string UCSORTHOREF = "$UCSORTHOREF";
+        private const string UCSORTHOVIEW = "$UCSORTHOVIEW";
         private const string UCSXDIR = "$UCSXDIR";
         private const string UCSYDIR = "$UCSYDIR";
         private const string UNITMODE = "$UNITMODE";
@@ -173,8 +226,11 @@ namespace BCad.Dxf
         private const string USERR4 = "$USERR4";
         private const string USERR5 = "$USERR5";
         private const string USRTIMER = "$USRTIMER";
+        private const string VERSIONGUID = "$VERSIONGUID";
         private const string VISRETAIN = "$VISRETAIN";
         private const string WORLDVIEW = "$WORLDVIEW";
+        private const string XCLIPFRAME = "$XCLIPFRAME";
+        private const string XEDIT = "$XEDIT";
 
         // properties
         public short MaintenenceVersion { get; set; } // ACADMAINTVER
@@ -190,6 +246,9 @@ namespace BCad.Dxf
         public DxfColor CurrentEntityColor { get; set; } // CECOLOR
         public double CurrentEntityLinetypeScale { get; set; } // CELTSCALE
         public string CurrentEntityLinetype { get; set; } // CELTYPE
+        public short NewObjectLineWeight { get; set; } // CELWEIGHT
+        public string NewObjectPlotStyleHandle { get; set; } // CEPSNID
+        public DxfPlotStyle NewObjectPlotStyle { get; set; } // CEPSNTYPE
         public double FirstChamferDistance { get; set; } // CHAMFERA
         public double SecondChamferDistance { get; set; } // CHAMFERB
         public double ChamferLength { get; set; } // CHAMFERC
@@ -199,18 +258,24 @@ namespace BCad.Dxf
         public double CurrentMultilineScale { get; set; } // CMLSCALE
         public string CurrentMultilineStyle { get; set; } // CMLSTYLE
         public DxfCoordinateDisplay CoordinateDisplay { get; set; } // COORDS
+        public DxfShadowMode ShadowMode { get; set; } // CSHADOW
         public bool RetainDeletedObjects { get; set; } // DELOBJ
+        public short AngularDimensionPrecision { get; set; } // DIMADEC
         public bool UseAlternateDimensioning { get; set; } // DIMALT
         public short AlternateDimensioningDecimalPlaces { get; set; } // DIMALTD
         public double AlternateDimensioningScaleFactor { get; set; } // DIMALTF
+        public double AlternateDimensioningUnitRounding { get; set; } // DIMALTRND
         public short AlternateDimensioningToleranceDecimalPlaces { get; set; } // DIMALTTD
         public DxfUnitZeroSuppression AlternateDimensioningToleranceZeroSupression { get; set; } // DIMALTTZ
         public DxfUnitFormat AlternateDimensioningUnits { get; set; } // DIMALTU
         public DxfUnitZeroSuppression AlternateDimensioningZeroSupression { get; set; } // DIMALTZ
         public string AlternateDimensioningSuffix { get; set; } // DIMAPOST
         public bool CreateAssociativeDimensioning { get; set; } // DIMASO
+        public DxfDimensionAssociativity DimensionObjectAssociativity { get; set; } // DIMASSOC
         public double DimensioningArrowSize { get; set; } // DIMASZ
+        public DxfDimensionFit DimensionTextAndArrowPlacement { get; set; } // DIMATFIT
         public DxfAngleFormat DimensioningAngleFormat { get; set; } // DIMAUNIT
+        public DxfUnitZeroSuppression DimensionToleranceZeroSuppression { get; set; } // DIMAZIN
         public string ArrowBlockName { get; set; } // DIMBLK
         public string FirstArrowBlockName { get; set; } // DIMBLK1
         public string SecondArrowBlockName { get; set; } // DIMBLK2
@@ -221,13 +286,16 @@ namespace BCad.Dxf
         public short DimensionUnitToleranceDecimalPlaces { get; set; } // DIMDEC
         public double DimensionLineExtension { get; set; } // DIMDLE
         public double DimensionLineIncrement { get; set; } // DIMDLI
+        public char DimensionDecimalSeparatorChar { get; set; } // DIMDSEP
         public double DimensionExtensionLineExtension { get; set; } // DIMEXE
         public double DimensionExtensionLineOffset { get; set; } // DIMEXO
-        public DxfDimensionFit DimensionTextAndArrowPlacement { get; set; } // DIMFIT
+        public double DimensionTextHeightScaleFactor { get; set; } // DIMFAC
         public double DimensionLineGap { get; set; } // DIMGAP
         public DxfDimensionTextJustification DimensionTextJustification { get; set; } // DIMJUST
+        public string DimensionLeaderBlockName { get; set; } // DIMLDRBLK
         public double DimensionLinearMeasurementsScaleFactor { get; set; } // DIMLFAC
         public bool GenerateDimensionLimits { get; set; } // DIMLIM
+        public DxfNonAngularUnits DimensionNonAngularUnits { get; set; } // DIMLUNIT
         public string DimensioningSuffix { get; set; } // DIMPOST
         public double DimensionDistanceRoundingValue { get; set; } // DIMRND
         public bool UseSeparateArrowBlocksForDimensions { get; set; } // DIMSAH
@@ -243,6 +311,7 @@ namespace BCad.Dxf
         public bool DimensionTextInsideHorizontal { get; set; } // DIMTIH
         public bool ForceDimensionTextInsideExtensions { get; set; } // DIMTIX
         public double DimensionMinusTolerance { get; set; } // DIMTM
+        public DxfDimensionTextMovementRule DimensionTextMovementRule { get; set; } // DIMTMOVE
         public bool ForceDimensionLineExtensionsOutsideIfTextIs { get; set; } // DIMTOFL
         public bool DimensionTextOutsideHorizontal { get; set; } // DIMTOH
         public bool GenerateDimensionTolerances { get; set; } // DIMTOL
@@ -252,31 +321,48 @@ namespace BCad.Dxf
         public double DimensionVerticalTextPosition { get; set; } // DIMTVP
         public string DimensionTextStyle { get; set; } // DIMTXSTY
         public double DimensioningTextHeight { get; set; } // DIMTXT
-        public DxfUnitZeroSuppression DimensionToleranceZeroSuppression { get; set; } // DIMTZIN
         public DxfUnitFormat DimensionUnitFormat { get; set; } // DIMUNIT
         public bool DimensionCursorControlsTextPosition { get; set; } // DIMUPT
         public DxfUnitZeroSuppression DimensionUnitZeroSuppression { get; set; } // DIMZIN
         public bool DisplaySilhouetteCurvesInWireframeMode { get; set; } // DISPSILH
         public DxfDragMode DragMode { get; set; } // DRAGMODE
+        public string ThreeDSolidCreationVisualStyle { get; set; } // DRAGVS
         public string DrawingCodePage { get; set; } // DWGCODEPAGE
         public double Elevation { get; set; } // ELEVATION
+        public DxfEndCapSetting EndCapSetting { get; set; } // ENDCAPS
         public DxfPoint MaximumDrawingExtents { get; set; } // EXTMAX
         public DxfPoint MinimumDrawingExtents { get; set; } // EXTMIN
+        public bool UseACad2000SymbolTableNaming { get; set; } // EXTNAMES
         public double FilletRadius { get; set; } // FILLETRAD
         public bool FillModeOn { get; set; } // FILLMODE
+        public Guid FingerprintGuid { get; set; } // FINGERPRINTGUID
+        public double HaloGapPercent { get; set; } // HALOGAP
         public int NextAvailableHandle { get; set; } // HANDLING
         public string NextAvailableHandle2 { get; set; } // HANDSEED
+        public bool HideTextObjectsWhenProducintHiddenView { get; set; } // HIDETEXT
+        public string HyperlinBase { get; set; } // HYPERLINKBASE
+        public DxfLayerAndSpatialIndexSaveMode LayerAndSpatialIndexSaveMode { get; set; } // INDEXCTL
         public DxfPoint InsertionBase { get; set; } // INSBASE
+        public DxfUnits DefaultDrawingUnits { get; set; } // INSUNITS
+        public DxfColor InterferenceObjectColor { get; set; } // INTERFERECOLOR
+        public string InterferenceObjectVisualStylePointer { get; set; } // INTERFEREOBJVS
+        public string InterferenceViewPortVisualStylePointer { get; set; } // INTERFEREVPVS
+        public DxfColor IntersectionPolylineColor { get; set; } // INTERSECTIONCOLOR
+        public bool DisplayIntersectionPolylines { get; set; } // INTERSECTIONDISPLAY
+        public DxfJoinStyle LineweightJointSetting { get; set; } // JOINSTYLE
         public bool UseLimitsChecking { get; set; } // LIMCHECK
         public DxfPoint MaximumDrawingLimits { get; set; } // LIMMAX
         public DxfPoint MinimumDrawingLimits { get; set; } // LIMMIN
         public double LinetypeScale { get; set; } // LTSCALE
         public DxfUnitFormat UnitFormat { get; set; } // LUNITS
         public short UnitPrecision { get; set; } // LUPREC
+        public bool DisplayLinewieghtInModelAndLayoutTab { get; set; } // LWDISPLAY
         public short MaximumActiveViewports { get; set; } // MAXACTVP
         public DxfDrawingUnits DrawingUnits { get; set; } // MEASUREMENT
         public string FileName { get; set; } // MENU
         public bool MirrorText { get; set; } // MIRRTEXT
+        public DxfColor ObscuredLineColor { get; set; } // OBSCOLOR
+        public DxfLinetypeStyle ObscuredLineTypeStyle { get; set; } // OBSLTYPE
         public bool DrawOrthoganalLines { get; set; } // ORTHOMODE
         public int ObjectSnapFlags { get; set; } // OSMODE
         public int PointDisplayMode { get; set; } // PDMODE
@@ -291,18 +377,32 @@ namespace BCad.Dxf
         public DxfPoint PaperspaceMinimumDrawingLimits { get; set; } // PLIMMIN
         public bool IsPolylineContinuousAroundVerticies { get; set; } // PLINEGEN
         public double DefaultPolylineWidth { get; set; } // PLINEWID
+        public string ProjectName { get; set; } // PROJECTNAME
         public bool SaveProxyGraphics { get; set; } // PROXYGRAPHICS
         public bool ScaleLinetypesInPaperspace { get; set; } // PSLTSCALE
+        public bool UsesColorDependentPlotStyleTables { get; set; } // PSTYLEMODE
+        public double ViewportViewScaleFactor { get; set; } // PSVPSCALE
+        public string PaperspaceUCSDefinitionName { get; set; } // PUCSBASE
         public string PaperspaceUCSName { get; set; } // PUCSNAME
         public DxfPoint PaperspaceUCSOrigin { get; set; } // PUCSORG
+        public DxfPoint PaperspaceUCSOriginBack { get; set; } // PUCSORGBACK
+        public DxfPoint PaperspaceUCSOriginBottom { get; set; } // PUCSORGBOTTOM
+        public DxfPoint PaperspaceUCSOriginFront { get; set; } // PUCSORGFRONT
+        public DxfPoint PaperspaceUCSOriginLeft { get; set; } // PUCSORGLEFT
+        public DxfPoint PaperspaceUCSOriginRight { get; set; } // PUCSORGRIGHT
+        public DxfPoint PaperspaceUCSOriginTop { get; set; } // PUCSORGTOP
+        public string PaperspaceOrthoUCSReference { get; set; } // PUCSORTHOREF
+        public DxfOrthographicViewType PaperspaceOrthographicViewType { get; set; } // PUCSORTHOVIEW
         public DxfVector PaperspaceXAxis { get; set; } // PUCSXDIR
         public DxfVector PaperspaceYAxis { get; set; } // PUCSYDIR
         public bool UseQuickTextMode { get; set; } // QTEXTMODE
         public bool UseRegenMode { get; set; } // REGENMODE
         public DxfShadeEdgeMode EdgeShading { get; set; } // SHADEDGE
         public short PercentAmbientToDiffuse { get; set; } // SHADEDIF
+        public double ShadowPlaneZOffset { get; set; } // SHADOWPLANELOCATION
         public double SketchRecordIncrement { get; set; } // SKETCHINC
         public DxfPolySketchMode PolylineSketchMode { get; set; } // SKPOLY
+        public int ObjectSortingMethodsFlags { get; set; } // SORTENTS
         public bool DisplaySplinePolygonControl { get; set; } // SPLFRAME
         public short LineSegmentsPerSplinePatch { get; set; } // SPLINESEGS
         public short PEditSplineCurveType { get; set; } // SPLINETYPE
@@ -313,16 +413,27 @@ namespace BCad.Dxf
         public short PEditSmoothNDensith { get; set; } // SURFV
         public DateTime CreationDate { get; set; } // TDCREATE
         public TimeSpan TimeInDrawing { get; set; } // TDINDWG
+        public DateTime CreationDateUniversal { get; set; } // TDUCREATE
         public DateTime UpdateDate { get; set; } // TDUPDATE
         public TimeSpan UserElapsedTimer { get; set; } // TDUSRTIMER
+        public DateTime UpdateDateUniversal { get; set; } // TDUUPDATE
         public double DefaultTextHeight { get; set; } // TEXTSIZE
         public string TextStyle { get; set; } // TEXTSTYLE
         public double Thickness { get; set; } // THICKNESS
         public bool PreviousReleaseTileCompatability { get; set; } // TILEMODE
         public double TraceWidth { get; set; } // TRACEWID
         public short SpacialIndexMaxDepth { get; set; } // TREEDEPTH
+        public string UCSDefinitionName { get; set; } // UCSBASE
         public string UCSName { get; set; } // UCSNAME
         public DxfPoint UCSOrigin { get; set; } // UCSORG
+        public DxfPoint UCSOriginBack { get; set; } // UCSORGBACK
+        public DxfPoint UCSOriginBottom { get; set; } // UCSORGBOTTOM
+        public DxfPoint UCSOriginFront { get; set; } // UCSORGFRONT
+        public DxfPoint UCSOriginLeft { get; set; } // UCSORGLEFT
+        public DxfPoint UCSOriginRight { get; set; } // UCSORGRIGHT
+        public DxfPoint UCSOriginTop { get; set; } // UCSORGTOP
+        public string OrthoUCSReference { get; set; } // UCSORTHOREF
+        public DxfOrthographicViewType OrthgraphicViewType { get; set; } // UCSORTHOVIEW
         public DxfVector UCSXAxis { get; set; } // UCSXDIR
         public DxfVector UCSYAxis { get; set; } // UCSYDIR
         public bool DisplayFractionsInInput { get; set; } // UNITMODE
@@ -337,8 +448,11 @@ namespace BCad.Dxf
         public double UserReal4 { get; set; } // USERR4
         public double UserReal5 { get; set; } // USERR5
         public bool UserTimerOn { get; set; } // USRTIMER
+        public Guid VersionGuid { get; set; } // VERSIONGUID
         public bool RetainXRefDependentVisibilitySettings { get; set; } // VISRETAIN
         public bool SetUCSToWCSInDViewOrVPoint { get; set; } // WORLDVIEW
+        public bool IsXRefClippingBoundaryVisible { get; set; } // XCLIPFRAME
+        public bool CanUseInPlaceReferenceEditing { get; set; } // XEDIT
 
         // set defaults
         private void SetDefaults()
@@ -356,6 +470,9 @@ namespace BCad.Dxf
             this.CurrentEntityColor = DxfColor.ByBlock; // CECOLOR
             this.CurrentEntityLinetypeScale = 1.0; // CELTSCALE
             this.CurrentEntityLinetype = "BYBLOCK"; // CELTYPE
+            this.NewObjectLineWeight = 0; // CELWEIGHT
+            this.NewObjectPlotStyleHandle = null; // CEPSNID
+            this.NewObjectPlotStyle = DxfPlotStyle.ByLayer; // CEPSNTYPE
             this.FirstChamferDistance = 0.0; // CHAMFERA
             this.SecondChamferDistance = 0.0; // CHAMFERB
             this.ChamferLength = 0.0; // CHAMFERC
@@ -365,18 +482,25 @@ namespace BCad.Dxf
             this.CurrentMultilineScale = 1.0; // CMLSCALE
             this.CurrentMultilineStyle = null; // CMLSTYLE
             this.CoordinateDisplay = DxfCoordinateDisplay.Static; // COORDS
+            this.NewObjectPlotStyleHandle = "DxfPlotStyle.ByLayer"; // CPSNID
+            this.ShadowMode = DxfShadowMode.CastsAndReceives; // CSHADOW
             this.RetainDeletedObjects = false; // DELOBJ
+            this.AngularDimensionPrecision = 12; // DIMADEC
             this.UseAlternateDimensioning = false; // DIMALT
             this.AlternateDimensioningDecimalPlaces = 0; // DIMALTD
             this.AlternateDimensioningScaleFactor = 1.0; // DIMALTF
+            this.AlternateDimensioningUnitRounding = 0.0; // DIMALTRND
             this.AlternateDimensioningToleranceDecimalPlaces = 0; // DIMALTTD
             this.AlternateDimensioningToleranceZeroSupression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMALTTZ
             this.AlternateDimensioningUnits = DxfUnitFormat.Scientific; // DIMALTU
             this.AlternateDimensioningZeroSupression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMALTZ
             this.AlternateDimensioningSuffix = null; // DIMAPOST
             this.CreateAssociativeDimensioning = true; // DIMASO
+            this.DimensionObjectAssociativity = DxfDimensionAssociativity.AssociativeObjects; // DIMASSOC
             this.DimensioningArrowSize = 1.0; // DIMASZ
+            this.DimensionTextAndArrowPlacement = DxfDimensionFit.TextAndArrowsOutsideLines; // DIMATFIT
             this.DimensioningAngleFormat = DxfAngleFormat.DecimalDegrees; // DIMAUNIT
+            this.DimensionToleranceZeroSuppression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMAZIN
             this.ArrowBlockName = null; // DIMBLK
             this.FirstArrowBlockName = null; // DIMBLK1
             this.SecondArrowBlockName = null; // DIMBLK2
@@ -387,13 +511,17 @@ namespace BCad.Dxf
             this.DimensionUnitToleranceDecimalPlaces = 12; // DIMDEC
             this.DimensionLineExtension = 0.0; // DIMDLE
             this.DimensionLineIncrement = 0.0; // DIMDLI
+            this.DimensionDecimalSeparatorChar = '.'; // DIMDSEP
             this.DimensionExtensionLineExtension = 0.0; // DIMEXE
             this.DimensionExtensionLineOffset = 0.0; // DIMEXO
+            this.DimensionTextHeightScaleFactor = 1.0; // DIMFAC
             this.DimensionTextAndArrowPlacement = DxfDimensionFit.TextAndArrowsOutsideLines; // DIMFIT
             this.DimensionLineGap = 0.0; // DIMGAP
             this.DimensionTextJustification = DxfDimensionTextJustification.AboveLineCenter; // DIMJUST
+            this.DimensionLeaderBlockName = null; // DIMLDRBLK
             this.DimensionLinearMeasurementsScaleFactor = 1.0; // DIMLFAC
             this.GenerateDimensionLimits = false; // DIMLIM
+            this.DimensionNonAngularUnits = DxfNonAngularUnits.Scientific; // DIMLUNIT
             this.DimensioningSuffix = null; // DIMPOST
             this.DimensionDistanceRoundingValue = 0.001; // DIMRND
             this.UseSeparateArrowBlocksForDimensions = false; // DIMSAH
@@ -409,6 +537,7 @@ namespace BCad.Dxf
             this.DimensionTextInsideHorizontal = false; // DIMTIH
             this.ForceDimensionTextInsideExtensions = false; // DIMTIX
             this.DimensionMinusTolerance = 0.0; // DIMTM
+            this.DimensionTextMovementRule = DxfDimensionTextMovementRule.MoveLineWithText; // DIMTMOVE
             this.ForceDimensionLineExtensionsOutsideIfTextIs = false; // DIMTOFL
             this.DimensionTextOutsideHorizontal = false; // DIMTOH
             this.GenerateDimensionTolerances = false; // DIMTOL
@@ -424,25 +553,43 @@ namespace BCad.Dxf
             this.DimensionUnitZeroSuppression = DxfUnitZeroSuppression.SuppressZeroFeetAndZeroInches; // DIMZIN
             this.DisplaySilhouetteCurvesInWireframeMode = false; // DISPSILH
             this.DragMode = DxfDragMode.Auto; // DRAGMODE
+            this.ThreeDSolidCreationVisualStyle = null; // DRAGVS
             this.DrawingCodePage = "437"; // DWGCODEPAGE
             this.Elevation = 0.0; // ELEVATION
+            this.EndCapSetting = DxfEndCapSetting.None; // ENDCAPS
             this.MaximumDrawingExtents = DxfPoint.Origin; // EXTMAX
             this.MinimumDrawingExtents = DxfPoint.Origin; // EXTMIN
+            this.UseACad2000SymbolTableNaming = false; // EXTNAMES
             this.FilletRadius = 0.0; // FILLETRAD
             this.FillModeOn = true; // FILLMODE
+            this.FingerprintGuid = Guid.NewGuid(); // FINGERPRINTGUID
+            this.HaloGapPercent = 0.0; // HALOGAP
             this.NextAvailableHandle = 0; // HANDLING
-            this.NextAvailableHandle2 = ""; // HANDSEED
+            this.NextAvailableHandle2 = "string.Empty"; // HANDSEED
+            this.HideTextObjectsWhenProducintHiddenView = false; // HIDETEXT
+            this.HyperlinBase = null; // HYPERLINKBASE
+            this.LayerAndSpatialIndexSaveMode = DxfLayerAndSpatialIndexSaveMode.None; // INDEXCTL
             this.InsertionBase = DxfPoint.Origin; // INSBASE
+            this.DefaultDrawingUnits = DxfUnits.Unitless; // INSUNITS
+            this.InterferenceObjectColor = DxfColor.FromIndex(1); // INTERFERECOLOR
+            this.InterferenceObjectVisualStylePointer = "Conceptual"; // INTERFEREOBJVS
+            this.InterferenceViewPortVisualStylePointer = "3d Wireframe"; // INTERFEREVPVS
+            this.IntersectionPolylineColor = DxfColor.ByEntity; // INTERSECTIONCOLOR
+            this.DisplayIntersectionPolylines = false; // INTERSECTIONDISPLAY
+            this.LineweightJointSetting = DxfJoinStyle.None; // JOINSTYLE
             this.UseLimitsChecking = false; // LIMCHECK
             this.MaximumDrawingLimits = DxfPoint.Origin; // LIMMAX
             this.MinimumDrawingLimits = DxfPoint.Origin; // LIMMIN
             this.LinetypeScale = 1.0; // LTSCALE
             this.UnitFormat = DxfUnitFormat.Scientific; // LUNITS
             this.UnitPrecision = 12; // LUPREC
+            this.DisplayLinewieghtInModelAndLayoutTab = false; // LWDISPLAY
             this.MaximumActiveViewports = 3; // MAXACTVP
             this.DrawingUnits = DxfDrawingUnits.English; // MEASUREMENT
             this.FileName = null; // MENU
             this.MirrorText = false; // MIRRTEXT
+            this.ObscuredLineColor = DxfColor.ByLayer; // OBSCOLOR
+            this.ObscuredLineTypeStyle = DxfLinetypeStyle.Off; // OBSLTYPE
             this.DrawOrthoganalLines = false; // ORTHOMODE
             this.ObjectSnapFlags = 4133; // OSMODE
             this.PointDisplayMode = 0; // PDMODE
@@ -457,18 +604,32 @@ namespace BCad.Dxf
             this.PaperspaceMinimumDrawingLimits = DxfPoint.Origin; // PLIMMIN
             this.IsPolylineContinuousAroundVerticies = true; // PLINEGEN
             this.DefaultPolylineWidth = 0.0; // PLINEWID
+            this.ProjectName = null; // PROJECTNAME
             this.SaveProxyGraphics = true; // PROXYGRAPHICS
             this.ScaleLinetypesInPaperspace = true; // PSLTSCALE
+            this.UsesColorDependentPlotStyleTables = false; // PSTYLEMODE
+            this.ViewportViewScaleFactor = 0.0; // PSVPSCALE
+            this.PaperspaceUCSDefinitionName = null; // PUCSBASE
             this.PaperspaceUCSName = null; // PUCSNAME
             this.PaperspaceUCSOrigin = DxfPoint.Origin; // PUCSORG
+            this.PaperspaceUCSOriginBack = DxfPoint.Origin; // PUCSORGBACK
+            this.PaperspaceUCSOriginBottom = DxfPoint.Origin; // PUCSORGBOTTOM
+            this.PaperspaceUCSOriginFront = DxfPoint.Origin; // PUCSORGFRONT
+            this.PaperspaceUCSOriginLeft = DxfPoint.Origin; // PUCSORGLEFT
+            this.PaperspaceUCSOriginRight = DxfPoint.Origin; // PUCSORGRIGHT
+            this.PaperspaceUCSOriginTop = DxfPoint.Origin; // PUCSORGTOP
+            this.PaperspaceOrthoUCSReference = "DxfPoint.Origin"; // PUCSORTHOREF
+            this.PaperspaceOrthographicViewType = DxfOrthographicViewType.None; // PUCSORTHOVIEW
             this.PaperspaceXAxis = DxfVector.XAxis; // PUCSXDIR
             this.PaperspaceYAxis = DxfVector.YAxis; // PUCSYDIR
             this.UseQuickTextMode = true; // QTEXTMODE
             this.UseRegenMode = true; // REGENMODE
             this.EdgeShading = DxfShadeEdgeMode.FacesShadedEdgeNotHighlighted; // SHADEDGE
             this.PercentAmbientToDiffuse = 70; // SHADEDIF
+            this.ShadowPlaneZOffset = 0.0; // SHADOWPLANELOCATION
             this.SketchRecordIncrement = 0.0; // SKETCHINC
             this.PolylineSketchMode = DxfPolySketchMode.SketchLines; // SKPOLY
+            this.ObjectSortingMethodsFlags = 0; // SORTENTS
             this.DisplaySplinePolygonControl = true; // SPLFRAME
             this.LineSegmentsPerSplinePatch = 0; // SPLINESEGS
             this.PEditSplineCurveType = 0; // SPLINETYPE
@@ -479,16 +640,27 @@ namespace BCad.Dxf
             this.PEditSmoothNDensith = 0; // SURFV
             this.CreationDate = DateTime.Now; // TDCREATE
             this.TimeInDrawing = TimeSpan.Zero; // TDINDWG
+            this.CreationDateUniversal = DateTime.UtcNow; // TDUCREATE
             this.UpdateDate = DateTime.Now; // TDUPDATE
             this.UserElapsedTimer = TimeSpan.Zero; // TDUSRTIMER
+            this.UpdateDateUniversal = DateTime.UtcNow; // TDUUPDATE
             this.DefaultTextHeight = 0.0; // TEXTSIZE
             this.TextStyle = null; // TEXTSTYLE
             this.Thickness = 0.0; // THICKNESS
             this.PreviousReleaseTileCompatability = false; // TILEMODE
             this.TraceWidth = 0.0; // TRACEWID
             this.SpacialIndexMaxDepth = 0; // TREEDEPTH
+            this.UCSDefinitionName = null; // UCSBASE
             this.UCSName = null; // UCSNAME
             this.UCSOrigin = DxfPoint.Origin; // UCSORG
+            this.UCSOriginBack = DxfPoint.Origin; // UCSORGBACK
+            this.UCSOriginBottom = DxfPoint.Origin; // UCSORGBOTTOM
+            this.UCSOriginFront = DxfPoint.Origin; // UCSORGFRONT
+            this.UCSOriginLeft = DxfPoint.Origin; // UCSORGLEFT
+            this.UCSOriginRight = DxfPoint.Origin; // UCSORGRIGHT
+            this.UCSOriginTop = DxfPoint.Origin; // UCSORGTOP
+            this.OrthoUCSReference = null; // UCSORTHOREF
+            this.OrthgraphicViewType = DxfOrthographicViewType.None; // UCSORTHOVIEW
             this.UCSXAxis = DxfVector.XAxis; // UCSXDIR
             this.UCSYAxis = DxfVector.YAxis; // UCSYDIR
             this.DisplayFractionsInInput = true; // UNITMODE
@@ -503,1173 +675,1177 @@ namespace BCad.Dxf
             this.UserReal4 = 0.0; // USERR4
             this.UserReal5 = 0.0; // USERR5
             this.UserTimerOn = false; // USRTIMER
+            this.VersionGuid = Guid.NewGuid(); // VERSIONGUID
             this.RetainXRefDependentVisibilitySettings = false; // VISRETAIN
             this.SetUCSToWCSInDViewOrVPoint = true; // WORLDVIEW
+            this.IsXRefClippingBoundaryVisible = false; // XCLIPFRAME
+            this.CanUseInPlaceReferenceEditing = false; // XEDIT
         }
 
         // build list of code value pairs
         internal static void AddValueToList(List<DxfCodePair> list, DxfHeader header, DxfAcadVersion version)
         {
             // ACADMAINTVER
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, ACADMAINTVER));
-                list.Add(new DxfCodePair(70, (header.MaintenenceVersion)));
-            }
+            list.Add(new DxfCodePair(9, ACADMAINTVER));
+            list.Add(new DxfCodePair(70, (header.MaintenenceVersion)));
 
             // ACADVER
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, ACADVER));
-                list.Add(new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(header.Version)));
-            }
+            list.Add(new DxfCodePair(9, ACADVER));
+            list.Add(new DxfCodePair(1, DxfAcadVersionStrings.VersionToString(header.Version)));
 
             // ANGBASE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, ANGBASE));
-                list.Add(new DxfCodePair(50, (header.AngleZeroDirection)));
-            }
+            list.Add(new DxfCodePair(9, ANGBASE));
+            list.Add(new DxfCodePair(50, (header.AngleZeroDirection)));
 
             // ANGDIR
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, ANGDIR));
-                list.Add(new DxfCodePair(70, (short)(header.AngleDirection)));
-            }
+            list.Add(new DxfCodePair(9, ANGDIR));
+            list.Add(new DxfCodePair(70, (short)(header.AngleDirection)));
 
             // ATTDIA
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, ATTDIA));
                 list.Add(new DxfCodePair(70, BoolShort(header.ShowAttributeEntryDialogs)));
             }
 
             // ATTMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, ATTMODE));
-                list.Add(new DxfCodePair(70, (short)(header.AttributeVisibility)));
-            }
+            list.Add(new DxfCodePair(9, ATTMODE));
+            list.Add(new DxfCodePair(70, (short)(header.AttributeVisibility)));
 
             // ATTREQ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, ATTREQ));
                 list.Add(new DxfCodePair(70, BoolShort(header.PromptForAttributeOnInsert)));
             }
 
             // AUNITS
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, AUNITS));
-                list.Add(new DxfCodePair(70, (short)(header.AngleUnitFormat)));
-            }
+            list.Add(new DxfCodePair(9, AUNITS));
+            list.Add(new DxfCodePair(70, (short)(header.AngleUnitFormat)));
 
             // AUPREC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, AUPREC));
-                list.Add(new DxfCodePair(70, (header.AngleUnitPrecision)));
-            }
+            list.Add(new DxfCodePair(9, AUPREC));
+            list.Add(new DxfCodePair(70, (header.AngleUnitPrecision)));
 
             // BLIPMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, BLIPMODE));
                 list.Add(new DxfCodePair(70, BoolShort(header.BlipMode)));
             }
 
             // CECOLOR
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CECOLOR));
-                list.Add(new DxfCodePair(62, RawValue(header.CurrentEntityColor)));
-            }
+            list.Add(new DxfCodePair(9, CECOLOR));
+            list.Add(new DxfCodePair(62, RawValue(header.CurrentEntityColor)));
 
             // CELTSCALE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CELTSCALE));
-                list.Add(new DxfCodePair(40, (header.CurrentEntityLinetypeScale)));
-            }
+            list.Add(new DxfCodePair(9, CELTSCALE));
+            list.Add(new DxfCodePair(40, (header.CurrentEntityLinetypeScale)));
 
             // CELTYPE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, CELTYPE));
+            list.Add(new DxfCodePair(6, (header.CurrentEntityLinetype)));
+
+            // CELWEIGHT
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, CELTYPE));
-                list.Add(new DxfCodePair(6, (header.CurrentEntityLinetype)));
+                list.Add(new DxfCodePair(9, CELWEIGHT));
+                list.Add(new DxfCodePair(370, (header.NewObjectLineWeight)));
+            }
+
+            // CEPSNID
+            if (version >= DxfAcadVersion.R2004)
+            {
+                list.Add(new DxfCodePair(9, CEPSNID));
+                list.Add(new DxfCodePair(390, (header.NewObjectPlotStyleHandle)));
+            }
+
+            // CEPSNTYPE
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, CEPSNTYPE));
+                list.Add(new DxfCodePair(380, (double)(header.NewObjectPlotStyle)));
             }
 
             // CHAMFERA
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CHAMFERA));
-                list.Add(new DxfCodePair(40, (header.FirstChamferDistance)));
-            }
+            list.Add(new DxfCodePair(9, CHAMFERA));
+            list.Add(new DxfCodePair(40, (header.FirstChamferDistance)));
 
             // CHAMFERB
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CHAMFERB));
-                list.Add(new DxfCodePair(40, (header.SecondChamferDistance)));
-            }
+            list.Add(new DxfCodePair(9, CHAMFERB));
+            list.Add(new DxfCodePair(40, (header.SecondChamferDistance)));
 
             // CHAMFERC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CHAMFERC));
-                list.Add(new DxfCodePair(40, (header.ChamferLength)));
-            }
+            list.Add(new DxfCodePair(9, CHAMFERC));
+            list.Add(new DxfCodePair(40, (header.ChamferLength)));
 
             // CHAMFERD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CHAMFERD));
-                list.Add(new DxfCodePair(40, (header.ChamferAngle)));
-            }
+            list.Add(new DxfCodePair(9, CHAMFERD));
+            list.Add(new DxfCodePair(40, (header.ChamferAngle)));
 
             // CLAYER
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CLAYER));
-                list.Add(new DxfCodePair(8, (header.CurrentLayer)));
-            }
+            list.Add(new DxfCodePair(9, CLAYER));
+            list.Add(new DxfCodePair(8, (header.CurrentLayer)));
 
             // CMLJUST
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CMLJUST));
-                list.Add(new DxfCodePair(70, (short)(header.CurrentMultilineJustification)));
-            }
+            list.Add(new DxfCodePair(9, CMLJUST));
+            list.Add(new DxfCodePair(70, (short)(header.CurrentMultilineJustification)));
 
             // CMLSCALE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CMLSCALE));
-                list.Add(new DxfCodePair(40, (header.CurrentMultilineScale)));
-            }
+            list.Add(new DxfCodePair(9, CMLSCALE));
+            list.Add(new DxfCodePair(40, (header.CurrentMultilineScale)));
 
             // CMLSTYLE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, CMLSTYLE));
-                list.Add(new DxfCodePair(2, (header.CurrentMultilineStyle)));
-            }
+            list.Add(new DxfCodePair(9, CMLSTYLE));
+            list.Add(new DxfCodePair(2, (header.CurrentMultilineStyle)));
 
             // COORDS
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, COORDS));
                 list.Add(new DxfCodePair(70, (short)(header.CoordinateDisplay)));
             }
 
+            // CPSNID
+            if (version >= DxfAcadVersion.R2000 && version <= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, CPSNID));
+                list.Add(new DxfCodePair(390, (header.NewObjectPlotStyleHandle)));
+            }
+
+            // CSHADOW
+            if (version >= DxfAcadVersion.R2007)
+            {
+                list.Add(new DxfCodePair(9, CSHADOW));
+                list.Add(new DxfCodePair(280, (short)(header.ShadowMode)));
+            }
+
             // DELOBJ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, DELOBJ));
                 list.Add(new DxfCodePair(70, BoolShort(header.RetainDeletedObjects)));
             }
 
-            // DIMALT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            // DIMADEC
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMALT));
-                list.Add(new DxfCodePair(70, BoolShort(header.UseAlternateDimensioning)));
+                list.Add(new DxfCodePair(9, DIMADEC));
+                list.Add(new DxfCodePair(70, (header.AngularDimensionPrecision)));
             }
+
+            // DIMALT
+            list.Add(new DxfCodePair(9, DIMALT));
+            list.Add(new DxfCodePair(70, BoolShort(header.UseAlternateDimensioning)));
 
             // DIMALTD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMALTD));
-                list.Add(new DxfCodePair(70, (header.AlternateDimensioningDecimalPlaces)));
-            }
+            list.Add(new DxfCodePair(9, DIMALTD));
+            list.Add(new DxfCodePair(70, (header.AlternateDimensioningDecimalPlaces)));
 
             // DIMALTF
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMALTF));
+            list.Add(new DxfCodePair(40, (header.AlternateDimensioningScaleFactor)));
+
+            // DIMALTRND
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMALTF));
-                list.Add(new DxfCodePair(40, (header.AlternateDimensioningScaleFactor)));
+                list.Add(new DxfCodePair(9, DIMALTRND));
+                list.Add(new DxfCodePair(40, (header.AlternateDimensioningUnitRounding)));
             }
 
             // DIMALTTD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMALTTD));
-                list.Add(new DxfCodePair(70, (header.AlternateDimensioningToleranceDecimalPlaces)));
-            }
+            list.Add(new DxfCodePair(9, DIMALTTD));
+            list.Add(new DxfCodePair(70, (header.AlternateDimensioningToleranceDecimalPlaces)));
 
             // DIMALTTZ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMALTTZ));
-                list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningToleranceZeroSupression)));
-            }
+            list.Add(new DxfCodePair(9, DIMALTTZ));
+            list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningToleranceZeroSupression)));
 
             // DIMALTU
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMALTU));
-                list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningUnits)));
-            }
+            list.Add(new DxfCodePair(9, DIMALTU));
+            list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningUnits)));
 
             // DIMALTZ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMALTZ));
-                list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningZeroSupression)));
-            }
+            list.Add(new DxfCodePair(9, DIMALTZ));
+            list.Add(new DxfCodePair(70, (short)(header.AlternateDimensioningZeroSupression)));
 
             // DIMAPOST
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMAPOST));
-                list.Add(new DxfCodePair(1, (header.AlternateDimensioningSuffix)));
-            }
+            list.Add(new DxfCodePair(9, DIMAPOST));
+            list.Add(new DxfCodePair(1, (header.AlternateDimensioningSuffix)));
 
             // DIMASO
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMASO));
+            list.Add(new DxfCodePair(70, BoolShort(header.CreateAssociativeDimensioning)));
+
+            // DIMASSOC
+            if (version >= DxfAcadVersion.R2004)
             {
-                list.Add(new DxfCodePair(9, DIMASO));
-                list.Add(new DxfCodePair(70, BoolShort(header.CreateAssociativeDimensioning)));
+                list.Add(new DxfCodePair(9, DIMASSOC));
+                list.Add(new DxfCodePair(280, (short)(header.DimensionObjectAssociativity)));
             }
 
             // DIMASZ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMASZ));
+            list.Add(new DxfCodePair(40, (header.DimensioningArrowSize)));
+
+            // DIMATFIT
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMASZ));
-                list.Add(new DxfCodePair(40, (header.DimensioningArrowSize)));
+                list.Add(new DxfCodePair(9, DIMATFIT));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionTextAndArrowPlacement)));
             }
 
             // DIMAUNIT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMAUNIT));
+            list.Add(new DxfCodePair(70, (short)(header.DimensioningAngleFormat)));
+
+            // DIMAZIN
+            if (version <= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMAUNIT));
-                list.Add(new DxfCodePair(70, (short)(header.DimensioningAngleFormat)));
+                list.Add(new DxfCodePair(9, DIMAZIN));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceZeroSuppression)));
             }
 
             // DIMBLK
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMBLK));
-                list.Add(new DxfCodePair(1, (header.ArrowBlockName)));
-            }
+            list.Add(new DxfCodePair(9, DIMBLK));
+            list.Add(new DxfCodePair(1, (header.ArrowBlockName)));
 
             // DIMBLK1
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMBLK1));
-                list.Add(new DxfCodePair(1, (header.FirstArrowBlockName)));
-            }
+            list.Add(new DxfCodePair(9, DIMBLK1));
+            list.Add(new DxfCodePair(1, (header.FirstArrowBlockName)));
 
             // DIMBLK2
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMBLK2));
-                list.Add(new DxfCodePair(1, (header.SecondArrowBlockName)));
-            }
+            list.Add(new DxfCodePair(9, DIMBLK2));
+            list.Add(new DxfCodePair(1, (header.SecondArrowBlockName)));
 
             // DIMCEN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMCEN));
-                list.Add(new DxfCodePair(40, (header.CenterMarkSize)));
-            }
+            list.Add(new DxfCodePair(9, DIMCEN));
+            list.Add(new DxfCodePair(40, (header.CenterMarkSize)));
 
             // DIMCLRD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMCLRD));
-                list.Add(new DxfCodePair(70, RawValue(header.DimensionLineColor)));
-            }
+            list.Add(new DxfCodePair(9, DIMCLRD));
+            list.Add(new DxfCodePair(70, RawValue(header.DimensionLineColor)));
 
             // DIMCLRE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMCLRE));
-                list.Add(new DxfCodePair(70, RawValue(header.DimensionExtensionLineColor)));
-            }
+            list.Add(new DxfCodePair(9, DIMCLRE));
+            list.Add(new DxfCodePair(70, RawValue(header.DimensionExtensionLineColor)));
 
             // DIMCLRT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMCLRT));
-                list.Add(new DxfCodePair(70, RawValue(header.DimensionTextColor)));
-            }
+            list.Add(new DxfCodePair(9, DIMCLRT));
+            list.Add(new DxfCodePair(70, RawValue(header.DimensionTextColor)));
 
             // DIMDEC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMDEC));
-                list.Add(new DxfCodePair(70, (header.DimensionUnitToleranceDecimalPlaces)));
-            }
+            list.Add(new DxfCodePair(9, DIMDEC));
+            list.Add(new DxfCodePair(70, (header.DimensionUnitToleranceDecimalPlaces)));
 
             // DIMDLE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMDLE));
-                list.Add(new DxfCodePair(40, (header.DimensionLineExtension)));
-            }
+            list.Add(new DxfCodePair(9, DIMDLE));
+            list.Add(new DxfCodePair(40, (header.DimensionLineExtension)));
 
             // DIMDLI
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMDLI));
+            list.Add(new DxfCodePair(40, (header.DimensionLineIncrement)));
+
+            // DIMDSEP
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMDLI));
-                list.Add(new DxfCodePair(40, (header.DimensionLineIncrement)));
+                list.Add(new DxfCodePair(9, DIMDSEP));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionDecimalSeparatorChar)));
             }
 
             // DIMEXE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMEXE));
-                list.Add(new DxfCodePair(40, (header.DimensionExtensionLineExtension)));
-            }
+            list.Add(new DxfCodePair(9, DIMEXE));
+            list.Add(new DxfCodePair(40, (header.DimensionExtensionLineExtension)));
 
             // DIMEXO
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMEXO));
+            list.Add(new DxfCodePair(40, (header.DimensionExtensionLineOffset)));
+
+            // DIMFAC
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMEXO));
-                list.Add(new DxfCodePair(40, (header.DimensionExtensionLineOffset)));
+                list.Add(new DxfCodePair(9, DIMFAC));
+                list.Add(new DxfCodePair(40, (header.DimensionTextHeightScaleFactor)));
             }
 
             // DIMFIT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, DIMFIT));
                 list.Add(new DxfCodePair(70, (short)(header.DimensionTextAndArrowPlacement)));
             }
 
             // DIMGAP
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMGAP));
-                list.Add(new DxfCodePair(40, (header.DimensionLineGap)));
-            }
+            list.Add(new DxfCodePair(9, DIMGAP));
+            list.Add(new DxfCodePair(40, (header.DimensionLineGap)));
 
             // DIMJUST
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMJUST));
+            list.Add(new DxfCodePair(70, (short)(header.DimensionTextJustification)));
+
+            // DIMLDRBLK
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMJUST));
-                list.Add(new DxfCodePair(70, (short)(header.DimensionTextJustification)));
+                list.Add(new DxfCodePair(9, DIMLDRBLK));
+                list.Add(new DxfCodePair(1, (header.DimensionLeaderBlockName)));
             }
 
             // DIMLFAC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMLFAC));
-                list.Add(new DxfCodePair(40, (header.DimensionLinearMeasurementsScaleFactor)));
-            }
+            list.Add(new DxfCodePair(9, DIMLFAC));
+            list.Add(new DxfCodePair(40, (header.DimensionLinearMeasurementsScaleFactor)));
 
             // DIMLIM
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMLIM));
+            list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionLimits)));
+
+            // DIMLUNIT
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMLIM));
-                list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionLimits)));
+                list.Add(new DxfCodePair(9, DIMLUNIT));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionNonAngularUnits)));
             }
 
             // DIMPOST
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMPOST));
-                list.Add(new DxfCodePair(1, (header.DimensioningSuffix)));
-            }
+            list.Add(new DxfCodePair(9, DIMPOST));
+            list.Add(new DxfCodePair(1, (header.DimensioningSuffix)));
 
             // DIMRND
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMRND));
-                list.Add(new DxfCodePair(40, (header.DimensionDistanceRoundingValue)));
-            }
+            list.Add(new DxfCodePair(9, DIMRND));
+            list.Add(new DxfCodePair(40, (header.DimensionDistanceRoundingValue)));
 
             // DIMSAH
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSAH));
-                list.Add(new DxfCodePair(70, BoolShort(header.UseSeparateArrowBlocksForDimensions)));
-            }
+            list.Add(new DxfCodePair(9, DIMSAH));
+            list.Add(new DxfCodePair(70, BoolShort(header.UseSeparateArrowBlocksForDimensions)));
 
             // DIMSCALE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSCALE));
-                list.Add(new DxfCodePair(40, (header.DimensioningScaleFactor)));
-            }
+            list.Add(new DxfCodePair(9, DIMSCALE));
+            list.Add(new DxfCodePair(40, (header.DimensioningScaleFactor)));
 
             // DIMSD1
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSD1));
-                list.Add(new DxfCodePair(70, BoolShort(header.SuppressFirstDimensionExtensionLine)));
-            }
+            list.Add(new DxfCodePair(9, DIMSD1));
+            list.Add(new DxfCodePair(70, BoolShort(header.SuppressFirstDimensionExtensionLine)));
 
             // DIMSD2
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSD2));
-                list.Add(new DxfCodePair(70, BoolShort(header.SuppressSecondDimensionExtensionLine)));
-            }
+            list.Add(new DxfCodePair(9, DIMSD2));
+            list.Add(new DxfCodePair(70, BoolShort(header.SuppressSecondDimensionExtensionLine)));
 
             // DIMSHO
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSHO));
-                list.Add(new DxfCodePair(70, BoolShort(header.RecomputeDimensionsWhileDragging)));
-            }
+            list.Add(new DxfCodePair(9, DIMSHO));
+            list.Add(new DxfCodePair(70, BoolShort(header.RecomputeDimensionsWhileDragging)));
 
             // DIMSOXD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSOXD));
-                list.Add(new DxfCodePair(70, BoolShort(header.SuppressOutsideExtensionDimensionLines)));
-            }
+            list.Add(new DxfCodePair(9, DIMSOXD));
+            list.Add(new DxfCodePair(70, BoolShort(header.SuppressOutsideExtensionDimensionLines)));
 
             // DIMSTYLE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMSTYLE));
-                list.Add(new DxfCodePair(2, (header.DimensionStyleName)));
-            }
+            list.Add(new DxfCodePair(9, DIMSTYLE));
+            list.Add(new DxfCodePair(2, (header.DimensionStyleName)));
 
             // DIMTAD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTAD));
-                list.Add(new DxfCodePair(70, BoolShort(header.TextAboveDimensionLine)));
-            }
+            list.Add(new DxfCodePair(9, DIMTAD));
+            list.Add(new DxfCodePair(70, BoolShort(header.TextAboveDimensionLine)));
 
             // DIMTDEC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTDEC));
-                list.Add(new DxfCodePair(70, (header.DimensionToleranceDecimalPlaces)));
-            }
+            list.Add(new DxfCodePair(9, DIMTDEC));
+            list.Add(new DxfCodePair(70, (header.DimensionToleranceDecimalPlaces)));
 
             // DIMTFAC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTFAC));
-                list.Add(new DxfCodePair(40, (header.DimensionToleranceDisplayScaleFactor)));
-            }
+            list.Add(new DxfCodePair(9, DIMTFAC));
+            list.Add(new DxfCodePair(40, (header.DimensionToleranceDisplayScaleFactor)));
 
             // DIMTIH
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTIH));
-                list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextInsideHorizontal)));
-            }
+            list.Add(new DxfCodePair(9, DIMTIH));
+            list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextInsideHorizontal)));
 
             // DIMTIX
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTIX));
-                list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionTextInsideExtensions)));
-            }
+            list.Add(new DxfCodePair(9, DIMTIX));
+            list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionTextInsideExtensions)));
 
             // DIMTM
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, DIMTM));
+            list.Add(new DxfCodePair(40, (header.DimensionMinusTolerance)));
+
+            // DIMTMOVE
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, DIMTM));
-                list.Add(new DxfCodePair(40, (header.DimensionMinusTolerance)));
+                list.Add(new DxfCodePair(9, DIMTMOVE));
+                list.Add(new DxfCodePair(70, (short)(header.DimensionTextMovementRule)));
             }
 
             // DIMTOFL
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTOFL));
-                list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionLineExtensionsOutsideIfTextIs)));
-            }
+            list.Add(new DxfCodePair(9, DIMTOFL));
+            list.Add(new DxfCodePair(70, BoolShort(header.ForceDimensionLineExtensionsOutsideIfTextIs)));
 
             // DIMTOH
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTOH));
-                list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextOutsideHorizontal)));
-            }
+            list.Add(new DxfCodePair(9, DIMTOH));
+            list.Add(new DxfCodePair(70, BoolShort(header.DimensionTextOutsideHorizontal)));
 
             // DIMTOL
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTOL));
-                list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionTolerances)));
-            }
+            list.Add(new DxfCodePair(9, DIMTOL));
+            list.Add(new DxfCodePair(70, BoolShort(header.GenerateDimensionTolerances)));
 
             // DIMTOLJ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTOLJ));
-                list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceVerticalJustification)));
-            }
+            list.Add(new DxfCodePair(9, DIMTOLJ));
+            list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceVerticalJustification)));
 
             // DIMTP
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTP));
-                list.Add(new DxfCodePair(40, (header.DimensionPlusTolerance)));
-            }
+            list.Add(new DxfCodePair(9, DIMTP));
+            list.Add(new DxfCodePair(40, (header.DimensionPlusTolerance)));
 
             // DIMTSZ
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTSZ));
-                list.Add(new DxfCodePair(40, (header.DimensioningTickSize)));
-            }
+            list.Add(new DxfCodePair(9, DIMTSZ));
+            list.Add(new DxfCodePair(40, (header.DimensioningTickSize)));
 
             // DIMTVP
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTVP));
-                list.Add(new DxfCodePair(40, (header.DimensionVerticalTextPosition)));
-            }
+            list.Add(new DxfCodePair(9, DIMTVP));
+            list.Add(new DxfCodePair(40, (header.DimensionVerticalTextPosition)));
 
             // DIMTXSTY
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTXSTY));
-                list.Add(new DxfCodePair(7, (header.DimensionTextStyle)));
-            }
+            list.Add(new DxfCodePair(9, DIMTXSTY));
+            list.Add(new DxfCodePair(7, (header.DimensionTextStyle)));
 
             // DIMTXT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTXT));
-                list.Add(new DxfCodePair(40, (header.DimensioningTextHeight)));
-            }
+            list.Add(new DxfCodePair(9, DIMTXT));
+            list.Add(new DxfCodePair(40, (header.DimensioningTextHeight)));
 
             // DIMTZIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMTZIN));
-                list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceZeroSuppression)));
-            }
+            list.Add(new DxfCodePair(9, DIMTZIN));
+            list.Add(new DxfCodePair(70, (short)(header.DimensionToleranceZeroSuppression)));
 
             // DIMUNIT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, DIMUNIT));
                 list.Add(new DxfCodePair(70, (short)(header.DimensionUnitFormat)));
             }
 
             // DIMUPT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMUPT));
-                list.Add(new DxfCodePair(70, BoolShort(header.DimensionCursorControlsTextPosition)));
-            }
+            list.Add(new DxfCodePair(9, DIMUPT));
+            list.Add(new DxfCodePair(70, BoolShort(header.DimensionCursorControlsTextPosition)));
 
             // DIMZIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DIMZIN));
-                list.Add(new DxfCodePair(70, (short)(header.DimensionUnitZeroSuppression)));
-            }
+            list.Add(new DxfCodePair(9, DIMZIN));
+            list.Add(new DxfCodePair(70, (short)(header.DimensionUnitZeroSuppression)));
 
             // DISPSILH
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, DISPSILH));
-                list.Add(new DxfCodePair(70, BoolShort(header.DisplaySilhouetteCurvesInWireframeMode)));
-            }
+            list.Add(new DxfCodePair(9, DISPSILH));
+            list.Add(new DxfCodePair(70, BoolShort(header.DisplaySilhouetteCurvesInWireframeMode)));
 
             // DRAGMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, DRAGMODE));
                 list.Add(new DxfCodePair(70, (short)(header.DragMode)));
             }
 
-            // DWGCODEPAGE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            // DRAGVS
+            if (version >= DxfAcadVersion.R2007)
             {
-                list.Add(new DxfCodePair(9, DWGCODEPAGE));
-                list.Add(new DxfCodePair(3, (header.DrawingCodePage)));
+                list.Add(new DxfCodePair(9, DRAGVS));
+                list.Add(new DxfCodePair(349, (header.ThreeDSolidCreationVisualStyle)));
             }
 
+            // DWGCODEPAGE
+            list.Add(new DxfCodePair(9, DWGCODEPAGE));
+            list.Add(new DxfCodePair(3, (header.DrawingCodePage)));
+
             // ELEVATION
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, ELEVATION));
+            list.Add(new DxfCodePair(40, (header.Elevation)));
+
+            // ENDCAPS
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, ELEVATION));
-                list.Add(new DxfCodePair(40, (header.Elevation)));
+                list.Add(new DxfCodePair(9, ENDCAPS));
+                list.Add(new DxfCodePair(280, (short)(header.EndCapSetting)));
             }
 
             // EXTMAX
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, EXTMAX));
-                list.Add(new DxfCodePair(10, header.MaximumDrawingExtents.X));
-                list.Add(new DxfCodePair(20, header.MaximumDrawingExtents.Y));
-                list.Add(new DxfCodePair(30, header.MaximumDrawingExtents.Z));
-            }
+            list.Add(new DxfCodePair(9, EXTMAX));
+            list.Add(new DxfCodePair(10, header.MaximumDrawingExtents.X));
+            list.Add(new DxfCodePair(20, header.MaximumDrawingExtents.Y));
+            list.Add(new DxfCodePair(30, header.MaximumDrawingExtents.Z));
 
             // EXTMIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, EXTMIN));
+            list.Add(new DxfCodePair(10, header.MinimumDrawingExtents.X));
+            list.Add(new DxfCodePair(20, header.MinimumDrawingExtents.Y));
+            list.Add(new DxfCodePair(30, header.MinimumDrawingExtents.Z));
+
+            // EXTNAMES
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, EXTMIN));
-                list.Add(new DxfCodePair(10, header.MinimumDrawingExtents.X));
-                list.Add(new DxfCodePair(20, header.MinimumDrawingExtents.Y));
-                list.Add(new DxfCodePair(30, header.MinimumDrawingExtents.Z));
+                list.Add(new DxfCodePair(9, EXTNAMES));
+                list.Add(new DxfCodePair(290, (header.UseACad2000SymbolTableNaming)));
             }
 
             // FILLETRAD
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, FILLETRAD));
-                list.Add(new DxfCodePair(40, (header.FilletRadius)));
-            }
+            list.Add(new DxfCodePair(9, FILLETRAD));
+            list.Add(new DxfCodePair(40, (header.FilletRadius)));
 
             // FILLMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, FILLMODE));
+            list.Add(new DxfCodePair(70, BoolShort(header.FillModeOn)));
+
+            // FINGERPRINTGUID
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, FILLMODE));
-                list.Add(new DxfCodePair(70, BoolShort(header.FillModeOn)));
+                list.Add(new DxfCodePair(9, FINGERPRINTGUID));
+                list.Add(new DxfCodePair(2, GuidString(header.FingerprintGuid)));
+            }
+
+            // HALOGAP
+            if (version >= DxfAcadVersion.R2004)
+            {
+                list.Add(new DxfCodePair(9, HALOGAP));
+                list.Add(new DxfCodePair(280, (short)(header.HaloGapPercent)));
             }
 
             // HANDLING
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, HANDLING));
                 list.Add(new DxfCodePair(70, (short)(header.NextAvailableHandle)));
             }
 
             // HANDSEED
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, HANDSEED));
+            list.Add(new DxfCodePair(5, (header.NextAvailableHandle2)));
+
+            // HIDETEXT
+            if (version >= DxfAcadVersion.R2004)
             {
-                list.Add(new DxfCodePair(9, HANDSEED));
-                list.Add(new DxfCodePair(5, (header.NextAvailableHandle2)));
+                list.Add(new DxfCodePair(9, HIDETEXT));
+                list.Add(new DxfCodePair(290, (header.HideTextObjectsWhenProducintHiddenView)));
+            }
+
+            // HYPERLINKBASE
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, HYPERLINKBASE));
+                list.Add(new DxfCodePair(1, (header.HyperlinBase)));
+            }
+
+            // INDEXCTL
+            if (version >= DxfAcadVersion.R2004)
+            {
+                list.Add(new DxfCodePair(9, INDEXCTL));
+                list.Add(new DxfCodePair(280, (short)(header.LayerAndSpatialIndexSaveMode)));
             }
 
             // INSBASE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, INSBASE));
+            list.Add(new DxfCodePair(10, header.InsertionBase.X));
+            list.Add(new DxfCodePair(20, header.InsertionBase.Y));
+            list.Add(new DxfCodePair(30, header.InsertionBase.Z));
+
+            // INSUNITS
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, INSBASE));
-                list.Add(new DxfCodePair(10, header.InsertionBase.X));
-                list.Add(new DxfCodePair(20, header.InsertionBase.Y));
-                list.Add(new DxfCodePair(30, header.InsertionBase.Z));
+                list.Add(new DxfCodePair(9, INSUNITS));
+                list.Add(new DxfCodePair(70, (short)(header.DefaultDrawingUnits)));
+            }
+
+            // INTERFERECOLOR
+            if (version >= DxfAcadVersion.R2007)
+            {
+                list.Add(new DxfCodePair(9, INTERFERECOLOR));
+                list.Add(new DxfCodePair(62, RawValue(header.InterferenceObjectColor)));
+            }
+
+            // INTERFEREOBJVS
+            if (version >= DxfAcadVersion.R2007)
+            {
+                list.Add(new DxfCodePair(9, INTERFEREOBJVS));
+                list.Add(new DxfCodePair(345, (header.InterferenceObjectVisualStylePointer)));
+            }
+
+            // INTERFEREVPVS
+            if (version >= DxfAcadVersion.R2007)
+            {
+                list.Add(new DxfCodePair(9, INTERFEREVPVS));
+                list.Add(new DxfCodePair(346, (header.InterferenceViewPortVisualStylePointer)));
+            }
+
+            // INTERSECTIONCOLOR
+            if (version >= DxfAcadVersion.R2004)
+            {
+                list.Add(new DxfCodePair(9, INTERSECTIONCOLOR));
+                list.Add(new DxfCodePair(70, RawValue(header.IntersectionPolylineColor)));
+            }
+
+            // INTERSECTIONDISPLAY
+            if (version >= DxfAcadVersion.R2004)
+            {
+                list.Add(new DxfCodePair(9, INTERSECTIONDISPLAY));
+                list.Add(new DxfCodePair(290, (header.DisplayIntersectionPolylines)));
+            }
+
+            // JOINSTYLE
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, JOINSTYLE));
+                list.Add(new DxfCodePair(280, (short)(header.LineweightJointSetting)));
             }
 
             // LIMCHECK
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, LIMCHECK));
-                list.Add(new DxfCodePair(70, BoolShort(header.UseLimitsChecking)));
-            }
+            list.Add(new DxfCodePair(9, LIMCHECK));
+            list.Add(new DxfCodePair(70, BoolShort(header.UseLimitsChecking)));
 
             // LIMMAX
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, LIMMAX));
-                list.Add(new DxfCodePair(10, header.MaximumDrawingLimits.X));
-                list.Add(new DxfCodePair(20, header.MaximumDrawingLimits.Y));
-            }
+            list.Add(new DxfCodePair(9, LIMMAX));
+            list.Add(new DxfCodePair(10, header.MaximumDrawingLimits.X));
+            list.Add(new DxfCodePair(20, header.MaximumDrawingLimits.Y));
 
             // LIMMIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, LIMMIN));
-                list.Add(new DxfCodePair(10, header.MinimumDrawingLimits.X));
-                list.Add(new DxfCodePair(20, header.MinimumDrawingLimits.Y));
-            }
+            list.Add(new DxfCodePair(9, LIMMIN));
+            list.Add(new DxfCodePair(10, header.MinimumDrawingLimits.X));
+            list.Add(new DxfCodePair(20, header.MinimumDrawingLimits.Y));
 
             // LTSCALE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, LTSCALE));
-                list.Add(new DxfCodePair(40, (header.LinetypeScale)));
-            }
+            list.Add(new DxfCodePair(9, LTSCALE));
+            list.Add(new DxfCodePair(40, (header.LinetypeScale)));
 
             // LUNITS
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, LUNITS));
-                list.Add(new DxfCodePair(70, (short)(header.UnitFormat)));
-            }
+            list.Add(new DxfCodePair(9, LUNITS));
+            list.Add(new DxfCodePair(70, (short)(header.UnitFormat)));
 
             // LUPREC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, LUPREC));
+            list.Add(new DxfCodePair(70, (header.UnitPrecision)));
+
+            // LWDISPLAY
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, LUPREC));
-                list.Add(new DxfCodePair(70, (header.UnitPrecision)));
+                list.Add(new DxfCodePair(9, LWDISPLAY));
+                list.Add(new DxfCodePair(290, (header.DisplayLinewieghtInModelAndLayoutTab)));
             }
 
             // MAXACTVP
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, MAXACTVP));
-                list.Add(new DxfCodePair(70, (header.MaximumActiveViewports)));
-            }
+            list.Add(new DxfCodePair(9, MAXACTVP));
+            list.Add(new DxfCodePair(70, (header.MaximumActiveViewports)));
 
             // MEASUREMENT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, MEASUREMENT));
-                list.Add(new DxfCodePair(70, (short)(header.DrawingUnits)));
-            }
+            list.Add(new DxfCodePair(9, MEASUREMENT));
+            list.Add(new DxfCodePair(70, (short)(header.DrawingUnits)));
 
             // MENU
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, MENU));
-                list.Add(new DxfCodePair(1, (header.FileName)));
-            }
+            list.Add(new DxfCodePair(9, MENU));
+            list.Add(new DxfCodePair(1, (header.FileName)));
 
             // MIRRTEXT
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, MIRRTEXT));
+            list.Add(new DxfCodePair(70, BoolShort(header.MirrorText)));
+
+            // OBSCOLOR
+            if (version >= DxfAcadVersion.R2004)
             {
-                list.Add(new DxfCodePair(9, MIRRTEXT));
-                list.Add(new DxfCodePair(70, BoolShort(header.MirrorText)));
+                list.Add(new DxfCodePair(9, OBSCOLOR));
+                list.Add(new DxfCodePair(70, RawValue(header.ObscuredLineColor)));
+            }
+
+            // OBSLTYPE
+            if (version >= DxfAcadVersion.R2004)
+            {
+                list.Add(new DxfCodePair(9, OBSLTYPE));
+                list.Add(new DxfCodePair(280, (short)(header.ObscuredLineTypeStyle)));
             }
 
             // ORTHOMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, ORTHOMODE));
-                list.Add(new DxfCodePair(70, BoolShort(header.DrawOrthoganalLines)));
-            }
+            list.Add(new DxfCodePair(9, ORTHOMODE));
+            list.Add(new DxfCodePair(70, BoolShort(header.DrawOrthoganalLines)));
 
             // OSMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, OSMODE));
                 list.Add(new DxfCodePair(70, (short)(header.ObjectSnapFlags)));
             }
 
             // PDMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PDMODE));
-                list.Add(new DxfCodePair(70, (short)(header.PointDisplayMode)));
-            }
+            list.Add(new DxfCodePair(9, PDMODE));
+            list.Add(new DxfCodePair(70, (short)(header.PointDisplayMode)));
 
             // PDSIZE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PDSIZE));
-                list.Add(new DxfCodePair(40, (header.PointDisplaySize)));
-            }
+            list.Add(new DxfCodePair(9, PDSIZE));
+            list.Add(new DxfCodePair(40, (header.PointDisplaySize)));
 
             // PELEVATION
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PELEVATION));
-                list.Add(new DxfCodePair(40, (header.PaperspaceElevation)));
-            }
+            list.Add(new DxfCodePair(9, PELEVATION));
+            list.Add(new DxfCodePair(40, (header.PaperspaceElevation)));
 
             // PEXTMAX
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PEXTMAX));
-                list.Add(new DxfCodePair(10, header.PaperspaceMaximumDrawingExtents.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceMaximumDrawingExtents.Y));
-                list.Add(new DxfCodePair(30, header.PaperspaceMaximumDrawingExtents.Z));
-            }
+            list.Add(new DxfCodePair(9, PEXTMAX));
+            list.Add(new DxfCodePair(10, header.PaperspaceMaximumDrawingExtents.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceMaximumDrawingExtents.Y));
+            list.Add(new DxfCodePair(30, header.PaperspaceMaximumDrawingExtents.Z));
 
             // PEXTMIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PEXTMIN));
-                list.Add(new DxfCodePair(10, header.PaperspaceMinimumDrawingExtents.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceMinimumDrawingExtents.Y));
-                list.Add(new DxfCodePair(30, header.PaperspaceMinimumDrawingExtents.Z));
-            }
+            list.Add(new DxfCodePair(9, PEXTMIN));
+            list.Add(new DxfCodePair(10, header.PaperspaceMinimumDrawingExtents.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceMinimumDrawingExtents.Y));
+            list.Add(new DxfCodePair(30, header.PaperspaceMinimumDrawingExtents.Z));
 
             // PICKSTYLE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R14)
             {
                 list.Add(new DxfCodePair(9, PICKSTYLE));
                 list.Add(new DxfCodePair(70, (short)(header.PickStyle)));
             }
 
             // PINSBASE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PINSBASE));
-                list.Add(new DxfCodePair(10, header.PaperspaceInsertionBase.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceInsertionBase.Y));
-                list.Add(new DxfCodePair(30, header.PaperspaceInsertionBase.Z));
-            }
+            list.Add(new DxfCodePair(9, PINSBASE));
+            list.Add(new DxfCodePair(10, header.PaperspaceInsertionBase.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceInsertionBase.Y));
+            list.Add(new DxfCodePair(30, header.PaperspaceInsertionBase.Z));
 
             // PLIMCHECK
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PLIMCHECK));
-                list.Add(new DxfCodePair(70, BoolShort(header.LimitCheckingInPaperspace)));
-            }
+            list.Add(new DxfCodePair(9, PLIMCHECK));
+            list.Add(new DxfCodePair(70, BoolShort(header.LimitCheckingInPaperspace)));
 
             // PLIMMAX
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PLIMMAX));
-                list.Add(new DxfCodePair(10, header.PaperspaceMaximumDrawingLimits.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceMaximumDrawingLimits.Y));
-            }
+            list.Add(new DxfCodePair(9, PLIMMAX));
+            list.Add(new DxfCodePair(10, header.PaperspaceMaximumDrawingLimits.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceMaximumDrawingLimits.Y));
 
             // PLIMMIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PLIMMIN));
-                list.Add(new DxfCodePair(10, header.PaperspaceMinimumDrawingLimits.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceMinimumDrawingLimits.Y));
-            }
+            list.Add(new DxfCodePair(9, PLIMMIN));
+            list.Add(new DxfCodePair(10, header.PaperspaceMinimumDrawingLimits.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceMinimumDrawingLimits.Y));
 
             // PLINEGEN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PLINEGEN));
-                list.Add(new DxfCodePair(70, BoolShort(header.IsPolylineContinuousAroundVerticies)));
-            }
+            list.Add(new DxfCodePair(9, PLINEGEN));
+            list.Add(new DxfCodePair(70, BoolShort(header.IsPolylineContinuousAroundVerticies)));
 
             // PLINEWID
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, PLINEWID));
+            list.Add(new DxfCodePair(40, (header.DefaultPolylineWidth)));
+
+            // PROJECTNAME
+            if (version >= DxfAcadVersion.R2004)
             {
-                list.Add(new DxfCodePair(9, PLINEWID));
-                list.Add(new DxfCodePair(40, (header.DefaultPolylineWidth)));
+                list.Add(new DxfCodePair(9, PROJECTNAME));
+                list.Add(new DxfCodePair(1, (header.ProjectName)));
             }
 
             // PROXYGRAPHICS
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PROXYGRAPHICS));
-                list.Add(new DxfCodePair(70, BoolShort(header.SaveProxyGraphics)));
-            }
+            list.Add(new DxfCodePair(9, PROXYGRAPHICS));
+            list.Add(new DxfCodePair(70, BoolShort(header.SaveProxyGraphics)));
 
             // PSLTSCALE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, PSLTSCALE));
+            list.Add(new DxfCodePair(70, BoolShort(header.ScaleLinetypesInPaperspace)));
+
+            // PSTYLEMODE
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, PSLTSCALE));
-                list.Add(new DxfCodePair(70, BoolShort(header.ScaleLinetypesInPaperspace)));
+                list.Add(new DxfCodePair(9, PSTYLEMODE));
+                list.Add(new DxfCodePair(290, (header.UsesColorDependentPlotStyleTables)));
+            }
+
+            // PSVPSCALE
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PSVPSCALE));
+                list.Add(new DxfCodePair(40, (header.ViewportViewScaleFactor)));
+            }
+
+            // PUCSBASE
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSBASE));
+                list.Add(new DxfCodePair(2, (header.PaperspaceUCSDefinitionName)));
             }
 
             // PUCSNAME
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PUCSNAME));
-                list.Add(new DxfCodePair(2, (header.PaperspaceUCSName)));
-            }
+            list.Add(new DxfCodePair(9, PUCSNAME));
+            list.Add(new DxfCodePair(2, (header.PaperspaceUCSName)));
 
             // PUCSORG
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, PUCSORG));
+            list.Add(new DxfCodePair(10, header.PaperspaceUCSOrigin.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceUCSOrigin.Y));
+            list.Add(new DxfCodePair(30, header.PaperspaceUCSOrigin.Z));
+
+            // PUCSORGBACK
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, PUCSORG));
-                list.Add(new DxfCodePair(10, header.PaperspaceUCSOrigin.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceUCSOrigin.Y));
-                list.Add(new DxfCodePair(30, header.PaperspaceUCSOrigin.Z));
+                list.Add(new DxfCodePair(9, PUCSORGBACK));
+                list.Add(new DxfCodePair(10, header.PaperspaceUCSOriginBack.X));
+                list.Add(new DxfCodePair(20, header.PaperspaceUCSOriginBack.Y));
+                list.Add(new DxfCodePair(30, header.PaperspaceUCSOriginBack.Z));
+            }
+
+            // PUCSORGBOTTOM
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORGBOTTOM));
+                list.Add(new DxfCodePair(10, header.PaperspaceUCSOriginBottom.X));
+                list.Add(new DxfCodePair(20, header.PaperspaceUCSOriginBottom.Y));
+                list.Add(new DxfCodePair(30, header.PaperspaceUCSOriginBottom.Z));
+            }
+
+            // PUCSORGFRONT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORGFRONT));
+                list.Add(new DxfCodePair(10, header.PaperspaceUCSOriginFront.X));
+                list.Add(new DxfCodePair(20, header.PaperspaceUCSOriginFront.Y));
+                list.Add(new DxfCodePair(30, header.PaperspaceUCSOriginFront.Z));
+            }
+
+            // PUCSORGLEFT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORGLEFT));
+                list.Add(new DxfCodePair(10, header.PaperspaceUCSOriginLeft.X));
+                list.Add(new DxfCodePair(20, header.PaperspaceUCSOriginLeft.Y));
+                list.Add(new DxfCodePair(30, header.PaperspaceUCSOriginLeft.Z));
+            }
+
+            // PUCSORGRIGHT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORGRIGHT));
+                list.Add(new DxfCodePair(10, header.PaperspaceUCSOriginRight.X));
+                list.Add(new DxfCodePair(20, header.PaperspaceUCSOriginRight.Y));
+                list.Add(new DxfCodePair(30, header.PaperspaceUCSOriginRight.Z));
+            }
+
+            // PUCSORGTOP
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORGTOP));
+                list.Add(new DxfCodePair(10, header.PaperspaceUCSOriginTop.X));
+                list.Add(new DxfCodePair(20, header.PaperspaceUCSOriginTop.Y));
+                list.Add(new DxfCodePair(30, header.PaperspaceUCSOriginTop.Z));
+            }
+
+            // PUCSORTHOREF
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORTHOREF));
+                list.Add(new DxfCodePair(2, (header.PaperspaceOrthoUCSReference)));
+            }
+
+            // PUCSORTHOVIEW
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, PUCSORTHOVIEW));
+                list.Add(new DxfCodePair(70, (short)(header.PaperspaceOrthographicViewType)));
             }
 
             // PUCSXDIR
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PUCSXDIR));
-                list.Add(new DxfCodePair(10, header.PaperspaceXAxis.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceXAxis.Y));
-                list.Add(new DxfCodePair(30, header.PaperspaceXAxis.Z));
-            }
+            list.Add(new DxfCodePair(9, PUCSXDIR));
+            list.Add(new DxfCodePair(10, header.PaperspaceXAxis.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceXAxis.Y));
+            list.Add(new DxfCodePair(30, header.PaperspaceXAxis.Z));
 
             // PUCSYDIR
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, PUCSYDIR));
-                list.Add(new DxfCodePair(10, header.PaperspaceYAxis.X));
-                list.Add(new DxfCodePair(20, header.PaperspaceYAxis.Y));
-                list.Add(new DxfCodePair(30, header.PaperspaceYAxis.Z));
-            }
+            list.Add(new DxfCodePair(9, PUCSYDIR));
+            list.Add(new DxfCodePair(10, header.PaperspaceYAxis.X));
+            list.Add(new DxfCodePair(20, header.PaperspaceYAxis.Y));
+            list.Add(new DxfCodePair(30, header.PaperspaceYAxis.Z));
 
             // QTEXTMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, QTEXTMODE));
-                list.Add(new DxfCodePair(70, BoolShort(header.UseQuickTextMode)));
-            }
+            list.Add(new DxfCodePair(9, QTEXTMODE));
+            list.Add(new DxfCodePair(70, BoolShort(header.UseQuickTextMode)));
 
             // REGENMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, REGENMODE));
-                list.Add(new DxfCodePair(70, BoolShort(header.UseRegenMode)));
-            }
+            list.Add(new DxfCodePair(9, REGENMODE));
+            list.Add(new DxfCodePair(70, BoolShort(header.UseRegenMode)));
 
             // SHADEDGE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SHADEDGE));
-                list.Add(new DxfCodePair(70, (short)(header.EdgeShading)));
-            }
+            list.Add(new DxfCodePair(9, SHADEDGE));
+            list.Add(new DxfCodePair(70, (short)(header.EdgeShading)));
 
             // SHADEDIF
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, SHADEDIF));
+            list.Add(new DxfCodePair(70, (header.PercentAmbientToDiffuse)));
+
+            // SHADOWPLANELOCATION
+            if (version >= DxfAcadVersion.R2007)
             {
-                list.Add(new DxfCodePair(9, SHADEDIF));
-                list.Add(new DxfCodePair(70, (header.PercentAmbientToDiffuse)));
+                list.Add(new DxfCodePair(9, SHADOWPLANELOCATION));
+                list.Add(new DxfCodePair(40, (header.ShadowPlaneZOffset)));
             }
 
             // SKETCHINC
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SKETCHINC));
-                list.Add(new DxfCodePair(40, (header.SketchRecordIncrement)));
-            }
+            list.Add(new DxfCodePair(9, SKETCHINC));
+            list.Add(new DxfCodePair(40, (header.SketchRecordIncrement)));
 
             // SKPOLY
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, SKPOLY));
+            list.Add(new DxfCodePair(70, (short)(header.PolylineSketchMode)));
+
+            // SORTENTS
+            if (version >= DxfAcadVersion.R2004)
             {
-                list.Add(new DxfCodePair(9, SKPOLY));
-                list.Add(new DxfCodePair(70, (short)(header.PolylineSketchMode)));
+                list.Add(new DxfCodePair(9, SORTENTS));
+                list.Add(new DxfCodePair(280, (short)(header.ObjectSortingMethodsFlags)));
             }
 
             // SPLFRAME
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            if (version <= DxfAcadVersion.R2010)
             {
                 list.Add(new DxfCodePair(9, SPLFRAME));
                 list.Add(new DxfCodePair(70, BoolShort(header.DisplaySplinePolygonControl)));
             }
 
             // SPLINESEGS
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SPLINESEGS));
-                list.Add(new DxfCodePair(70, (header.LineSegmentsPerSplinePatch)));
-            }
+            list.Add(new DxfCodePair(9, SPLINESEGS));
+            list.Add(new DxfCodePair(70, (header.LineSegmentsPerSplinePatch)));
 
             // SPLINETYPE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SPLINETYPE));
-                list.Add(new DxfCodePair(70, (header.PEditSplineCurveType)));
-            }
+            list.Add(new DxfCodePair(9, SPLINETYPE));
+            list.Add(new DxfCodePair(70, (header.PEditSplineCurveType)));
 
             // SURFTAB1
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SURFTAB1));
-                list.Add(new DxfCodePair(70, (header.MeshTabulationsInFirstDirection)));
-            }
+            list.Add(new DxfCodePair(9, SURFTAB1));
+            list.Add(new DxfCodePair(70, (header.MeshTabulationsInFirstDirection)));
 
             // SURFTAB2
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SURFTAB2));
-                list.Add(new DxfCodePair(70, (header.MeshTabulationsInSecondDirection)));
-            }
+            list.Add(new DxfCodePair(9, SURFTAB2));
+            list.Add(new DxfCodePair(70, (header.MeshTabulationsInSecondDirection)));
 
             // SURFTYPE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SURFTYPE));
-                list.Add(new DxfCodePair(70, (header.PEditSmoothSurfaceType)));
-            }
+            list.Add(new DxfCodePair(9, SURFTYPE));
+            list.Add(new DxfCodePair(70, (header.PEditSmoothSurfaceType)));
 
             // SURFU
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SURFU));
-                list.Add(new DxfCodePair(70, (header.PEditSmoothMDensith)));
-            }
+            list.Add(new DxfCodePair(9, SURFU));
+            list.Add(new DxfCodePair(70, (header.PEditSmoothMDensith)));
 
             // SURFV
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, SURFV));
-                list.Add(new DxfCodePair(70, (header.PEditSmoothNDensith)));
-            }
+            list.Add(new DxfCodePair(9, SURFV));
+            list.Add(new DxfCodePair(70, (header.PEditSmoothNDensith)));
 
             // TDCREATE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, TDCREATE));
-                list.Add(new DxfCodePair(40, DateDouble(header.CreationDate)));
-            }
+            list.Add(new DxfCodePair(9, TDCREATE));
+            list.Add(new DxfCodePair(40, DateDouble(header.CreationDate)));
 
             // TDINDWG
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, TDINDWG));
+            list.Add(new DxfCodePair(40, TimeSpanDouble(header.TimeInDrawing)));
+
+            // TDUCREATE
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, TDINDWG));
-                list.Add(new DxfCodePair(40, TimeSpanDouble(header.TimeInDrawing)));
+                list.Add(new DxfCodePair(9, TDUCREATE));
+                list.Add(new DxfCodePair(40, DateDouble(header.CreationDateUniversal)));
             }
 
             // TDUPDATE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, TDUPDATE));
-                list.Add(new DxfCodePair(40, DateDouble(header.UpdateDate)));
-            }
+            list.Add(new DxfCodePair(9, TDUPDATE));
+            list.Add(new DxfCodePair(40, DateDouble(header.UpdateDate)));
 
             // TDUSRTIMER
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, TDUSRTIMER));
+            list.Add(new DxfCodePair(40, TimeSpanDouble(header.UserElapsedTimer)));
+
+            // TDUUPDATE
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, TDUSRTIMER));
-                list.Add(new DxfCodePair(40, TimeSpanDouble(header.UserElapsedTimer)));
+                list.Add(new DxfCodePair(9, TDUUPDATE));
+                list.Add(new DxfCodePair(40, DateDouble(header.UpdateDateUniversal)));
             }
 
             // TEXTSIZE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, TEXTSIZE));
-                list.Add(new DxfCodePair(40, (header.DefaultTextHeight)));
-            }
+            list.Add(new DxfCodePair(9, TEXTSIZE));
+            list.Add(new DxfCodePair(40, (header.DefaultTextHeight)));
 
             // TEXTSTYLE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, TEXTSTYLE));
-                list.Add(new DxfCodePair(7, (header.TextStyle)));
-            }
+            list.Add(new DxfCodePair(9, TEXTSTYLE));
+            list.Add(new DxfCodePair(7, (header.TextStyle)));
 
             // THICKNESS
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, THICKNESS));
-                list.Add(new DxfCodePair(40, (header.Thickness)));
-            }
+            list.Add(new DxfCodePair(9, THICKNESS));
+            list.Add(new DxfCodePair(40, (header.Thickness)));
 
             // TILEMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, TILEMODE));
-                list.Add(new DxfCodePair(70, BoolShort(header.PreviousReleaseTileCompatability)));
-            }
+            list.Add(new DxfCodePair(9, TILEMODE));
+            list.Add(new DxfCodePair(70, BoolShort(header.PreviousReleaseTileCompatability)));
 
             // TRACEWID
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, TRACEWID));
-                list.Add(new DxfCodePair(40, (header.TraceWidth)));
-            }
+            list.Add(new DxfCodePair(9, TRACEWID));
+            list.Add(new DxfCodePair(40, (header.TraceWidth)));
 
             // TREEDEPTH
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, TREEDEPTH));
+            list.Add(new DxfCodePair(70, (header.SpacialIndexMaxDepth)));
+
+            // UCSBASE
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, TREEDEPTH));
-                list.Add(new DxfCodePair(70, (header.SpacialIndexMaxDepth)));
+                list.Add(new DxfCodePair(9, UCSBASE));
+                list.Add(new DxfCodePair(2, (header.UCSDefinitionName)));
             }
 
             // UCSNAME
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, UCSNAME));
-                list.Add(new DxfCodePair(2, (header.UCSName)));
-            }
+            list.Add(new DxfCodePair(9, UCSNAME));
+            list.Add(new DxfCodePair(2, (header.UCSName)));
 
             // UCSORG
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, UCSORG));
+            list.Add(new DxfCodePair(10, header.UCSOrigin.X));
+            list.Add(new DxfCodePair(20, header.UCSOrigin.Y));
+            list.Add(new DxfCodePair(30, header.UCSOrigin.Z));
+
+            // UCSORGBACK
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, UCSORG));
-                list.Add(new DxfCodePair(10, header.UCSOrigin.X));
-                list.Add(new DxfCodePair(20, header.UCSOrigin.Y));
-                list.Add(new DxfCodePair(30, header.UCSOrigin.Z));
+                list.Add(new DxfCodePair(9, UCSORGBACK));
+                list.Add(new DxfCodePair(10, header.UCSOriginBack.X));
+                list.Add(new DxfCodePair(20, header.UCSOriginBack.Y));
+                list.Add(new DxfCodePair(30, header.UCSOriginBack.Z));
+            }
+
+            // UCSORGBOTTOM
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORGBOTTOM));
+                list.Add(new DxfCodePair(10, header.UCSOriginBottom.X));
+                list.Add(new DxfCodePair(20, header.UCSOriginBottom.Y));
+                list.Add(new DxfCodePair(30, header.UCSOriginBottom.Z));
+            }
+
+            // UCSORGFRONT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORGFRONT));
+                list.Add(new DxfCodePair(10, header.UCSOriginFront.X));
+                list.Add(new DxfCodePair(20, header.UCSOriginFront.Y));
+                list.Add(new DxfCodePair(30, header.UCSOriginFront.Z));
+            }
+
+            // UCSORGLEFT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORGLEFT));
+                list.Add(new DxfCodePair(10, header.UCSOriginLeft.X));
+                list.Add(new DxfCodePair(20, header.UCSOriginLeft.Y));
+                list.Add(new DxfCodePair(30, header.UCSOriginLeft.Z));
+            }
+
+            // UCSORGRIGHT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORGRIGHT));
+                list.Add(new DxfCodePair(10, header.UCSOriginRight.X));
+                list.Add(new DxfCodePair(20, header.UCSOriginRight.Y));
+                list.Add(new DxfCodePair(30, header.UCSOriginRight.Z));
+            }
+
+            // UCSORGTOP
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORGTOP));
+                list.Add(new DxfCodePair(10, header.UCSOriginTop.X));
+                list.Add(new DxfCodePair(20, header.UCSOriginTop.Y));
+                list.Add(new DxfCodePair(30, header.UCSOriginTop.Z));
+            }
+
+            // UCSORTHOREF
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORTHOREF));
+                list.Add(new DxfCodePair(2, (header.OrthoUCSReference)));
+            }
+
+            // UCSORTHOVIEW
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, UCSORTHOVIEW));
+                list.Add(new DxfCodePair(70, (short)(header.OrthgraphicViewType)));
             }
 
             // UCSXDIR
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, UCSXDIR));
-                list.Add(new DxfCodePair(10, header.UCSXAxis.X));
-                list.Add(new DxfCodePair(20, header.UCSXAxis.Y));
-                list.Add(new DxfCodePair(30, header.UCSXAxis.Z));
-            }
+            list.Add(new DxfCodePair(9, UCSXDIR));
+            list.Add(new DxfCodePair(10, header.UCSXAxis.X));
+            list.Add(new DxfCodePair(20, header.UCSXAxis.Y));
+            list.Add(new DxfCodePair(30, header.UCSXAxis.Z));
 
             // UCSYDIR
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, UCSYDIR));
-                list.Add(new DxfCodePair(10, header.UCSYAxis.X));
-                list.Add(new DxfCodePair(20, header.UCSYAxis.Y));
-                list.Add(new DxfCodePair(30, header.UCSYAxis.Z));
-            }
+            list.Add(new DxfCodePair(9, UCSYDIR));
+            list.Add(new DxfCodePair(10, header.UCSYAxis.X));
+            list.Add(new DxfCodePair(20, header.UCSYAxis.Y));
+            list.Add(new DxfCodePair(30, header.UCSYAxis.Z));
 
             // UNITMODE
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, UNITMODE));
-                list.Add(new DxfCodePair(70, BoolShort(header.DisplayFractionsInInput)));
-            }
+            list.Add(new DxfCodePair(9, UNITMODE));
+            list.Add(new DxfCodePair(70, BoolShort(header.DisplayFractionsInInput)));
 
             // USERI1
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERI1));
-                list.Add(new DxfCodePair(70, (header.UserInt1)));
-            }
+            list.Add(new DxfCodePair(9, USERI1));
+            list.Add(new DxfCodePair(70, (header.UserInt1)));
 
             // USERI2
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERI2));
-                list.Add(new DxfCodePair(70, (header.UserInt2)));
-            }
+            list.Add(new DxfCodePair(9, USERI2));
+            list.Add(new DxfCodePair(70, (header.UserInt2)));
 
             // USERI3
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERI3));
-                list.Add(new DxfCodePair(70, (header.UserInt3)));
-            }
+            list.Add(new DxfCodePair(9, USERI3));
+            list.Add(new DxfCodePair(70, (header.UserInt3)));
 
             // USERI4
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERI4));
-                list.Add(new DxfCodePair(70, (header.UserInt4)));
-            }
+            list.Add(new DxfCodePair(9, USERI4));
+            list.Add(new DxfCodePair(70, (header.UserInt4)));
 
             // USERI5
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERI5));
-                list.Add(new DxfCodePair(70, (header.UserInt5)));
-            }
+            list.Add(new DxfCodePair(9, USERI5));
+            list.Add(new DxfCodePair(70, (header.UserInt5)));
 
             // USERR1
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERR1));
-                list.Add(new DxfCodePair(40, (header.UserReal1)));
-            }
+            list.Add(new DxfCodePair(9, USERR1));
+            list.Add(new DxfCodePair(40, (header.UserReal1)));
 
             // USERR2
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERR2));
-                list.Add(new DxfCodePair(40, (header.UserReal2)));
-            }
+            list.Add(new DxfCodePair(9, USERR2));
+            list.Add(new DxfCodePair(40, (header.UserReal2)));
 
             // USERR3
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERR3));
-                list.Add(new DxfCodePair(40, (header.UserReal3)));
-            }
+            list.Add(new DxfCodePair(9, USERR3));
+            list.Add(new DxfCodePair(40, (header.UserReal3)));
 
             // USERR4
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERR4));
-                list.Add(new DxfCodePair(40, (header.UserReal4)));
-            }
+            list.Add(new DxfCodePair(9, USERR4));
+            list.Add(new DxfCodePair(40, (header.UserReal4)));
 
             // USERR5
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, USERR5));
-                list.Add(new DxfCodePair(40, (header.UserReal5)));
-            }
+            list.Add(new DxfCodePair(9, USERR5));
+            list.Add(new DxfCodePair(40, (header.UserReal5)));
 
             // USRTIMER
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, USRTIMER));
+            list.Add(new DxfCodePair(70, BoolShort(header.UserTimerOn)));
+
+            // VERSIONGUID
+            if (version >= DxfAcadVersion.R2000)
             {
-                list.Add(new DxfCodePair(9, USRTIMER));
-                list.Add(new DxfCodePair(70, BoolShort(header.UserTimerOn)));
+                list.Add(new DxfCodePair(9, VERSIONGUID));
+                list.Add(new DxfCodePair(2, GuidString(header.VersionGuid)));
             }
 
             // VISRETAIN
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
-            {
-                list.Add(new DxfCodePair(9, VISRETAIN));
-                list.Add(new DxfCodePair(70, BoolShort(header.RetainXRefDependentVisibilitySettings)));
-            }
+            list.Add(new DxfCodePair(9, VISRETAIN));
+            list.Add(new DxfCodePair(70, BoolShort(header.RetainXRefDependentVisibilitySettings)));
 
             // WORLDVIEW
-            if (version >= DxfAcadVersion.Min && version <= DxfAcadVersion.Max)
+            list.Add(new DxfCodePair(9, WORLDVIEW));
+            list.Add(new DxfCodePair(70, BoolShort(header.SetUCSToWCSInDViewOrVPoint)));
+
+            // XCLIPFRAME
+            if (version >= DxfAcadVersion.R2004)
             {
-                list.Add(new DxfCodePair(9, WORLDVIEW));
-                list.Add(new DxfCodePair(70, BoolShort(header.SetUCSToWCSInDViewOrVPoint)));
+                list.Add(new DxfCodePair(9, XCLIPFRAME));
+                list.Add(new DxfCodePair(290, (header.IsXRefClippingBoundaryVisible)));
+            }
+
+            // XEDIT
+            if (version >= DxfAcadVersion.R2000)
+            {
+                list.Add(new DxfCodePair(9, XEDIT));
+                list.Add(new DxfCodePair(290, (header.CanUseInPlaceReferenceEditing)));
             }
 
         }
@@ -1731,6 +1907,18 @@ namespace BCad.Dxf
                     EnsureCode(pair, 6);
                     header.CurrentEntityLinetype = (pair.StringValue);
                     break;
+                case CELWEIGHT:
+                    EnsureCode(pair, 370);
+                    header.NewObjectLineWeight = (pair.ShortValue);
+                    break;
+                case CEPSNID:
+                    EnsureCode(pair, 390);
+                    header.NewObjectPlotStyleHandle = (pair.StringValue);
+                    break;
+                case CEPSNTYPE:
+                    EnsureCode(pair, 380);
+                    header.NewObjectPlotStyle = (DxfPlotStyle)(pair.DoubleValue);
+                    break;
                 case CHAMFERA:
                     EnsureCode(pair, 40);
                     header.FirstChamferDistance = (pair.DoubleValue);
@@ -1767,9 +1955,21 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.CoordinateDisplay = (DxfCoordinateDisplay)(pair.ShortValue);
                     break;
+                case CPSNID:
+                    EnsureCode(pair, 390);
+                    header.NewObjectPlotStyleHandle = (pair.StringValue);
+                    break;
+                case CSHADOW:
+                    EnsureCode(pair, 280);
+                    header.ShadowMode = (DxfShadowMode)(pair.ShortValue);
+                    break;
                 case DELOBJ:
                     EnsureCode(pair, 70);
                     header.RetainDeletedObjects = BoolShort(pair.ShortValue);
+                    break;
+                case DIMADEC:
+                    EnsureCode(pair, 70);
+                    header.AngularDimensionPrecision = (pair.ShortValue);
                     break;
                 case DIMALT:
                     EnsureCode(pair, 70);
@@ -1782,6 +1982,10 @@ namespace BCad.Dxf
                 case DIMALTF:
                     EnsureCode(pair, 40);
                     header.AlternateDimensioningScaleFactor = (pair.DoubleValue);
+                    break;
+                case DIMALTRND:
+                    EnsureCode(pair, 40);
+                    header.AlternateDimensioningUnitRounding = (pair.DoubleValue);
                     break;
                 case DIMALTTD:
                     EnsureCode(pair, 70);
@@ -1807,13 +2011,25 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.CreateAssociativeDimensioning = BoolShort(pair.ShortValue);
                     break;
+                case DIMASSOC:
+                    EnsureCode(pair, 280);
+                    header.DimensionObjectAssociativity = (DxfDimensionAssociativity)(pair.ShortValue);
+                    break;
                 case DIMASZ:
                     EnsureCode(pair, 40);
                     header.DimensioningArrowSize = (pair.DoubleValue);
                     break;
+                case DIMATFIT:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextAndArrowPlacement = (DxfDimensionFit)(pair.ShortValue);
+                    break;
                 case DIMAUNIT:
                     EnsureCode(pair, 70);
                     header.DimensioningAngleFormat = (DxfAngleFormat)(pair.ShortValue);
+                    break;
+                case DIMAZIN:
+                    EnsureCode(pair, 70);
+                    header.DimensionToleranceZeroSuppression = (DxfUnitZeroSuppression)(pair.ShortValue);
                     break;
                 case DIMBLK:
                     EnsureCode(pair, 1);
@@ -1855,6 +2071,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 40);
                     header.DimensionLineIncrement = (pair.DoubleValue);
                     break;
+                case DIMDSEP:
+                    EnsureCode(pair, 70);
+                    header.DimensionDecimalSeparatorChar = (char)(pair.ShortValue);
+                    break;
                 case DIMEXE:
                     EnsureCode(pair, 40);
                     header.DimensionExtensionLineExtension = (pair.DoubleValue);
@@ -1862,6 +2082,10 @@ namespace BCad.Dxf
                 case DIMEXO:
                     EnsureCode(pair, 40);
                     header.DimensionExtensionLineOffset = (pair.DoubleValue);
+                    break;
+                case DIMFAC:
+                    EnsureCode(pair, 40);
+                    header.DimensionTextHeightScaleFactor = (pair.DoubleValue);
                     break;
                 case DIMFIT:
                     EnsureCode(pair, 70);
@@ -1875,6 +2099,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.DimensionTextJustification = (DxfDimensionTextJustification)(pair.ShortValue);
                     break;
+                case DIMLDRBLK:
+                    EnsureCode(pair, 1);
+                    header.DimensionLeaderBlockName = (pair.StringValue);
+                    break;
                 case DIMLFAC:
                     EnsureCode(pair, 40);
                     header.DimensionLinearMeasurementsScaleFactor = (pair.DoubleValue);
@@ -1882,6 +2110,10 @@ namespace BCad.Dxf
                 case DIMLIM:
                     EnsureCode(pair, 70);
                     header.GenerateDimensionLimits = BoolShort(pair.ShortValue);
+                    break;
+                case DIMLUNIT:
+                    EnsureCode(pair, 70);
+                    header.DimensionNonAngularUnits = (DxfNonAngularUnits)(pair.ShortValue);
                     break;
                 case DIMPOST:
                     EnsureCode(pair, 1);
@@ -1943,6 +2175,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 40);
                     header.DimensionMinusTolerance = (pair.DoubleValue);
                     break;
+                case DIMTMOVE:
+                    EnsureCode(pair, 70);
+                    header.DimensionTextMovementRule = (DxfDimensionTextMovementRule)(pair.ShortValue);
+                    break;
                 case DIMTOFL:
                     EnsureCode(pair, 70);
                     header.ForceDimensionLineExtensionsOutsideIfTextIs = BoolShort(pair.ShortValue);
@@ -2003,6 +2239,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.DragMode = (DxfDragMode)(pair.ShortValue);
                     break;
+                case DRAGVS:
+                    EnsureCode(pair, 349);
+                    header.ThreeDSolidCreationVisualStyle = (pair.StringValue);
+                    break;
                 case DWGCODEPAGE:
                     EnsureCode(pair, 3);
                     header.DrawingCodePage = (pair.StringValue);
@@ -2011,11 +2251,19 @@ namespace BCad.Dxf
                     EnsureCode(pair, 40);
                     header.Elevation = (pair.DoubleValue);
                     break;
+                case ENDCAPS:
+                    EnsureCode(pair, 280);
+                    header.EndCapSetting = (DxfEndCapSetting)(pair.ShortValue);
+                    break;
                 case EXTMAX:
                     SetPoint(pair, header.MaximumDrawingExtents);
                     break;
                 case EXTMIN:
                     SetPoint(pair, header.MinimumDrawingExtents);
+                    break;
+                case EXTNAMES:
+                    EnsureCode(pair, 290);
+                    header.UseACad2000SymbolTableNaming = (pair.BoolValue);
                     break;
                 case FILLETRAD:
                     EnsureCode(pair, 40);
@@ -2025,6 +2273,14 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.FillModeOn = BoolShort(pair.ShortValue);
                     break;
+                case FINGERPRINTGUID:
+                    EnsureCode(pair, 2);
+                    header.FingerprintGuid = GuidString(pair.StringValue);
+                    break;
+                case HALOGAP:
+                    EnsureCode(pair, 280);
+                    header.HaloGapPercent = (double)(pair.ShortValue);
+                    break;
                 case HANDLING:
                     EnsureCode(pair, 70);
                     header.NextAvailableHandle = (int)(pair.ShortValue);
@@ -2033,8 +2289,48 @@ namespace BCad.Dxf
                     EnsureCode(pair, 5);
                     header.NextAvailableHandle2 = (pair.StringValue);
                     break;
+                case HIDETEXT:
+                    EnsureCode(pair, 290);
+                    header.HideTextObjectsWhenProducintHiddenView = (pair.BoolValue);
+                    break;
+                case HYPERLINKBASE:
+                    EnsureCode(pair, 1);
+                    header.HyperlinBase = (pair.StringValue);
+                    break;
+                case INDEXCTL:
+                    EnsureCode(pair, 280);
+                    header.LayerAndSpatialIndexSaveMode = (DxfLayerAndSpatialIndexSaveMode)(pair.ShortValue);
+                    break;
                 case INSBASE:
                     SetPoint(pair, header.InsertionBase);
+                    break;
+                case INSUNITS:
+                    EnsureCode(pair, 70);
+                    header.DefaultDrawingUnits = (DxfUnits)(pair.ShortValue);
+                    break;
+                case INTERFERECOLOR:
+                    EnsureCode(pair, 62);
+                    header.InterferenceObjectColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case INTERFEREOBJVS:
+                    EnsureCode(pair, 345);
+                    header.InterferenceObjectVisualStylePointer = (pair.StringValue);
+                    break;
+                case INTERFEREVPVS:
+                    EnsureCode(pair, 346);
+                    header.InterferenceViewPortVisualStylePointer = (pair.StringValue);
+                    break;
+                case INTERSECTIONCOLOR:
+                    EnsureCode(pair, 70);
+                    header.IntersectionPolylineColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case INTERSECTIONDISPLAY:
+                    EnsureCode(pair, 290);
+                    header.DisplayIntersectionPolylines = (pair.BoolValue);
+                    break;
+                case JOINSTYLE:
+                    EnsureCode(pair, 280);
+                    header.LineweightJointSetting = (DxfJoinStyle)(pair.ShortValue);
                     break;
                 case LIMCHECK:
                     EnsureCode(pair, 70);
@@ -2058,6 +2354,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.UnitPrecision = (pair.ShortValue);
                     break;
+                case LWDISPLAY:
+                    EnsureCode(pair, 290);
+                    header.DisplayLinewieghtInModelAndLayoutTab = (pair.BoolValue);
+                    break;
                 case MAXACTVP:
                     EnsureCode(pair, 70);
                     header.MaximumActiveViewports = (pair.ShortValue);
@@ -2073,6 +2373,14 @@ namespace BCad.Dxf
                 case MIRRTEXT:
                     EnsureCode(pair, 70);
                     header.MirrorText = BoolShort(pair.ShortValue);
+                    break;
+                case OBSCOLOR:
+                    EnsureCode(pair, 70);
+                    header.ObscuredLineColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case OBSLTYPE:
+                    EnsureCode(pair, 280);
+                    header.ObscuredLineTypeStyle = (DxfLinetypeStyle)(pair.ShortValue);
                     break;
                 case ORTHOMODE:
                     EnsureCode(pair, 70);
@@ -2125,6 +2433,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 40);
                     header.DefaultPolylineWidth = (pair.DoubleValue);
                     break;
+                case PROJECTNAME:
+                    EnsureCode(pair, 1);
+                    header.ProjectName = (pair.StringValue);
+                    break;
                 case PROXYGRAPHICS:
                     EnsureCode(pair, 70);
                     header.SaveProxyGraphics = BoolShort(pair.ShortValue);
@@ -2133,12 +2445,50 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.ScaleLinetypesInPaperspace = BoolShort(pair.ShortValue);
                     break;
+                case PSTYLEMODE:
+                    EnsureCode(pair, 290);
+                    header.UsesColorDependentPlotStyleTables = (pair.BoolValue);
+                    break;
+                case PSVPSCALE:
+                    EnsureCode(pair, 40);
+                    header.ViewportViewScaleFactor = (pair.DoubleValue);
+                    break;
+                case PUCSBASE:
+                    EnsureCode(pair, 2);
+                    header.PaperspaceUCSDefinitionName = (pair.StringValue);
+                    break;
                 case PUCSNAME:
                     EnsureCode(pair, 2);
                     header.PaperspaceUCSName = (pair.StringValue);
                     break;
                 case PUCSORG:
                     SetPoint(pair, header.PaperspaceUCSOrigin);
+                    break;
+                case PUCSORGBACK:
+                    SetPoint(pair, header.PaperspaceUCSOriginBack);
+                    break;
+                case PUCSORGBOTTOM:
+                    SetPoint(pair, header.PaperspaceUCSOriginBottom);
+                    break;
+                case PUCSORGFRONT:
+                    SetPoint(pair, header.PaperspaceUCSOriginFront);
+                    break;
+                case PUCSORGLEFT:
+                    SetPoint(pair, header.PaperspaceUCSOriginLeft);
+                    break;
+                case PUCSORGRIGHT:
+                    SetPoint(pair, header.PaperspaceUCSOriginRight);
+                    break;
+                case PUCSORGTOP:
+                    SetPoint(pair, header.PaperspaceUCSOriginTop);
+                    break;
+                case PUCSORTHOREF:
+                    EnsureCode(pair, 2);
+                    header.PaperspaceOrthoUCSReference = (pair.StringValue);
+                    break;
+                case PUCSORTHOVIEW:
+                    EnsureCode(pair, 70);
+                    header.PaperspaceOrthographicViewType = (DxfOrthographicViewType)(pair.ShortValue);
                     break;
                 case PUCSXDIR:
                     SetPoint(pair, header.PaperspaceXAxis);
@@ -2162,6 +2512,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.PercentAmbientToDiffuse = (pair.ShortValue);
                     break;
+                case SHADOWPLANELOCATION:
+                    EnsureCode(pair, 40);
+                    header.ShadowPlaneZOffset = (pair.DoubleValue);
+                    break;
                 case SKETCHINC:
                     EnsureCode(pair, 40);
                     header.SketchRecordIncrement = (pair.DoubleValue);
@@ -2169,6 +2523,10 @@ namespace BCad.Dxf
                 case SKPOLY:
                     EnsureCode(pair, 70);
                     header.PolylineSketchMode = (DxfPolySketchMode)(pair.ShortValue);
+                    break;
+                case SORTENTS:
+                    EnsureCode(pair, 280);
+                    header.ObjectSortingMethodsFlags = (int)(pair.ShortValue);
                     break;
                 case SPLFRAME:
                     EnsureCode(pair, 70);
@@ -2210,6 +2568,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 40);
                     header.TimeInDrawing = TimeSpanDouble(pair.DoubleValue);
                     break;
+                case TDUCREATE:
+                    EnsureCode(pair, 40);
+                    header.CreationDateUniversal = DateDouble(pair.DoubleValue);
+                    break;
                 case TDUPDATE:
                     EnsureCode(pair, 40);
                     header.UpdateDate = DateDouble(pair.DoubleValue);
@@ -2217,6 +2579,10 @@ namespace BCad.Dxf
                 case TDUSRTIMER:
                     EnsureCode(pair, 40);
                     header.UserElapsedTimer = TimeSpanDouble(pair.DoubleValue);
+                    break;
+                case TDUUPDATE:
+                    EnsureCode(pair, 40);
+                    header.UpdateDateUniversal = DateDouble(pair.DoubleValue);
                     break;
                 case TEXTSIZE:
                     EnsureCode(pair, 40);
@@ -2242,12 +2608,42 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.SpacialIndexMaxDepth = (pair.ShortValue);
                     break;
+                case UCSBASE:
+                    EnsureCode(pair, 2);
+                    header.UCSDefinitionName = (pair.StringValue);
+                    break;
                 case UCSNAME:
                     EnsureCode(pair, 2);
                     header.UCSName = (pair.StringValue);
                     break;
                 case UCSORG:
                     SetPoint(pair, header.UCSOrigin);
+                    break;
+                case UCSORGBACK:
+                    SetPoint(pair, header.UCSOriginBack);
+                    break;
+                case UCSORGBOTTOM:
+                    SetPoint(pair, header.UCSOriginBottom);
+                    break;
+                case UCSORGFRONT:
+                    SetPoint(pair, header.UCSOriginFront);
+                    break;
+                case UCSORGLEFT:
+                    SetPoint(pair, header.UCSOriginLeft);
+                    break;
+                case UCSORGRIGHT:
+                    SetPoint(pair, header.UCSOriginRight);
+                    break;
+                case UCSORGTOP:
+                    SetPoint(pair, header.UCSOriginTop);
+                    break;
+                case UCSORTHOREF:
+                    EnsureCode(pair, 2);
+                    header.OrthoUCSReference = (pair.StringValue);
+                    break;
+                case UCSORTHOVIEW:
+                    EnsureCode(pair, 70);
+                    header.OrthgraphicViewType = (DxfOrthographicViewType)(pair.ShortValue);
                     break;
                 case UCSXDIR:
                     SetPoint(pair, header.UCSXAxis);
@@ -2303,6 +2699,10 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.UserTimerOn = BoolShort(pair.ShortValue);
                     break;
+                case VERSIONGUID:
+                    EnsureCode(pair, 2);
+                    header.VersionGuid = GuidString(pair.StringValue);
+                    break;
                 case VISRETAIN:
                     EnsureCode(pair, 70);
                     header.RetainXRefDependentVisibilitySettings = BoolShort(pair.ShortValue);
@@ -2311,9 +2711,1373 @@ namespace BCad.Dxf
                     EnsureCode(pair, 70);
                     header.SetUCSToWCSInDViewOrVPoint = BoolShort(pair.ShortValue);
                     break;
+                case XCLIPFRAME:
+                    EnsureCode(pair, 290);
+                    header.IsXRefClippingBoundaryVisible = (pair.BoolValue);
+                    break;
+                case XEDIT:
+                    EnsureCode(pair, 290);
+                    header.CanUseInPlaceReferenceEditing = (pair.BoolValue);
+                    break;
                 default:
                     // unsupported variable
                     break;
+            }
+        }
+
+        // OSMODE flags
+        public bool EndPointSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 1); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 1);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool MidPointSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 2); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 2);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool CenterSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 4); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 4);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool NodeSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 8); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 8);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool QuadrantSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 16); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 16);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool IntersectionSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 32); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 32);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool InsertionSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 64); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 64);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool PerpendicularSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 128); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 128);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool TangentSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 256); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 256);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool NearestSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 512); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 512);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool ApparentIntersectionSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 2048); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 2048);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool ExtensionSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 4096); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 4096);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        public bool ParallelSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSnapFlags, 8192); }
+            set
+            {
+                var flags = ObjectSnapFlags;
+                DxfHelpers.SetFlag(value, ref flags, 8192);
+                ObjectSnapFlags = flags;
+            }
+        }
+
+        // SORTENTS flags
+        public bool SortObjectsForObjectSelection
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 1); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 1);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+        public bool SortObjectsForObjectSnap
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 2); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 2);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+        public bool SortObjectsForRedraw
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 4); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 4);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+        public bool SortObjectsForMSlide
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 8); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 8);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+        public bool SortObjectsForRegen
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 16); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 16);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+        public bool SortObjectsForPlotting
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 32); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 32);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+        public bool SortObjectsForPostScriptOutput
+        {
+            get { return DxfHelpers.GetFlag(ObjectSortingMethodsFlags, 64); }
+            set
+            {
+                var flags = ObjectSortingMethodsFlags;
+                DxfHelpers.SetFlag(value, ref flags, 64);
+                ObjectSortingMethodsFlags = flags;
+            }
+        }
+
+
+        private object GetValue(string variableName)
+        {
+            switch (variableName.ToUpper())
+            {
+                case ACADMAINTVER:
+                    return this.MaintenenceVersion;
+                case ACADVER:
+                    return this.Version;
+                case ANGBASE:
+                    return this.AngleZeroDirection;
+                case ANGDIR:
+                    return this.AngleDirection;
+                case ATTDIA:
+                    return this.ShowAttributeEntryDialogs;
+                case ATTMODE:
+                    return this.AttributeVisibility;
+                case ATTREQ:
+                    return this.PromptForAttributeOnInsert;
+                case AUNITS:
+                    return this.AngleUnitFormat;
+                case AUPREC:
+                    return this.AngleUnitPrecision;
+                case BLIPMODE:
+                    return this.BlipMode;
+                case CECOLOR:
+                    return this.CurrentEntityColor;
+                case CELTSCALE:
+                    return this.CurrentEntityLinetypeScale;
+                case CELTYPE:
+                    return this.CurrentEntityLinetype;
+                case CELWEIGHT:
+                    return this.NewObjectLineWeight;
+                case CEPSNID:
+                    return this.NewObjectPlotStyleHandle;
+                case CEPSNTYPE:
+                    return this.NewObjectPlotStyle;
+                case CHAMFERA:
+                    return this.FirstChamferDistance;
+                case CHAMFERB:
+                    return this.SecondChamferDistance;
+                case CHAMFERC:
+                    return this.ChamferLength;
+                case CHAMFERD:
+                    return this.ChamferAngle;
+                case CLAYER:
+                    return this.CurrentLayer;
+                case CMLJUST:
+                    return this.CurrentMultilineJustification;
+                case CMLSCALE:
+                    return this.CurrentMultilineScale;
+                case CMLSTYLE:
+                    return this.CurrentMultilineStyle;
+                case COORDS:
+                    return this.CoordinateDisplay;
+                case CPSNID:
+                    return this.NewObjectPlotStyleHandle;
+                case CSHADOW:
+                    return this.ShadowMode;
+                case DELOBJ:
+                    return this.RetainDeletedObjects;
+                case DIMADEC:
+                    return this.AngularDimensionPrecision;
+                case DIMALT:
+                    return this.UseAlternateDimensioning;
+                case DIMALTD:
+                    return this.AlternateDimensioningDecimalPlaces;
+                case DIMALTF:
+                    return this.AlternateDimensioningScaleFactor;
+                case DIMALTRND:
+                    return this.AlternateDimensioningUnitRounding;
+                case DIMALTTD:
+                    return this.AlternateDimensioningToleranceDecimalPlaces;
+                case DIMALTTZ:
+                    return this.AlternateDimensioningToleranceZeroSupression;
+                case DIMALTU:
+                    return this.AlternateDimensioningUnits;
+                case DIMALTZ:
+                    return this.AlternateDimensioningZeroSupression;
+                case DIMAPOST:
+                    return this.AlternateDimensioningSuffix;
+                case DIMASO:
+                    return this.CreateAssociativeDimensioning;
+                case DIMASSOC:
+                    return this.DimensionObjectAssociativity;
+                case DIMASZ:
+                    return this.DimensioningArrowSize;
+                case DIMATFIT:
+                    return this.DimensionTextAndArrowPlacement;
+                case DIMAUNIT:
+                    return this.DimensioningAngleFormat;
+                case DIMAZIN:
+                    return this.DimensionToleranceZeroSuppression;
+                case DIMBLK:
+                    return this.ArrowBlockName;
+                case DIMBLK1:
+                    return this.FirstArrowBlockName;
+                case DIMBLK2:
+                    return this.SecondArrowBlockName;
+                case DIMCEN:
+                    return this.CenterMarkSize;
+                case DIMCLRD:
+                    return this.DimensionLineColor;
+                case DIMCLRE:
+                    return this.DimensionExtensionLineColor;
+                case DIMCLRT:
+                    return this.DimensionTextColor;
+                case DIMDEC:
+                    return this.DimensionUnitToleranceDecimalPlaces;
+                case DIMDLE:
+                    return this.DimensionLineExtension;
+                case DIMDLI:
+                    return this.DimensionLineIncrement;
+                case DIMDSEP:
+                    return this.DimensionDecimalSeparatorChar;
+                case DIMEXE:
+                    return this.DimensionExtensionLineExtension;
+                case DIMEXO:
+                    return this.DimensionExtensionLineOffset;
+                case DIMFAC:
+                    return this.DimensionTextHeightScaleFactor;
+                case DIMFIT:
+                    return this.DimensionTextAndArrowPlacement;
+                case DIMGAP:
+                    return this.DimensionLineGap;
+                case DIMJUST:
+                    return this.DimensionTextJustification;
+                case DIMLDRBLK:
+                    return this.DimensionLeaderBlockName;
+                case DIMLFAC:
+                    return this.DimensionLinearMeasurementsScaleFactor;
+                case DIMLIM:
+                    return this.GenerateDimensionLimits;
+                case DIMLUNIT:
+                    return this.DimensionNonAngularUnits;
+                case DIMPOST:
+                    return this.DimensioningSuffix;
+                case DIMRND:
+                    return this.DimensionDistanceRoundingValue;
+                case DIMSAH:
+                    return this.UseSeparateArrowBlocksForDimensions;
+                case DIMSCALE:
+                    return this.DimensioningScaleFactor;
+                case DIMSD1:
+                    return this.SuppressFirstDimensionExtensionLine;
+                case DIMSD2:
+                    return this.SuppressSecondDimensionExtensionLine;
+                case DIMSHO:
+                    return this.RecomputeDimensionsWhileDragging;
+                case DIMSOXD:
+                    return this.SuppressOutsideExtensionDimensionLines;
+                case DIMSTYLE:
+                    return this.DimensionStyleName;
+                case DIMTAD:
+                    return this.TextAboveDimensionLine;
+                case DIMTDEC:
+                    return this.DimensionToleranceDecimalPlaces;
+                case DIMTFAC:
+                    return this.DimensionToleranceDisplayScaleFactor;
+                case DIMTIH:
+                    return this.DimensionTextInsideHorizontal;
+                case DIMTIX:
+                    return this.ForceDimensionTextInsideExtensions;
+                case DIMTM:
+                    return this.DimensionMinusTolerance;
+                case DIMTMOVE:
+                    return this.DimensionTextMovementRule;
+                case DIMTOFL:
+                    return this.ForceDimensionLineExtensionsOutsideIfTextIs;
+                case DIMTOH:
+                    return this.DimensionTextOutsideHorizontal;
+                case DIMTOL:
+                    return this.GenerateDimensionTolerances;
+                case DIMTOLJ:
+                    return this.DimensionToleranceVerticalJustification;
+                case DIMTP:
+                    return this.DimensionPlusTolerance;
+                case DIMTSZ:
+                    return this.DimensioningTickSize;
+                case DIMTVP:
+                    return this.DimensionVerticalTextPosition;
+                case DIMTXSTY:
+                    return this.DimensionTextStyle;
+                case DIMTXT:
+                    return this.DimensioningTextHeight;
+                case DIMTZIN:
+                    return this.DimensionToleranceZeroSuppression;
+                case DIMUNIT:
+                    return this.DimensionUnitFormat;
+                case DIMUPT:
+                    return this.DimensionCursorControlsTextPosition;
+                case DIMZIN:
+                    return this.DimensionUnitZeroSuppression;
+                case DISPSILH:
+                    return this.DisplaySilhouetteCurvesInWireframeMode;
+                case DRAGMODE:
+                    return this.DragMode;
+                case DRAGVS:
+                    return this.ThreeDSolidCreationVisualStyle;
+                case DWGCODEPAGE:
+                    return this.DrawingCodePage;
+                case ELEVATION:
+                    return this.Elevation;
+                case ENDCAPS:
+                    return this.EndCapSetting;
+                case EXTMAX:
+                    return this.MaximumDrawingExtents;
+                case EXTMIN:
+                    return this.MinimumDrawingExtents;
+                case EXTNAMES:
+                    return this.UseACad2000SymbolTableNaming;
+                case FILLETRAD:
+                    return this.FilletRadius;
+                case FILLMODE:
+                    return this.FillModeOn;
+                case FINGERPRINTGUID:
+                    return this.FingerprintGuid;
+                case HALOGAP:
+                    return this.HaloGapPercent;
+                case HANDLING:
+                    return this.NextAvailableHandle;
+                case HANDSEED:
+                    return this.NextAvailableHandle2;
+                case HIDETEXT:
+                    return this.HideTextObjectsWhenProducintHiddenView;
+                case HYPERLINKBASE:
+                    return this.HyperlinBase;
+                case INDEXCTL:
+                    return this.LayerAndSpatialIndexSaveMode;
+                case INSBASE:
+                    return this.InsertionBase;
+                case INSUNITS:
+                    return this.DefaultDrawingUnits;
+                case INTERFERECOLOR:
+                    return this.InterferenceObjectColor;
+                case INTERFEREOBJVS:
+                    return this.InterferenceObjectVisualStylePointer;
+                case INTERFEREVPVS:
+                    return this.InterferenceViewPortVisualStylePointer;
+                case INTERSECTIONCOLOR:
+                    return this.IntersectionPolylineColor;
+                case INTERSECTIONDISPLAY:
+                    return this.DisplayIntersectionPolylines;
+                case JOINSTYLE:
+                    return this.LineweightJointSetting;
+                case LIMCHECK:
+                    return this.UseLimitsChecking;
+                case LIMMAX:
+                    return this.MaximumDrawingLimits;
+                case LIMMIN:
+                    return this.MinimumDrawingLimits;
+                case LTSCALE:
+                    return this.LinetypeScale;
+                case LUNITS:
+                    return this.UnitFormat;
+                case LUPREC:
+                    return this.UnitPrecision;
+                case LWDISPLAY:
+                    return this.DisplayLinewieghtInModelAndLayoutTab;
+                case MAXACTVP:
+                    return this.MaximumActiveViewports;
+                case MEASUREMENT:
+                    return this.DrawingUnits;
+                case MENU:
+                    return this.FileName;
+                case MIRRTEXT:
+                    return this.MirrorText;
+                case OBSCOLOR:
+                    return this.ObscuredLineColor;
+                case OBSLTYPE:
+                    return this.ObscuredLineTypeStyle;
+                case ORTHOMODE:
+                    return this.DrawOrthoganalLines;
+                case OSMODE:
+                    return this.ObjectSnapFlags;
+                case PDMODE:
+                    return this.PointDisplayMode;
+                case PDSIZE:
+                    return this.PointDisplaySize;
+                case PELEVATION:
+                    return this.PaperspaceElevation;
+                case PEXTMAX:
+                    return this.PaperspaceMaximumDrawingExtents;
+                case PEXTMIN:
+                    return this.PaperspaceMinimumDrawingExtents;
+                case PICKSTYLE:
+                    return this.PickStyle;
+                case PINSBASE:
+                    return this.PaperspaceInsertionBase;
+                case PLIMCHECK:
+                    return this.LimitCheckingInPaperspace;
+                case PLIMMAX:
+                    return this.PaperspaceMaximumDrawingLimits;
+                case PLIMMIN:
+                    return this.PaperspaceMinimumDrawingLimits;
+                case PLINEGEN:
+                    return this.IsPolylineContinuousAroundVerticies;
+                case PLINEWID:
+                    return this.DefaultPolylineWidth;
+                case PROJECTNAME:
+                    return this.ProjectName;
+                case PROXYGRAPHICS:
+                    return this.SaveProxyGraphics;
+                case PSLTSCALE:
+                    return this.ScaleLinetypesInPaperspace;
+                case PSTYLEMODE:
+                    return this.UsesColorDependentPlotStyleTables;
+                case PSVPSCALE:
+                    return this.ViewportViewScaleFactor;
+                case PUCSBASE:
+                    return this.PaperspaceUCSDefinitionName;
+                case PUCSNAME:
+                    return this.PaperspaceUCSName;
+                case PUCSORG:
+                    return this.PaperspaceUCSOrigin;
+                case PUCSORGBACK:
+                    return this.PaperspaceUCSOriginBack;
+                case PUCSORGBOTTOM:
+                    return this.PaperspaceUCSOriginBottom;
+                case PUCSORGFRONT:
+                    return this.PaperspaceUCSOriginFront;
+                case PUCSORGLEFT:
+                    return this.PaperspaceUCSOriginLeft;
+                case PUCSORGRIGHT:
+                    return this.PaperspaceUCSOriginRight;
+                case PUCSORGTOP:
+                    return this.PaperspaceUCSOriginTop;
+                case PUCSORTHOREF:
+                    return this.PaperspaceOrthoUCSReference;
+                case PUCSORTHOVIEW:
+                    return this.PaperspaceOrthographicViewType;
+                case PUCSXDIR:
+                    return this.PaperspaceXAxis;
+                case PUCSYDIR:
+                    return this.PaperspaceYAxis;
+                case QTEXTMODE:
+                    return this.UseQuickTextMode;
+                case REGENMODE:
+                    return this.UseRegenMode;
+                case SHADEDGE:
+                    return this.EdgeShading;
+                case SHADEDIF:
+                    return this.PercentAmbientToDiffuse;
+                case SHADOWPLANELOCATION:
+                    return this.ShadowPlaneZOffset;
+                case SKETCHINC:
+                    return this.SketchRecordIncrement;
+                case SKPOLY:
+                    return this.PolylineSketchMode;
+                case SORTENTS:
+                    return this.ObjectSortingMethodsFlags;
+                case SPLFRAME:
+                    return this.DisplaySplinePolygonControl;
+                case SPLINESEGS:
+                    return this.LineSegmentsPerSplinePatch;
+                case SPLINETYPE:
+                    return this.PEditSplineCurveType;
+                case SURFTAB1:
+                    return this.MeshTabulationsInFirstDirection;
+                case SURFTAB2:
+                    return this.MeshTabulationsInSecondDirection;
+                case SURFTYPE:
+                    return this.PEditSmoothSurfaceType;
+                case SURFU:
+                    return this.PEditSmoothMDensith;
+                case SURFV:
+                    return this.PEditSmoothNDensith;
+                case TDCREATE:
+                    return this.CreationDate;
+                case TDINDWG:
+                    return this.TimeInDrawing;
+                case TDUCREATE:
+                    return this.CreationDateUniversal;
+                case TDUPDATE:
+                    return this.UpdateDate;
+                case TDUSRTIMER:
+                    return this.UserElapsedTimer;
+                case TDUUPDATE:
+                    return this.UpdateDateUniversal;
+                case TEXTSIZE:
+                    return this.DefaultTextHeight;
+                case TEXTSTYLE:
+                    return this.TextStyle;
+                case THICKNESS:
+                    return this.Thickness;
+                case TILEMODE:
+                    return this.PreviousReleaseTileCompatability;
+                case TRACEWID:
+                    return this.TraceWidth;
+                case TREEDEPTH:
+                    return this.SpacialIndexMaxDepth;
+                case UCSBASE:
+                    return this.UCSDefinitionName;
+                case UCSNAME:
+                    return this.UCSName;
+                case UCSORG:
+                    return this.UCSOrigin;
+                case UCSORGBACK:
+                    return this.UCSOriginBack;
+                case UCSORGBOTTOM:
+                    return this.UCSOriginBottom;
+                case UCSORGFRONT:
+                    return this.UCSOriginFront;
+                case UCSORGLEFT:
+                    return this.UCSOriginLeft;
+                case UCSORGRIGHT:
+                    return this.UCSOriginRight;
+                case UCSORGTOP:
+                    return this.UCSOriginTop;
+                case UCSORTHOREF:
+                    return this.OrthoUCSReference;
+                case UCSORTHOVIEW:
+                    return this.OrthgraphicViewType;
+                case UCSXDIR:
+                    return this.UCSXAxis;
+                case UCSYDIR:
+                    return this.UCSYAxis;
+                case UNITMODE:
+                    return this.DisplayFractionsInInput;
+                case USERI1:
+                    return this.UserInt1;
+                case USERI2:
+                    return this.UserInt2;
+                case USERI3:
+                    return this.UserInt3;
+                case USERI4:
+                    return this.UserInt4;
+                case USERI5:
+                    return this.UserInt5;
+                case USERR1:
+                    return this.UserReal1;
+                case USERR2:
+                    return this.UserReal2;
+                case USERR3:
+                    return this.UserReal3;
+                case USERR4:
+                    return this.UserReal4;
+                case USERR5:
+                    return this.UserReal5;
+                case USRTIMER:
+                    return this.UserTimerOn;
+                case VERSIONGUID:
+                    return this.VersionGuid;
+                case VISRETAIN:
+                    return this.RetainXRefDependentVisibilitySettings;
+                case WORLDVIEW:
+                    return this.SetUCSToWCSInDViewOrVPoint;
+                case XCLIPFRAME:
+                    return this.IsXRefClippingBoundaryVisible;
+                case XEDIT:
+                    return this.CanUseInPlaceReferenceEditing;
+                default:
+                    throw new ArgumentException("Unrecognized variable", "variableName");
+            }
+        }
+
+        private void SetValue(string variableName, object value)
+        {
+            switch (variableName.ToUpper())
+            {
+                case ACADMAINTVER:
+                    this.MaintenenceVersion = (short)value;
+                    break;
+                case ACADVER:
+                    this.Version = (DxfAcadVersion)value;
+                    break;
+                case ANGBASE:
+                    this.AngleZeroDirection = (double)value;
+                    break;
+                case ANGDIR:
+                    this.AngleDirection = (DxfAngleDirection)value;
+                    break;
+                case ATTDIA:
+                    this.ShowAttributeEntryDialogs = (bool)value;
+                    break;
+                case ATTMODE:
+                    this.AttributeVisibility = (DxfAttributeVisibility)value;
+                    break;
+                case ATTREQ:
+                    this.PromptForAttributeOnInsert = (bool)value;
+                    break;
+                case AUNITS:
+                    this.AngleUnitFormat = (DxfAngleFormat)value;
+                    break;
+                case AUPREC:
+                    this.AngleUnitPrecision = (short)value;
+                    break;
+                case BLIPMODE:
+                    this.BlipMode = (bool)value;
+                    break;
+                case CECOLOR:
+                    this.CurrentEntityColor = (DxfColor)value;
+                    break;
+                case CELTSCALE:
+                    this.CurrentEntityLinetypeScale = (double)value;
+                    break;
+                case CELTYPE:
+                    this.CurrentEntityLinetype = (string)value;
+                    break;
+                case CELWEIGHT:
+                    this.NewObjectLineWeight = (short)value;
+                    break;
+                case CEPSNID:
+                    this.NewObjectPlotStyleHandle = (string)value;
+                    break;
+                case CEPSNTYPE:
+                    this.NewObjectPlotStyle = (DxfPlotStyle)value;
+                    break;
+                case CHAMFERA:
+                    this.FirstChamferDistance = (double)value;
+                    break;
+                case CHAMFERB:
+                    this.SecondChamferDistance = (double)value;
+                    break;
+                case CHAMFERC:
+                    this.ChamferLength = (double)value;
+                    break;
+                case CHAMFERD:
+                    this.ChamferAngle = (double)value;
+                    break;
+                case CLAYER:
+                    this.CurrentLayer = (string)value;
+                    break;
+                case CMLJUST:
+                    this.CurrentMultilineJustification = (DxfJustification)value;
+                    break;
+                case CMLSCALE:
+                    this.CurrentMultilineScale = (double)value;
+                    break;
+                case CMLSTYLE:
+                    this.CurrentMultilineStyle = (string)value;
+                    break;
+                case COORDS:
+                    this.CoordinateDisplay = (DxfCoordinateDisplay)value;
+                    break;
+                case CPSNID:
+                    this.NewObjectPlotStyleHandle = (string)value;
+                    break;
+                case CSHADOW:
+                    this.ShadowMode = (DxfShadowMode)value;
+                    break;
+                case DELOBJ:
+                    this.RetainDeletedObjects = (bool)value;
+                    break;
+                case DIMADEC:
+                    this.AngularDimensionPrecision = (short)value;
+                    break;
+                case DIMALT:
+                    this.UseAlternateDimensioning = (bool)value;
+                    break;
+                case DIMALTD:
+                    this.AlternateDimensioningDecimalPlaces = (short)value;
+                    break;
+                case DIMALTF:
+                    this.AlternateDimensioningScaleFactor = (double)value;
+                    break;
+                case DIMALTRND:
+                    this.AlternateDimensioningUnitRounding = (double)value;
+                    break;
+                case DIMALTTD:
+                    this.AlternateDimensioningToleranceDecimalPlaces = (short)value;
+                    break;
+                case DIMALTTZ:
+                    this.AlternateDimensioningToleranceZeroSupression = (DxfUnitZeroSuppression)value;
+                    break;
+                case DIMALTU:
+                    this.AlternateDimensioningUnits = (DxfUnitFormat)value;
+                    break;
+                case DIMALTZ:
+                    this.AlternateDimensioningZeroSupression = (DxfUnitZeroSuppression)value;
+                    break;
+                case DIMAPOST:
+                    this.AlternateDimensioningSuffix = (string)value;
+                    break;
+                case DIMASO:
+                    this.CreateAssociativeDimensioning = (bool)value;
+                    break;
+                case DIMASSOC:
+                    this.DimensionObjectAssociativity = (DxfDimensionAssociativity)value;
+                    break;
+                case DIMASZ:
+                    this.DimensioningArrowSize = (double)value;
+                    break;
+                case DIMATFIT:
+                    this.DimensionTextAndArrowPlacement = (DxfDimensionFit)value;
+                    break;
+                case DIMAUNIT:
+                    this.DimensioningAngleFormat = (DxfAngleFormat)value;
+                    break;
+                case DIMAZIN:
+                    this.DimensionToleranceZeroSuppression = (DxfUnitZeroSuppression)value;
+                    break;
+                case DIMBLK:
+                    this.ArrowBlockName = (string)value;
+                    break;
+                case DIMBLK1:
+                    this.FirstArrowBlockName = (string)value;
+                    break;
+                case DIMBLK2:
+                    this.SecondArrowBlockName = (string)value;
+                    break;
+                case DIMCEN:
+                    this.CenterMarkSize = (double)value;
+                    break;
+                case DIMCLRD:
+                    this.DimensionLineColor = (DxfColor)value;
+                    break;
+                case DIMCLRE:
+                    this.DimensionExtensionLineColor = (DxfColor)value;
+                    break;
+                case DIMCLRT:
+                    this.DimensionTextColor = (DxfColor)value;
+                    break;
+                case DIMDEC:
+                    this.DimensionUnitToleranceDecimalPlaces = (short)value;
+                    break;
+                case DIMDLE:
+                    this.DimensionLineExtension = (double)value;
+                    break;
+                case DIMDLI:
+                    this.DimensionLineIncrement = (double)value;
+                    break;
+                case DIMDSEP:
+                    this.DimensionDecimalSeparatorChar = (char)value;
+                    break;
+                case DIMEXE:
+                    this.DimensionExtensionLineExtension = (double)value;
+                    break;
+                case DIMEXO:
+                    this.DimensionExtensionLineOffset = (double)value;
+                    break;
+                case DIMFAC:
+                    this.DimensionTextHeightScaleFactor = (double)value;
+                    break;
+                case DIMFIT:
+                    this.DimensionTextAndArrowPlacement = (DxfDimensionFit)value;
+                    break;
+                case DIMGAP:
+                    this.DimensionLineGap = (double)value;
+                    break;
+                case DIMJUST:
+                    this.DimensionTextJustification = (DxfDimensionTextJustification)value;
+                    break;
+                case DIMLDRBLK:
+                    this.DimensionLeaderBlockName = (string)value;
+                    break;
+                case DIMLFAC:
+                    this.DimensionLinearMeasurementsScaleFactor = (double)value;
+                    break;
+                case DIMLIM:
+                    this.GenerateDimensionLimits = (bool)value;
+                    break;
+                case DIMLUNIT:
+                    this.DimensionNonAngularUnits = (DxfNonAngularUnits)value;
+                    break;
+                case DIMPOST:
+                    this.DimensioningSuffix = (string)value;
+                    break;
+                case DIMRND:
+                    this.DimensionDistanceRoundingValue = (double)value;
+                    break;
+                case DIMSAH:
+                    this.UseSeparateArrowBlocksForDimensions = (bool)value;
+                    break;
+                case DIMSCALE:
+                    this.DimensioningScaleFactor = (double)value;
+                    break;
+                case DIMSD1:
+                    this.SuppressFirstDimensionExtensionLine = (bool)value;
+                    break;
+                case DIMSD2:
+                    this.SuppressSecondDimensionExtensionLine = (bool)value;
+                    break;
+                case DIMSHO:
+                    this.RecomputeDimensionsWhileDragging = (bool)value;
+                    break;
+                case DIMSOXD:
+                    this.SuppressOutsideExtensionDimensionLines = (bool)value;
+                    break;
+                case DIMSTYLE:
+                    this.DimensionStyleName = (string)value;
+                    break;
+                case DIMTAD:
+                    this.TextAboveDimensionLine = (bool)value;
+                    break;
+                case DIMTDEC:
+                    this.DimensionToleranceDecimalPlaces = (short)value;
+                    break;
+                case DIMTFAC:
+                    this.DimensionToleranceDisplayScaleFactor = (double)value;
+                    break;
+                case DIMTIH:
+                    this.DimensionTextInsideHorizontal = (bool)value;
+                    break;
+                case DIMTIX:
+                    this.ForceDimensionTextInsideExtensions = (bool)value;
+                    break;
+                case DIMTM:
+                    this.DimensionMinusTolerance = (double)value;
+                    break;
+                case DIMTMOVE:
+                    this.DimensionTextMovementRule = (DxfDimensionTextMovementRule)value;
+                    break;
+                case DIMTOFL:
+                    this.ForceDimensionLineExtensionsOutsideIfTextIs = (bool)value;
+                    break;
+                case DIMTOH:
+                    this.DimensionTextOutsideHorizontal = (bool)value;
+                    break;
+                case DIMTOL:
+                    this.GenerateDimensionTolerances = (bool)value;
+                    break;
+                case DIMTOLJ:
+                    this.DimensionToleranceVerticalJustification = (DxfJustification)value;
+                    break;
+                case DIMTP:
+                    this.DimensionPlusTolerance = (double)value;
+                    break;
+                case DIMTSZ:
+                    this.DimensioningTickSize = (double)value;
+                    break;
+                case DIMTVP:
+                    this.DimensionVerticalTextPosition = (double)value;
+                    break;
+                case DIMTXSTY:
+                    this.DimensionTextStyle = (string)value;
+                    break;
+                case DIMTXT:
+                    this.DimensioningTextHeight = (double)value;
+                    break;
+                case DIMTZIN:
+                    this.DimensionToleranceZeroSuppression = (DxfUnitZeroSuppression)value;
+                    break;
+                case DIMUNIT:
+                    this.DimensionUnitFormat = (DxfUnitFormat)value;
+                    break;
+                case DIMUPT:
+                    this.DimensionCursorControlsTextPosition = (bool)value;
+                    break;
+                case DIMZIN:
+                    this.DimensionUnitZeroSuppression = (DxfUnitZeroSuppression)value;
+                    break;
+                case DISPSILH:
+                    this.DisplaySilhouetteCurvesInWireframeMode = (bool)value;
+                    break;
+                case DRAGMODE:
+                    this.DragMode = (DxfDragMode)value;
+                    break;
+                case DRAGVS:
+                    this.ThreeDSolidCreationVisualStyle = (string)value;
+                    break;
+                case DWGCODEPAGE:
+                    this.DrawingCodePage = (string)value;
+                    break;
+                case ELEVATION:
+                    this.Elevation = (double)value;
+                    break;
+                case ENDCAPS:
+                    this.EndCapSetting = (DxfEndCapSetting)value;
+                    break;
+                case EXTMAX:
+                    this.MaximumDrawingExtents = (DxfPoint)value;
+                    break;
+                case EXTMIN:
+                    this.MinimumDrawingExtents = (DxfPoint)value;
+                    break;
+                case EXTNAMES:
+                    this.UseACad2000SymbolTableNaming = (bool)value;
+                    break;
+                case FILLETRAD:
+                    this.FilletRadius = (double)value;
+                    break;
+                case FILLMODE:
+                    this.FillModeOn = (bool)value;
+                    break;
+                case FINGERPRINTGUID:
+                    this.FingerprintGuid = (Guid)value;
+                    break;
+                case HALOGAP:
+                    this.HaloGapPercent = (double)value;
+                    break;
+                case HANDLING:
+                    this.NextAvailableHandle = (int)value;
+                    break;
+                case HANDSEED:
+                    this.NextAvailableHandle2 = (string)value;
+                    break;
+                case HIDETEXT:
+                    this.HideTextObjectsWhenProducintHiddenView = (bool)value;
+                    break;
+                case HYPERLINKBASE:
+                    this.HyperlinBase = (string)value;
+                    break;
+                case INDEXCTL:
+                    this.LayerAndSpatialIndexSaveMode = (DxfLayerAndSpatialIndexSaveMode)value;
+                    break;
+                case INSBASE:
+                    this.InsertionBase = (DxfPoint)value;
+                    break;
+                case INSUNITS:
+                    this.DefaultDrawingUnits = (DxfUnits)value;
+                    break;
+                case INTERFERECOLOR:
+                    this.InterferenceObjectColor = (DxfColor)value;
+                    break;
+                case INTERFEREOBJVS:
+                    this.InterferenceObjectVisualStylePointer = (string)value;
+                    break;
+                case INTERFEREVPVS:
+                    this.InterferenceViewPortVisualStylePointer = (string)value;
+                    break;
+                case INTERSECTIONCOLOR:
+                    this.IntersectionPolylineColor = (DxfColor)value;
+                    break;
+                case INTERSECTIONDISPLAY:
+                    this.DisplayIntersectionPolylines = (bool)value;
+                    break;
+                case JOINSTYLE:
+                    this.LineweightJointSetting = (DxfJoinStyle)value;
+                    break;
+                case LIMCHECK:
+                    this.UseLimitsChecking = (bool)value;
+                    break;
+                case LIMMAX:
+                    this.MaximumDrawingLimits = (DxfPoint)value;
+                    break;
+                case LIMMIN:
+                    this.MinimumDrawingLimits = (DxfPoint)value;
+                    break;
+                case LTSCALE:
+                    this.LinetypeScale = (double)value;
+                    break;
+                case LUNITS:
+                    this.UnitFormat = (DxfUnitFormat)value;
+                    break;
+                case LUPREC:
+                    this.UnitPrecision = (short)value;
+                    break;
+                case LWDISPLAY:
+                    this.DisplayLinewieghtInModelAndLayoutTab = (bool)value;
+                    break;
+                case MAXACTVP:
+                    this.MaximumActiveViewports = (short)value;
+                    break;
+                case MEASUREMENT:
+                    this.DrawingUnits = (DxfDrawingUnits)value;
+                    break;
+                case MENU:
+                    this.FileName = (string)value;
+                    break;
+                case MIRRTEXT:
+                    this.MirrorText = (bool)value;
+                    break;
+                case OBSCOLOR:
+                    this.ObscuredLineColor = (DxfColor)value;
+                    break;
+                case OBSLTYPE:
+                    this.ObscuredLineTypeStyle = (DxfLinetypeStyle)value;
+                    break;
+                case ORTHOMODE:
+                    this.DrawOrthoganalLines = (bool)value;
+                    break;
+                case OSMODE:
+                    this.ObjectSnapFlags = (int)value;
+                    break;
+                case PDMODE:
+                    this.PointDisplayMode = (int)value;
+                    break;
+                case PDSIZE:
+                    this.PointDisplaySize = (double)value;
+                    break;
+                case PELEVATION:
+                    this.PaperspaceElevation = (double)value;
+                    break;
+                case PEXTMAX:
+                    this.PaperspaceMaximumDrawingExtents = (DxfPoint)value;
+                    break;
+                case PEXTMIN:
+                    this.PaperspaceMinimumDrawingExtents = (DxfPoint)value;
+                    break;
+                case PICKSTYLE:
+                    this.PickStyle = (DxfPickStyle)value;
+                    break;
+                case PINSBASE:
+                    this.PaperspaceInsertionBase = (DxfPoint)value;
+                    break;
+                case PLIMCHECK:
+                    this.LimitCheckingInPaperspace = (bool)value;
+                    break;
+                case PLIMMAX:
+                    this.PaperspaceMaximumDrawingLimits = (DxfPoint)value;
+                    break;
+                case PLIMMIN:
+                    this.PaperspaceMinimumDrawingLimits = (DxfPoint)value;
+                    break;
+                case PLINEGEN:
+                    this.IsPolylineContinuousAroundVerticies = (bool)value;
+                    break;
+                case PLINEWID:
+                    this.DefaultPolylineWidth = (double)value;
+                    break;
+                case PROJECTNAME:
+                    this.ProjectName = (string)value;
+                    break;
+                case PROXYGRAPHICS:
+                    this.SaveProxyGraphics = (bool)value;
+                    break;
+                case PSLTSCALE:
+                    this.ScaleLinetypesInPaperspace = (bool)value;
+                    break;
+                case PSTYLEMODE:
+                    this.UsesColorDependentPlotStyleTables = (bool)value;
+                    break;
+                case PSVPSCALE:
+                    this.ViewportViewScaleFactor = (double)value;
+                    break;
+                case PUCSBASE:
+                    this.PaperspaceUCSDefinitionName = (string)value;
+                    break;
+                case PUCSNAME:
+                    this.PaperspaceUCSName = (string)value;
+                    break;
+                case PUCSORG:
+                    this.PaperspaceUCSOrigin = (DxfPoint)value;
+                    break;
+                case PUCSORGBACK:
+                    this.PaperspaceUCSOriginBack = (DxfPoint)value;
+                    break;
+                case PUCSORGBOTTOM:
+                    this.PaperspaceUCSOriginBottom = (DxfPoint)value;
+                    break;
+                case PUCSORGFRONT:
+                    this.PaperspaceUCSOriginFront = (DxfPoint)value;
+                    break;
+                case PUCSORGLEFT:
+                    this.PaperspaceUCSOriginLeft = (DxfPoint)value;
+                    break;
+                case PUCSORGRIGHT:
+                    this.PaperspaceUCSOriginRight = (DxfPoint)value;
+                    break;
+                case PUCSORGTOP:
+                    this.PaperspaceUCSOriginTop = (DxfPoint)value;
+                    break;
+                case PUCSORTHOREF:
+                    this.PaperspaceOrthoUCSReference = (string)value;
+                    break;
+                case PUCSORTHOVIEW:
+                    this.PaperspaceOrthographicViewType = (DxfOrthographicViewType)value;
+                    break;
+                case PUCSXDIR:
+                    this.PaperspaceXAxis = (DxfVector)value;
+                    break;
+                case PUCSYDIR:
+                    this.PaperspaceYAxis = (DxfVector)value;
+                    break;
+                case QTEXTMODE:
+                    this.UseQuickTextMode = (bool)value;
+                    break;
+                case REGENMODE:
+                    this.UseRegenMode = (bool)value;
+                    break;
+                case SHADEDGE:
+                    this.EdgeShading = (DxfShadeEdgeMode)value;
+                    break;
+                case SHADEDIF:
+                    this.PercentAmbientToDiffuse = (short)value;
+                    break;
+                case SHADOWPLANELOCATION:
+                    this.ShadowPlaneZOffset = (double)value;
+                    break;
+                case SKETCHINC:
+                    this.SketchRecordIncrement = (double)value;
+                    break;
+                case SKPOLY:
+                    this.PolylineSketchMode = (DxfPolySketchMode)value;
+                    break;
+                case SORTENTS:
+                    this.ObjectSortingMethodsFlags = (int)value;
+                    break;
+                case SPLFRAME:
+                    this.DisplaySplinePolygonControl = (bool)value;
+                    break;
+                case SPLINESEGS:
+                    this.LineSegmentsPerSplinePatch = (short)value;
+                    break;
+                case SPLINETYPE:
+                    this.PEditSplineCurveType = (short)value;
+                    break;
+                case SURFTAB1:
+                    this.MeshTabulationsInFirstDirection = (short)value;
+                    break;
+                case SURFTAB2:
+                    this.MeshTabulationsInSecondDirection = (short)value;
+                    break;
+                case SURFTYPE:
+                    this.PEditSmoothSurfaceType = (short)value;
+                    break;
+                case SURFU:
+                    this.PEditSmoothMDensith = (short)value;
+                    break;
+                case SURFV:
+                    this.PEditSmoothNDensith = (short)value;
+                    break;
+                case TDCREATE:
+                    this.CreationDate = (DateTime)value;
+                    break;
+                case TDINDWG:
+                    this.TimeInDrawing = (TimeSpan)value;
+                    break;
+                case TDUCREATE:
+                    this.CreationDateUniversal = (DateTime)value;
+                    break;
+                case TDUPDATE:
+                    this.UpdateDate = (DateTime)value;
+                    break;
+                case TDUSRTIMER:
+                    this.UserElapsedTimer = (TimeSpan)value;
+                    break;
+                case TDUUPDATE:
+                    this.UpdateDateUniversal = (DateTime)value;
+                    break;
+                case TEXTSIZE:
+                    this.DefaultTextHeight = (double)value;
+                    break;
+                case TEXTSTYLE:
+                    this.TextStyle = (string)value;
+                    break;
+                case THICKNESS:
+                    this.Thickness = (double)value;
+                    break;
+                case TILEMODE:
+                    this.PreviousReleaseTileCompatability = (bool)value;
+                    break;
+                case TRACEWID:
+                    this.TraceWidth = (double)value;
+                    break;
+                case TREEDEPTH:
+                    this.SpacialIndexMaxDepth = (short)value;
+                    break;
+                case UCSBASE:
+                    this.UCSDefinitionName = (string)value;
+                    break;
+                case UCSNAME:
+                    this.UCSName = (string)value;
+                    break;
+                case UCSORG:
+                    this.UCSOrigin = (DxfPoint)value;
+                    break;
+                case UCSORGBACK:
+                    this.UCSOriginBack = (DxfPoint)value;
+                    break;
+                case UCSORGBOTTOM:
+                    this.UCSOriginBottom = (DxfPoint)value;
+                    break;
+                case UCSORGFRONT:
+                    this.UCSOriginFront = (DxfPoint)value;
+                    break;
+                case UCSORGLEFT:
+                    this.UCSOriginLeft = (DxfPoint)value;
+                    break;
+                case UCSORGRIGHT:
+                    this.UCSOriginRight = (DxfPoint)value;
+                    break;
+                case UCSORGTOP:
+                    this.UCSOriginTop = (DxfPoint)value;
+                    break;
+                case UCSORTHOREF:
+                    this.OrthoUCSReference = (string)value;
+                    break;
+                case UCSORTHOVIEW:
+                    this.OrthgraphicViewType = (DxfOrthographicViewType)value;
+                    break;
+                case UCSXDIR:
+                    this.UCSXAxis = (DxfVector)value;
+                    break;
+                case UCSYDIR:
+                    this.UCSYAxis = (DxfVector)value;
+                    break;
+                case UNITMODE:
+                    this.DisplayFractionsInInput = (bool)value;
+                    break;
+                case USERI1:
+                    this.UserInt1 = (short)value;
+                    break;
+                case USERI2:
+                    this.UserInt2 = (short)value;
+                    break;
+                case USERI3:
+                    this.UserInt3 = (short)value;
+                    break;
+                case USERI4:
+                    this.UserInt4 = (short)value;
+                    break;
+                case USERI5:
+                    this.UserInt5 = (short)value;
+                    break;
+                case USERR1:
+                    this.UserReal1 = (double)value;
+                    break;
+                case USERR2:
+                    this.UserReal2 = (double)value;
+                    break;
+                case USERR3:
+                    this.UserReal3 = (double)value;
+                    break;
+                case USERR4:
+                    this.UserReal4 = (double)value;
+                    break;
+                case USERR5:
+                    this.UserReal5 = (double)value;
+                    break;
+                case USRTIMER:
+                    this.UserTimerOn = (bool)value;
+                    break;
+                case VERSIONGUID:
+                    this.VersionGuid = (Guid)value;
+                    break;
+                case VISRETAIN:
+                    this.RetainXRefDependentVisibilitySettings = (bool)value;
+                    break;
+                case WORLDVIEW:
+                    this.SetUCSToWCSInDViewOrVPoint = (bool)value;
+                    break;
+                case XCLIPFRAME:
+                    this.IsXRefClippingBoundaryVisible = (bool)value;
+                    break;
+                case XEDIT:
+                    this.CanUseInPlaceReferenceEditing = (bool)value;
+                    break;
+                default:
+                    throw new ArgumentException("Unrecognized variable", "variableName");
             }
         }
     }

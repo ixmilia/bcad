@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using BCad.Dxf.Entities;
 using BCad.Dxf.Sections;
 
 namespace BCad.Dxf
@@ -47,6 +45,11 @@ namespace BCad.Dxf
         public long LongValue
         {
             get { return (long)Value; }
+        }
+
+        public bool BoolValue
+        {
+            get { return (bool)Value; }
         }
 
         public string HandleValue

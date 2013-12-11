@@ -112,6 +112,122 @@ namespace BCad.Dxf
         SketchLines = 0,
         SketchPolylines = 1
     }
+
+    public enum DxfShadowMode
+    {
+        CastsAndReceives = 0,
+        CastsOnly = 1,
+        ReceivesOnly = 2,
+        Ignores = 3
+    }
+
+    public enum DxfPlotStyle
+    {
+        ByLayer = 0,
+        ByBlock = 1,
+        ByDictionaryDefault = 2,
+        ByObjectId = 3
+    }
+
+    public enum DxfDimensionAssociativity
+    {
+        NoAssociationExploded = 0,
+        NonAssociativeObjects = 1,
+        AssociativeObjects = 2
+    }
+
+    public enum DxfNonAngularUnits
+    {
+        Scientific = 1,
+        Decimal = 2,
+        Engineering = 3,
+        Architectural = 4,
+        Fractional = 5,
+        WindowsDesktop = 6
+    }
+
+    public enum DxfDimensionTextMovementRule
+    {
+        MoveLineWithText = 0,
+        AddLeaderWhenTextIsMoved = 1,
+        MoveTextFreely = 2
+    }
+
+    public enum DxfEndCapSetting
+    {
+        None = 0,
+        Round = 1,
+        Angle = 2,
+        Square = 3
+    }
+
+    public enum DxfLayerAndSpatialIndexSaveMode
+    {
+        None = 0,
+        LayerIndex = 1,
+        SpatialIndex = 2,
+        LayerAndSpatialIndex = 3
+    }
+
+    public enum DxfUnits
+    {
+        Unitless = 0,
+        Inches = 1,
+        Feet = 2,
+        Miles = 3,
+        Millimeters = 4,
+        Centimeters = 5,
+        Meters = 6,
+        Kilometers = 7,
+        Microinches = 8,
+        Mils = 9,
+        Yards = 10,
+        Angstroms = 11,
+        Nanometers = 12,
+        Microns = 13,
+        Decimeters = 14,
+        Decameters = 15,
+        Hectometers = 16,
+        Gigameters = 17,
+        AstronomicalUnits = 18,
+        LightYears = 19,
+        Parsecs = 20
+    }
+
+    public enum DxfJoinStyle
+    {
+        None = 0,
+        Round = 1,
+        Angle = 2,
+        Flat = 3
+    }
+
+    public enum DxfLinetypeStyle
+    {
+        Off = 0,
+        Solid = 1,
+        Dashed = 2,
+        Dotted = 3,
+        ShortDash = 4,
+        MediumDash = 5,
+        LongDash = 6,
+        DoubleShortDash = 7,
+        DoubleMediumDash = 8,
+        DoubleLongDash = 9,
+        MediumLongDash = 10,
+        SparseDot = 11
+    }
+
+    public enum DxfOrthographicViewType
+    {
+        None = 0,
+        Top = 1,
+        Bottom = 2,
+        Front = 3,
+        Back = 4,
+        Left = 5,
+        Right = 6
+    }
 }
 
 namespace BCad.Dxf.Sections

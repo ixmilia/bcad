@@ -21,8 +21,20 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:element name="Flag">
+    <xs:complexType>
+      <xs:attribute name="Name" type="xs:string" use="required" />
+      <xs:attribute name="Mask" type="xs:int" use="required" />
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="Variable">
     <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+          <xs:element ref="Flag" />
+        </xs:choice>
+      </xs:sequence>
       <xs:attribute name="Name" type="xs:string" use="required" />
       <xs:attribute name="Code" type="xs:int" use="required" />
       <xs:attribute name="Type" type="xs:string" use="required" />
