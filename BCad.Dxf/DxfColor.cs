@@ -66,6 +66,16 @@ namespace BCad.Dxf
             this.RawValue = index;
         }
 
+        public static bool operator ==(DxfColor a, DxfColor b)
+        {
+            return a.RawValue == b.RawValue;
+        }
+
+        public static bool operator !=(DxfColor a, DxfColor b)
+        {
+            return a.RawValue != b.RawValue;
+        }
+
         public override string ToString()
         {
             if (IsByLayer)
@@ -88,6 +98,11 @@ namespace BCad.Dxf
         public static DxfColor FromRawValue(short value)
         {
             return new DxfColor() { RawValue = value };
+        }
+
+        public static short GetRawValue(DxfColor color)
+        {
+            return color.RawValue;
         }
 
         public static DxfColor ByLayer

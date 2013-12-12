@@ -49,16 +49,13 @@
     <Compile Include="DxfReader.cs" />
     <Compile Include="DxfReadException.cs" />
     <Compile Include="DxfWriter.cs" />
-    <Compile Include="Entities\DxfArc.cs" />
-    <Compile Include="Entities\DxfCircle.cs" />
-    <Compile Include="Entities\DxfEllipse.cs" />
     <Compile Include="Entities\DxfEntity.cs" />
-    <Compile Include="Entities\DxfLine.cs" />
-    <Compile Include="Entities\DxfPolyline.cs" />
-    <Compile Include="Entities\DxfSeqend.cs" />
-    <Compile Include="Entities\DxfSolid.cs" />
-    <Compile Include="Entities\DxfText.cs" />
-    <Compile Include="Entities\DxfVertex.cs" />
+    <Compile Include="Entities\DxfEntityGenerated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DxfEntityGenerated.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\DxfEntityType.cs" />
     <Compile Include="Sections\DxfBlocksSection.cs" />
     <Compile Include="Sections\DxfClassesSection.cs" />
     <Compile Include="Sections\DxfHeader.cs" />
@@ -97,6 +94,13 @@
     <Compile Include="Tables\DxfViewTable.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Entities\DxfEntityGenerated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DxfEntityGenerated.cs</LastGenOutput>
+    </None>
+    <None Include="Entities\EntitiesSpec.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Sections\DxfSpec.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -115,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="completed.txt" />
+    <None Include="Entities\EntitiesSpec.xml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

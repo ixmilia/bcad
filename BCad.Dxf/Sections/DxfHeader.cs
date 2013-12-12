@@ -70,11 +70,6 @@ namespace BCad.Dxf
             return t.TotalDays;
         }
 
-        private static short RawValue(DxfColor c)
-        {
-            return c.RawValue;
-        }
-
         private static void EnsureCode(DxfCodePair pair, int code)
         {
             if (pair.Code != code)

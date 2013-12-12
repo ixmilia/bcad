@@ -565,7 +565,7 @@ namespace BCad.Dxf
             this.FingerprintGuid = Guid.NewGuid(); // FINGERPRINTGUID
             this.HaloGapPercent = 0.0; // HALOGAP
             this.NextAvailableHandle = 0; // HANDLING
-            this.NextAvailableHandle2 = "string.Empty"; // HANDSEED
+            this.NextAvailableHandle2 = ""; // HANDSEED
             this.HideTextObjectsWhenProducintHiddenView = false; // HIDETEXT
             this.HyperlinBase = null; // HYPERLINKBASE
             this.LayerAndSpatialIndexSaveMode = DxfLayerAndSpatialIndexSaveMode.None; // INDEXCTL
@@ -736,7 +736,7 @@ namespace BCad.Dxf
 
             // CECOLOR
             list.Add(new DxfCodePair(9, CECOLOR));
-            list.Add(new DxfCodePair(62, RawValue(header.CurrentEntityColor)));
+            list.Add(new DxfCodePair(62, DxfColor.GetRawValue(header.CurrentEntityColor)));
 
             // CELTSCALE
             list.Add(new DxfCodePair(9, CELTSCALE));
@@ -924,15 +924,15 @@ namespace BCad.Dxf
 
             // DIMCLRD
             list.Add(new DxfCodePair(9, DIMCLRD));
-            list.Add(new DxfCodePair(70, RawValue(header.DimensionLineColor)));
+            list.Add(new DxfCodePair(70, DxfColor.GetRawValue(header.DimensionLineColor)));
 
             // DIMCLRE
             list.Add(new DxfCodePair(9, DIMCLRE));
-            list.Add(new DxfCodePair(70, RawValue(header.DimensionExtensionLineColor)));
+            list.Add(new DxfCodePair(70, DxfColor.GetRawValue(header.DimensionExtensionLineColor)));
 
             // DIMCLRT
             list.Add(new DxfCodePair(9, DIMCLRT));
-            list.Add(new DxfCodePair(70, RawValue(header.DimensionTextColor)));
+            list.Add(new DxfCodePair(70, DxfColor.GetRawValue(header.DimensionTextColor)));
 
             // DIMDEC
             list.Add(new DxfCodePair(9, DIMDEC));
@@ -1250,7 +1250,7 @@ namespace BCad.Dxf
             if (version >= DxfAcadVersion.R2007)
             {
                 list.Add(new DxfCodePair(9, INTERFERECOLOR));
-                list.Add(new DxfCodePair(62, RawValue(header.InterferenceObjectColor)));
+                list.Add(new DxfCodePair(62, DxfColor.GetRawValue(header.InterferenceObjectColor)));
             }
 
             // INTERFEREOBJVS
@@ -1271,7 +1271,7 @@ namespace BCad.Dxf
             if (version >= DxfAcadVersion.R2004)
             {
                 list.Add(new DxfCodePair(9, INTERSECTIONCOLOR));
-                list.Add(new DxfCodePair(70, RawValue(header.IntersectionPolylineColor)));
+                list.Add(new DxfCodePair(70, DxfColor.GetRawValue(header.IntersectionPolylineColor)));
             }
 
             // INTERSECTIONDISPLAY
@@ -1341,7 +1341,7 @@ namespace BCad.Dxf
             if (version >= DxfAcadVersion.R2004)
             {
                 list.Add(new DxfCodePair(9, OBSCOLOR));
-                list.Add(new DxfCodePair(70, RawValue(header.ObscuredLineColor)));
+                list.Add(new DxfCodePair(70, DxfColor.GetRawValue(header.ObscuredLineColor)));
             }
 
             // OBSLTYPE

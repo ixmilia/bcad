@@ -1,175 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BCad.Dxf.Entities;
 
 namespace BCad.Dxf.Entities
 {
-    public enum DxfEntityType
+    public enum DxfHorizontalTextJustification
     {
-        Attribute,
-        Line,
-        Circle,
-        Arc,
-        Ellipse,
-        Text,
-        Polyline,
-        Seqend,
-        Solid,
-        Vertex
+        Left = 0,
+        Center = 1,
+        Right = 2,
+        Aligned = 3,
+        Middle = 4,
+        Fit = 5
     }
 
-    public abstract class DxfEntity
+    public enum DxfVerticalTextJustification
     {
-        public const string LineType = "LINE";
-        public const string CircleType = "CIRCLE";
-        public const string ArcType = "ARC";
-        public const string EllipseType = "ELLIPSE";
-        public const string TextType = "TEXT";
-        public const string PolylineType = "POLYLINE";
-        public const string SeqendType = "SEQEND";
-        public const string SolidType = "SOLID";
-        public const string VertexType = "VERTEX";
+        Baseline = 0,
+        Bottom = 1,
+        Middle = 2,
+        Top = 3
+    }
 
-        public const string BYLAYER = "BYLAYER";
+    public enum DxfPolylineCurvedAndSmoothSurfaceType
+    {
+        None = 0,
+        QuadraticBSpline = 5,
+        CubicBSpline = 6,
+        Bezier = 8
+    }
 
+    public abstract partial class DxfEntity
+    {
         public abstract DxfEntityType EntityType { get; }
 
-        public abstract string SubclassMarker { get; }
-
-        public string Handle { get; set; }
-
-        public string Layer { get; set; }
-
-        public string LinetypeName { get; set; }
-
-        public double LinetypeScale { get; set; }
-
-        public DxfColor Color { get; set; }
-
-        public bool IsInPaperSpace { get; set; }
-
-        public bool IsVisible { get; set; }
-
-        public DxfEntity()
+        protected virtual void AddTrailingCodePairs(List<DxfCodePair> pairs)
         {
-            Color = DxfColor.ByBlock;
-            LinetypeScale = 1.0;
-            IsVisible = true;
         }
 
-        abstract internal IEnumerable<DxfCodePair> GetValuePairs();
-
-        protected internal IEnumerable<DxfCodePair> GetCommonValuePairs()
+        public IEnumerable<DxfCodePair> GetValuePairs()
         {
-            yield return new DxfCodePair(0, this.EntityTypeString);
-            if (!string.IsNullOrEmpty(Handle))
-                yield return new DxfCodePair(5, Handle);
-            if (!string.IsNullOrEmpty(LinetypeName) && LinetypeName != BYLAYER)
-                yield return new DxfCodePair(6, LinetypeName);
-            if (!string.IsNullOrEmpty(Layer))
-                yield return new DxfCodePair(8, Layer);
-            if (LinetypeScale != 1.0)
-                yield return new DxfCodePair(48, LinetypeScale);
-            if (!IsVisible)
-                yield return new DxfCodePair(60, 1);
-            if (!Color.IsByLayer)
-                yield return new DxfCodePair(62, Color.RawValue);
-            if (IsInPaperSpace)
-                yield return new DxfCodePair(67, (short)1);
-            if (!string.IsNullOrEmpty(SubclassMarker))
-                yield return new DxfCodePair(100, SubclassMarker);
+            var pairs = new List<DxfCodePair>();
+            AddValuePairs(pairs);
+            AddTrailingCodePairs(pairs);
+            return pairs;
         }
 
-        protected internal bool TrySetSharedCode(DxfCodePair pair)
+        private static bool BoolShort(short s)
         {
-            switch (pair.Code)
-            {
-                case 5: // handle
-                    this.Handle = pair.HandleValue;
-                    break;
-                case 6: // linetype
-                    this.LinetypeName = pair.StringValue;
-                    break;
-                case 8: // layer
-                    this.Layer = pair.StringValue;
-                    break;
-                case 48: // linetype scale
-                    this.LinetypeScale = pair.DoubleValue;
-                    break;
-                case 60:
-                    this.IsVisible = pair.ShortValue == 0;
-                    break;
-                case 62: // color
-                    this.Color = DxfColor.FromRawValue(pair.ShortValue);
-                    break;
-                case 67:
-                    this.IsInPaperSpace = pair.ShortValue == 1;
-                    break;
-                default:
-                    return false;
-            }
-
-            return true;
+            return s != 0;
         }
 
-        protected static bool GetBit(int bitField, int bitNumber)
+        private static short BoolShort(bool b)
         {
-            return ((1 << (bitNumber - 1)) & bitField) != 0;
+            return (short)(b ? 1 : 0);
         }
 
-        protected static int SetBit(int bitField, int bitNumber, bool value)
+        private static short NotBoolShort(bool b)
         {
-            if (value)
-                return bitField | (1 << (bitNumber - 1));
-            else
-                return bitField & ~(1 << (bitNumber - 1));
+            return BoolShort(!b);
         }
 
-        internal static DxfEntity FromBuffer(DxfCodePairBufferReader buffer)
-        {
-            var first = buffer.Peek();
-            buffer.Advance();
-            DxfEntity entity = null;
-            switch (first.StringValue)
-            {
-                case ArcType:
-                    entity = DxfArc.ArcFromBuffer(buffer);
-                    break;
-                case CircleType:
-                    entity = DxfCircle.CircleFromBuffer(buffer);
-                    break;
-                case EllipseType:
-                    entity = DxfEllipse.EllipseFromBuffer(buffer);
-                    break;
-                case LineType:
-                    entity = DxfLine.LineFromBuffer(buffer);
-                    break;
-                case PolylineType:
-                    entity = DxfPolyline.PolylineFromBuffer(buffer);
-                    break;
-                case SeqendType:
-                    entity = DxfSeqend.SeqendFromBuffer(buffer);
-                    break;
-                case SolidType:
-                    entity = DxfSolid.SolidFromBuffer(buffer);
-                    break;
-                case TextType:
-                    entity = DxfText.TextFromBuffer(buffer);
-                    break;
-                case VertexType:
-                    entity = DxfVertex.VertexFromBuffer(buffer);
-                    break;
-                default:
-                    SwallowEntity(buffer);
-                    entity = null;
-                    break;
-            }
-
-            return entity;
-        }
-
-        internal static void SwallowEntity(DxfCodePairBufferReader buffer)
+        private static void SwallowEntity(DxfCodePairBufferReader buffer)
         {
             while (buffer.ItemsRemain)
             {
@@ -179,45 +74,37 @@ namespace BCad.Dxf.Entities
                 buffer.Advance();
             }
         }
+    }
 
-        public string EntityTypeString
+    public partial class DxfPolyline
+    {
+        public double Elevation
         {
-            get
+            get { return Location.Z; }
+            set { Location.Z = value; }
+        }
+
+        private List<DxfVertex> vertices = new List<DxfVertex>();
+        private DxfSeqend seqend = new DxfSeqend();
+
+        public List<DxfVertex> Vertices { get { return vertices; } }
+
+        public DxfSeqend Seqend
+        {
+            get { return seqend; }
+            set { seqend = value; }
+        }
+
+        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        {
+            foreach (var vertex in Vertices)
             {
-                string name = null;
-                switch (EntityType)
-                {
-                    case DxfEntityType.Line:
-                        name = LineType;
-                        break;
-                    case DxfEntityType.Circle:
-                        name = CircleType;
-                        break;
-                    case DxfEntityType.Arc:
-                        name = ArcType;
-                        break;
-                    case DxfEntityType.Ellipse:
-                        name = EllipseType;
-                        break;
-                    case DxfEntityType.Text:
-                        name = TextType;
-                        break;
-                    case DxfEntityType.Polyline:
-                        name = PolylineType;
-                        break;
-                    case DxfEntityType.Seqend:
-                        name = SeqendType;
-                        break;
-                    case DxfEntityType.Solid:
-                        name = SolidType;
-                        break;
-                    case DxfEntityType.Vertex:
-                        name = VertexType;
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
-                return name;
+                pairs.AddRange(vertex.GetValuePairs());
+            }
+
+            if (Seqend != null)
+            {
+                pairs.AddRange(Seqend.GetValuePairs());
             }
         }
     }

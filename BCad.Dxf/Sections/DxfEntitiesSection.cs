@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BCad.Dxf.Entities;
 
@@ -26,6 +27,8 @@ namespace BCad.Dxf.Sections
         internal static DxfEntitiesSection EntitiesSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
             var section = new DxfEntitiesSection();
+            bool isReadingPolyline = false;
+            DxfPolyline currentPolyline = null;
             while (buffer.ItemsRemain)
             {
                 var pair = buffer.Peek();
@@ -44,7 +47,34 @@ namespace BCad.Dxf.Sections
                 var entity = DxfEntity.FromBuffer(buffer);
                 if (entity != null)
                 {
-                    section.Entities.Add(entity);
+                    if (isReadingPolyline)
+                    {
+                        switch (entity.EntityType)
+                        {
+                            case DxfEntityType.Vertex:
+                                currentPolyline.Vertices.Add((DxfVertex)entity);
+                                break;
+                            case DxfEntityType.Seqend:
+                                currentPolyline.Seqend = (DxfSeqend)entity;
+                                isReadingPolyline = false;
+                                break;
+                            default:
+                                Debug.Assert(false, "Unexpected entity found while reading polyline");
+                                isReadingPolyline = false;
+                                section.Entities.Add(entity);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if (entity.EntityType == DxfEntityType.Polyline)
+                        {
+                            isReadingPolyline = true;
+                            currentPolyline = (DxfPolyline)entity;
+                        }
+
+                        section.Entities.Add(entity);
+                    }
                 }
             }
 

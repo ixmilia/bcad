@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Spec xmlns="http://IxMilia.com/Dxf/EntitiesSpec">
+  <Entity Name="DxfEntity" EntityType="" SubclassMarker="" TypeString="">
+    <Property Name="Handle" Code="5" Type="string" DefaultValue="null" />
+    <!-- subclass marker AcDbEntity -->
+    <Property Name="IsInPaperSpace" Code="67" Type="bool" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" DisableWritingDefault="true" />
+    <Property Name="Layer" Code="8" Type="string" DefaultValue="0" />
+    <Property Name="LinetypeName" Code="6" Type="string" DefaultValue="BYLAYER" DisableWritingDefault="true" />
+    <Property Name="Color" Code="62" Type="DxfColor" DefaultValue="DxfColor.ByLayer" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" DisableWritingDefault="true" />
+    <Property Name="LinetypeScale" Code="48" Type="double" DefaultValue="1.0" DisableWritingDefault="true" />
+    <Property Name="IsVisible" Code="60" Type="bool" DefaultValue="true" ReadConverter="!BoolShort" WriteConverter="NotBoolShort" DisableWritingDefault="true" />
+  </Entity>
+  <Entity Name="DxfArc" EntityType="Arc" SubclassMarker="AcDbArc" TypeString="ARC" BaseClass="DxfCircle">
+    <Property Name="StartAngle" Code="50" Type="double" DefaultValue="0.0" />
+    <Property Name="EndAngle" Code="51" Type="double" DefaultValue="360.0" />
+    <Constructor>
+      <ConstructorParameter Property="Center" Type="DxfPoint" />
+      <ConstructorParameter Property="Radius" Type="double" />
+      <ConstructorParameter Property="StartAngle" Type="double" />
+      <ConstructorParameter Property="EndAngle" Type="double" />
+    </Constructor>
+  </Entity>
+  <Entity Name="DxfCircle" EntityType="Circle" SubclassMarker="AcDbCircle" TypeString="CIRCLE">
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Center" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Radius" Code="40" Type="double" DefaultValue="0.0" />
+    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Constructor>
+      <ConstructorParameter Property="Center" Type="DxfPoint" />
+      <ConstructorParameter Property="Radius" Type="double" />
+    </Constructor>
+  </Entity>
+  <Entity Name="DxfEllipse" EntityType="Ellipse" SubclassMarker="AcDbEllipse" TypeString="ELLIPSE">
+    <Property Name="Center" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="MajorAxis" Code="-3" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
+    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="MinorAxisRatio" Code="40" Type="double" DefaultValue="1.0" />
+    <Property Name="StartParameter" Code="41" Type="double" DefaultValue="0.0" />
+    <Property Name="EndParameter" Code="42" Type="double" DefaultValue="Math.PI * 2" />
+    <Constructor>
+      <ConstructorParameter Property="Center" Type="DxfPoint" />
+      <ConstructorParameter Property="MajorAxis" Type="DxfVector" />
+      <ConstructorParameter Property="MinorAxisRatio" Type="double" />
+    </Constructor>
+  </Entity>
+  <Entity Name="DxfLine" EntityType="Line" SubclassMarker="AcDbLine" TypeString="LINE">
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="P1" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="P2" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Constructor>
+      <ConstructorParameter Property="P1" Type="DxfPoint" />
+      <ConstructorParameter Property="P2" Type="DxfPoint" />
+    </Constructor>
+  </Entity>
+  <Entity Name="DxfPolyline" EntityType="Polyline" SubclassMarker="AcDb2dPolyline" TypeString="POLYLINE">
+    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Flags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true">
+      <Flag Name="IsClosed" Mask="1" />
+      <Flag Name="CurveFitVerticiesAdded" Mask="2" />
+      <Flag Name="SplineFitVerticiesAdded" Mask="4" />
+      <Flag Name="Is3DPolyline" Mask="8" />
+      <Flag Name="Is3DPolygonMesh" Mask="16" />
+      <Flag Name="IsPolygonMeshClosedInNDirection" Mask="32" />
+      <Flag Name="IsPolyfaceMesh" Mask="64" />
+      <Flag Name="IsLinetypePatternGeneratedContinuously" Mask="128" />
+    </Property>
+    <Property Name="DefaultStartingWidth" Code="40" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="DefaultEndingWidth" Code="41" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="PolygonMeshMVertexCount" Code="71" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="PolygonMeshNVertexCount" Code="72" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="SmoothSurfaceMDensity" Code="73" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="SmoothSurfaceNDensity" Code="74" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="SurfaceType" Code="75" Type="DxfPolylineCurvedAndSmoothSurfaceType" DefaultValue="DxfPolylineCurvedAndSmoothSurfaceType.None" ReadConverter="(DxfPolylineCurvedAndSmoothSurfaceType)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+  </Entity>
+  <Entity Name="DxfSeqend" EntityType="Seqend" SubclassMarker="null" TypeString="SEQEND"></Entity>
+  <Entity Name="DxfSolid" EntityType="Solid" SubclassMarker="AcDbShape" TypeString="SOLID">
+    <Property Name="FirstCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="SecondCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ThirdCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
+    <Property Name="FourthCorner" Code="-3" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+  </Entity>
+  <Entity Name="DxfText" EntityType="Text" SubclassMarker="AcDbText" TypeString="TEXT">
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="TextHeight" Code="40" Type="double" DefaultValue="1.0" />
+    <Property Name="Value" Code="1" Type="string" DefaultValue="null" />
+    <Property Name="Rotation" Code="50" Type="double" DefaultValue="0" DisableWritingDefault="true" />
+    <Property Name="RelativeXScaleFactor" Code="41" Type="double" DefaultValue="1.0" DisableWritingDefault="true" />
+    <Property Name="ObliqueAngle" Code="51" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="TextStyleName" Code="7" Type="string" DefaultValue="STANDARD" DisableWritingDefault="true" />
+    <Property Name="TextGenerationFlags" Code="71" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true">
+      <Flag Name="IsTextBackward" Mask="2" />
+      <Flag Name="IsTextUpsideDown" Mask="4" />
+    </Property>
+    <Property Name="HorizontalTextJustification" Code="72" Type="DxfHorizontalTextJustification" DefaultValue="DxfHorizontalTextJustification.Left" ReadConverter="(DxfHorizontalTextJustification)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="SecondAlignmentPoint" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="VerticalTextJustification" Code="73" Type="DxfVerticalTextJustification" DefaultValue="DxfVerticalTextJustification.Baseline" ReadConverter="(DxfVerticalTextJustification)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Constructor>
+      <ConstructorParameter Property="Location" Type="DxfPoint" />
+      <ConstructorParameter Property="TextHeight" Type="double" />
+      <ConstructorParameter Property="Value" Type="string" />
+    </Constructor>
+  </Entity>
+  <Entity Name="DxfVertex" EntityType="Vertex" SubclassMarker="AcDbVertex" TypeString="VERTEX">
+    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="StartingWidth" Code="40" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="EndingWidth" Code="41" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Bulge" Code="42" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Flags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)">
+      <Flag Name="IsExtraCreatedByCurveFit" Mask="1" />
+      <Flag Name="IsCurveFitTangentDefined" Mask="2" />
+      <Flag Name="IsSplineVertexCreatedBySplineFitting" Mask="8" />
+      <Flag Name="IsSplineFrameControlPoint" Mask="16" />
+      <Flag Name="Is3DPolylineVertex" Mask="32" />
+      <Flag Name="Is3DPolygonMesh" Mask="64" />
+      <Flag Name="IsPolyfaceMeshVertex" Mask="128" />
+    </Property>
+    <Property Name="CurveFitTangentDirection" Code="50" Type="double" DefaultValue="0.0" />
+    <Property Name="PolyfaceMeshVertexIndex1" Code="71" Type="int" DefaultValue="0" DisableWritingDefault="true" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="PolyfaceMeshVertexIndex2" Code="72" Type="int" DefaultValue="0" DisableWritingDefault="true" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="PolyfaceMeshVertexIndex3" Code="73" Type="int" DefaultValue="0" DisableWritingDefault="true" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="PolyfaceMeshVertexIndex4" Code="74" Type="int" DefaultValue="0" DisableWritingDefault="true" ReadConverter="(int)" WriteConverter="(short)" />
+    <Constructor>
+      <ConstructorParameter Property="Location" Type="DxfPoint" />
+    </Constructor>
+  </Entity>
+</Spec>

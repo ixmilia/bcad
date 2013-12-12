@@ -10,7 +10,7 @@
   <Variable Name="AUNITS" Code="70" Type="DxfAngleFormat" Property="AngleUnitFormat" DefaultValue="DxfAngleFormat.DecimalDegrees" ReadConverter="(DxfAngleFormat)" WriteConverter="(short)" />
   <Variable Name="AUPREC" Code="70" Type="short" Property="AngleUnitPrecision" DefaultValue="12" />
   <Variable Name="BLIPMODE" Code="70" Type="bool" Property="BlipMode" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" MaxVersion="R14" />
-  <Variable Name="CECOLOR" Code="62" Type="DxfColor" Property="CurrentEntityColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" />
+  <Variable Name="CECOLOR" Code="62" Type="DxfColor" Property="CurrentEntityColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" />
   <Variable Name="CELTSCALE" Code="40" Type="double" Property="CurrentEntityLinetypeScale" DefaultValue="1.0" />
   <Variable Name="CELTYPE" Code="6" Type="string" Property="CurrentEntityLinetype" DefaultValue="BYBLOCK" />
   <Variable Name="CELWEIGHT" Code="370" Type="short" Property="NewObjectLineWeight" DefaultValue="0" MinVersion="R2000" />
@@ -48,9 +48,9 @@
   <Variable Name="DIMBLK1" Code="1" Type="string" Property="FirstArrowBlockName" DefaultValue="null" />
   <Variable Name="DIMBLK2" Code="1" Type="string" Property="SecondArrowBlockName" DefaultValue="null" />
   <Variable Name="DIMCEN" Code="40" Type="double" Property="CenterMarkSize" DefaultValue="1.0" />
-  <Variable Name="DIMCLRD" Code="70" Type="DxfColor" Property="DimensionLineColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" />
-  <Variable Name="DIMCLRE" Code="70" Type="DxfColor" Property="DimensionExtensionLineColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" />
-  <Variable Name="DIMCLRT" Code="70" Type="DxfColor" Property="DimensionTextColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" />
+  <Variable Name="DIMCLRD" Code="70" Type="DxfColor" Property="DimensionLineColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" />
+  <Variable Name="DIMCLRE" Code="70" Type="DxfColor" Property="DimensionExtensionLineColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" />
+  <Variable Name="DIMCLRT" Code="70" Type="DxfColor" Property="DimensionTextColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" />
   <Variable Name="DIMDEC" Code="70" Type="short" Property="DimensionUnitToleranceDecimalPlaces" DefaultValue="12" />
   <Variable Name="DIMDLE" Code="40" Type="double" Property="DimensionLineExtension" DefaultValue="0.0" />
   <Variable Name="DIMDLI" Code="40" Type="double" Property="DimensionLineIncrement" DefaultValue="0.0" />
@@ -111,16 +111,16 @@
   <Variable Name="FINGERPRINTGUID" Code="2" Type="Guid" Property="FingerprintGuid" DefaultValue="Guid.NewGuid()" ReadConverter="GuidString" WriteConverter="GuidString" MinVersion="R2000" />
   <Variable Name="HALOGAP" Code="280" Type="double" Property="HaloGapPercent" DefaultValue="0.0" ReadConverter="(double)" WriteConverter="(short)" MinVersion="R2004" />
   <Variable Name="HANDLING" Code="70" Type="int" Property="NextAvailableHandle" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" MaxVersion="R14" />
-  <Variable Name="HANDSEED" Code="5" Type="string" Property="NextAvailableHandle2" DefaultValue="string.Empty" />
+  <Variable Name="HANDSEED" Code="5" Type="string" Property="NextAvailableHandle2" DefaultValue="" />
   <Variable Name="HIDETEXT" Code="290" Type="bool" Property="HideTextObjectsWhenProducintHiddenView" DefaultValue="false" MinVersion="R2004" />
   <Variable Name="HYPERLINKBASE" Code="1" Type="string" Property="HyperlinBase" DefaultValue="null" MinVersion="R2000" />
   <Variable Name="INDEXCTL" Code="280" Type="DxfLayerAndSpatialIndexSaveMode" Property="LayerAndSpatialIndexSaveMode" DefaultValue="DxfLayerAndSpatialIndexSaveMode.None" ReadConverter="(DxfLayerAndSpatialIndexSaveMode)" WriteConverter="(short)" MinVersion="R2004" />
   <Variable Name="INSBASE" Code="-3" Type="DxfPoint" Property="InsertionBase" DefaultValue="DxfPoint.Origin" />
   <Variable Name="INSUNITS" Code="70" Type="DxfUnits" Property="DefaultDrawingUnits" DefaultValue="DxfUnits.Unitless" ReadConverter="(DxfUnits)" WriteConverter="(short)" MinVersion="R2000" />
-  <Variable Name="INTERFERECOLOR" Code="62" Type="DxfColor" Property="InterferenceObjectColor" DefaultValue="DxfColor.FromIndex(1)" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" MinVersion="R2007" />
+  <Variable Name="INTERFERECOLOR" Code="62" Type="DxfColor" Property="InterferenceObjectColor" DefaultValue="DxfColor.FromIndex(1)" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" MinVersion="R2007" />
   <Variable Name="INTERFEREOBJVS" Code="345" Type="string" Property="InterferenceObjectVisualStylePointer" DefaultValue="Conceptual" MinVersion="R2007" />
   <Variable Name="INTERFEREVPVS" Code="346" Type="string" Property="InterferenceViewPortVisualStylePointer" DefaultValue="3d Wireframe" MinVersion="R2007" />
-  <Variable Name="INTERSECTIONCOLOR" Code="70" Type="DxfColor" Property="IntersectionPolylineColor" DefaultValue="DxfColor.ByEntity" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" MinVersion="R2004" />
+  <Variable Name="INTERSECTIONCOLOR" Code="70" Type="DxfColor" Property="IntersectionPolylineColor" DefaultValue="DxfColor.ByEntity" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" MinVersion="R2004" />
   <Variable Name="INTERSECTIONDISPLAY" Code="290" Type="bool" Property="DisplayIntersectionPolylines" DefaultValue="false" MinVersion="R2004" />
   <Variable Name="JOINSTYLE" Code="280" Type="DxfJoinStyle" Property="LineweightJointSetting" DefaultValue="DxfJoinStyle.None" ReadConverter="(DxfJoinStyle)" WriteConverter="(short)" MinVersion="R2000" />
   <Variable Name="LIMCHECK" Code="70" Type="bool" Property="UseLimitsChecking" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
@@ -134,7 +134,7 @@
   <Variable Name="MEASUREMENT" Code="70" Type="DxfDrawingUnits" Property="DrawingUnits" DefaultValue="DxfDrawingUnits.English" ReadConverter="(DxfDrawingUnits)" WriteConverter="(short)" />
   <Variable Name="MENU" Code="1" Type="string" Property="FileName" DefaultValue="null" />
   <Variable Name="MIRRTEXT" Code="70" Type="bool" Property="MirrorText" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
-  <Variable Name="OBSCOLOR" Code="70" Type="DxfColor" Property="ObscuredLineColor" DefaultValue="DxfColor.ByLayer" ReadConverter="DxfColor.FromRawValue" WriteConverter="RawValue" MinVersion="R2004" />
+  <Variable Name="OBSCOLOR" Code="70" Type="DxfColor" Property="ObscuredLineColor" DefaultValue="DxfColor.ByLayer" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" MinVersion="R2004" />
   <Variable Name="OBSLTYPE" Code="280" Type="DxfLinetypeStyle" Property="ObscuredLineTypeStyle" DefaultValue="DxfLinetypeStyle.Off" ReadConverter="(DxfLinetypeStyle)" WriteConverter="(short)" MinVersion="R2004" />
   <Variable Name="ORTHOMODE" Code="70" Type="bool" Property="DrawOrthoganalLines" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
   <Variable Name="OSMODE" Code="70" Type="int" Property="ObjectSnapFlags" DefaultValue="4133" ReadConverter="(int)" WriteConverter="(short)" MaxVersion="R14">

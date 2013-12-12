@@ -52,12 +52,12 @@ ill-placed comment
 {0}", entityType));
             var entity = file.Entities.Single();
             Assert.Null(entity.Handle);
-            Assert.Null(entity.Layer);
-            Assert.Null(entity.LinetypeName);
+            Assert.Equal("0", entity.Layer);
+            Assert.Equal("BYLAYER", entity.LinetypeName);
             Assert.Equal(1.0, entity.LinetypeScale);
             Assert.True(entity.IsVisible);
             Assert.False(entity.IsInPaperSpace);
-            Assert.Equal(DxfColor.ByBlock, entity.Color);
+            Assert.Equal(DxfColor.ByLayer, entity.Color);
             return entity;
         }
 
@@ -130,7 +130,7 @@ ill-placed comment
             Assert.Equal(0.0, el.Center.X);
             Assert.Equal(0.0, el.Center.Y);
             Assert.Equal(0.0, el.Center.Z);
-            Assert.Equal(0.0, el.MajorAxis.X);
+            Assert.Equal(1.0, el.MajorAxis.X);
             Assert.Equal(0.0, el.MajorAxis.Y);
             Assert.Equal(0.0, el.MajorAxis.Z);
             Assert.Equal(0.0, el.Normal.X);
@@ -138,7 +138,7 @@ ill-placed comment
             Assert.Equal(1.0, el.Normal.Z);
             Assert.Equal(1.0, el.MinorAxisRatio);
             Assert.Equal(0.0, el.StartParameter);
-            Assert.Equal(360.0, el.EndParameter);
+            Assert.Equal(Math.PI * 2, el.EndParameter);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ ill-placed comment
             Assert.Equal(0.0, text.Rotation);
             Assert.Equal(1.0, text.TextHeight);
             Assert.Null(text.Value);
-            Assert.Null(text.TextStyleName);
+            Assert.Equal("STANDARD", text.TextStyleName);
             Assert.Equal(0.0, text.Thickness);
             Assert.Equal(1.0, text.RelativeXScaleFactor);
             Assert.Equal(0.0, text.ObliqueAngle);
@@ -163,8 +163,8 @@ ill-placed comment
             Assert.Equal(0.0, text.SecondAlignmentPoint.X);
             Assert.Equal(0.0, text.SecondAlignmentPoint.Y);
             Assert.Equal(0.0, text.SecondAlignmentPoint.Z);
-            Assert.Equal(HorizontalTextJustification.Left, text.HorizontalTextJustification);
-            Assert.Equal(VerticalTextJustification.Baseline, text.VerticalTextJustification);
+            Assert.Equal(DxfHorizontalTextJustification.Left, text.HorizontalTextJustification);
+            Assert.Equal(DxfVerticalTextJustification.Baseline, text.VerticalTextJustification);
         }
 
         [Fact]
@@ -213,15 +213,15 @@ ill-placed comment
             Assert.Equal(0, poly.PolygonMeshNVertexCount);
             Assert.Equal(0, poly.SmoothSurfaceMDensity);
             Assert.Equal(0, poly.SmoothSurfaceNDensity);
-            Assert.Equal(CurvedAndSmoothSurfaceType.None, poly.SurfaceType);
+            Assert.Equal(DxfPolylineCurvedAndSmoothSurfaceType.None, poly.SurfaceType);
             Assert.False(poly.IsClosed);
-            Assert.False(poly.ContainsCurveFitVerticies);
-            Assert.False(poly.ContainsSplineFitVerticies);
+            Assert.False(poly.CurveFitVerticiesAdded);
+            Assert.False(poly.SplineFitVerticiesAdded);
             Assert.False(poly.Is3DPolyline);
             Assert.False(poly.Is3DPolygonMesh);
-            Assert.False(poly.Is3DMeshClosedInNDirection);
+            Assert.False(poly.IsPolygonMeshClosedInNDirection);
             Assert.False(poly.IsPolyfaceMesh);
-            Assert.False(poly.IsContinuousLinetipePattern);
+            Assert.False(poly.IsLinetypePatternGeneratedContinuously);
         }
 
         [Fact]
@@ -442,8 +442,8 @@ text style name
             Assert.Equal(51.0, text.ObliqueAngle);
             Assert.True(text.IsTextBackward);
             Assert.True(text.IsTextUpsideDown);
-            Assert.Equal(HorizontalTextJustification.Aligned, text.HorizontalTextJustification);
-            Assert.Equal(VerticalTextJustification.Bottom, text.VerticalTextJustification);
+            Assert.Equal(DxfHorizontalTextJustification.Aligned, text.HorizontalTextJustification);
+            Assert.Equal(DxfVerticalTextJustification.Bottom, text.VerticalTextJustification);
             Assert.Equal(91.0, text.SecondAlignmentPoint.X);
             Assert.Equal(92.0, text.SecondAlignmentPoint.Y);
             Assert.Equal(93.0, text.SecondAlignmentPoint.Z);
@@ -566,15 +566,15 @@ SEQEND
             Assert.Equal(72, poly.PolygonMeshNVertexCount);
             Assert.Equal(73, poly.SmoothSurfaceMDensity);
             Assert.Equal(74, poly.SmoothSurfaceNDensity);
-            Assert.Equal(CurvedAndSmoothSurfaceType.CubicBSpline, poly.SurfaceType);
+            Assert.Equal(DxfPolylineCurvedAndSmoothSurfaceType.CubicBSpline, poly.SurfaceType);
             Assert.True(poly.IsClosed);
-            Assert.True(poly.ContainsCurveFitVerticies);
-            Assert.True(poly.ContainsSplineFitVerticies);
+            Assert.True(poly.CurveFitVerticiesAdded);
+            Assert.True(poly.SplineFitVerticiesAdded);
             Assert.True(poly.Is3DPolyline);
             Assert.True(poly.Is3DPolygonMesh);
-            Assert.True(poly.Is3DMeshClosedInNDirection);
+            Assert.True(poly.IsPolygonMeshClosedInNDirection);
             Assert.True(poly.IsPolyfaceMesh);
-            Assert.True(poly.IsContinuousLinetipePattern);
+            Assert.True(poly.IsLinetypePatternGeneratedContinuously);
             Assert.Equal(22.0, poly.Normal.X);
             Assert.Equal(33.0, poly.Normal.Y);
             Assert.Equal(44.0, poly.Normal.Z);
@@ -641,7 +641,9 @@ SEQEND
             EnsureFileContainsEntity(new DxfLine(), @"
   0
 LINE
- 62
+  5
+
+  8
 0
 100
 AcDbLine
@@ -667,7 +669,9 @@ AcDbLine
             EnsureFileContainsEntity(new DxfCircle(), @"
   0
 CIRCLE
- 62
+  5
+
+  8
 0
 100
 AcDbCircle
@@ -689,7 +693,9 @@ AcDbCircle
             EnsureFileContainsEntity(new DxfArc(), @"
   0
 ARC
- 62
+  5
+
+  8
 0
 100
 AcDbCircle
@@ -701,6 +707,8 @@ AcDbCircle
 0.0000000000000000E+000
  40
 0.0000000000000000E+000
+100
+AcDbArc
  50
 0.0000000000000000E+000
  51
@@ -715,7 +723,9 @@ AcDbCircle
             EnsureFileContainsEntity(new DxfEllipse(), @"
   0
 ELLIPSE
- 62
+  5
+
+  8
 0
 100
 AcDbEllipse
@@ -726,7 +736,7 @@ AcDbEllipse
  30
 0.0000000000000000E+000
  11
-0.0000000000000000E+000
+1.0000000000000000E+000
  21
 0.0000000000000000E+000
  31
@@ -736,7 +746,7 @@ AcDbEllipse
  41
 0.0000000000000000E+000
  42
-3.6000000000000000E+002
+6.2831853071795862E+000
   0
 ");
         }
@@ -747,7 +757,9 @@ AcDbEllipse
             EnsureFileContainsEntity(new DxfText(), @"
   0
 TEXT
- 62
+  5
+
+  8
 0
 100
 AcDbText
@@ -761,6 +773,12 @@ AcDbText
 1.0000000000000000E+000
   1
 
+ 11
+0.0000000000000000E+000
+ 21
+0.0000000000000000E+000
+ 31
+0.0000000000000000E+000
   0
 ");
         }
@@ -771,7 +789,9 @@ AcDbText
             EnsureFileContainsEntity(new DxfPolyline(), @"
   0
 POLYLINE
- 62
+  5
+
+  8
 0
 100
 AcDb2dPolyline
@@ -783,6 +803,10 @@ AcDb2dPolyline
 0.0000000000000000E+000
   0
 SEQEND
+  5
+
+  8
+0
   0
 ");
         }
