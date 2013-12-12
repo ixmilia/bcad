@@ -19,6 +19,7 @@ Func<XElement, IEnumerable<XElement>> GetProperties = (x) => x.Elements(XName.Ge
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BCad.Dxf.Entities
 {
@@ -85,7 +86,7 @@ foreach (var property in GetProperties(baseEntity))
 #>
         }
 
-        protected virtual void AddValuePairs(IList<DxfCodePair> pairs)
+        protected virtual void AddValuePairs(List<DxfCodePair> pairs)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
 <#
@@ -222,8 +223,13 @@ foreach (var entity in entities)
 	//
 	foreach (var property in GetProperties(entity))
 	{
+		var propertyType = property.Attribute("Type").Value;
+		if (AllowMultiples(property))
+		{
+			propertyType = string.Format("List<{0}>", propertyType);
+		}
 #>
-        public <#= property.Attribute("Type").Value #> <#= property.Attribute("Name").Value #> { get; set; }
+        public <#= propertyType #> <#= property.Attribute("Name").Value #> { get; set; }
 
 <#
 	} // foreach property
@@ -265,8 +271,11 @@ foreach (var entity in entities)
 <#
     foreach (var property in GetProperties(entity))
 	{
+		var defaultValue = AllowMultiples(property)
+			? string.Format("new List<{0}>()", property.Attribute("Type").Value)
+			: DefaultValue(property);
 #>
-            this.<#= property.Attribute("Name").Value #> = <#= DefaultValue(property) #>;
+            this.<#= property.Attribute("Name").Value #> = <#= defaultValue #>;
 <#
 	} // foreach property
 #>
@@ -311,7 +320,7 @@ foreach (var entity in entities)
 		} // foreach constructor
 	} // if
 #>
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
 <#
@@ -351,9 +360,20 @@ foreach (var entity in entities)
 		} // if
 		else
 		{
+			var code = property.Attribute("Code").Value;
+			var name = property.Attribute("Name").Value;
+			if (AllowMultiples(property))
+			{
 #>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= property.Attribute("Code").Value #>, <#= WriteConverter(property) #>(<#= property.Attribute("Name").Value #>)));
+<# if (disableWriting) { #>    <# } #>            pairs.AddRange(<#= name #>.Select(value => new DxfCodePair(<#= code #>, value)));
 <#
+			} // if
+			else
+			{
+#>
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= code #>, <#= WriteConverter(property) #>(<#= property.Attribute("Name").Value #>)));
+<#
+			} // else
 		} // else
 
 		if (disableWriting)
@@ -404,9 +424,15 @@ foreach (var entity in entities)
 			{
 				var codeType = DxfCodePair.ExpectedType(code);
 				var codeTypeValue = TypeToString(codeType);
+				var assignCode = AllowMultiples(property)
+					? string.Format("this.{0}.Add(", property.Attribute("Name").Value)
+					: string.Format("this.{0} = ", property.Attribute("Name").Value);
+				var assignSuffix = AllowMultiples(property)
+					? ")"
+					: "";
 #>
                 case <#= code #>:
-                    this.<#= property.Attribute("Name").Value #> = <#= ReadConverter(property) #>(pair.<#= codeTypeValue #>);
+                    <#= assignCode #><#= ReadConverter(property) #>(pair.<#= codeTypeValue #>)<#= assignSuffix #>;
                     break;
 <#
 			} // else
@@ -460,6 +486,12 @@ string DefaultValue(XElement property)
 	}
 
 	return value;
+}
+
+bool AllowMultiples(XElement property)
+{
+	var att = property.Attribute("AllowMultiples");
+	return att != null && bool.Parse(att.Value);
 }
 
 string CamlCase(string value)

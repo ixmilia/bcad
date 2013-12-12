@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BCad.Dxf.Entities
 {
@@ -100,7 +101,7 @@ namespace BCad.Dxf.Entities
             this.IsVisible = true;
         }
 
-        protected virtual void AddValuePairs(IList<DxfCodePair> pairs)
+        protected virtual void AddValuePairs(List<DxfCodePair> pairs)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
             pairs.Add(new DxfCodePair(5, (Handle)));
@@ -322,7 +323,7 @@ namespace BCad.Dxf.Entities
             this.EdgeFlags = 0;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbFace"));
@@ -406,25 +407,25 @@ namespace BCad.Dxf.Entities
 
         public short FormatVersionNumber { get; set; }
 
-        public string CustomData { get; set; }
+        public List<string> CustomData { get; set; }
 
-        public string CustomData2 { get; set; }
+        public List<string> CustomData2 { get; set; }
 
         public Dxf3DSolid()
             : base()
         {
             this.FormatVersionNumber = 1;
-            this.CustomData = null;
-            this.CustomData2 = null;
+            this.CustomData = new List<string>();
+            this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (FormatVersionNumber)));
-            pairs.Add(new DxfCodePair(1, (CustomData)));
-            pairs.Add(new DxfCodePair(3, (CustomData2)));
+            pairs.AddRange(CustomData.Select(value => new DxfCodePair(1, value)));
+            pairs.AddRange(CustomData2.Select(value => new DxfCodePair(3, value)));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -436,10 +437,10 @@ namespace BCad.Dxf.Entities
                     this.FormatVersionNumber = (pair.ShortValue);
                     break;
                 case 1:
-                    this.CustomData = (pair.StringValue);
+                    this.CustomData.Add((pair.StringValue));
                     break;
                 case 3:
-                    this.CustomData2 = (pair.StringValue);
+                    this.CustomData2.Add((pair.StringValue));
                     break;
                 default:
                     return false;
@@ -462,7 +463,7 @@ namespace BCad.Dxf.Entities
 
         public int GraphicsDataSize { get; set; }
 
-        public string GraphicsDataString { get; set; }
+        public List<string> GraphicsDataString { get; set; }
 
         public int EntityDataSize { get; set; }
 
@@ -482,7 +483,7 @@ namespace BCad.Dxf.Entities
             this.ProxyEntityClassId = 498;
             this.ApplicationEntityClassId = 500;
             this.GraphicsDataSize = 0;
-            this.GraphicsDataString = null;
+            this.GraphicsDataString = new List<string>();
             this.EntityDataSize = 0;
             this.ObjectID1 = null;
             this.ObjectID2 = null;
@@ -491,14 +492,14 @@ namespace BCad.Dxf.Entities
             this.Terminator = 0;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbProxyEntity"));
             pairs.Add(new DxfCodePair(90, (ProxyEntityClassId)));
             pairs.Add(new DxfCodePair(91, (ApplicationEntityClassId)));
             pairs.Add(new DxfCodePair(92, (GraphicsDataSize)));
-            pairs.Add(new DxfCodePair(310, (GraphicsDataString)));
+            pairs.AddRange(GraphicsDataString.Select(value => new DxfCodePair(310, value)));
             pairs.Add(new DxfCodePair(93, (EntityDataSize)));
             pairs.Add(new DxfCodePair(330, (ObjectID1)));
             pairs.Add(new DxfCodePair(340, (ObjectID2)));
@@ -522,7 +523,7 @@ namespace BCad.Dxf.Entities
                     this.GraphicsDataSize = (pair.IntegerValue);
                     break;
                 case 310:
-                    this.GraphicsDataString = (pair.StringValue);
+                    this.GraphicsDataString.Add((pair.StringValue));
                     break;
                 case 93:
                     this.EntityDataSize = (pair.IntegerValue);
@@ -580,7 +581,7 @@ namespace BCad.Dxf.Entities
             this.EndAngle = endAngle;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbArc"));
@@ -641,7 +642,7 @@ namespace BCad.Dxf.Entities
             this.Radius = radius;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbCircle"));
@@ -741,7 +742,7 @@ namespace BCad.Dxf.Entities
             this.MinorAxisRatio = minorAxisRatio;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbEllipse"));
@@ -846,7 +847,7 @@ namespace BCad.Dxf.Entities
             this.P2 = p2;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbLine"));
@@ -946,7 +947,7 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbPoint"));
@@ -1143,7 +1144,7 @@ namespace BCad.Dxf.Entities
             this.Normal = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDb2dPolyline"));
@@ -1290,7 +1291,7 @@ namespace BCad.Dxf.Entities
             this.UnitDirectionVector = unitDirectionVector;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbRay"));
@@ -1342,25 +1343,25 @@ namespace BCad.Dxf.Entities
 
         public short FormatVersionNumber { get; set; }
 
-        public string CustomData { get; set; }
+        public List<string> CustomData { get; set; }
 
-        public string CustomData2 { get; set; }
+        public List<string> CustomData2 { get; set; }
 
         public DxfRegion()
             : base()
         {
             this.FormatVersionNumber = 1;
-            this.CustomData = null;
-            this.CustomData2 = null;
+            this.CustomData = new List<string>();
+            this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (FormatVersionNumber)));
-            pairs.Add(new DxfCodePair(1, (CustomData)));
-            pairs.Add(new DxfCodePair(3, (CustomData2)));
+            pairs.AddRange(CustomData.Select(value => new DxfCodePair(1, value)));
+            pairs.AddRange(CustomData2.Select(value => new DxfCodePair(3, value)));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1372,10 +1373,10 @@ namespace BCad.Dxf.Entities
                     this.FormatVersionNumber = (pair.ShortValue);
                     break;
                 case 1:
-                    this.CustomData = (pair.StringValue);
+                    this.CustomData.Add((pair.StringValue));
                     break;
                 case 3:
-                    this.CustomData2 = (pair.StringValue);
+                    this.CustomData2.Add((pair.StringValue));
                     break;
                 default:
                     return false;
@@ -1397,7 +1398,7 @@ namespace BCad.Dxf.Entities
         {
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
         }
@@ -1434,7 +1435,7 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbShape"));
@@ -1610,7 +1611,7 @@ namespace BCad.Dxf.Entities
             this.Value = value;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbText"));
@@ -1765,7 +1766,7 @@ namespace BCad.Dxf.Entities
             this.DirectionVector = DxfVector.XAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbFcf"));
@@ -1858,7 +1859,7 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbTrace"));
@@ -2078,7 +2079,7 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbVertex"));
@@ -2201,7 +2202,7 @@ namespace BCad.Dxf.Entities
             this.UnitDirectionVector = unitDirectionVector;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbXline"));
