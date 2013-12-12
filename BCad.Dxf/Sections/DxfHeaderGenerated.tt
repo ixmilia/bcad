@@ -11,7 +11,7 @@
 <#@ output extension=".cs" #>
 <#
 var xml = XDocument.Load(this.Host.ResolvePath(@"HeaderVariablesSpec.xml")).Root;
-var xmlns = "http://IxMilia.com/Dxf/DxfSpec";
+var xmlns = "http://IxMilia.com/Dxf/HeaderVariablesSpec";
 var flagElement = XName.Get("Flag", xmlns);
 var variables = xml.Elements(XName.Get("Variable", xmlns));
 #>

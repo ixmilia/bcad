@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema id="DwgSpec"
-    targetNamespace="http://IxMilia.com/Dxf/DxfSpec"
+    targetNamespace="http://IxMilia.com/Dxf/HeaderVariablesSpec"
     elementFormDefault="qualified"
-    xmlns="http://IxMilia.com/Dxf/DxfSpec"
-    xmlns:mstns="http://IxMilia.com/Dxf/DxfSpec"
+    xmlns="http://IxMilia.com/Dxf/HeaderVariablesSpec"
+    xmlns:mstns="http://IxMilia.com/Dxf/HeaderVariablesSpec"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
   
   <xs:simpleType name="VersionType">

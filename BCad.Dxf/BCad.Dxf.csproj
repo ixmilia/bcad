@@ -55,7 +55,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DxfEntityGenerated.tt</DependentUpon>
     </Compile>
-    <Compile Include="Entities\DxfEntityType.cs" />
     <Compile Include="Sections\DxfBlocksSection.cs" />
     <Compile Include="Sections\DxfClassesSection.cs" />
     <Compile Include="Sections\DxfHeader.cs" />
@@ -101,7 +100,7 @@
     <None Include="Entities\EntitiesSpec.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Sections\DxfSpec.xsd">
+    <None Include="Sections\HeaderVariablesSpec.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Sections\DxfHeaderGenerated.tt">

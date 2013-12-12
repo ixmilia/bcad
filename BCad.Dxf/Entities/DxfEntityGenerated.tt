@@ -19,10 +19,21 @@ Func<XElement, IEnumerable<XElement>> GetProperties = (x) => x.Elements(XName.Ge
 
 using System;
 using System.Collections.Generic;
-using BCad.Dxf.Entities;
 
 namespace BCad.Dxf.Entities
 {
+
+    public enum DxfEntityType
+    {
+<#
+foreach (var entity in entities)
+{
+#>
+        <#= entity.Attribute("EntityType").Value #>,
+<#
+}
+#>
+    }
 
 <#
 var baseEntity = xml.Elements(XName.Get("Entity", xmlns)).Where(x => x.Attribute("Name").Value == "DxfEntity").Single();
