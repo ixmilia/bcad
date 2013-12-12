@@ -1402,7 +1402,6 @@ namespace BCad.Dxf.Entities
         {
             base.AddValuePairs(pairs);
         }
-
     }
 
     /// <summary>

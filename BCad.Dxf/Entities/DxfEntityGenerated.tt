@@ -386,11 +386,11 @@ foreach (var entity in entities)
 	} // foreach property
 #>
         }
-
 <#
 	if (GetProperties(entity).Any())
 	{
 #>
+
         internal override bool TrySetPair(DxfCodePair pair)
         {
             if (base.TrySetPair(pair)) return true;
