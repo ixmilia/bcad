@@ -21,10 +21,10 @@
   
   -->
   <Entity Name="Dxf3DFace" EntityType="Face" SubclassMarker="AcDbFace" TypeString="3DFACE">
-    <Property Name="FirstCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="SecondCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
-    <Property Name="ThirdCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
-    <Property Name="FourthCorner" Code="-3" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
+    <Property Name="FirstCorner" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="SecondCorner" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ThirdCorner" Code="12" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
+    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
     <Property Name="EdgeFlags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true">
       <Flag Name="IsFirstEdgeInvisible" Mask="1" />
       <Flag Name="IsSecondEdgeInvisible" Mask="2" />
@@ -86,9 +86,9 @@
   -->
   <Entity Name="DxfCircle" EntityType="Circle" SubclassMarker="AcDbCircle" TypeString="CIRCLE">
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
-    <Property Name="Center" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Center" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="Radius" Code="40" Type="double" DefaultValue="0.0" />
-    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
     <Constructor>
       <ConstructorParameter Property="Center" Type="DxfPoint" />
       <ConstructorParameter Property="Radius" Type="double" />
@@ -100,9 +100,9 @@
   
   -->
   <Entity Name="DxfEllipse" EntityType="Ellipse" SubclassMarker="AcDbEllipse" TypeString="ELLIPSE">
-    <Property Name="Center" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="MajorAxis" Code="-3" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
-    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="Center" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="MajorAxis" Code="11" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
     <Property Name="MinorAxisRatio" Code="40" Type="double" DefaultValue="1.0" />
     <Property Name="StartParameter" Code="41" Type="double" DefaultValue="0.0" />
     <Property Name="EndParameter" Code="42" Type="double" DefaultValue="Math.PI * 2" />
@@ -119,9 +119,9 @@
   -->
   <Entity Name="DxfLine" EntityType="Line" SubclassMarker="AcDbLine" TypeString="LINE">
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
-    <Property Name="P1" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="P2" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
-    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="P1" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="P2" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
     <Constructor>
       <ConstructorParameter Property="P1" Type="DxfPoint" />
       <ConstructorParameter Property="P2" Type="DxfPoint" />
@@ -133,9 +133,9 @@
   
   -->
   <Entity Name="DxfModelPoint" EntityType="Point" SubclassMarker="AcDbPoint" TypeString="POINT">
-    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
-    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
     <Property Name="Angle" Code="50" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Constructor>
       <ConstructorParameter Property="Location" Type="DxfPoint" />
@@ -147,7 +147,7 @@
   
   -->
   <Entity Name="DxfPolyline" EntityType="Polyline" SubclassMarker="AcDb2dPolyline" TypeString="POLYLINE">
-    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Property Name="Flags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true">
       <Flag Name="IsClosed" Mask="1" />
@@ -166,7 +166,7 @@
     <Property Name="SmoothSurfaceMDensity" Code="73" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true" />
     <Property Name="SmoothSurfaceNDensity" Code="74" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true" />
     <Property Name="SurfaceType" Code="75" Type="DxfPolylineCurvedAndSmoothSurfaceType" DefaultValue="DxfPolylineCurvedAndSmoothSurfaceType.None" ReadConverter="(DxfPolylineCurvedAndSmoothSurfaceType)" WriteConverter="(short)" DisableWritingDefault="true" />
-    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
   </Entity>
   <!--
   
@@ -174,8 +174,8 @@
   
   -->
   <Entity Name="DxfRay" EntityType="Ray" SubclassMarker="AcDbRay" TypeString="RAY">
-    <Property Name="StartPoint" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="UnitDirectionVector" Code="-3" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
+    <Property Name="StartPoint" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="UnitDirectionVector" Code="11" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
     <Constructor>
       <ConstructorParameter Property="StartPoint" Type="DxfPoint" />
       <ConstructorParameter Property="UnitDirectionVector" Type="DxfVector" />
@@ -204,12 +204,12 @@
   
   -->
   <Entity Name="DxfSolid" EntityType="Solid" SubclassMarker="AcDbShape" TypeString="SOLID">
-    <Property Name="FirstCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="SecondCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
-    <Property Name="ThirdCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
-    <Property Name="FourthCorner" Code="-3" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
+    <Property Name="FirstCorner" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="SecondCorner" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ThirdCorner" Code="12" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
+    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
-    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
   </Entity>
   <!--
   
@@ -218,7 +218,7 @@
   -->
   <Entity Name="DxfText" EntityType="Text" SubclassMarker="AcDbText" TypeString="TEXT">
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
-    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="TextHeight" Code="40" Type="double" DefaultValue="1.0" />
     <Property Name="Value" Code="1" Type="string" DefaultValue="null" />
     <Property Name="Rotation" Code="50" Type="double" DefaultValue="0" DisableWritingDefault="true" />
@@ -230,8 +230,8 @@
       <Flag Name="IsTextUpsideDown" Mask="4" />
     </Property>
     <Property Name="HorizontalTextJustification" Code="72" Type="DxfHorizontalTextJustification" DefaultValue="DxfHorizontalTextJustification.Left" ReadConverter="(DxfHorizontalTextJustification)" WriteConverter="(short)" DisableWritingDefault="true" />
-    <Property Name="SecondAlignmentPoint" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
-    <Property Name="Normal" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="SecondAlignmentPoint" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
     <Property Name="VerticalTextJustification" Code="73" Type="DxfVerticalTextJustification" DefaultValue="DxfVerticalTextJustification.Baseline" ReadConverter="(DxfVerticalTextJustification)" WriteConverter="(short)" DisableWritingDefault="true" />
     <Constructor>
       <ConstructorParameter Property="Location" Type="DxfPoint" />
@@ -246,9 +246,9 @@
   -->
   <Entity Name="DxfTolerance" EntityType="Tolerance" SubclassMarker="AcDbFcf" TypeString="TOLERANCE">
     <Property Name="DimensionStyleName" Code="3" Type="string" DefaultValue="null" />
-    <Property Name="InsertionPoint" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
-    <Property Name="DirectionVector" Code="-3" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
+    <Property Name="InsertionPoint" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="DirectionVector" Code="11" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
   </Entity>
   <!--
   
@@ -256,12 +256,12 @@
   
   -->
   <Entity Name="DxfTrace" EntityType="Trace" SubclassMarker="AcDbTrace" TypeString="TRACE">
-    <Property Name="FirstCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="SecondCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
-    <Property Name="ThirdCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
-    <Property Name="FourthCorner" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="13,23,33" />
+    <Property Name="FirstCorner" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="SecondCorner" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ThirdCorner" Code="12" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
+    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="13,23,33" />
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
-    <Property Name="ExtrusionDirection" Code="-3" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
   </Entity>
   <!--
   
@@ -269,7 +269,7 @@
   
   -->
   <Entity Name="DxfVertex" EntityType="Vertex" SubclassMarker="AcDbVertex" TypeString="VERTEX">
-    <Property Name="Location" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
+    <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="StartingWidth" Code="40" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Property Name="EndingWidth" Code="41" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Property Name="Bulge" Code="42" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
@@ -297,8 +297,8 @@
   
   -->
   <Entity Name="DxfXLine" EntityType="XLine" SubclassMarker="AcDbXline" TypeString="XLINE">
-    <Property Name="FirstPoint" Code="-3" Type="DxfPoint" DefaultValue="DxfPoint.Origin" />
-    <Property Name="UnitDirectionVector" Code="-3" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
+    <Property Name="FirstPoint" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="UnitDirectionVector" Code="11" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="11,21,31" />
     <Constructor>
       <ConstructorParameter Property="FirstPoint" Type="DxfPoint" />
       <ConstructorParameter Property="UnitDirectionVector" Type="DxfVector" />
