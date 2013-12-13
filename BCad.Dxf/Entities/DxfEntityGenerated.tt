@@ -124,25 +124,18 @@ foreach (var property in GetProperties(baseEntity))
 {
 	var code = Code(property);
 	var name = Name(property);
-	if (IsPointOrVector(property))
+	var codes = GetCodeOverrides(property);
+	if (codes != null)
 	{
-		var codes = GetPointCodes(property);
-#>
-                case <#= codes[0] #>:
-                    this.<#= name #>.X = pair.DoubleValue;
-                    break;
-                case <#= codes[1] #>:
-                    this.<#= name #>.Y = pair.DoubleValue;
-                    break;
-<#
-		if (Math.Abs(code) == 3)
+		var suffix = 'X';
+		for (int i = 0; i < codes.Length; i++, suffix++)
 		{
 #>
-                case <#= codes[2] #>:
-                    this.<#= name #>.Z = pair.DoubleValue;
+                case <#= codes[i] #>:
+                    this.<#= name #>.<#= suffix #> = pair.DoubleValue;
                     break;
 <#
-		} // if
+		} // for
 	} // if
 	else
 	{
@@ -344,19 +337,16 @@ foreach (var entity in entities)
 <#
 		} // if
 
-        if (IsPointOrVector(property))
+		var codes = GetCodeOverrides(property);
+        if (codes != null)
 		{
-		    var codes = GetPointCodes(property);
-#>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[0] #>, <#= Name(property) #>.X));
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[1] #>, <#= Name(property) #>.Y));
-<#
-            if (Math.Abs(Code(property)) == 3)
+			var suffix = 'X';
+			for (int i = 0; i < codes.Length; i++, suffix++)
 			{
 #>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[2] #>, <#= Name(property) #>.Z));
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[i] #>, <#= Name(property) #>.<#= suffix #>));
 <#
-			} // if
+			} // for
 		} // if
 		else
 		{
@@ -404,25 +394,18 @@ foreach (var entity in entities)
 			{
 				var property = propertyGroup.Single();
 				var name = Name(property);
-				if (IsPointOrVector(property))
+				var codes = GetCodeOverrides(property);
+				if (codes != null)
 				{
-					var codes = GetPointCodes(property);
-#>
-                case <#= codes[0] #>:
-                    this.<#= name #>.X = pair.DoubleValue;
-                    break;
-                case <#= codes[1] #>:
-                    this.<#= name #>.Y = pair.DoubleValue;
-                    break;
-<#
-					if (Math.Abs(code) == 3)
+					var suffix = 'X';
+					for (int i = 0; i < codes.Length; i++)
 					{
 #>
-                case <#= codes[2] #>:
-                    this.<#= name #>.Z = pair.DoubleValue;
+                case <#= codes[i] #>:
+                    this.<#= name #>.<#= suffix #> = pair.DoubleValue;
                     break;
 <#
-					}
+					} // for
 				} // if
 				else
 				{
@@ -500,11 +483,6 @@ string Type(XElement property)
 	return property.Attribute("Type").Value;
 }
 
-bool IsPointOrVector(XElement property)
-{
-	return Type(property) == "DxfPoint" || Type(property) == "DxfVector";
-}
-
 string ReadConverter(XElement property)
 {
 	var att = property.Attribute("ReadConverter");
@@ -537,10 +515,10 @@ int Mask(XElement flag)
 	return int.Parse(flag.Attribute("Mask").Value);
 }
 
-string[] GetPointCodes(XElement property)
+int[] GetCodeOverrides(XElement property)
 {
 	var codesAtt = property.Attribute("CodeOverrides");
-	return codesAtt == null ? new[] { "10", "20", "30" } : codesAtt.Value.Split(',');
+	return codesAtt == null ? null : codesAtt.Value.Split(',').Select(c => int.Parse(c)).ToArray();
 }
 
 string DefaultValue(XElement property)
