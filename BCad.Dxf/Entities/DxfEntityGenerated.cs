@@ -9,15 +9,15 @@ namespace BCad.Dxf.Entities
 
     public enum DxfEntityType
     {
-        Face,
-        ModelerGeometry,
-        ProxyEntity,
         Arc,
         Circle,
         Ellipse,
+        Face,
         Line,
+        ModelerGeometry,
         Point,
         Polyline,
+        ProxyEntity,
         Ray,
         Region,
         Seqend,
