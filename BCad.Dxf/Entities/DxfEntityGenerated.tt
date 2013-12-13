@@ -397,12 +397,15 @@ foreach (var entity in entities)
             switch (pair.Code)
             {
 <#
-		foreach (var property in GetProperties(entity))
+		foreach (var propertyGroup in GetProperties(entity).GroupBy(p => Code(p)).OrderBy(p => p.Key))
 		{
-			var code = int.Parse(property.Attribute("Code").Value);
-			if (property.Attribute("Type").Value == "DxfPoint" || property.Attribute("Type").Value == "DxfVector")
+			var code = propertyGroup.Key;
+			if (propertyGroup.Count() == 1)
 			{
-				var codes = GetPointCodes(property);
+				var property = propertyGroup.Single();
+				if (property.Attribute("Type").Value == "DxfPoint" || property.Attribute("Type").Value == "DxfVector")
+				{
+					var codes = GetPointCodes(property);
 #>
                 case <#= codes[0] #>:
                     this.<#= property.Attribute("Name").Value #>.X = pair.DoubleValue;
@@ -411,31 +414,40 @@ foreach (var entity in entities)
                     this.<#= property.Attribute("Name").Value #>.Y = pair.DoubleValue;
                     break;
 <#
-				if (Math.Abs(code) == 3)
-				{
+					if (Math.Abs(code) == 3)
+					{
 #>
                 case <#= codes[2] #>:
                     this.<#= property.Attribute("Name").Value #>.Z = pair.DoubleValue;
                     break;
 <#
-				}
-			} // if
-			else
-			{
-				var codeType = DxfCodePair.ExpectedType(code);
-				var codeTypeValue = TypeToString(codeType);
-				var assignCode = AllowMultiples(property)
-					? string.Format("this.{0}.Add(", property.Attribute("Name").Value)
-					: string.Format("this.{0} = ", property.Attribute("Name").Value);
-				var assignSuffix = AllowMultiples(property)
-					? ")"
-					: "";
+					}
+				} // if
+				else
+				{
+					var codeType = DxfCodePair.ExpectedType(code);
+					var codeTypeValue = TypeToString(codeType);
+					var assignCode = AllowMultiples(property)
+						? string.Format("this.{0}.Add(", property.Attribute("Name").Value)
+						: string.Format("this.{0} = ", property.Attribute("Name").Value);
+					var assignSuffix = AllowMultiples(property)
+						? ")"
+						: "";
 #>
                 case <#= code #>:
                     <#= assignCode #><#= ReadConverter(property) #>(pair.<#= codeTypeValue #>)<#= assignSuffix #>;
                     break;
 <#
-			} // else
+				} // else
+			} // if one property per code
+			else
+			{
+#>
+                case <#= code #>:
+                    // TODO: code is shared by properties <#= string.Join(", ", propertyGroup.Select(p => Name(p))) #>
+                    break;
+<#
+			} // else multiple properties per code
 		} // foreach property
 #>
                 default:
@@ -469,6 +481,16 @@ string WriteConverter(XElement property)
 {
 	var att = property.Attribute("WriteConverter");
 	return att == null ? string.Empty : att.Value;
+}
+
+string Name(XElement property)
+{
+	return property.Attribute("Name").Value;
+}
+
+int Code(XElement property)
+{
+	return int.Parse(property.Attribute("Code").Value);
 }
 
 string[] GetPointCodes(XElement property)

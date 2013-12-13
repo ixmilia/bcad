@@ -53,10 +53,7 @@
     <Property Name="GraphicsDataSize" Code="92" Type="int" DefaultValue="0" />
     <Property Name="GraphicsDataString" Code="310" Type="string" DefaultValue="null" AllowMultiples="true" />
     <Property Name="EntityDataSize" Code="93" Type="int" DefaultValue="0" />
-    <!--
-    // TODO: enable this.  multiples could appear.  note the same code as GraphicsDataString
     <Property Name="EntityDataString" Code="310" Type="string" DefaultValue="null" AllowMultiples="true" />
-    -->
     <Property Name="ObjectID1" Code="330" Type="string" DefaultValue="null" />
     <Property Name="ObjectID2" Code="340" Type="string" DefaultValue="null" />
     <Property Name="ObjectID3" Code="350" Type="string" DefaultValue="null" />
