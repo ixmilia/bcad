@@ -39,9 +39,8 @@
   -->
   <Entity Name="Dxf3DSolid" EntityType="ModelerGeometry" SubclassMarker="AcDbModelerGeometry" TypeString="3DSOLID">
     <Property Name="FormatVersionNumber" Code="70" Type="short" DefaultValue="1" />
-    <!-- TODO: multiples of these can appear -->
-    <Property Name="CustomData" Code="1" Type="string" DefaultValue="null" />
-    <Property Name="CustomData2" Code="3" Type="string" DefaultValue="null" />
+    <Property Name="CustomData" Code="1" Type="string" DefaultValue="null" AllowMultiples="true" />
+    <Property Name="CustomData2" Code="3" Type="string" DefaultValue="null" AllowMultiples="true" />
   </Entity>
   <!--
   
@@ -52,12 +51,9 @@
     <Property Name="ProxyEntityClassId" Code="90" Type="int" DefaultValue="498" />
     <Property Name="ApplicationEntityClassId" Code="91" Type="int" DefaultValue="500" />
     <Property Name="GraphicsDataSize" Code="92" Type="int" DefaultValue="0" />
-    <Property Name="GraphicsDataString" Code="310" Type="string" DefaultValue="null" />
+    <Property Name="GraphicsDataString" Code="310" Type="string" DefaultValue="null" AllowMultiples="true" />
     <Property Name="EntityDataSize" Code="93" Type="int" DefaultValue="0" />
-    <!--
-    // TODO: enable this.  multiples could appear
-    <Property Name="EntityDataString" Code="310" Type="string" DefaultValue="null" />
-    -->
+    <Property Name="EntityDataString" Code="310" Type="string" DefaultValue="null" AllowMultiples="true" />
     <Property Name="ObjectID1" Code="330" Type="string" DefaultValue="null" />
     <Property Name="ObjectID2" Code="340" Type="string" DefaultValue="null" />
     <Property Name="ObjectID3" Code="350" Type="string" DefaultValue="null" />
@@ -188,9 +184,8 @@
   -->
   <Entity Name="DxfRegion" EntityType="Region" SubclassMarker="AcDbModelerGeometry" TypeString="REGION">
     <Property Name="FormatVersionNumber" Code="70" Type="short" DefaultValue="1" />
-    <!-- TODO: multiples of these can appear -->
-    <Property Name="CustomData" Code="1" Type="string" DefaultValue="null" />
-    <Property Name="CustomData2" Code="3" Type="string" DefaultValue="null" />
+    <Property Name="CustomData" Code="1" Type="string" DefaultValue="null" AllowMultiples="true" />
+    <Property Name="CustomData2" Code="3" Type="string" DefaultValue="null" AllowMultiples="true" />
   </Entity>
   <!--
   

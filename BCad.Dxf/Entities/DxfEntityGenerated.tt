@@ -19,6 +19,7 @@ Func<XElement, IEnumerable<XElement>> GetProperties = (x) => x.Elements(XName.Ge
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BCad.Dxf.Entities
 {
@@ -26,17 +27,17 @@ namespace BCad.Dxf.Entities
     public enum DxfEntityType
     {
 <#
-foreach (var entity in entities)
+foreach (var entity in entities.OrderBy(e => EntityType(e)))
 {
 #>
-        <#= entity.Attribute("EntityType").Value #>,
+        <#= EntityType(entity) #>,
 <#
 }
 #>
     }
 
 <#
-var baseEntity = xml.Elements(XName.Get("Entity", xmlns)).Where(x => x.Attribute("Name").Value == "DxfEntity").Single();
+var baseEntity = xml.Elements(XName.Get("Entity", xmlns)).Where(x => Name(x) == "DxfEntity").Single();
 #>
     /// <summary>
     /// DxfEntity class
@@ -47,7 +48,7 @@ var baseEntity = xml.Elements(XName.Get("Entity", xmlns)).Where(x => x.Attribute
 foreach (var property in GetProperties(baseEntity))
 {
 #>
-        public <#= property.Attribute("Type").Value #> <#= property.Attribute("Name").Value #> { get; set; }
+        public <#= Type(property) #> <#= Name(property) #> { get; set; }
 <#
 } // foreach property
 #>
@@ -62,8 +63,8 @@ foreach (var property in GetProperties(baseEntity))
 foreach (var entity in entities)
 {
 #>
-                    case DxfEntityType.<#= entity.Attribute("EntityType").Value #>:
-                        return "<#= entity.Attribute("TypeString").Value #>";
+                    case DxfEntityType.<#= EntityType(entity) #>:
+                        return "<#= TypeString(entity) #>";
 <#
 } // foreach entity
 #>
@@ -79,13 +80,13 @@ foreach (var entity in entities)
 foreach (var property in GetProperties(baseEntity))
 {
 #>
-            this.<#= property.Attribute("Name").Value #> = <#= DefaultValue(property) #>;
+            this.<#= Name(property) #> = <#= DefaultValue(property) #>;
 <#
 } // foreach property
 #>
         }
 
-        protected virtual void AddValuePairs(IList<DxfCodePair> pairs)
+        protected virtual void AddValuePairs(List<DxfCodePair> pairs)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
 <#
@@ -96,12 +97,12 @@ foreach (var property in GetProperties(baseEntity))
 	if (disableWriting)
 	{
 #>
-            if (this.<#= property.Attribute("Name").Value #> != <#= DefaultValue(property) #>)
+            if (this.<#= Name(property) #> != <#= DefaultValue(property) #>)
             {
 <#
 	} // if
 #>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= property.Attribute("Code").Value #>, <#= WriteConverter(property) #>(<#= property.Attribute("Name").Value #>)));
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= Code(property) #>, <#= WriteConverter(property) #>(<#= Name(property) #>)));
 <#
 	if (disableWriting)
 	{
@@ -121,23 +122,24 @@ foreach (var property in GetProperties(baseEntity))
 <#
 foreach (var property in GetProperties(baseEntity))
 {
-	var code = int.Parse(property.Attribute("Code").Value);
-	if (property.Attribute("Type").Value == "DxfPoint" || property.Attribute("Type").Value == "DxfVertex")
+	var code = Code(property);
+	var name = Name(property);
+	if (IsPointOrVector(property))
 	{
 		var codes = GetPointCodes(property);
 #>
                 case <#= codes[0] #>:
-                    this.<#= property.Attribute("Name").Value #>.X = pair.DoubleValue;
+                    this.<#= name #>.X = pair.DoubleValue;
                     break;
                 case <#= codes[1] #>:
-                    this.<#= property.Attribute("Name").Value #>.Y = pair.DoubleValue;
+                    this.<#= name #>.Y = pair.DoubleValue;
                     break;
 <#
 		if (Math.Abs(code) == 3)
 		{
 #>
                 case <#= codes[2] #>:
-                    this.<#= property.Attribute("Name").Value #>.Z = pair.DoubleValue;
+                    this.<#= name #>.Z = pair.DoubleValue;
                     break;
 <#
 		} // if
@@ -148,7 +150,7 @@ foreach (var property in GetProperties(baseEntity))
 		var codeTypeValue = TypeToString(codeType);
 #>
                 case <#= code #>:
-                    this.<#= property.Attribute("Name").Value #> = <#= ReadConverter(property) #>(pair.<#= codeTypeValue #>);
+                    this.<#= name #> = <#= ReadConverter(property) #>(pair.<#= codeTypeValue #>);
                     break;
 <#
 	} // else
@@ -172,8 +174,8 @@ foreach (var property in GetProperties(baseEntity))
 foreach (var entity in entities)
 {
 #>
-                case "<#= entity.Attribute("TypeString").Value #>":
-                    entity = new <#= entity.Attribute("Name").Value #>();
+                case "<#= TypeString(entity) #>":
+                    entity = new <#= Name(entity) #>();
                     break;
 <#
 } // foreach entity
@@ -206,15 +208,15 @@ foreach (var entity in entities)
 <#
 foreach (var entity in entities)
 {
-    var className = entity.Attribute("Name").Value;
-	var baseClass = entity.Attribute("BaseClass") == null ? "DxfEntity" : entity.Attribute("BaseClass").Value;
+    var className = Name(entity);
+	var baseClass = BaseClass(entity);
 #>
     /// <summary>
     /// <#= className #> class
     /// </summary>
     public partial class <#= className #> : <#= baseClass #>
     {
-        public override DxfEntityType EntityType { get { return DxfEntityType.<#= entity.Attribute("EntityType").Value #>; } }
+        public override DxfEntityType EntityType { get { return DxfEntityType.<#= EntityType(entity) #>; } }
 
 <#
 	//
@@ -222,8 +224,13 @@ foreach (var entity in entities)
 	//
 	foreach (var property in GetProperties(entity))
 	{
+		var propertyType = Type(property);
+		if (AllowMultiples(property))
+		{
+			propertyType = string.Format("List<{0}>", propertyType);
+		}
 #>
-        public <#= property.Attribute("Type").Value #> <#= property.Attribute("Name").Value #> { get; set; }
+        public <#= propertyType #> <#= Name(property) #> { get; set; }
 
 <#
 	} // foreach property
@@ -234,19 +241,19 @@ foreach (var entity in entities)
 		if (flags.Any())
 		{
 #>
-        // <#= property.Attribute("Name").Value #> flags
+        // <#= Name(property) #> flags
 <#
 			foreach (var flag in flags)
 			{
 #>
-        public bool <#= flag.Attribute("Name").Value #>
+        public bool <#= Name(flag) #>
         {
-            get { return DxfHelpers.GetFlag(<#= property.Attribute("Name").Value #>, <#= flag.Attribute("Mask").Value #>); }
+            get { return DxfHelpers.GetFlag(<#= Name(property) #>, <#= Mask(flag) #>); }
             set
             {
-                var flags = <#= property.Attribute("Name").Value #>;
-                DxfHelpers.SetFlag(value, ref flags, <#= flag.Attribute("Mask").Value #>);
-                <#= property.Attribute("Name").Value #> = flags;
+                var flags = <#= Name(property) #>;
+                DxfHelpers.SetFlag(value, ref flags, <#= Mask(flag) #>);
+                <#= Name(property) #> = flags;
             }
         }
 
@@ -265,8 +272,11 @@ foreach (var entity in entities)
 <#
     foreach (var property in GetProperties(entity))
 	{
+		var defaultValue = AllowMultiples(property)
+			? string.Format("new List<{0}>()", Type(property))
+			: DefaultValue(property);
 #>
-            this.<#= property.Attribute("Name").Value #> = <#= DefaultValue(property) #>;
+            this.<#= Name(property) #> = <#= defaultValue #>;
 <#
 	} // foreach property
 #>
@@ -287,8 +297,8 @@ foreach (var entity in entities)
 			var argList = new List<string>();
 			foreach (var parameter in parameters)
 			{
-				var paramName = CamlCase(parameter.Attribute("Property").Value);
-				var paramType = parameter.Attribute("Type").Value;
+				var paramName = CamlCase(Property(parameter));
+				var paramType = Type(parameter);
 				argList.Add(paramType + " " + paramName);
 			}
 
@@ -301,7 +311,7 @@ foreach (var entity in entities)
 			foreach (var parameter in parameters)
 			{
 #>
-            this.<#= parameter.Attribute("Property").Value #> = <#= CamlCase(parameter.Attribute("Property").Value) #>;
+            this.<#= Property(parameter) #> = <#= CamlCase(Property(parameter)) #>;
 <#
 			} // foreach parameter
 #>
@@ -311,49 +321,59 @@ foreach (var entity in entities)
 		} // foreach constructor
 	} // if
 #>
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
 <#
-	if (entity.Attribute("SubclassMarker").Value != "null")
+	if (SubclassMarker(entity) != null)
 	{
 #>
-            pairs.Add(new DxfCodePair(100, "<#= entity.Attribute("SubclassMarker").Value #>"));
+            pairs.Add(new DxfCodePair(100, "<#= SubclassMarker(entity) #>"));
 <#
 	} // if
 #>
 <#
     foreach (var property in GetProperties(entity))
 	{
-		var disableAtt = property.Attribute("DisableWritingDefault");
-		var disableWriting = disableAtt != null && bool.Parse(disableAtt.Value);
+		var disableWriting = DisableWritingDefault(property);
 		if (disableWriting)
 		{
 #>
-            if (this.<#= property.Attribute("Name").Value #> != <#= DefaultValue(property) #>)
+            if (this.<#= Name(property) #> != <#= DefaultValue(property) #>)
             {
 <#
 		} // if
 
-        if (PropertyType(property) == "DxfPoint" || PropertyType(property) == "DxfVector")
+        if (IsPointOrVector(property))
 		{
 		    var codes = GetPointCodes(property);
 #>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[0] #>, <#= property.Attribute("Name").Value #>.X));
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[1] #>, <#= property.Attribute("Name").Value #>.Y));
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[0] #>, <#= Name(property) #>.X));
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[1] #>, <#= Name(property) #>.Y));
 <#
-            if (Math.Abs(int.Parse(property.Attribute("Code").Value)) == 3)
+            if (Math.Abs(Code(property)) == 3)
 			{
 #>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[2] #>, <#= property.Attribute("Name").Value #>.Z));
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= codes[2] #>, <#= Name(property) #>.Z));
 <#
 			} // if
 		} // if
 		else
 		{
+			var code = Code(property);
+			var name = Name(property);
+			if (AllowMultiples(property))
+			{
 #>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= property.Attribute("Code").Value #>, <#= WriteConverter(property) #>(<#= property.Attribute("Name").Value #>)));
+<# if (disableWriting) { #>    <# } #>            pairs.AddRange(<#= name #>.Select(value => new DxfCodePair(<#= code #>, value)));
 <#
+			} // if
+			else
+			{
+#>
+<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= code #>, <#= WriteConverter(property) #>(<#= Name(property) #>)));
+<#
+			} // else
 		} // else
 
 		if (disableWriting)
@@ -366,50 +386,69 @@ foreach (var entity in entities)
 	} // foreach property
 #>
         }
-
 <#
 	if (GetProperties(entity).Any())
 	{
 #>
+
         internal override bool TrySetPair(DxfCodePair pair)
         {
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
 <#
-		foreach (var property in GetProperties(entity))
+		foreach (var propertyGroup in GetProperties(entity).GroupBy(p => Code(p)).OrderBy(p => p.Key))
 		{
-			var code = int.Parse(property.Attribute("Code").Value);
-			if (property.Attribute("Type").Value == "DxfPoint" || property.Attribute("Type").Value == "DxfVector")
+			var code = propertyGroup.Key;
+			if (propertyGroup.Count() == 1)
 			{
-				var codes = GetPointCodes(property);
+				var property = propertyGroup.Single();
+				var name = Name(property);
+				if (IsPointOrVector(property))
+				{
+					var codes = GetPointCodes(property);
 #>
                 case <#= codes[0] #>:
-                    this.<#= property.Attribute("Name").Value #>.X = pair.DoubleValue;
+                    this.<#= name #>.X = pair.DoubleValue;
                     break;
                 case <#= codes[1] #>:
-                    this.<#= property.Attribute("Name").Value #>.Y = pair.DoubleValue;
+                    this.<#= name #>.Y = pair.DoubleValue;
                     break;
 <#
-				if (Math.Abs(code) == 3)
-				{
+					if (Math.Abs(code) == 3)
+					{
 #>
                 case <#= codes[2] #>:
-                    this.<#= property.Attribute("Name").Value #>.Z = pair.DoubleValue;
+                    this.<#= name #>.Z = pair.DoubleValue;
                     break;
 <#
-				}
-			} // if
-			else
-			{
-				var codeType = DxfCodePair.ExpectedType(code);
-				var codeTypeValue = TypeToString(codeType);
+					}
+				} // if
+				else
+				{
+					var codeType = DxfCodePair.ExpectedType(code);
+					var codeTypeValue = TypeToString(codeType);
+					var assignCode = AllowMultiples(property)
+						? string.Format("this.{0}.Add(", Name(property))
+						: string.Format("this.{0} = ", Name(property));
+					var assignSuffix = AllowMultiples(property)
+						? ")"
+						: "";
 #>
                 case <#= code #>:
-                    this.<#= property.Attribute("Name").Value #> = <#= ReadConverter(property) #>(pair.<#= codeTypeValue #>);
+                    <#= assignCode #><#= ReadConverter(property) #>(pair.<#= codeTypeValue #>)<#= assignSuffix #>;
                     break;
 <#
-			} // else
+				} // else
+			} // if one property per code
+			else
+			{
+#>
+                case <#= code #>:
+                    // TODO: code is shared by properties <#= string.Join(", ", propertyGroup.Select(p => Name(p))) #>
+                    break;
+<#
+			} // else multiple properties per code
 		} // foreach property
 #>
                 default:
@@ -428,9 +467,42 @@ foreach (var entity in entities)
 #>
 }
 <#+
-string PropertyType(XElement property)
+string SubclassMarker(XElement entity)
+{
+	var value = entity.Attribute("SubclassMarker").Value;
+	return value == "null" ? null : value;
+}
+
+string EntityType(XElement entity)
+{
+	return entity.Attribute("EntityType").Value;
+}
+
+string TypeString(XElement entity)
+{
+	return entity.Attribute("TypeString").Value;
+}
+
+string BaseClass(XElement entity)
+{
+	var att = entity.Attribute("BaseClass");
+	return att == null ? "DxfEntity" : att.Value;
+}
+
+bool DisableWritingDefault(XElement property)
+{
+	var att = property.Attribute("DisableWritingDefault");
+	return att != null && bool.Parse(att.Value);
+}
+
+string Type(XElement property)
 {
 	return property.Attribute("Type").Value;
+}
+
+bool IsPointOrVector(XElement property)
+{
+	return Type(property) == "DxfPoint" || Type(property) == "DxfVector";
 }
 
 string ReadConverter(XElement property)
@@ -443,6 +515,26 @@ string WriteConverter(XElement property)
 {
 	var att = property.Attribute("WriteConverter");
 	return att == null ? string.Empty : att.Value;
+}
+
+string Name(XElement property)
+{
+	return property.Attribute("Name").Value;
+}
+
+int Code(XElement property)
+{
+	return int.Parse(property.Attribute("Code").Value);
+}
+
+string Property(XElement flag)
+{
+	return flag.Attribute("Property").Value;
+}
+
+int Mask(XElement flag)
+{
+	return int.Parse(flag.Attribute("Mask").Value);
 }
 
 string[] GetPointCodes(XElement property)
@@ -460,6 +552,12 @@ string DefaultValue(XElement property)
 	}
 
 	return value;
+}
+
+bool AllowMultiples(XElement property)
+{
+	var att = property.Attribute("AllowMultiples");
+	return att != null && bool.Parse(att.Value);
 }
 
 string CamlCase(string value)

@@ -2,21 +2,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BCad.Dxf.Entities
 {
 
     public enum DxfEntityType
     {
-        Face,
-        ModelerGeometry,
-        ProxyEntity,
         Arc,
         Circle,
         Ellipse,
+        Face,
         Line,
+        ModelerGeometry,
         Point,
         Polyline,
+        ProxyEntity,
         Ray,
         Region,
         Seqend,
@@ -100,7 +101,7 @@ namespace BCad.Dxf.Entities
             this.IsVisible = true;
         }
 
-        protected virtual void AddValuePairs(IList<DxfCodePair> pairs)
+        protected virtual void AddValuePairs(List<DxfCodePair> pairs)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
             pairs.Add(new DxfCodePair(5, (Handle)));
@@ -322,7 +323,7 @@ namespace BCad.Dxf.Entities
             this.EdgeFlags = 0;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbFace"));
@@ -350,41 +351,8 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.FirstCorner.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.FirstCorner.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.FirstCorner.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.SecondCorner.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.SecondCorner.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.SecondCorner.Z = pair.DoubleValue;
-                    break;
-                case 12:
-                    this.ThirdCorner.X = pair.DoubleValue;
-                    break;
-                case 22:
-                    this.ThirdCorner.Y = pair.DoubleValue;
-                    break;
-                case 32:
-                    this.ThirdCorner.Z = pair.DoubleValue;
-                    break;
-                case 13:
-                    this.FourthCorner.X = pair.DoubleValue;
-                    break;
-                case 23:
-                    this.FourthCorner.Y = pair.DoubleValue;
-                    break;
-                case 33:
-                    this.FourthCorner.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties FirstCorner, SecondCorner, ThirdCorner, FourthCorner
                     break;
                 case 70:
                     this.EdgeFlags = (int)(pair.ShortValue);
@@ -406,25 +374,25 @@ namespace BCad.Dxf.Entities
 
         public short FormatVersionNumber { get; set; }
 
-        public string CustomData { get; set; }
+        public List<string> CustomData { get; set; }
 
-        public string CustomData2 { get; set; }
+        public List<string> CustomData2 { get; set; }
 
         public Dxf3DSolid()
             : base()
         {
             this.FormatVersionNumber = 1;
-            this.CustomData = null;
-            this.CustomData2 = null;
+            this.CustomData = new List<string>();
+            this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (FormatVersionNumber)));
-            pairs.Add(new DxfCodePair(1, (CustomData)));
-            pairs.Add(new DxfCodePair(3, (CustomData2)));
+            pairs.AddRange(CustomData.Select(value => new DxfCodePair(1, value)));
+            pairs.AddRange(CustomData2.Select(value => new DxfCodePair(3, value)));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -432,14 +400,14 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 70:
-                    this.FormatVersionNumber = (pair.ShortValue);
-                    break;
                 case 1:
-                    this.CustomData = (pair.StringValue);
+                    this.CustomData.Add((pair.StringValue));
                     break;
                 case 3:
-                    this.CustomData2 = (pair.StringValue);
+                    this.CustomData2.Add((pair.StringValue));
+                    break;
+                case 70:
+                    this.FormatVersionNumber = (pair.ShortValue);
                     break;
                 default:
                     return false;
@@ -462,9 +430,11 @@ namespace BCad.Dxf.Entities
 
         public int GraphicsDataSize { get; set; }
 
-        public string GraphicsDataString { get; set; }
+        public List<string> GraphicsDataString { get; set; }
 
         public int EntityDataSize { get; set; }
+
+        public List<string> EntityDataString { get; set; }
 
         public string ObjectID1 { get; set; }
 
@@ -482,8 +452,9 @@ namespace BCad.Dxf.Entities
             this.ProxyEntityClassId = 498;
             this.ApplicationEntityClassId = 500;
             this.GraphicsDataSize = 0;
-            this.GraphicsDataString = null;
+            this.GraphicsDataString = new List<string>();
             this.EntityDataSize = 0;
+            this.EntityDataString = new List<string>();
             this.ObjectID1 = null;
             this.ObjectID2 = null;
             this.ObjectID3 = null;
@@ -491,15 +462,16 @@ namespace BCad.Dxf.Entities
             this.Terminator = 0;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbProxyEntity"));
             pairs.Add(new DxfCodePair(90, (ProxyEntityClassId)));
             pairs.Add(new DxfCodePair(91, (ApplicationEntityClassId)));
             pairs.Add(new DxfCodePair(92, (GraphicsDataSize)));
-            pairs.Add(new DxfCodePair(310, (GraphicsDataString)));
+            pairs.AddRange(GraphicsDataString.Select(value => new DxfCodePair(310, value)));
             pairs.Add(new DxfCodePair(93, (EntityDataSize)));
+            pairs.AddRange(EntityDataString.Select(value => new DxfCodePair(310, value)));
             pairs.Add(new DxfCodePair(330, (ObjectID1)));
             pairs.Add(new DxfCodePair(340, (ObjectID2)));
             pairs.Add(new DxfCodePair(350, (ObjectID3)));
@@ -521,11 +493,14 @@ namespace BCad.Dxf.Entities
                 case 92:
                     this.GraphicsDataSize = (pair.IntegerValue);
                     break;
-                case 310:
-                    this.GraphicsDataString = (pair.StringValue);
-                    break;
                 case 93:
                     this.EntityDataSize = (pair.IntegerValue);
+                    break;
+                case 94:
+                    this.Terminator = (pair.IntegerValue);
+                    break;
+                case 310:
+                    // TODO: code is shared by properties GraphicsDataString, EntityDataString
                     break;
                 case 330:
                     this.ObjectID1 = (pair.StringValue);
@@ -538,9 +513,6 @@ namespace BCad.Dxf.Entities
                     break;
                 case 360:
                     this.ObjectID4 = (pair.StringValue);
-                    break;
-                case 94:
-                    this.Terminator = (pair.IntegerValue);
                     break;
                 default:
                     return false;
@@ -580,7 +552,7 @@ namespace BCad.Dxf.Entities
             this.EndAngle = endAngle;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbArc"));
@@ -641,7 +613,7 @@ namespace BCad.Dxf.Entities
             this.Radius = radius;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbCircle"));
@@ -668,29 +640,14 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
+                case -3:
+                    // TODO: code is shared by properties Center, Normal
+                    break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
                     break;
-                case 10:
-                    this.Center.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.Center.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.Center.Z = pair.DoubleValue;
-                    break;
                 case 40:
                     this.Radius = (pair.DoubleValue);
-                    break;
-                case 210:
-                    this.Normal.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.Normal.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.Normal.Z = pair.DoubleValue;
                     break;
                 default:
                     return false;
@@ -741,7 +698,7 @@ namespace BCad.Dxf.Entities
             this.MinorAxisRatio = minorAxisRatio;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbEllipse"));
@@ -768,32 +725,8 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.Center.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.Center.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.Center.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.MajorAxis.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.MajorAxis.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.MajorAxis.Z = pair.DoubleValue;
-                    break;
-                case 210:
-                    this.Normal.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.Normal.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.Normal.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties Center, MajorAxis, Normal
                     break;
                 case 40:
                     this.MinorAxisRatio = (pair.DoubleValue);
@@ -846,7 +779,7 @@ namespace BCad.Dxf.Entities
             this.P2 = p2;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbLine"));
@@ -875,35 +808,11 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
+                case -3:
+                    // TODO: code is shared by properties P1, P2, ExtrusionDirection
+                    break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
-                    break;
-                case 10:
-                    this.P1.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.P1.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.P1.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.P2.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.P2.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.P2.Z = pair.DoubleValue;
-                    break;
-                case 210:
-                    this.ExtrusionDirection.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.ExtrusionDirection.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.ExtrusionDirection.Z = pair.DoubleValue;
                     break;
                 default:
                     return false;
@@ -946,7 +855,7 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbPoint"));
@@ -977,26 +886,11 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.Location.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.Location.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.Location.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties Location, ExtrusionDirection
                     break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
-                    break;
-                case 210:
-                    this.ExtrusionDirection.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.ExtrusionDirection.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.ExtrusionDirection.Z = pair.DoubleValue;
                     break;
                 case 50:
                     this.Angle = (pair.DoubleValue);
@@ -1143,7 +1037,7 @@ namespace BCad.Dxf.Entities
             this.Normal = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDb2dPolyline"));
@@ -1209,26 +1103,20 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.Location.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.Location.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.Location.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties Location, Normal
                     break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
-                    break;
-                case 70:
-                    this.Flags = (int)(pair.ShortValue);
                     break;
                 case 40:
                     this.DefaultStartingWidth = (pair.DoubleValue);
                     break;
                 case 41:
                     this.DefaultEndingWidth = (pair.DoubleValue);
+                    break;
+                case 70:
+                    this.Flags = (int)(pair.ShortValue);
                     break;
                 case 71:
                     this.PolygonMeshMVertexCount = (int)(pair.ShortValue);
@@ -1244,15 +1132,6 @@ namespace BCad.Dxf.Entities
                     break;
                 case 75:
                     this.SurfaceType = (DxfPolylineCurvedAndSmoothSurfaceType)(pair.ShortValue);
-                    break;
-                case 210:
-                    this.Normal.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.Normal.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.Normal.Z = pair.DoubleValue;
                     break;
                 default:
                     return false;
@@ -1290,7 +1169,7 @@ namespace BCad.Dxf.Entities
             this.UnitDirectionVector = unitDirectionVector;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbRay"));
@@ -1307,23 +1186,8 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.StartPoint.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.StartPoint.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.StartPoint.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.UnitDirectionVector.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.UnitDirectionVector.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.UnitDirectionVector.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties StartPoint, UnitDirectionVector
                     break;
                 default:
                     return false;
@@ -1342,25 +1206,25 @@ namespace BCad.Dxf.Entities
 
         public short FormatVersionNumber { get; set; }
 
-        public string CustomData { get; set; }
+        public List<string> CustomData { get; set; }
 
-        public string CustomData2 { get; set; }
+        public List<string> CustomData2 { get; set; }
 
         public DxfRegion()
             : base()
         {
             this.FormatVersionNumber = 1;
-            this.CustomData = null;
-            this.CustomData2 = null;
+            this.CustomData = new List<string>();
+            this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (FormatVersionNumber)));
-            pairs.Add(new DxfCodePair(1, (CustomData)));
-            pairs.Add(new DxfCodePair(3, (CustomData2)));
+            pairs.AddRange(CustomData.Select(value => new DxfCodePair(1, value)));
+            pairs.AddRange(CustomData2.Select(value => new DxfCodePair(3, value)));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1368,14 +1232,14 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 70:
-                    this.FormatVersionNumber = (pair.ShortValue);
-                    break;
                 case 1:
-                    this.CustomData = (pair.StringValue);
+                    this.CustomData.Add((pair.StringValue));
                     break;
                 case 3:
-                    this.CustomData2 = (pair.StringValue);
+                    this.CustomData2.Add((pair.StringValue));
+                    break;
+                case 70:
+                    this.FormatVersionNumber = (pair.ShortValue);
                     break;
                 default:
                     return false;
@@ -1397,11 +1261,10 @@ namespace BCad.Dxf.Entities
         {
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
         }
-
     }
 
     /// <summary>
@@ -1434,7 +1297,7 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbShape"));
@@ -1469,53 +1332,11 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.FirstCorner.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.FirstCorner.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.FirstCorner.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.SecondCorner.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.SecondCorner.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.SecondCorner.Z = pair.DoubleValue;
-                    break;
-                case 12:
-                    this.ThirdCorner.X = pair.DoubleValue;
-                    break;
-                case 22:
-                    this.ThirdCorner.Y = pair.DoubleValue;
-                    break;
-                case 32:
-                    this.ThirdCorner.Z = pair.DoubleValue;
-                    break;
-                case 13:
-                    this.FourthCorner.X = pair.DoubleValue;
-                    break;
-                case 23:
-                    this.FourthCorner.Y = pair.DoubleValue;
-                    break;
-                case 33:
-                    this.FourthCorner.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties FirstCorner, SecondCorner, ThirdCorner, FourthCorner, ExtrusionDirection
                     break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
-                    break;
-                case 210:
-                    this.ExtrusionDirection.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.ExtrusionDirection.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.ExtrusionDirection.Z = pair.DoubleValue;
                     break;
                 default:
                     return false;
@@ -1610,7 +1431,7 @@ namespace BCad.Dxf.Entities
             this.Value = value;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbText"));
@@ -1676,59 +1497,35 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 39:
-                    this.Thickness = (pair.DoubleValue);
-                    break;
-                case 10:
-                    this.Location.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.Location.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.Location.Z = pair.DoubleValue;
-                    break;
-                case 40:
-                    this.TextHeight = (pair.DoubleValue);
+                case -3:
+                    // TODO: code is shared by properties Location, SecondAlignmentPoint, Normal
                     break;
                 case 1:
                     this.Value = (pair.StringValue);
                     break;
-                case 50:
-                    this.Rotation = (pair.DoubleValue);
+                case 7:
+                    this.TextStyleName = (pair.StringValue);
+                    break;
+                case 39:
+                    this.Thickness = (pair.DoubleValue);
+                    break;
+                case 40:
+                    this.TextHeight = (pair.DoubleValue);
                     break;
                 case 41:
                     this.RelativeXScaleFactor = (pair.DoubleValue);
                     break;
+                case 50:
+                    this.Rotation = (pair.DoubleValue);
+                    break;
                 case 51:
                     this.ObliqueAngle = (pair.DoubleValue);
-                    break;
-                case 7:
-                    this.TextStyleName = (pair.StringValue);
                     break;
                 case 71:
                     this.TextGenerationFlags = (int)(pair.ShortValue);
                     break;
                 case 72:
                     this.HorizontalTextJustification = (DxfHorizontalTextJustification)(pair.ShortValue);
-                    break;
-                case 11:
-                    this.SecondAlignmentPoint.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.SecondAlignmentPoint.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.SecondAlignmentPoint.Z = pair.DoubleValue;
-                    break;
-                case 210:
-                    this.Normal.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.Normal.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.Normal.Z = pair.DoubleValue;
                     break;
                 case 73:
                     this.VerticalTextJustification = (DxfVerticalTextJustification)(pair.ShortValue);
@@ -1765,7 +1562,7 @@ namespace BCad.Dxf.Entities
             this.DirectionVector = DxfVector.XAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbFcf"));
@@ -1790,35 +1587,11 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
+                case -3:
+                    // TODO: code is shared by properties InsertionPoint, ExtrusionDirection, DirectionVector
+                    break;
                 case 3:
                     this.DimensionStyleName = (pair.StringValue);
-                    break;
-                case 10:
-                    this.InsertionPoint.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.InsertionPoint.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.InsertionPoint.Z = pair.DoubleValue;
-                    break;
-                case 210:
-                    this.ExtrusionDirection.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.ExtrusionDirection.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.ExtrusionDirection.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.DirectionVector.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.DirectionVector.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.DirectionVector.Z = pair.DoubleValue;
                     break;
                 default:
                     return false;
@@ -1858,7 +1631,7 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbTrace"));
@@ -1893,53 +1666,11 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.FirstCorner.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.FirstCorner.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.FirstCorner.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.SecondCorner.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.SecondCorner.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.SecondCorner.Z = pair.DoubleValue;
-                    break;
-                case 12:
-                    this.ThirdCorner.X = pair.DoubleValue;
-                    break;
-                case 22:
-                    this.ThirdCorner.Y = pair.DoubleValue;
-                    break;
-                case 32:
-                    this.ThirdCorner.Z = pair.DoubleValue;
-                    break;
-                case 13:
-                    this.FourthCorner.X = pair.DoubleValue;
-                    break;
-                case 23:
-                    this.FourthCorner.Y = pair.DoubleValue;
-                    break;
-                case 33:
-                    this.FourthCorner.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties FirstCorner, SecondCorner, ThirdCorner, FourthCorner, ExtrusionDirection
                     break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
-                    break;
-                case 210:
-                    this.ExtrusionDirection.X = pair.DoubleValue;
-                    break;
-                case 220:
-                    this.ExtrusionDirection.Y = pair.DoubleValue;
-                    break;
-                case 230:
-                    this.ExtrusionDirection.Z = pair.DoubleValue;
                     break;
                 default:
                     return false;
@@ -2078,7 +1809,7 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbVertex"));
@@ -2147,11 +1878,11 @@ namespace BCad.Dxf.Entities
                 case 42:
                     this.Bulge = (pair.DoubleValue);
                     break;
-                case 70:
-                    this.Flags = (int)(pair.ShortValue);
-                    break;
                 case 50:
                     this.CurveFitTangentDirection = (pair.DoubleValue);
+                    break;
+                case 70:
+                    this.Flags = (int)(pair.ShortValue);
                     break;
                 case 71:
                     this.PolyfaceMeshVertexIndex1 = (int)(pair.ShortValue);
@@ -2201,7 +1932,7 @@ namespace BCad.Dxf.Entities
             this.UnitDirectionVector = unitDirectionVector;
         }
 
-        protected override void AddValuePairs(IList<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
             pairs.Add(new DxfCodePair(100, "AcDbXline"));
@@ -2218,23 +1949,8 @@ namespace BCad.Dxf.Entities
             if (base.TrySetPair(pair)) return true;
             switch (pair.Code)
             {
-                case 10:
-                    this.FirstPoint.X = pair.DoubleValue;
-                    break;
-                case 20:
-                    this.FirstPoint.Y = pair.DoubleValue;
-                    break;
-                case 30:
-                    this.FirstPoint.Z = pair.DoubleValue;
-                    break;
-                case 11:
-                    this.UnitDirectionVector.X = pair.DoubleValue;
-                    break;
-                case 21:
-                    this.UnitDirectionVector.Y = pair.DoubleValue;
-                    break;
-                case 31:
-                    this.UnitDirectionVector.Z = pair.DoubleValue;
+                case -3:
+                    // TODO: code is shared by properties FirstPoint, UnitDirectionVector
                     break;
                 default:
                     return false;

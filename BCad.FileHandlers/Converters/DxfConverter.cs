@@ -245,9 +245,18 @@ namespace BCad.FileHandlers.Converters
                 case DxfEntityType.Text:
                     entity = ((DxfText)item).ToText();
                     break;
-                case DxfEntityType.Attribute:
+                case DxfEntityType.Face:
+                case DxfEntityType.ModelerGeometry:
+                case DxfEntityType.Point:
+                case DxfEntityType.ProxyEntity:
+                case DxfEntityType.Ray:
+                case DxfEntityType.Region:
                 case DxfEntityType.Seqend:
+                case DxfEntityType.Solid:
+                case DxfEntityType.Tolerance:
+                case DxfEntityType.Trace:
                 case DxfEntityType.Vertex:
+                case DxfEntityType.XLine:
                     //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
                     break;
             }
