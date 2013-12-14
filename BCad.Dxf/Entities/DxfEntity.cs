@@ -33,6 +33,12 @@ namespace BCad.Dxf.Entities
         Bezier = 8
     }
 
+    public enum DxfImageClippingBoundaryType
+    {
+        Rectangular = 1,
+        Polygonal = 2
+    }
+
     public abstract partial class DxfEntity
     {
         public abstract DxfEntityType EntityType { get; }
@@ -49,12 +55,12 @@ namespace BCad.Dxf.Entities
             return pairs;
         }
 
-        private static bool BoolShort(short s)
+        protected static bool BoolShort(short s)
         {
             return s != 0;
         }
 
-        private static short BoolShort(bool b)
+        protected static short BoolShort(bool b)
         {
             return (short)(b ? 1 : 0);
         }
@@ -100,6 +106,33 @@ namespace BCad.Dxf.Entities
             foreach (var vertex in Vertices)
             {
                 pairs.AddRange(vertex.GetValuePairs());
+            }
+
+            if (Seqend != null)
+            {
+                pairs.AddRange(Seqend.GetValuePairs());
+            }
+        }
+    }
+
+    public partial class DxfInsert
+    {
+        private List<DxfAttribute> attributes = new List<DxfAttribute>();
+        private DxfSeqend seqend = new DxfSeqend();
+
+        public List<DxfAttribute> Attributes { get { return attributes; } }
+
+        public DxfSeqend Seqend
+        {
+            get { return seqend; }
+            set { seqend = value; }
+        }
+
+        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        {
+            foreach (var attribute in Attributes)
+            {
+                pairs.AddRange(attribute.GetValuePairs());
             }
 
             if (Seqend != null)

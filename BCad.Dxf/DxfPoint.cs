@@ -69,6 +69,11 @@ namespace BCad.Dxf
         {
         }
 
+        public static DxfVector Zero
+        {
+            get { return new DxfVector(0, 0, 0); }
+        }
+
         public static DxfVector XAxis
         {
             get { return new DxfVector(1, 0, 0); }

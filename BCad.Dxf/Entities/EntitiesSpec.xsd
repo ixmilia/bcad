@@ -66,12 +66,31 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="WriteItem">
+    <xs:complexType>
+      <xs:attribute name="Property" type="xs:string" use="optional" />
+      <xs:attribute name="Code" type="xs:int" use="optional" />
+      <xs:attribute name="Value" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="WriteOrder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="WriteItem" />
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="Entity">
     <xs:complexType>
       <xs:sequence>
         <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:element ref="Constructor" />
           <xs:element ref="Property" />
+          <xs:element ref="WriteOrder" />
         </xs:choice>
       </xs:sequence>
       <xs:attribute name="Name" type="xs:string" use="required" />

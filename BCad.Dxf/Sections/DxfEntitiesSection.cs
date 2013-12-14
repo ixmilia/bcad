@@ -21,14 +21,12 @@ namespace BCad.Dxf.Sections
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
-           return this.Entities.SelectMany(e => e.GetValuePairs());
+            return this.Entities.SelectMany(e => e.GetValuePairs());
         }
 
         internal static DxfEntitiesSection EntitiesSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
-            var section = new DxfEntitiesSection();
-            bool isReadingPolyline = false;
-            DxfPolyline currentPolyline = null;
+            var entities = new List<DxfEntity>();
             while (buffer.ItemsRemain)
             {
                 var pair = buffer.Peek();
@@ -47,38 +45,80 @@ namespace BCad.Dxf.Sections
                 var entity = DxfEntity.FromBuffer(buffer);
                 if (entity != null)
                 {
-                    if (isReadingPolyline)
-                    {
-                        switch (entity.EntityType)
-                        {
-                            case DxfEntityType.Vertex:
-                                currentPolyline.Vertices.Add((DxfVertex)entity);
-                                break;
-                            case DxfEntityType.Seqend:
-                                currentPolyline.Seqend = (DxfSeqend)entity;
-                                isReadingPolyline = false;
-                                break;
-                            default:
-                                Debug.Assert(false, "Unexpected entity found while reading polyline");
-                                isReadingPolyline = false;
-                                section.Entities.Add(entity);
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        if (entity.EntityType == DxfEntityType.Polyline)
-                        {
-                            isReadingPolyline = true;
-                            currentPolyline = (DxfPolyline)entity;
-                        }
-
-                        section.Entities.Add(entity);
-                    }
+                    entities.Add(entity);
                 }
             }
 
+            var section = new DxfEntitiesSection();
+            section.Entities.AddRange(entities);
             return section;
+        }
+
+        private static List<DxfEntity> GatherEntities(IEnumerable<DxfEntity> entities)
+        {
+            var buffer = new DxfBufferReader<DxfEntity>(entities, (e) => e == null);
+            var result = new List<DxfEntity>();
+            while (buffer.ItemsRemain)
+            {
+                var entity = buffer.Peek();
+                buffer.Advance();
+                switch (entity.EntityType)
+                {
+                    case DxfEntityType.Insert:
+                        var insert = (DxfInsert)entity;
+                        if (insert.HasAttributes)
+                        {
+                            var attribs = CollectWhileType(buffer, DxfEntityType.Attribute).Cast<DxfAttribute>();
+                            insert.Attributes.AddRange(attribs);
+                            insert.Seqend = GetSeqend(buffer);
+                        }
+
+                        break;
+                    case DxfEntityType.Polyline:
+                        var poly = (DxfPolyline)entity;
+                        var verts = CollectWhileType(buffer, DxfEntityType.Vertex).Cast<DxfVertex>();
+                        poly.Vertices.AddRange(verts);
+                        poly.Seqend = GetSeqend(buffer);
+                        break;
+                    default:
+                        break;
+                }
+
+                result.Add(entity);
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<DxfEntity> CollectWhileType(DxfBufferReader<DxfEntity> buffer, DxfEntityType type)
+        {
+            var result = new List<DxfEntity>();
+            while (buffer.ItemsRemain)
+            {
+                var entity = buffer.Peek();
+                if (entity.EntityType == type)
+                {
+                    buffer.Advance();
+                    result.Add(entity);
+                }
+            }
+
+            return result;
+        }
+
+        private static DxfSeqend GetSeqend(DxfBufferReader<DxfEntity> buffer)
+        {
+            if (buffer.ItemsRemain)
+            {
+                var entity = buffer.Peek();
+                if (entity.EntityType == DxfEntityType.Seqend)
+                {
+                    buffer.Advance();
+                    return (DxfSeqend)entity;
+                }
+            }
+
+            return null;
         }
     }
 }

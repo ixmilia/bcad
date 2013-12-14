@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BCad.Dxf
 {
-    internal class DxfCodePairBufferReader
+    internal class DxfBufferReader<T>
     {
-        private DxfCodePair[] items;
+        private T[] items;
         private int position;
+        private Func<T, bool> isIgnorable;
 
         public int Position { get { return position; } }
 
-        public DxfCodePairBufferReader(IEnumerable<DxfCodePair> pairs)
+        public DxfBufferReader(IEnumerable<T> pairs, Func<T, bool> isIgnorable)
         {
             this.items = pairs.ToArray();
             this.position = 0;
+            this.isIgnorable = isIgnorable;
         }
 
         public bool ItemsRemain
@@ -26,11 +27,11 @@ namespace BCad.Dxf
             }
         }
 
-        public DxfCodePair Peek()
+        public T Peek()
         {
             if (!this.ItemsRemain)
             {
-                throw new DxfReadException("No more code pairs.");
+                throw new DxfReadException("No more items.");
             }
 
             return this.items[this.position];
@@ -39,10 +40,18 @@ namespace BCad.Dxf
         public void Advance()
         {
             this.position++;
-            while (ItemsRemain && Peek().Code == 999)
+            while (ItemsRemain && isIgnorable(Peek()))
             {
-                this.position++; // swallow all comments
+                this.position++;
             }
+        }
+    }
+
+    internal class DxfCodePairBufferReader : DxfBufferReader<DxfCodePair>
+    {
+        public DxfCodePairBufferReader(IEnumerable<DxfCodePair> pairs)
+            : base(pairs, (pair) => pair.Code == 999)
+        {
         }
     }
 }
