@@ -77,10 +77,64 @@
   </Entity>
   <!--
   
+  ATTDEF
+  
+  -->
+  <Entity Name="DxfAttributeDefinition" EntityType="AttributeDefinition" SubclassMarker="null" TypeString="ATTDEF">
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="TextHeight" Code="40" Type="double" DefaultValue="1.0" />
+    <Property Name="Value" Code="1" Type="string" DefaultValue="null" />
+    <Property Name="Rotation" Code="50" Type="double" DefaultValue="0" DisableWritingDefault="true" />
+    <Property Name="RelativeXScaleFactor" Code="41" Type="double" DefaultValue="1.0" DisableWritingDefault="true" />
+    <Property Name="ObliqueAngle" Code="51" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="TextStyleName" Code="7" Type="string" DefaultValue="STANDARD" DisableWritingDefault="true" />
+    <Property Name="TextGenerationFlags" Code="71" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true">
+      <Flag Name="IsTextBackward" Mask="2" />
+      <Flag Name="IsTextUpsideDown" Mask="4" />
+    </Property>
+    <Property Name="HorizontalTextJustification" Code="72" Type="DxfHorizontalTextJustification" DefaultValue="DxfHorizontalTextJustification.Left" ReadConverter="(DxfHorizontalTextJustification)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <Property Name="SecondAlignmentPoint" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="Prompt" Code="3" Type="string" DefaultValue="null" />
+    <Property Name="Tag" Code="2" Type="string" DefaultValue="null" />
+    <Property Name="Flags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)">
+      <Flag Name="IsInvisible" Mask="1" />
+      <Flag Name="IsConstant" Mask="2" />
+      <Flag Name="IsInputVerificationRequired" Mask="4" />
+      <Flag Name="IsAttributePresent" Mask="8" />
+    </Property>
+    <Property Name="FieldLength" Code="73" Type="short" DefaultValue="0" DisableWritingDefault="true" />
+    <Property Name="VerticalTextJustification" Code="74" Type="DxfVerticalTextJustification" DefaultValue="DxfVerticalTextJustification.Baseline" ReadConverter="(DxfVerticalTextJustification)" WriteConverter="(short)" DisableWritingDefault="true" />
+    <WriteOrder>
+      <WriteItem Code="100" Value="AcDbText" />
+      <WriteItem Property="Thickness" />
+      <WriteItem Property="Location" />
+      <WriteItem Property="TextHeight" />
+      <WriteItem Property="Value" />
+      <WriteItem Code="100" Value="AcDbAttributeDefinition" />
+      <WriteItem Property="Rotation" />
+      <WriteItem Property="RelativeXScaleFactor" />
+      <WriteItem Property="ObliqueAngle" />
+      <WriteItem Property="TextStyleName" />
+      <WriteItem Property="TextGenerationFlags" />
+      <WriteItem Property="HorizontalTextJustification" />
+      <WriteItem Property="SecondAlignmentPoint" />
+      <WriteItem Property="Normal" />
+      <WriteItem Code="100" Value="AcDbAttributeDefinition" />
+      <WriteItem Property="Prompt" />
+      <WriteItem Property="Tag" />
+      <WriteItem Property="Flags" />
+      <WriteItem Property="FieldLength" />
+      <WriteItem Property="VerticalTextJustification" />
+    </WriteOrder>
+  </Entity>
+  <!--
+  
   ATTRIB
   
   -->
-  <Entity Name="DxfAttribute" EntityType="Attribute" SubclassMarker="AcDbText" TypeString="ATTRIB">
+  <Entity Name="DxfAttribute" EntityType="Attribute" SubclassMarker="null" TypeString="ATTRIB">
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="TextHeight" Code="40" Type="double" DefaultValue="1.0" />
@@ -153,6 +207,12 @@
   </Entity>
   <!--
   
+  DIMENSION
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
   ELLIPSE
   
   -->
@@ -169,6 +229,12 @@
       <ConstructorParameter Property="MinorAxisRatio" Type="double" />
     </Constructor>
   </Entity>
+  <!--
+  
+  HATCH
+  
+  -->
+  <!-- TODO -->
   <!--
   
   IMAGE
@@ -219,6 +285,12 @@
   </Entity>
   <!--
   
+  LEADER
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
   LINE
   
   -->
@@ -232,6 +304,36 @@
       <ConstructorParameter Property="P2" Type="DxfPoint" />
     </Constructor>
   </Entity>
+  <!--
+  
+  LWPOLYLINE
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
+  MLINE
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
+  MTEXT
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
+  OLEFRAME
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
+  OLE2FRAME
+  
+  -->
+  <!-- TODO -->
   <!--
   
   POINT
@@ -304,6 +406,12 @@
   <Entity Name="DxfSeqend" EntityType="Seqend" SubclassMarker="null" TypeString="SEQEND"></Entity>
   <!--
   
+  SHAPE
+  
+  -->
+  <!-- TODO -->
+  <!--
+  
   SOLID
   
   -->
@@ -315,6 +423,12 @@
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
   </Entity>
+  <!--
+  
+  SPLINE
+  
+  -->
+  <!-- TODO -->
   <!--
   
   TEXT
@@ -395,6 +509,12 @@
       <ConstructorParameter Property="Location" Type="DxfPoint" />
     </Constructor>
   </Entity>
+  <!--
+  
+  VIEWPORT
+  
+  -->
+  <!-- TODO -->
   <!--
   
   XLINE

@@ -50,7 +50,8 @@ namespace BCad.Dxf.Sections
             }
 
             var section = new DxfEntitiesSection();
-            section.Entities.AddRange(entities);
+            var collected = GatherEntities(entities);
+            section.Entities.AddRange(collected);
             return section;
         }
 
@@ -96,11 +97,10 @@ namespace BCad.Dxf.Sections
             while (buffer.ItemsRemain)
             {
                 var entity = buffer.Peek();
-                if (entity.EntityType == type)
-                {
-                    buffer.Advance();
-                    result.Add(entity);
-                }
+                if (entity.EntityType != type)
+                    break;
+                buffer.Advance();
+                result.Add(entity);
             }
 
             return result;

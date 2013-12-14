@@ -11,6 +11,7 @@ namespace BCad.Dxf.Entities
     {
         Arc,
         Attribute,
+        AttributeDefinition,
         Body,
         Circle,
         Ellipse,
@@ -60,6 +61,8 @@ namespace BCad.Dxf.Entities
                         return "ACAD_PROXY_ENTITY";
                     case DxfEntityType.Arc:
                         return "ARC";
+                    case DxfEntityType.AttributeDefinition:
+                        return "ATTDEF";
                     case DxfEntityType.Attribute:
                         return "ATTRIB";
                     case DxfEntityType.Body:
@@ -195,6 +198,9 @@ namespace BCad.Dxf.Entities
                     break;
                 case "ARC":
                     entity = new DxfArc();
+                    break;
+                case "ATTDEF":
+                    entity = new DxfAttributeDefinition();
                     break;
                 case "ATTRIB":
                     entity = new DxfAttribute();
@@ -633,6 +639,289 @@ namespace BCad.Dxf.Entities
     }
 
     /// <summary>
+    /// DxfAttributeDefinition class
+    /// </summary>
+    public partial class DxfAttributeDefinition : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.AttributeDefinition; } }
+
+        public double Thickness { get; set; }
+
+        public DxfPoint Location { get; set; }
+
+        public double TextHeight { get; set; }
+
+        public string Value { get; set; }
+
+        public double Rotation { get; set; }
+
+        public double RelativeXScaleFactor { get; set; }
+
+        public double ObliqueAngle { get; set; }
+
+        public string TextStyleName { get; set; }
+
+        public int TextGenerationFlags { get; set; }
+
+        public DxfHorizontalTextJustification HorizontalTextJustification { get; set; }
+
+        public DxfPoint SecondAlignmentPoint { get; set; }
+
+        public DxfVector Normal { get; set; }
+
+        public string Prompt { get; set; }
+
+        public string Tag { get; set; }
+
+        public int Flags { get; set; }
+
+        public short FieldLength { get; set; }
+
+        public DxfVerticalTextJustification VerticalTextJustification { get; set; }
+
+        // TextGenerationFlags flags
+        public bool IsTextBackward
+        {
+            get { return DxfHelpers.GetFlag(TextGenerationFlags, 2); }
+            set
+            {
+                var flags = TextGenerationFlags;
+                DxfHelpers.SetFlag(value, ref flags, 2);
+                TextGenerationFlags = flags;
+            }
+        }
+
+        public bool IsTextUpsideDown
+        {
+            get { return DxfHelpers.GetFlag(TextGenerationFlags, 4); }
+            set
+            {
+                var flags = TextGenerationFlags;
+                DxfHelpers.SetFlag(value, ref flags, 4);
+                TextGenerationFlags = flags;
+            }
+        }
+
+        // Flags flags
+        public bool IsInvisible
+        {
+            get { return DxfHelpers.GetFlag(Flags, 1); }
+            set
+            {
+                var flags = Flags;
+                DxfHelpers.SetFlag(value, ref flags, 1);
+                Flags = flags;
+            }
+        }
+
+        public bool IsConstant
+        {
+            get { return DxfHelpers.GetFlag(Flags, 2); }
+            set
+            {
+                var flags = Flags;
+                DxfHelpers.SetFlag(value, ref flags, 2);
+                Flags = flags;
+            }
+        }
+
+        public bool IsInputVerificationRequired
+        {
+            get { return DxfHelpers.GetFlag(Flags, 4); }
+            set
+            {
+                var flags = Flags;
+                DxfHelpers.SetFlag(value, ref flags, 4);
+                Flags = flags;
+            }
+        }
+
+        public bool IsAttributePresent
+        {
+            get { return DxfHelpers.GetFlag(Flags, 8); }
+            set
+            {
+                var flags = Flags;
+                DxfHelpers.SetFlag(value, ref flags, 8);
+                Flags = flags;
+            }
+        }
+
+        public DxfAttributeDefinition()
+            : base()
+        {
+            this.Thickness = 0.0;
+            this.Location = DxfPoint.Origin;
+            this.TextHeight = 1.0;
+            this.Value = null;
+            this.Rotation = 0;
+            this.RelativeXScaleFactor = 1.0;
+            this.ObliqueAngle = 0.0;
+            this.TextStyleName = "STANDARD";
+            this.TextGenerationFlags = 0;
+            this.HorizontalTextJustification = DxfHorizontalTextJustification.Left;
+            this.SecondAlignmentPoint = DxfPoint.Origin;
+            this.Normal = DxfVector.ZAxis;
+            this.Prompt = null;
+            this.Tag = null;
+            this.Flags = 0;
+            this.FieldLength = 0;
+            this.VerticalTextJustification = DxfVerticalTextJustification.Baseline;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        {
+            base.AddValuePairs(pairs);
+            pairs.Add(new DxfCodePair(100, "AcDbText"));
+            if (this.Thickness != 0.0)
+            {
+                pairs.Add(new DxfCodePair(39, (this.Thickness)));
+            }
+
+            pairs.Add(new DxfCodePair(10, Location.X));
+            pairs.Add(new DxfCodePair(20, Location.Y));
+            pairs.Add(new DxfCodePair(30, Location.Z));
+            pairs.Add(new DxfCodePair(40, (this.TextHeight)));
+            pairs.Add(new DxfCodePair(1, (this.Value)));
+            pairs.Add(new DxfCodePair(100, "AcDbAttributeDefinition"));
+            if (this.Rotation != 0)
+            {
+                pairs.Add(new DxfCodePair(50, (this.Rotation)));
+            }
+
+            if (this.RelativeXScaleFactor != 1.0)
+            {
+                pairs.Add(new DxfCodePair(41, (this.RelativeXScaleFactor)));
+            }
+
+            if (this.ObliqueAngle != 0.0)
+            {
+                pairs.Add(new DxfCodePair(51, (this.ObliqueAngle)));
+            }
+
+            if (this.TextStyleName != "STANDARD")
+            {
+                pairs.Add(new DxfCodePair(7, (this.TextStyleName)));
+            }
+
+            if (this.TextGenerationFlags != 0)
+            {
+                pairs.Add(new DxfCodePair(71, (short)(this.TextGenerationFlags)));
+            }
+
+            if (this.HorizontalTextJustification != DxfHorizontalTextJustification.Left)
+            {
+                pairs.Add(new DxfCodePair(72, (short)(this.HorizontalTextJustification)));
+            }
+
+            pairs.Add(new DxfCodePair(11, SecondAlignmentPoint.X));
+            pairs.Add(new DxfCodePair(21, SecondAlignmentPoint.Y));
+            pairs.Add(new DxfCodePair(31, SecondAlignmentPoint.Z));
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
+            pairs.Add(new DxfCodePair(100, "AcDbAttributeDefinition"));
+            pairs.Add(new DxfCodePair(3, (this.Prompt)));
+            pairs.Add(new DxfCodePair(2, (this.Tag)));
+            pairs.Add(new DxfCodePair(70, (short)(this.Flags)));
+            if (this.FieldLength != 0)
+            {
+                pairs.Add(new DxfCodePair(73, (this.FieldLength)));
+            }
+
+            if (this.VerticalTextJustification != DxfVerticalTextJustification.Baseline)
+            {
+                pairs.Add(new DxfCodePair(74, (short)(this.VerticalTextJustification)));
+            }
+
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 1:
+                    this.Value = (pair.StringValue);
+                    break;
+                case 2:
+                    this.Tag = (pair.StringValue);
+                    break;
+                case 3:
+                    this.Prompt = (pair.StringValue);
+                    break;
+                case 7:
+                    this.TextStyleName = (pair.StringValue);
+                    break;
+                case 10:
+                    this.Location.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    this.Location.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    this.Location.Z = pair.DoubleValue;
+                    break;
+                case 11:
+                    this.SecondAlignmentPoint.X = pair.DoubleValue;
+                    break;
+                case 21:
+                    this.SecondAlignmentPoint.Y = pair.DoubleValue;
+                    break;
+                case 31:
+                    this.SecondAlignmentPoint.Z = pair.DoubleValue;
+                    break;
+                case 39:
+                    this.Thickness = (pair.DoubleValue);
+                    break;
+                case 40:
+                    this.TextHeight = (pair.DoubleValue);
+                    break;
+                case 41:
+                    this.RelativeXScaleFactor = (pair.DoubleValue);
+                    break;
+                case 50:
+                    this.Rotation = (pair.DoubleValue);
+                    break;
+                case 51:
+                    this.ObliqueAngle = (pair.DoubleValue);
+                    break;
+                case 70:
+                    this.Flags = (int)(pair.ShortValue);
+                    break;
+                case 71:
+                    this.TextGenerationFlags = (int)(pair.ShortValue);
+                    break;
+                case 72:
+                    this.HorizontalTextJustification = (DxfHorizontalTextJustification)(pair.ShortValue);
+                    break;
+                case 73:
+                    this.FieldLength = (pair.ShortValue);
+                    break;
+                case 74:
+                    this.VerticalTextJustification = (DxfVerticalTextJustification)(pair.ShortValue);
+                    break;
+                case 210:
+                    this.Normal.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.Normal.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.Normal.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
     /// DxfAttribute class
     /// </summary>
     public partial class DxfAttribute : DxfEntity
@@ -820,9 +1109,13 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(11, SecondAlignmentPoint.X));
             pairs.Add(new DxfCodePair(21, SecondAlignmentPoint.Y));
             pairs.Add(new DxfCodePair(31, SecondAlignmentPoint.Z));
-            pairs.Add(new DxfCodePair(210, Normal.X));
-            pairs.Add(new DxfCodePair(220, Normal.Y));
-            pairs.Add(new DxfCodePair(230, Normal.Z));
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1001,9 +1294,13 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(20, Center.Y));
             pairs.Add(new DxfCodePair(30, Center.Z));
             pairs.Add(new DxfCodePair(40, (this.Radius)));
-            pairs.Add(new DxfCodePair(210, Normal.X));
-            pairs.Add(new DxfCodePair(220, Normal.Y));
-            pairs.Add(new DxfCodePair(230, Normal.Z));
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1093,9 +1390,13 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(11, MajorAxis.X));
             pairs.Add(new DxfCodePair(21, MajorAxis.Y));
             pairs.Add(new DxfCodePair(31, MajorAxis.Z));
-            pairs.Add(new DxfCodePair(210, Normal.X));
-            pairs.Add(new DxfCodePair(220, Normal.Y));
-            pairs.Add(new DxfCodePair(230, Normal.Z));
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
             pairs.Add(new DxfCodePair(40, (this.MinorAxisRatio)));
             pairs.Add(new DxfCodePair(41, (this.StartParameter)));
             pairs.Add(new DxfCodePair(42, (this.EndParameter)));
@@ -1565,9 +1866,13 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(11, P2.X));
             pairs.Add(new DxfCodePair(21, P2.Y));
             pairs.Add(new DxfCodePair(31, P2.Z));
-            pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
-            pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
-            pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1657,9 +1962,13 @@ namespace BCad.Dxf.Entities
                 pairs.Add(new DxfCodePair(39, (this.Thickness)));
             }
 
-            pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
-            pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
-            pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
             if (this.Angle != 0.0)
             {
                 pairs.Add(new DxfCodePair(50, (this.Angle)));
@@ -1889,9 +2198,13 @@ namespace BCad.Dxf.Entities
                 pairs.Add(new DxfCodePair(75, (short)(this.SurfaceType)));
             }
 
-            pairs.Add(new DxfCodePair(210, Normal.X));
-            pairs.Add(new DxfCodePair(220, Normal.Y));
-            pairs.Add(new DxfCodePair(230, Normal.Z));
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -2141,9 +2454,13 @@ namespace BCad.Dxf.Entities
                 pairs.Add(new DxfCodePair(39, (this.Thickness)));
             }
 
-            pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
-            pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
-            pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -2338,9 +2655,13 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(11, SecondAlignmentPoint.X));
             pairs.Add(new DxfCodePair(21, SecondAlignmentPoint.Y));
             pairs.Add(new DxfCodePair(31, SecondAlignmentPoint.Z));
-            pairs.Add(new DxfCodePair(210, Normal.X));
-            pairs.Add(new DxfCodePair(220, Normal.Y));
-            pairs.Add(new DxfCodePair(230, Normal.Z));
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
             if (this.VerticalTextJustification != DxfVerticalTextJustification.Baseline)
             {
                 pairs.Add(new DxfCodePair(73, (short)(this.VerticalTextJustification)));
@@ -2449,9 +2770,13 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(10, InsertionPoint.X));
             pairs.Add(new DxfCodePair(20, InsertionPoint.Y));
             pairs.Add(new DxfCodePair(30, InsertionPoint.Z));
-            pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
-            pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
-            pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
             pairs.Add(new DxfCodePair(11, DirectionVector.X));
             pairs.Add(new DxfCodePair(21, DirectionVector.Y));
             pairs.Add(new DxfCodePair(31, DirectionVector.Z));
@@ -2550,9 +2875,13 @@ namespace BCad.Dxf.Entities
                 pairs.Add(new DxfCodePair(39, (this.Thickness)));
             }
 
-            pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
-            pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
-            pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
