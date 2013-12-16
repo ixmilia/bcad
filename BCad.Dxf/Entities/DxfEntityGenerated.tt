@@ -526,29 +526,50 @@ List<string> GetWriteCommands(XElement entity)
 		// specific order
 		foreach (var spec in att.Elements())
 		{
-			var codeAtt = spec.Attribute("Code");
-			if (codeAtt == null)
-			{
-				// write a specific property
-				var property = GetProperties(entity).Single(p => Name(p) == spec.Attribute("Property").Value);
-				lines.AddRange(GetPropertyWriteLines(property));
-			}
-			else
-			{
-				// write a specific code pair
-				var code = int.Parse(codeAtt.Value);
-				var codeType = DxfCodePair.ExpectedType(code);
-				var value = spec.Attribute("Value").Value;
-				var useQuotes = codeType == typeof(string) && value != "null";
-				var writeValue = useQuotes
-					? string.Format("\"{0}\"", value)
-					: value;
-				lines.Add(string.Format("pairs.Add(new DxfCodePair({0}, {1}));", code, writeValue));
-			}
+			lines.AddRange(WriteValue(spec, entity));
 		}
 	}
 
 	return lines;
+}
+
+IEnumerable<string> WriteValue(XElement spec, XElement entity)
+{
+	switch (spec.Name.LocalName)
+	{
+		case "WriteSpecificValue":
+			return new[] { WriteSpecificValue(spec) };
+		case "WriteProperty":
+			return WriteProperty(spec, entity);
+		case "Foreach":
+			var lines = new List<string>();
+			lines.Add(string.Format("foreach (var item in {0})", spec.Attribute("Property").Value));
+			lines.Add("{");
+			lines.AddRange(spec.Elements().SelectMany(e => WriteValue(e, entity)).Select(l => "    " + l));
+			lines.Add("}");
+			lines.Add("\n");
+			return lines;
+		default:
+			throw new NotSupportedException();
+	}
+}
+
+string WriteSpecificValue(XElement spec)
+{
+	var code = Code(spec);
+	var codeType = DxfCodePair.ExpectedType(code);
+	var value = spec.Attribute("Value").Value;
+	var useQuotes = codeType == typeof(string) && value != "null";
+	var writeValue = useQuotes
+		? string.Format("\"{0}\"", value)
+		: value;
+	return string.Format("pairs.Add(new DxfCodePair({0}, {1}));", code, writeValue);
+}
+
+IEnumerable<string> WriteProperty(XElement spec, XElement entity)
+{
+	var property = GetProperties(entity).Single(p => Name(p) == spec.Attribute("Property").Value);
+	return GetPropertyWriteLines(property);
 }
 
 IEnumerable<string> GetPropertyWriteLines(XElement property)

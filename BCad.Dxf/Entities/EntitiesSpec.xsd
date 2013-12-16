@@ -76,11 +76,28 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="WriteItem">
+  <xs:element name="WriteProperty">
     <xs:complexType>
-      <xs:attribute name="Property" type="xs:string" use="optional" />
-      <xs:attribute name="Code" type="xs:int" use="optional" />
-      <xs:attribute name="Value" type="xs:string" use="optional" />
+      <xs:attribute name="Property" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="WriteSpecificValue">
+    <xs:complexType>
+      <xs:attribute name="Code" type="xs:int" use="required" />
+      <xs:attribute name="Value" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Foreach">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="WriteProperty" />
+          <xs:element ref="WriteSpecificValue" />
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="Property" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 
@@ -88,7 +105,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:choice maxOccurs="unbounded">
-          <xs:element ref="WriteItem" />
+          <xs:element ref="WriteProperty" />
+          <xs:element ref="WriteSpecificValue" />
+          <xs:element ref="Foreach" />
         </xs:choice>
       </xs:sequence>
     </xs:complexType>

@@ -1587,6 +1587,12 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(360, (this.ImageDefReactorReference)));
             pairs.Add(new DxfCodePair(71, (short)(this.ClippingType)));
             pairs.Add(new DxfCodePair(91, ClippingVertices.Count));
+            foreach (var item in ClippingVertices)
+            {
+                pairs.Add(new DxfCodePair(14, item.X));
+                pairs.Add(new DxfCodePair(24, item.Y));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1915,6 +1921,31 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(40, (this.TextAnnotationHeight)));
             pairs.Add(new DxfCodePair(41, (this.TextAnnotationWidth)));
             pairs.Add(new DxfCodePair(76, (short)Vertices.Count));
+            foreach (var item in Vertices)
+            {
+                pairs.Add(new DxfCodePair(10, item.X));
+                pairs.Add(new DxfCodePair(20, item.Y));
+                pairs.Add(new DxfCodePair(30, item.Z));
+            }
+
+            if (this.OverrideColor != DxfColor.ByBlock)
+            {
+                pairs.Add(new DxfCodePair(77, DxfColor.GetRawValue(this.OverrideColor)));
+            }
+
+            pairs.Add(new DxfCodePair(340, (this.AssociatedAnnotationReference)));
+            pairs.Add(new DxfCodePair(210, Normal.X));
+            pairs.Add(new DxfCodePair(220, Normal.Y));
+            pairs.Add(new DxfCodePair(230, Normal.Z));
+            pairs.Add(new DxfCodePair(211, Right.X));
+            pairs.Add(new DxfCodePair(221, Right.Y));
+            pairs.Add(new DxfCodePair(231, Right.Z));
+            pairs.Add(new DxfCodePair(212, BlockOffset.X));
+            pairs.Add(new DxfCodePair(222, BlockOffset.Y));
+            pairs.Add(new DxfCodePair(232, BlockOffset.Z));
+            pairs.Add(new DxfCodePair(213, AnnotationOffset.X));
+            pairs.Add(new DxfCodePair(223, AnnotationOffset.Y));
+            pairs.Add(new DxfCodePair(233, AnnotationOffset.Z));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)

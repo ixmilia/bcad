@@ -160,35 +160,6 @@ namespace BCad.Dxf.Entities
             VerticesY.Clear();
             VerticesZ.Clear();
         }
-
-        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
-        {
-            foreach (var vertex in Vertices)
-            {
-                pairs.Add(new DxfCodePair(10, vertex.X));
-                pairs.Add(new DxfCodePair(20, vertex.Y));
-                pairs.Add(new DxfCodePair(30, vertex.Z));
-            }
-
-            if (Color != DxfColor.ByBlock)
-            {
-                pairs.Add(new DxfCodePair(77, OverrideColor.RawValue));
-            }
-
-            pairs.Add(new DxfCodePair(340, AssociatedAnnotationReference));
-            pairs.Add(new DxfCodePair(210, Normal.X));
-            pairs.Add(new DxfCodePair(220, Normal.Y));
-            pairs.Add(new DxfCodePair(230, Normal.Z));
-            pairs.Add(new DxfCodePair(211, Right.X));
-            pairs.Add(new DxfCodePair(221, Right.Y));
-            pairs.Add(new DxfCodePair(231, Right.Z));
-            pairs.Add(new DxfCodePair(212, BlockOffset.X));
-            pairs.Add(new DxfCodePair(222, BlockOffset.Y));
-            pairs.Add(new DxfCodePair(232, BlockOffset.Z));
-            pairs.Add(new DxfCodePair(213, AnnotationOffset.X));
-            pairs.Add(new DxfCodePair(223, AnnotationOffset.Y));
-            pairs.Add(new DxfCodePair(233, AnnotationOffset.Z));
-        }
     }
 
     public partial class DxfImage
@@ -205,15 +176,6 @@ namespace BCad.Dxf.Entities
             clippingVertices.AddRange(ClippingVerticesX.Zip(ClippingVerticesY, (x, y) => new DxfPoint(x, y, 0.0)));
             ClippingVerticesX.Clear();
             ClippingVerticesY.Clear();
-        }
-
-        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
-        {
-            foreach (var clip in ClippingVertices)
-            {
-                pairs.Add(new DxfCodePair(14, clip.X));
-                pairs.Add(new DxfCodePair(24, clip.Y));
-            }
         }
     }
 
