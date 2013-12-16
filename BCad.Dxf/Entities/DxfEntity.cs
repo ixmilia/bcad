@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,11 +40,35 @@ namespace BCad.Dxf.Entities
         Polygonal = 2
     }
 
+    public enum DxfLeaderPathType
+    {
+        StraightLineSegments = 0,
+        Spline = 1
+    }
+
+    public enum DxfLeaderCreationAnnotationType
+    {
+        WithTextAnnotation = 0,
+        WithToleranceAnnotation = 1,
+        WithBlockReferenceAnnotation = 2,
+        NoAnnotation = 3
+    }
+
+    public enum DxfLeaderHooklineDirection
+    {
+        OppositeFromHorizontalVector = 0,
+        SameAsHorizontalVector = 1
+    }
+
     public abstract partial class DxfEntity
     {
         public abstract DxfEntityType EntityType { get; }
 
         protected virtual void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        {
+        }
+
+        protected virtual void PostParse()
         {
         }
 
@@ -111,6 +136,83 @@ namespace BCad.Dxf.Entities
             if (Seqend != null)
             {
                 pairs.AddRange(Seqend.GetValuePairs());
+            }
+        }
+    }
+
+    public partial class DxfLeader
+    {
+        private List<DxfPoint> vertices = new List<DxfPoint>();
+        public List<DxfPoint> Vertices
+        {
+            get { return vertices; }
+        }
+
+        protected override void PostParse()
+        {
+            Debug.Assert((VertexCount == VerticesX.Count) && (VertexCount == VerticesY.Count) && (VertexCount == VerticesZ.Count));
+            for (int i = 0; i < VertexCount; i++)
+            {
+                Vertices.Add(new DxfPoint(VerticesX[i], VerticesY[i], VerticesZ[i]));
+            }
+
+            VerticesX.Clear();
+            VerticesY.Clear();
+            VerticesZ.Clear();
+        }
+
+        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        {
+            foreach (var vertex in Vertices)
+            {
+                pairs.Add(new DxfCodePair(10, vertex.X));
+                pairs.Add(new DxfCodePair(20, vertex.Y));
+                pairs.Add(new DxfCodePair(30, vertex.Z));
+            }
+
+            if (Color != DxfColor.ByBlock)
+            {
+                pairs.Add(new DxfCodePair(77, OverrideColor.RawValue));
+            }
+
+            pairs.Add(new DxfCodePair(340, AssociatedAnnotationReference));
+            pairs.Add(new DxfCodePair(210, Normal.X));
+            pairs.Add(new DxfCodePair(220, Normal.Y));
+            pairs.Add(new DxfCodePair(230, Normal.Z));
+            pairs.Add(new DxfCodePair(211, Right.X));
+            pairs.Add(new DxfCodePair(221, Right.Y));
+            pairs.Add(new DxfCodePair(231, Right.Z));
+            pairs.Add(new DxfCodePair(212, BlockOffset.X));
+            pairs.Add(new DxfCodePair(222, BlockOffset.Y));
+            pairs.Add(new DxfCodePair(232, BlockOffset.Z));
+            pairs.Add(new DxfCodePair(213, AnnotationOffset.X));
+            pairs.Add(new DxfCodePair(223, AnnotationOffset.Y));
+            pairs.Add(new DxfCodePair(233, AnnotationOffset.Z));
+        }
+    }
+
+    public partial class DxfImage
+    {
+        private List<DxfPoint> clippingVertices = new List<DxfPoint>();
+        public List<DxfPoint> ClippingVertices
+        {
+            get { return clippingVertices; }
+        }
+
+        protected override void PostParse()
+        {
+            Debug.Assert((ClippingVertexCount == ClippingVerticesX.Count) && (ClippingVertexCount == ClippingVerticesY.Count));
+            clippingVertices.AddRange(ClippingVerticesX.Zip(ClippingVerticesY, (x, y) => new DxfPoint(x, y, 0.0)));
+            ClippingVerticesX.Clear();
+            ClippingVerticesY.Clear();
+        }
+
+        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        {
+            foreach (var clip in ClippingVertices)
+            {
+                pairs.Add(new DxfCodePair(14, clip.X));
+                pairs.Add(new DxfCodePair(24, clip.Y));
             }
         }
     }

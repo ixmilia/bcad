@@ -18,6 +18,7 @@ namespace BCad.Dxf.Entities
         Face,
         Image,
         Insert,
+        Leader,
         Line,
         ModelerGeometry,
         Point,
@@ -75,6 +76,8 @@ namespace BCad.Dxf.Entities
                         return "IMAGE";
                     case DxfEntityType.Insert:
                         return "INSERT";
+                    case DxfEntityType.Leader:
+                        return "LEADER";
                     case DxfEntityType.Line:
                         return "LINE";
                     case DxfEntityType.Point:
@@ -220,6 +223,9 @@ namespace BCad.Dxf.Entities
                 case "INSERT":
                     entity = new DxfInsert();
                     break;
+                case "LEADER":
+                    entity = new DxfLeader();
+                    break;
                 case "LINE":
                     entity = new DxfLine();
                     break;
@@ -277,6 +283,7 @@ namespace BCad.Dxf.Entities
                 }
             }
 
+            entity.PostParse();
             return entity;
         }
     }
@@ -1485,6 +1492,10 @@ namespace BCad.Dxf.Entities
 
         public int ClippingVertexCount { get; set; }
 
+        private List<double> ClippingVerticesX { get; set; }
+
+        private List<double> ClippingVerticesY { get; set; }
+
         // DisplayOptionsFlags flags
         public bool ShowImage
         {
@@ -1547,6 +1558,8 @@ namespace BCad.Dxf.Entities
             this.ImageDefReactorReference = null;
             this.ClippingType = DxfImageClippingBoundaryType.Rectangular;
             this.ClippingVertexCount = 0;
+            this.ClippingVerticesX = new List<double>();
+            this.ClippingVerticesY = new List<double>();
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs)
@@ -1573,7 +1586,7 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(283, (this.Fade)));
             pairs.Add(new DxfCodePair(360, (this.ImageDefReactorReference)));
             pairs.Add(new DxfCodePair(71, (short)(this.ClippingType)));
-            pairs.Add(new DxfCodePair(91, (this.ClippingVertexCount)));
+            pairs.Add(new DxfCodePair(91, ClippingVertices.Count));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1612,6 +1625,12 @@ namespace BCad.Dxf.Entities
                     break;
                 case 23:
                     this.ImageSize.Y = pair.DoubleValue;
+                    break;
+                case 14:
+                    this.ClippingVerticesX.Add((pair.DoubleValue));
+                    break;
+                case 24:
+                    this.ClippingVerticesY.Add((pair.DoubleValue));
                     break;
                 case 70:
                     this.DisplayOptionsFlags = (int)(pair.ShortValue);
@@ -1808,6 +1827,177 @@ namespace BCad.Dxf.Entities
                     break;
                 case 230:
                     this.ExtrusionDirection.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfLeader class
+    /// </summary>
+    public partial class DxfLeader : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Leader; } }
+
+        public string DimensionStyleName { get; set; }
+
+        public bool UseArrowheads { get; set; }
+
+        public DxfLeaderPathType PathType { get; set; }
+
+        public DxfLeaderCreationAnnotationType AnnotationType { get; set; }
+
+        public DxfLeaderHooklineDirection HooklineDirection { get; set; }
+
+        public bool UseHookline { get; set; }
+
+        public double TextAnnotationHeight { get; set; }
+
+        public double TextAnnotationWidth { get; set; }
+
+        public int VertexCount { get; set; }
+
+        private List<double> VerticesX { get; set; }
+
+        private List<double> VerticesY { get; set; }
+
+        private List<double> VerticesZ { get; set; }
+
+        public DxfColor OverrideColor { get; set; }
+
+        public string AssociatedAnnotationReference { get; set; }
+
+        public DxfVector Normal { get; set; }
+
+        public DxfVector Right { get; set; }
+
+        public DxfVector BlockOffset { get; set; }
+
+        public DxfVector AnnotationOffset { get; set; }
+
+        public DxfLeader()
+            : base()
+        {
+            this.DimensionStyleName = null;
+            this.UseArrowheads = true;
+            this.PathType = DxfLeaderPathType.StraightLineSegments;
+            this.AnnotationType = DxfLeaderCreationAnnotationType.NoAnnotation;
+            this.HooklineDirection = DxfLeaderHooklineDirection.OppositeFromHorizontalVector;
+            this.UseHookline = true;
+            this.TextAnnotationHeight = 1.0;
+            this.TextAnnotationWidth = 1.0;
+            this.VertexCount = 0;
+            this.VerticesX = new List<double>();
+            this.VerticesY = new List<double>();
+            this.VerticesZ = new List<double>();
+            this.OverrideColor = DxfColor.ByBlock;
+            this.AssociatedAnnotationReference = null;
+            this.Normal = DxfVector.ZAxis;
+            this.Right = DxfVector.XAxis;
+            this.BlockOffset = DxfVector.Zero;
+            this.AnnotationOffset = DxfVector.XAxis;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        {
+            base.AddValuePairs(pairs);
+            pairs.Add(new DxfCodePair(100, "AcDbLeader"));
+            pairs.Add(new DxfCodePair(3, (this.DimensionStyleName)));
+            pairs.Add(new DxfCodePair(71, BoolShort(this.UseArrowheads)));
+            pairs.Add(new DxfCodePair(72, (short)(this.PathType)));
+            pairs.Add(new DxfCodePair(73, (short)(this.AnnotationType)));
+            pairs.Add(new DxfCodePair(74, (short)(this.HooklineDirection)));
+            pairs.Add(new DxfCodePair(75, BoolShort(this.UseHookline)));
+            pairs.Add(new DxfCodePair(40, (this.TextAnnotationHeight)));
+            pairs.Add(new DxfCodePair(41, (this.TextAnnotationWidth)));
+            pairs.Add(new DxfCodePair(76, (short)Vertices.Count));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 3:
+                    this.DimensionStyleName = (pair.StringValue);
+                    break;
+                case 10:
+                    this.VerticesX.Add((pair.DoubleValue));
+                    break;
+                case 20:
+                    this.VerticesY.Add((pair.DoubleValue));
+                    break;
+                case 30:
+                    this.VerticesZ.Add((pair.DoubleValue));
+                    break;
+                case 40:
+                    this.TextAnnotationHeight = (pair.DoubleValue);
+                    break;
+                case 41:
+                    this.TextAnnotationWidth = (pair.DoubleValue);
+                    break;
+                case 71:
+                    this.UseArrowheads = BoolShort(pair.ShortValue);
+                    break;
+                case 72:
+                    this.PathType = (DxfLeaderPathType)(pair.ShortValue);
+                    break;
+                case 73:
+                    this.AnnotationType = (DxfLeaderCreationAnnotationType)(pair.ShortValue);
+                    break;
+                case 74:
+                    this.HooklineDirection = (DxfLeaderHooklineDirection)(pair.ShortValue);
+                    break;
+                case 75:
+                    this.UseHookline = BoolShort(pair.ShortValue);
+                    break;
+                case 76:
+                    this.VertexCount = (int)(pair.ShortValue);
+                    break;
+                case 77:
+                    this.OverrideColor = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case 210:
+                    this.Normal.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.Normal.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.Normal.Z = pair.DoubleValue;
+                    break;
+                case 211:
+                    this.Right.X = pair.DoubleValue;
+                    break;
+                case 221:
+                    this.Right.Y = pair.DoubleValue;
+                    break;
+                case 231:
+                    this.Right.Z = pair.DoubleValue;
+                    break;
+                case 212:
+                    this.BlockOffset.X = pair.DoubleValue;
+                    break;
+                case 222:
+                    this.BlockOffset.Y = pair.DoubleValue;
+                    break;
+                case 232:
+                    this.BlockOffset.Z = pair.DoubleValue;
+                    break;
+                case 213:
+                    this.AnnotationOffset.X = pair.DoubleValue;
+                    break;
+                case 223:
+                    this.AnnotationOffset.Y = pair.DoubleValue;
+                    break;
+                case 233:
+                    this.AnnotationOffset.Z = pair.DoubleValue;
+                    break;
+                case 340:
+                    this.AssociatedAnnotationReference = (pair.StringValue);
                     break;
                 default:
                     return base.TrySetPair(pair);

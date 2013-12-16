@@ -260,9 +260,25 @@
     <Property Name="ImageDefReactorReference" Code="360" Type="string" DefaultValue="null" />
     <Property Name="ClippingType" Code="71" Type="DxfImageClippingBoundaryType" DefaultValue="DxfImageClippingBoundaryType.Rectangular" ReadConverter="(DxfImageClippingBoundaryType)" WriteConverter="(short)" />
     <Property Name="ClippingVertexCount" Code="91" Type="int" DefaultValue="0" />
-    <!-- TODO: support multiple multi-code values
-    <Property Name="ClippingVertices" Code="14" Type="DxfPoint" DefaultValue="DxfPoint.Origin" AllowMultiples="true" CodeOverrides="14,24" />
-    -->
+    <Property Name="ClippingVerticesX" Code="14" Type="double" DefaultValue="" Accessibility="private" AllowMultiples="true" />
+    <Property Name="ClippingVerticesY" Code="24" Type="double" DefaultValue="" Accessibility="private" AllowMultiples="true" />
+    <WriteOrder>
+      <WriteItem Code="100" Value="AcDbRasterImage" />
+      <WriteItem Property="ClassVersion" />
+      <WriteItem Property="Location" />
+      <WriteItem Property="UVector" />
+      <WriteItem Property="VVector" />
+      <WriteItem Property="ImageSize" />
+      <WriteItem Property="ImageDefReference" />
+      <WriteItem Property="DisplayOptionsFlags" />
+      <WriteItem Property="UseClipping" />
+      <WriteItem Property="Brightness" />
+      <WriteItem Property="Contrast" />
+      <WriteItem Property="Fade" />
+      <WriteItem Property="ImageDefReactorReference" />
+      <WriteItem Property="ClippingType" />
+      <WriteItem Code="91" Value="ClippingVertices.Count" />
+    </WriteOrder>
   </Entity>
   <!--
   
@@ -288,7 +304,38 @@
   LEADER
   
   -->
-  <!-- TODO -->
+  <Entity Name="DxfLeader" EntityType="Leader" SubclassMarker="AcDbLeader" TypeString="LEADER">
+    <Property Name="DimensionStyleName" Code="3" Type="string" DefaultValue="null" />
+    <Property Name="UseArrowheads" Code="71" Type="bool" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+    <Property Name="PathType" Code="72" Type="DxfLeaderPathType" DefaultValue="DxfLeaderPathType.StraightLineSegments" ReadConverter="(DxfLeaderPathType)" WriteConverter="(short)" />
+    <Property Name="AnnotationType" Code="73" Type="DxfLeaderCreationAnnotationType" DefaultValue="DxfLeaderCreationAnnotationType.NoAnnotation" ReadConverter="(DxfLeaderCreationAnnotationType)" WriteConverter="(short)" />
+    <Property Name="HooklineDirection" Code="74" Type="DxfLeaderHooklineDirection" DefaultValue="DxfLeaderHooklineDirection.OppositeFromHorizontalVector" ReadConverter="(DxfLeaderHooklineDirection)" WriteConverter="(short)" />
+    <Property Name="UseHookline" Code="75" Type="bool" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+    <Property Name="TextAnnotationHeight" Code="40" Type="double" DefaultValue="1.0" />
+    <Property Name="TextAnnotationWidth" Code="41" Type="double" DefaultValue="1.0" />
+    <Property Name="VertexCount" Code="76" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="VerticesX" Code="10" Type="double" DefaultValue="" Accessibility="private" AllowMultiples="true" />
+    <Property Name="VerticesY" Code="20" Type="double" DefaultValue="" Accessibility="private" AllowMultiples="true" />
+    <Property Name="VerticesZ" Code="30" Type="double" DefaultValue="" Accessibility="private" AllowMultiples="true" />
+    <Property Name="OverrideColor" Code="77" Type="DxfColor" DefaultValue="DxfColor.ByBlock" ReadConverter="DxfColor.FromRawValue" WriteConverter="DxfColor.GetRawValue" />
+    <Property Name="AssociatedAnnotationReference" Code="340" Type="string" DefaultValue="null" />
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" CodeOverrides="210,220,230" />
+    <Property Name="Right" Code="211" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="211,221,231" />
+    <Property Name="BlockOffset" Code="212" Type="DxfVector" DefaultValue="DxfVector.Zero" CodeOverrides="212,222,232" />
+    <Property Name="AnnotationOffset" Code="213" Type="DxfVector" DefaultValue="DxfVector.XAxis" CodeOverrides="213,223,233" />
+    <WriteOrder>
+      <WriteItem Code="100" Value="AcDbLeader" />
+      <WriteItem Property="DimensionStyleName" />
+      <WriteItem Property="UseArrowheads" />
+      <WriteItem Property="PathType" />
+      <WriteItem Property="AnnotationType" />
+      <WriteItem Property="HooklineDirection" />
+      <WriteItem Property="UseHookline" />
+      <WriteItem Property="TextAnnotationHeight" />
+      <WriteItem Property="TextAnnotationWidth" />
+      <WriteItem Code="76" Value="(short)Vertices.Count" />
+    </WriteOrder>
+  </Entity>
   <!--
   
   LINE

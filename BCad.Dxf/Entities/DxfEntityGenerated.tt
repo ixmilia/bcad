@@ -193,6 +193,7 @@ foreach (var entity in entities)
                 }
             }
 
+            entity.PostParse();
             return entity;
         }
     }
@@ -222,7 +223,7 @@ foreach (var entity in entities)
 			propertyType = string.Format("List<{0}>", propertyType);
 		}
 #>
-        public <#= propertyType #> <#= Name(property) #> { get; set; }
+        <#= Accessibility(property) #> <#= propertyType #> <#= Name(property) #> { get; set; }
 
 <#
 	} // foreach property
@@ -500,6 +501,12 @@ bool AllowMultiples(XElement property)
 	return att != null && bool.Parse(att.Value);
 }
 
+string Accessibility(XElement property)
+{
+	var att = property.Attribute("Accessibility");
+	return att == null ? "public" : att.Value;
+}
+
 List<string> GetWriteCommands(XElement entity)
 {
 	var att = entity.Element(XName.Get("WriteOrder", entity.Name.NamespaceName));
@@ -529,7 +536,14 @@ List<string> GetWriteCommands(XElement entity)
 			else
 			{
 				// write a specific code pair
-				lines.Add(string.Format("pairs.Add(new DxfCodePair({0}, \"{1}\"));", codeAtt.Value, spec.Attribute("Value").Value));
+				var code = int.Parse(codeAtt.Value);
+				var codeType = DxfCodePair.ExpectedType(code);
+				var value = spec.Attribute("Value").Value;
+				var useQuotes = codeType == typeof(string) && value != "null";
+				var writeValue = useQuotes
+					? string.Format("\"{0}\"", value)
+					: value;
+				lines.Add(string.Format("pairs.Add(new DxfCodePair({0}, {1}));", code, writeValue));
 			}
 		}
 	}
