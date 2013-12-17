@@ -51,9 +51,9 @@
     <Compile Include="DxfWriter.cs" />
     <Compile Include="Entities\DxfEntity.cs" />
     <Compile Include="Entities\DxfEntityGenerated.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>DxfEntityGenerated.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Sections\DxfBlocksSection.cs" />
     <Compile Include="Sections\DxfClassesSection.cs" />

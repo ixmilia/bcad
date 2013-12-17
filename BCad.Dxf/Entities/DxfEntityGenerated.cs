@@ -22,12 +22,15 @@ namespace BCad.Dxf.Entities
         Line,
         LwPolyline,
         ModelerGeometry,
+        Ole2Frame,
+        OleFrame,
         Point,
         Polyline,
         ProxyEntity,
         Ray,
         Region,
         Seqend,
+        Shape,
         Solid,
         Text,
         Tolerance,
@@ -83,6 +86,10 @@ namespace BCad.Dxf.Entities
                         return "LINE";
                     case DxfEntityType.LwPolyline:
                         return "LWPOLYLINE";
+                    case DxfEntityType.OleFrame:
+                        return "OLEFRAME";
+                    case DxfEntityType.Ole2Frame:
+                        return "OLE2FRAME";
                     case DxfEntityType.Point:
                         return "POINT";
                     case DxfEntityType.Polyline:
@@ -93,6 +100,8 @@ namespace BCad.Dxf.Entities
                         return "REGION";
                     case DxfEntityType.Seqend:
                         return "SEQEND";
+                    case DxfEntityType.Shape:
+                        return "SHAPE";
                     case DxfEntityType.Solid:
                         return "SOLID";
                     case DxfEntityType.Text:
@@ -235,6 +244,12 @@ namespace BCad.Dxf.Entities
                 case "LWPOLYLINE":
                     entity = new DxfLwPolyline();
                     break;
+                case "OLEFRAME":
+                    entity = new DxfOleFrame();
+                    break;
+                case "OLE2FRAME":
+                    entity = new DxfOle2Frame();
+                    break;
                 case "POINT":
                     entity = new DxfModelPoint();
                     break;
@@ -249,6 +264,9 @@ namespace BCad.Dxf.Entities
                     break;
                 case "SEQEND":
                     entity = new DxfSeqend();
+                    break;
+                case "SHAPE":
+                    entity = new DxfShape();
                     break;
                 case "SOLID":
                     entity = new DxfSolid();
@@ -2303,6 +2321,169 @@ namespace BCad.Dxf.Entities
     }
 
     /// <summary>
+    /// DxfOleFrame class
+    /// </summary>
+    public partial class DxfOleFrame : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.OleFrame; } }
+
+        public int VersionNumber { get; set; }
+
+        public int BinaryDataLength { get; set; }
+
+        public List<string> BinaryDataStrings { get; set; }
+
+        public DxfOleFrame()
+            : base()
+        {
+            this.VersionNumber = 0;
+            this.BinaryDataLength = 0;
+            this.BinaryDataStrings = new List<string>();
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        {
+            base.AddValuePairs(pairs);
+            pairs.Add(new DxfCodePair(100, "AcDbOleFrame"));
+            pairs.Add(new DxfCodePair(70, (short)(this.VersionNumber)));
+            pairs.Add(new DxfCodePair(90, (this.BinaryDataLength)));
+            foreach (var item in BinaryDataStrings)
+            {
+                pairs.Add(new DxfCodePair(310, "item"));
+            }
+
+            pairs.Add(new DxfCodePair(1, "OLE"));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 70:
+                    this.VersionNumber = (int)(pair.ShortValue);
+                    break;
+                case 90:
+                    this.BinaryDataLength = (pair.IntegerValue);
+                    break;
+                case 310:
+                    this.BinaryDataStrings.Add((pair.StringValue));
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfOle2Frame class
+    /// </summary>
+    public partial class DxfOle2Frame : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Ole2Frame; } }
+
+        public int VersionNumber { get; set; }
+
+        public string Description { get; set; }
+
+        public DxfPoint UpperLeftCorner { get; set; }
+
+        public DxfPoint LowerRightCorner { get; set; }
+
+        public DxfOleObjectType ObjectType { get; set; }
+
+        public DxfTileModeDescriptor TileMode { get; set; }
+
+        public int BinaryDataLength { get; set; }
+
+        public List<string> BinaryDataStrings { get; set; }
+
+        public DxfOle2Frame()
+            : base()
+        {
+            this.VersionNumber = 0;
+            this.Description = null;
+            this.UpperLeftCorner = DxfPoint.Origin;
+            this.LowerRightCorner = DxfPoint.Origin;
+            this.ObjectType = DxfOleObjectType.Static;
+            this.TileMode = DxfTileModeDescriptor.InTiledViewport;
+            this.BinaryDataLength = 0;
+            this.BinaryDataStrings = new List<string>();
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        {
+            base.AddValuePairs(pairs);
+            pairs.Add(new DxfCodePair(100, "AcDbOle2Frame"));
+            pairs.Add(new DxfCodePair(70, (short)(this.VersionNumber)));
+            pairs.Add(new DxfCodePair(3, (this.Description)));
+            pairs.Add(new DxfCodePair(10, UpperLeftCorner.X));
+            pairs.Add(new DxfCodePair(20, UpperLeftCorner.Y));
+            pairs.Add(new DxfCodePair(30, UpperLeftCorner.Z));
+            pairs.Add(new DxfCodePair(11, LowerRightCorner.X));
+            pairs.Add(new DxfCodePair(21, LowerRightCorner.Y));
+            pairs.Add(new DxfCodePair(31, LowerRightCorner.Z));
+            pairs.Add(new DxfCodePair(71, (short)(this.ObjectType)));
+            pairs.Add(new DxfCodePair(72, (short)(this.TileMode)));
+            pairs.Add(new DxfCodePair(90, (this.BinaryDataLength)));
+            foreach (var item in BinaryDataStrings)
+            {
+                pairs.Add(new DxfCodePair(310, "item"));
+            }
+
+            pairs.Add(new DxfCodePair(1, "OLE"));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 3:
+                    this.Description = (pair.StringValue);
+                    break;
+                case 10:
+                    this.UpperLeftCorner.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    this.UpperLeftCorner.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    this.UpperLeftCorner.Z = pair.DoubleValue;
+                    break;
+                case 11:
+                    this.LowerRightCorner.X = pair.DoubleValue;
+                    break;
+                case 21:
+                    this.LowerRightCorner.Y = pair.DoubleValue;
+                    break;
+                case 31:
+                    this.LowerRightCorner.Z = pair.DoubleValue;
+                    break;
+                case 70:
+                    this.VersionNumber = (int)(pair.ShortValue);
+                    break;
+                case 71:
+                    this.ObjectType = (DxfOleObjectType)(pair.ShortValue);
+                    break;
+                case 72:
+                    this.TileMode = (DxfTileModeDescriptor)(pair.ShortValue);
+                    break;
+                case 90:
+                    this.BinaryDataLength = (pair.IntegerValue);
+                    break;
+                case 310:
+                    this.BinaryDataStrings.Add((pair.StringValue));
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
     /// DxfModelPoint class
     /// </summary>
     public partial class DxfModelPoint : DxfEntity
@@ -2785,6 +2966,128 @@ namespace BCad.Dxf.Entities
         protected override void AddValuePairs(List<DxfCodePair> pairs)
         {
             base.AddValuePairs(pairs);
+        }
+    }
+
+    /// <summary>
+    /// DxfShape class
+    /// </summary>
+    public partial class DxfShape : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Shape; } }
+
+        public double Thickness { get; set; }
+
+        public DxfPoint Location { get; set; }
+
+        public double Size { get; set; }
+
+        public string Name { get; set; }
+
+        public double RotationAngle { get; set; }
+
+        public double RelativeXScaleFactor { get; set; }
+
+        public double ObliqueAngle { get; set; }
+
+        public DxfVector ExtrusionDirection { get; set; }
+
+        public DxfShape()
+            : base()
+        {
+            this.Thickness = 0.0;
+            this.Location = DxfPoint.Origin;
+            this.Size = 0.0;
+            this.Name = null;
+            this.RotationAngle = 0.0;
+            this.RelativeXScaleFactor = 1.0;
+            this.ObliqueAngle = 0.0;
+            this.ExtrusionDirection = DxfVector.ZAxis;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        {
+            base.AddValuePairs(pairs);
+            pairs.Add(new DxfCodePair(100, "AcDbShape"));
+            if (this.Thickness != 0.0)
+            {
+                pairs.Add(new DxfCodePair(39, (this.Thickness)));
+            }
+
+            pairs.Add(new DxfCodePair(10, Location.X));
+            pairs.Add(new DxfCodePair(20, Location.Y));
+            pairs.Add(new DxfCodePair(30, Location.Z));
+            pairs.Add(new DxfCodePair(40, (this.Size)));
+            pairs.Add(new DxfCodePair(2, (this.Name)));
+            if (this.RotationAngle != 0.0)
+            {
+                pairs.Add(new DxfCodePair(50, (this.RotationAngle)));
+            }
+
+            if (this.RelativeXScaleFactor != 1.0)
+            {
+                pairs.Add(new DxfCodePair(41, (this.RelativeXScaleFactor)));
+            }
+
+            if (this.ObliqueAngle != 0.0)
+            {
+                pairs.Add(new DxfCodePair(51, (this.ObliqueAngle)));
+            }
+
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 2:
+                    this.Name = (pair.StringValue);
+                    break;
+                case 10:
+                    this.Location.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    this.Location.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    this.Location.Z = pair.DoubleValue;
+                    break;
+                case 39:
+                    this.Thickness = (pair.DoubleValue);
+                    break;
+                case 40:
+                    this.Size = (pair.DoubleValue);
+                    break;
+                case 41:
+                    this.RelativeXScaleFactor = (pair.DoubleValue);
+                    break;
+                case 50:
+                    this.RotationAngle = (pair.DoubleValue);
+                    break;
+                case 51:
+                    this.ObliqueAngle = (pair.DoubleValue);
+                    break;
+                case 210:
+                    this.ExtrusionDirection.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.ExtrusionDirection.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.ExtrusionDirection.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
         }
     }
 

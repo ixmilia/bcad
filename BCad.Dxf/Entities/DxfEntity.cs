@@ -60,6 +60,19 @@ namespace BCad.Dxf.Entities
         SameAsHorizontalVector = 1
     }
 
+    public enum DxfOleObjectType
+    {
+        Link = 1,
+        Embedded = 2,
+        Static = 3
+    }
+
+    public enum DxfTileModeDescriptor
+    {
+        InTiledViewport = 0,
+        InNonTiledViewport = 1
+    }
+
     public abstract partial class DxfEntity
     {
         public abstract DxfEntityType EntityType { get; }

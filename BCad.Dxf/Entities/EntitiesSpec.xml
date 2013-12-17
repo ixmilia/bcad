@@ -420,13 +420,49 @@
   OLEFRAME
   
   -->
-  <!-- TODO -->
+  <Entity Name="DxfOleFrame" EntityType="OleFrame" SubclassMarker="AcDbOleFrame" TypeString="OLEFRAME">
+    <Property Name="VersionNumber" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="BinaryDataLength" Code="90" Type="int" DefaultValue="0" />
+    <Property Name="BinaryDataStrings" Code="310" Type="string" DefaultValue="" AllowMultiples="true" />
+    <WriteOrder>
+      <WriteSpecificValue Code="100" Value="AcDbOleFrame" />
+      <WriteProperty Property="VersionNumber" />
+      <WriteProperty Property="BinaryDataLength" />
+      <Foreach Property="BinaryDataStrings">
+        <WriteSpecificValue Code="310" Value="item" />
+      </Foreach>
+      <WriteSpecificValue Code="1" Value="OLE" />
+    </WriteOrder>
+  </Entity>
   <!--
   
   OLE2FRAME
   
   -->
-  <!-- TODO -->
+  <Entity Name="DxfOle2Frame" EntityType="Ole2Frame" SubclassMarker="AcDbOle2Frame" TypeString="OLE2FRAME">
+    <Property Name="VersionNumber" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="Description" Code="3" Type="string" DefaultValue="null" />
+    <Property Name="UpperLeftCorner" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="LowerRightCorner" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
+    <Property Name="ObjectType" Code="71" Type="DxfOleObjectType" DefaultValue="DxfOleObjectType.Static" ReadConverter="(DxfOleObjectType)" WriteConverter="(short)" />
+    <Property Name="TileMode" Code="72" Type="DxfTileModeDescriptor" DefaultValue="DxfTileModeDescriptor.InTiledViewport" ReadConverter="(DxfTileModeDescriptor)" WriteConverter="(short)" />
+    <Property Name="BinaryDataLength" Code="90" Type="int" DefaultValue="0" />
+    <Property Name="BinaryDataStrings" Code="310" Type="string" DefaultValue="" AllowMultiples="true" />
+    <WriteOrder>
+      <WriteSpecificValue Code="100" Value="AcDbOle2Frame" />
+      <WriteProperty Property="VersionNumber" />
+      <WriteProperty Property="Description" />
+      <WriteProperty Property="UpperLeftCorner" />
+      <WriteProperty Property="LowerRightCorner" />
+      <WriteProperty Property="ObjectType" />
+      <WriteProperty Property="TileMode" />
+      <WriteProperty Property="BinaryDataLength" />
+      <Foreach Property="BinaryDataStrings">
+        <WriteSpecificValue Code="310" Value="item" />
+      </Foreach>
+      <WriteSpecificValue Code="1" Value="OLE" />
+    </WriteOrder>
+  </Entity>
   <!--
   
   POINT
@@ -502,7 +538,16 @@
   SHAPE
   
   -->
-  <!-- TODO -->
+  <Entity Name="DxfShape" EntityType="Shape" SubclassMarker="AcDbShape" TypeString="SHAPE">
+    <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="Location" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="Size" Code="40" Type="double" DefaultValue="0.0" />
+    <Property Name="Name" Code="2" Type="string" DefaultValue="null" />
+    <Property Name="RotationAngle" Code="50" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="RelativeXScaleFactor" Code="41" Type="double" DefaultValue="1.0" DisableWritingDefault="true" />
+    <Property Name="ObliqueAngle" Code="51" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+  </Entity>
   <!--
   
   SOLID
