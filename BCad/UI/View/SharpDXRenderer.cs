@@ -17,19 +17,19 @@ namespace BCad.UI
         private GraphicsDeviceManager deviceManager;
         private IWorkspace workspace;
         private IInputService inputService;
-        private IViewHost viewHost;
+        private IViewControl viewControl;
         private BasicEffect effect;
         private PrimitiveBatch<VertexPositionColor> batch;
         private Color autoColor;
         private Color backgroundColor;
         private Matrix4 transform;
 
-        public SharpDXRenderer(IWorkspace workspace, IInputService inputService, IViewHost viewHost)
+        public SharpDXRenderer(IWorkspace workspace, IInputService inputService, IViewControl viewControl)
         {
             deviceManager = new GraphicsDeviceManager(this);
             this.workspace = workspace;
             this.inputService = inputService;
-            this.viewHost = viewHost;
+            this.viewControl = viewControl;
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
@@ -118,7 +118,7 @@ namespace BCad.UI
         protected override void Draw(GameTime gameTime)
         {
             // transform is incorrect on first launch
-            if (viewHost.DisplayWidth != GraphicsDevice.BackBuffer.Width || viewHost.DisplayHeight != GraphicsDevice.BackBuffer.Height)
+            if (viewControl.DisplayWidth != GraphicsDevice.BackBuffer.Width || viewControl.DisplayHeight != GraphicsDevice.BackBuffer.Height)
             {
                 UpdateTransform();
             }
@@ -143,7 +143,7 @@ namespace BCad.UI
             var generator = inputService.PrimitiveGenerator;
             if (inputService.IsDrawing && generator != null)
             {
-                var cursor = viewHost.GetCursorPoint();
+                var cursor = viewControl.GetCursorPoint();
                 var rubber = generator(cursor);
                 foreach (var prim in rubber)
                 {

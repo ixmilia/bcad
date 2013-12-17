@@ -132,7 +132,7 @@ namespace BCad.UI
 
     internal class SlimDXRenderEngine : ISlimDXRenderEngine
     {
-        private IViewHost viewHost;
+        private IViewControl viewControl;
         private IWorkspace workspace;
         private IInputService inputService;
         private Drawing drawing;
@@ -157,10 +157,10 @@ namespace BCad.UI
         private const int FullCircleDrawingSegments = 180;
         private const int LowQualityCircleDrawingSegments = 72;
 
-        public SlimDXRenderEngine(SlimDXControl control, IViewHost viewHost, IWorkspace workspace, IInputService inputService)
+        public SlimDXRenderEngine(SlimDXControl control, IViewControl viewControl, IWorkspace workspace, IInputService inputService)
         {
             this.control = control;
-            this.viewHost = viewHost;
+            this.viewControl = viewControl;
             this.workspace = workspace;
 
             this.workspace = workspace;
@@ -278,7 +278,7 @@ Result PShader(Input pixel)
                     }
                 }
 
-                GenerateRubberBandLines(viewHost.GetCursorPoint());
+                GenerateRubberBandLines(viewControl.GetCursorPoint());
                 if (rubberBandLines != null)
                 {
                     for (int i = 0; i < rubberBandLines.Length; i++)
@@ -349,7 +349,7 @@ Result PShader(Input pixel)
         {
             var bottomLeft = workspace.ActiveViewPort.BottomLeft;
             var height = (float)workspace.ActiveViewPort.ViewHeight;
-            var width = (float)(height * viewHost.DisplayWidth / viewHost.DisplayHeight);
+            var width = (float)(height * viewControl.DisplayWidth / viewControl.DisplayHeight);
             projectionMatrix = Matrix.Identity
                 * Matrix.Translation((float)-bottomLeft.X, (float)-bottomLeft.Y, 0)
                 * Matrix.Translation(-width / 2.0f, -height / 2.0f, 0)
@@ -376,7 +376,7 @@ Result PShader(Input pixel)
 
         private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
         {
-            GenerateRubberBandLines(viewHost.GetCursorPoint());
+            GenerateRubberBandLines(viewControl.GetCursorPoint());
             ForceRender();
         }
 

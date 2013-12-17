@@ -165,7 +165,6 @@
     </Compile>
     <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
     <Compile Include="UI\View\IRendererFactory.cs" />
-    <Compile Include="UI\View\IViewHost.cs" />
     <Compile Include="UI\View\RenderFactoryMetadata.cs" />
     <Compile Include="UI\View\SharpDXRendererFactory.cs" />
     <Compile Include="UI\View\SlimDXRenderEngine.cs" />

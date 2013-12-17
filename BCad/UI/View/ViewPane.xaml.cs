@@ -35,7 +35,7 @@ namespace BCad.UI
     /// <summary>
     /// Interaction logic for ViewPane.xaml
     /// </summary>
-    public partial class ViewPane : UserControl, IViewHost
+    public partial class ViewPane : UserControl, IViewControl
     {
         private bool panning;
         private bool selecting;

@@ -4,6 +4,6 @@ namespace BCad.UI
 {
     public interface IRendererFactory
     {
-        IRenderer CreateRenderer(IViewHost viewHost, IWorkspace workspace, IInputService inputService);
+        IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService);
     }
 }

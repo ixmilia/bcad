@@ -7,12 +7,12 @@ namespace BCad.UI
     [ExportRendererFactory("SharpDX")]
     internal class SharpDXRendererFactory : IRendererFactory
     {
-        public IRenderer CreateRenderer(IViewHost viewHost, IWorkspace workspace, IInputService inputService)
+        public IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)
         {
             var element = new SharpDXElement();
             element.SendResizeToGame = true;
             element.LowPriorityRendering = true;
-            var game = new SharpDXRenderer(workspace, inputService, viewHost);
+            var game = new SharpDXRenderer(workspace, inputService, viewControl);
             game.Run(element);
             var container = new RenderContainer();
             container.Content = element;
