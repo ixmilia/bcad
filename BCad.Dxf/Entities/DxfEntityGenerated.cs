@@ -20,6 +20,7 @@ namespace BCad.Dxf.Entities
         Insert,
         Leader,
         Line,
+        LwPolyline,
         ModelerGeometry,
         Point,
         Polyline,
@@ -80,6 +81,8 @@ namespace BCad.Dxf.Entities
                         return "LEADER";
                     case DxfEntityType.Line:
                         return "LINE";
+                    case DxfEntityType.LwPolyline:
+                        return "LWPOLYLINE";
                     case DxfEntityType.Point:
                         return "POINT";
                     case DxfEntityType.Polyline:
@@ -228,6 +231,9 @@ namespace BCad.Dxf.Entities
                     break;
                 case "LINE":
                     entity = new DxfLine();
+                    break;
+                case "LWPOLYLINE":
+                    entity = new DxfLwPolyline();
                     break;
                 case "POINT":
                     entity = new DxfModelPoint();
@@ -2120,6 +2126,164 @@ namespace BCad.Dxf.Entities
                     break;
                 case 39:
                     this.Thickness = (pair.DoubleValue);
+                    break;
+                case 210:
+                    this.ExtrusionDirection.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.ExtrusionDirection.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.ExtrusionDirection.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfLwPolyline class
+    /// </summary>
+    public partial class DxfLwPolyline : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.LwPolyline; } }
+
+        public int VertexCount { get; set; }
+
+        public int Flags { get; set; }
+
+        public double ConstantWidth { get; set; }
+
+        public double Elevation { get; set; }
+
+        public double Thickness { get; set; }
+
+        private List<double> VertexCoordinateX { get; set; }
+
+        private List<double> VertexCoordinateY { get; set; }
+
+        private List<double> StartingWidth { get; set; }
+
+        private List<double> EndingWidth { get; set; }
+
+        private List<double> Bulge { get; set; }
+
+        public DxfVector ExtrusionDirection { get; set; }
+
+        // Flags flags
+        public bool IsClosed
+        {
+            get { return DxfHelpers.GetFlag(Flags, 1); }
+            set
+            {
+                var flags = Flags;
+                DxfHelpers.SetFlag(value, ref flags, 1);
+                Flags = flags;
+            }
+        }
+
+        public bool IsPLineGen
+        {
+            get { return DxfHelpers.GetFlag(Flags, 128); }
+            set
+            {
+                var flags = Flags;
+                DxfHelpers.SetFlag(value, ref flags, 128);
+                Flags = flags;
+            }
+        }
+
+        public DxfLwPolyline()
+            : base()
+        {
+            this.VertexCount = 0;
+            this.Flags = 0;
+            this.ConstantWidth = 0.0;
+            this.Elevation = 0.0;
+            this.Thickness = 0.0;
+            this.VertexCoordinateX = new List<double>();
+            this.VertexCoordinateY = new List<double>();
+            this.StartingWidth = new List<double>();
+            this.EndingWidth = new List<double>();
+            this.Bulge = new List<double>();
+            this.ExtrusionDirection = DxfVector.ZAxis;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        {
+            base.AddValuePairs(pairs);
+            pairs.Add(new DxfCodePair(100, "AcDbPolyline"));
+            pairs.Add(new DxfCodePair(90, Vertices.Count));
+            pairs.Add(new DxfCodePair(70, (short)(this.Flags)));
+            if (this.ConstantWidth != 0.0)
+            {
+                pairs.Add(new DxfCodePair(43, (this.ConstantWidth)));
+            }
+
+            if (this.Elevation != 0.0)
+            {
+                pairs.Add(new DxfCodePair(38, (this.Elevation)));
+            }
+
+            if (this.Thickness != 0.0)
+            {
+                pairs.Add(new DxfCodePair(39, (this.Thickness)));
+            }
+
+            foreach (var item in Vertices)
+            {
+                pairs.Add(new DxfCodePair(10, item.Location.X));
+                pairs.Add(new DxfCodePair(20, item.Location.Y));
+                if (item.StartingWidth != 0.0) { pairs.Add(new DxfCodePair(40, item.StartingWidth)); }
+                if (item.EndingWidth != 0.0) { pairs.Add(new DxfCodePair(41, item.EndingWidth)); }
+                if (item.Bulge != 0.0) { pairs.Add(new DxfCodePair(42, item.Bulge)); }
+            }
+
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 10:
+                    this.VertexCoordinateX.Add((pair.DoubleValue));
+                    break;
+                case 20:
+                    this.VertexCoordinateY.Add((pair.DoubleValue));
+                    break;
+                case 38:
+                    this.Elevation = (pair.DoubleValue);
+                    break;
+                case 39:
+                    this.Thickness = (pair.DoubleValue);
+                    break;
+                case 40:
+                    this.StartingWidth.Add((pair.DoubleValue));
+                    break;
+                case 41:
+                    this.EndingWidth.Add((pair.DoubleValue));
+                    break;
+                case 42:
+                    this.Bulge.Add((pair.DoubleValue));
+                    break;
+                case 43:
+                    this.ConstantWidth = (pair.DoubleValue);
+                    break;
+                case 70:
+                    this.Flags = (int)(pair.ShortValue);
+                    break;
+                case 90:
+                    this.VertexCount = (pair.IntegerValue);
                     break;
                 case 210:
                     this.ExtrusionDirection.X = pair.DoubleValue;

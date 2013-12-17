@@ -563,7 +563,15 @@ string WriteSpecificValue(XElement spec)
 	var writeValue = useQuotes
 		? string.Format("\"{0}\"", value)
 		: value;
-	return string.Format("pairs.Add(new DxfCodePair({0}, {1}));", code, writeValue);
+
+	var line = string.Format("pairs.Add(new DxfCodePair({0}, {1}));", code, writeValue);
+	var defaultValue = spec.Attribute("DontWriteIfValueIs");
+	if (defaultValue != null)
+	{
+		line = string.Format("if ({0} != {1}) {{ {2} }}", value, defaultValue.Value, line);
+	}
+
+	return line;
 }
 
 IEnumerable<string> WriteProperty(XElement spec, XElement entity)

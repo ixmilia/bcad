@@ -205,4 +205,28 @@ namespace BCad.Dxf.Entities
             }
         }
     }
+
+    public partial class DxfLwPolyline
+    {
+        public class DxfLwPolylineVertex
+        {
+            public DxfPoint Location { get; set; }
+            public double StartingWidth { get; set; }
+            public double EndingWidth { get; set; }
+            public double Bulge { get; set; }
+        }
+
+        private List<DxfLwPolylineVertex> vertices = new List<DxfLwPolylineVertex>();
+        public List<DxfLwPolylineVertex> Vertices
+        {
+            get { return vertices; }
+        }
+
+        protected override void PostParse()
+        {
+            Debug.Assert((VertexCount == VertexCoordinateX.Count) && (VertexCount == VertexCoordinateY.Count));
+            // TODO: how to read optional starting/ending width and bulge in this way?
+            vertices.AddRange(VertexCoordinateX.Zip(VertexCoordinateY, (x, y) => new DxfLwPolylineVertex() { Location = new DxfPoint(x, y, 0.0) }));
+        }
+    }
 }
