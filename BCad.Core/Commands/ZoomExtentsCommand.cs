@@ -3,12 +3,15 @@ using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Extensions;
+using BCad.Helpers;
 
 namespace BCad.Commands
 {
     [ExportCommand("Zoom.Extents", "ZOOMEXTENTS", "ze")]
     internal class ZoomExtentsCommand : ICommand
     {
+        private const int ZoomPixelBuffer = 20;
+
         [Import]
         public IWorkspace Workspace { get; set; }
 
@@ -41,13 +44,63 @@ namespace BCad.Commands
                     maxy = point.Y;
             }
 
+            var deltaX = maxx - minx;
+            var deltaY = maxy - miny;
+
             // translate back out of XY plane
             var unproj = planeProjection;
             unproj.Invert();
             var bottomLeft = unproj.Transform(new Point(minx, miny, 0));
-            var height = Math.Abs(maxy - miny); // TODO: doesn't account for viewport width
+            var topRight = unproj.Transform(new Point(minx + deltaX, miny + deltaY, 0));
+            var drawingHeight = deltaY;
+            var drawingWidth = deltaX;
 
-            var newVp = Workspace.ActiveViewPort.Update(bottomLeft: bottomLeft, viewHeight: height);
+            double viewHeight, drawingToViewScale;
+            var viewRatio = (double)Workspace.ViewControl.DisplayWidth / Workspace.ViewControl.DisplayHeight;
+            var drawingRatio = drawingWidth / drawingHeight;
+            if (MathHelper.CloseTo(0.0, drawingHeight) || drawingRatio > viewRatio)
+            {
+                // fit to width
+                var viewWidth = drawingWidth;
+                viewHeight = Workspace.ViewControl.DisplayHeight * viewWidth / Workspace.ViewControl.DisplayWidth;
+                drawingToViewScale = Workspace.ViewControl.DisplayWidth / viewWidth;
+
+                // add a buffer of some amount of pixels
+                var pixelWidth = drawingWidth * drawingToViewScale;
+                var newPixelWidth = pixelWidth + (ZoomPixelBuffer * 2);
+                viewHeight *= newPixelWidth / pixelWidth;
+            }
+            else
+            {
+                // fit to height
+                viewHeight = drawingHeight;
+                drawingToViewScale = Workspace.ViewControl.DisplayHeight / viewHeight;
+
+                // add a buffer of some amount of pixels
+                var pixelHeight = drawingHeight * drawingToViewScale;
+                var newPixelHeight = pixelHeight + (ZoomPixelBuffer * 2);
+                viewHeight *= newPixelHeight / pixelHeight;
+            }
+
+            // center viewport
+            var tempViewport = Workspace.ActiveViewPort.Update(bottomLeft: bottomLeft, viewHeight: viewHeight);
+            var pixelMatrix = tempViewport.GetTransformationMatrixWindowsStyle(Workspace.ViewControl.DisplayWidth, Workspace.ViewControl.DisplayHeight);
+            var bottomLeftScreen = pixelMatrix.Transform(bottomLeft);
+            var topRightScreen = pixelMatrix.Transform(topRight);
+
+            // center horizontally
+            var leftXGap = bottomLeftScreen.X;
+            var rightXGap = Workspace.ViewControl.DisplayWidth - topRightScreen.X;
+            var xAdjust = Math.Abs((rightXGap - leftXGap) / 2.0) / drawingToViewScale;
+
+            // center vertically
+            var topYGap = topRightScreen.Y;
+            var bottomYGap = Workspace.ViewControl.DisplayHeight - bottomLeftScreen.Y;
+            var yAdjust = Math.Abs((topYGap - bottomYGap) / 2.0) / drawingToViewScale;
+
+            var newBottomLeft = new Point(bottomLeft.X - xAdjust, bottomLeft.Y - yAdjust, bottomLeft.Z);
+
+            var newVp = Workspace.ActiveViewPort.Update(bottomLeft: newBottomLeft, viewHeight: viewHeight);
             Workspace.Update(activeViewPort: newVp);
 
             return result;

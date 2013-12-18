@@ -329,7 +329,24 @@ namespace BCad
 
             if (det == 0.0)
             {
-                throw new InvalidOperationException("The matrix cannot be inverted");
+                //throw new InvalidOperationException("The matrix cannot be inverted");
+                _m11 = double.NaN;
+                _m12 = double.NaN;
+                _m13 = double.NaN;
+                _m14 = double.NaN;
+                _m21 = double.NaN;
+                _m22 = double.NaN;
+                _m23 = double.NaN;
+                _m24 = double.NaN;
+                _m31 = double.NaN;
+                _m32 = double.NaN;
+                _m33 = double.NaN;
+                _m34 = double.NaN;
+                _m41 = double.NaN;
+                _m42 = double.NaN;
+                _m43 = double.NaN;
+                _m44 = double.NaN;
+                return;
             }
 
             // Compute 3x3 cofactors for the 2nd column
