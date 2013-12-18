@@ -180,20 +180,9 @@ foreach (var entity in entities)
 
             if (entity != null)
             {
-                while (buffer.ItemsRemain)
-                {
-                    var pair = buffer.Peek();
-                    if (pair.Code == 0)
-                    {
-                        break;
-                    }
-			    
-                    entity.TrySetPair(pair);
-                    buffer.Advance();
-                }
+                entity.PopulateFromBuffer(buffer);
             }
 
-            entity.PostParse();
             return entity;
         }
     }

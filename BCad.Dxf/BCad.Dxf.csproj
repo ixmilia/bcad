@@ -117,7 +117,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="completed.txt" />
+    <None Include="notes.txt" />
     <None Include="Entities\EntitiesSpec.xml">
       <SubType>Designer</SubType>
     </None>

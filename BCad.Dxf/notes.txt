@@ -1,0 +1,12 @@
+﻿DXF reference:
+http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=12272454&linkID=10809853
+
+HEADER section - complete
+CLASSES section - complete
+TABLES section - complete
+BLOCKS section - complete
+ENTITIES section - partial
+OBJECTS section - NYI
+
+TODO:
+	only R14 support exists for entities.  add Min/Max version to entity fields

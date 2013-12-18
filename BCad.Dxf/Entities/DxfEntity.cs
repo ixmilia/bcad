@@ -93,6 +93,23 @@ namespace BCad.Dxf.Entities
             return pairs;
         }
 
+        internal virtual void PopulateFromBuffer(DxfCodePairBufferReader buffer)
+        {
+            while (buffer.ItemsRemain)
+            {
+                var pair = buffer.Peek();
+                if (pair.Code == 0)
+                {
+                    break;
+                }
+
+                TrySetPair(pair);
+                buffer.Advance();
+            }
+
+            PostParse();
+        }
+
         protected static bool BoolShort(short s)
         {
             return s != 0;
@@ -240,6 +257,59 @@ namespace BCad.Dxf.Entities
             Debug.Assert((VertexCount == VertexCoordinateX.Count) && (VertexCount == VertexCoordinateY.Count));
             // TODO: how to read optional starting/ending width and bulge in this way?
             vertices.AddRange(VertexCoordinateX.Zip(VertexCoordinateY, (x, y) => new DxfLwPolylineVertex() { Location = new DxfPoint(x, y, 0.0) }));
+        }
+    }
+
+    public partial class DxfSpline
+    {
+        public int NumberOfKnots
+        {
+            get { return KnotValues.Count; }
+        }
+
+        public int NumberOfControlPoints
+        {
+            get { return ControlPoints.Count; }
+        }
+
+        public int NumberOfFitPoints
+        {
+            get { return FitPoints.Count; }
+        }
+
+        private List<DxfPoint> controlPoints = new List<DxfPoint>();
+        public List<DxfPoint> ControlPoints
+        {
+            get { return controlPoints; }
+        }
+
+        private List<DxfPoint> fitPoints = new List<DxfPoint>();
+        public List<DxfPoint> FitPoints
+        {
+            get { return fitPoints; }
+        }
+
+        protected override void PostParse()
+        {
+            Debug.Assert((ControlPointX.Count == ControlPointY.Count) && (ControlPointX.Count == ControlPointZ.Count));
+            for (int i = 0; i < ControlPointX.Count; i++)
+            {
+                controlPoints.Add(new DxfPoint(ControlPointX[i], ControlPointY[i], ControlPointZ[i]));
+            }
+
+            ControlPointX.Clear();
+            ControlPointY.Clear();
+            ControlPointZ.Clear();
+
+            Debug.Assert((FitPointX.Count == FitPointY.Count) && (FitPointX.Count == FitPointZ.Count));
+            for (int i = 0; i < FitPointX.Count; i++)
+            {
+                fitPoints.Add(new DxfPoint(FitPointX[i], FitPointY[i], FitPointZ[i]));
+            }
+
+            FitPointX.Clear();
+            FitPointY.Clear();
+            FitPointZ.Clear();
         }
     }
 }

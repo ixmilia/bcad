@@ -566,7 +566,58 @@
   SPLINE
   
   -->
-  <!-- TODO -->
+  <Entity Name="DxfSpline" EntityType="Spline" SubclassMarker="AcDbSpline" TypeString="SPLINE">
+    <Property Name="Normal" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" CodeOverrides="210,220,230" />
+    <Property Name="Flags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)">
+      <Flag Name="IsClosed" Mask="1" />
+      <Flag Name="IsPeriodic" Mask="2" />
+      <Flag Name="IsRational" Mask="4" />
+      <Flag Name="IsPlanar" Mask="8" />
+      <Flag Name="IsLinear" Mask="16" />
+    </Property>
+    <Property Name="DegreeOfCurve" Code="71" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" />
+    <Property Name="NumberOfKnotsIgnored" Code="72" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" Accessibility="private" />
+    <Property Name="NumberOfControlPointsIgnored" Code="73" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" Accessibility="private" />
+    <Property Name="NumberOfFitPointsIgnored" Code="74" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" Accessibility="private" />
+    <Property Name="KnotTolerance" Code="42" Type="double" DefaultValue="0.0000001" DisableWritingDefault="true" />
+    <Property Name="ControlPointTolerance" Code="43" Type="double" DefaultValue="0.0000001" DisableWritingDefault="true" />
+    <Property Name="FitTolerance" Code="44" Type="double" DefaultValue="0.0000000001" DisableWritingDefault="true" />
+    <Property Name="StartTangent" Code="12" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
+    <Property Name="EndTangent" Code="13" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="13,23,33" />
+    <Property Name="KnotValues" Code="40" Type="double" DefaultValue="" AllowMultiples="true" />
+    <Property Name="Weight" Code="41" Type="double" DefaultValue="1.0" DisableWritingDefault="true" />
+    <Property Name="ControlPointX" Code="10" Type="double" DefaultValue="" AllowMultiples="true" Accessibility="private" />
+    <Property Name="ControlPointY" Code="20" Type="double" DefaultValue="" AllowMultiples="true" Accessibility="private" />
+    <Property Name="ControlPointZ" Code="30" Type="double" DefaultValue="" AllowMultiples="true" Accessibility="private" />
+    <Property Name="FitPointX" Code="11" Type="double" DefaultValue="" AllowMultiples="true" Accessibility="private" />
+    <Property Name="FitPointY" Code="21" Type="double" DefaultValue="" AllowMultiples="true" Accessibility="private" />
+    <Property Name="FitPointZ" Code="31" Type="double" DefaultValue="" AllowMultiples="true" Accessibility="private" />
+    <WriteOrder>
+      <WriteSpecificValue Code="100" Value="AcDbSpline" />
+      <WriteProperty Property="Normal" />
+      <WriteProperty Property="Flags" />
+      <WriteSpecificValue Code="72" Value="(short)KnotValues.Count" />
+      <WriteSpecificValue Code="73" Value="(short)ControlPoints.Count" />
+      <WriteSpecificValue Code="74" Value="(short)FitPoints.Count" />
+      <WriteProperty Property="KnotTolerance" />
+      <WriteProperty Property="ControlPointTolerance" />
+      <WriteProperty Property="FitTolerance" />
+      <WriteProperty Property="StartTangent" />
+      <WriteProperty Property="EndTangent" />
+      <WriteProperty Property="KnotValues" />
+      <WriteProperty Property="Weight" />
+      <Foreach Property="ControlPoints">
+        <WriteSpecificValue Code="10" Value="item.X" />
+        <WriteSpecificValue Code="20" Value="item.Y" />
+        <WriteSpecificValue Code="30" Value="item.Z" />
+      </Foreach>
+      <Foreach Property="FitPoints">
+        <WriteSpecificValue Code="11" Value="item.X" />
+        <WriteSpecificValue Code="21" Value="item.Y" />
+        <WriteSpecificValue Code="31" Value="item.Z" />
+      </Foreach>
+    </WriteOrder>
+  </Entity>
   <!--
   
   TEXT
