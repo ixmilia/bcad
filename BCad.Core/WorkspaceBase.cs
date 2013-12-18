@@ -17,7 +17,7 @@ namespace BCad
         {
             Drawing = new Drawing();
             DrawingPlane = new Plane(Point.Origin, Vector.ZAxis);
-            ActiveViewPort = new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 100.0);
+            ActiveViewPort = ViewPort.CreateDefaultViewPort();
             SelectedEntities = new ObservableHashSet<Entity>();
             ViewControl = null;
 

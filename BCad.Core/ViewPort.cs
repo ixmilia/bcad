@@ -77,5 +77,10 @@ namespace BCad
                 * Matrix4.CreateTranslate(-viewWidth / 2.0f, -ViewHeight / 2.0f, 0);
             return projectionMatrix;
         }
+
+        public static ViewPort CreateDefaultViewPort()
+        {
+            return new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 100.0);
+        }
     }
 }

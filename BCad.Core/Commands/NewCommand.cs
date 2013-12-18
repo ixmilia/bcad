@@ -21,7 +21,7 @@ namespace BCad.Commands
                 return false;
             }
 
-            Workspace.Update(drawing: new Drawing());
+            Workspace.Update(drawing: new Drawing(), activeViewPort: ViewPort.CreateDefaultViewPort(), isDirty: false);
             UndoRedoService.ClearHistory();
             return true;
         }
