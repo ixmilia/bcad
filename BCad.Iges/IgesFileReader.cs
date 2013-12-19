@@ -289,6 +289,14 @@ namespace BCad.Iges
             // verify length
             if (index >= str.Length)
                 throw new IgesException("Unexpected end of input");
+
+            // could be empty
+            if (str[index] == IgesFile.DefaultFieldDelimiter)
+            {
+                index++;
+                return;
+            }
+
             if (str[index] != '1')
                 throw new IgesException("Expected delimiter of length 1");
             index++;

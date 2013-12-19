@@ -68,7 +68,7 @@ namespace BCad.FileHandlers.Converters
                         igesEntity = ToIgesLine((Line)entity);
                         break;
                     default:
-                        Debug.Assert(false, "Unsupported entity type: " + entity.Kind);
+                        //Debug.Assert(false, "Unsupported entity type: " + entity.Kind);
                         break;
                 }
 
@@ -85,7 +85,7 @@ namespace BCad.FileHandlers.Converters
             return new IgesLine()
             {
                 Bounding = IgesBounding.BoundOnBothSides,
-                Color = IgesColorNumber.Color0,
+                Color = (IgesColorNumber)line.Color.Value,
                 P1 = ToIgesPoint(line.P1),
                 P2 = ToIgesPoint(line.P2)
             };

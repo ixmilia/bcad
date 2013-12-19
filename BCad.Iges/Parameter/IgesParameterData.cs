@@ -101,7 +101,7 @@ namespace BCad.Iges.Parameter
 
         private static IgesCircleParameterData ParseCircle(List<string> fields)
         {
-            EnsureFieldCount(7, fields);
+            //EnsureFieldCount(7, fields); // sometimes 9?  last two are 0
             return new IgesCircleParameterData()
             {
                 ZT = ParseDouble(fields[0]),
@@ -116,7 +116,7 @@ namespace BCad.Iges.Parameter
 
         private static IgesLineParameterData ParseLine(List<string> fields)
         {
-            EnsureFieldCount(6, fields);
+            //EnsureFieldCount(6, fields); // sometimes 8?  last two are 0
             return new IgesLineParameterData()
             {
                 X1 = ParseDouble(fields[0]),
@@ -130,7 +130,7 @@ namespace BCad.Iges.Parameter
 
         private static IgesTransformationMatrixParameterData ParseTransformationMatrix(List<string> fields)
         {
-            EnsureFieldCount(12, fields);
+            //EnsureFieldCount(12, fields); // sometimes 14?  last two are 0
             return new IgesTransformationMatrixParameterData()
             {
                 R11 = ParseDouble(fields[0]),
