@@ -99,7 +99,7 @@ namespace BCad.Test.IgesTests
 124,1,2,3,4,5,6,7,8,9,10,11,12;                                        1P      1
 110,11,22,33,44,55,66;                                                 3P      2
 ".Trim('\r', '\n'));
-            var matrix = file.Entities.Single(e => e.Type == IgesEntityType.Line).TransformationMatrix;
+            var matrix = file.Entities.Single(e => e.EntityType == IgesEntityType.Line).TransformationMatrix;
             Assert.Equal(1.0, matrix.R11);
             Assert.Equal(2.0, matrix.R12);
             Assert.Equal(3.0, matrix.R13);
@@ -117,7 +117,7 @@ namespace BCad.Test.IgesTests
         [Fact]
         public void CircleReadTest()
         {
-            var circle = (IgesCircle)ParseSingleEntity(@"
+            var circle = (IgesCircularArc)ParseSingleEntity(@"
      100       1       0       0       0                               0D      1
      100       0       3       1       0                               0D      2
 100,11,22,33,44,55,66,77;                                              1P      1

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DwgSpec"
+    targetNamespace="http://IxMilia.com/Iges/EntitiesSpec"
+    elementFormDefault="qualified"
+    xmlns="http://IxMilia.com/Iges/EntitiesSpec"
+    xmlns:mstns="http://IxMilia.com/Iges/EntitiesSpec"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="Property">
+    <xs:complexType>
+      <xs:attribute name="Name" type="xs:string" use="required" />
+      <xs:attribute name="Type" type="xs:string" use="required" />
+      <xs:attribute name="DefaultValue" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CustomProperty">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Get" type="xs:string" />
+        <xs:element name="Set" type="xs:string" />
+      </xs:sequence>
+      <xs:attribute name="Name" type="xs:string" use="required" />
+      <xs:attribute name="Type" type="xs:string" use="required" />
+      <xs:attribute name="Overrides" type="xs:boolean" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Entity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="Property" />
+          <xs:element ref="CustomProperty" />
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="Name" type="xs:string" use="required" />
+      <xs:attribute name="EntityType" type="xs:string" use="required" />
+      <xs:attribute name="TypeCode" type="xs:int" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Spec">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="Entity" />
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

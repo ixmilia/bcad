@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BCad.Iges.Directory;
-using BCad.Iges.Parameter;
 
 namespace BCad.Iges
 {
@@ -37,13 +36,7 @@ namespace BCad.Iges
 
             foreach (var entity in file.Entities)
             {
-                int directoryLine = directoryLines.Count + 1;
-                int parameterLine = parameterLines.Count + 1;
-                var directory = IgesDirectoryData.FromEntity(entity, parameterLine);
-                var parameter = IgesParameterData.FromEntity(entity, directoryLine);
-
-                directory.ToString(directoryLines);
-                parameter.ToString(parameterLines, file, entity.Type);
+                entity.AddDirectoryAndParameterLines(directoryLines, parameterLines, file.FieldDelimiter, file.RecordDelimiter);
             }
 
             PopulateGlobalLines(file, globalLines);
@@ -109,30 +102,33 @@ namespace BCad.Iges
             AddParametersToStringList(fields, globalLines, file.FieldDelimiter, file.RecordDelimiter);
         }
 
-        internal static void AddParametersToStringList(object[] parameters, List<string> stringList, char fieldDelimiter, char recordDelimiter, int maxLength = IgesFile.MaxDataLength, string lineSuffix = null)
+        internal static void AddParametersToStringList(object[] parameters, List<string> stringList, char fieldDelimiter, char recordDelimiter, int maxLength = IgesFile.MaxDataLength, string linePrefix = null, string lineSuffix = null)
         {
+            int suffixLength = lineSuffix == null ? 0 : lineSuffix.Length;
             var sb = new StringBuilder();
+            sb.Append(linePrefix);
             Action addLine = () =>
             {
                 // ensure proper length
-                sb.Append(new string(' ', maxLength - sb.Length));
+                sb.Append(new string(' ', maxLength - sb.Length - suffixLength));
 
                 // add suffix
                 sb.Append(lineSuffix);
                 stringList.Add(sb.ToString());
                 sb.Clear();
+                sb.Append(linePrefix);
             };
             for (int i = 0; i < parameters.Length; i++)
             {
                 var delim = (i == parameters.Length - 1) ? recordDelimiter : fieldDelimiter;
                 var parameter = parameters[i];
                 var paramString = ParameterToString(parameter) + delim;
-                if (sb.Length + paramString.Length <= maxLength)
+                if (sb.Length + paramString.Length + suffixLength <= maxLength)
                 {
                     // if there's enough space on the current line, do it
                     sb.Append(paramString);
                 }
-                else if (paramString.Length <= maxLength)
+                else if (paramString.Length + suffixLength <= maxLength)
                 {
                     // else if it will fit onto a new line, commit the current line and start a new one
                     addLine();
@@ -143,7 +139,7 @@ namespace BCad.Iges
                     // otherwise, write as much as we can and wrap the rest
                     while (paramString.Length > 0)
                     {
-                        var allowed = maxLength - sb.Length;
+                        var allowed = maxLength - sb.Length - suffixLength;
                         if (paramString.Length <= allowed)
                         {
                             // write all of it and be done
@@ -154,7 +150,7 @@ namespace BCad.Iges
                         {
                             // write as much as possible
                             sb.Append(paramString.Substring(0, allowed));
-                            Debug.Assert(sb.Length == maxLength, "This should have been a full line");
+                            Debug.Assert(sb.Length == maxLength - suffixLength, "This should have been a full line");
 
                             // and commit it
                             addLine();

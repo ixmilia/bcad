@@ -112,10 +112,10 @@ namespace BCad.FileHandlers.Converters
         private static Entity ToEntity(IgesEntity entity)
         {
             Entity result = null;
-            switch (entity.Type)
+            switch (entity.EntityType)
             {
-                case IgesEntityType.Circle:
-                    result = ToArc((IgesCircle)entity);
+                case IgesEntityType.CircularArc:
+                    result = ToArc((IgesCircularArc)entity);
                     break;
                 case IgesEntityType.Line:
                     result = ToLine((IgesLine)entity);
@@ -131,7 +131,7 @@ namespace BCad.FileHandlers.Converters
             return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), ToColor(line.Color));
         }
 
-        private static Entity ToArc(IgesCircle arc)
+        private static Entity ToArc(IgesCircularArc arc)
         {
             var center = TransformPoint(arc, arc.Center);
             var startPoint = TransformPoint(arc, arc.StartPoint);

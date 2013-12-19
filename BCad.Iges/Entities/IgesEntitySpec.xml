@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Spec xmlns="http://IxMilia.com/Iges/EntitiesSpec">
+  <!--
+  
+  100 - Circular arc
+  
+  -->
+  <Entity Name="IgesCircularArc" EntityType="CircularArc" TypeCode="100">
+    <Property Name="ZT" Type="double" DefaultValue="0.0" />
+    <Property Name="X1" Type="double" DefaultValue="0.0" />
+    <Property Name="Y1" Type="double" DefaultValue="0.0" />
+    <Property Name="X2" Type="double" DefaultValue="0.0" />
+    <Property Name="Y2" Type="double" DefaultValue="0.0" />
+    <Property Name="X3" Type="double" DefaultValue="0.0" />
+    <Property Name="Y3" Type="double" DefaultValue="0.0" />
+    <CustomProperty Name="PlaneDisplacement" Type="double">
+      <Get><![CDATA[return ZT;]]></Get>
+      <Set><![CDATA[ZT = value;]]></Set>
+    </CustomProperty>
+    <CustomProperty Name="Center" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(X1, Y1, 0.0);]]></Get>
+      <Set><![CDATA[
+X1 = value.X;
+Y1 = value.Y;
+]]>
+      </Set>
+    </CustomProperty>
+    <CustomProperty Name="StartPoint" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(X2, Y2, 0.0);]]></Get>
+      <Set>
+        <![CDATA[
+X2 = value.X;
+Y2 = value.Y;
+]]>
+      </Set>
+    </CustomProperty>
+    <CustomProperty Name="EndPoint" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(X3, Y3, 0.0);]]></Get>
+      <Set>
+        <![CDATA[
+X3 = value.X;
+Y3 = value.Y;
+]]>
+      </Set>
+    </CustomProperty>
+  </Entity>
+  <!--
+  
+  110 - Line
+  
+  -->
+  <Entity Name="IgesLine" EntityType="Line" TypeCode="110">
+    <Property Name="X1" Type="double" DefaultValue="0.0" />
+    <Property Name="Y1" Type="double" DefaultValue="0.0" />
+    <Property Name="Z1" Type="double" DefaultValue="0.0" />
+    <Property Name="X2" Type="double" DefaultValue="0.0" />
+    <Property Name="Y2" Type="double" DefaultValue="0.0" />
+    <Property Name="Z2" Type="double" DefaultValue="0.0" />
+    <CustomProperty Name="LineCount" Type="int" Overrides="true">
+      <Get><![CDATA[return 1;]]></Get>
+      <Set></Set>
+    </CustomProperty>
+    <CustomProperty Name="P1" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(X1, Y1, Z1);]]></Get>
+      <Set><![CDATA[
+X1 = value.X;
+Y1 = value.Y;
+Z1 = value.Z;
+      ]]></Set>
+    </CustomProperty>
+    <CustomProperty Name="P2" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(X2, Y2, Z2);]]></Get>
+      <Set>
+        <![CDATA[
+X2 = value.X;
+Y2 = value.Y;
+Z2 = value.Z;
+      ]]>
+      </Set>
+    </CustomProperty>
+    <CustomProperty Name="Bounding" Type="IgesBounding">
+      <Get><![CDATA[return (IgesBounding)FormNumber;]]></Get>
+      <Set><![CDATA[FormNumber = (int)value;]]></Set>
+    </CustomProperty>
+  </Entity>
+  <!--
+  
+  124 - Transformation matrix
+  
+  -->
+  <Entity Name="IgesTransformationMatrix" EntityType="TransformationMatrix" TypeCode="124">
+    <Property Name="R11" Type="double" DefaultValue="0.0" />
+    <Property Name="R12" Type="double" DefaultValue="0.0" />
+    <Property Name="R13" Type="double" DefaultValue="0.0" />
+    <Property Name="T1" Type="double" DefaultValue="0.0" />
+    <Property Name="R21" Type="double" DefaultValue="0.0" />
+    <Property Name="R22" Type="double" DefaultValue="0.0" />
+    <Property Name="R23" Type="double" DefaultValue="0.0" />
+    <Property Name="T2" Type="double" DefaultValue="0.0" />
+    <Property Name="R31" Type="double" DefaultValue="0.0" />
+    <Property Name="R32" Type="double" DefaultValue="0.0" />
+    <Property Name="R33" Type="double" DefaultValue="0.0" />
+    <Property Name="T3" Type="double" DefaultValue="0.0" />
+  </Entity>
+</Spec>
