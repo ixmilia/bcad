@@ -64,6 +64,24 @@ S      1G      2D      0P      0                                        T      1
         }
 
         [Fact]
+        public void WriteLineWithSpanningParametersTest()
+        {
+            var file = new IgesFile();
+            file.Entities.Add(new IgesLine()
+            {
+                P1 = new IgesPoint(1.1234512345, 2.1234512345, 3.1234512345),
+                P2 = new IgesPoint(4.1234512345, 5.1234512345, 6.1234512345),
+                Color = IgesColorNumber.Color3
+            });
+            VerifyFileContains(file, @"
+     110       1       0       0       0                               0D      1
+     110       0       3       1       0                                D      2
+110,1.1234512345,2.1234512345,3.1234512345,4.1234512345,5.1234512345,  1P      1
+110,6.1234512345;                                                      1P      2
+");
+        }
+
+        [Fact]
         public void WriteSpecificGlobalValuesTest()
         {
             var file = new IgesFile()
