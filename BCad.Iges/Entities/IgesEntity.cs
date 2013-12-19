@@ -76,7 +76,7 @@ namespace BCad.Iges.Entities
 
             IgesFileWriter.AddParametersToStringList(parameters.ToArray(), parameterLines, fieldDelimiter, recordDelimiter,
                 linePrefix: string.Concat((int)EntityType, fieldDelimiter),
-                lineSuffix: nextDirectoryIndex.ToString());
+                lineSuffix: string.Format("{0,7}", nextDirectoryIndex));
         }
 
         private static string ToString(object parameter)
