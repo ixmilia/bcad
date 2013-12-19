@@ -102,11 +102,10 @@ namespace BCad.Iges
             AddParametersToStringList(fields, globalLines, file.FieldDelimiter, file.RecordDelimiter);
         }
 
-        internal static void AddParametersToStringList(object[] parameters, List<string> stringList, char fieldDelimiter, char recordDelimiter, int maxLength = IgesFile.MaxDataLength, string linePrefix = null, string lineSuffix = null)
+        internal static void AddParametersToStringList(object[] parameters, List<string> stringList, char fieldDelimiter, char recordDelimiter, int maxLength = IgesFile.MaxDataLength, string lineSuffix = null)
         {
             int suffixLength = lineSuffix == null ? 0 : lineSuffix.Length;
             var sb = new StringBuilder();
-            sb.Append(linePrefix);
             Action addLine = () =>
             {
                 // ensure proper length
@@ -116,7 +115,6 @@ namespace BCad.Iges
                 sb.Append(lineSuffix);
                 stringList.Add(sb.ToString());
                 sb.Clear();
-                sb.Append(linePrefix);
             };
             for (int i = 0; i < parameters.Length; i++)
             {

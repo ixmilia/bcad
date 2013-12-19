@@ -82,11 +82,17 @@ namespace BCad.Iges
             var map = new Dictionary<int, List<string>>();
             var sb = new StringBuilder();
             int parameterStart = 1;
+            bool finishedParameters = true;
             for (int i = 0; i < parameterLines.Count; i++)
             {
-                // strip off entity number
-                var startIndex = parameterLines[i].IndexOf(',') + 1;
-                var line = parameterLines[i].Substring(startIndex).TrimEnd(); // TODO: could trim off whitespace in a string
+                var line = parameterLines[i].TrimEnd(); // TODO: could trim off whitespace in a string
+                if (finishedParameters)
+                {
+                    // if the first line of a new parameter set, strip off the entity number
+                    var startIndex = line.IndexOf(',') + 1;
+                    line = line.Substring(startIndex);
+                }
+
                 Debug.Assert(line.Length > 0);
                 sb.Append(line);
                 if (line[line.Length - 1] == recordDelimiter)
@@ -96,6 +102,11 @@ namespace BCad.Iges
                     map[parameterStart] = fields;
                     parameterStart = i + 2;
                     sb.Clear();
+                    finishedParameters = true;
+                }
+                else
+                {
+                    finishedParameters = false;
                 }
             }
 

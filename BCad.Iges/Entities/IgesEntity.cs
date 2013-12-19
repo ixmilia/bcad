@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BCad.Iges.Directory;
 
@@ -74,8 +75,10 @@ namespace BCad.Iges.Entities
             var parameters = new List<object>();
             this.WriteParameters(parameters);
 
-            IgesFileWriter.AddParametersToStringList(parameters.ToArray(), parameterLines, fieldDelimiter, recordDelimiter,
-                linePrefix: string.Concat((int)EntityType, fieldDelimiter),
+            var paramArray = new object[parameters.Count + 1];
+            paramArray[0] = (int)EntityType;
+            Array.Copy(parameters.ToArray(), 0, paramArray, 1, parameters.Count);
+            IgesFileWriter.AddParametersToStringList(paramArray, parameterLines, fieldDelimiter, recordDelimiter,
                 lineSuffix: string.Format("{0,7}", nextDirectoryIndex));
         }
 
