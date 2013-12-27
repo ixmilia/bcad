@@ -13,6 +13,7 @@ namespace BCad.Iges.Entities
         Point = 116,
         TransformationMatrix = 124,
         SubfigureDefinition = 308,
+        SingularSubfigureInstance = 408,
     }
 
     public partial class IgesEntity
@@ -30,6 +31,9 @@ namespace BCad.Iges.Entities
                     break;
                 case IgesEntityType.Point:
                     entity = new IgesLocation();
+                    break;
+                case IgesEntityType.SingularSubfigureInstance:
+                    entity = new IgesSingularSubfigureInstance();
                     break;
                 case IgesEntityType.SubfigureDefinition:
                     entity = new IgesSubfigureDefinition();
@@ -308,6 +312,62 @@ namespace BCad.Iges.Entities
             parameters.Add(this.Name);
             parameters.Add(this.Entities.Count);
             parameters.AddRange(this.SubEntityIndices.Cast<object>());
+        }
+    }
+
+    /// <summary>
+    /// IgesSingularSubfigureInstance class
+    /// </summary>
+    public partial class IgesSingularSubfigureInstance : IgesEntity
+    {
+        public override IgesEntityType EntityType { get { return IgesEntityType.SingularSubfigureInstance; } }
+
+        // properties
+        public IgesPoint Offset { get; set; }
+        public double Scale { get; set; }
+
+        // custom properties
+        public IgesEntity Subfigure
+        {
+            get
+            {
+                return SubEntities.Count == 0 ? null : SubEntities[0];
+            }
+            set
+            {
+                if (SubEntities.Count == 0) SubEntities.Add(value);
+                else SubEntities[0] = value;
+            }
+        }
+
+        public IgesSingularSubfigureInstance()
+            : base()
+        {
+            this.Offset = IgesPoint.Origin;
+            this.Scale = 1.0;
+        }
+
+        protected override void ReadParameters(List<string> parameters)
+        {
+            int index = 0;
+            for (int i = 0; i < 1; i++)
+            {
+                this.SubEntityIndices.Add(Integer(parameters[index++]));
+            }
+
+            this.Offset.X = Double(parameters[index++]);
+            this.Offset.Y = Double(parameters[index++]);
+            this.Offset.Z = Double(parameters[index++]);
+            this.Scale = Double(ReadParameterOrDefault(parameters, index++, "1.0"));
+        }
+
+        protected override void WriteParameters(List<object> parameters)
+        {
+            parameters.AddRange(this.SubEntityIndices.Cast<object>());
+            parameters.Add(this.Offset.X);
+            parameters.Add(this.Offset.Y);
+            parameters.Add(this.Offset.Z);
+            if (Scale != 1.0) parameters.Add(this.Scale);
         }
     }
 

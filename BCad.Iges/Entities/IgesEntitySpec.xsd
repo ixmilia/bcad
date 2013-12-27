@@ -50,6 +50,7 @@
       <xs:attribute name="Converter" type="xs:string" use="required" />
       <xs:attribute name="Count" type="xs:string" use="optional" />
       <xs:attribute name="Mode" type="ModeType" use="optional" />
+      <xs:attribute name="DefaultValue" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 

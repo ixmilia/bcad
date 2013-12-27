@@ -128,6 +128,14 @@ namespace BCad.Iges.Entities
             Debug.Assert(length == calculatedLength);
             return value.Substring(sentinelIndex + 1);
         }
+
+        protected static string ReadParameterOrDefault(List<string> parameters, int index, string defaultValue)
+        {
+            if (index < parameters.Count)
+                return parameters[index];
+            else
+                return defaultValue;
+        }
     }
 
     public partial class IgesTransformationMatrix

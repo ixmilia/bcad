@@ -144,9 +144,19 @@ foreach (var entity in entities)
 		var count = Count(parameter);
 		if (count == null)
 		{
+			var defaultValue = DefaultValue(parameter);
+			if (defaultValue == null)
+			{
 #>
             this.<#= Value(parameter) #> = <#= Converter(parameter) #>(parameters[index++]);
 <#
+			} // end if
+			else
+			{
+#>
+            this.<#= Value(parameter) #> = <#= Converter(parameter) #>(ReadParameterOrDefault(parameters, index++, "<#= defaultValue #>"));
+<#
+			} // else
 		} // end if
 		else
 		{
@@ -174,8 +184,15 @@ foreach (var entity in entities)
 			function += "Range";
 			selector = ".Cast<object>()";
 		}
+
+		var ifWrite = "";
+		var defaultValue = DefaultValue(parameter);
+		if (defaultValue != null)
+		{
+			ifWrite = string.Format("if ({0} != {1}) ", Value(parameter), defaultValue);
+		}
 #>
-            parameters.<#= function #>(this.<#= Value(parameter) #><#= selector #>);
+            <#= ifWrite #>parameters.<#= function #>(this.<#= Value(parameter) #><#= selector #>);
 <#
 	} // foreach parameter
 #>
@@ -255,9 +272,15 @@ string Type(XElement parameter)
 
 string DefaultValue(XElement parameter)
 {
-	return AllowMultiples(parameter)
-		? string.Format("new List<{0}>()", Type(parameter))
-		: parameter.Attribute("DefaultValue").Value;
+	if (AllowMultiples(parameter))
+	{
+		return string.Format("new List<{0}>()", Type(parameter));
+	}
+	else
+	{
+		var att = parameter.Attribute("DefaultValue");
+		return att == null ? null : att.Value;
+	}
 }
 
 string Converter(XElement parameter)

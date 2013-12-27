@@ -110,4 +110,27 @@
       <Parameter Value="SubEntityIndices" Converter="Integer" Count="EntityCount" />
     </ParameterOrder>
   </Entity>
+  <!--
+  
+  408 - Singular subfigure instance
+  
+  -->
+  <Entity Name="IgesSingularSubfigureInstance" EntityType="SingularSubfigureInstance" TypeCode="408">
+    <Property Name="Offset" Type="IgesPoint" DefaultValue="IgesPoint.Origin" />
+    <Property Name="Scale" Type="double" DefaultValue="1.0" />
+    <CustomProperty Name="Subfigure" Type="IgesEntity">
+      <Get><![CDATA[return SubEntities.Count == 0 ? null : SubEntities[0];]]></Get>
+      <Set><![CDATA[
+if (SubEntities.Count == 0) SubEntities.Add(value);
+else SubEntities[0] = value;
+      ]]></Set>
+    </CustomProperty>
+    <ParameterOrder>
+      <Parameter Value="SubEntityIndices" Converter="Integer" Count="1" />
+      <Parameter Value="Offset.X" Converter="Double" />
+      <Parameter Value="Offset.Y" Converter="Double" />
+      <Parameter Value="Offset.Z" Converter="Double" />
+      <Parameter Value="Scale" Converter="Double" DefaultValue="1.0" />
+    </ParameterOrder>
+  </Entity>
 </Spec>
