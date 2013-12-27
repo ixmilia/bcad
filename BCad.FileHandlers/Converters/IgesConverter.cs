@@ -120,6 +120,9 @@ namespace BCad.FileHandlers.Converters
                 case IgesEntityType.Line:
                     result = ToLine((IgesLine)entity);
                     break;
+                case IgesEntityType.SingularSubfigureInstance:
+                    result = ToAggregate((IgesSingularSubfigureInstance)entity);
+                    break;
             }
 
             return result;
@@ -171,6 +174,33 @@ namespace BCad.FileHandlers.Converters
                 var endAngle = ((Vector)endUnit).ToAngle();
                 return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color));
             }
+        }
+
+        private static Entity ToAggregate(IgesSingularSubfigureInstance subfigure)
+        {
+            var sub = subfigure.Subfigure;
+            if (sub != null)
+            {
+                var ag = sub as IgesSubfigureDefinition;
+                if (ag != null)
+                {
+                    var entities = ReadOnlyList<Entity>.Empty();
+                    foreach (var e in ag.Entities)
+                    {
+                        var a = ToEntity(e);
+                        if (a != null)
+                            entities = entities.Add(a);
+                    }
+
+                    if (entities.Count != 0)
+                    {
+                        var offset = new Point(subfigure.Offset.X, subfigure.Offset.Y, subfigure.Offset.Z);
+                        return new AggregateEntity(offset, entities, ToColor(subfigure.Color));
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static IndexedColor ToColor(IgesColorNumber color)
