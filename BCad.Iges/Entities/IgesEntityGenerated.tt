@@ -137,29 +137,34 @@ foreach (var entity in entities)
 
         protected override void ReadParameters(List<string> parameters)
         {
+<#
+	var parameterOrder = ParameterOrder(entity).Where(p => Mode(p).Contains("Read"));
+	if (parameterOrder.Any())
+	{
+#>
             int index = 0;
 <#
-	foreach (var parameter in ParameterOrder(entity).Where(p => Mode(p).Contains("Read")))
-	{
-		var count = Count(parameter);
-		if (count == null)
+		foreach (var parameter in parameterOrder)
 		{
-			var defaultValue = DefaultValue(parameter);
-			if (defaultValue == null)
+			var count = Count(parameter);
+			if (count == null)
 			{
+				var defaultValue = DefaultValue(parameter);
+				if (defaultValue == null)
+				{
 #>
             this.<#= Value(parameter) #> = <#= Converter(parameter) #>(parameters[index++]);
 <#
-			} // end if
-			else
-			{
+				} // end if
+				else
+				{
 #>
             this.<#= Value(parameter) #> = <#= Converter(parameter) #>(ReadParameterOrDefault(parameters, index++, "<#= defaultValue #>"));
 <#
-			} // else
-		} // end if
-		else
-		{
+				} // else
+			} // end if
+			else
+			{
 #>
             for (int i = 0; i < <#= count #>; i++)
             {
@@ -167,8 +172,9 @@ foreach (var entity in entities)
             }
 
 <#
-		}
-	} // foreach parameter
+			} // else
+		} // foreach parameter
+	} // if parameterOrder.Any()
 #>
         }
 
@@ -303,7 +309,8 @@ bool AllowMultiples(XElement parameter)
 
 IEnumerable<XElement> ParameterOrder(XElement entity)
 {
-	return entity.Element(XName.Get("ParameterOrder", entity.Name.NamespaceName)).Elements();
+	var paramElement = entity.Element(XName.Get("ParameterOrder", entity.Name.NamespaceName));
+	return paramElement == null ? new XElement[0] : paramElement.Elements();
 }
 
 string Value(XElement parameter)

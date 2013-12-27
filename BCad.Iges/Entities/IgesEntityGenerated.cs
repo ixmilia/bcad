@@ -8,10 +8,13 @@ namespace BCad.Iges.Entities
 {
     public enum IgesEntityType
     {
+        Null = 0,
         CircularArc = 100,
         Line = 110,
         Point = 116,
+        Direction = 123,
         TransformationMatrix = 124,
+        Sphere = 158,
         SubfigureDefinition = 308,
         SingularSubfigureInstance = 408,
     }
@@ -26,14 +29,23 @@ namespace BCad.Iges.Entities
                 case IgesEntityType.CircularArc:
                     entity = new IgesCircularArc();
                     break;
+                case IgesEntityType.Direction:
+                    entity = new IgesDirection();
+                    break;
                 case IgesEntityType.Line:
                     entity = new IgesLine();
+                    break;
+                case IgesEntityType.Null:
+                    entity = new IgesNull();
                     break;
                 case IgesEntityType.Point:
                     entity = new IgesLocation();
                     break;
                 case IgesEntityType.SingularSubfigureInstance:
                     entity = new IgesSingularSubfigureInstance();
+                    break;
+                case IgesEntityType.Sphere:
+                    entity = new IgesSphere();
                     break;
                 case IgesEntityType.SubfigureDefinition:
                     entity = new IgesSubfigureDefinition();
@@ -50,6 +62,29 @@ namespace BCad.Iges.Entities
             }
 
             return entity;
+        }
+    }
+
+    /// <summary>
+    /// IgesNull class
+    /// </summary>
+    public partial class IgesNull : IgesEntity
+    {
+        public override IgesEntityType EntityType { get { return IgesEntityType.Null; } }
+
+        // properties
+
+        public IgesNull()
+            : base()
+        {
+        }
+
+        protected override void ReadParameters(List<string> parameters)
+        {
+        }
+
+        protected override void WriteParameters(List<object> parameters)
+        {
         }
     }
 
@@ -193,6 +228,38 @@ namespace BCad.Iges.Entities
     }
 
     /// <summary>
+    /// IgesDirection class
+    /// </summary>
+    public partial class IgesDirection : IgesEntity
+    {
+        public override IgesEntityType EntityType { get { return IgesEntityType.Direction; } }
+
+        // properties
+        public IgesVector Direction { get; set; }
+
+        public IgesDirection()
+            : base()
+        {
+            this.Direction = IgesVector.XAxis;
+        }
+
+        protected override void ReadParameters(List<string> parameters)
+        {
+            int index = 0;
+            this.Direction.X = Double(parameters[index++]);
+            this.Direction.Y = Double(parameters[index++]);
+            this.Direction.Z = Double(parameters[index++]);
+        }
+
+        protected override void WriteParameters(List<object> parameters)
+        {
+            parameters.Add(this.Direction.X);
+            parameters.Add(this.Direction.Y);
+            parameters.Add(this.Direction.Z);
+        }
+    }
+
+    /// <summary>
     /// IgesTransformationMatrix class
     /// </summary>
     public partial class IgesTransformationMatrix : IgesEntity
@@ -265,6 +332,42 @@ namespace BCad.Iges.Entities
     }
 
     /// <summary>
+    /// IgesSphere class
+    /// </summary>
+    public partial class IgesSphere : IgesEntity
+    {
+        public override IgesEntityType EntityType { get { return IgesEntityType.Sphere; } }
+
+        // properties
+        public double Radius { get; set; }
+        public IgesPoint Center { get; set; }
+
+        public IgesSphere()
+            : base()
+        {
+            this.Radius = 0.0;
+            this.Center = IgesPoint.Origin;
+        }
+
+        protected override void ReadParameters(List<string> parameters)
+        {
+            int index = 0;
+            this.Radius = Double(parameters[index++]);
+            this.Center.X = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Center.Y = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Center.Z = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+        }
+
+        protected override void WriteParameters(List<object> parameters)
+        {
+            parameters.Add(this.Radius);
+            if (Center.X != 0.0) parameters.Add(this.Center.X);
+            if (Center.Y != 0.0) parameters.Add(this.Center.Y);
+            if (Center.Z != 0.0) parameters.Add(this.Center.Z);
+        }
+    }
+
+    /// <summary>
     /// IgesSubfigureDefinition class
     /// </summary>
     public partial class IgesSubfigureDefinition : IgesEntity
@@ -323,7 +426,7 @@ namespace BCad.Iges.Entities
         public override IgesEntityType EntityType { get { return IgesEntityType.SingularSubfigureInstance; } }
 
         // properties
-        public IgesPoint Offset { get; set; }
+        public IgesVector Offset { get; set; }
         public double Scale { get; set; }
 
         // custom properties
@@ -343,7 +446,7 @@ namespace BCad.Iges.Entities
         public IgesSingularSubfigureInstance()
             : base()
         {
-            this.Offset = IgesPoint.Origin;
+            this.Offset = IgesVector.Zero;
             this.Scale = 1.0;
         }
 

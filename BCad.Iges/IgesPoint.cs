@@ -26,4 +26,22 @@
             return string.Format("({0},{1},{2})", X, Y, Z);
         }
     }
+
+    public class IgesVector : IgesPoint
+    {
+        public IgesVector(double x, double y, double z)
+            : base(x, y, z)
+        {
+        }
+
+        public static IgesVector Zero
+        {
+            get { return new IgesVector(0.0, 0.0, 0.0); }
+        }
+
+        public static IgesVector XAxis
+        {
+            get { return new IgesVector(1.0, 0.0, 0.0); }
+        }
+    }
 }
