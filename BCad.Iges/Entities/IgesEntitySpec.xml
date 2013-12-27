@@ -138,6 +138,7 @@
     <ParameterOrder>
       <Parameter Value="RingRadius" Converter="Double" />
       <Parameter Value="DiscRadius" Converter="Double" />
+      <!-- TODO: only optional of all values are default -->
       <Parameter Value="Center.X" Converter="Double" DefaultValue="0.0" />
       <Parameter Value="Center.Y" Converter="Double" DefaultValue="0.0" />
       <Parameter Value="Center.Z" Converter="Double" DefaultValue="0.0" />
