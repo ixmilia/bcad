@@ -13,7 +13,11 @@ namespace BCad.Test.DxfTests
         [Fact]
         public void BinaryReaderTest()
         {
-            // TODO:
+            // this file contains 12 lines
+            var stream = new FileStream("diamond-bin.dxf", FileMode.Open);
+            var file = DxfFile.Load(stream);
+            Assert.Equal(12, file.Entities.Count);
+            Assert.Equal(12, file.Entities.Where(e => e.EntityType == Dxf.Entities.DxfEntityType.Line).Count());
         }
 
         [Fact]

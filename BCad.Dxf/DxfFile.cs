@@ -113,6 +113,11 @@ namespace BCad.Dxf
                     // swallow comments
                     buffer.Advance();
                 }
+                else
+                {
+                    // swallow unexpected code pair
+                    buffer.Advance();
+                }
             }
 
             Debug.Assert(!buffer.ItemsRemain);
