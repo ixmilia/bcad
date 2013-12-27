@@ -12,7 +12,7 @@ namespace BCad.Iges.Entities
         public virtual int LineFontPattern { get; set; }
         public virtual int Level { get; set; }
         public virtual int View { get; set; }
-        public virtual int TransformationMatrixPointer { get; set; }
+        internal virtual int TransformationMatrixPointer { get; set; }
         public virtual int LableDisplay { get; set; }
         public virtual int StatusNumber { get; set; }
         public virtual int LineWeight { get; set; }
