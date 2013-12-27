@@ -132,5 +132,43 @@ S      1G      3D      0P      0                                        T      1
 ");
             Assert.Equal(",;,;,;", file.Identification);
         }
+
+        [Fact]
+        public void MissingStartSectionTest()
+        {
+            var file = CreateFile(@"
+1H,,1H;,10Hidentifier,28HC:\path\to\full\filename.igs,4HBCAD,3H1.0,16,7,G      1
+22,10,51,6Hident2,0.75,10,,4,0.8,15H19831123.130811,,500,5HBrett,7HIxMilG      2
+ia,8,4,13H870508.123456,8Hprotocol;                                     G      3
+S      0G      3D      0P      0                                        T      1
+");
+            Assert.Equal(',', file.FieldDelimiter);
+        }
+
+        [Fact]
+        public void MissingGlobalSectionTest()
+        {
+            var file = CreateFile(@"
+                                                                        S      1
+S      1G      0D      0P      0                                        T      1
+");
+            Assert.Equal(',', file.FieldDelimiter);
+        }
+
+        [Fact]
+        public void OnlyTerminateLineTest()
+        {
+            var file = CreateFile(@"
+S      0G      0D      0P      0                                        T      1
+");
+            Assert.Equal(',', file.FieldDelimiter);
+        }
+
+        [Fact]
+        public void EmptyFileTest()
+        {
+            var file = CreateFile(string.Empty);
+            Assert.Equal(',', file.FieldDelimiter);
+        }
     }
 }

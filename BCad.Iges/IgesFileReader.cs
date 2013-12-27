@@ -15,7 +15,7 @@ namespace BCad.Iges
         public static IgesFile Load(Stream stream)
         {
             var file = new IgesFile();
-            var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd());
+            var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd()).Where(line => !string.IsNullOrEmpty(line));
             string terminateLine = null;
             var startLines = new List<string>();
             var globalLines = new List<string>();
@@ -178,90 +178,32 @@ namespace BCad.Iges
                 return;
 
             int index = 0;
-            for (int field = 1; field <= 26; field++)
-            {
-                switch (field)
-                {
-                    case 1:
-                        ParseDelimiterCharacter(file, fullString, ref index, true);
-                        break;
-                    case 2:
-                        ParseDelimiterCharacter(file, fullString, ref index, false);
-                        break;
-                    case 3:
-                        file.Identification = ParseString(file, fullString, ref index);
-                        break;
-                    case 4:
-                        file.FullFileName = ParseString(file, fullString, ref index);
-                        break;
-                    case 5:
-                        file.SystemIdentifier = ParseString(file, fullString, ref index);
-                        break;
-                    case 6:
-                        file.SystemVersion = ParseString(file, fullString, ref index);
-                        break;
-                    case 7:
-                        file.IntegerSize = ParseInt(file, fullString, ref index);
-                        break;
-                    case 8:
-                        file.SingleSize = ParseInt(file, fullString, ref index);
-                        break;
-                    case 9:
-                        file.DecimalDigits = ParseInt(file, fullString, ref index);
-                        break;
-                    case 10:
-                        file.DoubleMagnitude = ParseInt(file, fullString, ref index);
-                        break;
-                    case 11:
-                        file.DoublePrecision = ParseInt(file, fullString, ref index);
-                        break;
-                    case 12:
-                        file.Identifier = ParseString(file, fullString, ref index);
-                        break;
-                    case 13:
-                        file.ModelSpaceScale = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 14:
-                        file.ModelUnits = (IgesUnits)ParseInt(file, fullString, ref index, (int)file.ModelUnits);
-                        break;
-                    case 15:
-                        file.CustomModelUnits = ParseString(file, fullString, ref index);
-                        break;
-                    case 16:
-                        file.MaxLineWeightGraduations = ParseInt(file, fullString, ref index);
-                        break;
-                    case 17:
-                        file.MaxLineWeight = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 18:
-                        file.TimeStamp = ParseDateTime(ParseString(file, fullString, ref index), file.TimeStamp);
-                        break;
-                    case 19:
-                        file.MinimumResolution = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 20:
-                        file.MaxCoordinateValue = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 21:
-                        file.Author = ParseString(file, fullString, ref index);
-                        break;
-                    case 22:
-                        file.Organization = ParseString(file, fullString, ref index);
-                        break;
-                    case 23:
-                        file.IgesVersion = (IgesVersion)ParseInt(file, fullString, ref index);
-                        break;
-                    case 24:
-                        file.DraftingStandard = (IgesDraftingStandard)ParseInt(file, fullString, ref index);
-                        break;
-                    case 25:
-                        file.ModifiedTime = ParseDateTime(ParseString(file, fullString, ref index), file.ModifiedTime);
-                        break;
-                    case 26:
-                        file.ApplicationProtocol = ParseString(file, fullString, ref index);
-                        break;
-                }
-            }
+            ParseDelimiterCharacter(file, fullString, ref index, true); // 1
+            ParseDelimiterCharacter(file, fullString, ref index, false); // 2
+            file.Identification = ParseString(file, fullString, ref index); // 3
+            file.FullFileName = ParseString(file, fullString, ref index); // 4
+            file.SystemIdentifier = ParseString(file, fullString, ref index); // 5
+            file.SystemVersion = ParseString(file, fullString, ref index); // 6
+            file.IntegerSize = ParseInt(file, fullString, ref index); // 7
+            file.SingleSize = ParseInt(file, fullString, ref index); // 8
+            file.DecimalDigits = ParseInt(file, fullString, ref index); // 9
+            file.DoubleMagnitude = ParseInt(file, fullString, ref index); // 10
+            file.DoublePrecision = ParseInt(file, fullString, ref index); // 11
+            file.Identifier = ParseString(file, fullString, ref index); // 12
+            file.ModelSpaceScale = ParseDouble(file, fullString, ref index); // 13
+            file.ModelUnits = (IgesUnits)ParseInt(file, fullString, ref index, (int)file.ModelUnits); // 14
+            file.CustomModelUnits = ParseString(file, fullString, ref index); // 15
+            file.MaxLineWeightGraduations = ParseInt(file, fullString, ref index); // 16
+            file.MaxLineWeight = ParseDouble(file, fullString, ref index); // 17
+            file.TimeStamp = ParseDateTime(ParseString(file, fullString, ref index), file.TimeStamp); // 18
+            file.MinimumResolution = ParseDouble(file, fullString, ref index); // 19
+            file.MaxCoordinateValue = ParseDouble(file, fullString, ref index); // 20
+            file.Author = ParseString(file, fullString, ref index); // 21
+            file.Organization = ParseString(file, fullString, ref index); // 22
+            file.IgesVersion = (IgesVersion)ParseInt(file, fullString, ref index); // 23
+            file.DraftingStandard = (IgesDraftingStandard)ParseInt(file, fullString, ref index); // 24
+            file.ModifiedTime = ParseDateTime(ParseString(file, fullString, ref index), file.ModifiedTime); // 25
+            file.ApplicationProtocol = ParseString(file, fullString, ref index); // 26
         }
 
         private static void ParseDelimiterCharacter(IgesFile file, string str, ref int index, bool readFieldSeparator)
