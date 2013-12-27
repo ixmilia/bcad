@@ -69,7 +69,7 @@
   
   -->
   <Entity Name="IgesDirection" EntityType="Direction" TypeCode="123">
-    <Property Name="Direction" Type="IgesVector" DefaultValue="IgesVector.XAxis" />
+    <Property Name="Direction" Type="IgesVector" DefaultValue="IgesVector.ZAxis" />
     <ParameterOrder>
       <Parameter Value="Direction.X" Converter="Double" />
       <Parameter Value="Direction.Y" Converter="Double" />
@@ -123,6 +123,27 @@
       <Parameter Value="Center.X" Converter="Double" DefaultValue="0.0" />
       <Parameter Value="Center.Y" Converter="Double" DefaultValue="0.0" />
       <Parameter Value="Center.Z" Converter="Double" DefaultValue="0.0" />
+    </ParameterOrder>
+  </Entity>
+  <!--
+  
+  160 - Torus
+  
+  -->
+  <Entity Name="IgesTorus" EntityType="Torus" TypeCode="160">
+    <Property Name="RingRadius" Type="double" DefaultValue="0.0" />
+    <Property Name="DiscRadius" Type="double" DefaultValue="0.0" />
+    <Property Name="Center" Type="IgesPoint" DefaultValue="IgesPoint.Origin" />
+    <Property Name="Normal" Type="IgesVector" DefaultValue="IgesVector.ZAxis" />
+    <ParameterOrder>
+      <Parameter Value="RingRadius" Converter="Double" />
+      <Parameter Value="DiscRadius" Converter="Double" />
+      <Parameter Value="Center.X" Converter="Double" DefaultValue="0.0" />
+      <Parameter Value="Center.Y" Converter="Double" DefaultValue="0.0" />
+      <Parameter Value="Center.Z" Converter="Double" DefaultValue="0.0" />
+      <Parameter Value="Normal.X" Converter="Double" DefaultValue="0.0" />
+      <Parameter Value="Normal.Y" Converter="Double" DefaultValue="0.0" />
+      <Parameter Value="Normal.Z" Converter="Double" DefaultValue="1.0" />
     </ParameterOrder>
   </Entity>
   <!--

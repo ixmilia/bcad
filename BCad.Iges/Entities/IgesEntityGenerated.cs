@@ -15,6 +15,7 @@ namespace BCad.Iges.Entities
         Direction = 123,
         TransformationMatrix = 124,
         Sphere = 158,
+        Torus = 160,
         SubfigureDefinition = 308,
         SingularSubfigureInstance = 408,
     }
@@ -49,6 +50,9 @@ namespace BCad.Iges.Entities
                     break;
                 case IgesEntityType.SubfigureDefinition:
                     entity = new IgesSubfigureDefinition();
+                    break;
+                case IgesEntityType.Torus:
+                    entity = new IgesTorus();
                     break;
                 case IgesEntityType.TransformationMatrix:
                     entity = new IgesTransformationMatrix();
@@ -240,7 +244,7 @@ namespace BCad.Iges.Entities
         public IgesDirection()
             : base()
         {
-            this.Direction = IgesVector.XAxis;
+            this.Direction = IgesVector.ZAxis;
         }
 
         protected override void ReadParameters(List<string> parameters)
@@ -364,6 +368,54 @@ namespace BCad.Iges.Entities
             if (Center.X != 0.0) parameters.Add(this.Center.X);
             if (Center.Y != 0.0) parameters.Add(this.Center.Y);
             if (Center.Z != 0.0) parameters.Add(this.Center.Z);
+        }
+    }
+
+    /// <summary>
+    /// IgesTorus class
+    /// </summary>
+    public partial class IgesTorus : IgesEntity
+    {
+        public override IgesEntityType EntityType { get { return IgesEntityType.Torus; } }
+
+        // properties
+        public double RingRadius { get; set; }
+        public double DiscRadius { get; set; }
+        public IgesPoint Center { get; set; }
+        public IgesVector Normal { get; set; }
+
+        public IgesTorus()
+            : base()
+        {
+            this.RingRadius = 0.0;
+            this.DiscRadius = 0.0;
+            this.Center = IgesPoint.Origin;
+            this.Normal = IgesVector.ZAxis;
+        }
+
+        protected override void ReadParameters(List<string> parameters)
+        {
+            int index = 0;
+            this.RingRadius = Double(parameters[index++]);
+            this.DiscRadius = Double(parameters[index++]);
+            this.Center.X = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Center.Y = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Center.Z = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Normal.X = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Normal.Y = Double(ReadParameterOrDefault(parameters, index++, "0.0"));
+            this.Normal.Z = Double(ReadParameterOrDefault(parameters, index++, "1.0"));
+        }
+
+        protected override void WriteParameters(List<object> parameters)
+        {
+            parameters.Add(this.RingRadius);
+            parameters.Add(this.DiscRadius);
+            if (Center.X != 0.0) parameters.Add(this.Center.X);
+            if (Center.Y != 0.0) parameters.Add(this.Center.Y);
+            if (Center.Z != 0.0) parameters.Add(this.Center.Z);
+            if (Normal.X != 0.0) parameters.Add(this.Normal.X);
+            if (Normal.Y != 0.0) parameters.Add(this.Normal.Y);
+            if (Normal.Z != 1.0) parameters.Add(this.Normal.Z);
         }
     }
 
