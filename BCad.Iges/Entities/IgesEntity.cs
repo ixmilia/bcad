@@ -89,7 +89,7 @@ namespace BCad.Iges.Entities
                 SubEntityIndices.Add(index);
             }
 
-            var nextDirectoryIndex = directoryLines.Count / 2 + 1;
+            var nextDirectoryIndex = directoryLines.Count + 1;
             var nextParameterIndex = parameterLines.Count + 1;
             var dir = GetDirectoryData();
             dir.ParameterPointer = nextParameterIndex;
