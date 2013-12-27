@@ -134,5 +134,43 @@ namespace BCad.Test.IgesTests
             Assert.Equal(0.0, circle.EndPoint.Z);
             Assert.Equal(IgesColorNumber.Green, circle.Color);
         }
+
+        [Fact]
+        public void ReadSubfigureTest()
+        {
+            var entity = ParseSingleEntity(@"
+// The subfigure has two lines; one defined before and one after.       S      1
+     110       1       0       0       0                               0D      1
+     110       0       0       1       0                               0D      2
+     308       2       0       0       0                               0D      3
+     308       0       0       1       0                               0D      4
+     110       3       0       0       0                               0D      5
+     110       0       0       1       0                               0D      6
+110,1.0,2.0,3.0,4.0,5.0,6.0;                                            P      1
+308,0,21Hthis is the subfigure,2,1,5;                                   P      2
+110,7.0,8.0,9.0,10.0,11.0,12.0;                                         P      3
+");
+            Assert.Equal(IgesEntityType.SubfigureDefinition, entity.EntityType);
+            var subfigure = (IgesSubfigureDefinition)entity;
+            Assert.Equal(0, subfigure.Depth);
+            Assert.Equal("this is the subfigure", subfigure.Name);
+            Assert.Equal(2, subfigure.Entities.Count);
+            Assert.Equal(IgesEntityType.Line, subfigure.Entities[0].EntityType);
+            Assert.Equal(IgesEntityType.Line, subfigure.Entities[1].EntityType);
+            var line1 = (IgesLine)subfigure.Entities[0];
+            Assert.Equal(1.0, line1.P1.X);
+            Assert.Equal(2.0, line1.P1.Y);
+            Assert.Equal(3.0, line1.P1.Z);
+            Assert.Equal(4.0, line1.P2.X);
+            Assert.Equal(5.0, line1.P2.Y);
+            Assert.Equal(6.0, line1.P2.Z);
+            var line2 = (IgesLine)subfigure.Entities[1];
+            Assert.Equal(7.0, line2.P1.X);
+            Assert.Equal(8.0, line2.P1.Y);
+            Assert.Equal(9.0, line2.P1.Z);
+            Assert.Equal(10.0, line2.P2.X);
+            Assert.Equal(11.0, line2.P2.Y);
+            Assert.Equal(12.0, line2.P2.Z);
+        }
     }
 }

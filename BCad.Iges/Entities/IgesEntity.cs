@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using BCad.Iges.Directory;
 
 namespace BCad.Iges.Entities
@@ -116,7 +115,18 @@ namespace BCad.Iges.Entities
 
         protected string String(string value)
         {
-            return value;
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            var sentinelIndex = value.IndexOf(IgesFile.StringSentinelCharacter);
+            if (sentinelIndex < 0)
+                return null;
+
+            var lengthString = value.Substring(0, sentinelIndex);
+            var length = int.Parse(lengthString);
+            var calculatedLength = value.Length - lengthString.Length - 1; // 1 == sentinel length
+            Debug.Assert(length == calculatedLength);
+            return value.Substring(sentinelIndex + 1);
         }
     }
 

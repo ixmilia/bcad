@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BCad.Iges;
+using BCad.Iges.Entities;
 using Xunit;
 
 namespace BCad.Test.IgesTests

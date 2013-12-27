@@ -166,7 +166,8 @@ namespace BCad.Iges
 
             for (int i = file.Entities.Count - 1; i >= 0; i--)
             {
-                if (toTrim.Contains(i + 1)) // entity pointers are 1-based
+                var deIndex = i * 2 + 1;
+                if (toTrim.Contains(deIndex))
                     file.Entities.RemoveAt(i);
             }
         }
