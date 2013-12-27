@@ -134,24 +134,40 @@ namespace BCad.Iges
 
         private static void PopulateEntities(IgesFile file, List<string> directoryLines, Dictionary<int, List<string>> parameterMap)
         {
-            var transformationMatrices = new Dictionary<int, IgesTransformationMatrix>();
+            var entityMap = new Dictionary<int, IgesEntity>();
             for (int i = 0; i < directoryLines.Count; i += 2)
             {
                 var dir = IgesDirectoryData.FromRawLines(directoryLines[i], directoryLines[i + 1]);
                 var entity = IgesEntity.FromData(dir, parameterMap[dir.ParameterPointer]);
                 if (entity != null)
                 {
-                    if (entity.EntityType == IgesEntityType.TransformationMatrix)
-                    {
-                        transformationMatrices[i + 1] = (IgesTransformationMatrix)entity;
-                    }
-
-                    if (dir.TransformationMatrixPointer > 0)
-                        entity.TransformationMatrix = transformationMatrices[dir.TransformationMatrixPointer];
-                    else
-                        entity.TransformationMatrix = IgesTransformationMatrix.Identity;
+                    var directoryIndex = i + 1;
+                    entityMap[directoryIndex] = entity;
                     file.Entities.Add(entity);
                 }
+            }
+
+            var toTrim = new HashSet<int>();
+            foreach (var entity in file.Entities)
+            {
+                if (entity.TransformationMatrixPointer > 0)
+                {
+                    entity.TransformationMatrix = entityMap[entity.TransformationMatrixPointer] as IgesTransformationMatrix;
+                    toTrim.Add(entity.TransformationMatrixPointer);
+                }
+                else
+                    entity.TransformationMatrix = IgesTransformationMatrix.Identity;
+                foreach (var pointer in entity.SubEntityIndices)
+                {
+                    entity.SubEntities.Add(entityMap[pointer]);
+                    toTrim.Add(pointer);
+                }
+            }
+
+            for (int i = file.Entities.Count - 1; i >= 0; i--)
+            {
+                if (toTrim.Contains(i + 1)) // entity pointers are 1-based
+                    file.Entities.RemoveAt(i);
             }
         }
 

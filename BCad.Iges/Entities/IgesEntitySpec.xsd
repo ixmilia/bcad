@@ -6,23 +6,58 @@
     xmlns:mstns="http://IxMilia.com/Iges/EntitiesSpec"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <xs:simpleType name="AccessibilityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="public" />
+      <xs:enumeration value="private" />
+      <xs:enumeration value="protected" />
+      <xs:enumeration value="internal" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:element name="Property">
     <xs:complexType>
       <xs:attribute name="Name" type="xs:string" use="required" />
       <xs:attribute name="Type" type="xs:string" use="required" />
       <xs:attribute name="DefaultValue" type="xs:string" use="required" />
+      <xs:attribute name="Accessibility" type="AccessibilityType" use="optional" />
     </xs:complexType>
   </xs:element>
 
   <xs:element name="CustomProperty">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Get" type="xs:string" />
-        <xs:element name="Set" type="xs:string" />
+        <xs:element name="Get" type="xs:string" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Set" type="xs:string" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="Name" type="xs:string" use="required" />
       <xs:attribute name="Type" type="xs:string" use="required" />
       <xs:attribute name="Overrides" type="xs:boolean" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="ModeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ReadOnly" />
+      <xs:enumeration value="WriteOnly" />
+      <xs:enumeration value="ReadAndWrite" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="Parameter">
+    <xs:complexType>
+      <xs:attribute name="Value" type="xs:string" use="required" />
+      <xs:attribute name="Converter" type="xs:string" use="required" />
+      <xs:attribute name="Count" type="xs:string" use="optional" />
+      <xs:attribute name="Mode" type="ModeType" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ParameterOrder">
+    <xs:complexType>
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="Parameter" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -32,6 +67,8 @@
         <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:element ref="Property" />
           <xs:element ref="CustomProperty" />
+          <xs:element name="EntitiesToTrim" />
+          <xs:element ref="ParameterOrder" />
         </xs:choice>
       </xs:sequence>
       <xs:attribute name="Name" type="xs:string" use="required" />

@@ -49,7 +49,7 @@ namespace BCad.Test.IgesTests
             Assert.Equal(44.0, line.P2.X);
             Assert.Equal(55.0, line.P2.Y);
             Assert.Equal(66.0, line.P2.Z);
-            Assert.Equal(IgesColorNumber.Color3, line.Color);
+            Assert.Equal(IgesColorNumber.Green, line.Color);
 
             // verify transformation matrix is identity
             Assert.Equal(1.0, line.TransformationMatrix.R11);
@@ -132,7 +132,7 @@ namespace BCad.Test.IgesTests
             Assert.Equal(66.0, circle.EndPoint.X);
             Assert.Equal(77.0, circle.EndPoint.Y);
             Assert.Equal(0.0, circle.EndPoint.Z);
-            Assert.Equal(IgesColorNumber.Color3, circle.Color);
+            Assert.Equal(IgesColorNumber.Green, circle.Color);
         }
     }
 }

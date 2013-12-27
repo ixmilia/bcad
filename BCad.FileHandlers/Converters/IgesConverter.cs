@@ -39,11 +39,11 @@ namespace BCad.FileHandlers.Converters
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 igesFile.File.Author);
 
-            viewPort = new ViewPort(
-                Point.Origin,
+            viewPort = drawing.ShowAllViewPort(
                 Vector.ZAxis,
                 Vector.YAxis,
-                100.0);
+                1016,
+                491);
 
             return true;
         }
@@ -175,7 +175,29 @@ namespace BCad.FileHandlers.Converters
 
         private static IndexedColor ToColor(IgesColorNumber color)
         {
-            return new IndexedColor((byte)color);
+            switch (color)
+            {
+                case IgesColorNumber.Default:
+                    return IndexedColor.Auto;
+                case IgesColorNumber.Black:
+                    return new IndexedColor(0);
+                case IgesColorNumber.Red:
+                    return new IndexedColor(1);
+                case IgesColorNumber.Green:
+                    return new IndexedColor(3);
+                case IgesColorNumber.Blue:
+                    return new IndexedColor(5);
+                case IgesColorNumber.Yellow:
+                    return new IndexedColor(2);
+                case IgesColorNumber.Magenta:
+                    return new IndexedColor(6);
+                case IgesColorNumber.Cyan:
+                    return new IndexedColor(4);
+                case IgesColorNumber.White:
+                    return new IndexedColor(7);
+                default:
+                    return IndexedColor.Auto;
+            }
         }
 
         private static Point TransformPoint(IgesEntity entity, IgesPoint point)

@@ -15,6 +15,7 @@ namespace BCad.Iges.Directory
         public int TransformationMatrixPointer { get; set; }
         public int LableDisplay { get; set; }
         public int StatusNumber { get; set; }
+        public int SequenceNumber { get; set; }
 
         public int LineWeight { get; set; }
         public IgesColorNumber Color { get; set; }
