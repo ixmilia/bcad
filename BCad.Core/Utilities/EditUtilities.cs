@@ -170,6 +170,11 @@ namespace BCad.Utilities
                         result = null;
                     }
                     break;
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)primitive;
+                    var pointOffsetVector = (offsetDirection - point.Location).Normalize() * offsetDistance;
+                    result = new PrimitivePoint(point.Location + pointOffsetVector, point.Color);
+                    break;
                 case PrimitiveKind.Text:
                     result = null;
                     break;
@@ -299,6 +304,8 @@ namespace BCad.Utilities
                             Offset(drawingPlane, line, line.P1 + offsetVector, distance),
                             Offset(drawingPlane, line, line.P1 - offsetVector, distance)
                         };
+                case PrimitiveKind.Point:
+                    return Enumerable.Empty<IPrimitive>();
                 case PrimitiveKind.Text:
                     return Enumerable.Empty<IPrimitive>();
                 default:

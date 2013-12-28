@@ -195,6 +195,7 @@ namespace BCad.UI
                     };
                     break;
                 default:
+                    // TODO: draw points
                     verticies = new VertexPositionColor[0];
                     break;
             }

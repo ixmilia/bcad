@@ -7,6 +7,7 @@
         Circle,
         Ellipse,
         Line,
+        Location,
         Polyline,
         Text
     }

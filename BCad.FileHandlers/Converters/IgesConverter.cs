@@ -67,6 +67,9 @@ namespace BCad.FileHandlers.Converters
                     case EntityKind.Line:
                         igesEntity = ToIgesLine((Line)entity);
                         break;
+                    case EntityKind.Location:
+                        igesEntity = ToIgesLocation((Location)entity);
+                        break;
                     default:
                         //Debug.Assert(false, "Unsupported entity type: " + entity.Kind);
                         break;
@@ -88,6 +91,15 @@ namespace BCad.FileHandlers.Converters
                 Color = (IgesColorNumber)line.Color.Value,
                 P1 = ToIgesPoint(line.P1),
                 P2 = ToIgesPoint(line.P2)
+            };
+        }
+
+        private static IgesLocation ToIgesLocation(Location location)
+        {
+            return new IgesLocation()
+            {
+                Location = ToIgesPoint(location.Point),
+                Color = (IgesColorNumber)location.Color.Value
             };
         }
 
@@ -120,6 +132,9 @@ namespace BCad.FileHandlers.Converters
                 case IgesEntityType.Line:
                     result = ToLine((IgesLine)entity);
                     break;
+                case IgesEntityType.Point:
+                    result = ToLocation((IgesLocation)entity);
+                    break;
                 case IgesEntityType.SingularSubfigureInstance:
                     result = ToAggregate((IgesSingularSubfigureInstance)entity);
                     break;
@@ -132,6 +147,11 @@ namespace BCad.FileHandlers.Converters
         {
             // TODO: handle different forms (segment, ray, continuous)
             return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), ToColor(line.Color));
+        }
+
+        private static Location ToLocation(IgesLocation point)
+        {
+            return new Location(TransformPoint(point, point.Location), ToColor(point.Color));
         }
 
         private static Entity ToArc(IgesCircularArc arc)

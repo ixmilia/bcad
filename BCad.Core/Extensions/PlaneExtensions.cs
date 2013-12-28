@@ -25,6 +25,9 @@ namespace BCad.Extensions
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     return plane.Contains(line.P1) && plane.Contains(line.P2);
+                case PrimitiveKind.Point:
+                    var p = (PrimitivePoint)primitive;
+                    return plane.Contains(p.Location);
                 case PrimitiveKind.Text:
                     var t = (PrimitiveText)primitive;
                     return plane.Contains(t.Location)

@@ -23,6 +23,63 @@ namespace BCad.UI
         void RenderSelected(Device device, Matrix projection, Matrix view);
     }
 
+    internal class DisplayPrimitivePoint : IDisplayPrimitive
+    {
+        public Color4 Color { get; private set; }
+        public Vector3 Location { get; private set; }
+        private SlimDX.Direct3D9.Line solidLine = null;
+        private SlimDX.Direct3D9.Line dashedLine = null;
+
+        private Vector2[] line1;
+        private Vector2[] line2;
+
+        private const float PointSize = 7f;
+
+        public DisplayPrimitivePoint(Color4 color, Vector3 location, SlimDX.Direct3D9.Line solidLine, SlimDX.Direct3D9.Line dashedLine)
+        {
+            this.Color = color;
+            this.Location = location;
+            this.solidLine = solidLine;
+            this.dashedLine = dashedLine;
+
+            this.line1 = new Vector2[2];
+            this.line2 = new Vector2[2];
+        }
+
+        public void RenderNormal(Device device, Matrix projection, Matrix view)
+        {
+            var loc = GetLocation(projection, view, device.Viewport.Width, device.Viewport.Height);
+            line1[0] = new Vector2(loc.X - PointSize, loc.Y);
+            line1[1] = new Vector2(loc.X + PointSize, loc.Y);
+            line2[0] = new Vector2(loc.X, loc.Y - PointSize);
+            line2[1] = new Vector2(loc.X, loc.Y + PointSize);
+            solidLine.Draw(line1, Color);
+            solidLine.Draw(line2, Color);
+        }
+
+        public void RenderSelected(Device device, Matrix projection, Matrix view)
+        {
+            var loc = GetLocation(projection, view, device.Viewport.Width, device.Viewport.Height);
+            line1[0] = new Vector2(loc.X - PointSize, loc.Y);
+            line1[1] = new Vector2(loc.X + PointSize, loc.Y);
+            line2[0] = new Vector2(loc.X, loc.Y - PointSize);
+            line2[1] = new Vector2(loc.X, loc.Y + PointSize);
+            dashedLine.Draw(line1, Color);
+            dashedLine.Draw(line2, Color);
+        }
+
+        public void Dispose()
+        {
+        }
+
+        private Vector2 GetLocation(Matrix projection, Matrix view, float displayWidth, float displayHeight)
+        {
+            var matrix = projection * view;
+            var pos = Vector3.Transform(Location, matrix);
+            return new Vector2((pos.X + 1) * 0.5f * displayWidth, (1.0f - (pos.Y + 1) * 0.5f) * displayHeight);
+        }
+    }
+
     internal class DisplayPrimitiveLines : IDisplayPrimitive
     {
         public Color4 Color { get; private set; }
@@ -447,6 +504,10 @@ Result PShader(Input pixel)
                         },
                         solidLine,
                         dashedLine);
+                    break;
+                case PrimitiveKind.Point:
+                    var point = ((PrimitivePoint)primitive).Location;
+                    display = new DisplayPrimitivePoint(color, new Vector3((float)point.X, (float)point.Y, (float)point.Z), solidLine, dashedLine);
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;

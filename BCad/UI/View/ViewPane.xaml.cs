@@ -664,10 +664,10 @@ namespace BCad.UI
         {
             switch (primitive.Kind)
             {
-            case PrimitiveKind.Ellipse:
-                return ((PrimitiveEllipse)primitive).GetProjectedVerticies(windowsTransformationMatrix, 360);
-            default:
-                return primitive.GetProjectedVerticies(windowsTransformationMatrix);
+                case PrimitiveKind.Ellipse:
+                    return ((PrimitiveEllipse)primitive).GetProjectedVerticies(windowsTransformationMatrix, 360);
+                default:
+                    return primitive.GetProjectedVerticies(windowsTransformationMatrix);
             }
         }
 
@@ -720,6 +720,12 @@ namespace BCad.UI
                         windowsTransformationMatrix.Transform(line.P1),
                         windowsTransformationMatrix.Transform(line.P2)
                     }, screenPoint);
+                case PrimitiveKind.Point:
+                    // the closest point is the only point present
+                    var point = (PrimitivePoint)primitive;
+                    var displayPoint = windowsTransformationMatrix.Transform(point.Location);
+                    var dist = (displayPoint - screenPoint).Length;
+                    return Tuple.Create(dist, point.Location);
                 case PrimitiveKind.Text:
                     var text = (PrimitiveText)primitive;
                     var rad = text.Rotation * MathHelper.DegreesToRadians;

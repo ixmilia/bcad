@@ -4,6 +4,7 @@
     {
         Ellipse,
         Line,
+        Point,
         Text
     }
 }

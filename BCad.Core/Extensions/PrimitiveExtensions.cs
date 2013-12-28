@@ -98,6 +98,9 @@ namespace BCad.Extensions
                 case PrimitiveKind.Ellipse:
                     result = ((PrimitiveEllipse)primitive).IntersectionPoints(other, withinBounds);
                     break;
+                case PrimitiveKind.Point:
+                    result = ((PrimitivePoint)primitive).IntersectionPoints(other, withinBounds);
+                    break;
                 case PrimitiveKind.Text:
                     result = Enumerable.Empty<Point>();
                     break;
@@ -109,6 +112,44 @@ namespace BCad.Extensions
 
             return result;
         }
+
+        #region Point-primitive intersection
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitivePoint point, IPrimitive other, bool withinBounds = true)
+        {
+            IEnumerable<Point> result;
+            switch (other.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    result = ((PrimitiveEllipse)other).IntersectionPoints(point, withinBounds);
+                    break;
+                case PrimitiveKind.Line:
+                    result = ((PrimitiveLine)other).IntersectionPoints(point, withinBounds);
+                    break;
+                case PrimitiveKind.Point:
+                    result = point.IntersectionPoints((PrimitivePoint)other);
+                    break;
+                case PrimitiveKind.Text:
+                    result = Enumerable.Empty<Point>();
+                    break;
+                default:
+                    Debug.Assert(false, "Unsupported primitive type");
+                    result = Enumerable.Empty<Point>();
+                    break;
+            }
+
+            return result;
+        }
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitivePoint first, PrimitivePoint second)
+        {
+            if (first.Location.CloseTo(second.Location))
+                return new Point[] { first.Location };
+            else
+                return Enumerable.Empty<Point>();
+        }
+
+        #endregion
 
         #region Line-primitive intersection
 
@@ -122,6 +163,17 @@ namespace BCad.Extensions
                     break;
                 case PrimitiveKind.Ellipse:
                     result = line.IntersectionPoints((PrimitiveEllipse)other, withinBounds);
+                    break;
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)other;
+                    if (line.ContainsPoint(point.Location, withinBounds))
+                    {
+                        result = new Point[] { point.Location };
+                    }
+                    else
+                    {
+                        result = new Point[0];
+                    }
                     break;
                 case PrimitiveKind.Text:
                     result = Enumerable.Empty<Point>();
@@ -328,6 +380,9 @@ namespace BCad.Extensions
                 case PrimitiveKind.Line:
                     result = ((PrimitiveLine)primitive).IntersectionPoints(ellipse, withinBounds);
                     break;
+                case PrimitiveKind.Point:
+                    result = ellipse.IntersectionPoints((PrimitivePoint)primitive, withinBounds);
+                    break;
                 case PrimitiveKind.Text:
                     result = Enumerable.Empty<Point>();
                     break;
@@ -338,6 +393,36 @@ namespace BCad.Extensions
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region Circle-point intersection
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, PrimitivePoint point, bool withinBounds = true)
+        {
+            var fromUnit = ellipse.FromUnitCircleProjection();
+            var toUnit = fromUnit;
+            toUnit.Invert();
+            var pointOnUnit = (Vector)toUnit.Transform(point.Location);
+            if (MathHelper.CloseTo(pointOnUnit.LengthSquared, 1.0))
+            {
+                if (!withinBounds)
+                    return new Point[] { point.Location }; // always a match
+                else
+                {
+                    var pointAngle = pointOnUnit.ToAngle();
+                    if (ellipse.IsAngleContained(pointAngle))
+                        return new Point[] { point.Location };
+                    else
+                        return new Point[0];
+                }
+            }
+            else
+            {
+                // wrong distance
+                return new Point[0];
+            }
         }
 
         #endregion
@@ -710,14 +795,15 @@ namespace BCad.Extensions
             }
         }
 
-        private static bool ContainsPoint(this PrimitiveLine line, Point point)
+        private static bool ContainsPoint(this PrimitiveLine line, Point point, bool withinSegment = true)
         {
             if (point == line.P1)
                 return true;
             var lineVector = line.P2 - line.P1;
             var pointVector = point - line.P1;
-            return (lineVector.Normalize().CloseTo(pointVector.Normalize())) // on the same line
-                && MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared); // and between the points
+            return (lineVector.Normalize().CloseTo(pointVector.Normalize()))
+                && (withinSegment
+                    || MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared));
         }
 
         private static bool ContainsPoint(this PrimitiveEllipse el, Point point)
@@ -776,30 +862,33 @@ namespace BCad.Extensions
             Point[] points;
             switch (primitive.Kind)
             {
-            case PrimitiveKind.Ellipse:
-                var ellipse = (PrimitiveEllipse)primitive;
-                points = ellipse.GetInterestingPoints(360);
-                break;
-            case PrimitiveKind.Line:
-                var line = (PrimitiveLine)primitive;
-                points = new[] { line.P1, line.P2 };
-                break;
-            case PrimitiveKind.Text:
-                var text = (PrimitiveText)primitive;
-                var rad = text.Rotation * MathHelper.DegreesToRadians;
-                var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
-                var up = text.Normal.Cross(right).Normalize() * text.Height;
-                points = new[]
-                    {
-                        text.Location,
-                        text.Location + right,
-                        text.Location + right + up,
-                        text.Location + up,
-                        text.Location
-                    };
-                break;
-            default:
-                throw new InvalidOperationException();
+                case PrimitiveKind.Ellipse:
+                    var ellipse = (PrimitiveEllipse)primitive;
+                    points = ellipse.GetInterestingPoints(360);
+                    break;
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    points = new[] { line.P1, line.P2 };
+                    break;
+                case PrimitiveKind.Point:
+                    points = new[] { ((PrimitivePoint)primitive).Location };
+                    break;
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    points = new[]
+                        {
+                            text.Location,
+                            text.Location + right,
+                            text.Location + right + up,
+                            text.Location + up,
+                            text.Location
+                        };
+                    break;
+                default:
+                    throw new InvalidOperationException();
             }
 
             return points;

@@ -192,6 +192,11 @@ namespace BCad.FileHandlers.Converters
             return new DxfVector(vector.X, vector.Y, vector.Z);
         }
 
+        public static Location ToPoint(this DxfModelPoint point)
+        {
+            return new Location(point.Location.ToPoint(), point.Color.ToColor());
+        }
+
         public static Line ToLine(this DxfLine line)
         {
             return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor());
@@ -239,6 +244,9 @@ namespace BCad.FileHandlers.Converters
                 case DxfEntityType.Line:
                     entity = ((DxfLine)item).ToLine();
                     break;
+                case DxfEntityType.Point:
+                    entity = ((DxfModelPoint)item).ToPoint();
+                    break;
                 case DxfEntityType.Polyline:
                     entity = ((DxfPolyline)item).ToPolyline();
                     break;
@@ -247,7 +255,6 @@ namespace BCad.FileHandlers.Converters
                     break;
                 case DxfEntityType.Face:
                 case DxfEntityType.ModelerGeometry:
-                case DxfEntityType.Point:
                 case DxfEntityType.ProxyEntity:
                 case DxfEntityType.Ray:
                 case DxfEntityType.Region:
@@ -262,6 +269,15 @@ namespace BCad.FileHandlers.Converters
             }
 
             return entity;
+        }
+
+        public static DxfModelPoint ToDxfLocation(this Location location, Layer layer)
+        {
+            return new DxfModelPoint(location.Point.ToDxfPoint())
+            {
+                Color = location.Color.ToDxfColor(),
+                Layer = layer.Name
+            };
         }
 
         public static DxfLine ToDxfLine(this Line line, Layer layer)
@@ -353,6 +369,9 @@ namespace BCad.FileHandlers.Converters
                     break;
                 case EntityKind.Line:
                     entity = ((Line)item).ToDxfLine(layer);
+                    break;
+                case EntityKind.Location:
+                    entity = ((Location)item).ToDxfLocation(layer);
                     break;
                 case EntityKind.Polyline:
                     entity = ((Polyline)item).ToDxfPolyline(layer);

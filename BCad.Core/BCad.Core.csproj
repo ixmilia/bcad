@@ -41,6 +41,7 @@
     <Compile Include="Commands\ZoomExtentsCommand.cs" />
     <Compile Include="ConsoleMetadata.cs" />
     <Compile Include="DefaultSettingsManager.cs" />
+    <Compile Include="Entities\Location.cs" />
     <Compile Include="FileHandlers\FileHandlerMetadata.cs" />
     <Compile Include="FilePlotters\FilePlotterMetadata.cs" />
     <Compile Include="FileReadResult.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
+    <Compile Include="Primitives\PrimitivePoint.cs" />
     <Compile Include="Quaternion.cs" />
     <Compile Include="RealColor.cs" />
     <Compile Include="Services\DebugService.cs" />

@@ -12,6 +12,7 @@ namespace BCad.Extensions
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
+                case PrimitiveKind.Point:
                 case PrimitiveKind.Text:
                     return primitive.GetInterestingPoints().Select(p => transformationMatrix.Transform(p));
                 case PrimitiveKind.Ellipse:
