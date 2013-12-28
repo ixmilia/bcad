@@ -112,7 +112,7 @@ namespace BCad.Services
 
         private IFileHandler ReaderFromExtension(string extension)
         {
-            var reader = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension) && r.Metadata.CanRead);
+            var reader = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanRead);
             if (reader == null)
                 return null;
             return reader.Value;
@@ -120,7 +120,7 @@ namespace BCad.Services
 
         private IFileHandler WriterFromExtension(string extension)
         {
-            var writer = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension) && r.Metadata.CanWrite);
+            var writer = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanWrite);
             if (writer == null)
                 return null;
             return writer.Value;
