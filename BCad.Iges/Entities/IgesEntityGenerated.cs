@@ -105,6 +105,31 @@ namespace BCad.Iges.Entities
         public IgesPoint StartPoint { get; set; }
         public IgesPoint EndPoint { get; set; }
 
+        // custom properties
+        public IgesPoint ProperCenter
+        {
+            get
+            {
+                return new IgesPoint(Center.X, Center.Y, PlaneDisplacement);
+            }
+        }
+
+        public IgesPoint ProperStartPoint
+        {
+            get
+            {
+                return new IgesPoint(StartPoint.X, StartPoint.Y, PlaneDisplacement);
+            }
+        }
+
+        public IgesPoint ProperEndPoint
+        {
+            get
+            {
+                return new IgesPoint(EndPoint.X, EndPoint.Y, PlaneDisplacement);
+            }
+        }
+
         public IgesCircularArc()
             : base()
         {

@@ -136,26 +136,21 @@ namespace BCad.FileHandlers.Converters
 
         private static Entity ToArc(IgesCircularArc arc)
         {
-            var center = TransformPoint(arc, arc.Center);
-            var startPoint = TransformPoint(arc, arc.StartPoint);
-            var endPoint = TransformPoint(arc, arc.EndPoint);
+            var center = TransformPoint(arc, arc.ProperCenter);
+            var startPoint = TransformPoint(arc, arc.ProperStartPoint);
+            var endPoint = TransformPoint(arc, arc.ProperEndPoint);
 
-            // generate normal; points are given CCW
-            var startVector = startPoint - center;
-            var endVector = endPoint - center;
-            Vector normal;
-            if (((Point)startVector).CloseTo(endVector))
-                normal = Vector.NormalFromRightVector(startVector.Normalize());
-            else
-                normal = startVector.Cross(endVector).Normalize();
-            Debug.Assert(startVector.IsOrthoganalTo(normal));
-            Debug.Assert(endVector.IsOrthoganalTo(normal));
+            // all points have the same Z-value, so the normal will be the transformed Z-axis vector
+            var igesNormal = TransformPoint(arc, IgesVector.ZAxis);
+            var normal = new Vector(igesNormal.X, igesNormal.Y, igesNormal.Z).Normalize();
 
             // find radius from start/end points
+            var startVector = startPoint - center;
+            var endVector = endPoint - center;
             var startRadius = startVector.Length;
             var endRadius = endVector.Length;
-            Debug.Assert(MathHelper.CloseTo(startRadius, endRadius));
-            var radius = startRadius;
+            // these should be very close, if not identical, but not necessarily
+            var radius = (startRadius + endRadius) / 2;
 
             // if start/end points are the same, it's a circle.  otherwise it's an arc
             if (startPoint.CloseTo(endPoint))
@@ -167,13 +162,35 @@ namespace BCad.FileHandlers.Converters
                 // project back to unit circle to find start/end angles
                 var primitiveCircle = new PrimitiveEllipse(center, radius, normal);
                 var toUnit = primitiveCircle.FromUnitCircleProjection();
+                Debug.Assert(AreAllValuesValid(toUnit));
                 toUnit.Invert();
+                Debug.Assert(AreAllValuesValid(toUnit));
                 var startUnit = toUnit.Transform(startPoint);
                 var endUnit = toUnit.Transform(endPoint);
                 var startAngle = ((Vector)startUnit).ToAngle();
                 var endAngle = ((Vector)endUnit).ToAngle();
                 return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color));
             }
+        }
+
+        private static bool AreAllValuesValid(Matrix4 matrix)
+        {
+            return !double.IsNaN(matrix.M11)
+                && !double.IsNaN(matrix.M12)
+                && !double.IsNaN(matrix.M13)
+                && !double.IsNaN(matrix.M14)
+                && !double.IsNaN(matrix.M21)
+                && !double.IsNaN(matrix.M22)
+                && !double.IsNaN(matrix.M23)
+                && !double.IsNaN(matrix.M24)
+                && !double.IsNaN(matrix.M31)
+                && !double.IsNaN(matrix.M32)
+                && !double.IsNaN(matrix.M33)
+                && !double.IsNaN(matrix.M34)
+                && !double.IsNaN(matrix.M41)
+                && !double.IsNaN(matrix.M42)
+                && !double.IsNaN(matrix.M43)
+                && !double.IsNaN(matrix.M44);
         }
 
         private static Entity ToAggregate(IgesSingularSubfigureInstance subfigure)

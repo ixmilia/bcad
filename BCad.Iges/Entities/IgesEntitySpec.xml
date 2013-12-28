@@ -16,6 +16,15 @@
     <Property Name="Center" Type="IgesPoint" DefaultValue="IgesPoint.Origin" />
     <Property Name="StartPoint" Type="IgesPoint" DefaultValue="IgesPoint.Origin" />
     <Property Name="EndPoint" Type="IgesPoint" DefaultValue="IgesPoint.Origin" />
+    <CustomProperty Name="ProperCenter" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(Center.X, Center.Y, PlaneDisplacement);]]></Get>
+    </CustomProperty>
+    <CustomProperty Name="ProperStartPoint" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(StartPoint.X, StartPoint.Y, PlaneDisplacement);]]></Get>
+    </CustomProperty>
+    <CustomProperty Name="ProperEndPoint" Type="IgesPoint">
+      <Get><![CDATA[return new IgesPoint(EndPoint.X, EndPoint.Y, PlaneDisplacement);]]></Get>
+    </CustomProperty>
     <ParameterOrder>
       <Parameter Value="PlaneDisplacement" Converter="Double" />
       <Parameter Value="Center.X" Converter="Double" />
