@@ -70,6 +70,10 @@ namespace BCad.FileHandlers.Converters
                     case EntityKind.Location:
                         igesEntity = ToIgesLocation((Location)entity);
                         break;
+                    case EntityKind.Arc:
+                    case EntityKind.Circle:
+                        igesEntity = ToIgesCircle(entity);
+                        break;
                     default:
                         //Debug.Assert(false, "Unsupported entity type: " + entity.Kind);
                         break;
@@ -88,7 +92,7 @@ namespace BCad.FileHandlers.Converters
             return new IgesLine()
             {
                 Bounding = IgesBounding.BoundOnBothSides,
-                Color = (IgesColorNumber)line.Color.Value,
+                Color = ToColor(line.Color),
                 P1 = ToIgesPoint(line.P1),
                 P2 = ToIgesPoint(line.P2)
             };
@@ -99,7 +103,49 @@ namespace BCad.FileHandlers.Converters
             return new IgesLocation()
             {
                 Location = ToIgesPoint(location.Point),
-                Color = (IgesColorNumber)location.Color.Value
+                Color = ToColor(location.Color)
+            };
+        }
+
+        private static IgesCircularArc ToIgesCircle(Entity entity)
+        {
+            Point center;
+            double startAngle, endAngle;
+            IndexedColor color;
+            switch (entity.Kind)
+            {
+                case EntityKind.Arc:
+                    var arc = (Arc)entity;
+                    center = arc.Center;
+                    startAngle = arc.StartAngle;
+                    endAngle = arc.EndAngle;
+                    color = arc.Color;
+                    break;
+                case EntityKind.Circle:
+                    var circle = (Circle)entity;
+                    center = circle.Center;
+                    startAngle = 0.0;
+                    endAngle = 360.0;
+                    color = circle.Color;
+                    break;
+                default:
+                    throw new ArgumentException();
+            }
+
+            startAngle *= MathHelper.DegreesToRadians;
+            endAngle *= MathHelper.DegreesToRadians;
+
+            // TODO: if normal isn't z-axis, create a transformation matrix
+            var fromUnit = entity.GetUnitCircleProjection();
+            var startPoint = fromUnit.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
+            var endPoint = fromUnit.Transform(new Point(Math.Cos(endAngle), Math.Sin(endAngle), 0.0));
+            return new IgesCircularArc()
+            {
+                PlaneDisplacement = center.Z,
+                Center = new IgesPoint(center.X, center.Y, 0),
+                StartPoint = new IgesPoint(startPoint.X, startPoint.Y, 0),
+                EndPoint = new IgesPoint(endPoint.X, endPoint.Y, 0),
+                Color = ToColor(color)
             };
         }
 
@@ -264,6 +310,31 @@ namespace BCad.FileHandlers.Converters
                     return new IndexedColor(7);
                 default:
                     return IndexedColor.Auto;
+            }
+        }
+
+        private static IgesColorNumber ToColor(IndexedColor color)
+        {
+            switch (color.Value)
+            {
+                case 0:
+                    return IgesColorNumber.Black;
+                case 1:
+                    return IgesColorNumber.Red;
+                case 2:
+                    return IgesColorNumber.Yellow;
+                case 3:
+                    return IgesColorNumber.Green;
+                case 4:
+                    return IgesColorNumber.Cyan;
+                case 5:
+                    return IgesColorNumber.Blue;
+                case 6:
+                    return IgesColorNumber.Magenta;
+                case 7:
+                    return IgesColorNumber.White;
+                default:
+                    return IgesColorNumber.Default;
             }
         }
 
