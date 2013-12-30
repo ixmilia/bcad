@@ -30,11 +30,7 @@ namespace BCad.FileHandlers.Converters
                 new DrawingSettings(fileName, UnitFormat.Architectural, -1),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
 
-            viewPort = new ViewPort(
-                Point.Origin,
-                Vector.ZAxis,
-                Vector.YAxis,
-                10.0);
+            viewPort = null; // auto-set it later
 
             return true;
         }

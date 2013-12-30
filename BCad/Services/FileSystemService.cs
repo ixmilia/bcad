@@ -18,6 +18,9 @@ namespace BCad.Services
         [ImportMany]
         public IEnumerable<Lazy<IFileHandler, FileHandlerMetadata>> FileHandlers { get; set; }
 
+        [Import]
+        public IWorkspace Workspace { get; set; }
+
         public Task<string> GetFileNameFromUserForSave()
         {
             var x = FileHandlers.Where(fw => fw.Metadata.CanWrite).Select(fw => new FileSpecification(fw.Metadata.DisplayName, fw.Metadata.FileExtensions));
@@ -105,6 +108,14 @@ namespace BCad.Services
                 var drawingFile = reader.Load(fileStream);
                 var converter = reader.GetConverter();
                 converter.ConvertToDrawing(fileName, drawingFile, out drawing, out viewPort);
+                if (viewPort == null)
+                {
+                    viewPort = drawing.ShowAllViewPort(
+                        Vector.ZAxis,
+                        Vector.YAxis,
+                        Workspace.ViewControl.DisplayWidth,
+                        Workspace.ViewControl.DisplayHeight);
+                }
             }
 
             return Task.FromResult(true);

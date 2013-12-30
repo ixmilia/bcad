@@ -83,11 +83,7 @@ namespace BCad.FileHandlers.Converters
             }
             else
             {
-                viewPort = new ViewPort(
-                    Point.Origin,
-                    Vector.ZAxis,
-                    Vector.YAxis,
-                    10.0);
+                viewPort = null; // auto-set it later
             }
 
             return true;

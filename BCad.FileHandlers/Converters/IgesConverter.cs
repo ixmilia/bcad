@@ -39,11 +39,7 @@ namespace BCad.FileHandlers.Converters
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 igesFile.File.Author);
 
-            viewPort = drawing.ShowAllViewPort(
-                Vector.ZAxis,
-                Vector.YAxis,
-                1016,
-                491);
+            viewPort = null; // auto-set it later
 
             return true;
         }
