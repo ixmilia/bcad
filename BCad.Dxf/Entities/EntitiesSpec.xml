@@ -24,7 +24,7 @@
     <Property Name="FirstCorner" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="SecondCorner" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
     <Property Name="ThirdCorner" Code="12" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
-    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
+    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="13,23,33" />
     <Property Name="EdgeFlags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)" DisableWritingDefault="true">
       <Flag Name="IsFirstEdgeInvisible" Mask="1" />
       <Flag Name="IsSecondEdgeInvisible" Mask="2" />
@@ -557,7 +557,7 @@
     <Property Name="FirstCorner" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="SecondCorner" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
     <Property Name="ThirdCorner" Code="12" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="12,22,32" />
-    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="null" CodeOverrides="13,23,33" />
+    <Property Name="FourthCorner" Code="13" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="13,23,33" />
     <Property Name="Thickness" Code="39" Type="double" DefaultValue="0.0" DisableWritingDefault="true" />
     <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
   </Entity>

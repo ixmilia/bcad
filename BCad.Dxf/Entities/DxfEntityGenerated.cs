@@ -375,7 +375,7 @@ namespace BCad.Dxf.Entities
             this.FirstCorner = DxfPoint.Origin;
             this.SecondCorner = DxfPoint.Origin;
             this.ThirdCorner = DxfPoint.Origin;
-            this.FourthCorner = null;
+            this.FourthCorner = DxfPoint.Origin;
             this.EdgeFlags = 0;
         }
 
@@ -3111,7 +3111,7 @@ namespace BCad.Dxf.Entities
             this.FirstCorner = DxfPoint.Origin;
             this.SecondCorner = DxfPoint.Origin;
             this.ThirdCorner = DxfPoint.Origin;
-            this.FourthCorner = null;
+            this.FourthCorner = DxfPoint.Origin;
             this.Thickness = 0.0;
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
