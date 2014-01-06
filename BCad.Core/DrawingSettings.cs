@@ -29,7 +29,7 @@ namespace BCad
         {
             this.fileName = path;
             this.unitFormat = unitFormat;
-            this.unitPrecision = unitPrecision;
+            this.unitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
 
             switch (unitFormat)
             {
@@ -57,9 +57,9 @@ namespace BCad
         {
             switch (unitFormat)
             {
-                case BCad.UnitFormat.Architectural:
+                case UnitFormat.Architectural:
                     return FormatArchitectural(value, unitPrecision);
-                case BCad.UnitFormat.Metric:
+                case UnitFormat.Metric:
                     return FormatMetric(value, unitPrecision);
                 default:
                     throw new ArgumentException("value");
