@@ -12,12 +12,15 @@ namespace BCad.Entities
         public abstract BoundingBox BoundingBox { get; }
 
         private readonly IndexedColor color;
+
         public IndexedColor Color { get { return color; } }
+        public object Tag { get; set; }
 
         protected const string KindText = "Kind";
         protected const string BoundingBoxText = "BoundingBox";
         protected const string IdText = "Id";
         protected const string ColorText = "Color";
+        protected const string TagText = "Tag";
         protected const string CenterText = "Center";
         protected const string NormalText = "Normal";
         protected const string RadiusText = "Radius";
@@ -42,6 +45,8 @@ namespace BCad.Entities
                     return Color;
                 case IdText:
                     return Id;
+                case TagText:
+                    return Tag;
                 default:
                     throw new KeyNotFoundException("The property could not be found");
             }

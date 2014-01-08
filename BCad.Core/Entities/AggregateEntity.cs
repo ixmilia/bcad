@@ -77,7 +77,10 @@ namespace BCad.Entities
             return new AggregateEntity(
                 location ?? this.location,
                 children ?? this.children,
-                color ?? Color);
+                color ?? Color)
+            {
+                Tag = this.Tag
+            };
         }
     }
 }

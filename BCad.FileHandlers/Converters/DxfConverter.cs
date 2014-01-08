@@ -70,9 +70,8 @@ namespace BCad.FileHandlers.Converters
             drawing = new Drawing(
                 new DrawingSettings(fileName, dxfFile.File.Header.UnitFormat.ToUnitFormat(), dxfFile.File.Header.UnitPrecision),
                 layers,
-                dxfFile.File.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First(),
-                null,
-                dxfFile.File);
+                dxfFile.File.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First());
+            drawing.Tag = dxfFile.File;
 
             var vp = dxfFile.File.ViewPorts.FirstOrDefault();
             if (vp != null)
@@ -271,6 +270,11 @@ namespace BCad.FileHandlers.Converters
                 case DxfEntityType.XLine:
                     //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
                     break;
+            }
+
+            if (entity != null)
+            {
+                entity.Tag = item;
             }
 
             return entity;

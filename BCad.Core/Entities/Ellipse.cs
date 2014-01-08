@@ -128,7 +128,10 @@ namespace BCad.Entities
                 startAngle ?? this.startAngle,
                 endAngle ?? this.endAngle,
                 normal ?? this.normal,
-                color ?? Color);
+                color ?? Color)
+            {
+                Tag = this.Tag
+            };
         }
     }
 }

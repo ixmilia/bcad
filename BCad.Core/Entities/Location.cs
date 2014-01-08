@@ -53,5 +53,15 @@ namespace BCad.Entities
                     return base.GetProperty(propertyName);
             }
         }
+
+        public Location Update(Point point = null, IndexedColor? color = null)
+        {
+            return new Location(
+                point ?? this.Point,
+                color ?? this.Color)
+            {
+                Tag = this.Tag
+            };
+        }
     }
 }

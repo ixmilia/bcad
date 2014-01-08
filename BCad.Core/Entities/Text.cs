@@ -109,7 +109,10 @@ namespace BCad.Entities
                 normal ?? this.Normal,
                 height ?? this.Height,
                 rotation ?? this.Rotation,
-                color ?? this.Color);
+                color ?? this.Color)
+            {
+                Tag = this.Tag
+            };
         }
     }
 }

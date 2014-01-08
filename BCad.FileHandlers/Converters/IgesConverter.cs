@@ -38,8 +38,8 @@ namespace BCad.FileHandlers.Converters
                 new DrawingSettings(fileName, UnitFormat.Architectural, 8),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 layer.Name,
-                igesFile.File.Author,
-                igesFile.File);
+                igesFile.File.Author);
+            drawing.Tag = igesFile.File;
 
             viewPort = null; // auto-set it later
 
@@ -189,6 +189,11 @@ namespace BCad.FileHandlers.Converters
                 case IgesEntityType.SingularSubfigureInstance:
                     result = ToAggregate((IgesSingularSubfigureInstance)entity);
                     break;
+            }
+
+            if (result != null)
+            {
+                result.Tag = entity;
             }
 
             return result;

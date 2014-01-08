@@ -66,7 +66,10 @@ namespace BCad.Entities
             return new Line(
                 p1 ?? this.P1,
                 p2 ?? this.P2,
-                color ?? this.Color);
+                color ?? this.Color)
+            {
+                Tag = this.Tag
+            };
         }
 
         public override string ToString()

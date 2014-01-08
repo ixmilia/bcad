@@ -66,7 +66,10 @@ namespace BCad.Entities
         {
             return new Polyline(
                 points ?? this.Points,
-                color ?? this.Color);
+                color ?? this.Color)
+            {
+                Tag = this.Tag
+            };
         }
     }
 }

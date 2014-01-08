@@ -87,7 +87,10 @@ namespace BCad.Entities
                 center ?? this.Center,
                 radius ?? this.Radius,
                 normal ?? this.Normal,
-                color ?? this.Color);
+                color ?? this.Color)
+            {
+                Tag = this.Tag
+            };
         }
 
         internal static Point[] TransformedPoints(Point center, Vector normal, Vector right, double radiusX, double radiusY, params double[] anglesInDegrees)
