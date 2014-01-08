@@ -10,7 +10,9 @@ namespace BCad.Entities
         public abstract IEnumerable<SnapPoint> GetSnapPoints();
         public abstract EntityKind Kind { get; }
         public abstract BoundingBox BoundingBox { get; }
-        public abstract IndexedColor Color { get; }
+
+        private readonly IndexedColor color;
+        public IndexedColor Color { get { return color; } }
 
         protected const string KindText = "Kind";
         protected const string BoundingBoxText = "BoundingBox";
@@ -21,6 +23,12 @@ namespace BCad.Entities
         protected const string RadiusText = "Radius";
         protected const string StartAngleText = "StartAngle";
         protected const string EndAngleText = "EndAngle";
+
+        protected Entity(IndexedColor color)
+        {
+            this.color = color;
+            this.Id = nextId++;
+        }
 
         public virtual object GetProperty(string propertyName)
         {
@@ -42,11 +50,6 @@ namespace BCad.Entities
         private static uint nextId = 1;
 
         public uint Id { get; private set; }
-
-        public Entity()
-        {
-            this.Id = nextId++;
-        }
 
         public override int GetHashCode()
         {

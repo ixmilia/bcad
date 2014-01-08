@@ -12,7 +12,6 @@ namespace BCad.Entities
         private readonly Point center;
         private readonly Vector normal;
         private readonly double radius;
-        private readonly IndexedColor color;
         private readonly Point quadrant1;
         private readonly Point quadrant2;
         private readonly Point quadrant3;
@@ -27,14 +26,12 @@ namespace BCad.Entities
 
         public double Radius { get { return radius; } }
 
-        public override IndexedColor Color { get { return color; } }
-
         public Circle(Point center, double radius, Vector normal, IndexedColor color)
+            : base(color)
         {
             this.center = center;
             this.radius = radius;
             this.normal = normal;
-            this.color = color;
 
             var right = Vector.RightVectorFromNormal(this.normal);
             var points = TransformedPoints(this.center, this.normal, right, this.radius, this.radius, 0, 90, 180, 270);

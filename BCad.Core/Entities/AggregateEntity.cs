@@ -14,7 +14,6 @@ namespace BCad.Entities
         private const string ChildrenText = "Children";
         private readonly Point location;
         private readonly ReadOnlyList<Entity> children;
-        private readonly IndexedColor color;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -23,14 +22,13 @@ namespace BCad.Entities
 
         public ReadOnlyList<Entity> Children { get { return children; } }
 
-        public override IndexedColor Color { get { return color; } }
-
         public AggregateEntity()
             : this(Point.Origin, ReadOnlyList<Entity>.Empty(), IndexedColor.Auto)
         {
         }
 
         public AggregateEntity(Point location, ReadOnlyList<Entity> children, IndexedColor color)
+            : base(color)
         {
             if (location == null)
                 throw new ArgumentNullException("location");
@@ -38,7 +36,6 @@ namespace BCad.Entities
                 throw new ArgumentNullException("children");
             this.location = location;
             this.children = children;
-            this.color = color;
 
             if (children.Any(c => c.Kind == EntityKind.Aggregate))
                 throw new ArgumentOutOfRangeException("children", "Aggregate entities cannot contain other aggregate entities");
@@ -80,7 +77,7 @@ namespace BCad.Entities
             return new AggregateEntity(
                 location ?? this.location,
                 children ?? this.children,
-                color ?? this.color);
+                color ?? Color);
         }
     }
 }

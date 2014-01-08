@@ -8,23 +8,20 @@ namespace BCad.Entities
     {
         private const string PointText = "Point";
         private readonly Point location;
-        private readonly IndexedColor color;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
 
         public Point Point { get { return location; } }
 
-        public override IndexedColor Color { get { return color; } }
-
         public override EntityKind Kind { get { return EntityKind.Location; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Location(Point location, IndexedColor color)
+            : base(color)
         {
             this.location = location;
-            this.color = color;
             this.snapPoints = new[]
             {
                 new EndPoint(location)

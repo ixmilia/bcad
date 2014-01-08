@@ -14,7 +14,6 @@ namespace BCad.Entities
         private readonly double minorAxisRatio;
         private readonly double startAngle;
         private readonly double endAngle;
-        private readonly IndexedColor color;
         private readonly Point quadrant1;
         private readonly Point quadrant2;
         private readonly Point quadrant3;
@@ -38,9 +37,8 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public override IndexedColor Color { get { return color; } }
-
         public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, IndexedColor color)
+            : base(color)
         {
             this.center = center;
             this.majorAxis = majorAxis;
@@ -48,7 +46,6 @@ namespace BCad.Entities
             this.startAngle = startAngle;
             this.endAngle = endAngle;
             this.normal = normal;
-            this.color = color;
 
             var majorLength = this.majorAxis.Length;
             var points = Circle.TransformedPoints(this.center, this.normal, this.majorAxis, majorLength, majorLength * minorAxisRatio, 0, 90, 180, 270, startAngle, endAngle, (startAngle + endAngle) / 2.0);
@@ -131,7 +128,7 @@ namespace BCad.Entities
                 startAngle ?? this.startAngle,
                 endAngle ?? this.endAngle,
                 normal ?? this.normal,
-                color ?? this.color);
+                color ?? Color);
         }
     }
 }

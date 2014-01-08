@@ -45,9 +45,7 @@ namespace BCad.UI
 
         private void Cancel()
         {
-            this.Control.Cancel();
             this.Close();
-            completionAwaiter.SetResult(false);
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -63,6 +61,12 @@ namespace BCad.UI
             Control.OnShowing();
             this.Show();
             return completionAwaiter.Task;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.Control.Cancel();
+            completionAwaiter.SetResult(false);
         }
     }
 }

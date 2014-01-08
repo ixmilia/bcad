@@ -22,7 +22,6 @@ namespace BCad.Entities
         private readonly double height;
         private readonly double width;
         private readonly double rotation;
-        private readonly IndexedColor color;
         private readonly BoundingBox boundingBox;
 
         public string Value { get { return this.value; } }
@@ -37,9 +36,8 @@ namespace BCad.Entities
 
         public double Rotation { get { return this.rotation; } }
 
-        public override IndexedColor Color { get { return this.color; } }
-
         public Text(string value, Point location, Vector normal, double height, double rotation, IndexedColor color)
+            : base(color)
         {
             if (value == null)
             {
@@ -51,7 +49,6 @@ namespace BCad.Entities
             this.normal = normal;
             this.height = height;
             this.rotation = rotation;
-            this.color = color;
 
             var textPrimitive = new PrimitiveText(value, location, height, normal, rotation, color);
 

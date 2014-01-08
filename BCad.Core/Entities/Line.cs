@@ -10,7 +10,6 @@ namespace BCad.Entities
         private const string P2Text = "P2";
         private readonly Point p1;
         private readonly Point p2;
-        private readonly IndexedColor color;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -19,13 +18,11 @@ namespace BCad.Entities
 
         public Point P2 { get { return p2; } }
 
-        public override IndexedColor Color { get { return color; } }
-
         public Line(Point p1, Point p2, IndexedColor color)
+            : base(color)
         {
             this.p1 = p1;
             this.p2 = p2;
-            this.color = color;
 
             this.primitives = new[] { new PrimitiveLine(P1, P2, Color) };
             this.snapPoints = new SnapPoint[]

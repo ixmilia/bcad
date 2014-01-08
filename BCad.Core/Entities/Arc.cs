@@ -11,7 +11,6 @@ namespace BCad.Entities
         private readonly double radius;
         private readonly double startAngle;
         private readonly double endAngle;
-        private readonly IndexedColor color;
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
@@ -29,16 +28,14 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public override IndexedColor Color { get { return color; } }
-
         public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color)
+            : base(color)
         {
             this.center = center;
             this.radius = radius;
             this.startAngle = startAngle;
             this.endAngle = endAngle;
             this.normal = normal;
-            this.color = color;
 
             var right = Vector.RightVectorFromNormal(this.normal);
             var midAngle = (startAngle + endAngle) / 2.0;

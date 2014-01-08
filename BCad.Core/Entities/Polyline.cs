@@ -11,19 +11,16 @@ namespace BCad.Entities
     {
         private const string PointsText = "Points";
         private readonly IEnumerable<Point> points;
-        private readonly IndexedColor color;
         private readonly SnapPoint[] snapPoints;
         private readonly IPrimitive[] primitives;
         private readonly BoundingBox boundingBox;
 
         public IEnumerable<Point> Points { get { return this.points; } }
 
-        public override IndexedColor Color { get { return this.color; } }
-
         public Polyline(IEnumerable<Point> points, IndexedColor color)
+            : base(color)
         {
             this.points = new List<Point>(points); // to prevent backing changes
-            this.color = color;
 
             // add end points
             var parr = points.ToArray();
