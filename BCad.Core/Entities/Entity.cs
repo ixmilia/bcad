@@ -10,6 +10,7 @@ namespace BCad.Entities
         public abstract IEnumerable<SnapPoint> GetSnapPoints();
         public abstract EntityKind Kind { get; }
         public abstract BoundingBox BoundingBox { get; }
+        public abstract IndexedColor Color { get; }
 
         protected const string KindText = "Kind";
         protected const string BoundingBoxText = "BoundingBox";
@@ -29,6 +30,8 @@ namespace BCad.Entities
                     return Kind;
                 case BoundingBoxText:
                     return BoundingBox;
+                case ColorText:
+                    return Color;
                 case IdText:
                     return Id;
                 default:

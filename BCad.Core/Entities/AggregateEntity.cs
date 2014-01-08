@@ -23,7 +23,7 @@ namespace BCad.Entities
 
         public ReadOnlyList<Entity> Children { get { return children; } }
 
-        public IndexedColor Color { get { return color; } }
+        public override IndexedColor Color { get { return color; } }
 
         public AggregateEntity()
             : this(Point.Origin, ReadOnlyList<Entity>.Empty(), IndexedColor.Auto)
@@ -66,8 +66,6 @@ namespace BCad.Entities
                     return Location;
                 case ChildrenText:
                     return Children;
-                case ColorText:
-                    return Color;
                 default:
                     return base.GetProperty(propertyName);
             }

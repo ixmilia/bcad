@@ -6,6 +6,7 @@ namespace BCad.Entities
 {
     public class Location : Entity
     {
+        private const string PointText = "Point";
         private readonly Point location;
         private readonly IndexedColor color;
         private readonly IPrimitive[] primitives;
@@ -14,7 +15,7 @@ namespace BCad.Entities
 
         public Point Point { get { return location; } }
 
-        public IndexedColor Color { get { return color; } }
+        public override IndexedColor Color { get { return color; } }
 
         public override EntityKind Kind { get { return EntityKind.Location; } }
 
@@ -43,6 +44,17 @@ namespace BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
             return this.snapPoints;
+        }
+
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case PointText:
+                    return Point;
+                default:
+                    return base.GetProperty(propertyName);
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace BCad.Entities
 
         public double Rotation { get { return this.rotation; } }
 
-        public IndexedColor Color { get { return this.color; } }
+        public override IndexedColor Color { get { return this.color; } }
 
         public Text(string value, Point location, Vector normal, double height, double rotation, IndexedColor color)
         {
@@ -95,8 +95,6 @@ namespace BCad.Entities
                     return Width;
                 case RotationText:
                     return Rotation;
-                case ColorText:
-                    return Color;
                 default:
                     return base.GetProperty(propertyName);
             }

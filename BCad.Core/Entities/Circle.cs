@@ -27,7 +27,7 @@ namespace BCad.Entities
 
         public double Radius { get { return radius; } }
 
-        public IndexedColor Color { get { return color; } }
+        public override IndexedColor Color { get { return color; } }
 
         public Circle(Point center, double radius, Vector normal, IndexedColor color)
         {
@@ -75,8 +75,6 @@ namespace BCad.Entities
                     return Normal;
                 case RadiusText:
                     return Radius;
-                case ColorText:
-                    return Color;
                 default:
                     return base.GetProperty(propertyName);
             }

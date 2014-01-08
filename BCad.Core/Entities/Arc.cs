@@ -29,7 +29,7 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public IndexedColor Color { get { return color; } }
+        public override IndexedColor Color { get { return color; } }
 
         public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color)
         {
@@ -90,8 +90,6 @@ namespace BCad.Entities
                     return StartAngle;
                 case EndAngleText:
                     return EndAngle;
-                case ColorText:
-                    return Color;
                 default:
                     return base.GetProperty(propertyName);
             }

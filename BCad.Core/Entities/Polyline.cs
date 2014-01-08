@@ -18,7 +18,7 @@ namespace BCad.Entities
 
         public IEnumerable<Point> Points { get { return this.points; } }
 
-        public IndexedColor Color { get { return this.color; } }
+        public override IndexedColor Color { get { return this.color; } }
 
         public Polyline(IEnumerable<Point> points, IndexedColor color)
         {
@@ -56,8 +56,6 @@ namespace BCad.Entities
             {
                 case PointsText:
                     return Points;
-                case ColorText:
-                    return Color;
                 default:
                     return base.GetProperty(propertyName);
             }

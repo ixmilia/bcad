@@ -19,7 +19,7 @@ namespace BCad.Entities
 
         public Point P2 { get { return p2; } }
 
-        public IndexedColor Color { get { return color; } }
+        public override IndexedColor Color { get { return color; } }
 
         public Line(Point p1, Point p2, IndexedColor color)
         {
@@ -55,8 +55,6 @@ namespace BCad.Entities
                     return P1;
                 case P2Text:
                     return P2;
-                case ColorText:
-                    return Color;
                 default:
                     return base.GetProperty(propertyName);
             }
