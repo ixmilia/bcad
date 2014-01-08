@@ -231,7 +231,7 @@ ill-placed comment
             Assert.Equal(DxfPoint.Origin, solid.FirstCorner);
             Assert.Equal(DxfPoint.Origin, solid.SecondCorner);
             Assert.Equal(DxfPoint.Origin, solid.ThirdCorner);
-            Assert.Null(solid.FourthCorner);
+            Assert.Equal(DxfPoint.Origin, solid.FourthCorner);
             Assert.Equal(0.0, solid.Thickness);
             Assert.Equal(DxfVector.ZAxis, solid.ExtrusionDirection);
         }

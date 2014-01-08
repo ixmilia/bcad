@@ -21,7 +21,7 @@ namespace BCad.Dxf.Sections
 
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
-            return this.Entities.SelectMany(e => e.GetValuePairs());
+            return this.Entities.SelectMany(e => e.GetValuePairs(version));
         }
 
         internal static DxfEntitiesSection EntitiesSectionFromBuffer(DxfCodePairBufferReader buffer)

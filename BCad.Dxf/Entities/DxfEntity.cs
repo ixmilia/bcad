@@ -73,11 +73,27 @@ namespace BCad.Dxf.Entities
         InNonTiledViewport = 1
     }
 
+    public enum DxfFontType
+    {
+        TTF = 0,
+        SHX = 1
+    }
+
     public abstract partial class DxfEntity
     {
         public abstract DxfEntityType EntityType { get; }
 
-        protected virtual void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        protected virtual DxfAcadVersion MinVersion
+        {
+            get { return DxfAcadVersion.Min; }
+        }
+
+        protected virtual DxfAcadVersion MaxVersion
+        {
+            get { return DxfAcadVersion.Max; }
+        }
+
+        protected virtual void AddTrailingCodePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
         }
 
@@ -85,11 +101,15 @@ namespace BCad.Dxf.Entities
         {
         }
 
-        public IEnumerable<DxfCodePair> GetValuePairs()
+        public IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             var pairs = new List<DxfCodePair>();
-            AddValuePairs(pairs);
-            AddTrailingCodePairs(pairs);
+            if (version >= MinVersion && version <= MaxVersion)
+            {
+                AddValuePairs(pairs, version);
+                AddTrailingCodePairs(pairs, version);
+            }
+
             return pairs;
         }
 
@@ -137,6 +157,23 @@ namespace BCad.Dxf.Entities
         }
     }
 
+    public partial class DxfProxyEntity
+    {
+        public int ObjectDrawingFormatVersion
+        {
+            // lower word
+            get { return (int)(ObjectDrawingFormat & 0xFFFF); }
+            set { ObjectDrawingFormat |= (uint)value & 0xFFFF; }
+        }
+
+        public int ObjectMaintenanceReleaseVersion
+        {
+            // upper word
+            get { return (int)(ObjectDrawingFormat >> 4); }
+            set { ObjectDrawingFormat = (uint)(value << 4) + ObjectDrawingFormat & 0xFFFF; }
+        }
+    }
+
     public partial class DxfPolyline
     {
         public double Elevation
@@ -156,16 +193,16 @@ namespace BCad.Dxf.Entities
             set { seqend = value; }
         }
 
-        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             foreach (var vertex in Vertices)
             {
-                pairs.AddRange(vertex.GetValuePairs());
+                pairs.AddRange(vertex.GetValuePairs(version));
             }
 
             if (Seqend != null)
             {
-                pairs.AddRange(Seqend.GetValuePairs());
+                pairs.AddRange(Seqend.GetValuePairs(version));
             }
         }
     }
@@ -222,16 +259,16 @@ namespace BCad.Dxf.Entities
             set { seqend = value; }
         }
 
-        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs)
+        protected override void AddTrailingCodePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             foreach (var attribute in Attributes)
             {
-                pairs.AddRange(attribute.GetValuePairs());
+                pairs.AddRange(attribute.GetValuePairs(version));
             }
 
             if (Seqend != null)
             {
-                pairs.AddRange(Seqend.GetValuePairs());
+                pairs.AddRange(Seqend.GetValuePairs(version));
             }
         }
     }

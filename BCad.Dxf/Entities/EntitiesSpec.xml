@@ -7,7 +7,7 @@
   -->
   <Entity Name="DxfEntity" EntityType="" SubclassMarker="" TypeString="">
     <Property Name="Handle" Code="5" Type="string" DefaultValue="null" />
-    <!-- subclass marker AcDbEntity -->
+    <!-- subclass marker 100,AcDbEntity -->
     <Property Name="IsInPaperSpace" Code="67" Type="bool" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" DisableWritingDefault="true" />
     <Property Name="Layer" Code="8" Type="string" DefaultValue="0" />
     <Property Name="LinetypeName" Code="6" Type="string" DefaultValue="BYLAYER" DisableWritingDefault="true" />
@@ -59,6 +59,8 @@
     <Property Name="ObjectID3" Code="350" Type="string" DefaultValue="null" />
     <Property Name="ObjectID4" Code="360" Type="string" DefaultValue="null" />
     <Property Name="Terminator" Code="94" Type="int" DefaultValue="0" />
+    <Property Name="ObjectDrawingFormat" Code="95" Type="uint" DefaultValue="0" ReadConverter="(uint)" WriteConverter="(int)" Accessibility="private" MinVersion="R2000" />
+    <Property Name="OriginalDataFormatIsDxf" Code="70" Type="bool" DefaultValue="true" ReadConverter="BoolShort" WriteConverter="BoolShort" MinVersion="R2000" />
   </Entity>
   <!--
   
@@ -74,6 +76,41 @@
       <ConstructorParameter Property="StartAngle" Type="double" />
       <ConstructorParameter Property="EndAngle" Type="double" />
     </Constructor>
+  </Entity>
+  <!--
+  
+  ARCALIGNEDTEXT
+  
+  -->
+  <Entity Name="DxfArcAlignedText" EntityType="ArcAlignedText" SubclassMarker="AcDbArcAlignedText" TypeString="ARCALIGNEDTEXT" MinVersion="R2000">
+    <Property Name="Text" Code="1" Type="string" DefaultValue="null" />
+    <Property Name="FontName" Code="2" Type="string" DefaultValue="null" />
+    <Property Name="BigfontName" Code="3" Type="string" DefaultValue="null" />
+    <Property Name="TextStyleName" Code="7" Type="string" DefaultValue="null" />
+    <Property Name="CenterPoint" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="ArcRadius" Code="40" Type="double" DefaultValue="0.0" />
+    <Property Name="WidthFactor" Code="41" Type="double" DefaultValue="1.0" />
+    <Property Name="TextHeight" Code="42" Type="double" DefaultValue="0.0" />
+    <Property Name="CharacterSpacing" Code="43" Type="double" DefaultValue="0.0" />
+    <Property Name="OffsetFromArc" Code="44" Type="double" DefaultValue="0.0" />
+    <Property Name="RightOffset" Code="45" Type="double" DefaultValue="0.0" />
+    <Property Name="LeftOffset" Code="46" Type="double" DefaultValue="0.0" />
+    <Property Name="StartAngle" Code="50" Type="double" DefaultValue="0.0" />
+    <Property Name="EndAngle" Code="51" Type="double" DefaultValue="0.0" />
+    <Property Name="IsCharacterOrderReversed" Code="70" Type="bool" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+    <Property Name="DirectionFlag" Code="71" Type="short" DefaultValue="0" />
+    <Property Name="AlignmentFlag" Code="72" Type="short" DefaultValue="0" />
+    <Property Name="SideFlag" Code="73" Type="short" DefaultValue="0" />
+    <Property Name="IsBold" Code="74" Type="bool" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+    <Property Name="IsItalic" Code="75" Type="bool" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+    <Property Name="IsUnderline" Code="76" Type="bool" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />
+    <Property Name="CharacterSetValue" Code="77" Type="short" DefaultValue="0" />
+    <Property Name="PitchAndFamilyValue" Code="78" Type="short" DefaultValue="0" />
+    <Property Name="FontType" Code="79" Type="DxfFontType" DefaultValue="DxfFontType.TTF" ReadConverter="(DxfFontType)" WriteConverter="(short)" />
+    <Property Name="ColorIndex" Code="90" Type="int" DefaultValue="0" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="WizardFlag" Code="280" Type="short" DefaultValue="0" />
+    <Property Name="HandleId" Code="330" Type="string" DefaultValue="null" />
   </Entity>
   <!--
   
@@ -529,6 +566,23 @@
   </Entity>
   <!--
   
+  RTEXT
+  
+  -->
+  <Entity Name="DxfRText" EntityType="RText" SubclassMarker="RText" TypeString="RTEXT" MinVersion="R2000">
+    <Property Name="InsertionPoint" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
+    <Property Name="ExtrusionDirection" Code="210" Type="DxfVector" DefaultValue="DxfVector.ZAxis" DisableWritingDefault="true" CodeOverrides="210,220,230" />
+    <Property Name="RotationAngle" Code="50" Type="double" DefaultValue="0.0" />
+    <Property Name="TextHeight" Code="40" Type="double" DefaultValue="0.0" />
+    <Property Name="TextStyle" Code="7" Type="string" DefaultValue="null" />
+    <Property Name="TypeFlags" Code="70" Type="int" DefaultValue="0" ReadConverter="(int)" WriteConverter="(short)">
+      <Flag Name="IsExpression" Mask="1" />
+      <Flag Name="IsInlineMTextSequencesEnabled" Mask="2" />
+    </Property>
+    <Property Name="Contents" Code="1" Type="string" DefaultValue="null" />
+  </Entity>
+  <!--
+  
   SEQEND
   
   -->
@@ -704,6 +758,14 @@
   
   -->
   <!-- TODO -->
+  <!--
+  
+  WIPEOUT
+  
+  -->
+  <Entity Name="DxfWipeout" EntityType="WipeOut" SubclassMarker="AcDbWipeout" TypeString="WIPEOUT" BaseClass="DxfImage" MinVersion="R2000">
+    <!-- wholly inherits from IMAGE -->
+  </Entity>
   <!--
   
   XLINE

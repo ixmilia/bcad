@@ -70,7 +70,7 @@ namespace BCad.Dxf.Blocks
             Entities = new List<DxfEntity>();
         }
 
-        internal IEnumerable<DxfCodePair> GetValuePairs()
+        internal IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             var list = new List<DxfCodePair>();
             Action<int, object> add = (code, value) => list.Add(new DxfCodePair(code, value));
@@ -89,7 +89,7 @@ namespace BCad.Dxf.Blocks
             if (!string.IsNullOrEmpty(XrefName))
                 add(1, XrefName);
 
-            list.AddRange(Entities.SelectMany(e => e.GetValuePairs()));
+            list.AddRange(Entities.SelectMany(e => e.GetValuePairs(version)));
 
             add(0, EndBlockText);
             add(5, Handle);

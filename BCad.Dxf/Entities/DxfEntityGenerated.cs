@@ -10,6 +10,7 @@ namespace BCad.Dxf.Entities
     public enum DxfEntityType
     {
         Arc,
+        ArcAlignedText,
         Attribute,
         AttributeDefinition,
         Body,
@@ -29,6 +30,7 @@ namespace BCad.Dxf.Entities
         ProxyEntity,
         Ray,
         Region,
+        RText,
         Seqend,
         Shape,
         Solid,
@@ -37,6 +39,7 @@ namespace BCad.Dxf.Entities
         Tolerance,
         Trace,
         Vertex,
+        WipeOut,
         XLine,
     }
 
@@ -67,6 +70,8 @@ namespace BCad.Dxf.Entities
                         return "ACAD_PROXY_ENTITY";
                     case DxfEntityType.Arc:
                         return "ARC";
+                    case DxfEntityType.ArcAlignedText:
+                        return "ARCALIGNEDTEXT";
                     case DxfEntityType.AttributeDefinition:
                         return "ATTDEF";
                     case DxfEntityType.Attribute:
@@ -99,6 +104,8 @@ namespace BCad.Dxf.Entities
                         return "RAY";
                     case DxfEntityType.Region:
                         return "REGION";
+                    case DxfEntityType.RText:
+                        return "RTEXT";
                     case DxfEntityType.Seqend:
                         return "SEQEND";
                     case DxfEntityType.Shape:
@@ -115,6 +122,8 @@ namespace BCad.Dxf.Entities
                         return "TRACE";
                     case DxfEntityType.Vertex:
                         return "VERTEX";
+                    case DxfEntityType.WipeOut:
+                        return "WIPEOUT";
                     case DxfEntityType.XLine:
                         return "XLINE";
                     default:
@@ -134,7 +143,7 @@ namespace BCad.Dxf.Entities
             this.IsVisible = true;
         }
 
-        protected virtual void AddValuePairs(List<DxfCodePair> pairs)
+        protected virtual void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
             pairs.Add(new DxfCodePair(5, (Handle)));
@@ -217,6 +226,9 @@ namespace BCad.Dxf.Entities
                 case "ARC":
                     entity = new DxfArc();
                     break;
+                case "ARCALIGNEDTEXT":
+                    entity = new DxfArcAlignedText();
+                    break;
                 case "ATTDEF":
                     entity = new DxfAttributeDefinition();
                     break;
@@ -265,6 +277,9 @@ namespace BCad.Dxf.Entities
                 case "REGION":
                     entity = new DxfRegion();
                     break;
+                case "RTEXT":
+                    entity = new DxfRText();
+                    break;
                 case "SEQEND":
                     entity = new DxfSeqend();
                     break;
@@ -288,6 +303,9 @@ namespace BCad.Dxf.Entities
                     break;
                 case "VERTEX":
                     entity = new DxfVertex();
+                    break;
+                case "WIPEOUT":
+                    entity = new DxfWipeout();
                     break;
                 case "XLINE":
                     entity = new DxfXLine();
@@ -315,16 +333,13 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Face; } }
 
         public DxfPoint FirstCorner { get; set; }
-
         public DxfPoint SecondCorner { get; set; }
-
         public DxfPoint ThirdCorner { get; set; }
-
         public DxfPoint FourthCorner { get; set; }
-
         public int EdgeFlags { get; set; }
 
         // EdgeFlags flags
+
         public bool IsFirstEdgeInvisible
         {
             get { return DxfHelpers.GetFlag(EdgeFlags, 1); }
@@ -379,9 +394,9 @@ namespace BCad.Dxf.Entities
             this.EdgeFlags = 0;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbFace"));
             pairs.Add(new DxfCodePair(10, FirstCorner.X));
             pairs.Add(new DxfCodePair(20, FirstCorner.Y));
@@ -461,9 +476,7 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.ModelerGeometry; } }
 
         public short FormatVersionNumber { get; set; }
-
         public List<string> CustomData { get; set; }
-
         public List<string> CustomData2 { get; set; }
 
         public Dxf3DSolid()
@@ -474,9 +487,9 @@ namespace BCad.Dxf.Entities
             this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (this.FormatVersionNumber)));
             pairs.AddRange(this.CustomData.Select(p => new DxfCodePair(1, p)));
@@ -512,26 +525,18 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.ProxyEntity; } }
 
         public int ProxyEntityClassId { get; set; }
-
         public int ApplicationEntityClassId { get; set; }
-
         public int GraphicsDataSize { get; set; }
-
         public List<string> GraphicsDataString { get; set; }
-
         public int EntityDataSize { get; set; }
-
         public List<string> EntityDataString { get; set; }
-
         public string ObjectID1 { get; set; }
-
         public string ObjectID2 { get; set; }
-
         public string ObjectID3 { get; set; }
-
         public string ObjectID4 { get; set; }
-
         public int Terminator { get; set; }
+        private uint ObjectDrawingFormat { get; set; }
+        public bool OriginalDataFormatIsDxf { get; set; }
 
         public DxfProxyEntity()
             : base()
@@ -547,11 +552,13 @@ namespace BCad.Dxf.Entities
             this.ObjectID3 = null;
             this.ObjectID4 = null;
             this.Terminator = 0;
+            this.ObjectDrawingFormat = 0;
+            this.OriginalDataFormatIsDxf = true;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbProxyEntity"));
             pairs.Add(new DxfCodePair(90, (this.ProxyEntityClassId)));
             pairs.Add(new DxfCodePair(91, (this.ApplicationEntityClassId)));
@@ -564,12 +571,25 @@ namespace BCad.Dxf.Entities
             pairs.Add(new DxfCodePair(350, (this.ObjectID3)));
             pairs.Add(new DxfCodePair(360, (this.ObjectID4)));
             pairs.Add(new DxfCodePair(94, (this.Terminator)));
+            if (version >= DxfAcadVersion.R2000)
+            {
+                pairs.Add(new DxfCodePair(95, (int)(this.ObjectDrawingFormat)));
+            }
+
+            if (version >= DxfAcadVersion.R2000)
+            {
+                pairs.Add(new DxfCodePair(70, BoolShort(this.OriginalDataFormatIsDxf)));
+            }
+
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
         {
             switch (pair.Code)
             {
+                case 70:
+                    this.OriginalDataFormatIsDxf = BoolShort(pair.ShortValue);
+                    break;
                 case 90:
                     this.ProxyEntityClassId = (pair.IntegerValue);
                     break;
@@ -584,6 +604,9 @@ namespace BCad.Dxf.Entities
                     break;
                 case 94:
                     this.Terminator = (pair.IntegerValue);
+                    break;
+                case 95:
+                    this.ObjectDrawingFormat = (uint)(pair.IntegerValue);
                     break;
                 case 310:
                     // TODO: code is shared by properties GraphicsDataString, EntityDataString
@@ -616,7 +639,6 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Arc; } }
 
         public double StartAngle { get; set; }
-
         public double EndAngle { get; set; }
 
         public DxfArc()
@@ -638,9 +660,9 @@ namespace BCad.Dxf.Entities
             this.EndAngle = endAngle;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbArc"));
             pairs.Add(new DxfCodePair(50, (this.StartAngle)));
             pairs.Add(new DxfCodePair(51, (this.EndAngle)));
@@ -665,6 +687,226 @@ namespace BCad.Dxf.Entities
     }
 
     /// <summary>
+    /// DxfArcAlignedText class
+    /// </summary>
+    public partial class DxfArcAlignedText : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.ArcAlignedText; } }
+        protected override DxfAcadVersion MinVersion { get { return DxfAcadVersion.R2000; } }
+
+        public string Text { get; set; }
+        public string FontName { get; set; }
+        public string BigfontName { get; set; }
+        public string TextStyleName { get; set; }
+        public DxfPoint CenterPoint { get; set; }
+        public double ArcRadius { get; set; }
+        public double WidthFactor { get; set; }
+        public double TextHeight { get; set; }
+        public double CharacterSpacing { get; set; }
+        public double OffsetFromArc { get; set; }
+        public double RightOffset { get; set; }
+        public double LeftOffset { get; set; }
+        public double StartAngle { get; set; }
+        public double EndAngle { get; set; }
+        public bool IsCharacterOrderReversed { get; set; }
+        public short DirectionFlag { get; set; }
+        public short AlignmentFlag { get; set; }
+        public short SideFlag { get; set; }
+        public bool IsBold { get; set; }
+        public bool IsItalic { get; set; }
+        public bool IsUnderline { get; set; }
+        public short CharacterSetValue { get; set; }
+        public short PitchAndFamilyValue { get; set; }
+        public DxfFontType FontType { get; set; }
+        public int ColorIndex { get; set; }
+        public DxfVector ExtrusionDirection { get; set; }
+        public short WizardFlag { get; set; }
+        public string HandleId { get; set; }
+
+        public DxfArcAlignedText()
+            : base()
+        {
+            this.Text = null;
+            this.FontName = null;
+            this.BigfontName = null;
+            this.TextStyleName = null;
+            this.CenterPoint = DxfPoint.Origin;
+            this.ArcRadius = 0.0;
+            this.WidthFactor = 1.0;
+            this.TextHeight = 0.0;
+            this.CharacterSpacing = 0.0;
+            this.OffsetFromArc = 0.0;
+            this.RightOffset = 0.0;
+            this.LeftOffset = 0.0;
+            this.StartAngle = 0.0;
+            this.EndAngle = 0.0;
+            this.IsCharacterOrderReversed = false;
+            this.DirectionFlag = 0;
+            this.AlignmentFlag = 0;
+            this.SideFlag = 0;
+            this.IsBold = false;
+            this.IsItalic = false;
+            this.IsUnderline = false;
+            this.CharacterSetValue = 0;
+            this.PitchAndFamilyValue = 0;
+            this.FontType = DxfFontType.TTF;
+            this.ColorIndex = 0;
+            this.ExtrusionDirection = DxfVector.ZAxis;
+            this.WizardFlag = 0;
+            this.HandleId = null;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbArcAlignedText"));
+            pairs.Add(new DxfCodePair(1, (this.Text)));
+            pairs.Add(new DxfCodePair(2, (this.FontName)));
+            pairs.Add(new DxfCodePair(3, (this.BigfontName)));
+            pairs.Add(new DxfCodePair(7, (this.TextStyleName)));
+            pairs.Add(new DxfCodePair(10, CenterPoint.X));
+            pairs.Add(new DxfCodePair(20, CenterPoint.Y));
+            pairs.Add(new DxfCodePair(30, CenterPoint.Z));
+            pairs.Add(new DxfCodePair(40, (this.ArcRadius)));
+            pairs.Add(new DxfCodePair(41, (this.WidthFactor)));
+            pairs.Add(new DxfCodePair(42, (this.TextHeight)));
+            pairs.Add(new DxfCodePair(43, (this.CharacterSpacing)));
+            pairs.Add(new DxfCodePair(44, (this.OffsetFromArc)));
+            pairs.Add(new DxfCodePair(45, (this.RightOffset)));
+            pairs.Add(new DxfCodePair(46, (this.LeftOffset)));
+            pairs.Add(new DxfCodePair(50, (this.StartAngle)));
+            pairs.Add(new DxfCodePair(51, (this.EndAngle)));
+            pairs.Add(new DxfCodePair(70, BoolShort(this.IsCharacterOrderReversed)));
+            pairs.Add(new DxfCodePair(71, (this.DirectionFlag)));
+            pairs.Add(new DxfCodePair(72, (this.AlignmentFlag)));
+            pairs.Add(new DxfCodePair(73, (this.SideFlag)));
+            pairs.Add(new DxfCodePair(74, BoolShort(this.IsBold)));
+            pairs.Add(new DxfCodePair(75, BoolShort(this.IsItalic)));
+            pairs.Add(new DxfCodePair(76, BoolShort(this.IsUnderline)));
+            pairs.Add(new DxfCodePair(77, (this.CharacterSetValue)));
+            pairs.Add(new DxfCodePair(78, (this.PitchAndFamilyValue)));
+            pairs.Add(new DxfCodePair(79, (short)(this.FontType)));
+            pairs.Add(new DxfCodePair(90, (this.ColorIndex)));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
+            pairs.Add(new DxfCodePair(280, (this.WizardFlag)));
+            pairs.Add(new DxfCodePair(330, (this.HandleId)));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 1:
+                    this.Text = (pair.StringValue);
+                    break;
+                case 2:
+                    this.FontName = (pair.StringValue);
+                    break;
+                case 3:
+                    this.BigfontName = (pair.StringValue);
+                    break;
+                case 7:
+                    this.TextStyleName = (pair.StringValue);
+                    break;
+                case 10:
+                    this.CenterPoint.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    this.CenterPoint.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    this.CenterPoint.Z = pair.DoubleValue;
+                    break;
+                case 40:
+                    this.ArcRadius = (pair.DoubleValue);
+                    break;
+                case 41:
+                    this.WidthFactor = (pair.DoubleValue);
+                    break;
+                case 42:
+                    this.TextHeight = (pair.DoubleValue);
+                    break;
+                case 43:
+                    this.CharacterSpacing = (pair.DoubleValue);
+                    break;
+                case 44:
+                    this.OffsetFromArc = (pair.DoubleValue);
+                    break;
+                case 45:
+                    this.RightOffset = (pair.DoubleValue);
+                    break;
+                case 46:
+                    this.LeftOffset = (pair.DoubleValue);
+                    break;
+                case 50:
+                    this.StartAngle = (pair.DoubleValue);
+                    break;
+                case 51:
+                    this.EndAngle = (pair.DoubleValue);
+                    break;
+                case 70:
+                    this.IsCharacterOrderReversed = BoolShort(pair.ShortValue);
+                    break;
+                case 71:
+                    this.DirectionFlag = (pair.ShortValue);
+                    break;
+                case 72:
+                    this.AlignmentFlag = (pair.ShortValue);
+                    break;
+                case 73:
+                    this.SideFlag = (pair.ShortValue);
+                    break;
+                case 74:
+                    this.IsBold = BoolShort(pair.ShortValue);
+                    break;
+                case 75:
+                    this.IsItalic = BoolShort(pair.ShortValue);
+                    break;
+                case 76:
+                    this.IsUnderline = BoolShort(pair.ShortValue);
+                    break;
+                case 77:
+                    this.CharacterSetValue = (pair.ShortValue);
+                    break;
+                case 78:
+                    this.PitchAndFamilyValue = (pair.ShortValue);
+                    break;
+                case 79:
+                    this.FontType = (DxfFontType)(pair.ShortValue);
+                    break;
+                case 90:
+                    this.ColorIndex = (pair.IntegerValue);
+                    break;
+                case 210:
+                    this.ExtrusionDirection.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.ExtrusionDirection.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.ExtrusionDirection.Z = pair.DoubleValue;
+                    break;
+                case 280:
+                    this.WizardFlag = (pair.ShortValue);
+                    break;
+                case 330:
+                    this.HandleId = (pair.StringValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
     /// DxfAttributeDefinition class
     /// </summary>
     public partial class DxfAttributeDefinition : DxfEntity
@@ -672,40 +914,25 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.AttributeDefinition; } }
 
         public double Thickness { get; set; }
-
         public DxfPoint Location { get; set; }
-
         public double TextHeight { get; set; }
-
         public string Value { get; set; }
-
         public double Rotation { get; set; }
-
         public double RelativeXScaleFactor { get; set; }
-
         public double ObliqueAngle { get; set; }
-
         public string TextStyleName { get; set; }
-
         public int TextGenerationFlags { get; set; }
-
         public DxfHorizontalTextJustification HorizontalTextJustification { get; set; }
-
         public DxfPoint SecondAlignmentPoint { get; set; }
-
         public DxfVector Normal { get; set; }
-
         public string Prompt { get; set; }
-
         public string Tag { get; set; }
-
         public int Flags { get; set; }
-
         public short FieldLength { get; set; }
-
         public DxfVerticalTextJustification VerticalTextJustification { get; set; }
 
         // TextGenerationFlags flags
+
         public bool IsTextBackward
         {
             get { return DxfHelpers.GetFlag(TextGenerationFlags, 2); }
@@ -729,6 +956,7 @@ namespace BCad.Dxf.Entities
         }
 
         // Flags flags
+
         public bool IsInvisible
         {
             get { return DxfHelpers.GetFlag(Flags, 1); }
@@ -795,9 +1023,9 @@ namespace BCad.Dxf.Entities
             this.VerticalTextJustification = DxfVerticalTextJustification.Baseline;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbText"));
             if (this.Thickness != 0.0)
             {
@@ -955,38 +1183,24 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Attribute; } }
 
         public double Thickness { get; set; }
-
         public DxfPoint Location { get; set; }
-
         public double TextHeight { get; set; }
-
         public string Value { get; set; }
-
         public string Tag { get; set; }
-
         public int Flags { get; set; }
-
         public short FieldLength { get; set; }
-
         public double Rotation { get; set; }
-
         public double RelativeXScaleFactor { get; set; }
-
         public double ObliqueAngle { get; set; }
-
         public string TextStyleName { get; set; }
-
         public int TextGenerationFlags { get; set; }
-
         public DxfHorizontalTextJustification HorizontalTextJustification { get; set; }
-
         public DxfVerticalTextJustification VerticalTextJustification { get; set; }
-
         public DxfPoint SecondAlignmentPoint { get; set; }
-
         public DxfVector Normal { get; set; }
 
         // Flags flags
+
         public bool IsInvisible
         {
             get { return DxfHelpers.GetFlag(Flags, 1); }
@@ -1032,6 +1246,7 @@ namespace BCad.Dxf.Entities
         }
 
         // TextGenerationFlags flags
+
         public bool IsTextBackward
         {
             get { return DxfHelpers.GetFlag(TextGenerationFlags, 2); }
@@ -1075,9 +1290,9 @@ namespace BCad.Dxf.Entities
             this.Normal = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbText"));
             if (this.Thickness != 0.0)
             {
@@ -1230,9 +1445,7 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Body; } }
 
         public short FormatVersionNumber { get; set; }
-
         public List<string> CustomData { get; set; }
-
         public List<string> CustomData2 { get; set; }
 
         public DxfBody()
@@ -1243,9 +1456,9 @@ namespace BCad.Dxf.Entities
             this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (this.FormatVersionNumber)));
             pairs.AddRange(this.CustomData.Select(p => new DxfCodePair(1, p)));
@@ -1281,11 +1494,8 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Circle; } }
 
         public double Thickness { get; set; }
-
         public DxfPoint Center { get; set; }
-
         public double Radius { get; set; }
-
         public DxfVector Normal { get; set; }
 
         public DxfCircle()
@@ -1307,9 +1517,9 @@ namespace BCad.Dxf.Entities
             this.Radius = radius;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbCircle"));
             if (this.Thickness != 0.0)
             {
@@ -1373,15 +1583,10 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Ellipse; } }
 
         public DxfPoint Center { get; set; }
-
         public DxfVector MajorAxis { get; set; }
-
         public DxfVector Normal { get; set; }
-
         public double MinorAxisRatio { get; set; }
-
         public double StartParameter { get; set; }
-
         public double EndParameter { get; set; }
 
         public DxfEllipse()
@@ -1406,9 +1611,9 @@ namespace BCad.Dxf.Entities
             this.MinorAxisRatio = minorAxisRatio;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbEllipse"));
             pairs.Add(new DxfCodePair(10, Center.X));
             pairs.Add(new DxfCodePair(20, Center.Y));
@@ -1484,38 +1689,24 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Image; } }
 
         public int ClassVersion { get; set; }
-
         public DxfPoint Location { get; set; }
-
         public DxfVector UVector { get; set; }
-
         public DxfVector VVector { get; set; }
-
         public DxfVector ImageSize { get; set; }
-
         public string ImageDefReference { get; set; }
-
         public int DisplayOptionsFlags { get; set; }
-
         public bool UseClipping { get; set; }
-
         public short Brightness { get; set; }
-
         public short Contrast { get; set; }
-
         public short Fade { get; set; }
-
         public string ImageDefReactorReference { get; set; }
-
         public DxfImageClippingBoundaryType ClippingType { get; set; }
-
         public int ClippingVertexCount { get; set; }
-
         private List<double> ClippingVerticesX { get; set; }
-
         private List<double> ClippingVerticesY { get; set; }
 
         // DisplayOptionsFlags flags
+
         public bool ShowImage
         {
             get { return DxfHelpers.GetFlag(DisplayOptionsFlags, 1); }
@@ -1581,9 +1772,9 @@ namespace BCad.Dxf.Entities
             this.ClippingVerticesY = new List<double>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbRasterImage"));
             pairs.Add(new DxfCodePair(90, (this.ClassVersion)));
             pairs.Add(new DxfCodePair(10, Location.X));
@@ -1703,27 +1894,16 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Insert; } }
 
         public bool HasAttributes { get; set; }
-
         public string Name { get; set; }
-
         public DxfPoint Location { get; set; }
-
         public double XScaleFactor { get; set; }
-
         public double YScaleFactor { get; set; }
-
         public double ZScaleFactor { get; set; }
-
         public double Rotation { get; set; }
-
         public short ColumnCount { get; set; }
-
         public short RowCount { get; set; }
-
         public double ColumnSpacing { get; set; }
-
         public double RowSpacing { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
 
         public DxfInsert()
@@ -1743,9 +1923,9 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbBlockReference"));
             if (this.HasAttributes != false)
             {
@@ -1869,39 +2049,22 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Leader; } }
 
         public string DimensionStyleName { get; set; }
-
         public bool UseArrowheads { get; set; }
-
         public DxfLeaderPathType PathType { get; set; }
-
         public DxfLeaderCreationAnnotationType AnnotationType { get; set; }
-
         public DxfLeaderHooklineDirection HooklineDirection { get; set; }
-
         public bool UseHookline { get; set; }
-
         public double TextAnnotationHeight { get; set; }
-
         public double TextAnnotationWidth { get; set; }
-
         public int VertexCount { get; set; }
-
         private List<double> VerticesX { get; set; }
-
         private List<double> VerticesY { get; set; }
-
         private List<double> VerticesZ { get; set; }
-
         public DxfColor OverrideColor { get; set; }
-
         public string AssociatedAnnotationReference { get; set; }
-
         public DxfVector Normal { get; set; }
-
         public DxfVector Right { get; set; }
-
         public DxfVector BlockOffset { get; set; }
-
         public DxfVector AnnotationOffset { get; set; }
 
         public DxfLeader()
@@ -1927,9 +2090,9 @@ namespace BCad.Dxf.Entities
             this.AnnotationOffset = DxfVector.XAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbLeader"));
             pairs.Add(new DxfCodePair(3, (this.DimensionStyleName)));
             pairs.Add(new DxfCodePair(71, BoolShort(this.UseArrowheads)));
@@ -2065,11 +2228,8 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Line; } }
 
         public double Thickness { get; set; }
-
         public DxfPoint P1 { get; set; }
-
         public DxfPoint P2 { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
 
         public DxfLine()
@@ -2091,9 +2251,9 @@ namespace BCad.Dxf.Entities
             this.P2 = p2;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbLine"));
             if (this.Thickness != 0.0)
             {
@@ -2165,28 +2325,19 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.LwPolyline; } }
 
         public int VertexCount { get; set; }
-
         public int Flags { get; set; }
-
         public double ConstantWidth { get; set; }
-
         public double Elevation { get; set; }
-
         public double Thickness { get; set; }
-
         private List<double> VertexCoordinateX { get; set; }
-
         private List<double> VertexCoordinateY { get; set; }
-
         private List<double> StartingWidth { get; set; }
-
         private List<double> EndingWidth { get; set; }
-
         private List<double> Bulge { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
 
         // Flags flags
+
         public bool IsClosed
         {
             get { return DxfHelpers.GetFlag(Flags, 1); }
@@ -2225,9 +2376,9 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbPolyline"));
             pairs.Add(new DxfCodePair(90, Vertices.Count));
             pairs.Add(new DxfCodePair(70, (short)(this.Flags)));
@@ -2323,9 +2474,7 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.OleFrame; } }
 
         public int VersionNumber { get; set; }
-
         public int BinaryDataLength { get; set; }
-
         public List<string> BinaryDataStrings { get; set; }
 
         public DxfOleFrame()
@@ -2336,9 +2485,9 @@ namespace BCad.Dxf.Entities
             this.BinaryDataStrings = new List<string>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbOleFrame"));
             pairs.Add(new DxfCodePair(70, (short)(this.VersionNumber)));
             pairs.Add(new DxfCodePair(90, (this.BinaryDataLength)));
@@ -2379,19 +2528,12 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Ole2Frame; } }
 
         public int VersionNumber { get; set; }
-
         public string Description { get; set; }
-
         public DxfPoint UpperLeftCorner { get; set; }
-
         public DxfPoint LowerRightCorner { get; set; }
-
         public DxfOleObjectType ObjectType { get; set; }
-
         public DxfTileModeDescriptor TileMode { get; set; }
-
         public int BinaryDataLength { get; set; }
-
         public List<string> BinaryDataStrings { get; set; }
 
         public DxfOle2Frame()
@@ -2407,9 +2549,9 @@ namespace BCad.Dxf.Entities
             this.BinaryDataStrings = new List<string>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbOle2Frame"));
             pairs.Add(new DxfCodePair(70, (short)(this.VersionNumber)));
             pairs.Add(new DxfCodePair(3, (this.Description)));
@@ -2486,11 +2628,8 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Point; } }
 
         public DxfPoint Location { get; set; }
-
         public double Thickness { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
-
         public double Angle { get; set; }
 
         public DxfModelPoint()
@@ -2511,9 +2650,9 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbPoint"));
             pairs.Add(new DxfCodePair(10, Location.X));
             pairs.Add(new DxfCodePair(20, Location.Y));
@@ -2581,28 +2720,19 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Polyline; } }
 
         public DxfPoint Location { get; set; }
-
         public double Thickness { get; set; }
-
         public int Flags { get; set; }
-
         public double DefaultStartingWidth { get; set; }
-
         public double DefaultEndingWidth { get; set; }
-
         public int PolygonMeshMVertexCount { get; set; }
-
         public int PolygonMeshNVertexCount { get; set; }
-
         public int SmoothSurfaceMDensity { get; set; }
-
         public int SmoothSurfaceNDensity { get; set; }
-
         public DxfPolylineCurvedAndSmoothSurfaceType SurfaceType { get; set; }
-
         public DxfVector Normal { get; set; }
 
         // Flags flags
+
         public bool IsClosed
         {
             get { return DxfHelpers.GetFlag(Flags, 1); }
@@ -2707,9 +2837,9 @@ namespace BCad.Dxf.Entities
             this.Normal = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDb2dPolyline"));
             pairs.Add(new DxfCodePair(10, Location.X));
             pairs.Add(new DxfCodePair(20, Location.Y));
@@ -2833,7 +2963,6 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Ray; } }
 
         public DxfPoint StartPoint { get; set; }
-
         public DxfVector UnitDirectionVector { get; set; }
 
         public DxfRay()
@@ -2853,9 +2982,9 @@ namespace BCad.Dxf.Entities
             this.UnitDirectionVector = unitDirectionVector;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbRay"));
             pairs.Add(new DxfCodePair(10, StartPoint.X));
             pairs.Add(new DxfCodePair(20, StartPoint.Y));
@@ -2903,9 +3032,7 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Region; } }
 
         public short FormatVersionNumber { get; set; }
-
         public List<string> CustomData { get; set; }
-
         public List<string> CustomData2 { get; set; }
 
         public DxfRegion()
@@ -2916,9 +3043,9 @@ namespace BCad.Dxf.Entities
             this.CustomData2 = new List<string>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbModelerGeometry"));
             pairs.Add(new DxfCodePair(70, (this.FormatVersionNumber)));
             pairs.AddRange(this.CustomData.Select(p => new DxfCodePair(1, p)));
@@ -2947,20 +3074,139 @@ namespace BCad.Dxf.Entities
     }
 
     /// <summary>
+    /// DxfRText class
+    /// </summary>
+    public partial class DxfRText : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.RText; } }
+        protected override DxfAcadVersion MinVersion { get { return DxfAcadVersion.R2000; } }
+
+        public DxfPoint InsertionPoint { get; set; }
+        public DxfVector ExtrusionDirection { get; set; }
+        public double RotationAngle { get; set; }
+        public double TextHeight { get; set; }
+        public string TextStyle { get; set; }
+        public int TypeFlags { get; set; }
+        public string Contents { get; set; }
+
+        // TypeFlags flags
+
+        public bool IsExpression
+        {
+            get { return DxfHelpers.GetFlag(TypeFlags, 1); }
+            set
+            {
+                var flags = TypeFlags;
+                DxfHelpers.SetFlag(value, ref flags, 1);
+                TypeFlags = flags;
+            }
+        }
+
+        public bool IsInlineMTextSequencesEnabled
+        {
+            get { return DxfHelpers.GetFlag(TypeFlags, 2); }
+            set
+            {
+                var flags = TypeFlags;
+                DxfHelpers.SetFlag(value, ref flags, 2);
+                TypeFlags = flags;
+            }
+        }
+
+        public DxfRText()
+            : base()
+        {
+            this.InsertionPoint = DxfPoint.Origin;
+            this.ExtrusionDirection = DxfVector.ZAxis;
+            this.RotationAngle = 0.0;
+            this.TextHeight = 0.0;
+            this.TextStyle = null;
+            this.TypeFlags = 0;
+            this.Contents = null;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "RText"));
+            pairs.Add(new DxfCodePair(10, InsertionPoint.X));
+            pairs.Add(new DxfCodePair(20, InsertionPoint.Y));
+            pairs.Add(new DxfCodePair(30, InsertionPoint.Z));
+            if (this.ExtrusionDirection != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, ExtrusionDirection.X));
+                pairs.Add(new DxfCodePair(220, ExtrusionDirection.Y));
+                pairs.Add(new DxfCodePair(230, ExtrusionDirection.Z));
+            }
+
+            pairs.Add(new DxfCodePair(50, (this.RotationAngle)));
+            pairs.Add(new DxfCodePair(40, (this.TextHeight)));
+            pairs.Add(new DxfCodePair(7, (this.TextStyle)));
+            pairs.Add(new DxfCodePair(70, (short)(this.TypeFlags)));
+            pairs.Add(new DxfCodePair(1, (this.Contents)));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 1:
+                    this.Contents = (pair.StringValue);
+                    break;
+                case 7:
+                    this.TextStyle = (pair.StringValue);
+                    break;
+                case 10:
+                    this.InsertionPoint.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    this.InsertionPoint.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    this.InsertionPoint.Z = pair.DoubleValue;
+                    break;
+                case 40:
+                    this.TextHeight = (pair.DoubleValue);
+                    break;
+                case 50:
+                    this.RotationAngle = (pair.DoubleValue);
+                    break;
+                case 70:
+                    this.TypeFlags = (int)(pair.ShortValue);
+                    break;
+                case 210:
+                    this.ExtrusionDirection.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.ExtrusionDirection.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.ExtrusionDirection.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
     /// DxfSeqend class
     /// </summary>
     public partial class DxfSeqend : DxfEntity
     {
         public override DxfEntityType EntityType { get { return DxfEntityType.Seqend; } }
 
+
         public DxfSeqend()
             : base()
         {
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
         }
     }
 
@@ -2972,19 +3218,12 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Shape; } }
 
         public double Thickness { get; set; }
-
         public DxfPoint Location { get; set; }
-
         public double Size { get; set; }
-
         public string Name { get; set; }
-
         public double RotationAngle { get; set; }
-
         public double RelativeXScaleFactor { get; set; }
-
         public double ObliqueAngle { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
 
         public DxfShape()
@@ -3000,9 +3239,9 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbShape"));
             if (this.Thickness != 0.0)
             {
@@ -3094,15 +3333,10 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Solid; } }
 
         public DxfPoint FirstCorner { get; set; }
-
         public DxfPoint SecondCorner { get; set; }
-
         public DxfPoint ThirdCorner { get; set; }
-
         public DxfPoint FourthCorner { get; set; }
-
         public double Thickness { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
 
         public DxfSolid()
@@ -3116,9 +3350,9 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbShape"));
             pairs.Add(new DxfCodePair(10, FirstCorner.X));
             pairs.Add(new DxfCodePair(20, FirstCorner.Y));
@@ -3214,44 +3448,27 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Spline; } }
 
         public DxfVector Normal { get; set; }
-
         public int Flags { get; set; }
-
         public int DegreeOfCurve { get; set; }
-
         private int NumberOfKnotsIgnored { get; set; }
-
         private int NumberOfControlPointsIgnored { get; set; }
-
         private int NumberOfFitPointsIgnored { get; set; }
-
         public double KnotTolerance { get; set; }
-
         public double ControlPointTolerance { get; set; }
-
         public double FitTolerance { get; set; }
-
         public DxfPoint StartTangent { get; set; }
-
         public DxfPoint EndTangent { get; set; }
-
         public List<double> KnotValues { get; set; }
-
         public double Weight { get; set; }
-
         private List<double> ControlPointX { get; set; }
-
         private List<double> ControlPointY { get; set; }
-
         private List<double> ControlPointZ { get; set; }
-
         private List<double> FitPointX { get; set; }
-
         private List<double> FitPointY { get; set; }
-
         private List<double> FitPointZ { get; set; }
 
         // Flags flags
+
         public bool IsClosed
         {
             get { return DxfHelpers.GetFlag(Flags, 1); }
@@ -3331,9 +3548,9 @@ namespace BCad.Dxf.Entities
             this.FitPointZ = new List<double>();
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbSpline"));
             pairs.Add(new DxfCodePair(210, Normal.X));
             pairs.Add(new DxfCodePair(220, Normal.Y));
@@ -3480,32 +3697,21 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Text; } }
 
         public double Thickness { get; set; }
-
         public DxfPoint Location { get; set; }
-
         public double TextHeight { get; set; }
-
         public string Value { get; set; }
-
         public double Rotation { get; set; }
-
         public double RelativeXScaleFactor { get; set; }
-
         public double ObliqueAngle { get; set; }
-
         public string TextStyleName { get; set; }
-
         public int TextGenerationFlags { get; set; }
-
         public DxfHorizontalTextJustification HorizontalTextJustification { get; set; }
-
         public DxfPoint SecondAlignmentPoint { get; set; }
-
         public DxfVector Normal { get; set; }
-
         public DxfVerticalTextJustification VerticalTextJustification { get; set; }
 
         // TextGenerationFlags flags
+
         public bool IsTextBackward
         {
             get { return DxfHelpers.GetFlag(TextGenerationFlags, 2); }
@@ -3557,9 +3763,9 @@ namespace BCad.Dxf.Entities
             this.Value = value;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbText"));
             if (this.Thickness != 0.0)
             {
@@ -3695,11 +3901,8 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Tolerance; } }
 
         public string DimensionStyleName { get; set; }
-
         public DxfPoint InsertionPoint { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
-
         public DxfVector DirectionVector { get; set; }
 
         public DxfTolerance()
@@ -3711,9 +3914,9 @@ namespace BCad.Dxf.Entities
             this.DirectionVector = DxfVector.XAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbFcf"));
             pairs.Add(new DxfCodePair(3, (this.DimensionStyleName)));
             pairs.Add(new DxfCodePair(10, InsertionPoint.X));
@@ -3781,15 +3984,10 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Trace; } }
 
         public DxfPoint FirstCorner { get; set; }
-
         public DxfPoint SecondCorner { get; set; }
-
         public DxfPoint ThirdCorner { get; set; }
-
         public DxfPoint FourthCorner { get; set; }
-
         public double Thickness { get; set; }
-
         public DxfVector ExtrusionDirection { get; set; }
 
         public DxfTrace()
@@ -3803,9 +4001,9 @@ namespace BCad.Dxf.Entities
             this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbTrace"));
             pairs.Add(new DxfCodePair(10, FirstCorner.X));
             pairs.Add(new DxfCodePair(20, FirstCorner.Y));
@@ -3901,26 +4099,18 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.Vertex; } }
 
         public DxfPoint Location { get; set; }
-
         public double StartingWidth { get; set; }
-
         public double EndingWidth { get; set; }
-
         public double Bulge { get; set; }
-
         public int Flags { get; set; }
-
         public double CurveFitTangentDirection { get; set; }
-
         public int PolyfaceMeshVertexIndex1 { get; set; }
-
         public int PolyfaceMeshVertexIndex2 { get; set; }
-
         public int PolyfaceMeshVertexIndex3 { get; set; }
-
         public int PolyfaceMeshVertexIndex4 { get; set; }
 
         // Flags flags
+
         public bool IsExtraCreatedByCurveFit
         {
             get { return DxfHelpers.GetFlag(Flags, 1); }
@@ -4022,9 +4212,9 @@ namespace BCad.Dxf.Entities
             this.Location = location;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbVertex"));
             pairs.Add(new DxfCodePair(10, Location.X));
             pairs.Add(new DxfCodePair(20, Location.Y));
@@ -4117,6 +4307,27 @@ namespace BCad.Dxf.Entities
     }
 
     /// <summary>
+    /// DxfWipeout class
+    /// </summary>
+    public partial class DxfWipeout : DxfImage
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.WipeOut; } }
+        protected override DxfAcadVersion MinVersion { get { return DxfAcadVersion.R2000; } }
+
+
+        public DxfWipeout()
+            : base()
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbWipeout"));
+        }
+    }
+
+    /// <summary>
     /// DxfXLine class
     /// </summary>
     public partial class DxfXLine : DxfEntity
@@ -4124,7 +4335,6 @@ namespace BCad.Dxf.Entities
         public override DxfEntityType EntityType { get { return DxfEntityType.XLine; } }
 
         public DxfPoint FirstPoint { get; set; }
-
         public DxfVector UnitDirectionVector { get; set; }
 
         public DxfXLine()
@@ -4144,9 +4354,9 @@ namespace BCad.Dxf.Entities
             this.UnitDirectionVector = unitDirectionVector;
         }
 
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbXline"));
             pairs.Add(new DxfCodePair(10, FirstPoint.X));
             pairs.Add(new DxfCodePair(20, FirstPoint.Y));

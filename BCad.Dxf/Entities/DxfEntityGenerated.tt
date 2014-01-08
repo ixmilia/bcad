@@ -85,7 +85,7 @@ foreach (var property in GetProperties(baseEntity))
 #>
         }
 
-        protected virtual void AddValuePairs(List<DxfCodePair> pairs)
+        protected virtual void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
 <#
@@ -199,8 +199,28 @@ foreach (var entity in entities)
     public partial class <#= className #> : <#= baseClass #>
     {
         public override DxfEntityType EntityType { get { return DxfEntityType.<#= EntityType(entity) #>; } }
+<#
+	// min and max entity supported versions
+	var minVersion = MinVersion(entity);
+	if (minVersion != null)
+	{
+#>
+        protected override DxfAcadVersion MinVersion { get { return DxfAcadVersion.<#= minVersion #>; } }
+<#
+	} // if
+
+	var maxVersion = MaxVersion(entity);
+	if (maxVersion != null)
+	{
+#>
+        protected override DxfAcadVersion MaxVersion { get { return DxfAcadVersion.<#= maxVersion #>; } }
+<#
+	} // if
+
+#>
 
 <#
+
 	//
 	// Properties
 	//
@@ -213,7 +233,6 @@ foreach (var entity in entities)
 		}
 #>
         <#= Accessibility(property) #> <#= propertyType #> <#= Name(property) #> { get; set; }
-
 <#
 	} // foreach property
 
@@ -223,11 +242,13 @@ foreach (var entity in entities)
 		if (flags.Any())
 		{
 #>
+
         // <#= Name(property) #> flags
 <#
 			foreach (var flag in flags)
 			{
 #>
+
         public bool <#= Name(flag) #>
         {
             get { return DxfHelpers.GetFlag(<#= Name(property) #>, <#= Mask(flag) #>); }
@@ -238,7 +259,6 @@ foreach (var entity in entities)
                 <#= Name(property) #> = flags;
             }
         }
-
 <#
 			} // foreach flag
 		} // if
@@ -248,6 +268,7 @@ foreach (var entity in entities)
 	// Default constructor
 	//
 #>
+
         public <#= className #>()
             : base()
         {
@@ -303,9 +324,9 @@ foreach (var entity in entities)
 		} // foreach constructor
 	} // if
 #>
-        protected override void AddValuePairs(List<DxfCodePair> pairs)
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
-            base.AddValuePairs(pairs);
+            base.AddValuePairs(pairs, version);
 <#
 			foreach (var line in GetWriteCommands(entity))
 			{
@@ -569,18 +590,41 @@ IEnumerable<string> WriteProperty(XElement spec, XElement entity)
 	return GetPropertyWriteLines(property);
 }
 
+string MinVersion(XElement property)
+{
+	var att = property.Attribute("MinVersion");
+	return att == null ? null : att.Value;
+}
+
+string MaxVersion(XElement property)
+{
+	var att = property.Attribute("MaxVersion");
+	return att == null ? null : att.Value;
+}
+
 IEnumerable<string> GetPropertyWriteLines(XElement property)
 {
 	var lines = new List<string>();
 	var code = Code(property);
 	var codes = GetCodeOverrides(property);
 	var name = Name(property);
-	var disableWriting = DisableWritingDefault(property);
-	var indentPrefix = disableWriting ? "    " : string.Empty;
-	if (disableWriting)
+	var minVersion = MinVersion(property);
+	var maxVersion = MaxVersion(property);
+	var writePredicates = new List<string>();
+	if (minVersion != null)
+		writePredicates.Add(string.Format("version >= DxfAcadVersion.{0}", minVersion));
+	if (maxVersion != null)
+		writePredicates.Add(string.Format("version <= DxfAcadVersion.{0}", maxVersion));
+
+	if (DisableWritingDefault(property))
+		writePredicates.Add(string.Format("this.{0} != {1}", name, DefaultValue(property)));
+
+	string indentPrefix = string.Empty;
+	if (writePredicates.Any())
 	{
-		lines.Add(string.Format("if (this.{0} != {1})", name, DefaultValue(property)));
+		lines.Add(string.Format("if ({0})", string.Join(" && ", writePredicates)));
 		lines.Add("{");
+		indentPrefix = "    ";
 	}
 
 	if (codes != null)
@@ -603,7 +647,7 @@ IEnumerable<string> GetPropertyWriteLines(XElement property)
 		}
 	}
 
-	if (disableWriting)
+	if (writePredicates.Any())
 	{
 		lines.Add("}");
 		lines.Add(string.Empty);

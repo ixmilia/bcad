@@ -5,8 +5,9 @@ HEADER section - complete
 CLASSES section - complete
 TABLES section - complete
 BLOCKS section - complete
-ENTITIES section - partial
+ENTITIES section - (mostly) complete through R2000
 OBJECTS section - NYI
 
 TODO:
-	only R14 support exists for entities.  add Min/Max version to entity fields
+	add min/max for classes/tables/blocks/objects sections
+	add THUMBNAIL section from R2000
