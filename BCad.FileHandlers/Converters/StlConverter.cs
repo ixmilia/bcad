@@ -28,7 +28,10 @@ namespace BCad.FileHandlers.Converters
 
             drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, -1),
-                new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
+                new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
+                null,
+                null,
+                stlFile.File);
 
             viewPort = null; // auto-set it later
 

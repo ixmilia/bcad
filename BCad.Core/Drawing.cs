@@ -11,6 +11,7 @@ namespace BCad
         private readonly ReadOnlyTree<string, Layer> layers;
         private readonly string currentLayerName;
         private readonly string author;
+        private readonly object tag;
 
         public DrawingSettings Settings { get { return settings; } }
 
@@ -21,6 +22,8 @@ namespace BCad
         public ReadOnlyTree<string, Layer> Layers { get { return this.layers; } }
 
         public string Author { get { return author; } }
+
+        public object Tag { get { return tag; } }
 
         public Drawing()
             : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", IndexedColor.Auto)), "0", null)
@@ -43,6 +46,11 @@ namespace BCad
         }
 
         public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string currentLayerName, string author)
+            : this(settings, layers, currentLayerName, author, null)
+        {
+        }
+
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string currentLayerName, string author, object tag)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
@@ -58,6 +66,7 @@ namespace BCad
             this.layers = layers;
             this.currentLayerName = currentLayerName;
             this.author = author;
+            this.tag = tag;
         }
 
         public IEnumerable<Layer> GetLayers()
@@ -140,7 +149,8 @@ namespace BCad
                 settings ?? this.settings,
                 newLayers,
                 newCurrentName,
-                author ?? this.author);
+                author ?? this.author,
+                this.tag);
         }
     }
 }

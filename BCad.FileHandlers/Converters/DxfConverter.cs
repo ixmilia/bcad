@@ -70,7 +70,9 @@ namespace BCad.FileHandlers.Converters
             drawing = new Drawing(
                 new DrawingSettings(fileName, dxfFile.File.Header.UnitFormat.ToUnitFormat(), dxfFile.File.Header.UnitPrecision),
                 layers,
-                dxfFile.File.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First());
+                dxfFile.File.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First(),
+                null,
+                dxfFile.File);
 
             var vp = dxfFile.File.ViewPorts.FirstOrDefault();
             if (vp != null)
@@ -92,6 +94,13 @@ namespace BCad.FileHandlers.Converters
         public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
         {
             var file = new DxfFile();
+            var oldFile = drawing.Tag as DxfFile;
+            if (oldFile != null)
+            {
+                // preserve settings from the original file
+                file.Header.CreationDate = oldFile.Header.CreationDate;
+                file.Header.CreationDateUniversal = oldFile.Header.CreationDateUniversal;
+            }
 
             // save layers and entities
             file.Header.CurrentLayer = drawing.CurrentLayer.Name;

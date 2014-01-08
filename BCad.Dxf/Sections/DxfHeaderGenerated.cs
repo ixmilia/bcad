@@ -482,7 +482,7 @@ namespace BCad.Dxf
             this.CurrentMultilineScale = 1.0; // CMLSCALE
             this.CurrentMultilineStyle = null; // CMLSTYLE
             this.CoordinateDisplay = DxfCoordinateDisplay.Static; // COORDS
-            this.NewObjectPlotStyleHandle = "DxfPlotStyle.ByLayer"; // CPSNID
+            this.NewObjectPlotStyleHandle = null; // CPSNID
             this.ShadowMode = DxfShadowMode.CastsAndReceives; // CSHADOW
             this.RetainDeletedObjects = false; // DELOBJ
             this.AngularDimensionPrecision = 12; // DIMADEC
@@ -618,7 +618,7 @@ namespace BCad.Dxf
             this.PaperspaceUCSOriginLeft = DxfPoint.Origin; // PUCSORGLEFT
             this.PaperspaceUCSOriginRight = DxfPoint.Origin; // PUCSORGRIGHT
             this.PaperspaceUCSOriginTop = DxfPoint.Origin; // PUCSORGTOP
-            this.PaperspaceOrthoUCSReference = "DxfPoint.Origin"; // PUCSORTHOREF
+            this.PaperspaceOrthoUCSReference = null; // PUCSORTHOREF
             this.PaperspaceOrthographicViewType = DxfOrthographicViewType.None; // PUCSORTHOVIEW
             this.PaperspaceXAxis = DxfVector.XAxis; // PUCSXDIR
             this.PaperspaceYAxis = DxfVector.YAxis; // PUCSYDIR

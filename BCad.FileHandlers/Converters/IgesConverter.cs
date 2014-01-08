@@ -37,7 +37,9 @@ namespace BCad.FileHandlers.Converters
             drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, 8),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
-                igesFile.File.Author);
+                layer.Name,
+                igesFile.File.Author,
+                igesFile.File);
 
             viewPort = null; // auto-set it later
 
@@ -47,6 +49,13 @@ namespace BCad.FileHandlers.Converters
         public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
         {
             var file = new IgesFile();
+            var oldFile = drawing.Tag as IgesFile;
+            if (oldFile != null)
+            {
+                // preserve settings from original file
+                file.TimeStamp = oldFile.TimeStamp;
+            }
+
             file.Author = drawing.Author;
             file.FullFileName = fileName;
             file.Identification = Path.GetFileName(fileName);
