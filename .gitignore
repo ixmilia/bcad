@@ -8,3 +8,4 @@
 *.Tests.mdf
 *.Tests_log.ldf
 *.ide
+/BCad.Metro/AppPackages
