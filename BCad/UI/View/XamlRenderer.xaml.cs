@@ -107,6 +107,7 @@ namespace BCad.UI.View
 
         private void RecalcTransform()
         {
+            var start = DateTime.UtcNow;
             if (Workspace == null || Workspace.ViewControl == null)
                 return;
 
@@ -122,6 +123,11 @@ namespace BCad.UI.View
             var newThickness = 1.0 / scale;
             if (BindObject.Thickness != newThickness)
                 BindObject.Thickness = newThickness;
+
+            var end = DateTime.UtcNow;
+            var elapsed = (end - start).TotalMilliseconds;
+            Fps.Text = string.Format("Transform update done in {0} ms", elapsed);
+
             this.Dispatcher.BeginInvoke((Action)(() => RenderRubberBandLines()));
         }
 
@@ -151,6 +157,7 @@ namespace BCad.UI.View
             switch (prim.Kind)
             {
                 case PrimitiveKind.Ellipse:
+                    AddPrimitiveEllipse(canvas, (PrimitiveEllipse)prim, color);
                     break;
                 case PrimitiveKind.Line:
                     AddPrimitiveLine(canvas, (PrimitiveLine)prim, color);
@@ -172,6 +179,18 @@ namespace BCad.UI.View
             var newLine = new Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, Stroke = new SolidColorBrush(color) };
             SetThicknessBinding(newLine);
             canvas.Children.Add(newLine);
+        }
+
+        private void AddPrimitiveEllipse(Canvas canvas, PrimitiveEllipse ellipse, Color color)
+        {
+            // TODO: do a proper projection
+            var center = ProjectToPlane(ellipse.Center);
+            var radius = ellipse.MajorAxis.Length;
+            var newEllipse = new Ellipse() { Height = radius * 2, Width = radius * 2, Stroke = new SolidColorBrush(color) };
+            Canvas.SetLeft(newEllipse, center.X - radius);
+            Canvas.SetTop(newEllipse, center.Y - radius);
+            SetThicknessBinding(newEllipse);
+            canvas.Children.Add(newEllipse);
         }
 
         private Point ProjectToPlane(Point point)
