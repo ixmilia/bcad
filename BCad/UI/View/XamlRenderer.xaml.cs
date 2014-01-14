@@ -21,6 +21,7 @@ namespace BCad.UI.View
         private IWorkspace Workspace;
         private IInputService InputService;
         private Color AutoColor;
+        private Plane DisplayPlane;
         private BindingClass BindObject = new BindingClass();
 
         private class BindingClass : INotifyPropertyChanged
@@ -108,6 +109,9 @@ namespace BCad.UI.View
         {
             if (Workspace == null || Workspace.ViewControl == null)
                 return;
+
+            DisplayPlane = new Plane(Workspace.ActiveViewPort.BottomLeft, Workspace.ActiveViewPort.Sight);
+
             var scale = Workspace.ViewControl.DisplayHeight / Workspace.ActiveViewPort.ViewHeight;
             var t = new TransformGroup();
             t.Children.Add(new TranslateTransform(-Workspace.ActiveViewPort.BottomLeft.X, -Workspace.ActiveViewPort.BottomLeft.Y));
@@ -163,12 +167,16 @@ namespace BCad.UI.View
         private void AddPrimitiveLine(Canvas canvas, PrimitiveLine line, Color color)
         {
             // project onto the drawing plane.  a render transform will take care of the display later
-            // TODO: project onto view plane?
-            var p1 = Workspace.DrawingPlane.ToXYPlane(line.P1);
-            var p2 = Workspace.DrawingPlane.ToXYPlane(line.P2);
+            var p1 = ProjectToPlane(line.P1);
+            var p2 = ProjectToPlane(line.P2);
             var newLine = new Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, Stroke = new SolidColorBrush(color) };
             SetThicknessBinding(newLine);
             canvas.Children.Add(newLine);
+        }
+
+        private Point ProjectToPlane(Point point)
+        {
+            return DisplayPlane.ToXYPlane(point);
         }
 
         private void SetBinding(FrameworkElement element, string propertyName, DependencyProperty property)
