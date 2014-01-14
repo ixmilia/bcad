@@ -172,7 +172,9 @@
     <Compile Include="UI\View\ViewPane.xaml.cs">
       <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\View\XamlRenderer.cs" />
+    <Compile Include="UI\View\XamlRenderer.xaml.cs">
+      <DependentUpon>XamlRenderer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\View\XamlRendererFactory.cs" />
     <Compile Include="UserCommand.cs" />
     <Compile Include="Workspace.cs" />
@@ -221,6 +223,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\View\ViewPane.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\View\XamlRenderer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

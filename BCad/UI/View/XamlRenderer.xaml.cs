@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using BCad.EventArguments;
@@ -11,26 +12,50 @@ using BCad.Services;
 
 namespace BCad.UI.View
 {
-    internal class XamlRenderer : Grid, IRenderer
+    /// <summary>
+    /// Interaction logic for XamlRenderer.xaml
+    /// </summary>
+    public partial class XamlRenderer : UserControl, IRenderer
     {
         IViewControl ViewControl;
         private IWorkspace Workspace;
         private IInputService InputService;
         private Color AutoColor;
-        private Matrix4 Transformation = Matrix4.Identity;
-        private Canvas PrimitiveCanvas;
-        private Canvas RubberBandCanvas;
-        private IEnumerable<IPrimitive> rubberBandPrimitives;
+        private BindingClass BindObject = new BindingClass();
+
+        private class BindingClass : INotifyPropertyChanged
+        {
+            private double thickness = 0.0;
+            public double Thickness
+            {
+                get { return thickness; }
+                set
+                {
+                    thickness = value;
+                    OnPropertyChanged("Thickness");
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void OnPropertyChanged(string property)
+            {
+                var handler = PropertyChanged;
+                if (handler != null)
+                {
+                    handler(this, new PropertyChangedEventArgs(property));
+                }
+            }
+        }
+
+        public XamlRenderer()
+        {
+            InitializeComponent();
+        }
 
         public XamlRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)
+            : this()
         {
-            PrimitiveCanvas = new Canvas() { ClipToBounds = true };
-            RubberBandCanvas = new Canvas() { ClipToBounds = true };
-            RubberBandCanvas.Background = Brushes.Transparent;
-
-            this.Children.Add(PrimitiveCanvas);
-            this.Children.Add(RubberBandCanvas);
-
             ViewControl = viewControl;
             Workspace = workspace;
             InputService = inputService;
@@ -46,6 +71,7 @@ namespace BCad.UI.View
 
                     RecalcTransform();
                 };
+            this.SizeChanged += (_, __) => RecalcTransform();
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -65,7 +91,6 @@ namespace BCad.UI.View
             if (e.IsActiveViewPortChange)
             {
                 RecalcTransform();
-                redraw = true;
             }
             if (e.IsDrawingChange)
             {
@@ -81,12 +106,24 @@ namespace BCad.UI.View
 
         private void RecalcTransform()
         {
-            Transformation = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(this.ActualWidth, this.ActualHeight);
+            if (Workspace == null || Workspace.ViewControl == null)
+                return;
+            var scale = Workspace.ViewControl.DisplayHeight / Workspace.ActiveViewPort.ViewHeight;
+            var t = new TransformGroup();
+            t.Children.Add(new TranslateTransform(-Workspace.ActiveViewPort.BottomLeft.X, -Workspace.ActiveViewPort.BottomLeft.Y));
+            t.Children.Add(new ScaleTransform(scale, -scale));
+            t.Children.Add(new TranslateTransform(0, Workspace.ViewControl.DisplayHeight));
+            this.PrimitiveCanvas.RenderTransform = t;
+            this.RubberBandCanvas.RenderTransform = t;
+            var newThickness = 1.0 / scale;
+            if (BindObject.Thickness != newThickness)
+                BindObject.Thickness = newThickness;
             this.Dispatcher.BeginInvoke((Action)(() => RenderRubberBandLines()));
         }
 
         private void Redraw()
         {
+            var start = DateTime.UtcNow;
             var drawing = Workspace.Drawing;
             this.PrimitiveCanvas.Children.Clear();
             foreach (var layer in drawing.GetLayers())
@@ -99,6 +136,10 @@ namespace BCad.UI.View
                     }
                 }
             }
+
+            var end = DateTime.UtcNow;
+            var elapsed = (end - start).TotalMilliseconds;
+            Fps.Text = string.Format("Redraw time: {0} ms", elapsed);
         }
 
         private void AddPrimitive(Canvas canvas, IPrimitive prim, Color color)
@@ -121,10 +162,25 @@ namespace BCad.UI.View
 
         private void AddPrimitiveLine(Canvas canvas, PrimitiveLine line, Color color)
         {
-            var p1 = Transformation.Transform(line.P1);
-            var p2 = Transformation.Transform(line.P2);
+            // project onto the drawing plane.  a render transform will take care of the display later
+            // TODO: project onto view plane?
+            var p1 = Workspace.DrawingPlane.ToXYPlane(line.P1);
+            var p2 = Workspace.DrawingPlane.ToXYPlane(line.P2);
             var newLine = new Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, Stroke = new SolidColorBrush(color) };
+            SetThicknessBinding(newLine);
             canvas.Children.Add(newLine);
+        }
+
+        private void SetBinding(FrameworkElement element, string propertyName, DependencyProperty property)
+        {
+            var binding = new Binding(propertyName);
+            binding.Source = BindObject;
+            element.SetBinding(property, binding);
+        }
+
+        private void SetThicknessBinding(Shape shape)
+        {
+            SetBinding(shape, "Thickness", Shape.StrokeThicknessProperty);
         }
 
         private Color GetDrawingColor(IndexedColor primitiveColor, IndexedColor layerColor)
