@@ -13,6 +13,7 @@ namespace BCad.UI
         public BCadControl Control { get; private set; }
 
         private TaskCompletionSource<bool?> completionAwaiter = new TaskCompletionSource<bool?>();
+        private bool acceptedResult = false;
 
         public BCadDialog(BCadControl control)
         {
@@ -31,6 +32,7 @@ namespace BCad.UI
         {
             if (this.Control.Validate())
             {
+                acceptedResult = true;
                 this.Control.Commit();
                 this.Control = null;
                 this.Close();
@@ -40,6 +42,9 @@ namespace BCad.UI
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
+            acceptedResult = true;
+            this.Control.Cancel();
+            completionAwaiter.SetResult(false);
             Cancel();
         }
 
@@ -65,8 +70,11 @@ namespace BCad.UI
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            this.Control.Cancel();
-            completionAwaiter.SetResult(false);
+            if (!acceptedResult)
+            {
+                this.Control.Cancel();
+                completionAwaiter.SetResult(false);
+            }
         }
     }
 }

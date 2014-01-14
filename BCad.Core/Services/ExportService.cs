@@ -13,20 +13,8 @@ namespace BCad.Services
         public IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort)
         {
             // create transform
-            var normal = viewPort.Sight * -1.0;
-            var up = viewPort.Up;
-            var right = up.Cross(normal).Normalize();
-            var transform = TranslationMatrix(-viewPort.BottomLeft.X, -viewPort.BottomLeft.Y - viewPort.ViewHeight, 0)
-                * Matrix4.FromUnitCircleProjection(
-                    normal,
-                    right,
-                    up,
-                    Point.Origin,
-                    -1.0,
-                    -1.0,
-                    1.0);
-            transform.Scale(new Vector(1.0, 1.0, 0.0));
-
+            var transform = viewPort.GetTransformationMatrixWindowsStyle(640, 480);
+            
             // project all entities
             var entities = new List<ProjectedEntity>();
             foreach (var layer in from l in drawing.GetLayers()
