@@ -12,6 +12,7 @@ namespace BCad.Extensions
     {
         private static double[] SIN;
         private static double[] COS;
+        public const int DefaultPixelBuffer = 20;
 
         static PrimitiveExtensions()
         {
@@ -917,6 +918,94 @@ namespace BCad.Extensions
 
             points[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
             return points;
+        }
+
+        public static ViewPort ShowAllViewPort(this IEnumerable<IPrimitive> primitives, Vector sight, Vector up, int viewPortWidth, int viewPortHeight, int pixelBuffer = DefaultPixelBuffer)
+        {
+            var drawingPlane = new Plane(Point.Origin, sight);
+            var planeProjection = drawingPlane.ToXYPlaneProjection();
+            var allPoints = primitives
+                .SelectMany(p => p.GetInterestingPoints())
+                .Select(p => planeProjection.Transform(p));
+
+            if (allPoints.Count() < 2)
+                return null;
+
+            var first = allPoints.First();
+            var minx = first.X;
+            var miny = first.Y;
+            var maxx = first.X;
+            var maxy = first.Y;
+            foreach (var point in allPoints.Skip(1))
+            {
+                if (point.X < minx)
+                    minx = point.X;
+                if (point.X > maxx)
+                    maxx = point.X;
+                if (point.Y < miny)
+                    miny = point.Y;
+                if (point.Y > maxy)
+                    maxy = point.Y;
+            }
+
+            var deltaX = maxx - minx;
+            var deltaY = maxy - miny;
+
+            // translate back out of XY plane
+            var unproj = planeProjection;
+            unproj.Invert();
+            var bottomLeft = unproj.Transform(new Point(minx, miny, 0));
+            var topRight = unproj.Transform(new Point(minx + deltaX, miny + deltaY, 0));
+            var drawingHeight = deltaY;
+            var drawingWidth = deltaX;
+
+            double viewHeight, drawingToViewScale;
+            var viewRatio = (double)viewPortWidth / viewPortHeight;
+            var drawingRatio = drawingWidth / drawingHeight;
+            if (MathHelper.CloseTo(0.0, drawingHeight) || drawingRatio > viewRatio)
+            {
+                // fit to width
+                var viewWidth = drawingWidth;
+                viewHeight = viewPortHeight * viewWidth / viewPortWidth;
+                drawingToViewScale = viewPortWidth / viewWidth;
+
+                // add a buffer of some amount of pixels
+                var pixelWidth = drawingWidth * drawingToViewScale;
+                var newPixelWidth = pixelWidth + (pixelBuffer * 2);
+                viewHeight *= newPixelWidth / pixelWidth;
+            }
+            else
+            {
+                // fit to height
+                viewHeight = drawingHeight;
+                drawingToViewScale = viewPortHeight / viewHeight;
+
+                // add a buffer of some amount of pixels
+                var pixelHeight = drawingHeight * drawingToViewScale;
+                var newPixelHeight = pixelHeight + (pixelBuffer * 2);
+                viewHeight *= newPixelHeight / pixelHeight;
+            }
+
+            // center viewport
+            var tempViewport = new ViewPort(bottomLeft, sight, up, viewHeight);
+            var pixelMatrix = tempViewport.GetTransformationMatrixWindowsStyle(viewPortWidth, viewPortHeight);
+            var bottomLeftScreen = pixelMatrix.Transform(bottomLeft);
+            var topRightScreen = pixelMatrix.Transform(topRight);
+
+            // center horizontally
+            var leftXGap = bottomLeftScreen.X;
+            var rightXGap = viewPortWidth - topRightScreen.X;
+            var xAdjust = Math.Abs((rightXGap - leftXGap) / 2.0) / drawingToViewScale;
+
+            // center vertically
+            var topYGap = topRightScreen.Y;
+            var bottomYGap = viewPortHeight - bottomLeftScreen.Y;
+            var yAdjust = Math.Abs((topYGap - bottomYGap) / 2.0) / drawingToViewScale;
+
+            var newBottomLeft = new Point(bottomLeft.X - xAdjust, bottomLeft.Y - yAdjust, bottomLeft.Z);
+
+            var newVp = tempViewport.Update(bottomLeft: newBottomLeft, viewHeight: viewHeight);
+            return newVp;
         }
     }
 }

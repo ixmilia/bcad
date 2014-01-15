@@ -6,8 +6,6 @@ namespace BCad.Commands
     [ExportCommand("Zoom.Extents", "ZOOMEXTENTS", "ze")]
     internal class ZoomExtentsCommand : ICommand
     {
-        private const int ZoomPixelBuffer = 20;
-
         [Import]
         public IWorkspace Workspace { get; set; }
 

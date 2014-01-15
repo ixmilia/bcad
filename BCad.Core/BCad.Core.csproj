@@ -39,6 +39,7 @@
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Commands\CommandMetadata.cs" />
     <Compile Include="Commands\ZoomExtentsCommand.cs" />
+    <Compile Include="Commands\ZoomWindowCommand.cs" />
     <Compile Include="ConsoleMetadata.cs" />
     <Compile Include="DefaultSettingsManager.cs" />
     <Compile Include="Entities\Location.cs" />

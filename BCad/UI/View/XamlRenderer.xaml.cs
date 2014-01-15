@@ -236,9 +236,12 @@ namespace BCad.UI.View
             if (generator != null)
             {
                 var primitives = generator(ViewControl.GetCursorPoint());
-                foreach (var prim in primitives)
+                if (primitives != null)
                 {
-                    AddPrimitive(this.RubberBandCanvas, prim, GetDrawingColor(prim.Color, IndexedColor.Auto));
+                    foreach (var prim in primitives)
+                    {
+                        AddPrimitive(this.RubberBandCanvas, prim, GetDrawingColor(prim.Color, IndexedColor.Auto));
+                    }
                 }
             }
         }
