@@ -32,6 +32,8 @@ namespace BCad.UI.View
                 get { return thickness; }
                 set
                 {
+                    if (thickness == value)
+                        return;
                     thickness = value;
                     OnPropertyChanged("Thickness");
                 }
@@ -120,9 +122,7 @@ namespace BCad.UI.View
             t.Children.Add(new TranslateTransform(0, Workspace.ViewControl.DisplayHeight));
             this.PrimitiveCanvas.RenderTransform = t;
             this.RubberBandCanvas.RenderTransform = t;
-            var newThickness = 1.0 / scale;
-            if (BindObject.Thickness != newThickness)
-                BindObject.Thickness = newThickness;
+            BindObject.Thickness = 1.0 / scale;
 
             var end = DateTime.UtcNow;
             var elapsed = (end - start).TotalMilliseconds;
