@@ -172,6 +172,7 @@
     <Compile Include="UI\View\ViewPane.xaml.cs">
       <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\View\XamlRenderer.Shared.cs" />
     <Compile Include="UI\View\XamlRenderer.xaml.cs">
       <DependentUpon>XamlRenderer.xaml</DependentUpon>
     </Compile>
