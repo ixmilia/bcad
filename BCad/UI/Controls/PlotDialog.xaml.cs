@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using BCad.FilePlotters;
+using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 
@@ -23,7 +24,6 @@ namespace BCad.UI.Controls
     {
         private IWorkspace workspace = null;
         private IInputService inputService = null;
-        private IExportService exportService = null;
         private IFileSystemService fileSystemService = null;
         private IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters = null;
 
@@ -38,12 +38,11 @@ namespace BCad.UI.Controls
         }
 
         [ImportingConstructor]
-        public PlotDialog(IWorkspace workspace, IInputService inputService, IExportService exportService, IFileSystemService fileSystemService, [ImportMany] IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters)
+        public PlotDialog(IWorkspace workspace, IInputService inputService, IFileSystemService fileSystemService, [ImportMany] IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters)
             : this()
         {
             this.workspace = workspace;
             this.inputService = inputService;
-            this.exportService = exportService;
             this.fileSystemService = fileSystemService;
             this.filePlotters = filePlotters;
         }
@@ -78,13 +77,13 @@ namespace BCad.UI.Controls
                     throw new NotImplementedException(); // TODO: remove this
             }
 
-            var entities = exportService.ProjectTo2D(workspace.Drawing, viewPort);
+            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort);
             plotter.Plot(entities, width, height, stream);
 
             switch (viewModel.PlotType)
             {
                 case "Print":
-                    var dialog = new System.Windows.Forms.PrintDialog();
+                    var dialog = new PrintDialog();
                     dialog.AllowPrintToFile = true;
                     dialog.PrintToFile = false;
                     if (dialog.ShowDialog() == DialogResult.OK)

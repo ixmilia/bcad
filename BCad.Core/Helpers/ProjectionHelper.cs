@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.Helpers;
+using BCad.Primitives;
 
-namespace BCad.Services
+namespace BCad.Helpers
 {
-    [Export(typeof(IExportService)), Shared]
-    internal class ExportService : IExportService
+    public static class ProjectionHelper
     {
-        public IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort)
+        public static IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort)
         {
             // create transform
             var transform = viewPort.GetTransformationMatrixWindowsStyle(640, 480);
@@ -33,7 +33,7 @@ namespace BCad.Services
             return entities;
         }
 
-        private ProjectedEntity Project(Entity entity, Layer layer, Matrix4 transform)
+        public static ProjectedEntity Project(Entity entity, Layer layer, Matrix4 transform)
         {
             switch (entity.Kind)
             {
@@ -52,14 +52,14 @@ namespace BCad.Services
             }
         }
 
-        private ProjectedLine Project(Line line, Layer layer, Matrix4 transform)
+        public static ProjectedLine Project(Line line, Layer layer, Matrix4 transform)
         {
             var p1 = transform.Transform(line.P1);
             var p2 = transform.Transform(line.P2);
             return new ProjectedLine(line, layer, p1, p2);
         }
 
-        private ProjectedText Project(Text text, Layer layer, Matrix4 transform)
+        public static ProjectedText Project(Text text, Layer layer, Matrix4 transform)
         {
             var loc = transform.Transform(text.Location);
             var rad = text.Rotation * MathHelper.DegreesToRadians;
@@ -71,7 +71,7 @@ namespace BCad.Services
             return new ProjectedText(text, layer, loc, height, rotation.CorrectAngleDegrees());
         }
 
-        private ProjectedCircle Project(Circle circle, Layer layer, Matrix4 transform)
+        public static ProjectedCircle Project(Circle circle, Layer layer, Matrix4 transform)
         {
             // find axis endpoints
             var rightVector = Vector.RightVectorFromNormal(circle.Normal);
@@ -82,7 +82,38 @@ namespace BCad.Services
             return ProjectedCircle.FromConjugateDiameters(circle, layer, m, pt, qt);
         }
 
-        private ProjectedArc Project(Arc arc, Layer layer, Matrix4 transform)
+        public static PrimitiveEllipse Project(PrimitiveEllipse ellipse, Matrix4 transform)
+        {
+            // brute-force the endpoints
+            var fromUnit = ellipse.FromUnitCircleProjection() * transform;
+            var center = transform.Transform(ellipse.Center);
+            var minPoint = fromUnit.Transform(new Point(MathHelper.COS[0], MathHelper.SIN[0], 0));
+            var maxPoint = minPoint;
+            var minDistance = (minPoint - center).Length;
+            var maxDistance = minDistance;
+            for (int i = 1; i < 360; i++)
+            {
+                var next = fromUnit.Transform(new Point(MathHelper.COS[i], MathHelper.SIN[i], 0));
+                var dist = (next - center).Length;
+                if (dist < minDistance)
+                {
+                    minPoint = next;
+                    minDistance = dist;
+                }
+
+                if (dist > maxDistance)
+                {
+                    maxPoint = next;
+                    maxDistance = dist;
+                }
+            }
+
+            var majorAxis = maxPoint - center;
+            var angle = Math.Atan2(majorAxis.Y, majorAxis.X) * MathHelper.RadiansToDegrees;
+            return new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minDistance / maxDistance, ellipse.StartAngle, ellipse.EndAngle, ellipse.Color);
+        }
+
+        public static ProjectedArc Project(Arc arc, Layer layer, Matrix4 transform)
         {
             // find the containing circle
             var rightVector = Vector.RightVectorFromNormal(arc.Normal);
@@ -101,7 +132,7 @@ namespace BCad.Services
             return new ProjectedArc(arc, layer, circle.Center, circle.RadiusX, circle.RadiusY, circle.Rotation, startAngle, endAngle, startPoint, endPoint);
         }
 
-        private ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix4 transform)
+        public static ProjectedAggregate Project(AggregateEntity aggregate, Layer layer, Matrix4 transform)
         {
             var loc = transform.Transform(aggregate.Location);
             var newOrigin = transform.Transform(Point.Origin);

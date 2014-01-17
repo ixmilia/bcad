@@ -13,6 +13,23 @@ namespace BCad.Helpers
         public const double TwoPI = MathHelper.PI * 2.0;
         public const double Epsilon = 0.000000000001;
 
+        public readonly static double[] SIN;
+        public readonly static double[] COS;
+        public const int DefaultPixelBuffer = 20;
+
+        static MathHelper()
+        {
+            SIN = new double[360];
+            COS = new double[360];
+            double rad;
+            for (int i = 0; i < 360; i++)
+            {
+                rad = i * DegreesToRadians;
+                SIN[i] = Math.Sin(rad);
+                COS[i] = Math.Cos(rad);
+            }
+        }
+
         public static bool Between(double a, double b, double value)
         {
             var min = Math.Min(a, b) - Epsilon;

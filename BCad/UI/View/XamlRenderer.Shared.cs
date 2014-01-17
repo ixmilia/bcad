@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using BCad.EventArguments;
 using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Primitives;
 
 #if NETFX_CORE
@@ -27,7 +28,7 @@ namespace BCad.UI.View
     public partial class XamlRenderer : UserControl
     {
         private IWorkspace Workspace;
-        private Plane DisplayPlane;
+        private Matrix4 PlaneProjection;
         private BindingClass BindObject = new BindingClass();
 
         private class BindingClass : INotifyPropertyChanged
@@ -124,7 +125,8 @@ namespace BCad.UI.View
             if (Workspace == null || Workspace.ViewControl == null)
                 return;
 
-            DisplayPlane = new Plane(Workspace.ActiveViewPort.BottomLeft, Workspace.ActiveViewPort.Sight);
+            var displayPlane = new Plane(Workspace.ActiveViewPort.BottomLeft, Workspace.ActiveViewPort.Sight);
+            PlaneProjection = displayPlane.ToXYPlaneProjection();
 
             var scale = Workspace.ViewControl.DisplayHeight / Workspace.ActiveViewPort.ViewHeight;
             var t = new TransformGroup();
@@ -206,15 +208,17 @@ namespace BCad.UI.View
 
         private void AddPrimitiveEllipse(Canvas canvas, PrimitiveEllipse ellipse, IndexedColor color)
         {
-            // TODO: do a proper projection
-            var center = ProjectToPlane(ellipse.Center);
-            var radius = ellipse.MajorAxis.Length;
-            var newEllipse = new Ellipse() { Height = radius * 2, Width = radius * 2 };
-            Canvas.SetLeft(newEllipse, center.X - radius);
-            Canvas.SetTop(newEllipse, center.Y - radius);
-            SetThicknessBinding(newEllipse);
-            SetColorBinding(newEllipse, color);
-            canvas.Children.Add(newEllipse);
+            // find axis endpoints
+            var projected = ProjectionHelper.Project(ellipse, PlaneProjection);
+            var majorRadius = projected.MajorAxis.Length;
+            var el = new Ellipse() { Width = majorRadius * 2, Height = majorRadius * 2 * projected.MinorAxisRatio };
+            var angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees;
+            el.RenderTransform = new RotateTransform() { Angle = angle };
+            Canvas.SetLeft(el, projected.Center.X); // TODO: fix this
+            Canvas.SetTop(el, projected.Center.Y);
+            SetThicknessBinding(el);
+            SetColorBinding(el, color);
+            canvas.Children.Add(el);
         }
 
         private void AddPrimitiveText(Canvas canvas, PrimitiveText text, IndexedColor color)
@@ -238,7 +242,7 @@ namespace BCad.UI.View
 
         private Point ProjectToPlane(Point point)
         {
-            return DisplayPlane.ToXYPlane(point);
+            return PlaneProjection.Transform(point);
         }
 
         private void SetBinding(FrameworkElement element, string propertyName, DependencyProperty property)
