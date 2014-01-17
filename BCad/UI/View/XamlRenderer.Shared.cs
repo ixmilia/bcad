@@ -232,10 +232,10 @@ namespace BCad.UI.View
             var location = ProjectToPlane(text.Location);
             var t = new TextBlock();
             t.Text = text.Value;
-            t.FontSize = text.Height;
+            t.FontSize = text.Height * 0.75; // 0.75 = 72ppi/96dpi
             var trans = new TransformGroup();
             trans.Children.Add(new ScaleTransform() { ScaleX = 1, ScaleY = -1 });
-            trans.Children.Add(new RotateTransform() { Angle = text.Rotation, CenterX = location.X, CenterY = location.Y - text.Height * 2 });
+            trans.Children.Add(new RotateTransform() { Angle = text.Rotation, CenterX = 0, CenterY = -text.Height });
             t.RenderTransform = trans;
             Canvas.SetLeft(t, location.X);
             Canvas.SetTop(t, location.Y + text.Height);
