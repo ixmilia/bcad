@@ -210,12 +210,18 @@ namespace BCad.UI.View
         {
             // find axis endpoints
             var projected = ProjectionHelper.Project(ellipse, PlaneProjection);
-            var majorRadius = projected.MajorAxis.Length;
-            var el = new Ellipse() { Width = majorRadius * 2, Height = majorRadius * 2 * projected.MinorAxisRatio };
-            var angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees;
-            el.RenderTransform = new RotateTransform() { Angle = angle };
-            Canvas.SetLeft(el, projected.Center.X); // TODO: fix this
-            Canvas.SetTop(el, projected.Center.Y);
+            var width = projected.MajorAxis.Length * 2.0;
+            var height = width * projected.MinorAxisRatio;
+            var el = new Ellipse() { Width = width, Height = height };
+            el.RenderTransform = new RotateTransform()
+            {
+                Angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                CenterX = width * 0.5,
+                CenterY = height * 0.5
+            };
+
+            Canvas.SetLeft(el, projected.Center.X - (width * 0.5));
+            Canvas.SetTop(el, projected.Center.Y - (height * 0.5));
             SetThicknessBinding(el);
             SetColorBinding(el, color);
             canvas.Children.Add(el);

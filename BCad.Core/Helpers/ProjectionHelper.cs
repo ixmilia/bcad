@@ -85,16 +85,16 @@ namespace BCad.Helpers
         public static PrimitiveEllipse Project(PrimitiveEllipse ellipse, Matrix4 transform)
         {
             // brute-force the endpoints
-            var fromUnit = ellipse.FromUnitCircleProjection() * transform;
+            var fromUnit = Matrix4.CreateScale(1.0, 1.0, 0.0) * transform * ellipse.FromUnitCircleProjection();
             var center = transform.Transform(ellipse.Center);
             var minPoint = fromUnit.Transform(new Point(MathHelper.COS[0], MathHelper.SIN[0], 0));
             var maxPoint = minPoint;
-            var minDistance = (minPoint - center).Length;
+            var minDistance = (minPoint - center).LengthSquared;
             var maxDistance = minDistance;
             for (int i = 1; i < 360; i++)
             {
                 var next = fromUnit.Transform(new Point(MathHelper.COS[i], MathHelper.SIN[i], 0));
-                var dist = (next - center).Length;
+                var dist = (next - center).LengthSquared;
                 if (dist < minDistance)
                 {
                     minPoint = next;
@@ -110,7 +110,7 @@ namespace BCad.Helpers
 
             var majorAxis = maxPoint - center;
             var angle = Math.Atan2(majorAxis.Y, majorAxis.X) * MathHelper.RadiansToDegrees;
-            return new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minDistance / maxDistance, ellipse.StartAngle, ellipse.EndAngle, ellipse.Color);
+            return new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, Math.Sqrt(minDistance) / Math.Sqrt(maxDistance), ellipse.StartAngle, ellipse.EndAngle, ellipse.Color);
         }
 
         public static ProjectedArc Project(Arc arc, Layer layer, Matrix4 transform)

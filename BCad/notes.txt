@@ -5,3 +5,8 @@
 IGS reference:
 	http://www.3dmodelzone.com/iges-format.html
 	http://www.uspro.org/documents/IGES5-3_forDownload.pdf
+
+TODO:
+	Display selection in XamlRenderer (dashed line)
+	Trim ellipses in XamlRenderer when arcs
+	Update InputService.GetPoint to draw primitives (box?) on the display for Zoom.Window
