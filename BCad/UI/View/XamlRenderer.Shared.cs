@@ -181,6 +181,7 @@ namespace BCad.UI.View
                     AddPrimitiveLine(canvas, (PrimitiveLine)prim, color);
                     break;
                 case PrimitiveKind.Point:
+                    AddPrimitivePoint(canvas, (PrimitivePoint)prim, color);
                     break;
                 case PrimitiveKind.Text:
                     AddPrimitiveText(canvas, (PrimitiveText)prim, color);
@@ -227,11 +228,27 @@ namespace BCad.UI.View
             canvas.Children.Add(el);
         }
 
+        private void AddPrimitivePoint(Canvas canvas, PrimitivePoint point, IndexedColor color)
+        {
+            const int size = 15;
+            var loc = ProjectToPlane(point.Location);
+            var l1 = new Line() { X1 = loc.X - size, Y1 = loc.Y, X2 = loc.X + size, Y2 = loc.Y };
+            var l2 = new Line() { X1 = loc.Y, Y1 = loc.Y - size, X2 = loc.Y, Y2 = loc.Y + size };
+
+            SetThicknessBinding(l1);
+            SetThicknessBinding(l2);
+            SetColorBinding(l1, color);
+            SetColorBinding(l2, color);
+            canvas.Children.Add(l1);
+            canvas.Children.Add(l2);
+        }
+
         private void AddPrimitiveText(Canvas canvas, PrimitiveText text, IndexedColor color)
         {
             var location = ProjectToPlane(text.Location);
             var t = new TextBlock();
             t.Text = text.Value;
+            t.FontFamily = new FontFamily("Consolas");
             t.FontSize = text.Height * 0.75; // 0.75 = 72ppi/96dpi
             var trans = new TransformGroup();
             trans.Children.Add(new ScaleTransform() { ScaleX = 1, ScaleY = -1 });
