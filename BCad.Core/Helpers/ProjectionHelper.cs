@@ -109,8 +109,24 @@ namespace BCad.Helpers
             }
 
             var majorAxis = maxPoint - center;
-            var angle = Math.Atan2(majorAxis.Y, majorAxis.X) * MathHelper.RadiansToDegrees;
-            return new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, Math.Sqrt(minDistance) / Math.Sqrt(maxDistance), ellipse.StartAngle, ellipse.EndAngle, ellipse.Color);
+            var startAngle = ellipse.StartAngle;
+            var endAngle = ellipse.EndAngle;
+            var minorAxisRatio = Math.Sqrt(minDistance) / Math.Sqrt(maxDistance);
+            if (MathHelper.CloseTo(minDistance, maxDistance))
+            {
+                // for projections that result in a circle, normalize to an X-axis major axis and correct the start/end angles
+                if (ellipse.StartAngle != 0.0 || ellipse.EndAngle != 360.0)
+                {
+                    var startVector = transform.Transform(ellipse.GetStartPoint()) - center;
+                    var endVector = transform.Transform(ellipse.GetEndPoint()) - center;
+                    startAngle = (Math.Atan2(startVector.Y, startVector.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
+                    endAngle = (Math.Atan2(endVector.Y, endVector.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
+                }
+                majorAxis = new Vector(majorAxis.Length, 0.0, 0.0);
+                minorAxisRatio = 1.0;
+            }
+
+            return new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minorAxisRatio, startAngle, endAngle, ellipse.Color);
         }
 
         public static ProjectedArc Project(Arc arc, Layer layer, Matrix4 transform)

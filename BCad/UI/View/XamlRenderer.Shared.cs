@@ -21,6 +21,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Collections.Generic;
 #endif
 
 namespace BCad.UI.View
@@ -211,21 +212,66 @@ namespace BCad.UI.View
         {
             // find axis endpoints
             var projected = ProjectionHelper.Project(ellipse, PlaneProjection);
-            var width = projected.MajorAxis.Length * 2.0;
-            var height = width * projected.MinorAxisRatio;
-            var el = new Ellipse() { Width = width, Height = height };
-            el.RenderTransform = new RotateTransform()
-            {
-                Angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
-                CenterX = width * 0.5,
-                CenterY = height * 0.5
-            };
+            var radiusX = projected.MajorAxis.Length;
+            var radiusY = radiusX * projected.MinorAxisRatio;
 
-            Canvas.SetLeft(el, projected.Center.X - (width * 0.5));
-            Canvas.SetTop(el, projected.Center.Y - (height * 0.5));
-            SetThicknessBinding(el);
-            SetColorBinding(el, color);
-            canvas.Children.Add(el);
+            Shape shape;
+            if (projected.StartAngle == 0.0 && projected.EndAngle == 360.0)
+            {
+                // full circle
+                shape = new Ellipse() { Width = radiusX * 2.0, Height = radiusY * 2.0 };
+                shape.RenderTransform = new RotateTransform()
+                {
+                    Angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                    CenterX = radiusX,
+                    CenterY = radiusY
+                };
+                Canvas.SetLeft(shape, projected.Center.X - radiusX);
+                Canvas.SetTop(shape, projected.Center.Y - radiusY);
+            }
+            else
+            {
+                // arc
+                var endAngle = ellipse.EndAngle;
+                if (endAngle < ellipse.StartAngle) endAngle += 360.0;
+                var startPoint = projected.GetStartPoint();
+                var endPoint = projected.GetEndPoint();
+                var topLeft = new Point(projected.Center.X - radiusX, projected.Center.Y - radiusY, 0.0);
+                shape = new Path()
+                {
+                    Data = new GeometryGroup()
+                    {
+                        Children = new GeometryCollection()
+                        {
+                            new PathGeometry()
+                            {
+                                Figures = new PathFigureCollection()
+                                {
+                                    new PathFigure()
+                                    {
+                                        StartPoint = new System.Windows.Point(startPoint.X, startPoint.Y),
+                                        Segments = new PathSegmentCollection()
+                                        {
+                                            new ArcSegment()
+                                            {
+                                                IsLargeArc = (endAngle - ellipse.StartAngle) > 180.0,
+                                                Point = new System.Windows.Point(endPoint.X, endPoint.Y),
+                                                SweepDirection = SweepDirection.Clockwise,
+                                                RotationAngle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                                                Size = new Size(radiusX, radiusY)
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+
+            SetThicknessBinding(shape);
+            SetColorBinding(shape, color);
+            canvas.Children.Add(shape);
         }
 
         private void AddPrimitivePoint(Canvas canvas, PrimitivePoint point, IndexedColor color)
