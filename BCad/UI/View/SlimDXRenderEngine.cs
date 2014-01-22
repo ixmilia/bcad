@@ -206,10 +206,8 @@ namespace BCad.UI
         private Matrix viewMatrix = Matrix.Scaling(1.0f, 1.0f, 0.0f);
         private object drawingGate = new object();
         private Dictionary<uint, TransformedEntity> lines = new Dictionary<uint, TransformedEntity>();
-        private IDisplayPrimitive[] rubberBandLines = null;
         private Color4 autoColor = new Color4();
         private SlimDXControl control;
-        private bool lastGeneratorNonNull;
 
         private const int FullCircleDrawingSegments = 180;
         private const int LowQualityCircleDrawingSegments = 72;
@@ -225,10 +223,7 @@ namespace BCad.UI
 
             this.workspace.WorkspaceChanged += WorkspaceChanged;
             this.workspace.SettingsManager.PropertyChanged += SettingsManagerPropertyChanged;
-            this.workspace.CommandExecuted += CommandExecuted;
             this.workspace.SelectedEntities.CollectionChanged += SelectedEntitiesCollectionChanged;
-            this.inputService.ValueRequested += InputServiceValueRequested;
-            this.inputService.ValueReceived += InputServiceValueReceived;
 
             // load the workspace
             WorkspaceChanged(this.workspace, WorkspaceChangeEventArgs.Reset());
@@ -334,15 +329,6 @@ Result PShader(Input pixel)
                         }
                     }
                 }
-
-                GenerateRubberBandLines(viewControl.GetCursorPoint());
-                if (rubberBandLines != null)
-                {
-                    for (int i = 0; i < rubberBandLines.Length; i++)
-                    {
-                        rubberBandLines[i].RenderNormal(Device, projectionMatrix, viewMatrix);
-                    }
-                }
             }
         }
 
@@ -393,8 +379,6 @@ Result PShader(Input pixel)
                     }
                 }
 
-                // clear rubber band lines
-                rubberBandLines = null;
                 var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
                 inputService.WriteLineDebug("DrawingChanged in {0} ms", elapsed);
             }
@@ -421,22 +405,6 @@ Result PShader(Input pixel)
             ForceRender();
         }
 
-        private void CommandExecuted(object sender, CommandExecutedEventArgs e)
-        {
-            rubberBandLines = null;
-        }
-
-        private void InputServiceValueReceived(object sender, ValueReceivedEventArgs e)
-        {
-            ForceRender();
-        }
-
-        private void InputServiceValueRequested(object sender, ValueRequestedEventArgs e)
-        {
-            GenerateRubberBandLines(viewControl.GetCursorPoint());
-            ForceRender();
-        }
-
         #endregion
 
         #region Primitive generator functions
@@ -452,21 +420,6 @@ Result PShader(Input pixel)
                 display = autoColor;
 
             return display;
-        }
-
-        private void GenerateRubberBandLines(Point worldPoint)
-        {
-            var generator = inputService.PrimitiveGenerator;
-            rubberBandLines = generator == null
-                ? null
-                : generator(worldPoint).Select(p => GenerateDisplayPrimitive(p, autoColor, false)).ToArray();
-
-            if (generator != null || lastGeneratorNonNull)
-            {
-                ForceRender();
-            }
-
-            lastGeneratorNonNull = generator != null;
         }
 
         private TransformedEntity GenerateEntitySegments(Entity entity, IndexedColor layerColor)

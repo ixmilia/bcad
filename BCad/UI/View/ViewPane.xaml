@@ -7,10 +7,11 @@
              mc:Ignorable="d"
              Cursor="None"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+    <Grid ClipToBounds="True">
         <ContentControl Name="renderControl" />
-        <Canvas Name="snapLayer" Background="Transparent" ClipToBounds="True" />
-        <Canvas Name="cursorLayer" Background="Transparent" ClipToBounds="True" SnapsToDevicePixels="True">
+        <Canvas Name="rubberBandLayer" Background="Transparent" />
+        <Canvas Name="snapLayer" Background="Transparent" />
+        <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
             <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" />
             <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" />
             <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" />

@@ -738,6 +738,9 @@ namespace BCad.Extensions
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     return new Line(line.P1, line.P2, line.Color);
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)primitive;
+                    return new Location(point.Location, point.Color);
                 case PrimitiveKind.Text:
                     var text = (PrimitiveText)primitive;
                     return new Text(text.Value, text.Location, text.Normal, text.Height, text.Rotation, text.Color);
@@ -766,6 +769,11 @@ namespace BCad.Extensions
                         line.P1 + offset,
                         line.P2 + offset,
                         line.Color);
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)primitive;
+                    return new PrimitivePoint(
+                        point.Location + offset,
+                        point.Color);
                 case PrimitiveKind.Text:
                     var text = (PrimitiveText)primitive;
                     return new PrimitiveText(

@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
@@ -13,6 +15,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using BCad.SnapPoints;
+using BCad.UI.View;
 using Input = System.Windows.Input;
 using Media = System.Windows.Media;
 
@@ -45,10 +48,10 @@ namespace BCad.UI
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
-        private Media.Color autoColor;
-        private IRenderer renderer;
-        private Media.DoubleCollection solidLine = new Media.DoubleCollection();
-        private Media.DoubleCollection dashedLine = new Media.DoubleCollection(new[] { 4.0, 4.0 });
+        private Color autoColor;
+        private SolidColorBrush autoBrush;
+        private DoubleCollection solidLine = new DoubleCollection();
+        private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
 
         private ResourceDictionary resources = null;
         private ResourceDictionary SnapPointResources
@@ -111,7 +114,7 @@ namespace BCad.UI
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
             if (factory != null)
             {
-                renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
+                var renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
                 renderControl.Content = renderer;
             }
         }
@@ -131,13 +134,14 @@ namespace BCad.UI
             switch (e.PropertyName)
             {
                 case Constants.BackgroundColorString:
+                    this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
                     autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
-                    var brush = new Media.SolidColorBrush(autoColor);
-                    selectionLine1.Stroke = brush;
-                    selectionLine2.Stroke = brush;
-                    selectionLine3.Stroke = brush;
-                    selectionLine4.Stroke = brush;
-                    selectionRect.Fill = new Media.SolidColorBrush(Media.Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
+                    autoBrush = new SolidColorBrush(autoColor);
+                    selectionLine1.Stroke = autoBrush;
+                    selectionLine2.Stroke = autoBrush;
+                    selectionLine3.Stroke = autoBrush;
+                    selectionLine4.Stroke = autoBrush;
+                    selectionRect.Fill = new SolidColorBrush(Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
                     UpdateCursor();
                     break;
                 case Constants.CursorSizeString:
@@ -166,6 +170,7 @@ namespace BCad.UI
         private void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             selecting = false;
+            rubberBandLayer.Children.Clear();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -199,6 +204,7 @@ namespace BCad.UI
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateSnapPoints();
             UpdateCursorText();
+            UpdateRubberBandLines();
         }
 
         private void DrawingChanged()
@@ -216,6 +222,32 @@ namespace BCad.UI
             // populate the snap points
             snapPoints = Workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
                 .Select(sp => new TransformedSnapPoint(sp.Point, Project(sp.Point), sp.Kind));
+        }
+
+        private void UpdateRubberBandLines()
+        {
+            this.rubberBandLayer.Children.Clear();
+            var generator = InputService.PrimitiveGenerator;
+            if (generator != null)
+            {
+                var primitives = generator(GetCursorPoint());
+                foreach (var primitive in primitives)
+                {
+                    var element = XamlShapeUtilities.CreateElementForCanvas(windowsTransformationMatrix, primitive, IndexedColor.Auto);
+                    if (primitive.Kind == PrimitiveKind.Text)
+                    {
+                        ((TextBlock)element).Foreground = autoBrush;
+                    }
+                    else
+                    {
+                        var shape = (Shape)element;
+                        shape.StrokeThickness = 1.0;
+                        shape.Stroke = autoBrush;
+                    }
+
+                    rubberBandLayer.Children.Add(element);
+                }
+            }
         }
 
         private Point Project(Point point)
@@ -335,10 +367,7 @@ namespace BCad.UI
                 UpdateSelectionLines();
             }
 
-            if (InputService.PrimitiveGenerator != null)
-            {
-                renderer.RenderRubberBandLines();
-            }
+            UpdateRubberBandLines();
 
             if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {

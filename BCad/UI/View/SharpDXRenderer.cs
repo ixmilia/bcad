@@ -43,7 +43,7 @@ namespace BCad.UI
         private void UpdateTransform()
         {
             transform = Matrix4.CreateScale(1, 1, 0)
-                    * workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
+                * workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -136,18 +136,6 @@ namespace BCad.UI
                     {
                         DrawPrimitive(prim, layer.Color, true);
                     }
-                }
-            }
-
-            // draw rubber band primitives
-            var generator = inputService.PrimitiveGenerator;
-            if (inputService.IsDrawing && generator != null)
-            {
-                var cursor = viewControl.GetCursorPoint();
-                var rubber = generator(cursor);
-                foreach (var prim in rubber)
-                {
-                    DrawPrimitive(prim, IndexedColor.Auto, false);
                 }
             }
 

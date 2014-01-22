@@ -7,7 +7,5 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid ClipToBounds="True">
         <Canvas Name="PrimitiveCanvas" />
-        <Canvas Name="RubberBandCanvas" Background="Transparent" />
-        <TextBlock Name="Fps" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="White" />
     </Grid>
 </UserControl>

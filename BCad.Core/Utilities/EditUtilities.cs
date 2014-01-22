@@ -97,6 +97,7 @@ namespace BCad.Utilities
                 case EntityKind.Line:
                     return true;
                 case EntityKind.Aggregate:
+                case EntityKind.Location:
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return false;
@@ -200,6 +201,7 @@ namespace BCad.Utilities
                         offsetDistance);
                     return offset == null ? null : offset.ToEntity();
                 case EntityKind.Aggregate:
+                case EntityKind.Location:
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return null;
@@ -268,6 +270,9 @@ namespace BCad.Utilities
                 case EntityKind.Line:
                     var line = (Line)entity;
                     return line.Update(p1: line.P1 + offset, p2: line.P2 + offset);
+                case EntityKind.Location:
+                    var location = (Location)entity;
+                    return location.Update(point: location.Point + offset);
                 case EntityKind.Polyline:
                     var poly = (Polyline)entity;
                     return poly.Update(points: poly.Points.Select(p => p + offset));
