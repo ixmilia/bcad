@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using BCad.Metro.Extensions;
+using DisplayPoint = Windows.Foundation.Point;
+using DisplaySize = Windows.Foundation.Size;
 #else
 // WPF
 using System.Windows;
@@ -22,6 +24,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Collections.Generic;
+using DisplayPoint = System.Windows.Point;
+using DisplaySize = System.Windows.Size;
 #endif
 
 namespace BCad.UI.View
@@ -249,16 +253,16 @@ namespace BCad.UI.View
                                 {
                                     new PathFigure()
                                     {
-                                        StartPoint = new System.Windows.Point(startPoint.X, startPoint.Y),
+                                        StartPoint = new DisplayPoint(startPoint.X, startPoint.Y),
                                         Segments = new PathSegmentCollection()
                                         {
                                             new ArcSegment()
                                             {
                                                 IsLargeArc = (endAngle - ellipse.StartAngle) > 180.0,
-                                                Point = new System.Windows.Point(endPoint.X, endPoint.Y),
+                                                Point = new DisplayPoint(endPoint.X, endPoint.Y),
                                                 SweepDirection = SweepDirection.Clockwise,
                                                 RotationAngle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
-                                                Size = new Size(radiusX, radiusY)
+                                                Size = new DisplaySize(radiusX, radiusY)
                                             }
                                         }
                                     },
