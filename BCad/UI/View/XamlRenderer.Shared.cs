@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
 using BCad.Primitives;
@@ -156,15 +157,16 @@ namespace BCad.UI.View
                 {
                     foreach (var prim in entity.GetPrimitives())
                     {
-                        AddPrimitive(this.PrimitiveCanvas, prim, GetColor(prim.Color, layer.Color));
+                        AddPrimitive(this.PrimitiveCanvas, prim, GetColor(prim.Color, layer.Color), entity);
                     }
                 }
             }
         }
 
-        private void AddPrimitive(Canvas canvas, IPrimitive prim, IndexedColor color)
+        private void AddPrimitive(Canvas canvas, IPrimitive prim, IndexedColor color, Entity containingEntity)
         {
             var element = XamlShapeUtilities.CreateElementForCanvas(PlaneProjection, prim, color);
+            element.Tag = containingEntity;
             if (prim.Kind == PrimitiveKind.Text)
             {
                 if (color.IsAuto)

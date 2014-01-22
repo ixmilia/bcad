@@ -1,4 +1,10 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using BCad.Entities;
 using BCad.Services;
 
 namespace BCad.UI.View
@@ -10,6 +16,8 @@ namespace BCad.UI.View
     {
         private IViewControl ViewControl;
         private IInputService InputService;
+        private DoubleCollection solidLine = new DoubleCollection();
+        private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
 
         public XamlRenderer()
         {
@@ -22,6 +30,57 @@ namespace BCad.UI.View
             Initialize(workspace);
             ViewControl = viewControl;
             InputService = inputService;
+
+            Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
+        }
+
+        private void SelectedEntities_CollectionChanged(object sender, EventArgs e)
+        {
+            var selectedEntities = Workspace.SelectedEntities;
+            var children = PrimitiveCanvas.Children;
+            foreach (FrameworkElement child in children)
+            {
+                var containingEntity = child.Tag as Entity;
+                if (containingEntity != null)
+                {
+                    if (selectedEntities.Contains(containingEntity))
+                        SetSelected(child);
+                    else
+                        SetUnselected(child);
+                }
+            }
+        }
+
+        private void SetSelected(FrameworkElement element)
+        {
+            if (element is Shape)
+            {
+                ((Shape)element).StrokeDashArray = dashedLine;
+            }
+            else if (element is TextBlock)
+            {
+                element.Opacity = 0.5;
+            }
+            else
+            {
+                Debug.Fail("unexpected canvas child");
+            }
+        }
+
+        private void SetUnselected(FrameworkElement element)
+        {
+            if (element is Shape)
+            {
+                ((Shape)element).StrokeDashArray = solidLine;
+            }
+            else if (element is TextBlock)
+            {
+                element.Opacity = 1.0;
+            }
+            else
+            {
+                Debug.Fail("unexpected canvas child");
+            }
         }
     }
 }
