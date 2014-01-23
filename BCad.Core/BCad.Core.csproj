@@ -130,6 +130,7 @@
     <Compile Include="Primitives\PrimitivePoint.cs" />
     <Compile Include="Quaternion.cs" />
     <Compile Include="RealColor.cs" />
+    <Compile Include="SelectionRectangle.cs" />
     <Compile Include="Services\DebugService.cs" />
     <Compile Include="Helpers\ProjectionHelper.cs" />
     <Compile Include="Services\FileSpecification.cs" />

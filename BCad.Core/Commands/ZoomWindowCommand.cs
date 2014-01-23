@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using BCad.Extensions;
 using BCad.Primitives;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -12,18 +11,16 @@ namespace BCad.Commands
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        [Import]
-        public IInputService InputService { get; set; }
-
         public async Task<bool> Execute(object arg = null)
         {
-            var firstPoint = await InputService.GetPoint(new UserDirective("First point of window"));
-            if (firstPoint.Cancel || !firstPoint.HasValue) return false;
-            var secondPoint = await InputService.GetPoint(new UserDirective("Second point of window"), (p) => GetBoundingPrimitives(firstPoint.Value, p));
-            if (secondPoint.Cancel || !secondPoint.HasValue) return false;
+            var selection = await Workspace.ViewControl.GetSelectionRectangle();
+            if (selection == null)
+                return false;
+            var topLeft = selection.WorldPoint;
+            var bottomRight = new Point(topLeft.X + selection.Width, topLeft.Y + selection.Height, 0.0);
 
             var transform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(Workspace.ViewControl.DisplayWidth, Workspace.ViewControl.DisplayHeight);
-            var newVp = GetBoundingPrimitives(firstPoint.Value, secondPoint.Value).ShowAllViewPort(
+            var newVp = GetBoundingPrimitives(topLeft, bottomRight).ShowAllViewPort(
                 Workspace.ActiveViewPort.Sight,
                 Workspace.ActiveViewPort.Up,
                 Workspace.ViewControl.DisplayWidth,

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -43,9 +44,11 @@ namespace BCad.UI
     {
         private bool panning;
         private bool selecting;
+        private bool selectingRectangle;
         private System.Windows.Point lastPanPoint;
         private System.Windows.Point firstSelectionPoint;
         private System.Windows.Point currentSelectionPoint;
+        private TaskCompletionSource<SelectionRectangle> selectionDone;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
@@ -128,6 +131,17 @@ namespace BCad.UI
         public int DisplayWidth
         {
             get { return (int)ActualWidth; }
+        }
+
+        public Task<SelectionRectangle> GetSelectionRectangle()
+        {
+            if (selectingRectangle)
+                throw new InvalidOperationException("Already selecting a rectangle");
+            selectingRectangle = true;
+            InputService.WriteLine("Select first point");
+            SetCursorVisibility();
+            selectionDone = new TaskCompletionSource<SelectionRectangle>();
+            return selectionDone.Task;
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -424,27 +438,52 @@ namespace BCad.UI
                             InputService.PushEntity(selected);
                         }
                     }
-                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities)
+                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle)
                     {
                         if (selecting)
                         {
                             // finish selection
-                            var rect = new Rect(
+                            IEnumerable<Entity> entities = null;
+                            if (selectingRectangle)
+                            {
+                                selectingRectangle = false;
+                                var topLeft = new Point(Math.Min(firstSelectionPoint.X, cursor.X), Math.Min(firstSelectionPoint.Y, cursor.Y), 0.0);
+                                var selection = new SelectionRectangle(
+                                    topLeft,
+                                    Math.Abs(firstSelectionPoint.X - cursor.X),
+                                    Math.Abs(firstSelectionPoint.Y - cursor.Y),
+                                    unprojectMatrix.Transform(topLeft));
+                                selectionDone.SetResult(selection);
+                            }
+                            else
+                            {
+                                var rect = new Rect(
                                 new System.Windows.Point(
                                     Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
                                     Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y)),
                                 new Size(
                                     Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
                                     Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
-                            var entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                                entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                            }
+                            
                             selecting = false;
                             SetSelectionLineVisibility(Visibility.Hidden);
-                            InputService.PushEntities(entities);
+                            if (entities != null)
+                                InputService.PushEntities(entities);
                         }
                         else
                         {
-                            // start selection
-                            var selected = GetHitEntity(cursor);
+                            SelectedEntity selected = null;
+                            if (selectingRectangle)
+                            {
+                                InputService.WriteLine("Select second point");
+                            }
+                            else
+                            {
+                                selected = GetHitEntity(cursor);
+                            }
+
                             if (selected != null)
                             {
                                 InputService.PushEntities(new[] { selected.Entity });
@@ -533,50 +572,50 @@ namespace BCad.UI
 
         private void UpdateCursor()
         {
-            var pen = new Media.Pen(new Media.SolidColorBrush(autoColor), 1);
+            var pen = new Pen(new SolidColorBrush(autoColor), 1);
 
             var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
-            pointCursorImage.Source = new Media.DrawingImage(
-                new Media.GeometryDrawing()
+            pointCursorImage.Source = new DrawingImage(
+                new GeometryDrawing()
             {
-                Geometry = new Media.GeometryGroup()
+                Geometry = new GeometryGroup()
                 {
-                    Children = new Media.GeometryCollection(new[]
+                    Children = new GeometryCollection(new[]
                         {
-                            new Media.LineGeometry(new System.Windows.Point(-cursorSize, 0), new System.Windows.Point(cursorSize, 0)),
-                            new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
+                            new LineGeometry(new System.Windows.Point(-cursorSize, 0), new System.Windows.Point(cursorSize, 0)),
+                            new LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
                         })
                 },
                 Pen = pen
             });
 
             var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
-            entityCursorImage.Source = new Media.DrawingImage(
-                new Media.GeometryDrawing()
+            entityCursorImage.Source = new DrawingImage(
+                new GeometryDrawing()
             {
-                Geometry = new Media.GeometryGroup()
+                Geometry = new GeometryGroup()
                 {
-                    Children = new Media.GeometryCollection(new[]
+                    Children = new GeometryCollection(new[]
                         {
-                            new Media.LineGeometry(new System.Windows.Point(-entitySize, -entitySize), new System.Windows.Point(entitySize, -entitySize)),
-                            new Media.LineGeometry(new System.Windows.Point(entitySize, -entitySize), new System.Windows.Point(entitySize, entitySize)),
-                            new Media.LineGeometry(new System.Windows.Point(entitySize, entitySize), new System.Windows.Point(-entitySize, entitySize)),
-                            new Media.LineGeometry(new System.Windows.Point(-entitySize, entitySize), new System.Windows.Point(-entitySize, -entitySize))
+                            new LineGeometry(new System.Windows.Point(-entitySize, -entitySize), new System.Windows.Point(entitySize, -entitySize)),
+                            new LineGeometry(new System.Windows.Point(entitySize, -entitySize), new System.Windows.Point(entitySize, entitySize)),
+                            new LineGeometry(new System.Windows.Point(entitySize, entitySize), new System.Windows.Point(-entitySize, entitySize)),
+                            new LineGeometry(new System.Windows.Point(-entitySize, entitySize), new System.Windows.Point(-entitySize, -entitySize))
                         })
                 },
                 Pen = pen
             });
 
             var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
-            textCursorImage.Source = new Media.DrawingImage(
-                new Media.GeometryDrawing()
+            textCursorImage.Source = new DrawingImage(
+                new GeometryDrawing()
             {
-                Geometry = new Media.GeometryGroup()
+                Geometry = new GeometryGroup()
                 {
-                    Children = new Media.GeometryCollection(new[]
+                    Children = new GeometryCollection(new[]
                         {
                             //new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
-                            new Media.LineGeometry(new System.Windows.Point(0, -textSize), new System.Windows.Point(0, textSize))
+                            new LineGeometry(new System.Windows.Point(0, -textSize), new System.Windows.Point(0, textSize))
                         })
                 },
                 Pen = pen
@@ -619,7 +658,7 @@ namespace BCad.UI
             selectionLine4.X2 = currentSelectionPoint.X;
             selectionLine4.Y2 = currentSelectionPoint.Y;
 
-            var dash = currentSelectionPoint.X < firstSelectionPoint.X
+            var dash = !selectingRectangle && currentSelectionPoint.X < firstSelectionPoint.X
                 ? dashedLine
                 : solidLine;
             selectionLine1.StrokeDashArray = dash;
@@ -637,30 +676,42 @@ namespace BCad.UI
 
         private void SetCursorVisibility()
         {
-            Func<InputType[], Visibility> getVisibility = types =>
-                types.Any(t => (InputService.AllowedInputTypes & t) == t)
-                    ? Visibility.Visible
-                    : Visibility.Hidden;
-
-            Dispatcher.Invoke(() =>
+            if (selectingRectangle)
             {
-                pointCursorImage.Visibility = getVisibility(new[]
+                Dispatcher.Invoke(() =>
                 {
-                    InputType.Command,
-                    InputType.Distance,
-                    InputType.Point
+                    pointCursorImage.Visibility = Visibility.Visible;
+                    entityCursorImage.Visibility = Visibility.Hidden;
+                    textCursorImage.Visibility = Visibility.Hidden;
                 });
-                entityCursorImage.Visibility = getVisibility(new[]
+            }
+            else
+            {
+                Func<InputType[], Visibility> getVisibility = types =>
+                    types.Any(t => (InputService.AllowedInputTypes & t) == t)
+                        ? Visibility.Visible
+                        : Visibility.Hidden;
+
+                Dispatcher.Invoke(() =>
                 {
-                    InputType.Command,
-                    InputType.Entities,
-                    InputType.Entity
+                    pointCursorImage.Visibility = getVisibility(new[]
+                    {
+                        InputType.Command,
+                        InputType.Distance,
+                        InputType.Point
+                    });
+                    entityCursorImage.Visibility = getVisibility(new[]
+                    {
+                        InputType.Command,
+                        InputType.Entities,
+                        InputType.Entity
+                    });
+                    textCursorImage.Visibility = getVisibility(new[]
+                    {
+                        InputType.Text
+                    });
                 });
-                textCursorImage.Visibility = getVisibility(new[]
-                {
-                    InputType.Text
-                });
-            });
+            }
         }
 
         private void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
@@ -688,6 +739,18 @@ namespace BCad.UI
             Workspace.Update(activeViewPort: newVp);
             var cursor = GetActiveModelPoint(cursorPoint.ToPoint());
             DrawSnapPoint(cursor);
+        }
+
+        private void OnKeyDown(object sender, Input.KeyEventArgs e)
+        {
+            if (selecting && e.Key == Input.Key.Escape)
+            {
+                selecting = false;
+                selectingRectangle = false;
+                SetSelectionLineVisibility(Visibility.Hidden);
+                selectionDone.SetResult(null);
+                e.Handled = true;
+            }
         }
 
         private TransformedSnapPoint GetActiveModelPoint(Point cursor)
