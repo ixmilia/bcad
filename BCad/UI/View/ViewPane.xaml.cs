@@ -382,11 +382,9 @@ namespace BCad.UI
             t.Text = text.Value;
             t.FontFamily = new FontFamily("Consolas");
             t.FontSize = text.Height * 0.75 * scale; // 0.75 = 72ppi/96dpi
-            var trans = new TransformGroup();
-            trans.Children.Add(new RotateTransform() { Angle = -text.Rotation, CenterX = 0, CenterY = -text.Height });
-            t.RenderTransform = trans;
+            t.RenderTransform = new RotateTransform() { Angle = -text.Rotation, CenterX = 0, CenterY = text.Height };
             Canvas.SetLeft(t, location.X);
-            Canvas.SetTop(t, location.Y + text.Height);
+            Canvas.SetTop(t, location.Y - text.Height * scale);
             t.Foreground = autoBrush;
             return t;
         }
