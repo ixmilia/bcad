@@ -170,6 +170,7 @@ namespace BCad.UI
         private void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
+            rubberBandLayer.Children.Clear();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);

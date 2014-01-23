@@ -53,6 +53,19 @@ namespace BCad.UI.View
                 }
             }
 
+            private ScaleTransform scale = new ScaleTransform(1.0, 1.0);
+            public ScaleTransform Scale
+            {
+                get { return scale; }
+                set
+                {
+                    if (scale == value)
+                        return;
+                    scale = value;
+                    OnPropertyChanged("Scale");
+                }
+            }
+
             private Brush autoBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
             public Brush AutoBrush
             {
@@ -149,6 +162,7 @@ namespace BCad.UI.View
             t.Children.Add(new TranslateTransform() { X = 0, Y = Workspace.ViewControl.DisplayHeight });
             this.PrimitiveCanvas.RenderTransform = t;
             BindObject.Thickness = 1.0 / scale;
+            BindObject.Scale = new ScaleTransform() { ScaleX = scale, ScaleY = scale };
         }
 
         private void BeginInvoke(Action action)
@@ -321,6 +335,9 @@ namespace BCad.UI.View
                 }
             };
             SetThicknessBinding(path);
+            //SetBinding(path, "Scale", Shape.LayoutTransformProperty);
+            //SetBinding(path, "PointThickness", Shape.StrokeThicknessProperty);
+            //SetBinding(path, "PointScale", Shape.RenderTransformProperty);
             SetColorBinding(path, color);
             return path;
         }
