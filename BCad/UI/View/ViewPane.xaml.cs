@@ -18,6 +18,7 @@ using BCad.SnapPoints;
 using BCad.UI.View;
 using Input = System.Windows.Input;
 using Media = System.Windows.Media;
+using Shapes = System.Windows.Shapes;
 
 namespace BCad.UI
 {
@@ -233,21 +234,161 @@ namespace BCad.UI
                 var primitives = generator(GetCursorPoint());
                 foreach (var primitive in primitives)
                 {
-                    var element = XamlShapeUtilities.CreateElementForCanvas(windowsTransformationMatrix, primitive, IndexedColor.Auto);
-                    if (primitive.Kind == PrimitiveKind.Text)
+                    FrameworkElement element;
+                    switch (primitive.Kind)
                     {
-                        ((TextBlock)element).Foreground = autoBrush;
-                    }
-                    else
-                    {
-                        var shape = (Shape)element;
-                        shape.StrokeThickness = 1.0;
-                        shape.Stroke = autoBrush;
+                        case PrimitiveKind.Ellipse:
+                            element = CreateRubberBandEllipse((PrimitiveEllipse)primitive);
+                            break;
+                        case PrimitiveKind.Line:
+                            element = CreateRubberBandLine((PrimitiveLine)primitive);
+                            break;
+                        case PrimitiveKind.Point:
+                            element = CreateRubberBandPoint((PrimitivePoint)primitive);
+                            break;
+                        case PrimitiveKind.Text:
+                            element = CreateRubberBandText((PrimitiveText)primitive);
+                            break;
+                        default:
+                            throw new NotImplementedException();
                     }
 
                     rubberBandLayer.Children.Add(element);
                 }
             }
+        }
+
+        private Shape CreateRubberBandEllipse(PrimitiveEllipse ellipse)
+        {
+            var projected = ProjectionHelper.Project(ellipse, windowsTransformationMatrix);
+            var radiusX = projected.MajorAxis.Length;
+            var radiusY = radiusX * projected.MinorAxisRatio;
+
+            Shape shape;
+            if (projected.StartAngle == 0.0 && projected.EndAngle == 360.0)
+            {
+                // full circle
+                shape = new Shapes.Ellipse() { Width = radiusX * 2.0, Height = radiusY * 2.0 };
+                shape.RenderTransform = new RotateTransform()
+                {
+                    Angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                    CenterX = radiusX,
+                    CenterY = radiusY
+                };
+                Canvas.SetLeft(shape, projected.Center.X - radiusX);
+                Canvas.SetTop(shape, projected.Center.Y - radiusY);
+            }
+            else
+            {
+                // arc
+                var endAngle = ellipse.EndAngle;
+                if (endAngle < ellipse.StartAngle) endAngle += 360.0;
+                var startPoint = projected.GetStartPoint();
+                var endPoint = projected.GetEndPoint();
+                shape = new Path()
+                {
+                    Data = new GeometryGroup()
+                    {
+                        Children = new GeometryCollection()
+                        {
+                            new PathGeometry()
+                            {
+                                Figures = new PathFigureCollection()
+                                {
+                                    new PathFigure()
+                                    {
+                                        StartPoint = new System.Windows.Point(startPoint.X, startPoint.Y),
+                                        Segments = new PathSegmentCollection()
+                                        {
+                                            new ArcSegment()
+                                            {
+                                                IsLargeArc = (endAngle - ellipse.StartAngle) > 180.0,
+                                                Point = new System.Windows.Point(endPoint.X, endPoint.Y),
+                                                SweepDirection = SweepDirection.Counterclockwise,
+                                                RotationAngle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                                                Size = new Size(radiusX, radiusY)
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+
+            shape.StrokeThickness = 1.0;
+            shape.Stroke = autoBrush;
+            return shape;
+        }
+
+        private Shapes.Line CreateRubberBandLine(PrimitiveLine line)
+        {
+            var p1 = Project(line.P1);
+            var p2 = Project(line.P2);
+            return new Shapes.Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, StrokeThickness = 1.0, Stroke = autoBrush };
+        }
+
+        private Shapes.Path CreateRubberBandPoint(PrimitivePoint point)
+        {
+            const int size = 15 / 2;
+            var loc = Project(point.Location);
+            return new Path()
+            {
+                Data = new GeometryGroup()
+                {
+                    Children = new GeometryCollection()
+                    {
+                        new PathGeometry()
+                        {
+                            Figures = new PathFigureCollection()
+                            {
+                                new PathFigure()
+                                {
+                                    StartPoint = new System.Windows.Point(loc.X - size, loc.Y),
+                                    Segments = new PathSegmentCollection()
+                                    {
+                                        new LineSegment()
+                                        {
+                                            Point = new System.Windows.Point(loc.X + size, loc.Y)
+                                        }
+                                    }
+                                },
+                                new PathFigure()
+                                {
+                                    StartPoint = new System.Windows.Point(loc.X, loc.Y - size),
+                                    Segments = new PathSegmentCollection()
+                                    {
+                                        new LineSegment()
+                                        {
+                                            Point = new System.Windows.Point(loc.X, loc.Y + size)
+                                        }
+                                    }
+                                },
+                            }
+                        }
+                    }
+                },
+                StrokeThickness = 1.0,
+                Stroke = autoBrush
+            };
+        }
+
+        private TextBlock CreateRubberBandText(PrimitiveText text)
+        {
+            var location = Project(text.Location);
+            var scale = Workspace.ViewControl.DisplayHeight / Workspace.ActiveViewPort.ViewHeight;
+            var t = new TextBlock();
+            t.Text = text.Value;
+            t.FontFamily = new FontFamily("Consolas");
+            t.FontSize = text.Height * 0.75 * scale; // 0.75 = 72ppi/96dpi
+            var trans = new TransformGroup();
+            trans.Children.Add(new RotateTransform() { Angle = -text.Rotation, CenterX = 0, CenterY = -text.Height });
+            t.RenderTransform = trans;
+            Canvas.SetLeft(t, location.X);
+            Canvas.SetTop(t, location.Y + text.Height);
+            t.Foreground = autoBrush;
+            return t;
         }
 
         private Point Project(Point point)

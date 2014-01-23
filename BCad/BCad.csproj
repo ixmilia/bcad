@@ -177,7 +177,6 @@
       <DependentUpon>XamlRenderer.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\View\XamlRendererFactory.cs" />
-    <Compile Include="UI\View\XamlShapeUtilities.cs" />
     <Compile Include="UserCommand.cs" />
     <Compile Include="Workspace.cs" />
     <Page Include="Ribbons\DebugRibbon.xaml">

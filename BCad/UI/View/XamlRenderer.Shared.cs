@@ -3,6 +3,7 @@ using System.ComponentModel;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Primitives;
 
 #if NETFX_CORE
@@ -14,6 +15,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using BCad.Metro.Extensions;
+using Shapes = Windows.UI.Xaml.Shapes;
+using DisplayPoint = Windows.Foundation.Point;
+using DisplaySize = Windows.Foundation.Size;
 #else
 // WPF
 using System.Windows;
@@ -21,6 +25,9 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Shapes = System.Windows.Shapes;
+using DisplayPoint = System.Windows.Point;
+using DisplaySize = System.Windows.Size;
 #endif
 
 namespace BCad.UI.View
@@ -157,30 +164,176 @@ namespace BCad.UI.View
                 {
                     foreach (var prim in entity.GetPrimitives())
                     {
-                        AddPrimitive(this.PrimitiveCanvas, prim, GetColor(prim.Color, layer.Color), entity);
+                        AddPrimitive(prim, GetColor(prim.Color, layer.Color), entity);
                     }
                 }
             }
         }
 
-        private void AddPrimitive(Canvas canvas, IPrimitive prim, IndexedColor color, Entity containingEntity)
+        private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity)
         {
-            var element = XamlShapeUtilities.CreateElementForCanvas(PlaneProjection, prim, color);
-            element.Tag = containingEntity;
-            if (prim.Kind == PrimitiveKind.Text)
+            FrameworkElement element;
+            switch (prim.Kind)
             {
-                if (color.IsAuto)
-                    SetBinding((TextBlock)element, "AutoBrush", TextBlock.ForegroundProperty);
-                else
-                    ((TextBlock)element).Foreground = new SolidColorBrush(color.RealColor.ToMediaColor());
+                case PrimitiveKind.Ellipse:
+                    element = CreatePrimitiveEllipse((PrimitiveEllipse)prim, color);
+                    break;
+                case PrimitiveKind.Line:
+                    element = CreatePrimitiveLine((PrimitiveLine)prim, color);
+                    break;
+                case PrimitiveKind.Point:
+                    element = CreatePrimitivePoint((PrimitivePoint)prim, color);
+                    break;
+                case PrimitiveKind.Text:
+                    element = CreatePrimitiveText((PrimitiveText)prim, color);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            element.Tag = containingEntity;
+            PrimitiveCanvas.Children.Add(element);
+        }
+
+        private Shape CreatePrimitiveEllipse(PrimitiveEllipse ellipse, IndexedColor color)
+        {
+            // find axis endpoints
+            var projected = ProjectionHelper.Project(ellipse, PlaneProjection);
+            var radiusX = projected.MajorAxis.Length;
+            var radiusY = radiusX * projected.MinorAxisRatio;
+
+            Shape shape;
+            if (projected.StartAngle == 0.0 && projected.EndAngle == 360.0)
+            {
+                // full circle
+                shape = new Shapes.Ellipse() { Width = radiusX * 2.0, Height = radiusY * 2.0 };
+                shape.RenderTransform = new RotateTransform()
+                {
+                    Angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                    CenterX = radiusX,
+                    CenterY = radiusY
+                };
+                Canvas.SetLeft(shape, projected.Center.X - radiusX);
+                Canvas.SetTop(shape, projected.Center.Y - radiusY);
             }
             else
             {
-                SetThicknessBinding((Shape)element);
-                SetColorBinding((Shape)element, color);
+                // arc
+                var endAngle = ellipse.EndAngle;
+                if (endAngle < ellipse.StartAngle) endAngle += 360.0;
+                var startPoint = projected.GetStartPoint();
+                var endPoint = projected.GetEndPoint();
+                shape = new Path()
+                {
+                    Data = new GeometryGroup()
+                    {
+                        Children = new GeometryCollection()
+                        {
+                            new PathGeometry()
+                            {
+                                Figures = new PathFigureCollection()
+                                {
+                                    new PathFigure()
+                                    {
+                                        StartPoint = new DisplayPoint(startPoint.X, startPoint.Y),
+                                        Segments = new PathSegmentCollection()
+                                        {
+                                            new ArcSegment()
+                                            {
+                                                IsLargeArc = (endAngle - ellipse.StartAngle) > 180.0,
+                                                Point = new DisplayPoint(endPoint.X, endPoint.Y),
+                                                SweepDirection = SweepDirection.Clockwise,
+                                                RotationAngle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
+                                                Size = new DisplaySize(radiusX, radiusY)
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                };
             }
 
-            canvas.Children.Add(element);
+            SetThicknessBinding(shape);
+            SetColorBinding(shape, color);
+            return shape;
+        }
+
+        private Shapes.Line CreatePrimitiveLine(PrimitiveLine line, IndexedColor color)
+        {
+            var p1 = PlaneProjection.Transform(line.P1);
+            var p2 = PlaneProjection.Transform(line.P2);
+            var newLine = new Shapes.Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y };
+            SetThicknessBinding(newLine);
+            SetColorBinding(newLine, color);
+            return newLine;
+        }
+
+        private Path CreatePrimitivePoint(PrimitivePoint point, IndexedColor color)
+        {
+            const int size = 15;
+            var loc = PlaneProjection.Transform(point.Location);
+            var path = new Path()
+            {
+                Data = new GeometryGroup()
+                {
+                    Children = new GeometryCollection()
+                    {
+                        new PathGeometry()
+                        {
+                            Figures = new PathFigureCollection()
+                            {
+                                new PathFigure()
+                                {
+                                    StartPoint = new DisplayPoint(loc.X - size, loc.Y),
+                                    Segments = new PathSegmentCollection()
+                                    {
+                                        new LineSegment()
+                                        {
+                                            Point = new DisplayPoint(loc.X + size, loc.Y)
+                                        }
+                                    }
+                                },
+                                new PathFigure()
+                                {
+                                    StartPoint = new DisplayPoint(loc.X, loc.Y - size),
+                                    Segments = new PathSegmentCollection()
+                                    {
+                                        new LineSegment()
+                                        {
+                                            Point = new DisplayPoint(loc.X, loc.Y + size)
+                                        }
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }
+            };
+            SetThicknessBinding(path);
+            SetColorBinding(path, color);
+            return path;
+        }
+
+        private TextBlock CreatePrimitiveText(PrimitiveText text, IndexedColor color)
+        {
+            var location = PlaneProjection.Transform(text.Location);
+            var t = new TextBlock();
+            t.Text = text.Value;
+            t.FontFamily = new FontFamily("Consolas");
+            t.FontSize = text.Height * 0.75; // 0.75 = 72ppi/96dpi
+            var trans = new TransformGroup();
+            trans.Children.Add(new ScaleTransform() { ScaleX = 1, ScaleY = -1 });
+            trans.Children.Add(new RotateTransform() { Angle = text.Rotation, CenterX = 0, CenterY = -text.Height });
+            t.RenderTransform = trans;
+            Canvas.SetLeft(t, location.X);
+            Canvas.SetTop(t, location.Y + text.Height);
+            if (color.IsAuto)
+                SetBinding(t, "AutoBrush", TextBlock.ForegroundProperty);
+            else
+                t.Foreground = new SolidColorBrush(color.RealColor.ToMediaColor());
+            return t;
         }
 
         private static IndexedColor GetColor(IndexedColor primitiveColor, IndexedColor layerColor)
