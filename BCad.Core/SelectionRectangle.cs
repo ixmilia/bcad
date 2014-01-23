@@ -2,17 +2,17 @@
 {
     public class SelectionRectangle
     {
-        public Point TopLeft { get; private set; }
-        public double Width { get; private set; }
-        public double Height { get; private set; }
-        public Point WorldPoint { get; private set; }
+        public Point TopLeftScreen { get; private set; }
+        public Point BottomRightScreen { get; private set; }
+        public Point TopLeftWorld { get; private set; }
+        public Point BottomRightWorld { get; private set; }
 
-        public SelectionRectangle(Point topLeft, double width, double height, Point worldPoint)
+        public SelectionRectangle(Point topLeftScreen, Point bottomRightScreen, Point topLeftWorld, Point bottomRightWorld)
         {
-            TopLeft = topLeft;
-            Width = width;
-            Height = height;
-            WorldPoint = worldPoint;
+            TopLeftScreen = topLeftScreen;
+            BottomRightScreen = bottomRightScreen;
+            TopLeftWorld = topLeftWorld;
+            BottomRightWorld = bottomRightWorld;
         }
     }
 }

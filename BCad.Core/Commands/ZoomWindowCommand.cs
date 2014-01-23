@@ -16,11 +16,9 @@ namespace BCad.Commands
             var selection = await Workspace.ViewControl.GetSelectionRectangle();
             if (selection == null)
                 return false;
-            var topLeft = selection.WorldPoint;
-            var bottomRight = new Point(topLeft.X + selection.Width, topLeft.Y + selection.Height, 0.0);
 
             var transform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(Workspace.ViewControl.DisplayWidth, Workspace.ViewControl.DisplayHeight);
-            var newVp = GetBoundingPrimitives(topLeft, bottomRight).ShowAllViewPort(
+            var newVp = GetBoundingPrimitives(selection.TopLeftWorld, selection.BottomRightWorld).ShowAllViewPort(
                 Workspace.ActiveViewPort.Sight,
                 Workspace.ActiveViewPort.Up,
                 Workspace.ViewControl.DisplayWidth,

@@ -447,12 +447,13 @@ namespace BCad.UI
                             if (selectingRectangle)
                             {
                                 selectingRectangle = false;
-                                var topLeft = new Point(Math.Min(firstSelectionPoint.X, cursor.X), Math.Min(firstSelectionPoint.Y, cursor.Y), 0.0);
+                                var topLeftScreen = new Point(Math.Min(firstSelectionPoint.X, cursor.X), Math.Min(firstSelectionPoint.Y, cursor.Y), 0.0);
+                                var bottomRightScreen = new Point(Math.Max(firstSelectionPoint.X, cursor.X), Math.Max(firstSelectionPoint.Y, cursor.Y), 0.0);
                                 var selection = new SelectionRectangle(
-                                    topLeft,
-                                    Math.Abs(firstSelectionPoint.X - cursor.X),
-                                    Math.Abs(firstSelectionPoint.Y - cursor.Y),
-                                    unprojectMatrix.Transform(topLeft));
+                                    topLeftScreen,
+                                    bottomRightScreen,
+                                    Unproject(topLeftScreen),
+                                    Unproject(bottomRightScreen));
                                 selectionDone.SetResult(selection);
                             }
                             else
