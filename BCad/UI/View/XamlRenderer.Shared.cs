@@ -100,7 +100,7 @@ namespace BCad.UI.View
             switch (e.PropertyName)
             {
                 case Constants.BackgroundColorString:
-                    this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
+                    SetBackgroundColor();
                     var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
                     this.BindObject.AutoBrush = new SolidColorBrush(autoColor);
                     break;
@@ -123,6 +123,15 @@ namespace BCad.UI.View
             {
                 BeginInvoke(Redraw);
             }
+        }
+
+        private void SetBackgroundColor()
+        {
+#if NETFX_CORE
+            this.Grid.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
+#else
+            this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
+#endif
         }
 
         private void RecalcTransform()

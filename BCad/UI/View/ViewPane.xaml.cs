@@ -149,7 +149,7 @@ namespace BCad.UI
             switch (e.PropertyName)
             {
                 case Constants.BackgroundColorString:
-                    this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
+                    //this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
                     autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
                     autoBrush = new SolidColorBrush(autoColor);
                     selectionLine1.Stroke = autoBrush;
