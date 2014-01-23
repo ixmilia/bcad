@@ -154,35 +154,12 @@ namespace BCad.UI.Controls
 
         private async Task GetExportArea()
         {
-            // TODO: generalize getting viewports for zoom, etc.
-            // prompt for viewport
-            var firstPoint = await inputService.GetPoint(new UserDirective("First corner of view box"));
-            if (firstPoint.Cancel || !firstPoint.HasValue)
+            var selection = await workspace.ViewControl.GetSelectionRectangle();
+            if (selection == null)
                 return;
 
-            var secondPoint = await inputService.GetPoint(new UserDirective("Second corner of view box"), (p) =>
-            {
-                var a = firstPoint.Value;
-                var b = new Point(p.X, firstPoint.Value.Y, firstPoint.Value.Z);
-                var c = new Point(p.X, p.Y, firstPoint.Value.Z);
-                var d = new Point(firstPoint.Value.X, p.Y, firstPoint.Value.Z);
-                return new[]
-                    {
-                        new PrimitiveLine(a, b),
-                        new PrimitiveLine(b, c),
-                        new PrimitiveLine(c, d),
-                        new PrimitiveLine(d, a)
-                    };
-            });
-            if (secondPoint.Cancel || !secondPoint.HasValue)
-                return;
-
-            // find bottom left and top right
-            var size = secondPoint.Value - firstPoint.Value;
-            var width = Math.Abs(size.X);
-            var height = Math.Abs(size.Y);
-            viewModel.BottomLeft = new Point(Math.Min(firstPoint.Value.X, secondPoint.Value.X), Math.Min(firstPoint.Value.Y, secondPoint.Value.Y), firstPoint.Value.Z);
-            viewModel.TopRight = new Point(viewModel.BottomLeft.X + width, viewModel.BottomLeft.Y + height, viewModel.BottomLeft.Z);
+            viewModel.BottomLeft = new Point(selection.TopLeftWorld.X, selection.BottomRightWorld.Y, selection.TopLeftWorld.Z);
+            viewModel.TopRight = new Point(selection.BottomRightWorld.X, selection.TopLeftWorld.Y, selection.BottomRightWorld.Z);
         }
     }
 
