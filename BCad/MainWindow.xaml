@@ -13,7 +13,8 @@
                 d:DesignHeight="300" d:DesignWidth="300"
                 FocusManager.FocusedElement="{Binding ElementName=inputPanel}"
                 Loaded="MainWindowLoaded"
-                Closing="Window_Closing">
+                Closing="Window_Closing"
+                Icon="BCad.ico">
     <r:RibbonWindow.CommandBindings>
         <CommandBinding Command="commands:RibbonCommands.CADCommand"
                         CanExecute="CommandBinding_CanExecute"
