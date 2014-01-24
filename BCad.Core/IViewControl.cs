@@ -7,7 +7,6 @@ namespace BCad
         Point GetCursorPoint();
         int DisplayHeight { get; }
         int DisplayWidth { get; }
-
         Task<SelectionRectangle> GetSelectionRectangle();
     }
 }
