@@ -12,15 +12,15 @@
         <Canvas Name="snapLayer" Background="Transparent" />
         <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
             <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" />
-            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" />
-            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" />
-            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Hidden" />
-            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Hidden" />
+            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
             <Image Name="pointCursorImage" SnapsToDevicePixels="True" />
             <Image Name="entityCursorImage" SnapsToDevicePixels="True" />
             <Image Name="textCursorImage" SnapsToDevicePixels="True" />
         </Canvas>
-        <TextBlock Name="positionText" Foreground="White" />
+        <TextBlock Name="positionText" Foreground="{Binding Path=AutoBrush}" />
         <Canvas Name="clicker"
                 Background="White"
                 Opacity="0.001"

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,7 +41,7 @@ namespace BCad.UI
     /// <summary>
     /// Interaction logic for ViewPane.xaml
     /// </summary>
-    public partial class ViewPane : UserControl, IViewControl
+    public partial class ViewPane : UserControl, IViewControl, INotifyPropertyChanged
     {
         private bool panning;
         private bool selecting;
@@ -72,6 +73,29 @@ namespace BCad.UI
             }
         }
 
+        public SolidColorBrush AutoBrush
+        {
+            get { return autoBrush; }
+            set
+            {
+                if (autoBrush == value)
+                    return;
+                autoBrush = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [Import]
         public IWorkspace Workspace { get; set; }
 
@@ -84,6 +108,7 @@ namespace BCad.UI
         public ViewPane()
         {
             InitializeComponent();
+            DataContext = this;
 
             var cursors = new[]
                 {
@@ -151,11 +176,7 @@ namespace BCad.UI
                 case Constants.BackgroundColorString:
                     //this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
                     autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
-                    autoBrush = new SolidColorBrush(autoColor);
-                    selectionLine1.Stroke = autoBrush;
-                    selectionLine2.Stroke = autoBrush;
-                    selectionLine3.Stroke = autoBrush;
-                    selectionLine4.Stroke = autoBrush;
+                    AutoBrush = new SolidColorBrush(autoColor);
                     selectionRect.Fill = new SolidColorBrush(Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
                     UpdateCursor();
                     break;
@@ -333,7 +354,7 @@ namespace BCad.UI
             }
 
             shape.StrokeThickness = 1.0;
-            shape.Stroke = autoBrush;
+            shape.Stroke = AutoBrush;
             return shape;
         }
 
@@ -341,7 +362,7 @@ namespace BCad.UI
         {
             var p1 = Project(line.P1);
             var p2 = Project(line.P2);
-            return new Shapes.Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, StrokeThickness = 1.0, Stroke = autoBrush };
+            return new Shapes.Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, StrokeThickness = 1.0, Stroke = AutoBrush };
         }
 
         private Shapes.Path CreateRubberBandPoint(PrimitivePoint point)
@@ -385,7 +406,7 @@ namespace BCad.UI
                     }
                 },
                 StrokeThickness = 1.0,
-                Stroke = autoBrush
+                Stroke = AutoBrush
             };
         }
 
@@ -400,7 +421,7 @@ namespace BCad.UI
             t.RenderTransform = new RotateTransform() { Angle = -text.Rotation, CenterX = 0, CenterY = text.Height };
             Canvas.SetLeft(t, location.X);
             Canvas.SetTop(t, location.Y - text.Height * scale);
-            t.Foreground = autoBrush;
+            t.Foreground = AutoBrush;
             return t;
         }
 

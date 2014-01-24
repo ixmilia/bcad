@@ -96,6 +96,7 @@
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
+    <Compile Include="Ribbons\ColorConverter.cs" />
     <Compile Include="Ribbons\DebugRibbon.xaml.cs">
       <DependentUpon>DebugRibbon.xaml</DependentUpon>
     </Compile>
@@ -108,6 +109,9 @@
     </Compile>
     <Compile Include="Ribbons\IRibbonTabMetadata.cs" />
     <Compile Include="Ribbons\RibbonTabMetadata.cs" />
+    <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
+      <DependentUpon>SettingsRibbon.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
@@ -162,6 +166,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Ribbons\HomeRibbon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ribbons\SettingsRibbon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
