@@ -297,7 +297,7 @@ namespace BCad.UI.View
             return newLine;
         }
 
-        private Path CreatePrimitivePoint(PrimitivePoint point, IndexedColor color)
+        private Grid CreatePrimitivePoint(PrimitivePoint point, IndexedColor color)
         {
             const double size = 0.5;
             var loc = PlaneProjection.Transform(point.Location);
@@ -337,12 +337,16 @@ namespace BCad.UI.View
                         }
                     }
                 },
-                RenderTransform = new TranslateTransform() { X = loc.X, Y = loc.Y },
                 StrokeThickness = 1.0 / PointSize
             };
-            SetBinding(path, "Scale", Path.LayoutTransformProperty);
+            SetBinding(path, "Scale", Path.RenderTransformProperty);
             SetColorBinding(path, color);
-            return path;
+
+            var grid = new Grid();
+            grid.Children.Add(path);
+            grid.RenderTransform = new TranslateTransform() { X = loc.X, Y = loc.Y };
+
+            return grid;
         }
 
         private TextBlock CreatePrimitiveText(PrimitiveText text, IndexedColor color)

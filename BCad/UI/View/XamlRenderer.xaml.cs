@@ -61,6 +61,18 @@ namespace BCad.UI.View
             {
                 element.Opacity = 0.5;
             }
+            else if (element is Grid)
+            {
+                var grid = (Grid)element;
+                if (grid.Children.Count == 1 && grid.Children[0] is Path)
+                {
+                    ((Path)grid.Children[0]).StrokeDashArray = dashedLine;
+                }
+                else
+                {
+                    Debug.Fail("unexpected grid child");
+                }
+            }
             else
             {
                 Debug.Fail("unexpected canvas child");
@@ -76,6 +88,18 @@ namespace BCad.UI.View
             else if (element is TextBlock)
             {
                 element.Opacity = 1.0;
+            }
+            else if (element is Grid)
+            {
+                var grid = (Grid)element;
+                if (grid.Children.Count == 1 && grid.Children[0] is Path)
+                {
+                    ((Path)grid.Children[0]).StrokeDashArray = solidLine;
+                }
+                else
+                {
+                    Debug.Fail("unexpected grid child");
+                }
             }
             else
             {
