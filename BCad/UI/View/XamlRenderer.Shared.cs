@@ -34,6 +34,7 @@ namespace BCad.UI.View
 {
     public partial class XamlRenderer : UserControl
     {
+        private const double PointSize = 15.0;
         private IWorkspace Workspace;
         private Matrix4 PlaneProjection;
         private BindingClass BindObject = new BindingClass();
@@ -53,7 +54,7 @@ namespace BCad.UI.View
                 }
             }
 
-            private ScaleTransform scale = new ScaleTransform(1.0, 1.0);
+            private ScaleTransform scale = new ScaleTransform() { ScaleX = 1.0, ScaleY = 1.0 };
             public ScaleTransform Scale
             {
                 get { return scale; }
@@ -162,7 +163,7 @@ namespace BCad.UI.View
             t.Children.Add(new TranslateTransform() { X = 0, Y = Workspace.ViewControl.DisplayHeight });
             this.PrimitiveCanvas.RenderTransform = t;
             BindObject.Thickness = 1.0 / scale;
-            BindObject.Scale = new ScaleTransform() { ScaleX = scale, ScaleY = scale };
+            BindObject.Scale = new ScaleTransform() { ScaleX = PointSize / scale, ScaleY = PointSize / scale };
         }
 
         private void BeginInvoke(Action action)
@@ -195,7 +196,7 @@ namespace BCad.UI.View
 
         private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity)
         {
-            FrameworkElement element;
+            FrameworkElement element = null;
             switch (prim.Kind)
             {
                 case PrimitiveKind.Ellipse:
@@ -214,8 +215,11 @@ namespace BCad.UI.View
                     throw new NotImplementedException();
             }
 
-            element.Tag = containingEntity;
-            PrimitiveCanvas.Children.Add(element);
+            if (element != null)
+            {
+                element.Tag = containingEntity;
+                PrimitiveCanvas.Children.Add(element);
+            }
         }
 
         private Shape CreatePrimitiveEllipse(PrimitiveEllipse ellipse, IndexedColor color)
@@ -295,7 +299,7 @@ namespace BCad.UI.View
 
         private Path CreatePrimitivePoint(PrimitivePoint point, IndexedColor color)
         {
-            const int size = 15;
+            const double size = 0.5;
             var loc = PlaneProjection.Transform(point.Location);
             var path = new Path()
             {
@@ -309,35 +313,34 @@ namespace BCad.UI.View
                             {
                                 new PathFigure()
                                 {
-                                    StartPoint = new DisplayPoint(loc.X - size, loc.Y),
+                                    StartPoint = new DisplayPoint(-size, 0.0),
                                     Segments = new PathSegmentCollection()
                                     {
                                         new LineSegment()
                                         {
-                                            Point = new DisplayPoint(loc.X + size, loc.Y)
+                                            Point = new DisplayPoint(size, 0.0)
                                         }
                                     }
                                 },
                                 new PathFigure()
                                 {
-                                    StartPoint = new DisplayPoint(loc.X, loc.Y - size),
+                                    StartPoint = new DisplayPoint(0.0, -size),
                                     Segments = new PathSegmentCollection()
                                     {
                                         new LineSegment()
                                         {
-                                            Point = new DisplayPoint(loc.X, loc.Y + size)
+                                            Point = new DisplayPoint(0.0, size)
                                         }
                                     }
                                 },
                             }
                         }
                     }
-                }
+                },
+                RenderTransform = new TranslateTransform() { X = loc.X, Y = loc.Y },
+                StrokeThickness = 1.0 / PointSize
             };
-            SetThicknessBinding(path);
-            //SetBinding(path, "Scale", Shape.LayoutTransformProperty);
-            //SetBinding(path, "PointThickness", Shape.StrokeThicknessProperty);
-            //SetBinding(path, "PointScale", Shape.RenderTransformProperty);
+            SetBinding(path, "Scale", Path.LayoutTransformProperty);
             SetColorBinding(path, color);
             return path;
         }
@@ -367,11 +370,11 @@ namespace BCad.UI.View
             return primitiveColor.IsAuto ? layerColor : primitiveColor;
         }
 
-        private void SetBinding(FrameworkElement element, string propertyName, DependencyProperty property)
+        private void SetBinding(DependencyObject element, string propertyName, DependencyProperty property)
         {
             var binding = new Binding() { Path = new PropertyPath(propertyName) };
             binding.Source = BindObject;
-            element.SetBinding(property, binding);
+            BindingOperations.SetBinding(element, property, binding);
         }
 
         private void SetThicknessBinding(Shape shape)
