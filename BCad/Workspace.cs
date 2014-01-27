@@ -13,6 +13,11 @@ namespace BCad
     {
         private const string ConfigFile = "BCad.config";
 
+        private string FullConfigFile
+        {
+            get { return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ConfigFile); }
+        }
+
         public Workspace()
         {
             Update(drawing: Drawing.Update(author: Environment.UserName));
@@ -21,13 +26,12 @@ namespace BCad
         protected override ISettingsManager LoadSettings()
         {
             SettingsManager manager = null;
-            var fullConfigFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ConfigFile);
-            if (File.Exists(fullConfigFile))
+            if (File.Exists(FullConfigFile))
             {
                 try
                 {
                     var serializer = new XmlSerializer(typeof(SettingsManager));
-                    using (var stream = new FileStream(fullConfigFile, FileMode.Open))
+                    using (var stream = new FileStream(FullConfigFile, FileMode.Open))
                     {
                         manager = (SettingsManager)serializer.Deserialize(stream);
                         manager.SetInputService(InputService);
@@ -44,7 +48,7 @@ namespace BCad
         public override void SaveSettings()
         {
             var serializer = new XmlSerializer(typeof(SettingsManager));
-            using (var stream = new FileStream(ConfigFile, FileMode.Create))
+            using (var stream = new FileStream(FullConfigFile, FileMode.Create))
             {
                 serializer.Serialize(stream, this.SettingsManager);
             }
