@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Composition;
 using System.IO;
-using System.Threading;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Serialization;
@@ -21,12 +21,13 @@ namespace BCad
         protected override ISettingsManager LoadSettings()
         {
             SettingsManager manager = null;
-            if (File.Exists(ConfigFile))
+            var fullConfigFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ConfigFile);
+            if (File.Exists(fullConfigFile))
             {
                 try
                 {
                     var serializer = new XmlSerializer(typeof(SettingsManager));
-                    using (var stream = new FileStream(ConfigFile, FileMode.Open))
+                    using (var stream = new FileStream(fullConfigFile, FileMode.Open))
                     {
                         manager = (SettingsManager)serializer.Deserialize(stream);
                         manager.SetInputService(InputService);

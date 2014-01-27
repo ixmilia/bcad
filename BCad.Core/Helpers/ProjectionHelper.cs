@@ -114,7 +114,7 @@ namespace BCad.Helpers
             var minorAxisRatio = Math.Sqrt(minDistance) / Math.Sqrt(maxDistance);
 
             // TODO: need to find a better way to determine if projection results in a circle
-            if (Math.Abs(maxDistance - minDistance) < MathHelper.Epsilon * 10)
+            if (Math.Abs(maxDistance - minDistance) < MathHelper.Epsilon * 1000)
             {
                 // for projections that result in a circle, normalize to an X-axis major axis and correct the start/end angles
                 if (ellipse.StartAngle != 0.0 || ellipse.EndAngle != 360.0)

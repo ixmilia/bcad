@@ -183,7 +183,24 @@ namespace BCad
 
             Workspace.Update(viewControl: viewPane, isDirty: false);
 
-            SetTitle(Workspace.Drawing);
+            var args = Environment.GetCommandLineArgs().Skip(1); // trim off executable
+            if (args.Count() == 1)
+            {
+                var fileName = args.First();
+                if (File.Exists(fileName))
+                {
+                    Workspace.Update(isDirty: false);
+                    Workspace.ExecuteCommand("File.Open", fileName);
+                }
+                else
+                {
+                    InputService.WriteLine("Unable to open file: ", fileName);
+                }
+            }
+            else
+            {
+                SetTitle(Workspace.Drawing);
+            }
         }
 
         private void SetTitle(Drawing drawing)

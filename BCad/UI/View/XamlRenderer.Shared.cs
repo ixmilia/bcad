@@ -150,6 +150,7 @@ namespace BCad.UI.View
 
         private void RecalcTransform()
         {
+            var start = DateTime.UtcNow;
             if (Workspace == null || Workspace.ViewControl == null)
                 return;
 
@@ -164,6 +165,10 @@ namespace BCad.UI.View
             this.PrimitiveCanvas.RenderTransform = t;
             BindObject.Thickness = 1.0 / scale;
             BindObject.Scale = new ScaleTransform() { ScaleX = PointSize / scale, ScaleY = PointSize / scale };
+            var ellapsed = DateTime.UtcNow - start;
+#if !NETFX_CORE
+            InputService.WriteLine("Recalc transform took {0} ms.", ellapsed.TotalMilliseconds);
+#endif
         }
 
         private void BeginInvoke(Action action)
@@ -180,6 +185,7 @@ namespace BCad.UI.View
 
         private void Redraw()
         {
+            var start = DateTime.UtcNow;
             var drawing = Workspace.Drawing;
             this.PrimitiveCanvas.Children.Clear();
             foreach (var layer in drawing.GetLayers())
@@ -192,6 +198,11 @@ namespace BCad.UI.View
                     }
                 }
             }
+
+            var ellapsed = DateTime.UtcNow - start;
+#if !NETFX_CORE
+            InputService.WriteLine("Redraw took {0} ms.", ellapsed.TotalMilliseconds);
+#endif
         }
 
         private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity)
