@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
              xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
+             xmlns:local="clr-namespace:BCad.Ribbons"
              Header="Home"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -18,6 +19,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="HomeRibbonIcons.xaml" />
                 <ResourceDictionary>
+                    <local:ColorConverter x:Key="colorConverter" />
                     <DataTemplate x:Key="LayerTemplate">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -28,7 +30,7 @@
                             <TextBlock Grid.Column="0" Text="TODO: VIS" />
                             <Rectangle Grid.Column="1" Margin="1" Width="15" Height="15">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color.MediaColor}" />
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color.RealColor, Converter={StaticResource colorConverter}}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                             <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="5,0" />
