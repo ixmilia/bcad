@@ -11,7 +11,7 @@ namespace BCad
     [Export(typeof(IWorkspace)), Shared]
     internal class Workspace : WorkspaceBase
     {
-        private const string ConfigFile = "BCad.config";
+        private const string ConfigFile = "BCad.config.xml";
 
         private string FullConfigFile
         {
