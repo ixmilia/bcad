@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <SettingsManager>
-  <RibbonOrder>home;drawing-settings;settings;debug</RibbonOrder>
+  <RibbonOrder>home;settings;debug</RibbonOrder>
   <LayerDialogId>Default</LayerDialogId>
   <PlotDialogId>Default</PlotDialogId>
   <RendererId>Xaml</RendererId>

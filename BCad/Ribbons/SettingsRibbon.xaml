@@ -5,11 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
              xmlns:local="clr-namespace:BCad.Ribbons"
-             Header="Settings"
              x:Name="theRibbon"
+             Header="Settings"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <r:RibbonTab.Resources>
+        <local:IntToPrecisionConverter x:Key="intToPrecision" />
         <local:ColorConverter x:Key="colorConverter" />
 
         <DataTemplate x:Key="ColorTemplate">
@@ -20,9 +21,49 @@
             </Rectangle>
         </DataTemplate>
     </r:RibbonTab.Resources>
-    <r:RibbonGroup Header="Debug">
-        <ComboBox ItemsSource="{Binding ElementName=theRibbon, Path=BackgroundColors}"
+    <r:RibbonGroup Header="Drawing units">
+        <Grid Width="150">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Units" Margin="3" />
+                <ComboBox Name="unitFormat"
+                          Grid.Column="1"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Path=DrawingUnitValues}"
+                          SelectedItem="{Binding Path=UnitFormat}" />
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Precision" Margin="3" />
+                <ComboBox Name="drawingPrecision"
+                          Grid.Column="1"
+                          ItemsSource="{Binding Path=UnitPrecisionDisplay}"
+                          SelectedItem="{Binding Path=UnitPrecision,
+                                                 Converter={StaticResource intToPrecision}}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Item1}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+        </Grid>
+    </r:RibbonGroup>
+    <r:RibbonGroup Header="Display">
+        <Grid x:Name="displayGroup">
+            <ComboBox ItemsSource="{Binding ElementName=theRibbon, Path=BackgroundColors}"
                   ItemTemplate="{StaticResource ColorTemplate}"
                   SelectedItem="{Binding Path=BackgroundColor, Mode=TwoWay}" />
+        </Grid>
     </r:RibbonGroup>
 </r:RibbonTab>
