@@ -128,7 +128,7 @@
                         CommandParameter="Edit.Offset" />
         <r:RibbonButton Label="Rotate"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="{StaticResource NYI}"
+                        SmallImageSource="{StaticResource RotateSmall}"
                         CommandParameter="Edit.Rotate" />
         <r:RibbonButton Label="Scale"
                         Command="commands:RibbonCommands.CADCommand"
