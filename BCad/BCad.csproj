@@ -240,15 +240,6 @@
     <Resource Include="Icons\UndoSmall.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\TrimSmall.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\ExtendSmall.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\OffsetSmall.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="notes.txt" />
   </ItemGroup>
   <ItemGroup>
