@@ -6,6 +6,16 @@ namespace BCad.Extensions
     {
         public static RealColor ParseColor(this string s)
         {
+            if (s == null || s.Length != 7)
+            {
+                return new RealColor();
+            }
+
+            if (s[0] != '#')
+            {
+                return new RealColor();
+            }
+
             int c = int.Parse(s.Substring(1), NumberStyles.HexNumber);
             int r = (c & 0xFF0000) >> 16;
             int g = (c & 0x00FF00) >> 8;

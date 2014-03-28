@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using BCad.Collections;
 
 namespace BCad.UI.Controls
 {
@@ -38,7 +39,7 @@ namespace BCad.UI.Controls
         {
             if (this.DrawingLayer == null)
             {
-                return new Layer(this.Name, this.Color);
+                return new Layer(this.Name, this.Color, IsVisible ?? false, new ReadOnlyTree<uint, Entities.Entity>());
             }
             else if (this.IsDirty)
             {

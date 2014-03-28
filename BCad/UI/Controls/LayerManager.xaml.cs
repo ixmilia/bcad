@@ -15,19 +15,7 @@ namespace BCad.UI.Controls
     public partial class LayerManager : BCadControl
     {
         private IWorkspace workspace = null;
-
-        private ObservableCollection<MutableLayer> layers = new ObservableCollection<MutableLayer>();
-        private ObservableCollection<IndexedColor> availableColors = new ObservableCollection<IndexedColor>();
-
-        public ObservableCollection<MutableLayer> Layers
-        {
-            get { return this.layers; }
-        }
-
-        public ObservableCollection<IndexedColor> AvailableColors
-        {
-            get { return this.availableColors; }
-        }
+        internal LayerManagerViewModel ViewModel { get; private set; }
 
         public LayerManager()
         {
@@ -39,28 +27,31 @@ namespace BCad.UI.Controls
             : this()
         {
             this.workspace = workspace;
+            this.ViewModel = new LayerManagerViewModel();
+            this.DataContext = this.ViewModel;
         }
 
         public override void OnShowing()
         {
-            this.layers.Clear();
+            this.ViewModel.Layers.Clear();
             foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
-                this.layers.Add(new MutableLayer(layer));
+                this.ViewModel.Layers.Add(new MutableLayer(layer));
 
+            this.ViewModel.AvailableColors.Clear();
             for (int i = 0; i < 256; i++)
-                availableColors.Add(new IndexedColor((byte)i));
+                this.ViewModel.AvailableColors.Add(new IndexedColor((byte)i));
         }
 
         public override void Commit()
         {
             var dwg = workspace.Drawing;
 
-            if (this.layers.Where(layer => layer.IsDirty).Any() ||
-                this.layers.Count != dwg.Layers.Count)
+            if (this.ViewModel.Layers.Any(layer => layer.IsDirty) ||
+                this.ViewModel.Layers.Count != dwg.Layers.Count)
             {
                 // found changes, need to update
                 var newLayers = new ReadOnlyTree<string, Layer>();
-                foreach (var layer in from layer in this.layers
+                foreach (var layer in from layer in this.ViewModel.Layers
                                       select layer.GetUpdatedLayer())
                 {
                     newLayers = newLayers.Insert(layer.Name, layer);
@@ -84,8 +75,8 @@ namespace BCad.UI.Controls
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            this.layers.Add(new MutableLayer(
-                StringUtilities.NextUniqueName("NewLayer", this.layers.Select(l => l.Name)), IndexedColor.Auto));
+            this.ViewModel.Layers.Add(new MutableLayer(
+                StringUtilities.NextUniqueName("NewLayer", this.ViewModel.Layers.Select(l => l.Name)), IndexedColor.Auto));
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
@@ -93,10 +84,22 @@ namespace BCad.UI.Controls
             var removed = this.layerList.SelectedItem as MutableLayer;
             if (removed != null)
             {
-                if (!this.layers.Remove(removed))
+                if (!this.ViewModel.Layers.Remove(removed))
                 {
                     Debug.Fail("Layer could not be found");
                 }
+            }
+        }
+
+        internal class LayerManagerViewModel
+        {
+            public ObservableCollection<MutableLayer> Layers { get; private set; }
+            public ObservableCollection<IndexedColor> AvailableColors { get; private set; }
+
+            public LayerManagerViewModel()
+            {
+                Layers = new ObservableCollection<MutableLayer>();
+                AvailableColors = new ObservableCollection<IndexedColor>();
             }
         }
     }

@@ -7,7 +7,24 @@
              Header="Debug"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
+    <r:RibbonTab.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="HomeRibbonIcons.xaml" />
+                <ResourceDictionary>
+                    <Style x:Key="iconStyle" TargetType="Image">
+                        <Setter Property="Width" Value="15" />
+                        <Setter Property="Height" Value="15" />
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </r:RibbonTab.Resources>
     <r:RibbonGroup Header="Debug">
         <Button Click="DebugButtonClick">Debug</Button>
+    </r:RibbonGroup>
+    <r:RibbonGroup Header="Icons">
+        <Image Style="{StaticResource iconStyle}" Source="{StaticResource LayerVisible}" />
+        <Image Style="{StaticResource iconStyle}" Source="{StaticResource LayerHidden}" />
     </r:RibbonGroup>
 </r:RibbonTab>
