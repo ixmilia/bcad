@@ -11,6 +11,53 @@ namespace BCad.Utilities
 {
     public static class EditUtilities
     {
+        private static object rotateCacheLock = new object();
+        private static Vector cachedRotateOffset;
+        private static double cachedRotateAngle;
+        private static Matrix4 cachedRotateMatrix;
+        private static Matrix4 GetRotateMatrix(Vector offset, double angleInDegrees)
+        {
+            lock (rotateCacheLock)
+            {
+                // it will be common to re-use a specific rotation multiple times in a row
+                if (offset != cachedRotateOffset || angleInDegrees != cachedRotateAngle)
+                {
+                    cachedRotateOffset = offset;
+                    cachedRotateAngle = angleInDegrees;
+                    cachedRotateMatrix = Matrix4.CreateTranslate(offset)
+                        * Matrix4.RotateAboutZ(-angleInDegrees)
+                        * Matrix4.CreateTranslate(-offset);
+                }
+
+                return cachedRotateMatrix;
+            }
+        }
+
+        public static Entity Rotate(Entity entity, Vector offset, double angleInDegrees)
+        {
+            var transform = GetRotateMatrix(offset, angleInDegrees);
+            switch (entity.Kind)
+            {
+                case EntityKind.Arc:
+                    var arc = (Arc)entity;
+                    return arc.Update(
+                        center: transform.Transform(arc.Center),
+                        startAngle: MathHelper.CorrectAngleDegrees(arc.StartAngle + angleInDegrees),
+                        endAngle: MathHelper.CorrectAngleDegrees(arc.EndAngle + angleInDegrees));
+                case EntityKind.Circle:
+                    var circ = (Circle)entity;
+                    return circ.Update(center: transform.Transform(circ.Center));
+                case EntityKind.Line:
+                    var line = (Line)entity;
+                    return line.Update(p1: transform.Transform(line.P1), p2: transform.Transform(line.P2));
+                case EntityKind.Location:
+                    var loc = (Location)entity;
+                    return loc.Update(point: transform.Transform(loc.Point));
+                default:
+                    throw new ArgumentException("Unsupported entity type " + entity.Kind);
+            }
+        }
+
         public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var selectionPrimitives = entityToTrim.Entity.GetPrimitives();

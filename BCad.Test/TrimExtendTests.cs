@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
-using BCad.Helpers;
 using BCad.Utilities;
 using Xunit;
 
