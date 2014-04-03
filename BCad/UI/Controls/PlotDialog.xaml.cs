@@ -4,10 +4,13 @@ using System.ComponentModel;
 using System.Composition;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Forms;
 using BCad.FilePlotters;
 using BCad.Helpers;
@@ -56,8 +59,11 @@ namespace BCad.UI.Controls
             IFilePlotter plotter;
             Stream stream;
             var viewPort = GenerateViewPort();
-            var width = Math.Abs(viewModel.TopRight.X - viewModel.BottomLeft.X);
-            var height = Math.Abs(viewModel.TopRight.Y - viewModel.BottomLeft.Y);
+            var pageWidth = 8.5;
+            var pageHeight = 11.0;
+            int dpi = 300;
+            var width = pageWidth * dpi;
+            var height = pageHeight * dpi;
             switch (viewModel.PlotType)
             {
                 case "File":
@@ -77,7 +83,7 @@ namespace BCad.UI.Controls
                     throw new NotImplementedException(); // TODO: remove this
             }
 
-            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort);
+            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
             plotter.Plot(entities, width, height, stream);
 
             switch (viewModel.PlotType)
@@ -92,10 +98,12 @@ namespace BCad.UI.Controls
                         stream.Flush();
                         stream.Seek(0, SeekOrigin.Begin);
                         var image = new Bitmap(stream);
+                        image.SetResolution(dpi, dpi);
                         var document = new PrintDocument();
                         document.PrinterSettings = dialog.PrinterSettings;
-                        document.DefaultPageSettings.PaperSize = new PaperSize("LTR", 850, 1100);
-                        document.PrinterSettings.PrintToFile = true;
+                        document.DefaultPageSettings.PaperSize = new PaperSize("Letter", (int)(pageWidth * 100), (int)(pageHeight * 100));
+                        document.DefaultPageSettings.PrinterResolution = new PrinterResolution() { Kind = PrinterResolutionKind.Custom, X = 300, Y = 300 };
+                        //document.PrinterSettings.PrintToFile = true;
                         document.PrintPage += (sender, e) =>
                             {
                                 e.Graphics.DrawImage(image, new PointF());
@@ -125,7 +133,21 @@ namespace BCad.UI.Controls
 
         private ViewPort GenerateViewPort()
         {
-            return new ViewPort(viewModel.BottomLeft, workspace.ActiveViewPort.Sight, workspace.ActiveViewPort.Up, viewModel.TopRight.Y - viewModel.BottomLeft.Y);
+            switch (viewModel.ViewportType)
+            {
+                case ViewportType.Extents:
+                    var newVp = workspace.Drawing.ShowAllViewPort(
+                        workspace.ActiveViewPort.Sight,
+                        workspace.ActiveViewPort.Up,
+                        850,
+                        1100,
+                        pixelBuffer: 0);
+                    return newVp;
+                case ViewportType.Window:
+                    return new ViewPort(viewModel.BottomLeft, workspace.ActiveViewPort.Sight, workspace.ActiveViewPort.Up, (viewModel.TopRight.Y - viewModel.BottomLeft.Y) * viewModel.Scale);
+                default:
+                    throw new InvalidOperationException("unsupported viewport type");
+            }
         }
 
         private IFilePlotter PlotterFromExtension(string extension)
@@ -163,6 +185,12 @@ namespace BCad.UI.Controls
         }
     }
 
+    public enum ViewportType
+    {
+        Extents,
+        Window
+    }
+
     public class PlotDialogViewModel : INotifyPropertyChanged
     {
         public IEnumerable<string> AvailablePlotTypes
@@ -172,8 +200,10 @@ namespace BCad.UI.Controls
 
         private string plotType;
         private string fileName;
+        private ViewportType viewportType;
         private Point bottomLeft;
         private Point topRight;
+        private double scale;
 
         public string PlotType
         {
@@ -183,7 +213,7 @@ namespace BCad.UI.Controls
                 if (this.plotType == value)
                     return;
                 this.plotType = value;
-                OnPropertyChanged("PlotType");
+                OnPropertyChanged();
             }
         }
 
@@ -195,7 +225,19 @@ namespace BCad.UI.Controls
                 if (this.fileName == value)
                     return;
                 this.fileName = value;
-                OnPropertyChanged("FileName");
+                OnPropertyChanged();
+            }
+        }
+
+        public ViewportType ViewportType
+        {
+            get { return this.viewportType; }
+            set
+            {
+                if (this.viewportType == value)
+                    return;
+                this.viewportType = value;
+                OnPropertyChanged();
             }
         }
 
@@ -207,7 +249,7 @@ namespace BCad.UI.Controls
                 if (this.bottomLeft == value)
                     return;
                 this.bottomLeft = value;
-                OnPropertyChanged("BottomLeft");
+                OnPropertyChanged();
             }
         }
 
@@ -219,7 +261,19 @@ namespace BCad.UI.Controls
                 if (this.topRight == value)
                     return;
                 this.topRight = value;
-                OnPropertyChanged("TopRight");
+                OnPropertyChanged();
+            }
+        }
+
+        public double Scale
+        {
+            get { return this.scale; }
+            set
+            {
+                if (this.scale == value)
+                    return;
+                this.scale = value;
+                OnPropertyChanged();
             }
         }
 
@@ -227,17 +281,77 @@ namespace BCad.UI.Controls
         {
             PlotType = AvailablePlotTypes.First();
             FileName = string.Empty;
+            ViewportType = ViewportType.Extents;
             BottomLeft = Point.Origin;
             TopRight = Point.Origin;
+            Scale = 1.0;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string property)
+        protected void OnPropertyChanged([CallerMemberName] string property = "")
         {
             var changed = PropertyChanged;
             if (changed != null)
                 changed(this, new PropertyChangedEventArgs(property));
+        }
+    }
+
+    public class EnumMatchToBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType,
+                              object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null)
+                return false;
+
+            string checkValue = value.ToString();
+            string targetValue = parameter.ToString();
+            return checkValue.Equals(targetValue,
+                     StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public object ConvertBack(object value, Type targetType,
+                                  object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null)
+                return null;
+
+            bool useValue = (bool)value;
+            string targetValue = parameter.ToString();
+            if (useValue)
+                return Enum.Parse(targetType, targetValue);
+
+            return null;
+        }
+    }
+
+    public class DoubleStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+                return null;
+
+            if (value.GetType() == typeof(double) && targetType == typeof(string))
+            {
+                return ((double)value).ToString();
+            }
+
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+                return 0.0;
+
+            if (value.GetType() == typeof(string) && targetType == typeof(double))
+            {
+                return double.Parse((string)value);
+            }
+
+            return 0.0;
         }
     }
 }

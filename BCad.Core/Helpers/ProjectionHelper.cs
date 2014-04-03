@@ -10,10 +10,10 @@ namespace BCad.Helpers
 {
     public static class ProjectionHelper
     {
-        public static IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort)
+        public static IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort, int width, int height)
         {
             // create transform
-            var transform = viewPort.GetTransformationMatrixWindowsStyle(640, 480);
+            var transform = viewPort.GetTransformationMatrixWindowsStyle(width, height);
             
             // project all entities
             var entities = new List<ProjectedEntity>();

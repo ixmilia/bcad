@@ -5,9 +5,14 @@
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core.UI"
                 xmlns:local="clr-namespace:BCad.UI"
+                xmlns:controls="clr-namespace:BCad.UI.Controls"
                 mc:Ignorable="d" Width="480" Height="300">
+    <ui:BCadControl.Resources>
+        <controls:EnumMatchToBooleanConverter x:Key="enumConverter" />
+    </ui:BCadControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -24,18 +29,32 @@
             <Button Grid.Column="2" Click="BrowseClick">Browse</Button>
         </Grid>
         <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" MinWidth="32" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" MinWidth="32" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Bottom left" />
-            <TextBlock Grid.Column="1" />
-            <TextBlock Grid.Column="2" Text="Top right" />
-            <TextBlock Grid.Column="3" />
-            <Button Grid.Column="4" Click="SelectAreaClick">Select</Button>
+            <StackPanel>
+                <RadioButton GroupName="asdf"
+                             Content="Drawing extents"
+                             IsChecked="{Binding Path=ViewportType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Extents}" />
+                <RadioButton GroupName="asdf"
+                             IsChecked="{Binding Path=ViewportType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Window}">
+                    <StackPanel>
+                        <TextBlock Text="Window" />
+                        <TextBlock Text="Bottom left" />
+                        <TextBlock />
+                        <TextBlock Text="Top right" />
+                        <TextBlock />
+                        <Button Grid.Column="4" Click="SelectAreaClick">Select</Button>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
         </Grid>
+        <StackPanel Grid.Row="3" Orientation="Horizontal">
+            <TextBlock Text="Scale" />
+            <TextBox Width="100" Text="{Binding Path=Scale}" />
+        </StackPanel>
     </Grid>
 </ui:BCadControl>

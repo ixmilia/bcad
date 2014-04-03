@@ -9,40 +9,40 @@ using BCad.FilePlotters;
 
 namespace BCad.Commands.FilePlotters
 {
-    [ExportFilePlotter(PngFilePlotter.DisplayName, PngFilePlotter.FileExtension)]
+    [ExportFilePlotter(DisplayName, FileExtension)]
     internal class PngFilePlotter : IFilePlotter
     {
         public const string DisplayName = "PNG Files (" + FileExtension + ")";
         public const string FileExtension = ".png";
 
-        private Dictionary<System.Drawing.Color, Brush> brushCache = new Dictionary<System.Drawing.Color, Brush>();
-        private Dictionary<System.Drawing.Color, Pen> penCache = new Dictionary<System.Drawing.Color, Pen>();
-        private System.Drawing.Color autoColor = System.Drawing.Color.Black;
+        private Dictionary<Color, Brush> brushCache = new Dictionary<Color, Brush>();
+        private Dictionary<Color, Pen> penCache = new Dictionary<Color, Pen>();
+        private Color autoColor = Color.Black;
 
         public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
         {
             // set autocolor
-            var bg = System.Windows.Media.Colors.Black; // TODO: choose color
-            var backgroundColor = (bg.R << 16) | (bg.G << 8) | bg.B;
-            var brightness = System.Drawing.Color.FromArgb(backgroundColor).GetBrightness();
-            var color = brightness < 0.67 ? 0xFFFFFF : 0x000000;
-            autoColor = System.Drawing.Color.FromArgb((0xFF << 24) | color);
+            var bg = RealColor.Black;
+            var auto = bg.GetAutoContrastingColor();
+            autoColor = Color.FromArgb(auto.R, auto.G, auto.B);
 
-            var image = new Bitmap((int)width, (int)height);
-            using (var graphics = Graphics.FromImage(image))
+            using (var image = new Bitmap((int)width, (int)height))
             {
-                graphics.FillRectangle(Brushes.Black, new Rectangle(0, 0, image.Width, image.Height));
-                foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
+                using (var graphics = Graphics.FromImage(image))
                 {
-                    var layer = groupedEntity.Key;
-                    foreach (var entity in groupedEntity)
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(bg.R, bg.G, bg.B)), new Rectangle(0, 0, image.Width, image.Height));
+                    foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
                     {
-                        DrawEntity(graphics, entity, layer.Color);
+                        var layer = groupedEntity.Key;
+                        foreach (var entity in groupedEntity)
+                        {
+                            DrawEntity(graphics, entity, layer.Color);
+                        }
                     }
                 }
-            }
 
-            image.Save(stream, ImageFormat.Png);
+                image.Save(stream, ImageFormat.Png);
+            }
         }
 
         private void DrawEntity(Graphics graphics, ProjectedEntity entity, IndexedColor layerColor)
@@ -70,7 +70,7 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private Brush ColorToBrush(System.Drawing.Color color)
+        private Brush ColorToBrush(Color color)
         {
             if (brushCache.ContainsKey(color))
             {
@@ -106,7 +106,7 @@ namespace BCad.Commands.FilePlotters
             graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.ToDrawingColor()), x, y);
         }
 
-        private Pen ColorToPen(System.Drawing.Color color)
+        private Pen ColorToPen(Color color)
         {
             if (penCache.ContainsKey(color))
             {
@@ -120,9 +120,9 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private System.Drawing.Color GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor)
+        private Color GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor)
         {
-            System.Drawing.Color display;
+            Color display;
             if (!primitiveColor.IsAuto)
                 display = primitiveColor.ToDrawingColor();
             else if (!layerColor.IsAuto)
