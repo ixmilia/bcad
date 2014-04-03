@@ -9,9 +9,12 @@
                 mc:Ignorable="d" Width="480" Height="300">
     <ui:BCadControl.Resources>
         <controls:EnumMatchToBooleanConverter x:Key="enumConverter" />
+        <controls:DoubleStringConverter x:Key="doubleStringConverter" />
     </ui:BCadControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -54,7 +57,14 @@
         </Grid>
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <TextBlock Text="Scale" />
-            <TextBox Width="100" Text="{Binding Path=Scale}" />
+            <TextBox Width="100" Text="{Binding Path=ScaleA, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+            <TextBlock Text=" to " />
+            <TextBox Width="100" Text="{Binding Path=ScaleB, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
         </StackPanel>
+        <StackPanel Grid.Row="4" Orientation="Horizontal">
+            <TextBlock Text="DPI" />
+            <TextBox Width="100" Text="{Binding Path=Dpi, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+        </StackPanel>
+        <ComboBox Grid.Row="5" ItemsSource="{Binding AvailablePageSizes}" SelectedValue="{Binding PageSize}" />
     </Grid>
 </ui:BCadControl>

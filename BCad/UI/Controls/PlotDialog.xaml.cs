@@ -59,11 +59,10 @@ namespace BCad.UI.Controls
             IFilePlotter plotter;
             Stream stream;
             var viewPort = GenerateViewPort();
-            var pageWidth = 8.5;
-            var pageHeight = 11.0;
-            int dpi = 300;
-            var width = pageWidth * dpi;
-            var height = pageHeight * dpi;
+            var pageWidth = GetWidth(viewModel.PageSize);
+            var pageHeight = GetHeight(viewModel.PageSize);
+            var width = pageWidth * viewModel.Dpi;
+            var height = pageHeight * viewModel.Dpi;
             switch (viewModel.PlotType)
             {
                 case "File":
@@ -83,6 +82,7 @@ namespace BCad.UI.Controls
                     throw new NotImplementedException(); // TODO: remove this
             }
 
+            viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB);
             var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
             plotter.Plot(entities, width, height, stream);
 
@@ -98,12 +98,10 @@ namespace BCad.UI.Controls
                         stream.Flush();
                         stream.Seek(0, SeekOrigin.Begin);
                         var image = new Bitmap(stream);
-                        image.SetResolution(dpi, dpi);
+                        image.SetResolution((float)viewModel.Dpi, (float)viewModel.Dpi);
                         var document = new PrintDocument();
                         document.PrinterSettings = dialog.PrinterSettings;
-                        document.DefaultPageSettings.PaperSize = new PaperSize("Letter", (int)(pageWidth * 100), (int)(pageHeight * 100));
-                        document.DefaultPageSettings.PrinterResolution = new PrinterResolution() { Kind = PrinterResolutionKind.Custom, X = 300, Y = 300 };
-                        //document.PrinterSettings.PrintToFile = true;
+                        document.DefaultPageSettings.PaperSize = new PaperSize(viewModel.PageSize.ToString(), (int)(pageWidth * 100), (int)(pageHeight * 100));
                         document.PrintPage += (sender, e) =>
                             {
                                 e.Graphics.DrawImage(image, new PointF());
@@ -144,7 +142,7 @@ namespace BCad.UI.Controls
                         pixelBuffer: 0);
                     return newVp;
                 case ViewportType.Window:
-                    return new ViewPort(viewModel.BottomLeft, workspace.ActiveViewPort.Sight, workspace.ActiveViewPort.Up, (viewModel.TopRight.Y - viewModel.BottomLeft.Y) * viewModel.Scale);
+                    return new ViewPort(viewModel.BottomLeft, workspace.ActiveViewPort.Sight, workspace.ActiveViewPort.Up, viewModel.TopRight.Y - viewModel.BottomLeft.Y);
                 default:
                     throw new InvalidOperationException("unsupported viewport type");
             }
@@ -183,12 +181,43 @@ namespace BCad.UI.Controls
             viewModel.BottomLeft = new Point(selection.TopLeftWorld.X, selection.BottomRightWorld.Y, selection.TopLeftWorld.Z);
             viewModel.TopRight = new Point(selection.BottomRightWorld.X, selection.TopLeftWorld.Y, selection.BottomRightWorld.Z);
         }
+
+        private static double GetWidth(PageSize size)
+        {
+            switch (size)
+            {
+                case PageSize.Legal:
+                case PageSize.Letter:
+                    return 8.5;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        private static double GetHeight(PageSize size)
+        {
+            switch (size)
+            {
+                case PageSize.Legal:
+                    return 14.0;
+                case PageSize.Letter:
+                    return 11.0;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
     }
 
     public enum ViewportType
     {
         Extents,
         Window
+    }
+
+    public enum PageSize
+    {
+        Letter,
+        Legal
     }
 
     public class PlotDialogViewModel : INotifyPropertyChanged
@@ -203,7 +232,10 @@ namespace BCad.UI.Controls
         private ViewportType viewportType;
         private Point bottomLeft;
         private Point topRight;
-        private double scale;
+        private double scaleA;
+        private double scaleB;
+        private double dpi;
+        private PageSize pageSize;
 
         public string PlotType
         {
@@ -265,16 +297,57 @@ namespace BCad.UI.Controls
             }
         }
 
-        public double Scale
+        public double ScaleA
         {
-            get { return this.scale; }
+            get { return this.scaleA; }
             set
             {
-                if (this.scale == value)
+                if (this.scaleA == value)
                     return;
-                this.scale = value;
+                this.scaleA = value;
                 OnPropertyChanged();
             }
+        }
+
+        public double ScaleB
+        {
+            get { return this.scaleB; }
+            set
+            {
+                if (this.scaleB == value)
+                    return;
+                this.scaleB = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double Dpi
+        {
+            get { return this.dpi; }
+            set
+            {
+                if (this.dpi == value)
+                    return;
+                this.dpi = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PageSize PageSize
+        {
+            get { return this.pageSize; }
+            set
+            {
+                if (this.pageSize == value)
+                    return;
+                this.pageSize = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PageSize[] AvailablePageSizes
+        {
+            get { return new[] { PageSize.Letter, PageSize.Legal }; }
         }
 
         public PlotDialogViewModel()
@@ -284,7 +357,10 @@ namespace BCad.UI.Controls
             ViewportType = ViewportType.Extents;
             BottomLeft = Point.Origin;
             TopRight = Point.Origin;
-            Scale = 1.0;
+            ScaleA = 1.0;
+            ScaleB = 1.0;
+            Dpi = 300;
+            PageSize = PageSize.Letter;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
