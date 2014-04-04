@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using BCad.FilePlotters;
 using BCad.Helpers;
-using BCad.Primitives;
 using BCad.Services;
 
 namespace BCad.UI.Controls
@@ -48,10 +48,14 @@ namespace BCad.UI.Controls
             this.inputService = inputService;
             this.fileSystemService = fileSystemService;
             this.filePlotters = filePlotters;
+
+            this.viewModel.Plotter = filePlotters.FirstOrDefault(plt => plt.Metadata.FileExtensions.Contains(".png")).Value;
         }
 
         public override void OnShowing()
         {
+            this.viewModel.Drawing = workspace.Drawing;
+            this.viewModel.UpdateThumbnail();
         }
 
         public override void Commit()
@@ -82,7 +86,7 @@ namespace BCad.UI.Controls
                     throw new NotImplementedException(); // TODO: remove this
             }
 
-            viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB);
+            viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
             var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
             plotter.Plot(entities, width, height, stream);
 
@@ -236,6 +240,10 @@ namespace BCad.UI.Controls
         private double scaleB;
         private double dpi;
         private PageSize pageSize;
+        private BitmapImage thumbnail;
+
+        public Drawing Drawing { get; internal set; }
+        public IFilePlotter Plotter { get; internal set; }
 
         public string PlotType
         {
@@ -270,6 +278,7 @@ namespace BCad.UI.Controls
                     return;
                 this.viewportType = value;
                 OnPropertyChanged();
+                UpdateThumbnail();
             }
         }
 
@@ -282,6 +291,7 @@ namespace BCad.UI.Controls
                     return;
                 this.bottomLeft = value;
                 OnPropertyChanged();
+                UpdateThumbnail();
             }
         }
 
@@ -294,6 +304,7 @@ namespace BCad.UI.Controls
                     return;
                 this.topRight = value;
                 OnPropertyChanged();
+                UpdateThumbnail();
             }
         }
 
@@ -306,6 +317,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleA = value;
                 OnPropertyChanged();
+                UpdateThumbnail();
             }
         }
 
@@ -318,6 +330,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleB = value;
                 OnPropertyChanged();
+                UpdateThumbnail();
             }
         }
 
@@ -330,6 +343,7 @@ namespace BCad.UI.Controls
                     return;
                 this.dpi = value;
                 OnPropertyChanged();
+                UpdateThumbnail();
             }
         }
 
@@ -341,6 +355,19 @@ namespace BCad.UI.Controls
                 if (this.pageSize == value)
                     return;
                 this.pageSize = value;
+                OnPropertyChanged();
+                UpdateThumbnail();
+            }
+        }
+
+        public BitmapImage Thumbnail
+        {
+            get { return this.thumbnail; }
+            set
+            {
+                if (this.thumbnail == value)
+                    return;
+                this.thumbnail = value;
                 OnPropertyChanged();
             }
         }
@@ -370,6 +397,29 @@ namespace BCad.UI.Controls
             var changed = PropertyChanged;
             if (changed != null)
                 changed(this, new PropertyChangedEventArgs(property));
+        }
+
+        public void UpdateThumbnail()
+        {
+            if (Drawing == null)
+                return;
+            var stream = new MemoryStream();
+            int height = 300;
+            int width = PageSize == PageSize.Letter ? (int)(8.5 / 11.0 * height) : (int)(8.5 / 14.0 * height);
+            var viewPort = Drawing.ShowAllViewPort(Vector.ZAxis, Vector.YAxis, width, height, 0);
+            viewPort = viewPort.Update(viewHeight: 11.0 * ScaleA / ScaleB); // TODO: assumes drawing units are inches
+            var entities = ProjectionHelper.ProjectTo2D(Drawing, viewPort, width, height);
+            Plotter.Plot(entities, width, height, stream);
+            stream.Flush();
+            stream.Seek(0, SeekOrigin.Begin);
+
+            var bi = new BitmapImage();
+            bi.BeginInit();
+            bi.StreamSource = stream;
+            bi.CacheOption = BitmapCacheOption.OnLoad;
+            bi.EndInit();
+
+            Thumbnail = bi;
         }
     }
 

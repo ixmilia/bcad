@@ -937,7 +937,7 @@ namespace BCad.Extensions
                 .Select(p => planeProjection.Transform(p));
 
             if (allPoints.Count() < 2)
-                return null;
+                return new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 10.0);
 
             var first = allPoints.First();
             var minx = first.X;
