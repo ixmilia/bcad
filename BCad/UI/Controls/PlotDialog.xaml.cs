@@ -29,7 +29,7 @@ namespace BCad.UI.Controls
         private IInputService inputService = null;
         private IFileSystemService fileSystemService = null;
         private IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters = null;
-
+        private IFilePlotter pngPlotter = null;
         private PlotDialogViewModel viewModel = null;
 
         public PlotDialog()
@@ -49,7 +49,8 @@ namespace BCad.UI.Controls
             this.fileSystemService = fileSystemService;
             this.filePlotters = filePlotters;
 
-            this.viewModel.Plotter = filePlotters.FirstOrDefault(plt => plt.Metadata.FileExtensions.Contains(".png")).Value;
+            this.pngPlotter = filePlotters.FirstOrDefault(plt => plt.Metadata.FileExtensions.Contains(".png")).Value;
+            this.viewModel.Plotter = pngPlotter;
         }
 
         public override void OnShowing()
@@ -60,6 +61,21 @@ namespace BCad.UI.Controls
 
         public override void Commit()
         {
+            switch (this.viewModel.PlotType)
+            {
+                case "File":
+                    FilePlot();
+                    break;
+                case "Print":
+                    Print();
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        private void FilePlot()
+        {
             IFilePlotter plotter;
             Stream stream;
             var viewPort = GenerateViewPort();
@@ -67,57 +83,69 @@ namespace BCad.UI.Controls
             var pageHeight = GetHeight(viewModel.PageSize);
             var width = pageWidth * viewModel.Dpi;
             var height = pageHeight * viewModel.Dpi;
-            switch (viewModel.PlotType)
-            {
-                case "File":
-                    var extension = Path.GetExtension(viewModel.FileName);
-                    plotter = PlotterFromExtension(extension);
-                    if (plotter == null) // invalid file selected
-                        throw new Exception("Unknown file extension " + extension);
+            var extension = Path.GetExtension(viewModel.FileName);
+            plotter = PlotterFromExtension(extension);
+            if (plotter == null) // invalid file selected
+                throw new Exception("Unknown file extension " + extension);
 
-                    stream = new FileStream(viewModel.FileName, FileMode.Create);
-                    break;
-                case "Print":
-                    // fake it with the png plotter
-                    plotter = filePlotters.FirstOrDefault(plt => plt.Metadata.FileExtensions.Contains(".png")).Value;
-                    stream = new MemoryStream();
-                    break;
-                default:
-                    throw new NotImplementedException(); // TODO: remove this
-            }
+            stream = new FileStream(viewModel.FileName, FileMode.Create);
 
             viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
             var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
             plotter.Plot(entities, width, height, stream);
 
-            switch (viewModel.PlotType)
-            {
-                case "Print":
-                    var dialog = new PrintDialog();
-                    dialog.AllowPrintToFile = true;
-                    dialog.PrintToFile = false;
-                    if (dialog.ShowDialog() == DialogResult.OK)
-                    {
-                        // stream should be a png
-                        stream.Flush();
-                        stream.Seek(0, SeekOrigin.Begin);
-                        var image = new Bitmap(stream);
-                        image.SetResolution((float)viewModel.Dpi, (float)viewModel.Dpi);
-                        var document = new PrintDocument();
-                        document.PrinterSettings = dialog.PrinterSettings;
-                        document.DefaultPageSettings.PaperSize = new PaperSize(viewModel.PageSize.ToString(), (int)(pageWidth * 100), (int)(pageHeight * 100));
-                        document.PrintPage += (sender, e) =>
-                            {
-                                e.Graphics.DrawImage(image, new PointF());
-                            };
-                        document.Print();
-                    }
-                    break;
-            }
 
             stream.Close();
             stream.Dispose();
             stream = null;
+        }
+
+        private void Print()
+        {
+            var viewPort = GenerateViewPort();
+            var pageWidth = GetWidth(viewModel.PageSize);
+            var pageHeight = GetHeight(viewModel.PageSize);
+            viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
+            using (var dialog = new PrintDialog())
+            {
+                dialog.AllowPrintToFile = true;
+                dialog.PrintToFile = false;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    using (var document = new PrintDocument())
+                    {
+                        document.PrinterSettings = dialog.PrinterSettings; // "Letter" "Letter Rotated"
+                        var desiredWidth = (int)(pageWidth * 100);
+                        var desiredHeight = (int)(pageHeight * 100);
+                        foreach (PaperSize size in document.PrinterSettings.PaperSizes)
+                        {
+                            if (size.Width == desiredWidth && size.Height == desiredHeight)
+                            {
+                                document.DefaultPageSettings.PaperSize = size;
+                                break;
+                            }
+                        }
+                        document.PrintPage += (sender, e) =>
+                        {
+                            var width = e.PageSettings.PrintableArea.Width / 100 * viewModel.Dpi;
+                            var height = e.PageSettings.PrintableArea.Height / 100 * viewModel.Dpi;
+                            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
+                            using (var stream = new MemoryStream())
+                            {
+                                pngPlotter.Plot(entities, width, height, stream);
+                                stream.Flush();
+                                stream.Seek(0, SeekOrigin.Begin);
+                                using (var image = new Bitmap(stream))
+                                {
+                                    image.SetResolution((float)viewModel.Dpi, (float)viewModel.Dpi);
+                                    e.Graphics.DrawImage(image, e.PageSettings.PrintableArea.Location);
+                                }
+                            }
+                        };
+                        document.Print();
+                    }
+                }
+            }
         }
 
         public override void Cancel()
@@ -186,19 +214,21 @@ namespace BCad.UI.Controls
             viewModel.TopRight = new Point(selection.BottomRightWorld.X, selection.TopLeftWorld.Y, selection.BottomRightWorld.Z);
         }
 
-        private static double GetWidth(PageSize size)
+        internal static double GetWidth(PageSize size)
         {
             switch (size)
             {
                 case PageSize.Legal:
                 case PageSize.Letter:
                     return 8.5;
+                case PageSize.Landscape:
+                    return 11.0;
                 default:
                     throw new InvalidOperationException();
             }
         }
 
-        private static double GetHeight(PageSize size)
+        internal static double GetHeight(PageSize size)
         {
             switch (size)
             {
@@ -206,6 +236,8 @@ namespace BCad.UI.Controls
                     return 14.0;
                 case PageSize.Letter:
                     return 11.0;
+                case PageSize.Landscape:
+                    return 8.5;
                 default:
                     throw new InvalidOperationException();
             }
@@ -221,7 +253,8 @@ namespace BCad.UI.Controls
     public enum PageSize
     {
         Letter,
-        Legal
+        Legal,
+        Landscape
     }
 
     public class PlotDialogViewModel : INotifyPropertyChanged
@@ -241,6 +274,10 @@ namespace BCad.UI.Controls
         private double dpi;
         private PageSize pageSize;
         private BitmapImage thumbnail;
+        private Visibility printOptVis;
+        private Visibility fileOptVis;
+        private int pixelWidth;
+        private int pixelHeight;
 
         public Drawing Drawing { get; internal set; }
         public IFilePlotter Plotter { get; internal set; }
@@ -254,6 +291,19 @@ namespace BCad.UI.Controls
                     return;
                 this.plotType = value;
                 OnPropertyChanged();
+                switch (this.plotType)
+                {
+                    case "File":
+                        FileOptionsVisibility = Visibility.Visible;
+                        PrintOptionsVisibility = Visibility.Hidden;
+                        break;
+                    case "Print":
+                        FileOptionsVisibility = Visibility.Hidden;
+                        PrintOptionsVisibility = Visibility.Visible;
+                        break;
+                }
+
+                UpdateThumbnail();
             }
         }
 
@@ -372,9 +422,59 @@ namespace BCad.UI.Controls
             }
         }
 
+        public Visibility PrintOptionsVisibility
+        {
+            get { return this.printOptVis; }
+            private set
+            {
+                if (this.printOptVis == value)
+                    return;
+                this.printOptVis = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Visibility FileOptionsVisibility
+        {
+            get { return this.fileOptVis; }
+            private set
+            {
+                if (this.fileOptVis == value)
+                    return;
+                this.fileOptVis = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int PixelWidth
+        {
+            get { return this.pixelWidth; }
+            set
+            {
+                if (this.pixelWidth == value)
+                    return;
+                this.pixelWidth = value;
+                OnPropertyChanged();
+                UpdateThumbnail();
+            }
+        }
+
+        public int PixelHeight
+        {
+            get { return this.pixelHeight; }
+            set
+            {
+                if (this.pixelHeight == value)
+                    return;
+                this.pixelHeight = value;
+                OnPropertyChanged();
+                UpdateThumbnail();
+            }
+        }
+
         public PageSize[] AvailablePageSizes
         {
-            get { return new[] { PageSize.Letter, PageSize.Legal }; }
+            get { return new[] { PageSize.Letter, PageSize.Landscape, PageSize.Legal }; }
         }
 
         public PlotDialogViewModel()
@@ -388,6 +488,8 @@ namespace BCad.UI.Controls
             ScaleB = 1.0;
             Dpi = 300;
             PageSize = PageSize.Letter;
+            PixelWidth = 800;
+            PixelHeight = 600;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -404,10 +506,27 @@ namespace BCad.UI.Controls
             if (Drawing == null)
                 return;
             var stream = new MemoryStream();
-            int height = 300;
-            int width = PageSize == PageSize.Letter ? (int)(8.5 / 11.0 * height) : (int)(8.5 / 14.0 * height);
+
+            var pageWidth = PlotType == "File" ? PixelWidth : PlotDialog.GetWidth(PageSize);
+            var pageHeight = PlotType == "File" ? PixelHeight : PlotDialog.GetHeight(PageSize);
+
+            int width, height;
+            if (pageWidth < pageHeight)
+            {
+                height = 300;
+                width = (int)(pageWidth / pageHeight * height);
+            }
+            else
+            {
+                width = 300;
+                height = (int)(pageHeight / pageWidth * width);
+            }
+
             var viewPort = Drawing.ShowAllViewPort(Vector.ZAxis, Vector.YAxis, width, height, 0);
-            viewPort = viewPort.Update(viewHeight: 11.0 * ScaleA / ScaleB); // TODO: assumes drawing units are inches
+            if (PlotType == "Print")
+                viewPort = viewPort.Update(viewHeight: pageHeight * ScaleA / ScaleB); // TODO: assumes drawing units are inches
+            else
+                viewPort = viewPort.Update(viewHeight: height * ScaleA / ScaleB);
             var entities = ProjectionHelper.ProjectTo2D(Drawing, viewPort, width, height);
             Plotter.Plot(entities, width, height, stream);
             stream.Flush();

@@ -22,7 +22,7 @@ namespace BCad.Commands.FilePlotters
         public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
         {
             // set autocolor
-            var bg = RealColor.Black;
+            var bg = RealColor.White;
             var auto = bg.GetAutoContrastingColor();
             autoColor = Color.FromArgb(auto.R, auto.G, auto.B);
 
