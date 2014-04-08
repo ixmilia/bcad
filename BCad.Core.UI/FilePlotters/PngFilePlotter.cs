@@ -17,31 +17,39 @@ namespace BCad.Commands.FilePlotters
 
         private Dictionary<Color, Brush> brushCache = new Dictionary<Color, Brush>();
         private Dictionary<Color, Pen> penCache = new Dictionary<Color, Pen>();
-        private Color autoColor = Color.Black;
+        private Color bgColor;
+        private Color autoColor;
+
+        public PngFilePlotter()
+        {
+            // TODO: set autocolor
+            bgColor = Color.White;
+            autoColor = Color.Black;
+        }
 
         public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
         {
-            // set autocolor
-            var bg = RealColor.White;
-            var auto = bg.GetAutoContrastingColor();
-            autoColor = Color.FromArgb(auto.R, auto.G, auto.B);
-
             using (var image = new Bitmap((int)width, (int)height))
             {
                 using (var graphics = Graphics.FromImage(image))
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(bg.R, bg.G, bg.B)), new Rectangle(0, 0, image.Width, image.Height));
-                    foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
-                    {
-                        var layer = groupedEntity.Key;
-                        foreach (var entity in groupedEntity)
-                        {
-                            DrawEntity(graphics, entity, layer.Color);
-                        }
-                    }
+                    graphics.FillRectangle(new SolidBrush(bgColor), new Rectangle(0, 0, image.Width, image.Height));
+                    PlotGraphics(entities, graphics);
                 }
 
                 image.Save(stream, ImageFormat.Png);
+            }
+        }
+
+        private void PlotGraphics(IEnumerable<ProjectedEntity> entities, Graphics graphics)
+        {
+            foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
+            {
+                var layer = groupedEntity.Key;
+                foreach (var entity in groupedEntity)
+                {
+                    DrawEntity(graphics, entity, layer.Color);
+                }
             }
         }
 

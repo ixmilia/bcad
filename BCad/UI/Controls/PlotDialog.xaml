@@ -24,11 +24,6 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <ComboBox Grid.Column="0" ItemsSource="{Binding AvailablePlotTypes}" SelectedValue="{Binding PlotType}" Width="75" />
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Path=PrintOptionsVisibility}">
-                <TextBlock Text="DPI" />
-                <TextBox Width="100" Text="{Binding Path=Dpi, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
-                <ComboBox Width="100" ItemsSource="{Binding AvailablePageSizes}" SelectedValue="{Binding PageSize}" />
-            </StackPanel>
             <Grid Grid.Column="1" Visibility="{Binding Path=FileOptionsVisibility}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />

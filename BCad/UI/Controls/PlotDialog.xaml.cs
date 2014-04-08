@@ -7,6 +7,7 @@ using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -79,10 +80,6 @@ namespace BCad.UI.Controls
             IFilePlotter plotter;
             Stream stream;
             var viewPort = GenerateViewPort();
-            var pageWidth = GetWidth(viewModel.PageSize);
-            var pageHeight = GetHeight(viewModel.PageSize);
-            var width = pageWidth * viewModel.Dpi;
-            var height = pageHeight * viewModel.Dpi;
             var extension = Path.GetExtension(viewModel.FileName);
             plotter = PlotterFromExtension(extension);
             if (plotter == null) // invalid file selected
@@ -90,9 +87,9 @@ namespace BCad.UI.Controls
 
             stream = new FileStream(viewModel.FileName, FileMode.Create);
 
-            viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
-            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
-            plotter.Plot(entities, width, height, stream);
+            //viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
+            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, viewModel.PixelWidth, viewModel.PixelHeight);
+            plotter.Plot(entities, viewModel.PixelWidth, viewModel.PixelHeight, stream);
 
 
             stream.Close();
@@ -127,20 +124,9 @@ namespace BCad.UI.Controls
                         }
                         document.PrintPage += (sender, e) =>
                         {
-                            var width = e.PageSettings.PrintableArea.Width / 100 * viewModel.Dpi;
-                            var height = e.PageSettings.PrintableArea.Height / 100 * viewModel.Dpi;
-                            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)width, (int)height);
-                            using (var stream = new MemoryStream())
-                            {
-                                pngPlotter.Plot(entities, width, height, stream);
-                                stream.Flush();
-                                stream.Seek(0, SeekOrigin.Begin);
-                                using (var image = new Bitmap(stream))
-                                {
-                                    image.SetResolution((float)viewModel.Dpi, (float)viewModel.Dpi);
-                                    e.Graphics.DrawImage(image, e.PageSettings.PrintableArea.Location);
-                                }
-                            }
+                            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)e.PageSettings.PrintableArea.Width, (int)e.PageSettings.PrintableArea.Height);
+                            var method = pngPlotter.GetType().GetMethod("PlotGraphics", BindingFlags.NonPublic | BindingFlags.Instance);
+                            method.Invoke(pngPlotter, new object[] { entities, e.Graphics });
                         };
                         document.Print();
                     }
@@ -271,7 +257,6 @@ namespace BCad.UI.Controls
         private Point topRight;
         private double scaleA;
         private double scaleB;
-        private double dpi;
         private PageSize pageSize;
         private BitmapImage thumbnail;
         private Visibility printOptVis;
@@ -384,19 +369,6 @@ namespace BCad.UI.Controls
             }
         }
 
-        public double Dpi
-        {
-            get { return this.dpi; }
-            set
-            {
-                if (this.dpi == value)
-                    return;
-                this.dpi = value;
-                OnPropertyChanged();
-                UpdateThumbnail();
-            }
-        }
-
         public PageSize PageSize
         {
             get { return this.pageSize; }
@@ -486,7 +458,6 @@ namespace BCad.UI.Controls
             TopRight = Point.Origin;
             ScaleA = 1.0;
             ScaleB = 1.0;
-            Dpi = 300;
             PageSize = PageSize.Letter;
             PixelWidth = 800;
             PixelHeight = 600;
