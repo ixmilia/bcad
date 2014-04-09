@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Composition;
-using System.Drawing;
-using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Forms;
-using System.Windows.Media.Imaging;
+using System.Windows.Media;
 using BCad.FilePlotters;
 using BCad.Helpers;
 using BCad.Services;
+using BCad.UI.View;
 
 namespace BCad.UI.Controls
 {
@@ -30,15 +28,12 @@ namespace BCad.UI.Controls
         private IInputService inputService = null;
         private IFileSystemService fileSystemService = null;
         private IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters = null;
-        private IFilePlotter pngPlotter = null;
         private PlotDialogViewModel viewModel = null;
 
         public PlotDialog()
         {
             InitializeComponent();
 
-            viewModel = new PlotDialogViewModel();
-            DataContext = viewModel;
         }
 
         [ImportingConstructor]
@@ -50,14 +45,14 @@ namespace BCad.UI.Controls
             this.fileSystemService = fileSystemService;
             this.filePlotters = filePlotters;
 
-            this.pngPlotter = filePlotters.FirstOrDefault(plt => plt.Metadata.FileExtensions.Contains(".png")).Value;
-            this.viewModel.Plotter = pngPlotter;
+            viewModel = new PlotDialogViewModel();
+            DataContext = viewModel;
         }
 
         public override void OnShowing()
         {
-            this.viewModel.Drawing = workspace.Drawing;
-            this.viewModel.UpdateThumbnail();
+            viewModel.Drawing = workspace.Drawing;
+            viewModel.ActiveViewPort = workspace.ActiveViewPort;
         }
 
         public override void Commit()
@@ -79,7 +74,7 @@ namespace BCad.UI.Controls
         {
             IFilePlotter plotter;
             Stream stream;
-            var viewPort = GenerateViewPort();
+            var viewPort = viewModel.ViewPort;
             var extension = Path.GetExtension(viewModel.FileName);
             plotter = PlotterFromExtension(extension);
             if (plotter == null) // invalid file selected
@@ -87,7 +82,6 @@ namespace BCad.UI.Controls
 
             stream = new FileStream(viewModel.FileName, FileMode.Create);
 
-            //viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
             var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, viewModel.PixelWidth, viewModel.PixelHeight);
             plotter.Plot(entities, viewModel.PixelWidth, viewModel.PixelHeight, stream);
 
@@ -99,38 +93,25 @@ namespace BCad.UI.Controls
 
         private void Print()
         {
-            var viewPort = GenerateViewPort();
             var pageWidth = GetWidth(viewModel.PageSize);
             var pageHeight = GetHeight(viewModel.PageSize);
-            viewPort = viewPort.Update(viewHeight: pageHeight * viewModel.ScaleA / viewModel.ScaleB); // TODO: assumes drawing units are inches
-            using (var dialog = new PrintDialog())
+
+            var dlg = new PrintDialog();
+            if (dlg.ShowDialog() == true)
             {
-                dialog.AllowPrintToFile = true;
-                dialog.PrintToFile = false;
-                if (dialog.ShowDialog() == DialogResult.OK)
+                var size = new Size(pageWidth * 100, pageHeight * 100);
+                var visual = new RenderCanvas()
                 {
-                    using (var document = new PrintDocument())
-                    {
-                        document.PrinterSettings = dialog.PrinterSettings; // "Letter" "Letter Rotated"
-                        var desiredWidth = (int)(pageWidth * 100);
-                        var desiredHeight = (int)(pageHeight * 100);
-                        foreach (PaperSize size in document.PrinterSettings.PaperSizes)
-                        {
-                            if (size.Width == desiredWidth && size.Height == desiredHeight)
-                            {
-                                document.DefaultPageSettings.PaperSize = size;
-                                break;
-                            }
-                        }
-                        document.PrintPage += (sender, e) =>
-                        {
-                            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, (int)e.PageSettings.PrintableArea.Width, (int)e.PageSettings.PrintableArea.Height);
-                            var method = pngPlotter.GetType().GetMethod("PlotGraphics", BindingFlags.NonPublic | BindingFlags.Instance);
-                            method.Invoke(pngPlotter, new object[] { entities, e.Graphics });
-                        };
-                        document.Print();
-                    }
-                }
+                    Background = new SolidColorBrush(Colors.White),
+                    ViewPort = viewModel.ViewPort,
+                    Drawing = workspace.Drawing,
+                    PointSize = 15.0,
+                    Width = size.Width,
+                    Height = size.Height,
+                };
+                visual.Measure(size);
+                visual.Arrange(new Rect(size));
+                dlg.PrintVisual(visual, Path.GetFileName(workspace.Drawing.Settings.FileName));
             }
         }
 
@@ -145,25 +126,6 @@ namespace BCad.UI.Controls
                 && viewModel.FileName != null
                 && viewModel.PlotType != null
                 && viewModel.TopRight != null;
-        }
-
-        private ViewPort GenerateViewPort()
-        {
-            switch (viewModel.ViewportType)
-            {
-                case ViewportType.Extents:
-                    var newVp = workspace.Drawing.ShowAllViewPort(
-                        workspace.ActiveViewPort.Sight,
-                        workspace.ActiveViewPort.Up,
-                        850,
-                        1100,
-                        pixelBuffer: 0);
-                    return newVp;
-                case ViewportType.Window:
-                    return new ViewPort(viewModel.BottomLeft, workspace.ActiveViewPort.Sight, workspace.ActiveViewPort.Up, viewModel.TopRight.Y - viewModel.BottomLeft.Y);
-                default:
-                    throw new InvalidOperationException("unsupported viewport type");
-            }
         }
 
         private IFilePlotter PlotterFromExtension(string extension)
@@ -250,6 +212,7 @@ namespace BCad.UI.Controls
             get { return new[] { "File", "Print" }; }
         }
 
+        private Drawing drawing;
         private string plotType;
         private string fileName;
         private ViewportType viewportType;
@@ -258,14 +221,13 @@ namespace BCad.UI.Controls
         private double scaleA;
         private double scaleB;
         private PageSize pageSize;
-        private BitmapImage thumbnail;
         private Visibility printOptVis;
         private Visibility fileOptVis;
         private int pixelWidth;
         private int pixelHeight;
-
-        public Drawing Drawing { get; internal set; }
-        public IFilePlotter Plotter { get; internal set; }
+        private double previewWidth;
+        private double previewHeight;
+        private ViewPort activeViewPort;
 
         public string PlotType
         {
@@ -288,7 +250,20 @@ namespace BCad.UI.Controls
                         break;
                 }
 
-                UpdateThumbnail();
+                UpdatePreviewSize();
+                OnPropertyChangedDirect("ViewPort");
+            }
+        }
+
+        public Drawing Drawing
+        {
+            get { return drawing; }
+            set
+            {
+                if (drawing == value)
+                    return;
+                drawing = value;
+                OnPropertyChanged();
             }
         }
 
@@ -313,7 +288,6 @@ namespace BCad.UI.Controls
                     return;
                 this.viewportType = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
             }
         }
 
@@ -326,7 +300,7 @@ namespace BCad.UI.Controls
                     return;
                 this.bottomLeft = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
+                OnPropertyChangedDirect("ViewPort");
             }
         }
 
@@ -339,7 +313,7 @@ namespace BCad.UI.Controls
                     return;
                 this.topRight = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
+                OnPropertyChangedDirect("ViewPort");
             }
         }
 
@@ -352,7 +326,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleA = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
+                OnPropertyChangedDirect("ViewPort");
             }
         }
 
@@ -365,7 +339,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleB = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
+                OnPropertyChangedDirect("ViewPort");
             }
         }
 
@@ -378,19 +352,8 @@ namespace BCad.UI.Controls
                     return;
                 this.pageSize = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
-            }
-        }
-
-        public BitmapImage Thumbnail
-        {
-            get { return this.thumbnail; }
-            set
-            {
-                if (this.thumbnail == value)
-                    return;
-                this.thumbnail = value;
-                OnPropertyChanged();
+                OnPropertyChangedDirect("ViewPort");
+                UpdatePreviewSize();
             }
         }
 
@@ -403,6 +366,7 @@ namespace BCad.UI.Controls
                     return;
                 this.printOptVis = value;
                 OnPropertyChanged();
+                UpdatePreviewSize();
             }
         }
 
@@ -415,6 +379,7 @@ namespace BCad.UI.Controls
                     return;
                 this.fileOptVis = value;
                 OnPropertyChanged();
+                UpdatePreviewSize();
             }
         }
 
@@ -427,7 +392,8 @@ namespace BCad.UI.Controls
                     return;
                 this.pixelWidth = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
+                OnPropertyChangedDirect("ViewPort");
+                UpdatePreviewSize();
             }
         }
 
@@ -440,7 +406,77 @@ namespace BCad.UI.Controls
                     return;
                 this.pixelHeight = value;
                 OnPropertyChanged();
-                UpdateThumbnail();
+                OnPropertyChangedDirect("ViewPort");
+                UpdatePreviewSize();
+            }
+        }
+
+        public ViewPort ViewPort
+        {
+            get
+            {
+                ViewPort vp;
+                switch (ViewportType)
+                {
+                    case ViewportType.Extents:
+                        vp = Drawing.ShowAllViewPort(
+                            ActiveViewPort.Sight,
+                            ActiveViewPort.Up,
+                            850,
+                            1100,
+                            pixelBuffer: 0);
+                        break;
+                    case ViewportType.Window:
+                        vp = new ViewPort(BottomLeft, ActiveViewPort.Sight, ActiveViewPort.Up, TopRight.Y - BottomLeft.Y);
+                        break;
+                    default:
+                        throw new InvalidOperationException("unsupported viewport type");
+                }
+
+                if (PlotType == "Print")
+                {
+                    var desiredHeight = PlotDialog.GetHeight(PageSize);
+                    vp = vp.Update(viewHeight: desiredHeight * ScaleB / ScaleA);
+                }
+
+                return vp;
+            }
+        }
+
+        public double PreviewWidth
+        {
+            get { return previewWidth; }
+            set
+            {
+                if (previewWidth == value)
+                    return;
+                previewWidth = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double PreviewHeight
+        {
+            get { return previewHeight; }
+            set
+            {
+                if (previewHeight == value)
+                    return;
+                previewHeight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ViewPort ActiveViewPort
+        {
+            get { return activeViewPort; }
+            set
+            {
+                if (activeViewPort == value)
+                    return;
+                activeViewPort = value;
+                OnPropertyChanged();
+                OnPropertyChangedDirect("ViewPort");
             }
         }
 
@@ -451,6 +487,7 @@ namespace BCad.UI.Controls
 
         public PlotDialogViewModel()
         {
+            Drawing = new Drawing();
             PlotType = AvailablePlotTypes.First();
             FileName = string.Empty;
             ViewportType = ViewportType.Extents;
@@ -467,49 +504,42 @@ namespace BCad.UI.Controls
 
         protected void OnPropertyChanged([CallerMemberName] string property = "")
         {
+            OnPropertyChangedDirect(property);
+        }
+
+        protected void OnPropertyChangedDirect(string property)
+        {
             var changed = PropertyChanged;
             if (changed != null)
                 changed(this, new PropertyChangedEventArgs(property));
         }
 
-        public void UpdateThumbnail()
+        private void UpdatePreviewSize()
         {
-            if (Drawing == null)
-                return;
-            var stream = new MemoryStream();
-
-            var pageWidth = PlotType == "File" ? PixelWidth : PlotDialog.GetWidth(PageSize);
-            var pageHeight = PlotType == "File" ? PixelHeight : PlotDialog.GetHeight(PageSize);
-
-            int width, height;
-            if (pageWidth < pageHeight)
-            {
-                height = 300;
-                width = (int)(pageWidth / pageHeight * height);
-            }
-            else
-            {
-                width = 300;
-                height = (int)(pageHeight / pageWidth * width);
-            }
-
-            var viewPort = Drawing.ShowAllViewPort(Vector.ZAxis, Vector.YAxis, width, height, 0);
+            var maxWidth = 300;
+            var maxHeight = 300;
+            double width, height;
             if (PlotType == "Print")
-                viewPort = viewPort.Update(viewHeight: pageHeight * ScaleA / ScaleB); // TODO: assumes drawing units are inches
+            {
+                width = PlotDialog.GetWidth(PageSize);
+                height = PlotDialog.GetHeight(PageSize);   
+            }
             else
-                viewPort = viewPort.Update(viewHeight: height * ScaleA / ScaleB);
-            var entities = ProjectionHelper.ProjectTo2D(Drawing, viewPort, width, height);
-            Plotter.Plot(entities, width, height, stream);
-            stream.Flush();
-            stream.Seek(0, SeekOrigin.Begin);
+            {
+                width = PixelWidth;
+                height = PixelHeight;
+            }
 
-            var bi = new BitmapImage();
-            bi.BeginInit();
-            bi.StreamSource = stream;
-            bi.CacheOption = BitmapCacheOption.OnLoad;
-            bi.EndInit();
-
-            Thumbnail = bi;
+            if (width > height)
+            {
+                PreviewWidth = maxWidth;
+                PreviewHeight = (height / width) * maxHeight;
+            }
+            else
+            {
+                PreviewHeight = maxHeight;
+                PreviewWidth = (width / height) * maxWidth;
+            }
         }
     }
 

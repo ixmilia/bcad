@@ -11,7 +11,13 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBox Grid.Row="0" Name="history" Margin="2" IsReadOnly="True" IsUndoEnabled="False" VerticalScrollBarVisibility="Visible" FontFamily="Consolas" />
+        <TextBox Grid.Row="0"
+                 Name="history"
+                 Margin="2"
+                 IsReadOnly="True"
+                 IsUndoEnabled="False"
+                 VerticalScrollBarVisibility="Visible"
+                 FontFamily="Consolas" />
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />

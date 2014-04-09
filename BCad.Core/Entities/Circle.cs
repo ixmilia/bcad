@@ -110,5 +110,10 @@ namespace BCad.Entities
 
             return result;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Circle: center={0}, normal={1}, radius={2}, color={3}", Center, Normal, Radius, Color);
+        }
     }
 }

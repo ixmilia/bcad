@@ -63,5 +63,10 @@ namespace BCad.Entities
                 Tag = this.Tag
             };
         }
+
+        public override string ToString()
+        {
+            return string.Format("Location: point={0}, color={1}", Point, Color);
+        }
     }
 }

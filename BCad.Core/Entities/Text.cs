@@ -114,5 +114,10 @@ namespace BCad.Entities
                 Tag = this.Tag
             };
         }
+
+        public override string ToString()
+        {
+            return string.Format("Text: value=\"{0}\", location={1}, normal={2}, height={3}, width={4}, rotation={5}", Value, Location, Normal, Height, Width, Color);
+        }
     }
 }

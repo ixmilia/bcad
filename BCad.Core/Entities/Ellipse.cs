@@ -133,5 +133,10 @@ namespace BCad.Entities
                 Tag = this.Tag
             };
         }
+
+        public override string ToString()
+        {
+            return string.Format("Ellipse: center={0}, major-axis={1}, normal={2}, minor={3}, start/end={4}/{5}, color={6}", Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color);
+        }
     }
 }

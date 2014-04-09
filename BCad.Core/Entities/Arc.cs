@@ -109,5 +109,10 @@ namespace BCad.Entities
                 Tag = this.Tag
             };
         }
+
+        public override string ToString()
+        {
+            return string.Format("Arc: center={0}, normal={1}, radius={2}, start/end={3}/{4}, color={5}", Center, Normal, Radius, StartAngle, EndAngle, Color);
+        }
     }
 }

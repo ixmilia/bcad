@@ -127,6 +127,10 @@
     <Compile Include="UI\View\ISlimDXRenderEngine.cs" />
     <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
     <Compile Include="UI\View\IRendererFactory.cs" />
+    <Compile Include="UI\View\RenderCanvas.BindingClass.cs" />
+    <Compile Include="UI\View\RenderCanvas.xaml.cs">
+      <DependentUpon>RenderCanvas.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\View\RenderFactoryMetadata.cs" />
     <Compile Include="UI\View\ViewPane.xaml.cs">
       <DependentUpon>ViewPane.xaml</DependentUpon>
@@ -177,6 +181,10 @@
     <Page Include="UI\Controls\PlotDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\View\RenderCanvas.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\View\ViewPane.xaml">
       <SubType>Designer</SubType>

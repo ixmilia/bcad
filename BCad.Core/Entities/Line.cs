@@ -74,7 +74,7 @@ namespace BCad.Entities
 
         public override string ToString()
         {
-            return string.Format("Line: {0} {1} {2}", P1, P2, Color);
+            return string.Format("Line: p1={0}, p2={1}, color={2}", P1, P2, Color);
         }
     }
 }
