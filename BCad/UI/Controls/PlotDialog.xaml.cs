@@ -99,19 +99,31 @@ namespace BCad.UI.Controls
             var dlg = new PrintDialog();
             if (dlg.ShowDialog() == true)
             {
-                var size = new Size(pageWidth * 100, pageHeight * 100);
-                var visual = new RenderCanvas()
+                var pageSize = new Size(pageWidth * 100, pageHeight * 100);
+                var printWidth = dlg.PrintableAreaWidth;
+                var printHeight = dlg.PrintableAreaHeight;
+                var sideMargin = (pageSize.Width - printWidth) / 2;
+                var topMargin = (pageSize.Height - printHeight) / 2;
+                var grid = new Grid()
+                {
+                    Width = pageSize.Width,
+                    Height = pageSize.Height
+                };
+                var canvas = new RenderCanvas()
                 {
                     Background = new SolidColorBrush(Colors.White),
-                    ViewPort = viewModel.ViewPort,
+                    ViewPort = viewModel.ViewPort.Update(viewHeight: printHeight / 100),
                     Drawing = workspace.Drawing,
                     PointSize = 15.0,
-                    Width = size.Width,
-                    Height = size.Height,
+                    Width = printWidth,
+                    Height = printHeight,
+                    Margin = new Thickness(sideMargin, topMargin, sideMargin, topMargin),
+                    ClipToBounds = true,
                 };
-                visual.Measure(size);
-                visual.Arrange(new Rect(size));
-                dlg.PrintVisual(visual, Path.GetFileName(workspace.Drawing.Settings.FileName));
+                grid.Children.Add(canvas);
+                grid.Measure(pageSize);
+                grid.Arrange(new Rect(pageSize));
+                dlg.PrintVisual(grid, Path.GetFileName(workspace.Drawing.Settings.FileName));
             }
         }
 
