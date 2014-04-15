@@ -45,34 +45,45 @@ namespace BCad.UI.View
         public static readonly DependencyProperty PointSizeProperty =
             DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new FrameworkPropertyMetadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
-            DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new FrameworkPropertyMetadata(new ObservableHashSet<Entity>()));
+            DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new FrameworkPropertyMetadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var control = source as RenderCanvas;
-            var viewPort = (ViewPort)e.NewValue;
-            control.RecalcTransform();
+            if (control != null)
+            {
+                control.RecalcTransform();
+            }
         }
 
         private static void OnDrawingPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var control = source as RenderCanvas;
-            var drawing = (Drawing)e.NewValue;
-            control.Redraw();
+            if (control != null)
+            {
+                control.Redraw();
+            }
         }
 
         private static void OnPointSizePropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var control = source as RenderCanvas;
-            var pointSize = (double)e.NewValue;
-            control.RecalcTransform();
+            if (control != null)
+            {
+                control.RecalcTransform();
+            }
         }
 
-        private static void OnSelectedEntitiesChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        private static void OnSelectedEntitiesPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var control = source as RenderCanvas;
-            var selected = (ObservableHashSet<Entity>)e.NewValue;
-            control.SelectionChanged();
+            if (control != null)
+            {
+                var oldCollection = e.OldValue as ObservableHashSet<Entity>;
+                var newCollection = e.NewValue as ObservableHashSet<Entity>;
+                control.ResetCollectionChangedEvent(oldCollection, newCollection);
+                control.CheckAllSelection();
+            }
         }
 
         private DoubleCollection solidLine = new DoubleCollection();
@@ -84,6 +95,7 @@ namespace BCad.UI.View
         {
             InitializeComponent();
             this.SizeChanged += (_, __) => RecalcTransform();
+            this.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
 
             var dpd = DependencyPropertyDescriptor.FromProperty(BackgroundProperty, typeof(Canvas));
             if (dpd != null)
@@ -100,6 +112,19 @@ namespace BCad.UI.View
                     }
                 });
             }
+        }
+
+        private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
+        {
+            if (oldCollection != null)
+                oldCollection.CollectionChanged -= SelectedEntities_CollectionChanged;
+            if (newCollection != null)
+                newCollection.CollectionChanged += SelectedEntities_CollectionChanged;
+        }
+
+        private void SelectedEntities_CollectionChanged(object sender, EventArgs e)
+        {
+            CheckAllSelection();
         }
 
         public ViewPort ViewPort
@@ -142,7 +167,7 @@ namespace BCad.UI.View
             BindObject.Scale = new ScaleTransform() { ScaleX = PointSize / scale, ScaleY = PointSize / scale };
         }
 
-        private void SelectionChanged()
+        private void CheckAllSelection()
         {
             var selected = SelectedEntities;
             foreach (FrameworkElement child in theCanvas.Children)

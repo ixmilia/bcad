@@ -13,7 +13,8 @@
     <Grid ClipToBounds="True">
         <view:RenderCanvas ViewPort="{Binding Path=ViewPort}"
                            Drawing="{Binding Path=Drawing}"
-                           PointSize="15.0">
+                           PointSize="{Binding Path=PointSize}"
+                           SelectedEntities="{Binding Path=SelectedEntities}">
             <view:RenderCanvas.Background>
                 <SolidColorBrush Color="{Binding Path=BackgroundColor, Converter={StaticResource colorConverter}}" />
             </view:RenderCanvas.Background>

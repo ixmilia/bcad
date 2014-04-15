@@ -24,6 +24,7 @@ namespace BCad.UI.View
         {
             this.Workspace = workspace;
 
+            viewModel.SelectedEntities = workspace.SelectedEntities;
             DataContext = viewModel;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
