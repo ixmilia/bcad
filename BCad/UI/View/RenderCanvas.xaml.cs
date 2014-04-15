@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using BCad.Collections;
 using BCad.Entities;
@@ -9,7 +8,6 @@ using BCad.Primitives;
 
 #if NETFX_CORE
 // Metro
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -19,6 +17,7 @@ using BCad.Metro.Extensions;
 using Shapes = Windows.UI.Xaml.Shapes;
 using DisplayPoint = Windows.Foundation.Point;
 using DisplaySize = Windows.Foundation.Size;
+using P_Metadata = Windows.UI.Xaml.PropertyMetadata;
 #else
 // WPF
 using System.Windows;
@@ -29,6 +28,7 @@ using System.Windows.Shapes;
 using Shapes = System.Windows.Shapes;
 using DisplayPoint = System.Windows.Point;
 using DisplaySize = System.Windows.Size;
+using P_Metadata = System.Windows.FrameworkPropertyMetadata;
 #endif
 
 namespace BCad.UI.View
@@ -39,13 +39,13 @@ namespace BCad.UI.View
     public partial class RenderCanvas : UserControl
     {
         public static readonly DependencyProperty ViewPortProperty =
-            DependencyProperty.Register("ViewPort", typeof(ViewPort), typeof(RenderCanvas), new FrameworkPropertyMetadata(ViewPort.CreateDefaultViewPort(), OnViewPortPropertyChanged));
+            DependencyProperty.Register("ViewPort", typeof(ViewPort), typeof(RenderCanvas), new P_Metadata(ViewPort.CreateDefaultViewPort(), OnViewPortPropertyChanged));
         public static readonly DependencyProperty DrawingProperty =
-            DependencyProperty.Register("Drawing", typeof(Drawing), typeof(RenderCanvas), new FrameworkPropertyMetadata(new Drawing(), OnDrawingPropertyChanged));
+            DependencyProperty.Register("Drawing", typeof(Drawing), typeof(RenderCanvas), new P_Metadata(new Drawing(), OnDrawingPropertyChanged));
         public static readonly DependencyProperty PointSizeProperty =
-            DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new FrameworkPropertyMetadata(15.0, OnPointSizePropertyChanged));
+            DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new P_Metadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
-            DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new FrameworkPropertyMetadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
+            DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new P_Metadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -87,7 +87,7 @@ namespace BCad.UI.View
         }
 
         private DoubleCollection solidLine = new DoubleCollection();
-        private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
+        private DoubleCollection dashedLine = new DoubleCollection() { 4.0, 4.0 };
         private BindingClass BindObject = new BindingClass();
         private Matrix4 PlaneProjection = Matrix4.Identity;
 
@@ -97,21 +97,20 @@ namespace BCad.UI.View
             this.SizeChanged += (_, __) => RecalcTransform();
             this.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
 
-            var dpd = DependencyPropertyDescriptor.FromProperty(BackgroundProperty, typeof(Canvas));
-            if (dpd != null)
+            // listen for the background to change
+            var binding = new Binding() { Source = this, Path = new PropertyPath("Background") };
+            var prop = DependencyProperty.RegisterAttached("ListenAttachedBackground", typeof(object), typeof(UserControl), new P_Metadata(new PropertyChangedCallback((d, e) =>
             {
-                dpd.AddValueChanged(this, delegate
+                var solidBrush = Background as SolidColorBrush;
+                if (solidBrush != null)
                 {
-                    var solidBrush = Background as SolidColorBrush;
-                    if (solidBrush != null)
-                    {
-                        var color = solidBrush.Color;
-                        var real = RealColor.FromRgb(color.R, color.G, color.B);
-                        var autoColor = real.GetAutoContrastingColor().ToMediaColor();
-                        this.BindObject.AutoBrush = new SolidColorBrush(autoColor);
-                    }
-                });
-            }
+                    var color = solidBrush.Color;
+                    var real = RealColor.FromRgb(color.R, color.G, color.B);
+                    var autoColor = real.GetAutoContrastingColor().ToMediaColor();
+                    this.BindObject.AutoBrush = new SolidColorBrush(autoColor);
+                }
+            })));
+            this.SetBinding(prop, binding);
         }
 
         private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
@@ -202,12 +201,12 @@ namespace BCad.UI.View
                 }
                 else
                 {
-                    Debug.Fail("unexpected grid child");
+                    Debug.Assert(false, "unexpected grid child");
                 }
             }
             else
             {
-                Debug.Fail("unexpected canvas child");
+                Debug.Assert(false, "unexpected canvas child");
             }
         }
 
@@ -230,12 +229,12 @@ namespace BCad.UI.View
                 }
                 else
                 {
-                    Debug.Fail("unexpected grid child");
+                    Debug.Assert(false, "unexpected grid child");
                 }
             }
             else
             {
-                Debug.Fail("unexpected canvas child");
+                Debug.Assert(false, "unexpected canvas child");
             }
         }
 

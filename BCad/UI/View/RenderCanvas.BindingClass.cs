@@ -1,5 +1,13 @@
 ﻿using System.ComponentModel;
+
+#if NETFX_CORE
+// Metro
+using Windows.UI;
+using Windows.UI.Xaml.Media;
+#else
+// WPF
 using System.Windows.Media;
+#endif
 
 namespace BCad.UI.View
 {
