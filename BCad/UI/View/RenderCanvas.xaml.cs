@@ -46,6 +46,8 @@ namespace BCad.UI.View
             DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new P_Metadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
             DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new P_Metadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
+        public static readonly DependencyProperty BackgroundPropertyEx =
+            DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundPropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -86,10 +88,26 @@ namespace BCad.UI.View
             }
         }
 
+        private static void BackgroundPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = source as RenderCanvas;
+            if (canvas != null)
+            {
+                var solidBrush = canvas.Background as SolidColorBrush;
+                if (solidBrush != null)
+                {
+                    var color = solidBrush.Color;
+                    var real = RealColor.FromRgb(color.R, color.G, color.B);
+                    var autoColor = real.GetAutoContrastingColor().ToMediaColor();
+                    canvas.BindObject.AutoBrush = new SolidColorBrush(autoColor);
+                }
+            }
+        }
+
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection() { 4.0, 4.0 };
         private BindingClass BindObject = new BindingClass();
-        private Matrix4 PlaneProjection = Matrix4.Identity;
+        private Matrix4 PlaneProjection = Matrix4.Identity;        
 
         public RenderCanvas()
         {
@@ -97,20 +115,10 @@ namespace BCad.UI.View
             this.SizeChanged += (_, __) => RecalcTransform();
             this.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
 
-            // listen for the background to change
-            var binding = new Binding() { Source = this, Path = new PropertyPath("Background") };
-            var prop = DependencyProperty.RegisterAttached("ListenAttachedBackground", typeof(object), typeof(UserControl), new P_Metadata(new PropertyChangedCallback((d, e) =>
-            {
-                var solidBrush = Background as SolidColorBrush;
-                if (solidBrush != null)
-                {
-                    var color = solidBrush.Color;
-                    var real = RealColor.FromRgb(color.R, color.G, color.B);
-                    var autoColor = real.GetAutoContrastingColor().ToMediaColor();
-                    this.BindObject.AutoBrush = new SolidColorBrush(autoColor);
-                }
-            })));
-            this.SetBinding(prop, binding);
+            // listen to the background change
+            var binding = new Binding() { Path = new PropertyPath("Background") };
+            binding.Source = this;
+            BindingOperations.SetBinding(this, BackgroundPropertyEx, binding);
         }
 
         private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
