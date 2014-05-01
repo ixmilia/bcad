@@ -36,6 +36,7 @@ namespace BCad.Utilities
         public static Entity Rotate(Entity entity, Vector offset, double angleInDegrees)
         {
             var transform = GetRotateMatrix(offset, angleInDegrees);
+            var inSitu = GetRotateMatrix(Vector.Zero, angleInDegrees);
             switch (entity.Kind)
             {
                 case EntityKind.Arc:
@@ -47,6 +48,10 @@ namespace BCad.Utilities
                 case EntityKind.Circle:
                     var circ = (Circle)entity;
                     return circ.Update(center: transform.Transform(circ.Center));
+                case EntityKind.Ellipse:
+                    var el = (Ellipse)entity;
+                    return el.Update(center: transform.Transform(el.Center),
+                        majorAxis: inSitu.Transform(el.MajorAxis));
                 case EntityKind.Line:
                     var line = (Line)entity;
                     return line.Update(p1: transform.Transform(line.P1), p2: transform.Transform(line.P2));
