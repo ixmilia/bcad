@@ -180,6 +180,7 @@ namespace BCad
 
             var selectedStart = SelectedEntities;
             var result = await Execute(commandPair, arg);
+            lastCommand = commandName;
             lock (executeGate)
             {
                 isExecuting = false;

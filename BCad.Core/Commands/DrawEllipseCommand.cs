@@ -45,13 +45,17 @@ namespace BCad.Commands
                             el // the ellipse
                         };
                     });
-                    var minorAxis = minorEnd.Value - center.Value;
-                    var minorAxisRatio = minorAxis.Length / majorAxisLength;
+
                     if (!minorEnd.Cancel && minorEnd.HasValue)
                     {
-                        var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, IndexedColor.Auto);
-                        Workspace.AddToCurrentLayer(el);
-                        return true;
+                        var minorAxis = minorEnd.Value - center.Value;
+                        var minorAxisRatio = minorAxis.Length / majorAxisLength;
+                        if (!minorEnd.Cancel && minorEnd.HasValue)
+                        {
+                            var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, IndexedColor.Auto);
+                            Workspace.AddToCurrentLayer(el);
+                            return true;
+                        }
                     }
                 }
             }
