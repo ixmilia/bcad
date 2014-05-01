@@ -1,10 +1,12 @@
-﻿using System.Composition;
+﻿using System;
+using System.Composition;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
 using BCad.Services;
 using BCad.Utilities;
+using BCad.Helpers;
 
 namespace BCad.Commands
 {
@@ -17,72 +19,146 @@ namespace BCad.Commands
         [Import]
         public IWorkspace Workspace { get; set; }
 
+        private static readonly double IsoMinorRatio = Math.Sqrt(1.5) / Math.Sqrt(2.0) * 2.0 / 3.0;
+
+        private enum CircleMode
+        {
+            Radius,
+            Diameter,
+            Isometric
+        }
+
         public async Task<bool> Execute(object arg)
         {
-            Circle circle = null;
+            Entity circle = null;
             var drawingPlane = Workspace.DrawingPlane;
 
             var cen = await InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
             if (cen.Cancel) return false;
             if (cen.HasValue)
             {
-                bool getRadius = true;
+                var mode = CircleMode.Radius;
                 while (circle == null)
                 {
-                    if (getRadius)
+                    switch (mode)
                     {
-                        var rad = await InputService.GetPoint(new UserDirective("Enter radius or [d]iameter", "d"), (p) =>
-                        {
-                            return new IPrimitive[]
+                        case CircleMode.Radius:
                             {
-                                new PrimitiveLine(cen.Value, p, IndexedColor.Default),
-                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default)
-                            };
-                        });
-                        if (rad.Cancel) return false;
-                        if (rad.HasValue)
-                        {
-                            circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default);
-                        }
-                        else // switch modes
-                        {
-                            if (rad.Directive == null)
-                            {
-                                return false;
-                            }
+                                var rad = await InputService.GetPoint(new UserDirective("Enter radius or [d]iameter/[i]sometric", "d", "i"), (p) =>
+                                {
+                                    return new IPrimitive[]
+                                    {
+                                        new PrimitiveLine(cen.Value, p, IndexedColor.Default),
+                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default)
+                                    };
+                                });
+                                if (rad.Cancel) return false;
+                                if (rad.HasValue)
+                                {
+                                    circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default);
+                                }
+                                else // switch modes
+                                {
+                                    if (rad.Directive == null)
+                                    {
+                                        return false;
+                                    }
 
-                            switch (rad.Directive)
-                            {
-                                case "d":
-                                    getRadius = false;
-                                    break;
+                                    switch (rad.Directive)
+                                    {
+                                        case "d":
+                                            mode = CircleMode.Diameter;
+                                            break;
+                                        case "i":
+                                            mode = CircleMode.Isometric;
+                                            break;
+                                    }
+                                }
+
+                                break;
                             }
-                        }
-                    }
-                    else // get diameter
-                    {
-                        var diameter = await InputService.GetPoint(new UserDirective("Enter diameter or [r]adius", "r"), (p) =>
-                        {
-                            return new IPrimitive[]
+                        case CircleMode.Diameter:
                             {
-                                new PrimitiveLine(cen.Value, p, IndexedColor.Default),
-                                new PrimitiveEllipse(cen.Value, (p - cen.Value).Length / 2.0, drawingPlane.Normal, IndexedColor.Default)
-                            };
-                        });
-                        if (diameter.Cancel) return false;
-                        if (diameter.HasValue)
-                        {
-                            circle = new Circle(cen.Value, (diameter.Value - cen.Value).Length / 2.0, drawingPlane.Normal, IndexedColor.Default);
-                        }
-                        else // switch modes
-                        {
-                            switch (diameter.Directive)
-                            {
-                                case "r":
-                                    getRadius = true;
-                                    break;
+                                var dia = await InputService.GetPoint(new UserDirective("Enter diameter or [r]adius/[i]sometric", "r", "i"), (p) =>
+                                {
+                                    return new IPrimitive[]
+                                    {
+                                        new PrimitiveLine(cen.Value, p, IndexedColor.Default),
+                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, IndexedColor.Default)
+                                    };
+                                });
+                                if (dia.Cancel) return false;
+                                if (dia.HasValue)
+                                {
+                                    circle = new Circle(cen.Value, (dia.Value - cen.Value).Length * 0.5, drawingPlane.Normal, IndexedColor.Default);
+                                }
+                                else // switch modes
+                                {
+                                    if (dia.Directive == null)
+                                    {
+                                        return false;
+                                    }
+
+                                    switch (dia.Directive)
+                                    {
+                                        case "r":
+                                            mode = CircleMode.Radius;
+                                            break;
+                                        case "i":
+                                            mode = CircleMode.Isometric;
+                                            break;
+                                    }
+                                }
+
+                                break;
                             }
-                        }
+                        case CircleMode.Isometric:
+                            {
+                                var isoRad = await InputService.GetPoint(new UserDirective("Enter isometric-radius or [r]adius/[d]iameter", "r", "d"), (p) =>
+                                {
+                                    return new IPrimitive[]
+                                    {
+                                        new PrimitiveLine(cen.Value, p, IndexedColor.Default),
+                                        new PrimitiveEllipse(cen.Value,
+                                            Vector.SixtyDegrees * (p - cen.Value).Length * MathHelper.SqrtThreeOverTwo,
+                                            drawingPlane.Normal,
+                                            IsoMinorRatio,
+                                            0.0,
+                                            360.0,
+                                            IndexedColor.Default)
+                                    };
+                                });
+                                if (isoRad.Cancel) return false;
+                                if (isoRad.HasValue)
+                                {
+                                    circle = new Ellipse(cen.Value,
+                                        Vector.SixtyDegrees * (isoRad.Value - cen.Value).Length * MathHelper.SqrtThreeOverTwo,
+                                        IsoMinorRatio,
+                                        0.0,
+                                        360.0,
+                                        drawingPlane.Normal,
+                                        IndexedColor.Default);
+                                }
+                                else // switch modes
+                                {
+                                    if (isoRad.Directive == null)
+                                    {
+                                        return false;
+                                    }
+
+                                    switch (isoRad.Directive)
+                                    {
+                                        case "r":
+                                            mode = CircleMode.Radius;
+                                            break;
+                                        case "d":
+                                            mode = CircleMode.Diameter;
+                                            break;
+                                    }
+                                }
+
+                                break;
+                            }
                     }
                 }
             }
@@ -101,7 +177,7 @@ namespace BCad.Commands
                         var ellipse = EditUtilities.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
                         if (ellipse != null)
                         {
-                            circle = (Circle)ellipse.ToEntity();
+                            circle = ellipse.ToEntity();
                         }
                         break;
                     case "2":

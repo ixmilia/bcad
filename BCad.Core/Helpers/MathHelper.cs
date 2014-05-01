@@ -12,6 +12,7 @@ namespace BCad.Helpers
         public const double DegreesToRadians = MathHelper.PI / OneEighty;
         public const double TwoPI = MathHelper.PI * 2.0;
         public const double Epsilon = 0.000000000001;
+        public const double SqrtThreeOverTwo = 1.2247448713916;
 
         public readonly static double[] SIN;
         public readonly static double[] COS;

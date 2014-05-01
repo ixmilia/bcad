@@ -161,6 +161,11 @@ namespace BCad
             get { return new Vector(0, 0, 0); }
         }
 
+        public static Vector SixtyDegrees
+        {
+            get { return new Vector(0.5, Math.Sqrt(3.0) * 0.5, 0); }
+        }
+
         public override string ToString()
         {
             return string.Format("({0},{1},{2})", X, Y, Z);
