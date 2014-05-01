@@ -136,6 +136,7 @@ namespace BCad.UI
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
             InputService.ValueRequested += InputService_ValueRequested;
             InputService.ValueReceived += InputService_ValueReceived;
+            InputService.RubberBandGeneratorChanged += InputService_RubberBandGeneratorChanged;
 
             SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.BackgroundColorString));
             SetCursorVisibility();
@@ -191,7 +192,7 @@ namespace BCad.UI
         private void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
-            rubberBandLayer.Children.Clear();
+            UpdateRubberBandLines();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -204,10 +205,15 @@ namespace BCad.UI
             SetSelectionLineVisibility(Visibility.Hidden);
         }
 
+        private void InputService_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
+        {
+            UpdateRubberBandLines();
+        }
+
         private void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             selecting = false;
-            rubberBandLayer.Children.Clear();
+            UpdateRubberBandLines();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
