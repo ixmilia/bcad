@@ -139,7 +139,17 @@ namespace BCad
             var display = commandPair.Item2;
             OnCommandExecuting(new CommandExecutingEventArgs(command));
             InputService.WriteLine(display);
-            bool result = await command.Execute(arg);
+            bool result;
+            try
+            {
+                result = await command.Execute(arg);
+            }
+            catch (Exception ex)
+            {
+                InputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
+                result = false;
+            }
+
             OnCommandExecuted(new CommandExecutedEventArgs(command));
             return result;
         }
@@ -168,24 +178,12 @@ namespace BCad
                 return false;
             }
 
-            bool result;
-
-            try
+            var selectedStart = SelectedEntities;
+            var result = await Execute(commandPair, arg);
+            lock (executeGate)
             {
-                result = await Execute(commandPair, arg);
-                lastCommand = commandName;
-            }
-            catch (Exception ex)
-            {
-                InputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
-                result = false;
-            }
-            finally
-            {
-                lock (executeGate)
-                {
-                    isExecuting = false;
-                }
+                isExecuting = false;
+                SelectedEntities = selectedStart;
             }
 
             return result;
