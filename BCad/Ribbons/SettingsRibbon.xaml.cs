@@ -46,6 +46,7 @@ namespace BCad.Ribbons
             this.drawingPrecision.DataContext = this.viewModel;
             this.workspace.WorkspaceChanged += WorkspaceChanged;
             this.displayGroup.DataContext = workspace.SettingsManager;
+            this.inputGroup.DataContext = new SettingsRibbonViewModel(workspace.SettingsManager);
         }
 
         void WorkspaceChanged(object sender, EventArguments.WorkspaceChangeEventArgs e)

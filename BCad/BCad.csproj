@@ -109,6 +109,7 @@
     </Compile>
     <Compile Include="Ribbons\IRibbonTabMetadata.cs" />
     <Compile Include="Ribbons\RibbonTabMetadata.cs" />
+    <Compile Include="Ribbons\SettingsRibbonViewModel.cs" />
     <Compile Include="Services\FileSystemService.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />

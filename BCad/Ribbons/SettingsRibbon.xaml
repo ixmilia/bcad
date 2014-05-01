@@ -66,4 +66,11 @@
                   SelectedItem="{Binding Path=BackgroundColor, Mode=TwoWay}" />
         </Grid>
     </r:RibbonGroup>
+    <r:RibbonGroup Header="Input">
+        <Grid x:Name="inputGroup">
+            <CheckBox IsChecked="{Binding Path=UseIsoSettings}">
+                Use isometric drawing
+            </CheckBox>
+        </Grid>
+    </r:RibbonGroup>
 </r:RibbonTab>
