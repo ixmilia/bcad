@@ -16,17 +16,13 @@ namespace BCad.Test
             Assert.True(Math.Abs(expected - value) < Tolerance);
         }
 
-        private void TestParse(string text, Point expected, Point cursor = null, Point last = null)
+        private void TestParse(string text, Point expected, Optional<Point> cursor = default(Optional<Point>), Optional<Point> last = default(Optional<Point>))
         {
-            cursor = cursor ?? Point.Origin;
-            last = last ?? Point.Origin;
+            var realCursor = cursor.HasValue ? cursor.Value : Point.Origin;
+            var realLast = last.HasValue ? last.Value : Point.Origin;
             Point point;
-            bool result = InputService.TryParsePoint(text, cursor, last, out point);
-            Assert.Equal(expected != null, result);
-            if (expected != null)
-            {
-                Assert.True(expected.CloseTo(point));
-            }
+            bool result = InputService.TryParsePoint(text, realCursor, realLast, out point);
+            Assert.True(expected.CloseTo(point));
         }
 
         [Fact]

@@ -67,7 +67,7 @@ namespace BCad.Helpers
             var up = text.Normal.Cross(right).Normalize();
             var top = transform.Transform(text.Location + up * text.Height);
             var height = ((Point)top - loc).Length;
-            var rotation = new Vector(((Point)top - loc)).ToAngle() * -1.0 - 90.0;
+            var rotation = (top - loc).ToAngle() * -1.0 - 90.0;
             return new ProjectedText(text, layer, loc, height, rotation.CorrectAngleDegrees());
         }
 

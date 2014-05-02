@@ -101,15 +101,32 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Text Update(string value = null, Point location = null, Vector normal = null, double? height = null, double? rotation = null, IndexedColor? color = null)
+        public Text Update(
+            string value = null,
+            Optional<Point> location = default(Optional<Point>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<double> height = default(Optional<double>),
+            Optional<double> rotation = default(Optional<double>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Text(
-                value ?? this.Value,
-                location ?? this.Location,
-                normal ?? this.Normal,
-                height ?? this.Height,
-                rotation ?? this.Rotation,
-                color ?? this.Color)
+            var newValue = value ?? this.value;
+            var newLocation = location.HasValue ? location.Value : this.location;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newHeight = height.HasValue ? height.Value : this.height;
+            var newRotation = rotation.HasValue ? rotation.Value : this.rotation;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newValue == this.value &&
+                newLocation == this.location &&
+                newNormal == this.normal &&
+                newHeight == this.height &&
+                newRotation == this.rotation &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new Text(newValue, newLocation, newNormal, newHeight, newRotation, newColor)
             {
                 Tag = this.Tag
             };

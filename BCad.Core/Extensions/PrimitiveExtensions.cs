@@ -160,7 +160,11 @@ namespace BCad.Extensions
             switch (other.Kind)
             {
                 case PrimitiveKind.Line:
-                    result = new[] { line.IntersectionPoint((PrimitiveLine)other, withinBounds) };
+                    var p = line.IntersectionPoint((PrimitiveLine)other, withinBounds);
+                    if (p.HasValue)
+                        result = new[] { p.Value };
+                    else
+                        result = new Point[0];
                     break;
                 case PrimitiveKind.Ellipse:
                     result = line.IntersectionPoints((PrimitiveEllipse)other, withinBounds);
@@ -192,7 +196,7 @@ namespace BCad.Extensions
 
         #region Line-line intersection
 
-        public static Point IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
+        public static Point? IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
         {
             var minLength = 0.0000000001;
 

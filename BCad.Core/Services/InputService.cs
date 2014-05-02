@@ -105,7 +105,7 @@ namespace BCad.Services
 
         private UserDirective currentDirective = null;
 
-        public async Task<ValueOrDirective<double>> GetDistance(string prompt = null, double? defaultDistance = null)
+        public async Task<ValueOrDirective<double>> GetDistance(string prompt = null, Optional<double> defaultDistance = default(Optional<double>))
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Distance | InputType.Point));
             if (prompt == null)
@@ -160,9 +160,9 @@ namespace BCad.Services
             return result;
         }
 
-        public async Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Point lastPoint = null)
+        public async Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>))
         {
-            this.LastPoint = lastPoint ?? this.LastPoint;
+            this.LastPoint = lastPoint.HasValue ? lastPoint.Value : this.LastPoint;
             OnValueRequested(new ValueRequestedEventArgs(InputType.Point | InputType.Directive));
             await WaitFor(InputType.Point | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<Point> result;
@@ -449,11 +449,6 @@ namespace BCad.Services
 
         public void PushPoint(Point point)
         {
-            if (point == null)
-            {
-                throw new ArgumentNullException("point");
-            }
-
             lock (inputGate)
             {
                 if (AllowedInputTypes.HasFlag(InputType.Point))
@@ -468,11 +463,6 @@ namespace BCad.Services
 
         public void PushText(string text)
         {
-            if (text == null)
-            {
-                throw new ArgumentNullException("text");
-            }
-
             lock (inputGate)
             {
                 if (AllowedInputTypes.HasFlag(InputType.Text))
@@ -580,6 +570,9 @@ namespace BCad.Services
         // static to ensure there are no calls to LastPoint, Workspace, etc.
         private static bool TryParsePointHelper(string text, Point currentCursor, Point lastPoint, out Point point)
         {
+            var result = false;
+            point = default(Point);
+
             // if only 2 coordinates given
             if (text.ToCharArray().Count(c => c == ',') == 1)
                 text += ",0";
@@ -623,7 +616,6 @@ namespace BCad.Services
                 else
                 {
                     // distance was invalid
-                    point = null;
                 }
             }
             else if (Point.PointPattern.IsMatch(text))
@@ -634,10 +626,9 @@ namespace BCad.Services
             else
             {
                 // invalid point
-                point = null;
             }
 
-            return point != null;
+            return result;
         }
     }
 }

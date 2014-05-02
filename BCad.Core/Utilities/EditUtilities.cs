@@ -208,9 +208,9 @@ namespace BCad.Utilities
                     var pline = new PrimitiveLine(p1, p2);
                     var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
                     var intersection = pline.IntersectionPoint(perpendicular, false);
-                    if (intersection != null && intersection != picked)
+                    if (intersection.HasValue && intersection.Value != picked)
                     {
-                        var offsetVector = (picked - intersection).Normalize() * offsetDistance;
+                        var offsetVector = (picked - intersection.Value).Normalize() * offsetDistance;
                         offsetVector = drawingPlane.FromXYPlane(offsetVector);
                         result = new PrimitiveLine(
                             p1: line.P1 + offsetVector,
@@ -287,20 +287,20 @@ namespace BCad.Utilities
                                    from s in secondOffsets
                                    where f != null && s != null
                                    select f.IntersectionPoints(s, false))
-                                  .SelectMany(x => x)
-                                  .Where(x => x != null);
+                                  .SelectMany(x => x);
 
-            var center = candidatePoints.OrderBy(x =>
+            if (candidatePoints.Any())
             {
-                return (x - firstEntity.SelectionPoint).LengthSquared
-                    * (x - secondEntity.SelectionPoint).LengthSquared;
-            })
-                .FirstOrDefault();
+                var center = candidatePoints.OrderBy(x =>
+                {
+                    return (x - firstEntity.SelectionPoint).LengthSquared
+                        * (x - secondEntity.SelectionPoint).LengthSquared;
+                }).First();
 
-            if (center == null)
-                return null;
+                return new PrimitiveEllipse(center, radius, drawingPlane.Normal, IndexedColor.Auto);
+            }
 
-            return new PrimitiveEllipse(center, radius, drawingPlane.Normal, IndexedColor.Auto);
+            return null;
         }
 
         public static Entity Move(Entity entity, Vector offset)
@@ -394,22 +394,22 @@ namespace BCad.Utilities
             }
 
             // find the closest points on each side.  these are the new endpoints
-            var leftPoint = left.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
-            var rightPoint = right.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
+            var leftPoints = left.OrderBy(p => (p - pivot).LengthSquared);
+            var rightPoints = right.OrderBy(p => (p - pivot).LengthSquared);
 
-            if (leftPoint != null || rightPoint != null)
+            if (leftPoints.Any() || rightPoints.Any())
             {
                 // remove the original line
                 removedList.Add(lineToTrim);
 
                 // add the new shorted lines where appropriate
-                if (leftPoint != null)
+                if (leftPoints.Any())
                 {
-                    addedList.Add(lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoint));
+                    addedList.Add(lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoints.First()));
                 }
-                if (rightPoint != null)
+                if (rightPoints.Any())
                 {
-                    addedList.Add(lineToTrim.Update(p1: rightPoint, p2: lineToTrim.P2));
+                    addedList.Add(lineToTrim.Update(p1: rightPoints.First(), p2: lineToTrim.P2));
                 }
             }
 
@@ -555,9 +555,11 @@ namespace BCad.Utilities
             var addedList = new List<Entity>();
 
             // find closest intersection point to the selection
-            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
-            if (closestRealPoint != null)
+            var closestRealPoints = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared);
+            if (closestRealPoints.Any())
             {
+                var closestRealPoint = closestRealPoints.First();
+
                 // find closest end point to the selection
                 var closestEndPoint = (lineToExtend.P1 - selectionPoint).LengthSquared < (lineToExtend.P2 - selectionPoint).LengthSquared
                     ? lineToExtend.P1
@@ -606,9 +608,10 @@ namespace BCad.Utilities
             var selectionUnit = toUnitMatrix.Transform(selectionPoint);
 
             // find closest intersection point to the selection
-            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
-            if (closestRealPoint != null)
+            var closestRealPoints = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared);
+            if (closestRealPoints.Any())
             {
+                var closestRealPoint = closestRealPoints.First();
                 var closestUnitPoint = toUnitMatrix.Transform(closestRealPoint);
                 var newAngle = (Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
 

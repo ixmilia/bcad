@@ -30,8 +30,6 @@ namespace BCad.Entities
         public AggregateEntity(Point location, ReadOnlyList<Entity> children, IndexedColor color)
             : base(color)
         {
-            if (location == null)
-                throw new ArgumentNullException("location");
             if (children == null)
                 throw new ArgumentNullException("children");
             this.location = location;
@@ -72,12 +70,23 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public AggregateEntity Update(Point location = null, ReadOnlyList<Entity> children = null, IndexedColor? color = null)
+        public AggregateEntity Update(
+            Optional<Point> location = default(Optional<Point>),
+            ReadOnlyList<Entity> children = null,
+            Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new AggregateEntity(
-                location ?? this.location,
-                children ?? this.children,
-                color ?? Color)
+            var newLocation = location.HasValue ? location.Value : this.location;
+            var newChildren = children ?? this.children;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newLocation == this.location &&
+                object.ReferenceEquals(newChildren, this.children) &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new AggregateEntity(newLocation, newChildren, newColor)
             {
                 Tag = this.Tag
             };

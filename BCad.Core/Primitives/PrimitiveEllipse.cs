@@ -63,7 +63,7 @@ namespace BCad.Primitives
         /// <param name="c">The third point.</param>
         /// <param name="idealNormal">The ideal normal to normalize to if specified.</param>
         /// <returns>The resultant circle or null.</returns>
-        public static PrimitiveEllipse ThreePointCircle(Point a, Point b, Point c, Vector idealNormal = null)
+        public static PrimitiveEllipse ThreePointCircle(Point a, Point b, Point c, Optional<Vector> idealNormal = default(Optional<Vector>))
         {
             var v1 = a - b;
             var v2 = c - b;
@@ -88,10 +88,10 @@ namespace BCad.Primitives
             if (center == null)
                 return null;
 
-            if (idealNormal != null && idealNormal == normal * -1.0)
-                normal = idealNormal;
+            if (idealNormal.HasValue && idealNormal.Value == normal * -1.0)
+                normal = idealNormal.Value;
 
-            return new PrimitiveEllipse(center, (a - center).Length, normal, IndexedColor.Auto);
+            return new PrimitiveEllipse(center.Value, (a - center.Value).Length, normal, IndexedColor.Auto);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace BCad.Primitives
         /// <param name="c">The third point.</param>
         /// <param name="idealNormal">The ideal normal to normalize to if specified.</param>
         /// <returns>The resultant arc or null.</returns>
-        public static PrimitiveEllipse ThreePointArc(Point a, Point b, Point c, Vector idealNormal = null)
+        public static PrimitiveEllipse ThreePointArc(Point a, Point b, Point c, Optional<Vector> idealNormal = default(Optional<Vector>))
         {
             var circle = ThreePointCircle(a, b, c, idealNormal);
             if (circle != null)

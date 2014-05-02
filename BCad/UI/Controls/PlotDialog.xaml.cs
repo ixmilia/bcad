@@ -134,10 +134,8 @@ namespace BCad.UI.Controls
 
         public override bool Validate()
         {
-            return viewModel.BottomLeft != null
-                && viewModel.FileName != null
-                && viewModel.PlotType != null
-                && viewModel.TopRight != null;
+            return viewModel.FileName != null
+                && viewModel.PlotType != null;
         }
 
         private IFilePlotter PlotterFromExtension(string extension)

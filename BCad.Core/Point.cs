@@ -2,7 +2,7 @@
 
 namespace BCad
 {
-    public class Point
+    public struct Point
     {
         private readonly double x;
         private readonly double y;
@@ -15,6 +15,7 @@ namespace BCad
         public double Z { get { return z; } }
 
         public Point(double x, double y, double z)
+            : this()
         {
             this.x = x;
             this.y = y;

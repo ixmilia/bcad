@@ -54,11 +54,18 @@ namespace BCad.Entities
             }
         }
 
-        public Location Update(Point point = null, IndexedColor? color = null)
+        public Location Update(Optional<Point> point = default(Optional<Point>), Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Location(
-                point ?? this.Point,
-                color ?? this.Color)
+            var newPoint = point.HasValue ? point.Value : this.Point;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newPoint == this.Point &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new Location(newPoint, newColor)
             {
                 Tag = this.Tag
             };

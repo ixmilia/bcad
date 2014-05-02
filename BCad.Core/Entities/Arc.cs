@@ -96,15 +96,32 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, IndexedColor? color = null)
+        public Arc Update(
+            Optional<Point> center = default(Optional<Point>),
+            Optional<double> radius = default(Optional<double>),
+            Optional<double> startAngle = default(Optional<double>),
+            Optional<double> endAngle = default(Optional<double>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Arc(
-                center ?? this.Center,
-                radius ?? this.Radius,
-                startAngle ?? this.StartAngle,
-                endAngle ?? this.EndAngle,
-                normal ?? this.Normal,
-                color ?? this.Color)
+            var newCenter = center.HasValue ? center.Value : this.center;
+            var newRadius = radius.HasValue ? radius.Value : this.radius;
+            var newStartAngle = startAngle.HasValue ? startAngle.Value : this.startAngle;
+            var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newCenter == this.center &&
+                newRadius == this.radius &&
+                newStartAngle == this.startAngle &&
+                newEndAngle == this.endAngle &&
+                newNormal == this.normal &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new Arc(newCenter, newRadius, newStartAngle, newEndAngle, newNormal, newColor)
             {
                 Tag = this.Tag
             };

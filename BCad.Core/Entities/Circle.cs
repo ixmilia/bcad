@@ -81,13 +81,26 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Circle Update(Point center = null, double? radius = null, Vector normal = null, IndexedColor? color = null)
+        public Circle Update(
+            Optional<Point> center = default(Optional<Point>),
+            Optional<double> radius = default(Optional<double>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Circle(
-                center ?? this.Center,
-                radius ?? this.Radius,
-                normal ?? this.Normal,
-                color ?? this.Color)
+            var newCenter = center.HasValue ? center.Value : this.center;
+            var newRadius = radius.HasValue ? radius.Value : this.radius;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newCenter == this.center &&
+                newRadius == this.radius &&
+                newNormal == this.normal &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new Circle(newCenter, newRadius, newNormal, newColor)
             {
                 Tag = this.Tag
             };

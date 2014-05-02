@@ -119,16 +119,35 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, IndexedColor? color = null)
+        public Ellipse Update(
+            Optional<Point> center = default(Optional<Point>),
+            Optional<Vector> majorAxis = default(Optional<Vector>),
+            Optional<double> minorAxisRatio = default(Optional<double>),
+            Optional<double> startAngle = default(Optional<double>),
+            Optional<double> endAngle = default(Optional<double>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Ellipse(
-                center ?? this.center,
-                majorAxis ?? this.majorAxis,
-                minorAxisRatio ?? this.minorAxisRatio,
-                startAngle ?? this.startAngle,
-                endAngle ?? this.endAngle,
-                normal ?? this.normal,
-                color ?? Color)
+            var newCenter = center.HasValue ? center.Value : this.center;
+            var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : this.majorAxis;
+            var newMinorAxisRatio = minorAxisRatio.HasValue ? minorAxisRatio.Value : this.minorAxisRatio;
+            var newStartAngle = startAngle.HasValue ? startAngle.Value : this.startAngle;
+            var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newCenter == this.center &&
+                newMajorAxis == this.majorAxis &&
+                newMinorAxisRatio == this.minorAxisRatio &&
+                newStartAngle == this.startAngle &&
+                newEndAngle == this.endAngle &&
+                newNormal == this.normal &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor)
             {
                 Tag = this.Tag
             };

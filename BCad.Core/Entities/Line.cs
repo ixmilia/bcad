@@ -61,12 +61,23 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Line Update(Point p1 = null, Point p2 = null, IndexedColor? color = null)
+        public Line Update(
+            Optional<Point> p1 = default(Optional<Point>),
+            Optional<Point> p2 = default(Optional<Point>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Line(
-                p1 ?? this.P1,
-                p2 ?? this.P2,
-                color ?? this.Color)
+            var newP1 = p1.HasValue ? p1.Value : this.p1;
+            var newP2 = p2.HasValue ? p2.Value : this.p2;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (newP1 != this.p1 &&
+                newP2 != this.p2 &&
+                newColor != this.Color)
+            {
+                return this;
+            }
+
+            return new Line(newP1, newP2, newColor)
             {
                 Tag = this.Tag
             };

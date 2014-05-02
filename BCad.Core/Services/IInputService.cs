@@ -29,8 +29,8 @@ namespace BCad.Services
     {
         Point LastPoint { get; }
         RubberBandGenerator PrimitiveGenerator { get; }
-        Task<ValueOrDirective<double>> GetDistance(string prompt = null, double? defaultDistance = null);
-        Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Point lastPoint = null);
+        Task<ValueOrDirective<double>> GetDistance(string prompt = null, Optional<double> defaultDistance = default(Optional<double>));
+        Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>));
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<string>> GetText(string prompt = null);

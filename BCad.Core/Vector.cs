@@ -3,7 +3,7 @@ using BCad.Helpers;
 
 namespace BCad
 {
-    public class Vector
+    public struct Vector
     {
         public double X { get; private set; }
 
@@ -27,17 +27,11 @@ namespace BCad
         }
 
         public Vector(double x, double y, double z)
+            : this()
         {
             this.X = x;
             this.Y = y;
             this.Z = z;
-        }
-
-        public Vector(Point p)
-        {
-            X = p.X;
-            Y = p.Y;
-            Z = p.Z;
         }
 
         public Vector Normalize()

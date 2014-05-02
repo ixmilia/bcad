@@ -763,7 +763,7 @@ namespace BCad.UI
             var relVert = (ActualHeight - cursorPoint.Y) / ActualHeight;
             var botLeftDelta = new Vector(relHoriz * widthDelta, relVert * heightDelta, 0.0);
             var newVp = vp.Update(
-                bottomLeft: vp.BottomLeft - botLeftDelta,
+                bottomLeft: (Point)(vp.BottomLeft - botLeftDelta),
                 viewHeight: vp.ViewHeight * scale);
             Workspace.Update(activeViewPort: newVp);
             var cursor = GetActiveModelPoint(cursorPoint.ToPoint());
@@ -850,7 +850,6 @@ namespace BCad.UI
                     throw new NotSupportedException("Invalid drawing plane");
                 }
 
-                Debug.Assert(world != null, "should have returned null");
                 return new TransformedSnapPoint(world, cursor, SnapPointKind.None);
             }
 
@@ -870,7 +869,7 @@ namespace BCad.UI
                 // for each snap angle, find the point `dist` out on the angle vector
                 Func<double, Vector> snapVector = rad =>
                 {
-                    Vector radVector = null;
+                    Vector radVector = default(Vector);
                     var drawingPlane = Workspace.DrawingPlane;
                     var offset = drawingPlane.Point;
                     if (drawingPlane.Normal == Vector.ZAxis)

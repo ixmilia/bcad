@@ -19,12 +19,6 @@ namespace BCad
 
         public ViewPort(Point bottomLeft, Vector sight, Vector up, double viewHeight)
         {
-            if (bottomLeft == null)
-                throw new ArgumentNullException("bottomLeft");
-            if (sight == null)
-                throw new ArgumentNullException("sight");
-            if (up == null)
-                throw new ArgumentNullException("up");
             if (sight == Vector.Zero)
                 throw new ArgumentOutOfRangeException("Sight vector cannot be zero.");
             if (up == Vector.Zero)
@@ -37,13 +31,26 @@ namespace BCad
             this.viewHeight = viewHeight;
         }
 
-        public ViewPort Update(Point bottomLeft = null, Vector sight = null, Vector up = null, double? viewHeight = null)
+        public ViewPort Update(
+            Optional<Point> bottomLeft = default(Optional<Point>),
+            Optional<Vector> sight = default(Optional<Vector>),
+            Optional<Vector> up = default(Optional<Vector>),
+            Optional<double> viewHeight = default(Optional<double>))
         {
-            return new ViewPort(
-                bottomLeft ?? this.bottomLeft,
-                sight ?? this.sight,
-                up ?? this.up,
-                viewHeight ?? this.viewHeight);
+            var newBottomLeft = bottomLeft.HasValue ? bottomLeft.Value : this.bottomLeft;
+            var newSight = sight.HasValue ? sight.Value : this.sight;
+            var newUp = up.HasValue ? up.Value : this.up;
+            var newViewHeight = viewHeight.HasValue ? viewHeight.Value : this.viewHeight;
+
+            if (newBottomLeft == this.bottomLeft &&
+                newSight == this.sight &&
+                newUp == this.up &&
+                newViewHeight == this.viewHeight)
+            {
+                return this;
+            }
+
+            return new ViewPort(newBottomLeft, newSight, newUp, newViewHeight);
         }
 
         /// <summary>
