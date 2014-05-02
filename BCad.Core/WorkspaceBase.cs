@@ -89,14 +89,14 @@ namespace BCad
             Plane drawingPlane = null,
             ViewPort activeViewPort = null,
             IViewControl viewControl = null,
-            bool? isDirty = true)
+            Optional<bool> isDirty = default(Optional<bool>))
         {
             var e = new WorkspaceChangeEventArgs(
                 drawing != null,
                 drawingPlane != null,
                 activeViewPort != null,
                 viewControl != null,
-                isDirty != null);
+                isDirty.HasValue);
 
             OnWorkspaceChanging(e);
             if (drawing != null)
@@ -107,7 +107,7 @@ namespace BCad
                 this.ActiveViewPort = activeViewPort;
             if (viewControl != null)
                 this.ViewControl = viewControl;
-            if (isDirty != null)
+            if (isDirty.HasValue)
                 this.IsDirty = isDirty.Value;
             OnWorkspaceChanged(e);
         }

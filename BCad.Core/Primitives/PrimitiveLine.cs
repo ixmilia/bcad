@@ -1,7 +1,4 @@
-﻿using BCad.Helpers;
-using System;
-
-namespace BCad.Primitives
+﻿namespace BCad.Primitives
 {
     public class PrimitiveLine : IPrimitive
     {

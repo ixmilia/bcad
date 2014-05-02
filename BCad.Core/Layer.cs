@@ -86,13 +86,26 @@ namespace BCad
             return this.Update(entities: this.entities.Delete(oldEntity.Id).Insert(newEntity.Id, newEntity));
         }
 
-        public Layer Update(string name = null, IndexedColor? color = null, bool? isVisible = null, ReadOnlyTree<uint, Entity> entities = null)
+        public Layer Update(
+            string name = null,
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<bool> isVisible = default(Optional<bool>),
+            ReadOnlyTree<uint, Entity> entities = null)
         {
-            return new Layer(
-                name ?? this.Name,
-                color ?? this.Color,
-                isVisible ?? this.isVisible,
-                entities ?? this.entities);
+            var newName = name ?? this.name;
+            var newColor = color.HasValue ? color.Value : this.color;
+            var newIsVisible = isVisible.HasValue ? isVisible.Value : this.isVisible;
+            var newEntities = entities ?? this.entities;
+
+            if (newName == this.name &&
+                newColor == this.color &&
+                newIsVisible == this.isVisible &&
+                object.ReferenceEquals(newEntities, this.entities))
+            {
+                return this;
+            }
+
+            return new Layer(newName, newColor, newIsVisible, newEntities);
         }
 
         public override string ToString()

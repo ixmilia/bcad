@@ -62,11 +62,18 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Polyline Update(IEnumerable<Point> points = null, IndexedColor? color = null)
+        public Polyline Update(IEnumerable<Point> points = null, Optional<IndexedColor> color = default(Optional<IndexedColor>))
         {
-            return new Polyline(
-                points ?? this.Points,
-                color ?? this.Color)
+            var newPoints = points ?? this.points;
+            var newColor = color.HasValue ? color.Value : this.Color;
+
+            if (object.ReferenceEquals(newPoints, this.points) &&
+                newColor == this.Color)
+            {
+                return this;
+            }
+
+            return new Polyline(newPoints, newColor)
             {
                 Tag = this.Tag
             };

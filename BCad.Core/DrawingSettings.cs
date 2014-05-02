@@ -45,12 +45,20 @@ namespace BCad
             }
         }
 
-        public DrawingSettings Update(string fileName = null, UnitFormat? unitFormat = null, int? unitPrecision = null)
+        public DrawingSettings Update(string fileName = null, Optional<UnitFormat> unitFormat = default(Optional<UnitFormat>), Optional<int> unitPrecision = default(Optional<int>))
         {
-            return new DrawingSettings(
-                fileName ?? this.fileName,
-                unitFormat ?? this.unitFormat,
-                unitPrecision ?? this.unitPrecision);
+            var newFileName = fileName ?? this.fileName;
+            var newUnitFormat = unitFormat.HasValue ? unitFormat.Value : this.unitFormat;
+            var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : this.unitPrecision;
+
+            if (newFileName == this.fileName &&
+                newUnitFormat == this.unitFormat &&
+                newUnitPrecision == this.unitPrecision)
+            {
+                return this;
+            }
+
+            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision);
         }
 
         public static string FormatUnits(double value, UnitFormat unitFormat, int unitPrecision)

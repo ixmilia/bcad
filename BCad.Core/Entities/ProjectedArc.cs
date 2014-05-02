@@ -1,7 +1,4 @@
-﻿using System;
-using BCad.Extensions;
-
-namespace BCad.Entities
+﻿namespace BCad.Entities
 {
     public class ProjectedArc : ProjectedEntity
     {
