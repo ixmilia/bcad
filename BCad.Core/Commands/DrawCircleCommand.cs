@@ -120,7 +120,7 @@ namespace BCad.Commands
                                     {
                                         new PrimitiveLine(cen.Value, p, IndexedColor.Default),
                                         new PrimitiveEllipse(cen.Value,
-                                            Vector.SixtyDegrees * (p - cen.Value).Length * MathHelper.SqrtThreeOverTwo,
+                                            Vector.SixtyDegrees * (p - cen.Value).Length * MathHelper.SqrtThreeHalves,
                                             drawingPlane.Normal,
                                             IsoMinorRatio,
                                             0.0,
@@ -132,7 +132,7 @@ namespace BCad.Commands
                                 if (isoRad.HasValue)
                                 {
                                     circle = new Ellipse(cen.Value,
-                                        Vector.SixtyDegrees * (isoRad.Value - cen.Value).Length * MathHelper.SqrtThreeOverTwo,
+                                        Vector.SixtyDegrees * (isoRad.Value - cen.Value).Length * MathHelper.SqrtThreeHalves,
                                         IsoMinorRatio,
                                         0.0,
                                         360.0,
