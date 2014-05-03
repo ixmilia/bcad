@@ -28,8 +28,8 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color)
-            : base(color)
+        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.center = center;
             this.radius = radius;
@@ -102,7 +102,8 @@ namespace BCad.Entities
             Optional<double> startAngle = default(Optional<double>),
             Optional<double> endAngle = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>))
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newCenter = center.HasValue ? center.Value : this.center;
             var newRadius = radius.HasValue ? radius.Value : this.radius;
@@ -110,21 +111,20 @@ namespace BCad.Entities
             var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
             var newNormal = normal.HasValue ? normal.Value : this.normal;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (newCenter == this.center &&
                 newRadius == this.radius &&
                 newStartAngle == this.startAngle &&
                 newEndAngle == this.endAngle &&
                 newNormal == this.normal &&
-                newColor == this.Color)
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new Arc(newCenter, newRadius, newStartAngle, newEndAngle, newNormal, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new Arc(newCenter, newRadius, newStartAngle, newEndAngle, newNormal, newColor, newTag);
         }
 
         public override string ToString()

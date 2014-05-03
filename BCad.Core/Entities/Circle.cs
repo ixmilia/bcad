@@ -26,8 +26,8 @@ namespace BCad.Entities
 
         public double Radius { get { return radius; } }
 
-        public Circle(Point center, double radius, Vector normal, IndexedColor color)
-            : base(color)
+        public Circle(Point center, double radius, Vector normal, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.center = center;
             this.radius = radius;
@@ -85,25 +85,25 @@ namespace BCad.Entities
             Optional<Point> center = default(Optional<Point>),
             Optional<double> radius = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>))
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newCenter = center.HasValue ? center.Value : this.center;
             var newRadius = radius.HasValue ? radius.Value : this.radius;
             var newNormal = normal.HasValue ? normal.Value : this.normal;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (newCenter == this.center &&
                 newRadius == this.radius &&
                 newNormal == this.normal &&
-                newColor == this.Color)
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new Circle(newCenter, newRadius, newNormal, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new Circle(newCenter, newRadius, newNormal, newColor, newTag);
         }
 
         internal static Point[] TransformedPoints(Point center, Vector normal, Vector right, double radiusX, double radiusY, params double[] anglesInDegrees)

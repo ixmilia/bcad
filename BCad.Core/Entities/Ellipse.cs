@@ -37,8 +37,8 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, IndexedColor color)
-            : base(color)
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.center = center;
             this.majorAxis = majorAxis;
@@ -126,7 +126,8 @@ namespace BCad.Entities
             Optional<double> startAngle = default(Optional<double>),
             Optional<double> endAngle = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>))
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newCenter = center.HasValue ? center.Value : this.center;
             var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : this.majorAxis;
@@ -135,6 +136,7 @@ namespace BCad.Entities
             var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
             var newNormal = normal.HasValue ? normal.Value : this.normal;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (newCenter == this.center &&
                 newMajorAxis == this.majorAxis &&
@@ -142,15 +144,13 @@ namespace BCad.Entities
                 newStartAngle == this.startAngle &&
                 newEndAngle == this.endAngle &&
                 newNormal == this.normal &&
-                newColor == this.Color)
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor, newTag);
         }
 
         public override string ToString()

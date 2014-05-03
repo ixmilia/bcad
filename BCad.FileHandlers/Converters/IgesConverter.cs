@@ -191,23 +191,18 @@ namespace BCad.FileHandlers.Converters
                     break;
             }
 
-            if (result != null)
-            {
-                result.Tag = entity;
-            }
-
             return result;
         }
 
         private static Line ToLine(IgesLine line)
         {
             // TODO: handle different forms (segment, ray, continuous)
-            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), ToColor(line.Color));
+            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), ToColor(line.Color), line);
         }
 
         private static Location ToLocation(IgesLocation point)
         {
-            return new Location(TransformPoint(point, point.Location), ToColor(point.Color));
+            return new Location(TransformPoint(point, point.Location), ToColor(point.Color), point);
         }
 
         private static Entity ToArc(IgesCircularArc arc)
@@ -231,7 +226,7 @@ namespace BCad.FileHandlers.Converters
             // if start/end points are the same, it's a circle.  otherwise it's an arc
             if (startPoint.CloseTo(endPoint))
             {
-                return new Circle(center, radius, normal, ToColor(arc.Color));
+                return new Circle(center, radius, normal, ToColor(arc.Color), arc);
             }
             else
             {
@@ -245,7 +240,7 @@ namespace BCad.FileHandlers.Converters
                 var endUnit = toUnit.Transform(endPoint);
                 var startAngle = ((Vector)startUnit).ToAngle();
                 var endAngle = ((Vector)endUnit).ToAngle();
-                return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color));
+                return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color), arc);
             }
         }
 
@@ -288,7 +283,7 @@ namespace BCad.FileHandlers.Converters
                     if (entities.Count != 0)
                     {
                         var offset = new Point(subfigure.Offset.X, subfigure.Offset.Y, subfigure.Offset.Z);
-                        return new AggregateEntity(offset, entities, ToColor(subfigure.Color));
+                        return new AggregateEntity(offset, entities, ToColor(subfigure.Color), subfigure);
                     }
                 }
             }

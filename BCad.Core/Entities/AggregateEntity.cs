@@ -23,12 +23,12 @@ namespace BCad.Entities
         public ReadOnlyList<Entity> Children { get { return children; } }
 
         public AggregateEntity()
-            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), IndexedColor.Auto)
+            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), IndexedColor.Auto, null)
         {
         }
 
-        public AggregateEntity(Point location, ReadOnlyList<Entity> children, IndexedColor color)
-            : base(color)
+        public AggregateEntity(Point location, ReadOnlyList<Entity> children, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             if (children == null)
                 throw new ArgumentNullException("children");
@@ -73,23 +73,23 @@ namespace BCad.Entities
         public AggregateEntity Update(
             Optional<Point> location = default(Optional<Point>),
             ReadOnlyList<Entity> children = null,
-            Optional<IndexedColor> color = default(Optional<IndexedColor>))
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newLocation = location.HasValue ? location.Value : this.location;
             var newChildren = children ?? this.children;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (newLocation == this.location &&
                 object.ReferenceEquals(newChildren, this.children) &&
-                newColor == this.Color)
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new AggregateEntity(newLocation, newChildren, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new AggregateEntity(newLocation, newChildren, newColor, newTag);
         }
     }
 }

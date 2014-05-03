@@ -18,8 +18,8 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Location(Point location, IndexedColor color)
-            : base(color)
+        public Location(Point location, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.location = location;
             this.snapPoints = new[]
@@ -54,21 +54,23 @@ namespace BCad.Entities
             }
         }
 
-        public Location Update(Optional<Point> point = default(Optional<Point>), Optional<IndexedColor> color = default(Optional<IndexedColor>))
+        public Location Update(
+            Optional<Point> point = default(Optional<Point>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newPoint = point.HasValue ? point.Value : this.Point;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (newPoint == this.Point &&
-                newColor == this.Color)
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new Location(newPoint, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new Location(newPoint, newColor, newTag);
         }
 
         public override string ToString()

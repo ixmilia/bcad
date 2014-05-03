@@ -198,37 +198,37 @@ namespace BCad.FileHandlers.Converters
 
         public static Location ToPoint(this DxfModelPoint point)
         {
-            return new Location(point.Location.ToPoint(), point.Color.ToColor());
+            return new Location(point.Location.ToPoint(), point.Color.ToColor(), point);
         }
 
         public static Line ToLine(this DxfLine line)
         {
-            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor());
+            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor(), line);
         }
 
         public static Polyline ToPolyline(this DxfPolyline poly)
         {
-            return new Polyline(poly.Vertices.Select(v => v.Location.ToPoint()), poly.Color.ToColor());
+            return new Polyline(poly.Vertices.Select(v => v.Location.ToPoint()), poly.Color.ToColor(), poly);
         }
 
         public static Circle ToCircle(this DxfCircle circle)
         {
-            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor());
+            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor(), circle);
         }
 
         public static Arc ToArc(this DxfArc arc)
         {
-            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor());
+            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor(), arc);
         }
 
         public static Ellipse ToEllipse(this DxfEllipse el)
         {
-            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter, el.EndParameter, el.Normal.ToVector(), el.Color.ToColor());
+            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter, el.EndParameter, el.Normal.ToVector(), el.Color.ToColor(), el);
         }
 
         public static Text ToText(this DxfText text)
         {
-            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor());
+            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor(), text);
         }
 
         public static Entity ToEntity(this DxfEntity item)
@@ -270,11 +270,6 @@ namespace BCad.FileHandlers.Converters
                 case DxfEntityType.XLine:
                     //Debug.Fail("Unsupported DXF entity type: " + item.GetType().Name);
                     break;
-            }
-
-            if (entity != null)
-            {
-                entity.Tag = item;
             }
 
             return entity;

@@ -18,8 +18,8 @@ namespace BCad.Entities
 
         public Point P2 { get { return p2; } }
 
-        public Line(Point p1, Point p2, IndexedColor color)
-            : base(color)
+        public Line(Point p1, Point p2, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.p1 = p1;
             this.p2 = p2;
@@ -64,23 +64,23 @@ namespace BCad.Entities
         public Line Update(
             Optional<Point> p1 = default(Optional<Point>),
             Optional<Point> p2 = default(Optional<Point>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>))
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newP1 = p1.HasValue ? p1.Value : this.p1;
             var newP2 = p2.HasValue ? p2.Value : this.p2;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
-            if (newP1 != this.p1 &&
-                newP2 != this.p2 &&
-                newColor != this.Color)
+            if (newP1 == this.p1 &&
+                newP2 == this.p2 &&
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new Line(newP1, newP2, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new Line(newP1, newP2, newColor, newTag);
         }
 
         public override string ToString()

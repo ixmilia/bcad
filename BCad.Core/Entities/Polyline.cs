@@ -17,8 +17,8 @@ namespace BCad.Entities
 
         public IEnumerable<Point> Points { get { return this.points; } }
 
-        public Polyline(IEnumerable<Point> points, IndexedColor color)
-            : base(color)
+        public Polyline(IEnumerable<Point> points, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.points = new List<Point>(points); // to prevent backing changes
 
@@ -62,21 +62,23 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Polyline Update(IEnumerable<Point> points = null, Optional<IndexedColor> color = default(Optional<IndexedColor>))
+        public Polyline Update(
+            IEnumerable<Point> points = null,
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
             var newPoints = points ?? this.points;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (object.ReferenceEquals(newPoints, this.points) &&
-                newColor == this.Color)
+                newColor == this.Color &&
+                newTag == this.Tag)
             {
                 return this;
             }
 
-            return new Polyline(newPoints, newColor)
-            {
-                Tag = this.Tag
-            };
+            return new Polyline(newPoints, newColor, newTag);
         }
     }
 }
