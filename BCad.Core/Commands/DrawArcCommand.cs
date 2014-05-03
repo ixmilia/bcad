@@ -38,7 +38,12 @@ namespace BCad.Commands
                             }
                             else
                             {
-                                return new[] { a };
+                                return new IPrimitive[]
+                                {
+                                    a,
+                                    new PrimitivePoint(first.Value, IndexedColor.Default),
+                                    new PrimitivePoint(second.Value, IndexedColor.Default)
+                                };
                             }
                         });
                     if (!third.Cancel && third.HasValue)

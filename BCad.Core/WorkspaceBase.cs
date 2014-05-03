@@ -109,6 +109,8 @@ namespace BCad
                 this.ViewControl = viewControl;
             if (isDirty.HasValue)
                 this.IsDirty = isDirty.Value;
+            else
+                this.IsDirty = true;
             OnWorkspaceChanged(e);
         }
 
