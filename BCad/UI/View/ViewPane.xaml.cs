@@ -327,6 +327,7 @@ namespace BCad.UI
                 if (endAngle < ellipse.StartAngle) endAngle += 360.0;
                 var startPoint = projected.GetStartPoint();
                 var endPoint = projected.GetEndPoint();
+                var isLargeArc = (endAngle - ellipse.StartAngle) > 180.0;
                 shape = new Path()
                 {
                     Data = new GeometryGroup()
@@ -344,7 +345,7 @@ namespace BCad.UI
                                         {
                                             new ArcSegment()
                                             {
-                                                IsLargeArc = (endAngle - ellipse.StartAngle) > 180.0,
+                                                IsLargeArc = isLargeArc,
                                                 Point = new System.Windows.Point(endPoint.X, endPoint.Y),
                                                 SweepDirection = SweepDirection.Counterclockwise,
                                                 RotationAngle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,

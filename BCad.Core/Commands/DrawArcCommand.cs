@@ -31,7 +31,7 @@ namespace BCad.Commands
                 {
                     var third = await InputService.GetPoint(new UserDirective("Third point"), (p) =>
                         {
-                            var a = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, p);
+                            var a = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, p, Workspace.DrawingPlane.Normal);
                             if (a == null)
                             {
                                 return new IPrimitive[0];
