@@ -28,7 +28,7 @@ namespace BCad
         ViewPort ActiveViewPort { get; }
         IViewControl ViewControl { get; }
 
-        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, IViewControl viewControl = null, Optional<bool> isDirty = default(Optional<bool>));
+        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, IViewControl viewControl = null, bool isDirty = true);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
 
