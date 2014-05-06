@@ -34,9 +34,11 @@ namespace BCad.UI.Controls
 
     public class PlotDialogViewModel : INotifyPropertyChanged
     {
+        private const string ViewPortProperty = "ViewPort";
+
         public IEnumerable<PlotType> AvailablePlotTypes
         {
-            get { return new[] { Controls.PlotType.File, Controls.PlotType.Print }; }
+            get { return new[] { PlotType.File, PlotType.Print }; }
         }
 
         private Drawing drawing;
@@ -77,11 +79,11 @@ namespace BCad.UI.Controls
                         PrintOptionsVisibility = Visibility.Visible;
                         break;
                     default:
-                        throw new InvalidOperationException("unexpected plot type");
+                        throw new InvalidOperationException("unsupported plot type");
                 }
 
                 UpdatePreviewSize();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -118,6 +120,7 @@ namespace BCad.UI.Controls
                     return;
                 this.viewportType = value;
                 OnPropertyChanged();
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -130,7 +133,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scalingType = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -143,7 +146,7 @@ namespace BCad.UI.Controls
                     return;
                 this.bottomLeft = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -156,7 +159,7 @@ namespace BCad.UI.Controls
                     return;
                 this.topRight = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -169,7 +172,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleA = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -182,7 +185,7 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleB = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -195,7 +198,7 @@ namespace BCad.UI.Controls
                     return;
                 this.pageSize = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
                 UpdatePreviewSize();
             }
         }
@@ -235,7 +238,7 @@ namespace BCad.UI.Controls
                     return;
                 this.pixelWidth = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
                 UpdatePreviewSize();
             }
         }
@@ -249,7 +252,7 @@ namespace BCad.UI.Controls
                     return;
                 this.pixelHeight = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
                 UpdatePreviewSize();
             }
         }
@@ -328,7 +331,7 @@ namespace BCad.UI.Controls
                     return;
                 activeViewPort = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect("ViewPort");
+                OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
