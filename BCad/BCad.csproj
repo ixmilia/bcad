@@ -124,6 +124,7 @@
     <Compile Include="UI\Controls\PlotDialog.xaml.cs">
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Controls\PlotDialogViewModel.cs" />
     <Compile Include="UI\View\IRenderer.cs" />
     <Compile Include="UI\View\ISlimDXRenderEngine.cs" />
     <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />

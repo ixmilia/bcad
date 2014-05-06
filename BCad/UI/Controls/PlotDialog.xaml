@@ -47,13 +47,13 @@
         </Grid>
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal">
-                <RadioButton GroupName="asdf"
+                <RadioButton GroupName="plotWindow"
                              Content="Drawing extents"
                              IsChecked="{Binding Path=ViewportType,
                                                  Mode=TwoWay,
                                                  Converter={StaticResource enumConverter},
                                                  ConverterParameter=Extents}" />
-                <RadioButton GroupName="asdf"
+                <RadioButton GroupName="plotWindow"
                              IsChecked="{Binding Path=ViewportType,
                                                  Mode=TwoWay,
                                                  Converter={StaticResource enumConverter},
@@ -65,12 +65,28 @@
                 </RadioButton>
             </StackPanel>
         </Grid>
-        <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock Text="Scale" />
-            <TextBox Width="100" Text="{Binding Path=ScaleA, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
-            <TextBlock Text=" to " />
-            <TextBox Width="100" Text="{Binding Path=ScaleB, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
-        </StackPanel>
+        <Grid Grid.Row="2">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton GroupName="scaleType"
+                             Content="To fit"
+                             IsChecked="{Binding Path=ScalingType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=ToFit}" />
+                <RadioButton GroupName="scaleType"
+                             IsChecked="{Binding Path=ScalingType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Absolute}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Scale" />
+                        <TextBox Width="100" Text="{Binding Path=ScaleA, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                        <TextBlock Text=" to " />
+                        <TextBox Width="100" Text="{Binding Path=ScaleB, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Grid>
         <StackPanel Grid.Row="3">
             <TextBlock Text="Preview" />
             <Grid Width="300" Height="300" Background="LightGray">
