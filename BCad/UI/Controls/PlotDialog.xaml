@@ -36,8 +36,6 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="File name" />
                 <TextBox Grid.Column="1" Text="{Binding Path=FileName}" IsReadOnly="True" />
@@ -45,8 +43,6 @@
                 <TextBlock Grid.Column="3" Text="Size (px)" />
                 <TextBox Grid.Column="4" Width="36" Text="{Binding Path=PixelWidth, Mode=TwoWay}" />
                 <TextBox Grid.Column="5" Width="36" Text="{Binding Path=PixelHeight, Mode=TwoWay}" />
-                <TextBlock Grid.Column="6" Text="DPI" />
-                <TextBox Grid.Column="7" Width="36" Text="{Binding Path=Dpi, Mode=TwoWay, Converter={StaticResource doubleStringConverter}}" />
             </Grid>
         </Grid>
         <Grid Grid.Row="1">
@@ -87,6 +83,10 @@
                         <TextBox Width="100" Text="{Binding Path=ScaleA, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
                         <TextBlock Text=" to " />
                         <TextBox Width="100" Text="{Binding Path=ScaleB, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding Path=FileOptionsVisibility}">
+                            <TextBlock Text="DPI" />
+                            <TextBox Width="36" Text="{Binding Path=Dpi, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                        </StackPanel>
                     </StackPanel>
                 </RadioButton>
             </StackPanel>

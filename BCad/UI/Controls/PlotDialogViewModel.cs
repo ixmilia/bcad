@@ -173,7 +173,8 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleA = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect(ViewPortProperty);
+                if (ScalingType == ScalingType.Absolute)
+                    OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -186,7 +187,8 @@ namespace BCad.UI.Controls
                     return;
                 this.scaleB = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect(ViewPortProperty);
+                if (ScalingType == ScalingType.Absolute)
+                    OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -199,7 +201,8 @@ namespace BCad.UI.Controls
                     return;
                 this.dpi = value;
                 OnPropertyChanged();
-                OnPropertyChangedDirect(ViewPortProperty);
+                if (PlotType == PlotType.File && ScalingType == ScalingType.Absolute)
+                    OnPropertyChangedDirect(ViewPortProperty);
             }
         }
 
@@ -276,14 +279,29 @@ namespace BCad.UI.Controls
             get
             {
                 ViewPort vp;
+                double desiredHeight, desiredWidth;
+                switch (PlotType)
+                {
+                    case PlotType.File:
+                        desiredHeight = PixelHeight;
+                        desiredWidth = PixelWidth;
+                        break;
+                    case PlotType.Print:
+                        desiredHeight = PlotDialog.GetHeight(PageSize);
+                        desiredWidth = PlotDialog.GetWidth(PageSize);
+                        break;
+                    default:
+                        throw new InvalidOperationException("unsupported plot type");
+                }
+
                 switch (ViewportType)
                 {
                     case ViewportType.Extents:
                         vp = Drawing.ShowAllViewPort(
                             ActiveViewPort.Sight,
                             ActiveViewPort.Up,
-                            850,
-                            1100,
+                            (int)desiredWidth,
+                            (int)desiredHeight,
                             pixelBuffer: 0);
                         break;
                     case ViewportType.Window:
@@ -293,19 +311,16 @@ namespace BCad.UI.Controls
                         throw new InvalidOperationException("unsupported viewport type");
                 }
 
-                if (PlotType == PlotType.Print)
+                switch (ScalingType)
                 {
-                    var desiredHeight = PlotDialog.GetHeight(PageSize);
-                    switch (ScalingType)
-                    {
-                        case ScalingType.Absolute:
-                            vp = vp.Update(viewHeight: desiredHeight * ScaleB / ScaleA);
-                            break;
-                        case ScalingType.ToFit:
-                            break;
-                        default:
-                            throw new InvalidOperationException("unsupported scaling type");
-                    }
+                    case ScalingType.Absolute:
+                        var dpi = PlotType == PlotType.File ? Dpi : 1.0;
+                        vp = vp.Update(viewHeight: desiredHeight * ScaleB / ScaleA / dpi);
+                        break;
+                    case ScalingType.ToFit:
+                        break;
+                    default:
+                        throw new InvalidOperationException("unsupported scaling type");
                 }
 
                 return vp;
