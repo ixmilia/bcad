@@ -586,13 +586,13 @@ namespace BCad.Services
                 var vec = cursor - lastPoint;
                 if (vec.LengthSquared == 0.0)
                 {
-                    // if no change report the last point
-                    point = lastPoint;
+                    // if no change, report nothing
                 }
                 else
                 {
                     vec = vec.Normalize() * length;
                     point = lastPoint + vec;
+                    result = true;
                 }
             }
             else if (relativePoint.IsMatch(text))
@@ -600,6 +600,7 @@ namespace BCad.Services
                 // offset from last point
                 var offset = Point.Parse(text.Substring(1));
                 point = lastPoint + offset;
+                result = true;
             }
             else if (relativeAngle.IsMatch(text))
             {
@@ -612,6 +613,7 @@ namespace BCad.Services
                     var radians = angle * MathHelper.DegreesToRadians;
                     var offset = new Vector(Math.Cos(radians), Math.Sin(radians), 0) * dist;
                     point = lastPoint + offset;
+                    result = true;
                 }
                 else
                 {
@@ -622,6 +624,7 @@ namespace BCad.Services
             {
                 // absolute point
                 point = Point.Parse(text);
+                result = true;
             }
             else
             {
