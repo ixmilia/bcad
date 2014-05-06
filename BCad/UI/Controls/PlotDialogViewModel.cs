@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
@@ -9,6 +8,7 @@ namespace BCad.UI.Controls
 {
     public enum PlotType
     {
+        None = 0,
         File,
         Print
     }
@@ -50,6 +50,7 @@ namespace BCad.UI.Controls
         private Point topRight;
         private double scaleA;
         private double scaleB;
+        private double dpi;
         private PageSize pageSize;
         private Visibility printOptVis;
         private Visibility fileOptVis;
@@ -184,6 +185,19 @@ namespace BCad.UI.Controls
                 if (this.scaleB == value)
                     return;
                 this.scaleB = value;
+                OnPropertyChanged();
+                OnPropertyChangedDirect(ViewPortProperty);
+            }
+        }
+
+        public double Dpi
+        {
+            get { return this.dpi; }
+            set
+            {
+                if (this.dpi == value)
+                    return;
+                this.dpi = value;
                 OnPropertyChanged();
                 OnPropertyChangedDirect(ViewPortProperty);
             }
@@ -343,7 +357,7 @@ namespace BCad.UI.Controls
         public PlotDialogViewModel()
         {
             Drawing = new Drawing();
-            PlotType = AvailablePlotTypes.First();
+            PlotType = PlotType.File;
             FileName = string.Empty;
             ViewportType = ViewportType.Extents;
             ScalingType = ScalingType.ToFit;
@@ -351,6 +365,7 @@ namespace BCad.UI.Controls
             TopRight = Point.Origin;
             ScaleA = 1.0;
             ScaleB = 1.0;
+            Dpi = 300.0;
             PageSize = PageSize.Letter;
             PixelWidth = 800;
             PixelHeight = 600;
