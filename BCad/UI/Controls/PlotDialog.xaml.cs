@@ -57,10 +57,10 @@ namespace BCad.UI.Controls
         {
             switch (this.viewModel.PlotType)
             {
-                case "File":
+                case PlotType.File:
                     FilePlot();
                     break;
-                case "Print":
+                case PlotType.Print:
                     Print();
                     break;
                 default:

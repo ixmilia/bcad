@@ -7,6 +7,12 @@ using System.Windows;
 
 namespace BCad.UI.Controls
 {
+    public enum PlotType
+    {
+        File,
+        Print
+    }
+
     public enum ViewportType
     {
         Extents,
@@ -28,13 +34,13 @@ namespace BCad.UI.Controls
 
     public class PlotDialogViewModel : INotifyPropertyChanged
     {
-        public IEnumerable<string> AvailablePlotTypes
+        public IEnumerable<PlotType> AvailablePlotTypes
         {
-            get { return new[] { "File", "Print" }; }
+            get { return new[] { Controls.PlotType.File, Controls.PlotType.Print }; }
         }
 
         private Drawing drawing;
-        private string plotType;
+        private PlotType plotType;
         private string fileName;
         private ViewportType viewportType;
         private ScalingType scalingType;
@@ -51,7 +57,7 @@ namespace BCad.UI.Controls
         private double previewHeight;
         private ViewPort activeViewPort;
 
-        public string PlotType
+        public PlotType PlotType
         {
             get { return this.plotType; }
             set
@@ -62,14 +68,16 @@ namespace BCad.UI.Controls
                 OnPropertyChanged();
                 switch (this.plotType)
                 {
-                    case "File":
+                    case PlotType.File:
                         FileOptionsVisibility = Visibility.Visible;
                         PrintOptionsVisibility = Visibility.Hidden;
                         break;
-                    case "Print":
+                    case PlotType.Print:
                         FileOptionsVisibility = Visibility.Hidden;
                         PrintOptionsVisibility = Visibility.Visible;
                         break;
+                    default:
+                        throw new InvalidOperationException("unexpected plot type");
                 }
 
                 UpdatePreviewSize();
@@ -268,7 +276,7 @@ namespace BCad.UI.Controls
                         throw new InvalidOperationException("unsupported viewport type");
                 }
 
-                if (PlotType == "Print")
+                if (PlotType == PlotType.Print)
                 {
                     var desiredHeight = PlotDialog.GetHeight(PageSize);
                     switch (ScalingType)
@@ -364,7 +372,7 @@ namespace BCad.UI.Controls
             var maxWidth = 300;
             var maxHeight = 300;
             double width, height;
-            if (PlotType == "Print")
+            if (PlotType == PlotType.Print)
             {
                 width = PlotDialog.GetWidth(PageSize);
                 height = PlotDialog.GetHeight(PageSize);
