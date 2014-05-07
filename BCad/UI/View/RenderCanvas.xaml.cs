@@ -7,6 +7,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 
 #if BCAD_METRO
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -97,10 +98,7 @@ namespace BCad.UI.View
                 var solidBrush = canvas.Background as SolidColorBrush;
                 if (solidBrush != null)
                 {
-                    var color = solidBrush.Color;
-                    var real = RealColor.FromRgb(color.R, color.G, color.B);
-                    var autoColor = real.GetAutoContrastingColor().ToMediaColor();
-                    canvas.BindObject.AutoBrush = new SolidColorBrush(autoColor);
+                    canvas.SetAutocolorFromBackgroundColor(solidBrush.Color);
                 }
             }
         }
@@ -132,6 +130,13 @@ namespace BCad.UI.View
                 Source = this
             };
             BindingOperations.SetBinding(this, BackgroundExProperty, binding);
+        }
+
+        internal void SetAutocolorFromBackgroundColor(Color bgColor)
+        {
+            var real = RealColor.FromRgb(bgColor.R, bgColor.G, bgColor.B);
+            var autoColor = real.GetAutoContrastingColor().ToMediaColor();
+            this.BindObject.AutoBrush = new SolidColorBrush(autoColor);
         }
 
         private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
