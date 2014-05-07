@@ -5,11 +5,11 @@ using BCad.Collections;
 using BCad.Entities;
 using BCad.EventArguments;
 
-#if NETFX_CORE
-// Metro
+#if BCAD_METRO
 using Windows.UI.Xaml.Controls;
-#else
-// WPF
+#endif
+
+#if BCAD_WPF
 using System.Windows.Controls;
 #endif
 

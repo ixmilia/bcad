@@ -6,8 +6,7 @@ using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
 
-#if NETFX_CORE
-// Metro
+#if BCAD_METRO
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -18,8 +17,9 @@ using Shapes = Windows.UI.Xaml.Shapes;
 using DisplayPoint = Windows.Foundation.Point;
 using DisplaySize = Windows.Foundation.Size;
 using P_Metadata = Windows.UI.Xaml.PropertyMetadata;
-#else
-// WPF
+#endif
+
+#if BCAD_WPF
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -105,8 +105,17 @@ namespace BCad.UI.View
             }
         }
 
-        private DoubleCollection solidLine = new DoubleCollection();
-        private DoubleCollection dashedLine = new DoubleCollection() { 4.0, 4.0 };
+#if BCAD_METRO
+        private Func<DoubleCollection> solidLineGenerator = () => new DoubleCollection();
+        private Func<DoubleCollection> dashedLineGenerator = () => new DoubleCollection() { 4.0, 4.0 };
+#endif
+
+#if BCAD_WPF
+        private static DoubleCollection solidLineInstance = new DoubleCollection();
+        private static DoubleCollection dashedLineInstance = new DoubleCollection() { 4.0, 4.0 };
+        private Func<DoubleCollection> solidLineGenerator = () => solidLineInstance;
+        private Func<DoubleCollection> dashedLineGenerator = () => dashedLineInstance;
+#endif
         private BindingClass BindObject = new BindingClass();
         private Matrix4 PlaneProjection = Matrix4.Identity;        
 
@@ -195,7 +204,7 @@ namespace BCad.UI.View
         {
             if (element is Shape)
             {
-                ((Shape)element).StrokeDashArray = dashedLine;
+                ((Shape)element).StrokeDashArray = dashedLineGenerator();
             }
             else if (element is TextBlock)
             {
@@ -206,7 +215,7 @@ namespace BCad.UI.View
                 var grid = (Grid)element;
                 if (grid.Children.Count == 1 && grid.Children[0] is Path)
                 {
-                    ((Path)grid.Children[0]).StrokeDashArray = dashedLine;
+                    ((Path)grid.Children[0]).StrokeDashArray = dashedLineGenerator();
                 }
                 else
                 {
@@ -223,7 +232,7 @@ namespace BCad.UI.View
         {
             if (element is Shape)
             {
-                ((Shape)element).StrokeDashArray = solidLine;
+                ((Shape)element).StrokeDashArray = solidLineGenerator();
             }
             else if (element is TextBlock)
             {
@@ -234,7 +243,7 @@ namespace BCad.UI.View
                 var grid = (Grid)element;
                 if (grid.Children.Count == 1 && grid.Children[0] is Path)
                 {
-                    ((Path)grid.Children[0]).StrokeDashArray = solidLine;
+                    ((Path)grid.Children[0]).StrokeDashArray = solidLineGenerator();
                 }
                 else
                 {
