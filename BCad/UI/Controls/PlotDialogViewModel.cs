@@ -58,6 +58,8 @@ namespace BCad.UI.Controls
         private int pixelHeight;
         private double previewWidth;
         private double previewHeight;
+        private double maxPreviewWidth;
+        private double maxPreviewHeight;
         private ViewPort activeViewPort;
 
         public PlotType PlotType
@@ -351,6 +353,32 @@ namespace BCad.UI.Controls
             }
         }
 
+        public double MaxPreviewWidth
+        {
+            get { return this.maxPreviewWidth; }
+            set
+            {
+                if (this.maxPreviewWidth == value)
+                    return;
+                this.maxPreviewWidth = value;
+                OnPropertyChanged();
+                UpdatePreviewSize();
+            }
+        }
+
+        public double MaxPreviewHeight
+        {
+            get { return this.maxPreviewHeight; }
+            set
+            {
+                if (this.maxPreviewHeight == value)
+                    return;
+                this.maxPreviewHeight = value;
+                OnPropertyChanged();
+                UpdatePreviewSize();
+            }
+        }
+
         public ViewPort ActiveViewPort
         {
             get { return activeViewPort; }
@@ -384,6 +412,8 @@ namespace BCad.UI.Controls
             PageSize = PageSize.Letter;
             PixelWidth = 800;
             PixelHeight = 600;
+            MaxPreviewWidth = 300;
+            MaxPreviewHeight = 300;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -402,8 +432,6 @@ namespace BCad.UI.Controls
 
         private void UpdatePreviewSize()
         {
-            var maxWidth = 300;
-            var maxHeight = 300;
             double width, height;
             if (PlotType == PlotType.Print)
             {
@@ -418,13 +446,13 @@ namespace BCad.UI.Controls
 
             if (width > height)
             {
-                PreviewWidth = maxWidth;
-                PreviewHeight = (height / width) * maxHeight;
+                PreviewWidth = MaxPreviewWidth;
+                PreviewHeight = (height / width) * MaxPreviewHeight;
             }
             else
             {
-                PreviewHeight = maxHeight;
-                PreviewWidth = (width / height) * maxWidth;
+                PreviewHeight = MaxPreviewHeight;
+                PreviewWidth = (width / height) * MaxPreviewWidth;
             }
         }
     }

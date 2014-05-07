@@ -93,16 +93,18 @@
         </Grid>
         <StackPanel Grid.Row="3">
             <TextBlock Text="Preview" />
-            <Grid Width="300" Height="300" Background="LightGray">
-                <view:RenderCanvas HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Background="White"
-                                   ClipToBounds="True"
-                                   Width="{Binding Path=PreviewWidth}"
-                                   Height="{Binding Path=PreviewHeight}"
-                                   ViewPort="{Binding Path=ViewPort}"
-                                   Drawing="{Binding Path=Drawing}" />
-            </Grid>
+            <Border BorderBrush="Black" BorderThickness="1" Width="{Binding Path=MaxPreviewWidth}" Height="{Binding Path=MaxPreviewHeight}">
+                <Grid Width="{Binding Path=MaxPreviewWidth}" Height="{Binding Path=MaxPreviewHeight}" Background="LightGray">
+                    <view:RenderCanvas HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Background="White"
+                                       ClipToBounds="True"
+                                       Width="{Binding Path=PreviewWidth}"
+                                       Height="{Binding Path=PreviewHeight}"
+                                       ViewPort="{Binding Path=ViewPort}"
+                                       Drawing="{Binding Path=Drawing}" />
+                </Grid>
+            </Border>
         </StackPanel>
     </Grid>
 </ui:BCadControl>
