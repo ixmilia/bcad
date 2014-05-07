@@ -4,22 +4,16 @@ namespace BCad
 {
     public struct Point
     {
-        private readonly double x;
-        private readonly double y;
-        private readonly double z;
-
-        public double X { get { return x; } }
-
-        public double Y { get { return y; } }
-
-        public double Z { get { return z; } }
+        public readonly double X;
+        public readonly double Y;
+        public readonly double Z;
 
         public Point(double x, double y, double z)
             : this()
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
 
         public static implicit operator Vector(Point point)

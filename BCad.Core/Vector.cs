@@ -5,11 +5,17 @@ namespace BCad
 {
     public struct Vector
     {
-        public double X { get; private set; }
+        public readonly double X;
+        public readonly double Y;
+        public readonly double Z;
 
-        public double Y { get; private set; }
-
-        public double Z { get; private set; }
+        public Vector(double x, double y, double z)
+            : this()
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
 
         public double LengthSquared
         {
@@ -24,14 +30,6 @@ namespace BCad
         public bool IsZeroVector
         {
             get { return this.X == 0.0 && this.Y == 0.0 && this.Z == 0.0; }
-        }
-
-        public Vector(double x, double y, double z)
-            : this()
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
         }
 
         public Vector Normalize()
