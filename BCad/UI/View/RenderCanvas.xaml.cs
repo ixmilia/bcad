@@ -46,8 +46,8 @@ namespace BCad.UI.View
             DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new P_Metadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
             DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new P_Metadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
-        public static readonly DependencyProperty BackgroundPropertyEx =
-            DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundPropertyChanged));
+        public static readonly DependencyProperty BackgroundExProperty =
+            DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundExPropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -89,7 +89,7 @@ namespace BCad.UI.View
             }
         }
 
-        private static void BackgroundPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        private static void BackgroundExPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var canvas = source as RenderCanvas;
             if (canvas != null)
@@ -126,9 +126,12 @@ namespace BCad.UI.View
             this.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
 
             // listen to the background change
-            var binding = new Binding() { Path = new PropertyPath("Background") };
-            binding.Source = this;
-            BindingOperations.SetBinding(this, BackgroundPropertyEx, binding);
+            var binding = new Binding()
+            {
+                Path = new PropertyPath("Background"),
+                Source = this
+            };
+            BindingOperations.SetBinding(this, BackgroundExProperty, binding);
         }
 
         private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
