@@ -27,50 +27,50 @@ namespace BCad.Commands.FilePlotters
             autoColor = Color.Black;
         }
 
-        public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
+        public void Plot(IEnumerable<ProjectedEntity> entities, ColorMap colorMap, double width, double height, Stream stream)
         {
             using (var image = new Bitmap((int)width, (int)height))
             {
                 using (var graphics = Graphics.FromImage(image))
                 {
                     graphics.FillRectangle(new SolidBrush(bgColor), new Rectangle(0, 0, image.Width, image.Height));
-                    PlotGraphics(entities, graphics);
+                    PlotGraphics(entities, colorMap, graphics);
                 }
 
                 image.Save(stream, ImageFormat.Png);
             }
         }
 
-        private void PlotGraphics(IEnumerable<ProjectedEntity> entities, Graphics graphics)
+        private void PlotGraphics(IEnumerable<ProjectedEntity> entities, ColorMap colorMap, Graphics graphics)
         {
             foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
             {
                 var layer = groupedEntity.Key;
                 foreach (var entity in groupedEntity)
                 {
-                    DrawEntity(graphics, entity, layer.Color);
+                    DrawEntity(graphics, entity, layer.Color, colorMap);
                 }
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedEntity entity, IndexedColor layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedEntity entity, IndexedColor layerColor, ColorMap colorMap)
         {
             switch (entity.Kind)
             {
                 case EntityKind.Line:
-                    DrawEntity(graphics, (ProjectedLine)entity, layerColor);
+                    DrawEntity(graphics, (ProjectedLine)entity, layerColor, colorMap);
                     break;
                 case EntityKind.Circle:
                 case EntityKind.Ellipse:
-                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor);
+                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor, colorMap);
                     break;
                 case EntityKind.Text:
-                    DrawEntity(graphics, (ProjectedText)entity, layerColor);
+                    DrawEntity(graphics, (ProjectedText)entity, layerColor, colorMap);
                     break;
                 case EntityKind.Aggregate:
                     foreach (var child in ((ProjectedAggregate)entity).Children)
                     {
-                        DrawEntity(graphics, child, layerColor);
+                        DrawEntity(graphics, child, layerColor, colorMap);
                     }
                     break;
                 default:
@@ -92,26 +92,26 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedLine line, IndexedColor layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedLine line, IndexedColor layerColor, ColorMap colorMap)
         {
-            graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color)), line.P1.ToPointF(), line.P2.ToPointF());
+            graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color, colorMap)), line.P1.ToPointF(), line.P2.ToPointF());
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedCircle circle, IndexedColor layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedCircle circle, IndexedColor layerColor, ColorMap colorMap)
         {
             // TODO: handle rotation
             var width = circle.RadiusX * 2.0;
             var height = circle.RadiusY * 2.0;
             var topLeft = (Point)(circle.Center - new Point(circle.RadiusX, circle.RadiusX, 0.0));
-            graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
+            graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color, colorMap)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedText text, IndexedColor layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedText text, IndexedColor layerColor, ColorMap colorMap)
         {
             // TODO: handle rotation
             var x = (float)text.Location.X;
             var y = (float)(text.Location.Y - text.Height);
-            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(text.OriginalText.Color.ToDrawingColor()), x, y);
+            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(colorMap[text.OriginalText.Color].ToDrawingColor()), x, y);
         }
 
         private Pen ColorToPen(Color color)
@@ -128,13 +128,13 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private Color GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor)
+        private Color GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor, ColorMap colorMap)
         {
             Color display;
             if (!primitiveColor.IsAuto)
-                display = primitiveColor.ToDrawingColor();
+                display = colorMap[primitiveColor].ToDrawingColor();
             else if (!layerColor.IsAuto)
-                display = layerColor.ToDrawingColor();
+                display = colorMap[layerColor].ToDrawingColor();
             else
                 display = autoColor;
 

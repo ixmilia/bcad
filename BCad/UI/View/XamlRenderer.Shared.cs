@@ -72,6 +72,7 @@ namespace BCad.UI.View
             private Drawing drawing = new Drawing();
             private double pointSize = 15.0;
             private ObservableHashSet<Entity> selectedEntities = new ObservableHashSet<Entity>();
+            private ColorMap colorMap = ColorMap.Default;
 
             public RealColor BackgroundColor
             {
@@ -129,6 +130,18 @@ namespace BCad.UI.View
                     if (selectedEntities == value)
                         return;
                     selectedEntities = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            public ColorMap ColorMap
+            {
+                get { return colorMap; }
+                set
+                {
+                    if (colorMap == value)
+                        return;
+                    colorMap = value;
                     OnPropertyChanged();
                 }
             }

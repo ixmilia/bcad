@@ -26,5 +26,6 @@ namespace BCad
         KeyboardShortcut DebugShortcut { get; set; }
         RealColor BackgroundColor { get; set; }
         RealColor SnapPointColor { get; set; }
+        ColorMap ColorMap { get; set; }
     }
 }

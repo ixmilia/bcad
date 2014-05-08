@@ -6,6 +6,6 @@ namespace BCad.FilePlotters
 {
     public interface IFilePlotter
     {
-        void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream);
+        void Plot(IEnumerable<ProjectedEntity> entities, ColorMap colorMap, double width, double height, Stream stream);
     }
 }

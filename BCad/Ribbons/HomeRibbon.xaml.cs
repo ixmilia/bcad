@@ -1,10 +1,8 @@
-﻿using System;
-using System.Composition;
+﻿using System.Composition;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows.Input;
-using BCad.EventArguments;
 using Microsoft.Windows.Controls.Ribbon;
+using BCad.ViewModels;
 
 namespace BCad.Ribbons
 {
@@ -14,8 +12,8 @@ namespace BCad.Ribbons
     [ExportRibbonTab("home")]
     public partial class HomeRibbon : RibbonTab
     {
-        private IWorkspace workspace = null;
-        private bool listenToChangeEvent = true;
+        private IWorkspace workspace;
+        private HomeRibbonViewModel viewModel;
 
         public HomeRibbon()
         {
@@ -27,28 +25,8 @@ namespace BCad.Ribbons
             : this()
         {
             this.workspace = workspace;
-
-            // subscribe to events
-            this.workspace.WorkspaceChanged += WorkspaceChanged;
-
-            // populate the layers
-            PopulateDropDown();
-        }
-
-        void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
-        {
-            if (e.IsDrawingChange)
-                this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown()));
-        }
-
-        private void PopulateDropDown()
-        {
-            listenToChangeEvent = false;
-            this.currentLayer.Items.Clear();
-            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
-                this.currentLayer.Items.Add(layer);
-            this.currentLayer.SelectedItem = workspace.Drawing.CurrentLayer;
-            listenToChangeEvent = true;
+            viewModel = new HomeRibbonViewModel(this.workspace);
+            DataContext = viewModel;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -66,11 +44,8 @@ namespace BCad.Ribbons
 
         private void CurrentLayerSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (listenToChangeEvent)
-            {
-                var layer = (Layer)this.currentLayer.SelectedItem;
-                workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
-            }
+            var layer = (Layer)this.currentLayer.SelectedItem;
+            workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
-using System.Composition;
+﻿using System.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using BCad.Collections;
 using BCad.Utilities;
+using BCad.ViewModels;
 
 namespace BCad.UI.Controls
 {
@@ -15,7 +15,7 @@ namespace BCad.UI.Controls
     public partial class LayerManager : BCadControl
     {
         private IWorkspace workspace = null;
-        internal LayerManagerViewModel ViewModel { get; private set; }
+        private LayerManagerViewModel viewModel;
 
         public LayerManager()
         {
@@ -27,31 +27,24 @@ namespace BCad.UI.Controls
             : this()
         {
             this.workspace = workspace;
-            this.ViewModel = new LayerManagerViewModel();
-            this.DataContext = this.ViewModel;
         }
 
         public override void OnShowing()
         {
-            this.ViewModel.Layers.Clear();
-            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
-                this.ViewModel.Layers.Add(new MutableLayer(layer));
-
-            this.ViewModel.AvailableColors.Clear();
-            for (int i = 0; i < 256; i++)
-                this.ViewModel.AvailableColors.Add(new IndexedColor((byte)i));
+            this.viewModel = new LayerManagerViewModel(this.workspace);
+            this.DataContext = this.viewModel;
         }
 
         public override void Commit()
         {
             var dwg = workspace.Drawing;
 
-            if (this.ViewModel.Layers.Any(layer => layer.IsDirty) ||
-                this.ViewModel.Layers.Count != dwg.Layers.Count)
+            if (this.viewModel.Layers.Any(layer => layer.IsDirty) ||
+                this.viewModel.Layers.Count != dwg.Layers.Count)
             {
                 // found changes, need to update
                 var newLayers = new ReadOnlyTree<string, Layer>();
-                foreach (var layer in from layer in this.ViewModel.Layers
+                foreach (var layer in from layer in this.viewModel.Layers
                                       select layer.GetUpdatedLayer())
                 {
                     newLayers = newLayers.Insert(layer.Name, layer);
@@ -75,31 +68,19 @@ namespace BCad.UI.Controls
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Layers.Add(new MutableLayer(
-                StringUtilities.NextUniqueName("NewLayer", this.ViewModel.Layers.Select(l => l.Name)), IndexedColor.Auto));
+            this.viewModel.Layers.Add(new MutableLayerViewModel(
+                StringUtilities.NextUniqueName("NewLayer", this.viewModel.Layers.Select(l => l.Name)), workspace.SettingsManager.ColorMap));
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
         {
-            var removed = this.layerList.SelectedItem as MutableLayer;
+            var removed = this.layerList.SelectedItem as MutableLayerViewModel;
             if (removed != null)
             {
-                if (!this.ViewModel.Layers.Remove(removed))
+                if (!this.viewModel.Layers.Remove(removed))
                 {
                     Debug.Fail("Layer could not be found");
                 }
-            }
-        }
-
-        internal class LayerManagerViewModel
-        {
-            public ObservableCollection<MutableLayer> Layers { get; private set; }
-            public ObservableCollection<IndexedColor> AvailableColors { get; private set; }
-
-            public LayerManagerViewModel()
-            {
-                Layers = new ObservableCollection<MutableLayer>();
-                AvailableColors = new ObservableCollection<IndexedColor>();
             }
         }
     }

@@ -14,7 +14,8 @@
         <view:RenderCanvas ViewPort="{Binding Path=ViewPort}"
                            Drawing="{Binding Path=Drawing}"
                            PointSize="{Binding Path=PointSize}"
-                           SelectedEntities="{Binding Path=SelectedEntities}">
+                           SelectedEntities="{Binding Path=SelectedEntities}"
+                           ColorMap="{Binding Path=ColorMap}">
             <view:RenderCanvas.Background>
                 <SolidColorBrush Color="{Binding Path=BackgroundColor, Converter={StaticResource colorConverter}}" />
             </view:RenderCanvas.Background>

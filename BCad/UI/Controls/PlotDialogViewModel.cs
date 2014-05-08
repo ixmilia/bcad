@@ -61,6 +61,7 @@ namespace BCad.UI.Controls
         private double maxPreviewWidth;
         private double maxPreviewHeight;
         private ViewPort activeViewPort;
+        private ColorMap colorMap;
 
         public PlotType PlotType
         {
@@ -392,6 +393,18 @@ namespace BCad.UI.Controls
             }
         }
 
+        public ColorMap ColorMap
+        {
+            get { return colorMap; }
+            set
+            {
+                if (colorMap == value)
+                    return;
+                colorMap = value;
+                OnPropertyChanged();
+            }
+        }
+
         public PageSize[] AvailablePageSizes
         {
             get { return new[] { PageSize.Letter, PageSize.Landscape, PageSize.Legal }; }
@@ -414,6 +427,7 @@ namespace BCad.UI.Controls
             PixelHeight = 600;
             MaxPreviewWidth = 300;
             MaxPreviewHeight = 300;
+            ColorMap = ColorMap.AllBlack;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

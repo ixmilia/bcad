@@ -5,9 +5,9 @@ namespace BCad.Core.UI.Extensions
 {
     public static class ColorExtensions
     {
-        public static Color ToDrawingColor(this IndexedColor color)
+        public static Color ToDrawingColor(this RealColor color)
         {
-            return Color.FromArgb((int)(0xFF000000 | color.GetRgbValue()));
+            return Color.FromArgb((int)(0xFF000000 | color.ToInt()));
         }
 
         public static RealColor ToRealColor(this Media.Color color)

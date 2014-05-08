@@ -47,6 +47,8 @@ namespace BCad.UI.View
             DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new P_Metadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
             DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new P_Metadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
+        public static readonly DependencyProperty ColorMapProperty =
+            DependencyProperty.Register("ColorMap", typeof(ColorMap), typeof(RenderCanvas), new P_Metadata(ColorMap.Default, ColorMapPropertyChanged));
         public static readonly DependencyProperty BackgroundExProperty =
             DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundExPropertyChanged));
 
@@ -90,6 +92,15 @@ namespace BCad.UI.View
             }
         }
 
+        private static void ColorMapPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var control = source as RenderCanvas;
+            if (control != null)
+            {
+                control.Redraw();
+            }
+        }
+
         private static void BackgroundExPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var canvas = source as RenderCanvas;
@@ -115,7 +126,8 @@ namespace BCad.UI.View
         private Func<DoubleCollection> dashedLineGenerator = () => dashedLineInstance;
 #endif
         private BindingClass BindObject = new BindingClass();
-        private Matrix4 PlaneProjection = Matrix4.Identity;        
+        private Matrix4 PlaneProjection = Matrix4.Identity;
+        private ColorMap colorMap = ColorMap.Default;   
 
         public RenderCanvas()
         {
@@ -174,6 +186,16 @@ namespace BCad.UI.View
         {
             get { return (ObservableHashSet<Entity>)GetValue(SelectedEntitiesProperty); }
             set { SetValue(SelectedEntitiesProperty, value); }
+        }
+
+        public ColorMap ColorMap
+        {
+            get { return (ColorMap)GetValue(ColorMapProperty); }
+            set
+            {
+                SetValue(ColorMapProperty, value);
+                colorMap = value;
+            }
         }
 
         private void RecalcTransform()
@@ -454,7 +476,7 @@ namespace BCad.UI.View
             if (color.IsAuto)
                 SetBinding(t, "AutoBrush", TextBlock.ForegroundProperty);
             else
-                t.Foreground = new SolidColorBrush(color.RealColor.ToMediaColor());
+                t.Foreground = new SolidColorBrush(colorMap[color].ToMediaColor());
             return t;
         }
 
@@ -483,7 +505,7 @@ namespace BCad.UI.View
             }
             else
             {
-                shape.Stroke = new SolidColorBrush(color.RealColor.ToMediaColor());
+                shape.Stroke = new SolidColorBrush(colorMap[color].ToMediaColor());
             }
         }
     }

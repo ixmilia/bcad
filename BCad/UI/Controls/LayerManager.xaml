@@ -39,10 +39,10 @@
                 </Grid.ColumnDefinitions>
                 <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
                     <Rectangle.Fill>
-                        <SolidColorBrush x:Name="unused" Color="{Binding Converter={StaticResource colorConverter}}" />
+                        <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
                     </Rectangle.Fill>
                 </Rectangle>
-                <TextBlock Grid.Column="1" Text="{Binding DisplayValue}" Margin="1" />
+                <TextBlock Grid.Column="1" Text="{Binding Path=Color.DisplayValue}" Margin="1" />
             </Grid>
         </DataTemplate>
     </ui:BCadControl.Resources>
@@ -63,8 +63,8 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock Text="{Binding Name}" Style="{StaticResource GridBlockStyle}" />
-                                    <TextBox Text="{Binding Name}" Style="{StaticResource GridEditStyle}" />
+                                    <TextBlock Text="{Binding Path=Name}" Style="{StaticResource GridBlockStyle}" />
+                                    <TextBox Text="{Binding Path=Name}" Style="{StaticResource GridEditStyle}" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -73,10 +73,10 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <ContentPresenter Content="{Binding Color}"
+                                    <ContentPresenter Content="{Binding Path=Color}"
                                                       ContentTemplate="{StaticResource ColorTemplate}"
                                                       Style="{StaticResource GridBlockStyle}" />
-                                    <ComboBox SelectedItem="{Binding Color}"
+                                    <ComboBox SelectedItem="{Binding Path=Color}"
                                               ItemsSource="{Binding ElementName=layerList, Path=DataContext.AvailableColors}"
                                               ItemTemplate="{StaticResource ColorTemplate}"
                                               Style="{StaticResource GridEditStyle}">
@@ -88,7 +88,7 @@
                     <GridViewColumn Width="60" Header="Visible">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsVisible}" />
+                                <CheckBox IsChecked="{Binding Path=IsVisible}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

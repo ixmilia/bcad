@@ -104,6 +104,8 @@
     <Compile Include="Ribbons\DebugRibbon.xaml.cs">
       <DependentUpon>DebugRibbon.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\ColorViewModel.cs" />
+    <Compile Include="ViewModels\HomeRibbonViewModel.cs" />
     <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
       <DependentUpon>SettingsRibbon.xaml</DependentUpon>
     </Compile>
@@ -124,7 +126,6 @@
     <Compile Include="UI\Controls\LayerManager.xaml.cs">
       <DependentUpon>LayerManager.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Controls\MutableLayer.cs" />
     <Compile Include="UI\Controls\PlotDialog.xaml.cs">
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
@@ -147,6 +148,9 @@
     </Compile>
     <Compile Include="UI\View\XamlRendererFactory.cs" />
     <Compile Include="UserCommand.cs" />
+    <Compile Include="ViewModels\LayerManagerViewModel.cs" />
+    <Compile Include="ViewModels\MutableLayerViewModel.cs" />
+    <Compile Include="ViewModels\ReadOnlyLayerViewModel.cs" />
     <Compile Include="Workspace.cs" />
     <Page Include="Ribbons\DebugRibbon.xaml">
       <SubType>Designer</SubType>

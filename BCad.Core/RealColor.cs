@@ -2,18 +2,23 @@
 {
     public struct RealColor
     {
-        public byte A { get; set; }
-        public byte R { get; set; }
-        public byte G { get; set; }
-        public byte B { get; set; }
+        public readonly byte A;
+        public readonly byte R;
+        public readonly byte G;
+        public readonly byte B;
 
         private RealColor(byte a, byte r, byte g, byte b)
             : this()
         {
-            A = a;
-            R = r;
-            G = g;
-            B = b;
+            this.A = a;
+            this.R = r;
+            this.G = g;
+            this.B = b;
+        }
+
+        public int ToInt()
+        {
+            return (A << 24) | (R << 16) | (G << 8) | B;
         }
 
         public static RealColor FromRgb(byte r, byte g, byte b)
@@ -26,14 +31,23 @@
             return new RealColor(a, r, g, b);
         }
 
+        public static RealColor FromInt(int color)
+        {
+            byte a = (byte)0xFF;
+            byte r = (byte)((color & 0xFF0000) >> 16);
+            byte g = (byte)((color & 0x00FF00) >> 8);
+            byte b = (byte)(color & 0x0000FF);
+            return FromArgb(a, r, g, b);
+        }
+
         public static bool operator ==(RealColor a, RealColor b)
         {
-            return a.A == a.A && a.R == b.R && a.G == b.G && a.B == b.B;
+            return a.A == b.A && a.R == b.R && a.G == b.G && a.B == b.B;
         }
 
         public static bool operator !=(RealColor a, RealColor b)
         {
-            return a.A != a.A || a.R != b.R || a.G != b.G || a.B != b.B;
+            return a.A != b.A || a.R != b.R || a.G != b.G || a.B != b.B;
         }
 
         public override bool Equals(object obj)

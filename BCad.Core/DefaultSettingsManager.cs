@@ -31,6 +31,7 @@ namespace BCad
         private KeyboardShortcut debugShortcut = null;
         private RealColor backgroundColor = RealColor.Black;
         private RealColor snapPointColor = RealColor.Yellow;
+        private ColorMap colorMap = null;
 
         protected IInputService InputService { get; set; }
 
@@ -340,6 +341,31 @@ namespace BCad
             set { SnapPointColor = value.ParseColor(); }
         }
 
+        [XmlIgnore]
+        public ColorMap ColorMap
+        {
+            get { return colorMap; }
+            set
+            {
+                colorMap = value;
+                OnPropertyChanged("ColorMap");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName = "ColorMap")]
+        public string ColorMapString
+        {
+            get
+            {
+                return colorMap.ToString();
+            }
+            set
+            {
+                colorMap = ColorMap.Parse(value);
+            }
+        }
+
         public DefaultSettingsManager()
         {
             LoadDefaults();
@@ -391,6 +417,7 @@ namespace BCad
             BackgroundColor = RealColor.DarkSlateGray;
             //BackgroundColor = 0x6495ED; // cornflower blue
             SnapPointColor = RealColor.Yellow;
+            ColorMap = ColorMap.Default;
         }
     }
 }

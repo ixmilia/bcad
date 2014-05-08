@@ -18,7 +18,7 @@ namespace BCad.Commands.FilePlotters
 
         private static XNamespace Xmlns = "http://www.w3.org/2000/svg";
 
-        public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
+        public void Plot(IEnumerable<ProjectedEntity> entities, ColorMap colorMap, double width, double height, Stream stream)
         {
             var root = new XElement(Xmlns + "svg",
                 //new XAttribute("width", string.Format("{0}in", 6)),
@@ -30,12 +30,12 @@ namespace BCad.Commands.FilePlotters
                 var layer = groupedEntity.Key;
                 root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
                 var g = new XElement(Xmlns + "g",
-                    new XAttribute("stroke", layer.Color.RealColor.ToColorString()),
-                    new XAttribute("fill", layer.Color.RealColor.ToColorString()));
+                    new XAttribute("stroke", colorMap[layer.Color].ToColorString()),
+                    new XAttribute("fill", colorMap[layer.Color].ToColorString()));
                 // TODO: stroke-width="0.5"
                 foreach (var entity in groupedEntity)
                 {
-                    var elem = ToXElement(entity);
+                    var elem = ToXElement(entity, colorMap);
                     if (elem != null)
                         g.Add(elem);
                 }
@@ -57,37 +57,37 @@ namespace BCad.Commands.FilePlotters
             writer.Close();
         }
 
-        private static XElement ToXElement(ProjectedEntity entity)
+        private static XElement ToXElement(ProjectedEntity entity, ColorMap colorMap)
         {
             switch (entity.Kind)
             {
                 case EntityKind.Line:
-                    return ToXElement((ProjectedLine)entity);
+                    return ToXElement((ProjectedLine)entity, colorMap);
                 case EntityKind.Arc:
-                    return ToXElement((ProjectedArc)entity);
+                    return ToXElement((ProjectedArc)entity, colorMap);
                 case EntityKind.Circle:
-                    return ToXElement((ProjectedCircle)entity);
+                    return ToXElement((ProjectedCircle)entity, colorMap);
                 case EntityKind.Text:
-                    return ToXElement((ProjectedText)entity);
+                    return ToXElement((ProjectedText)entity, colorMap);
                 case EntityKind.Aggregate:
-                    return ToXElement((ProjectedAggregate)entity);
+                    return ToXElement((ProjectedAggregate)entity, colorMap);
                 default:
                     return null;
             }
         }
 
-        private static XElement ToXElement(ProjectedLine line)
+        private static XElement ToXElement(ProjectedLine line, ColorMap colorMap)
         {
             var xml = new XElement(Xmlns + "line",
                 new XAttribute("x1", line.P1.X),
                 new XAttribute("y1", line.P1.Y),
                 new XAttribute("x2", line.P2.X),
                 new XAttribute("y2", line.P2.Y));
-            AddStrokeIfNotDefault(xml, line.OriginalLine.Color);
+            AddStrokeIfNotDefault(xml, line.OriginalLine.Color, colorMap);
             return xml;
         }
 
-        private static XElement ToXElement(ProjectedText text)
+        private static XElement ToXElement(ProjectedText text, ColorMap colorMap)
         {
             var xml = new XElement(Xmlns + "text",
                 new XAttribute("x", text.Location.X),
@@ -95,12 +95,12 @@ namespace BCad.Commands.FilePlotters
                 new XAttribute("font-size", string.Format("{0}px", text.Height)),
                 text.OriginalText.Value);
             AddRotationTransform(xml, text.Rotation, text.Location);
-            AddStrokeIfNotDefault(xml, text.OriginalText.Color);
-            AddFillIfNotDefault(xml, text.OriginalText.Color);
+            AddStrokeIfNotDefault(xml, text.OriginalText.Color, colorMap);
+            AddFillIfNotDefault(xml, text.OriginalText.Color, colorMap);
             return xml;
         }
 
-        private static XElement ToXElement(ProjectedCircle circle)
+        private static XElement ToXElement(ProjectedCircle circle, ColorMap colorMap)
         {
             var xml = new XElement(Xmlns + "ellipse",
                 new XAttribute("cx", circle.Center.X),
@@ -109,20 +109,20 @@ namespace BCad.Commands.FilePlotters
                 new XAttribute("ry", circle.RadiusY),
                 new XAttribute("fill-opacity", 0));
             AddRotationTransform(xml, circle.Rotation, circle.Center);
-            AddStrokeIfNotDefault(xml, circle.OriginalCircle.Color);
+            AddStrokeIfNotDefault(xml, circle.OriginalCircle.Color, colorMap);
             return xml;
         }
 
-        private static XElement ToXElement(ProjectedAggregate aggregate)
+        private static XElement ToXElement(ProjectedAggregate aggregate, ColorMap colorMap)
         {
             var group = new XElement(Xmlns + "g",
-                aggregate.Children.Select(c =>ToXElement(c)));
+                aggregate.Children.Select(c =>ToXElement(c, colorMap)));
             AddTranslateTransform(group, (Vector)aggregate.Location);
-            AddStrokeIfNotDefault(group, aggregate.Original.Color);
+            AddStrokeIfNotDefault(group, aggregate.Original.Color, colorMap);
             return group;
         }
 
-        private static XElement ToXElement(ProjectedArc arc)
+        private static XElement ToXElement(ProjectedArc arc, ColorMap colorMap)
         {
             var pathData = string.Format("M {0} {1} a {2} {3} {4} {5} {6} {7} {8}",
                 arc.StartPoint.X,
@@ -143,7 +143,7 @@ namespace BCad.Commands.FilePlotters
                 new XAttribute("d", pathData),
                 new XAttribute("fill-opacity", 0));
             AddRotationTransform(xml, arc.Rotation, arc.Center);
-            AddStrokeIfNotDefault(xml, arc.OriginalArc.Color);
+            AddStrokeIfNotDefault(xml, arc.OriginalArc.Color, colorMap);
             return xml;
         }
 
@@ -177,12 +177,12 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private static void AddStrokeIfNotDefault(XElement xml, IndexedColor color)
+        private static void AddStrokeIfNotDefault(XElement xml, IndexedColor color, ColorMap colorMap)
         {
             if (!color.IsAuto)
             {
                 var stroke = xml.Attribute("stroke");
-                var colorString = color.RealColor.ToColorString();
+                var colorString = colorMap[color].ToColorString();
                 if (stroke == null)
                 {
                     // add new attribute
@@ -196,12 +196,12 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private static void AddFillIfNotDefault(XElement xml, IndexedColor color)
+        private static void AddFillIfNotDefault(XElement xml, IndexedColor color, ColorMap colorMap)
         {
             if (!color.IsAuto)
             {
                 var stroke = xml.Attribute("fill");
-                var colorString = color.RealColor.ToColorString();
+                var colorString = colorMap[color].ToColorString();
                 if (stroke == null)
                 {
                     // add new attribute

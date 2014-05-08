@@ -38,6 +38,7 @@
     <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
+    <Compile Include="ColorMap.cs" />
     <Compile Include="Commands\CommandMetadata.cs" />
     <Compile Include="Commands\ZoomExtentsCommand.cs" />
     <Compile Include="Commands\ZoomWindowCommand.cs" />

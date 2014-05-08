@@ -11,17 +11,13 @@ namespace BCad.Ribbons
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            RealColor real;
+            var real = RealColor.Black;
             if (value != null)
             {
                 if (value.GetType() == typeof(RealColor))
                 {
                     real = (RealColor)value;
                     return Color.FromArgb(real.A, real.R, real.G, real.B);
-                }
-                else if (value.GetType() == typeof(IndexedColor))
-                {
-                    real = ((IndexedColor)value).RealColor;
                 }
                 else if (value.GetType() == typeof(string))
                 {
