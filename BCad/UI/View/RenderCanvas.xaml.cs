@@ -97,7 +97,7 @@ namespace BCad.UI.View
             var control = source as RenderCanvas;
             if (control != null)
             {
-                control.Redraw();
+                control.RebindBrushes();
             }
         }
 
@@ -141,6 +141,7 @@ namespace BCad.UI.View
                 Source = this
             };
             BindingOperations.SetBinding(this, BackgroundExProperty, binding);
+            RebindBrushes();
         }
 
         internal void SetAutocolorFromBackgroundColor(Color bgColor)
@@ -279,6 +280,11 @@ namespace BCad.UI.View
             {
                 Debug.Assert(false, "unexpected canvas child");
             }
+        }
+
+        private void RebindBrushes()
+        {
+            BindObject.RebindBrushes(ColorMap);
         }
 
         private void Redraw()
@@ -468,10 +474,7 @@ namespace BCad.UI.View
             t.RenderTransform = trans;
             Canvas.SetLeft(t, location.X);
             Canvas.SetTop(t, location.Y + text.Height);
-            if (color.IsAuto)
-                SetBinding(t, "AutoBrush", TextBlock.ForegroundProperty);
-            else
-                t.Foreground = new SolidColorBrush(ColorMap[color].ToMediaColor());
+            SetColorBinding(t, TextBlock.ForegroundProperty, color);
             return t;
         }
 
@@ -494,13 +497,18 @@ namespace BCad.UI.View
 
         private void SetColorBinding(Shape shape, IndexedColor color)
         {
+            SetColorBinding(shape, Shape.StrokeProperty, color);
+        }
+
+        private void SetColorBinding(FrameworkElement element, DependencyProperty property, IndexedColor color)
+        {
             if (color.IsAuto)
             {
-                SetBinding(shape, "AutoBrush", Shape.StrokeProperty);
+                SetBinding(element, "AutoBrush", property);
             }
             else
             {
-                shape.Stroke = new SolidColorBrush(ColorMap[color].ToMediaColor());
+                SetBinding(element, "Brush" + color.Value, property);
             }
         }
     }

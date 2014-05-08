@@ -57,6 +57,14 @@ namespace BCad
             }
         }
 
+        public RealColor this[byte value]
+        {
+            get
+            {
+                return colors[value];
+            }
+        }
+
         public static ColorMap Create(IEnumerable<RealColor> colors)
         {
             if (colors == null)
