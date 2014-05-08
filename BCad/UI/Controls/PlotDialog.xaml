@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -91,7 +92,23 @@
                 </RadioButton>
             </StackPanel>
         </Grid>
-        <StackPanel Grid.Row="3">
+        <Grid Grid.Row="3">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton GroupName="colorMapType"
+                             Content="Drawing default"
+                             IsChecked="{Binding Path=ColorMapType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=DrawingDefault}" />
+                <RadioButton GroupName="colorMapType"
+                             Content="All black"
+                             IsChecked="{Binding Path=ColorMapType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=AllBlack}" />
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="4">
             <TextBlock Text="Preview" />
             <Border BorderBrush="Black" BorderThickness="1" Width="{Binding Path=MaxPreviewWidth}" Height="{Binding Path=MaxPreviewHeight}">
                 <Grid Width="{Binding Path=MaxPreviewWidth}" Height="{Binding Path=MaxPreviewHeight}" Background="LightGray">

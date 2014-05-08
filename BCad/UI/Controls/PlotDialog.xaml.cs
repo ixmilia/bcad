@@ -43,7 +43,7 @@ namespace BCad.UI.Controls
             this.fileSystemService = fileSystemService;
             this.filePlotters = filePlotters;
 
-            viewModel = new PlotDialogViewModel();
+            viewModel = new PlotDialogViewModel(this.workspace);
             DataContext = viewModel;
         }
 

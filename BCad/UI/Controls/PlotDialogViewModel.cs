@@ -32,9 +32,16 @@ namespace BCad.UI.Controls
         ToFit
     }
 
+    public enum ColorMapType
+    {
+        DrawingDefault,
+        AllBlack
+    }
+
     public class PlotDialogViewModel : INotifyPropertyChanged
     {
         private const string ViewPortProperty = "ViewPort";
+        private IWorkspace workspace;
 
         public IEnumerable<PlotType> AvailablePlotTypes
         {
@@ -46,6 +53,7 @@ namespace BCad.UI.Controls
         private string fileName;
         private ViewportType viewportType;
         private ScalingType scalingType;
+        private ColorMapType colorMapType;
         private Point bottomLeft;
         private Point topRight;
         private double scaleA;
@@ -138,6 +146,29 @@ namespace BCad.UI.Controls
                 this.scalingType = value;
                 OnPropertyChanged();
                 OnPropertyChangedDirect(ViewPortProperty);
+            }
+        }
+
+        public ColorMapType ColorMapType
+        {
+            get { return this.colorMapType; }
+            set
+            {
+                if (this.colorMapType == value)
+                    return;
+                this.colorMapType = value;
+                OnPropertyChanged();
+                switch (this.colorMapType)
+                {
+                    case ColorMapType.DrawingDefault:
+                        ColorMap = workspace.SettingsManager.ColorMap;
+                        break;
+                    case ColorMapType.AllBlack:
+                        ColorMap = ColorMap.AllBlack;
+                        break;
+                    default:
+                        throw new InvalidOperationException("unsupported color map type");
+                }
             }
         }
 
@@ -410,13 +441,16 @@ namespace BCad.UI.Controls
             get { return new[] { PageSize.Letter, PageSize.Landscape, PageSize.Legal }; }
         }
 
-        public PlotDialogViewModel()
+        public PlotDialogViewModel(IWorkspace workspace)
         {
+            this.workspace = workspace;
+            colorMap = ColorMap.Default;
             Drawing = new Drawing();
             PlotType = PlotType.File;
             FileName = string.Empty;
             ViewportType = ViewportType.Extents;
             ScalingType = ScalingType.ToFit;
+            ColorMapType = ColorMapType.DrawingDefault;
             BottomLeft = Point.Origin;
             TopRight = Point.Origin;
             ScaleA = 1.0;
@@ -427,7 +461,6 @@ namespace BCad.UI.Controls
             PixelHeight = 600;
             MaxPreviewWidth = 300;
             MaxPreviewHeight = 300;
-            ColorMap = ColorMap.AllBlack;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
