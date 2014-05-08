@@ -45,6 +45,9 @@ namespace BCad.UI.View
                 case Constants.BackgroundColorString:
                     viewModel.BackgroundColor = Workspace.SettingsManager.BackgroundColor;
                     break;
+                case Constants.ColorMapString:
+                    viewModel.ColorMap = Workspace.SettingsManager.ColorMap;
+                    break;
             }
         }
 

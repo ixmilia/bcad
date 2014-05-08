@@ -127,7 +127,6 @@ namespace BCad.UI.View
 #endif
         private BindingClass BindObject = new BindingClass();
         private Matrix4 PlaneProjection = Matrix4.Identity;
-        private ColorMap colorMap = ColorMap.Default;   
 
         public RenderCanvas()
         {
@@ -191,11 +190,7 @@ namespace BCad.UI.View
         public ColorMap ColorMap
         {
             get { return (ColorMap)GetValue(ColorMapProperty); }
-            set
-            {
-                SetValue(ColorMapProperty, value);
-                colorMap = value;
-            }
+            set { SetValue(ColorMapProperty, value); }
         }
 
         private void RecalcTransform()
@@ -476,7 +471,7 @@ namespace BCad.UI.View
             if (color.IsAuto)
                 SetBinding(t, "AutoBrush", TextBlock.ForegroundProperty);
             else
-                t.Foreground = new SolidColorBrush(colorMap[color].ToMediaColor());
+                t.Foreground = new SolidColorBrush(ColorMap[color].ToMediaColor());
             return t;
         }
 
@@ -505,7 +500,7 @@ namespace BCad.UI.View
             }
             else
             {
-                shape.Stroke = new SolidColorBrush(colorMap[color].ToMediaColor());
+                shape.Stroke = new SolidColorBrush(ColorMap[color].ToMediaColor());
             }
         }
     }
