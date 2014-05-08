@@ -1,5 +1,4 @@
-﻿using System;
-using System.Composition;
+﻿using System.Composition;
 using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad.Ribbons

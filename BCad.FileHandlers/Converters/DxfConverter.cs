@@ -8,12 +8,13 @@ using BCad.Dxf.Blocks;
 using BCad.Dxf.Entities;
 using BCad.Entities;
 using BCad.FileHandlers.DrawingFiles;
+using System.Collections.Generic;
 
 namespace BCad.FileHandlers.Converters
 {
     public class DxfConverter : IDrawingConverter
     {
-        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort)
+        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
         {
             if (drawingFile == null)
                 throw new ArgumentNullException("drawingFile");
@@ -23,6 +24,11 @@ namespace BCad.FileHandlers.Converters
             if (dxfFile.File == null)
                 throw new ArgumentException("Drawing file had no internal DXF file.");
             var layers = new ReadOnlyTree<string, Layer>();
+
+            propertyBag = new Dictionary<string, object>()
+            {
+                { "ColorMap", ColorMap.AutoCADDefault }
+            };
 
             foreach (var layer in dxfFile.File.Layers)
             {
@@ -90,7 +96,7 @@ namespace BCad.FileHandlers.Converters
             return true;
         }
 
-        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
+        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag, out IDrawingFile drawingFile)
         {
             var file = new DxfFile();
             var oldFile = drawing.Tag as DxfFile;

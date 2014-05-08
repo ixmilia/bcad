@@ -10,12 +10,13 @@ using BCad.Helpers;
 using BCad.Iges;
 using BCad.Iges.Entities;
 using BCad.Primitives;
+using System.Collections.Generic;
 
 namespace BCad.FileHandlers.Converters
 {
     public class IgesConverter : IDrawingConverter
     {
-        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort)
+        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
         {
             if (drawingFile == null)
                 throw new ArgumentNullException("drawingFile");
@@ -24,6 +25,12 @@ namespace BCad.FileHandlers.Converters
                 throw new ArgumentException("Drawing file was not an IGES file.");
             if (igesFile.File == null)
                 throw new ArgumentException("Drawing file had no internal IGES file.");
+
+            propertyBag = new Dictionary<string, object>()
+            {
+                { "ColorMap", ColorMap.IgesDefault }
+            };
+
             var layer = new Layer("igs", IndexedColor.Auto);
             foreach (var entity in igesFile.File.Entities)
             {
@@ -46,7 +53,7 @@ namespace BCad.FileHandlers.Converters
             return true;
         }
 
-        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
+        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag, out IDrawingFile drawingFile)
         {
             var file = new IgesFile();
             var oldFile = drawing.Tag as IgesFile;
@@ -298,21 +305,21 @@ namespace BCad.FileHandlers.Converters
                 case IgesColorNumber.Default:
                     return IndexedColor.Auto;
                 case IgesColorNumber.Black:
-                    return new IndexedColor(0);
-                case IgesColorNumber.Red:
                     return new IndexedColor(1);
+                case IgesColorNumber.Red:
+                    return new IndexedColor(2);
                 case IgesColorNumber.Green:
                     return new IndexedColor(3);
                 case IgesColorNumber.Blue:
-                    return new IndexedColor(5);
+                    return new IndexedColor(4);
                 case IgesColorNumber.Yellow:
-                    return new IndexedColor(2);
+                    return new IndexedColor(5);
                 case IgesColorNumber.Magenta:
                     return new IndexedColor(6);
                 case IgesColorNumber.Cyan:
-                    return new IndexedColor(4);
-                case IgesColorNumber.White:
                     return new IndexedColor(7);
+                case IgesColorNumber.White:
+                    return new IndexedColor(8);
                 default:
                     return IndexedColor.Auto;
             }

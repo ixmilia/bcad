@@ -4,12 +4,13 @@ using BCad.Core;
 using BCad.Entities;
 using BCad.FileHandlers.DrawingFiles;
 using BCad.Stl;
+using System.Collections.Generic;
 
 namespace BCad.FileHandlers.Converters
 {
     public class StlConverter : IDrawingConverter
     {
-        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort)
+        public bool ConvertToDrawing(string fileName, IDrawingFile drawingFile, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
         {
             if (drawingFile == null)
                 throw new ArgumentNullException("drawingFile");
@@ -18,6 +19,12 @@ namespace BCad.FileHandlers.Converters
                 throw new ArgumentException("Drawing file was not an STL file.");
             if (stlFile.File == null)
                 throw new ArgumentException("Drawing file had no internal STL file.");
+
+            propertyBag = new Dictionary<string, object>
+            {
+                { "ColorMap", ColorMap.Default }
+            };
+
             var layer = new Layer(stlFile.File.SolidName ?? "stl", IndexedColor.Auto);
             foreach (var triangle in stlFile.File.Triangles)
             {
@@ -36,7 +43,7 @@ namespace BCad.FileHandlers.Converters
             return true;
         }
 
-        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, out IDrawingFile drawingFile)
+        public bool ConvertFromDrawing(string fileName, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag, out IDrawingFile drawingFile)
         {
             throw new NotImplementedException();
         }

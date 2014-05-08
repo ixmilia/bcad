@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.21623.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55} = {0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Test", "BCad.Test\BCad.Test.csproj", "{399E6364-BB96-4BA8-965D-537B732DEE19}"
 EndProject
