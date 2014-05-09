@@ -3,7 +3,6 @@ BCad
 
 Runtime requirements
 --------------------
-* BCad.config.xml
 * BCad.Core.dll
 * BCad.Core.UI.dll
 * BCad.Dxf.dll

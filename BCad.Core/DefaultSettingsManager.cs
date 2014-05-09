@@ -394,7 +394,7 @@ namespace BCad
 
         private void LoadDefaults()
         {
-            RibbonOrder = new[] { "home", "drawing-settings", "debug" };
+            RibbonOrder = new[] { "home", "settings", "debug" };
             LayerDialogId = "Default";
             PlotDialogId = "Default";
             RendererId = "Default";
@@ -415,7 +415,6 @@ namespace BCad
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
             DebugShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F12);
             BackgroundColor = RealColor.DarkSlateGray;
-            //BackgroundColor = 0x6495ED; // cornflower blue
             SnapPointColor = RealColor.Yellow;
             ColorMap = ColorMap.Default;
         }

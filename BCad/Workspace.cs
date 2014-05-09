@@ -11,11 +11,11 @@ namespace BCad
     [Export(typeof(IWorkspace)), Shared]
     internal class Workspace : WorkspaceBase
     {
-        private const string ConfigFile = "BCad.config.xml";
+        private const string SettingsFile = "BCad.settings.xml";
 
-        private string FullConfigFile
+        private string FullSettingsFile
         {
-            get { return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ConfigFile); }
+            get { return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), SettingsFile); }
         }
 
         public Workspace()
@@ -26,15 +26,14 @@ namespace BCad
         protected override ISettingsManager LoadSettings()
         {
             SettingsManager manager = null;
-            if (File.Exists(FullConfigFile))
+            if (File.Exists(FullSettingsFile))
             {
                 try
                 {
                     var serializer = new XmlSerializer(typeof(SettingsManager));
-                    using (var stream = new FileStream(FullConfigFile, FileMode.Open))
+                    using (var stream = new FileStream(FullSettingsFile, FileMode.Open))
                     {
                         manager = (SettingsManager)serializer.Deserialize(stream);
-                        manager.SetInputService(InputService);
                     }
                 }
                 catch
@@ -42,13 +41,16 @@ namespace BCad
                 }
             }
 
-            return manager ?? new SettingsManager();
+            manager = manager ?? new SettingsManager();
+            manager.SetInputService(InputService);
+
+            return manager;
         }
 
         public override void SaveSettings()
         {
             var serializer = new XmlSerializer(typeof(SettingsManager));
-            using (var stream = new FileStream(FullConfigFile, FileMode.Create))
+            using (var stream = new FileStream(FullSettingsFile, FileMode.Create))
             {
                 serializer.Serialize(stream, this.SettingsManager);
             }
