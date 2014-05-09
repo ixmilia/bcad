@@ -38,11 +38,9 @@ namespace BCad
                 }
                 catch
                 {
+                    manager = new SettingsManager();
                 }
             }
-
-            manager = manager ?? new SettingsManager();
-            manager.SetInputService(InputService);
 
             return manager;
         }

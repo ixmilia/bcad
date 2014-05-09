@@ -14,6 +14,9 @@ namespace BCad.Commands
         [Import]
         public IInputService InputService { get; set; }
 
+        [Import]
+        public IOutputService OutputService { get; set; }
+
         public async Task<bool> Execute(object arg = null)
         {
             var entity = await InputService.GetEntity(new UserDirective("Select entity"));
@@ -49,7 +52,7 @@ namespace BCad.Commands
             }
 
             var details = DetailsFromProperties(entity.Value.Entity, properties);
-            InputService.WriteLine(details);
+            OutputService.WriteLine(details);
 
             return true;
         }

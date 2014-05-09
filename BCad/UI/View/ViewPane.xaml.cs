@@ -102,6 +102,9 @@ namespace BCad.UI
         [Import]
         public IInputService InputService { get; set; }
 
+        [Import]
+        public IOutputService OutputService { get; set; }
+
         [ImportMany]
         public IEnumerable<Lazy<IRendererFactory, RenderFactoryMetadata>> RendererFactories { get; set; }
 
@@ -164,7 +167,7 @@ namespace BCad.UI
             if (selectingRectangle)
                 throw new InvalidOperationException("Already selecting a rectangle");
             selectingRectangle = true;
-            InputService.WriteLine("Select first point");
+            OutputService.WriteLine("Select first point");
             SetCursorVisibility();
             selectionDone = new TaskCompletionSource<SelectionRectangle>();
             return selectionDone.Task;
@@ -507,7 +510,7 @@ namespace BCad.UI
                             SelectedEntity selected = null;
                             if (selectingRectangle)
                             {
-                                InputService.WriteLine("Select second point");
+                                OutputService.WriteLine("Select second point");
                             }
                             else
                             {
@@ -933,17 +936,13 @@ namespace BCad.UI
 
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
         {
-            var start = DateTime.UtcNow;
             var entities = Workspace.Drawing.GetEntities().Where(e => selectionRect.Contains(ProjectedChain(e), includePartial));
-            var ellapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            InputService.WriteLineDebug("GetContainedEntites in {0} ms", ellapsed);
             return entities;
         }
 
         private SelectedEntity GetHitEntity(System.Windows.Point cursor)
         {
             var screenPoint = cursor.ToPoint();
-            var start = DateTime.UtcNow;
             var selectionRadius = Workspace.SettingsManager.EntitySelectionRadius;
             var selectionRadius2 = selectionRadius * selectionRadius;
             var entities = from entity in Workspace.Drawing.GetEntities()
@@ -952,9 +951,6 @@ namespace BCad.UI
                            orderby dist.Item1
                            select new SelectedEntity(entity, dist.Item2);
             var selected = entities.FirstOrDefault();
-            var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
-            InputService.WriteLineDebug("GetHitEntity in {0} ms", elapsed);
-
             return selected;
         }
 

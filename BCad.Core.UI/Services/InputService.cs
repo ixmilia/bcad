@@ -40,6 +40,9 @@ namespace BCad.Services
         [Import]
         public IDebugService DebugService { get; set; }
 
+        [Import]
+        public IOutputService OutputService { get; set; }
+
         public InputService()
         {
             PrimitiveGenerator = null;
@@ -57,32 +60,6 @@ namespace BCad.Services
         {
             Workspace.SelectedEntities.Clear();
             SetPrompt("Command");
-        }
-
-        public void WriteLine(string text)
-        {
-            OnLineWritten(new WriteLineEventArgs(text));
-        }
-
-        public void WriteLine(string text, params object[] param)
-        {
-            WriteLine(string.Format(text, param));
-        }
-
-        public void WriteLineDebug(string text)
-        {
-            if (Workspace != null && Workspace.SettingsManager.Debug)
-            {
-                WriteLine(text);
-            }
-        }
-
-        public void WriteLineDebug(string text, params object[] param)
-        {
-            if (Workspace != null && Workspace.SettingsManager.Debug)
-            {
-                WriteLine(string.Format(text, param));
-            }
         }
 
         private object callbackGate = new object();
@@ -392,7 +369,7 @@ namespace BCad.Services
                     }
                     else
                     {
-                        WriteLine("Bad value or directive '{0}'", directive);
+                        OutputService.WriteLine("Bad value or directive '{0}'", directive);
                     }
                 }
             }
@@ -504,14 +481,6 @@ namespace BCad.Services
                 PromptChanged(this, e);
         }
 
-        public event WriteLineEventHandler LineWritten;
-
-        protected virtual void OnLineWritten(WriteLineEventArgs e)
-        {
-            if (LineWritten != null)
-                LineWritten(this, e);
-        }
-
         public void Reset()
         {
             AllowedInputTypes = InputType.Command;
@@ -537,10 +506,10 @@ namespace BCad.Services
             switch (e.InputType)
             {
                 case InputType.Point:
-                    WriteLine(e.Point.ToString());
+                    OutputService.WriteLine(e.Point.ToString());
                     break;
                 case InputType.Text:
-                    WriteLine(e.Text);
+                    OutputService.WriteLine(e.Text);
                     break;
             }
 

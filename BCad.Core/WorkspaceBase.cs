@@ -63,7 +63,7 @@ namespace BCad
         #region Imports
 
         [Import]
-        public IInputService InputService { get; set; }
+        public IOutputService OutputService { get; set; }
 
         [Import]
         public IFileSystemService FileSystemService { get; set; }
@@ -137,7 +137,7 @@ namespace BCad
             var command = commandPair.Item1;
             var display = commandPair.Item2;
             OnCommandExecuting(new CommandExecutingEventArgs(command));
-            InputService.WriteLine(display);
+            OutputService.WriteLine(display);
             bool result;
             try
             {
@@ -145,7 +145,7 @@ namespace BCad
             }
             catch (Exception ex)
             {
-                InputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
+                OutputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
                 result = false;
             }
 
@@ -172,7 +172,7 @@ namespace BCad
             var commandPair = GetCommand(commandName);
             if (commandPair == null)
             {
-                InputService.WriteLine("Command {0} not found", commandName);
+                OutputService.WriteLine("Command {0} not found", commandName);
                 isExecuting = false;
                 return false;
             }

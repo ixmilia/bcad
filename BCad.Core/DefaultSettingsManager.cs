@@ -33,8 +33,6 @@ namespace BCad
         private RealColor snapPointColor = RealColor.Yellow;
         private ColorMap colorMap = null;
 
-        protected IInputService InputService { get; set; }
-
         [XmlIgnore]
         public string[] RibbonOrder
         {
@@ -375,21 +373,9 @@ namespace BCad
 
         protected void OnPropertyChanged(string propertyName)
         {
-            // if the property is a simple boolean
-            var info = this.GetType().GetTypeInfo().GetDeclaredProperty(propertyName);
-            if (info != null && info.PropertyType == typeof(bool))
-            {
-                WriteLine("{0} is {1}", propertyName, (bool)info.GetValue(this) ? "on" : "off");
-            }
-
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void WriteLine(string text, params object[] args)
-        {
-            if (InputService != null)
-                InputService.WriteLine(text, args);
+            var changed = PropertyChanged;
+            if (changed != null)
+                changed(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void LoadDefaults()

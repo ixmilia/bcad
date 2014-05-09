@@ -13,6 +13,9 @@ namespace BCad.Commands
         public IInputService InputService { get; set; }
 
         [Import]
+        public IOutputService OutputService { get; set; }
+
+        [Import]
         public IWorkspace Workspace { get; set; }
 
         private static double lastOffsetDistance = 0.0;
@@ -36,7 +39,7 @@ namespace BCad.Commands
                 dist = lastOffsetDistance;
             }
 
-            InputService.WriteLine("Using offset distance of {0}", dist);
+            OutputService.WriteLine("Using offset distance of {0}", dist);
             lastOffsetDistance = dist;
             var selection = await InputService.GetEntity(new UserDirective("Select entity"));
             while (!selection.Cancel && selection.HasValue)
@@ -44,14 +47,14 @@ namespace BCad.Commands
                 var ent = selection.Value.Entity;
                 if (!EditUtilities.CanOffsetEntity(ent))
                 {
-                    InputService.WriteLine("Unable to offset {0}", ent.Kind);
+                    OutputService.WriteLine("Unable to offset {0}", ent.Kind);
                     selection = await InputService.GetEntity(new UserDirective("Select entity"));
                     continue;
                 }
 
                 if (!drawingPlane.Contains(ent))
                 {
-                    InputService.WriteLine("Entity must be entirely on the drawing plane to offset");
+                    OutputService.WriteLine("Entity must be entirely on the drawing plane to offset");
                     selection = await InputService.GetEntity(new UserDirective("Select entity"));
                     continue;
                 }
@@ -66,7 +69,7 @@ namespace BCad.Commands
 
                 if (!drawingPlane.Contains(point.Value))
                 {
-                    InputService.WriteLine("Point must be on the drawing plane to offset");
+                    OutputService.WriteLine("Point must be on the drawing plane to offset");
                     selection = await InputService.GetEntity(new UserDirective("Select entity"));
                     continue;
                 }

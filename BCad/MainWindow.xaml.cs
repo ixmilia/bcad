@@ -40,6 +40,9 @@ namespace BCad
         [Import]
         public IInputService InputService { get; set; }
 
+        [Import]
+        public IOutputService OutputService { get; set; }
+
         [ImportMany]
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
@@ -194,7 +197,7 @@ namespace BCad
                 }
                 else
                 {
-                    InputService.WriteLine("Unable to open file: ", fileName);
+                    OutputService.WriteLine("Unable to open file: ", fileName);
                 }
             }
             else

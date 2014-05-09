@@ -19,7 +19,6 @@ namespace BCad.Services
     }
 
     public delegate void PromptChangedEventHandler(object sender, PromptChangedEventArgs e);
-    public delegate void WriteLineEventHandler(object sender, WriteLineEventArgs e);
     public delegate void ValueRequestedEventHandler(object sender, ValueRequestedEventArgs e);
     public delegate void ValueReceivedEventHandler(object sender, ValueReceivedEventArgs e);
     public delegate void RubberBandGeneratorChangedEventHandler(object sender, RubberBandGeneratorChangedEventArgs e);
@@ -34,12 +33,6 @@ namespace BCad.Services
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<string>> GetText(string prompt = null);
-
-        void WriteLine(string text);
-        void WriteLine(string text, params object[] param);
-
-        void WriteLineDebug(string text);
-        void WriteLineDebug(string text, params object[] param);
 
         void Cancel();
         void PushNone();
@@ -56,7 +49,6 @@ namespace BCad.Services
         bool IsDrawing { get; }
 
         event PromptChangedEventHandler PromptChanged;
-        event WriteLineEventHandler LineWritten;
         event ValueRequestedEventHandler ValueRequested;
         event ValueReceivedEventHandler ValueReceived;
         event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;

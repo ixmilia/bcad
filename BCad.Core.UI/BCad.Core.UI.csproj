@@ -70,9 +70,28 @@
     </Compile>
     <Compile Include="BCadDialogResult.cs" />
     <Compile Include="BCadDialog`1.cs" />
+    <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
+    <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
+    <Compile Include="Commands\CopyCommand.cs" />
+    <Compile Include="Commands\DeleteCommand.cs" />
+    <Compile Include="Commands\DistanceCommand.cs" />
+    <Compile Include="Commands\DrawArcCommand.cs" />
+    <Compile Include="Commands\DrawCircleCommand.cs" />
+    <Compile Include="Commands\DrawEllipseCommand.cs" />
+    <Compile Include="Commands\DrawLineCommand.cs" />
+    <Compile Include="Commands\DrawTextCommand.cs" />
+    <Compile Include="Commands\EntityPropertiesCommand.cs" />
+    <Compile Include="Commands\ExtendCommand.cs" />
+    <Compile Include="Commands\MoveCommand.cs" />
+    <Compile Include="Commands\OffsetCommand.cs" />
+    <Compile Include="Commands\RotateCommand.cs" />
+    <Compile Include="Commands\TrimCommand.cs" />
     <Compile Include="ConsoleControl.cs" />
     <Compile Include="ControlMetadata.cs" />
     <Compile Include="DialogFactory.cs" />
+    <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
+    <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
+    <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />
     <Compile Include="ExportConsoleAttribute.cs" />
     <Compile Include="ExportControlAttribute.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
@@ -85,6 +104,8 @@
     <Compile Include="IUserConsoleFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RibbonCommands\RibbonCommands.cs" />
+    <Compile Include="Services\IInputService.cs" />
+    <Compile Include="Services\InputService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="BCadDialog.xaml">
@@ -107,6 +128,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

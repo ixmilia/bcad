@@ -25,7 +25,7 @@ namespace BCad.UI.Consoles
         public void OnImportsSatisfied()
         {
             InputService.PromptChanged += HandlePromptChanged;
-            InputService.LineWritten += HandleLineWritten;
+            OutputService.LineWritten += HandleLineWritten;
             Workspace.CommandExecuted += WorkspaceCommandExecuted;
         }
 
@@ -59,6 +59,9 @@ namespace BCad.UI.Consoles
 
         [Import]
         public IInputService InputService { get; set; }
+
+        [Import]
+        public IOutputService OutputService { get; set; }
 
         [Import]
         public IWorkspace Workspace { get; set; }

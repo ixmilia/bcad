@@ -11,13 +11,13 @@ namespace BCad.Commands
         public IUndoRedoService UndoRedoService { get; set; }
 
         [Import]
-        public IInputService InputService { get; set; }
+        public IOutputService OutputService { get; set; }
 
         public Task<bool> Execute(object arg)
         {
             if (UndoRedoService.UndoHistorySize == 0)
             {
-                InputService.WriteLine("Nothing to undo");
+                OutputService.WriteLine("Nothing to undo");
                 return Task.FromResult(false);
             }
 

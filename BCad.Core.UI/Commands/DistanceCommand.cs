@@ -13,6 +13,9 @@ namespace BCad.Commands
         public IInputService InputService { get; set; }
 
         [Import]
+        public IOutputService OutputService { get; set; }
+
+        [Import]
         public IWorkspace Workspace { get; set; }
 
         public async Task<bool> Execute(object arg)
@@ -27,7 +30,7 @@ namespace BCad.Commands
             if (end.Cancel || !end.HasValue) return false;
             var between = end.Value - first;
             var settings = Workspace.Drawing.Settings;
-            InputService.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
+            OutputService.WriteLine("Distance: {0} ( dx: {1}, dy: {2}, dz: {3} )",
                 Format(between.Length),
                 Format(Math.Abs(between.X)),
                 Format(Math.Abs(between.Y)),

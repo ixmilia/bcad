@@ -14,24 +14,24 @@ namespace BCad.Commands
         public IDebugService DebugService { get; set; }
 
         [Import]
-        public IInputService InputService { get; set; }
+        public IOutputService OutputService { get; set; }
 
         public Task<bool> Execute(object arg = null)
         {
-            InputService.WriteLine("input service entries:");
+            OutputService.WriteLine("input service entries:");
             var entries = DebugService.GetLog();
             foreach (var entry in entries)
             {
-                InputService.WriteLine("  " + entry.ToString());
+                OutputService.WriteLine("  " + entry.ToString());
             }
 
-            InputService.WriteLine("drawing structure:");
+            OutputService.WriteLine("drawing structure:");
             foreach (var layer in Workspace.Drawing.Layers.GetValues())
             {
-                InputService.WriteLine("  layer={0}", layer.Name);
+                OutputService.WriteLine("  layer={0}", layer.Name);
                 foreach (var entity in layer.GetEntities())
                 {
-                    InputService.WriteLine("    entity id={0}, detail={1}", entity.Id, entity);
+                    OutputService.WriteLine("    entity id={0}, detail={1}", entity.Id, entity);
                 }
             }
 
