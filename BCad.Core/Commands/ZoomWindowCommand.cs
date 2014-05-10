@@ -5,7 +5,7 @@ using BCad.Primitives;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Zoom.Window", "ZOOMWINDOW", "zw")]
+    [ExportCommand("Zoom.Window", "ZOOMWINDOW")]
     internal class ZoomWindowCommand : ICommand
     {
         [Import]

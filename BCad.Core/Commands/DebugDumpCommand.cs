@@ -4,7 +4,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Debug.Dump", "DUMP", "dump")]
+    [ExportCommand("Debug.Dump", "DUMP")]
     internal class DebugDumpCommand : ICommand
     {
         [Import]

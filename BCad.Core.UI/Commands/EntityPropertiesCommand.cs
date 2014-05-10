@@ -8,8 +8,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("View.Properties", "PROPERTIES", "properties", "prop", "p")]
-    internal class EntityPropertiesCommand : ICommand
+    [ExportUICommand("View.Properties", "PROPERTIES", "properties", "prop", "p")]
+    internal class EntityPropertiesCommand : IUICommand
     {
         [Import]
         public IInputService InputService { get; set; }

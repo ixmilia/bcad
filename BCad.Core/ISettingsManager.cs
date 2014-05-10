@@ -20,10 +20,6 @@ namespace BCad
         bool Debug { get; set; }
         double SnapAngleDistance { get; set; }
         double[] SnapAngles { get; set; }
-        KeyboardShortcut AngleSnapShortcut { get; set; }
-        KeyboardShortcut PointSnapShortcut { get; set; }
-        KeyboardShortcut OrthoShortcut { get; set; }
-        KeyboardShortcut DebugShortcut { get; set; }
         RealColor BackgroundColor { get; set; }
         RealColor SnapPointColor { get; set; }
         ColorMap ColorMap { get; set; }

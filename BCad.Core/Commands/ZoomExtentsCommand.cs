@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Zoom.Extents", "ZOOMEXTENTS", "ze")]
+    [ExportCommand("Zoom.Extents", "ZOOMEXTENTS")]
     internal class ZoomExtentsCommand : ICommand
     {
         [Import]

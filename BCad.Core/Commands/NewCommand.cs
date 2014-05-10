@@ -4,7 +4,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
+    [ExportCommand("File.New", "NEW")]
     public class NewCommand : ICommand
     {
         [Import]

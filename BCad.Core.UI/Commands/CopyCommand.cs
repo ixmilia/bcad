@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using BCad.Entities;
+﻿using BCad.Entities;
 using BCad.Utilities;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Copy", "COPY", ModifierKeys.Control, Key.C, "copy", "co")]
+    [ExportUICommand("Edit.Copy", "COPY", ModifierKeys.Control, Key.C, "copy", "co")]
     internal class CopyCommand : AbstractCopyMoveCommand
     {
         protected override Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta)

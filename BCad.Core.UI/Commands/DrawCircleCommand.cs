@@ -10,8 +10,8 @@ using BCad.Helpers;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Draw.Circle", "CIRCLE", "circle", "c", "cir")]
-    public class DrawCircleCommand : ICommand
+    [ExportUICommand("Draw.Circle", "CIRCLE", "circle", "c", "cir")]
+    public class DrawCircleCommand : IUICommand
     {
         [Import]
         public IInputService InputService { get; set; }

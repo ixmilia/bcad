@@ -1,4 +1,12 @@
-﻿using System;
+﻿using BCad.Commands;
+using BCad.Core.UI;
+using BCad.EventArguments;
+using BCad.Primitives;
+using BCad.Ribbons;
+using BCad.Services;
+using BCad.UI;
+using Microsoft.Windows.Controls.Ribbon;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Composition;
@@ -11,14 +19,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using BCad.Commands;
-using BCad.Core.UI.Extensions;
-using BCad.EventArguments;
-using BCad.Primitives;
-using BCad.Ribbons;
-using BCad.Services;
-using BCad.UI;
-using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad
 {
@@ -35,7 +35,7 @@ namespace BCad
         }
 
         [Import]
-        public IWorkspace Workspace { get; set; }
+        public IUIWorkspace Workspace { get; set; }
 
         [Import]
         public IInputService InputService { get; set; }
@@ -50,7 +50,7 @@ namespace BCad
         public IEnumerable<Lazy<ConsoleControl, ConsoleMetadata>> Consoles { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<Commands.ICommand, CommandMetadata>> Commands { get; set; }
+        public IEnumerable<Lazy<IUICommand, UICommandMetadata>> UICommands { get; set; }
 
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
@@ -72,7 +72,7 @@ namespace BCad
             }
 
             // add keyboard shortcuts for command bindings
-            foreach (var command in from c in Commands
+            foreach (var command in from c in UICommands
                                     let metadata = c.Metadata
                                     where metadata.Key != Key.None
                                        || metadata.Modifier != ModifierKeys.None
@@ -80,21 +80,34 @@ namespace BCad
             {
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),
-                    new KeyGesture(command.Key.ToInputKey(), command.Modifier.ToInputModifierKeys())));
+                    new KeyGesture(command.Key, command.Modifier)));
+            }
+
+            // add keyboard shortcuts for supplimented commands
+            foreach (var command in from c in Workspace.SupplimentedCommands
+                                    where c.Key != Key.None
+                                       || c.Modifier != ModifierKeys.None
+                                    select c)
+            {
+                this.InputBindings.Add(new InputBinding(
+                    new UserCommand(this.Workspace, command.Name),
+                    new KeyGesture(command.Key, command.Modifier)));
             }
 
             // add keyboard shortcuts for toggled settings
+            var uiSettings = Workspace.SettingsManager as SettingsManager;
+            Debug.Assert(uiSettings != null);
             foreach (var setting in new[] {
-                                        new { Name = Constants.AngleSnapString, Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
-                                        new { Name = Constants.PointSnapString, Shortcut = Workspace.SettingsManager.PointSnapShortcut },
-                                        new { Name = Constants.OrthoString, Shortcut = Workspace.SettingsManager.OrthoShortcut },
-                                        new { Name = Constants.DebugString, Shortcut = Workspace.SettingsManager.DebugShortcut } })
+                new { Name = Constants.AngleSnapString, Shortcut = uiSettings.AngleSnapShortcut },
+                new { Name = Constants.PointSnapString, Shortcut = uiSettings.PointSnapShortcut },
+                new { Name = Constants.OrthoString, Shortcut = uiSettings.OrthoShortcut },
+                new { Name = Constants.DebugString, Shortcut = uiSettings.DebugShortcut } })
             {
                 if (setting.Shortcut.HasValue)
                 {
                     this.InputBindings.Add(new InputBinding(
                         new ToggleSettingsCommand(Workspace.SettingsManager, setting.Name),
-                        new KeyGesture(setting.Shortcut.Key.ToInputKey(), setting.Shortcut.Modifier.ToInputModifierKeys())));
+                        new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
                 }
             }
 

@@ -1,12 +1,13 @@
-﻿using System.Composition;
+﻿using BCad.Services;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.Services;
+using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
-    public class DeleteCommand : ICommand
+    [ExportUICommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
+    public class DeleteCommand : IUICommand
     {
         [Import]
         public IInputService InputService { get; set; }

@@ -6,8 +6,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("View.Distance", "DIST", "distance", "di", "dist")]
-    public class DistanceCommand : ICommand
+    [ExportUICommand("View.Distance", "DIST", "distance", "di", "dist")]
+    public class DistanceCommand : IUICommand
     {
         [Import]
         public IInputService InputService { get; set; }

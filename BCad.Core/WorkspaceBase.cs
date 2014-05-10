@@ -209,12 +209,11 @@ namespace BCad
         private string lastCommand = null;
         private object executeGate = new object();
 
-        private Tuple<ICommand, string> GetCommand(string commandName)
+        protected virtual Tuple<ICommand, string> GetCommand(string commandName)
         {
             var command = (from c in Commands
                            let data = c.Metadata
                            where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                              || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
                            select c).SingleOrDefault();
             return command == null ? null : Tuple.Create(command.Value, command.Metadata.DisplayName);
         }

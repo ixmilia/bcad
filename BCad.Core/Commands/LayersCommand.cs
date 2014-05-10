@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Layers", "LAYERS", ModifierKeys.Control, Key.L, "layers", "lay", "la")]
+    [ExportCommand("Edit.Layers", "LAYERS")]
     public class LayersCommand : ICommand
     {
         [Import]

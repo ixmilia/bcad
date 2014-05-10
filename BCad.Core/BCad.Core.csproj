@@ -92,9 +92,7 @@
     <Compile Include="IDrawingFile.cs" />
     <Compile Include="IViewControl.cs" />
     <Compile Include="IWorkspace.cs" />
-    <Compile Include="Key.cs" />
     <Compile Include="Matrix4.cs" />
-    <Compile Include="ModifierKeys.cs" />
     <Compile Include="Optional`1.cs" />
     <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
@@ -122,7 +120,6 @@
     <Compile Include="Services\IFileSystemService.cs" />
     <Compile Include="Services\IOutputService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />
-    <Compile Include="KeyboardShortcut.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Entities\Arc.cs" />
     <Compile Include="Entities\Circle.cs" />

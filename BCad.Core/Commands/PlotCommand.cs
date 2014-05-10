@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Plot", "PLOT", "plot")]
+    [ExportCommand("File.Plot", "PLOT")]
     public class PlotCommand : ICommand
     {
         [Import]
