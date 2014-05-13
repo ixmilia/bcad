@@ -7,7 +7,7 @@ namespace BCad.Core.UI.Extensions
     {
         public static Color ToDrawingColor(this RealColor color)
         {
-            return Color.FromArgb((int)(0xFF000000 | color.ToInt()));
+            return Color.FromArgb((int)(0xFF000000 | (uint)color.ToInt()));
         }
 
         public static RealColor ToRealColor(this Media.Color color)
