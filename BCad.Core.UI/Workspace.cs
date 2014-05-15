@@ -41,8 +41,8 @@ namespace BCad
                 new CommandSuppliment("File.Plot", ModifierKeys.Control, Key.P, "plot"),
                 new CommandSuppliment("File.SaveAs", ModifierKeys.None, Key.None, "saveas", "sa"),
                 new CommandSuppliment("File.Save", ModifierKeys.Control, Key.S, "save", "s"),
-                new CommandSuppliment("View.ZoomExtents", ModifierKeys.None, Key.None, "zoomextents", "ze"),
-                new CommandSuppliment("View.ZoomWindow", ModifierKeys.None, Key.None, "zoomwindow", "zw")
+                new CommandSuppliment("Zoom.Extents", ModifierKeys.None, Key.None, "zoomextents", "ze"),
+                new CommandSuppliment("Zoom.Window", ModifierKeys.None, Key.None, "zoomwindow", "zw")
             };
         }
 
