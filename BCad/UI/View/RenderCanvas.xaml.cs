@@ -67,7 +67,6 @@ namespace BCad.UI.View
             if (control != null)
             {
                 control.Redraw();
-                control.CheckAllSelection();
             }
         }
 
