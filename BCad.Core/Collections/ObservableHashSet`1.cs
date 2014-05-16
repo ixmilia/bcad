@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace BCad.Collections
 {
-    public class ObservableHashSet<T>
+    public class ObservableHashSet<T> : IEnumerable<T>, IEnumerable
     {
         private HashSet<T> items = new HashSet<T>();
 
@@ -43,13 +44,15 @@ namespace BCad.Collections
 
         public void Set(IEnumerable<T> items)
         {
-            var hadItems = this.items.Count > 0;
+            var fireEvent = this.items.Any() || items.Any();
             this.items.Clear();
-            AddRange(items);
-
-            if (hadItems && !items.Any())
+            foreach (var item in items)
             {
-                // need to trigger a changed event for the clearing
+                this.items.Add(item);
+            }
+
+            if (fireEvent)
+            {
                 OnCollectionChanged();
             }
         }
@@ -64,6 +67,16 @@ namespace BCad.Collections
             var changed = CollectionChanged;
             if (changed != null)
                 changed(this, new EventArgs());
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this.items.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)this.items).GetEnumerator();
         }
     }
 }

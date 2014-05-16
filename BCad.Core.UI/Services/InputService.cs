@@ -223,8 +223,9 @@ namespace BCad.Services
                         foreach (var e in pushedEntities)
                         {
                             entities.Add(e);
-                            Workspace.SelectedEntities.Add(e);
                         }
+
+                        Workspace.SelectedEntities.AddRange(pushedEntities);
                         // TODO: print status
                         break;
                     default:

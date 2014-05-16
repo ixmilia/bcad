@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using BCad.Collections;
 using BCad.Entities;
@@ -67,6 +68,7 @@ namespace BCad.UI.View
             if (control != null)
             {
                 control.Redraw();
+                control.CheckAllSelection();
             }
         }
 
@@ -126,6 +128,8 @@ namespace BCad.UI.View
 #endif
         private BindingClass BindObject = new BindingClass();
         private Matrix4 PlaneProjection = Matrix4.Identity;
+        private Dictionary<uint, IList<FrameworkElement>> entityMap = new Dictionary<uint, IList<FrameworkElement>>();
+        private List<FrameworkElement> currentlySelected = new List<FrameworkElement>();
 
         public RenderCanvas()
         {
@@ -211,16 +215,22 @@ namespace BCad.UI.View
 
         private void CheckAllSelection()
         {
-            var selected = SelectedEntities;
-            foreach (FrameworkElement child in theCanvas.Children)
+            // unselect existing entities
+            foreach (var selected in currentlySelected)
             {
-                var containingEntity = child.Tag as Entity;
-                if (containingEntity != null)
+                SetUnselected(selected);
+            }
+
+            currentlySelected.Clear();
+
+            // select new entities
+            var newSelected = SelectedEntities;
+            foreach (var entity in newSelected)
+            {
+                foreach (var element in entityMap[entity.Id])
                 {
-                    if (selected.Contains(containingEntity))
-                        SetSelected(child);
-                    else
-                        SetUnselected(child);
+                    SetSelected(element);
+                    currentlySelected.Add(element);
                 }
             }
         }
@@ -289,6 +299,8 @@ namespace BCad.UI.View
         private void Redraw()
         {
             this.theCanvas.Children.Clear();
+            this.entityMap.Clear();
+            this.currentlySelected.Clear();
             foreach (var layer in Drawing.GetLayers())
             {
                 foreach (var entity in layer.GetEntities())
@@ -326,6 +338,9 @@ namespace BCad.UI.View
             {
                 element.Tag = containingEntity;
                 theCanvas.Children.Add(element);
+                if (!entityMap.ContainsKey(containingEntity.Id))
+                    entityMap.Add(containingEntity.Id, new List<FrameworkElement>());
+                entityMap[containingEntity.Id].Add(element);
             }
         }
 

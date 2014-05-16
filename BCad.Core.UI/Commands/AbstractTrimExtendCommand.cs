@@ -25,7 +25,6 @@ namespace BCad.Commands
             }
 
             var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives());
-            Workspace.SelectedEntities.Set(boundaries.Value);
 
             var drawing = Workspace.Drawing;
             var directive = new UserDirective(GetTrimExtendText());
@@ -52,7 +51,6 @@ namespace BCad.Commands
                 selected = await InputService.GetEntity(directive);
             }
 
-            Workspace.SelectedEntities.Clear();
             return true;
         }
 
