@@ -340,6 +340,7 @@ namespace BCad
             LayerDialogId = "Default";
             PlotDialogId = "Default";
             RendererId = "Default";
+            RendererId = "SharpDX";
             ConsoleControlId = "Default";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
