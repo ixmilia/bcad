@@ -75,9 +75,9 @@ namespace BCad.UI.View
                 basicEffect = ToDisposeContent(new BasicEffect(GraphicsDevice)
                     {
                         VertexColorEnabled = true,
-                        View = SharpDX.Matrix.Identity,
-                        Projection = SharpDX.Matrix.Identity,
-                        World = SharpDX.Matrix.Identity
+                        View = SharpDX.Matrix.Scaling(1.0f, 1.0f, 0.0f), // flatten everything to show on the screen
+                        Projection = SharpDX.Matrix.Identity, // this gets updated in UpdateMatrices()
+                        World = SharpDX.Matrix.Identity // unused since all objects have absolute world coordinates
                     });
                 UpdateVericies();
                 UpdateMatrices();
