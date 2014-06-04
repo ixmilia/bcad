@@ -5,6 +5,7 @@ using System.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -192,10 +193,11 @@ namespace BCad.UI
             }
         }
 
-        private void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
+        private async void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
-            UpdateRubberBandLines();
+            var point = await GetCursorPoint();
+            UpdateRubberBandLines(point);
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -208,15 +210,17 @@ namespace BCad.UI
             SetSelectionLineVisibility(Visibility.Hidden);
         }
 
-        private void InputService_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
+        private async void InputService_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
         {
-            UpdateRubberBandLines();
+            var point = await GetCursorPoint();
+            UpdateRubberBandLines(point);
         }
 
-        private void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        private async void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             selecting = false;
-            UpdateRubberBandLines();
+            var point = await GetCursorPoint();
+            UpdateRubberBandLines(point);
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -249,8 +253,12 @@ namespace BCad.UI
             unprojectMatrix.Invert();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateSnapPoints();
-            UpdateCursorText();
-            UpdateRubberBandLines();
+            new Task((Action)(() =>
+                {
+                    var point = GetCursorPoint().Result;
+                    UpdateCursorText(point);
+                    UpdateRubberBandLines(point);
+                })).Start();
         }
 
         private void DrawingChanged()
@@ -260,7 +268,7 @@ namespace BCad.UI
 
         private void ClearSnapPoints()
         {
-            snapLayer.Children.Clear();
+            Dispatcher.Invoke(() => snapLayer.Children.Clear());
         }
 
         private void UpdateSnapPoints()
@@ -270,37 +278,40 @@ namespace BCad.UI
                 .Select(sp => new TransformedSnapPoint(sp.Point, Project(sp.Point), sp.Kind));
         }
 
-        private void UpdateRubberBandLines()
+        private void UpdateRubberBandLines(Point cursorPoint)
         {
-            this.rubberBandLayer.Children.Clear();
-            var generator = InputService.PrimitiveGenerator;
-            if (generator != null)
-            {
-                var primitives = generator(GetCursorPoint());
-                foreach (var primitive in primitives)
+            Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    FrameworkElement element;
-                    switch (primitive.Kind)
+                    rubberBandLayer.Children.Clear();
+                    var generator = InputService.PrimitiveGenerator;
+                    if (generator != null)
                     {
-                        case PrimitiveKind.Ellipse:
-                            element = CreateRubberBandEllipse((PrimitiveEllipse)primitive);
-                            break;
-                        case PrimitiveKind.Line:
-                            element = CreateRubberBandLine((PrimitiveLine)primitive);
-                            break;
-                        case PrimitiveKind.Point:
-                            element = CreateRubberBandPoint((PrimitivePoint)primitive);
-                            break;
-                        case PrimitiveKind.Text:
-                            element = CreateRubberBandText((PrimitiveText)primitive);
-                            break;
-                        default:
-                            throw new NotImplementedException();
-                    }
+                        var primitives = generator(cursorPoint);
+                        foreach (var primitive in primitives)
+                        {
+                            FrameworkElement element;
+                            switch (primitive.Kind)
+                            {
+                                case PrimitiveKind.Ellipse:
+                                    element = CreateRubberBandEllipse((PrimitiveEllipse)primitive);
+                                    break;
+                                case PrimitiveKind.Line:
+                                    element = CreateRubberBandLine((PrimitiveLine)primitive);
+                                    break;
+                                case PrimitiveKind.Point:
+                                    element = CreateRubberBandPoint((PrimitivePoint)primitive);
+                                    break;
+                                case PrimitiveKind.Text:
+                                    element = CreateRubberBandText((PrimitiveText)primitive);
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
+                            }
 
-                    rubberBandLayer.Children.Add(element);
-                }
-            }
+                            rubberBandLayer.Children.Add(element);
+                        }
+                    }
+                }));
         }
 
         private Shape CreateRubberBandEllipse(PrimitiveEllipse ellipse)
@@ -445,16 +456,17 @@ namespace BCad.UI
             return unprojectMatrix.Transform(point);
         }
 
-        public Point GetCursorPoint()
+        public async Task<Point> GetCursorPoint()
         {
-            var mouse = Input.Mouse.GetPosition(this);
-            return GetActiveModelPoint(mouse.ToPoint()).WorldPoint;
+            var mouse = Dispatcher.Invoke(() => Input.Mouse.GetPosition(this));
+            var model = await GetActiveModelPointAsync(mouse.ToPoint());
+            return model.WorldPoint;
         }
 
-        private void OnMouseDown(object sender, Input.MouseButtonEventArgs e)
+        private async void OnMouseDown(object sender, Input.MouseButtonEventArgs e)
         {
             var cursor = e.GetPosition(this);
-            var sp = GetActiveModelPoint(cursor.ToPoint());
+            var sp = await GetActiveModelPointAsync(cursor.ToPoint());
             switch (e.ChangedButton)
             {
                 case Input.MouseButton.Left:
@@ -570,20 +582,10 @@ namespace BCad.UI
                 firstSelectionPoint -= delta;
             }
 
-            UpdateCursorText();
-
             if (selecting)
             {
                 currentSelectionPoint = cursor;
                 UpdateSelectionLines();
-            }
-
-            UpdateRubberBandLines();
-
-            if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
-            {
-                var sp = GetActiveModelPoint(cursor.ToPoint());
-                DrawSnapPoint(sp);
             }
 
             foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage, textCursorImage })
@@ -591,14 +593,22 @@ namespace BCad.UI
                 Canvas.SetLeft(cursorImage, (int)(cursor.X - (cursorImage.ActualWidth / 2.0)));
                 Canvas.SetTop(cursorImage, (int)(cursor.Y - (cursorImage.ActualHeight / 2.0)));
             }
+
+            new Task((Action)(() =>
+            {
+                var snapPoint = GetActiveModelPointAsync(cursor.ToPoint()).Result;
+                UpdateCursorText(snapPoint.WorldPoint);
+                UpdateRubberBandLines(snapPoint.WorldPoint);
+                if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                    DrawSnapPoint(snapPoint);
+            })).Start();
         }
 
-        private void UpdateCursorText()
+        private void UpdateCursorText(Point real)
         {
             Dispatcher.BeginInvoke((Action)(() =>
                 {
                     var cursor = Input.Mouse.GetPosition(this);
-                    var real = GetCursorPoint();
                     positionText.Text = string.Format("Cursor: {0},{1}; Real: {2:F0},{3:F0},{4:F0}", cursor.X, cursor.Y, real.X, real.Y, real.Z);
                 }));
         }
@@ -747,7 +757,7 @@ namespace BCad.UI
             }
         }
 
-        private void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
+        private async void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
         {
             // scale everything
             var scale = 1.25;
@@ -770,7 +780,7 @@ namespace BCad.UI
                 bottomLeft: (Point)(vp.BottomLeft - botLeftDelta),
                 viewHeight: vp.ViewHeight * scale);
             Workspace.Update(activeViewPort: newVp);
-            var cursor = GetActiveModelPoint(cursorPoint.ToPoint());
+            var cursor = await GetActiveModelPointAsync(cursorPoint.ToPoint());
             DrawSnapPoint(cursor);
         }
 
@@ -786,19 +796,20 @@ namespace BCad.UI
             }
         }
 
-        private TransformedSnapPoint GetActiveModelPoint(Point cursor)
+        private Task<TransformedSnapPoint> GetActiveModelPointAsync(Point cursor)
         {
-            return GetActiveSnapPoint(cursor)
+            return Task.Factory.StartNew<TransformedSnapPoint>(() =>
+                   GetActiveSnapPoint(cursor)
                 ?? GetOrthoPoint(cursor)
                 ?? GetAngleSnapPoint(cursor)
-                ?? GetRawModelPoint(cursor);
+                ?? GetRawModelPoint(cursor));
         }
 
         private TransformedSnapPoint GetActiveSnapPoint(Point cursor)
         {
             if (Workspace.SettingsManager.PointSnap && (InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
-                var maxDistSq = (float)(Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance);
+                var maxDistSq = Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance;
                 var points = from sp in snapPoints
                              let dist = (cursor - sp.ControlPoint).LengthSquared
                              where dist <= maxDistSq
@@ -1024,10 +1035,15 @@ namespace BCad.UI
 
         private void DrawSnapPoint(TransformedSnapPoint snapPoint)
         {
-            ClearSnapPoints();
-            if (snapPoint.Kind == SnapPointKind.None)
-                return;
-            snapLayer.Children.Add(GetSnapIcon(snapPoint));
+            Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    snapLayer.Children.Clear();
+                    if (snapPoint.Kind == SnapPointKind.None)
+                        return;
+                    var dist = (snapPoint.ControlPoint - Input.Mouse.GetPosition(this).ToPoint()).Length;
+                    if (dist <= Workspace.SettingsManager.SnapPointDistance)
+                        snapLayer.Children.Add(GetSnapIcon(snapPoint));
+                }));
         }
 
         private Image GetSnapIcon(TransformedSnapPoint snapPoint)

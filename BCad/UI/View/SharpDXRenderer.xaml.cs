@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using BCad.Primitives;
 using BCad.Services;
@@ -28,10 +29,10 @@ namespace BCad.UI.View
 
         private class CadGame : Game
         {
-            //https://github.com/sharpdx/SharpDX-Samples/blob/master/Toolkit/Common/MiniCube/MiniCubeGame.cs
             private IWorkspace workspace;
             private GraphicsDeviceManager graphicsDeviceManager;
-            //private Color4 backgroundColor;
+            private Color4 backgroundColor;
+            private Color autoColor;
             private BasicEffect basicEffect;
             private Buffer<VertexPositionColor> vertices;
             private VertexInputLayout inputLayout;
@@ -47,6 +48,25 @@ namespace BCad.UI.View
                         if (e.IsActiveViewPortChange)
                             UpdateMatrices();
                     };
+                workspace.SettingsManager.PropertyChanged += (sender, e) =>
+                    {
+                        switch (e.PropertyName)
+                        {
+                            case Constants.BackgroundColorString:
+                                SetColors();
+                                UpdateVericies();
+                                break;
+                        }
+                    };
+                SetColors();
+            }
+
+            private void SetColors()
+            {
+                var bg = workspace.SettingsManager.BackgroundColor;
+                var auto = bg.GetAutoContrastingColor();
+                backgroundColor = new Color4(bg.R / 255f, bg.G / 255f, bg.B / 255f, bg.A / 255f);
+                autoColor = new Color(auto.R, auto.G, auto.B, auto.A);
             }
 
             protected override void LoadContent()
@@ -65,20 +85,46 @@ namespace BCad.UI.View
 
             private void UpdateVericies()
             {
-                var lines = workspace.Drawing.GetEntities().SelectMany(entity => entity.GetPrimitives().OfType<PrimitiveLine>());
                 var verts = new List<VertexPositionColor>();
-                foreach (var line in lines)
+                var drawing = workspace.Drawing;
+                foreach (var layer in drawing.GetLayers())
                 {
-                    verts.Add(new VertexPositionColor(new Vector3((float)line.P1.X, (float)line.P1.Y, (float)line.P1.Z), SharpDX.Color.White));
-                    verts.Add(new VertexPositionColor(new Vector3((float)line.P2.X, (float)line.P2.Y, (float)line.P2.Z), SharpDX.Color.White));
+                    var layerColor = MapColor(layer.Color, autoColor);
+                    foreach (var entity in layer.GetEntities())
+                    {
+                        var entityColor = MapColor(entity.Color, layerColor);
+                        foreach (var prim in entity.GetPrimitives())
+                        {
+                            var primColor = MapColor(prim.Color, entityColor);
+                            switch (prim.Kind)
+                            {
+                                case PrimitiveKind.Line:
+                                    var line = (PrimitiveLine)prim;
+                                    verts.Add(new VertexPositionColor(new Vector3((float)line.P1.X, (float)line.P1.Y, (float)line.P1.Z), primColor));
+                                    verts.Add(new VertexPositionColor(new Vector3((float)line.P2.X, (float)line.P2.Y, (float)line.P2.Z), primColor));
+                                    break;
+                            }
+                        }
+                    }
                 }
+
                 if (verts.Count == 0)
                 {
+                    // we have to display something
                     verts.Add(new VertexPositionColor());
                     verts.Add(new VertexPositionColor());
                 }
+
                 vertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, verts.ToArray(), BufferFlags.VertexBuffer));
                 inputLayout = VertexInputLayout.FromBuffer(0, vertices);
+            }
+
+            private Color MapColor(IndexedColor color, Color fallback)
+            {
+                if (color.IsAuto)
+                    return fallback;
+                var real = workspace.SettingsManager.ColorMap[color];
+                return new Color(real.R, real.G, real.B, real.A);
             }
 
             private void UpdateMatrices()
@@ -105,9 +151,8 @@ namespace BCad.UI.View
 
             protected override void Draw(GameTime gameTime)
             {
-                //GraphicsDevice.Clear(backgroundColor);
-                GraphicsDevice.Clear(SharpDX.Color.Black);
-
+                GraphicsDevice.Clear(backgroundColor);
+                
                 GraphicsDevice.SetVertexBuffer(vertices);
                 GraphicsDevice.SetVertexInputLayout(inputLayout);
 

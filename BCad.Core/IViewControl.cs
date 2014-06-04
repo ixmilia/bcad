@@ -4,7 +4,7 @@ namespace BCad
 {
     public interface IViewControl
     {
-        Point GetCursorPoint();
+        Task<Point> GetCursorPoint();
         int DisplayHeight { get; }
         int DisplayWidth { get; }
         Task<SelectionRectangle> GetSelectionRectangle();

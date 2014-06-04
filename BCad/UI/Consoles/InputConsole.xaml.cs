@@ -125,7 +125,8 @@ namespace BCad.UI.Consoles
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
                 Point point;
-                if (InputService.TryParsePoint(text, Workspace.ViewControl.GetCursorPoint(), InputService.LastPoint, out point))
+                var cursorPoint = Workspace.ViewControl.GetCursorPoint().Result;
+                if (InputService.TryParsePoint(text, cursorPoint, InputService.LastPoint, out point))
                     InputService.PushPoint(point);
             }
             else if (InputService.AllowedInputTypes.HasFlag(InputType.Command))
