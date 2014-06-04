@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using BCad.Helpers;
 using BCad.Primitives;
+using SharpDX;
 
 namespace BCad.Extensions
 {
@@ -17,6 +18,11 @@ namespace BCad.Extensions
         public static System.Windows.Point ToWindowsPoint(this Point point)
         {
             return new System.Windows.Point(point.X, point.Y);
+        }
+
+        public static Vector3 ToVector3(this Point point)
+        {
+            return new Vector3((float)point.X, (float)point.Y, (float)point.Z);
         }
 
         public static bool PolygonContains(this IEnumerable<Point> verticies, Point point)

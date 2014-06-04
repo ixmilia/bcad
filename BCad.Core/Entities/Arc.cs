@@ -14,6 +14,7 @@ namespace BCad.Entities
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
+        private readonly PrimitiveEllipse primitive;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -27,6 +28,8 @@ namespace BCad.Entities
         public double StartAngle { get { return startAngle; } }
 
         public double EndAngle { get { return endAngle; } }
+
+        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
         public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color, object tag = null)
             : base(color, tag)
@@ -46,7 +49,8 @@ namespace BCad.Entities
             this.endPoint2 = points[1];
             this.midPoint = points[2];
 
-            this.primitives = new[] { new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color) };
+            this.primitive = new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color);
+            this.primitives = new IPrimitive[] { this.primitive };
             this.snapPoints = new SnapPoint[]
             {
                 new CenterPoint(Center),

@@ -168,7 +168,7 @@ namespace BCad.Utilities
             {
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var projection = el.FromUnitCircleProjection();
+                    var projection = el.FromUnitCircle;
                     projection.Invert();
                     var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
                     var majorLength = el.MajorAxis.Length;
@@ -602,7 +602,7 @@ namespace BCad.Utilities
             var ellipse = (PrimitiveEllipse)primitive;
 
             // prepare transformation matrix
-            var fromUnitMatrix = ellipse.FromUnitCircleProjection();
+            var fromUnitMatrix = ellipse.FromUnitCircle;
             var toUnitMatrix = fromUnitMatrix;
             toUnitMatrix.Invert();
             var selectionUnit = toUnitMatrix.Transform(selectionPoint);

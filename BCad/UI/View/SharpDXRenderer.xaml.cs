@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using BCad.Extensions;
 using BCad.Primitives;
 using BCad.Services;
 using SharpDX;
@@ -34,8 +35,8 @@ namespace BCad.UI.View
             private Color4 backgroundColor;
             private Color autoColor;
             private BasicEffect basicEffect;
-            private Buffer<VertexPositionColor> vertices;
-            private VertexInputLayout inputLayout;
+            private Buffer<VertexPositionColor> lineVertices;
+            private VertexInputLayout lineInputLayout;
 
             public CadGame(IWorkspace workspace)
             {
@@ -85,7 +86,7 @@ namespace BCad.UI.View
 
             private void UpdateVericies()
             {
-                var verts = new List<VertexPositionColor>();
+                var lineVerts = new List<VertexPositionColor>();
                 var drawing = workspace.Drawing;
                 foreach (var layer in drawing.GetLayers())
                 {
@@ -100,23 +101,36 @@ namespace BCad.UI.View
                             {
                                 case PrimitiveKind.Line:
                                     var line = (PrimitiveLine)prim;
-                                    verts.Add(new VertexPositionColor(new Vector3((float)line.P1.X, (float)line.P1.Y, (float)line.P1.Z), primColor));
-                                    verts.Add(new VertexPositionColor(new Vector3((float)line.P2.X, (float)line.P2.Y, (float)line.P2.Z), primColor));
+                                    lineVerts.Add(new VertexPositionColor(line.P1.ToVector3(), primColor));
+                                    lineVerts.Add(new VertexPositionColor(line.P2.ToVector3(), primColor));
+                                    break;
+                                case PrimitiveKind.Ellipse:
+                                    var el = (PrimitiveEllipse)prim;
+                                    var delta = 10.0;
+                                    var last = new VertexPositionColor(el.GetPoint(el.StartAngle).ToVector3(), primColor);
+                                    for (var angle = el.StartAngle + delta; angle <= el.EndAngle; angle += delta)
+                                    {
+                                        var p = el.GetPoint(angle);
+                                        var next = new VertexPositionColor(p.ToVector3(), primColor);
+                                        lineVerts.Add(last);
+                                        lineVerts.Add(next);
+                                        last = next;
+                                    }
                                     break;
                             }
                         }
                     }
                 }
 
-                if (verts.Count == 0)
+                if (lineVerts.Count == 0)
                 {
                     // we have to display something
-                    verts.Add(new VertexPositionColor());
-                    verts.Add(new VertexPositionColor());
+                    lineVerts.Add(new VertexPositionColor());
+                    lineVerts.Add(new VertexPositionColor());
                 }
 
-                vertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, verts.ToArray(), BufferFlags.VertexBuffer));
-                inputLayout = VertexInputLayout.FromBuffer(0, vertices);
+                lineVertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, lineVerts.ToArray(), BufferFlags.VertexBuffer));
+                lineInputLayout = VertexInputLayout.FromBuffer(0, lineVertices);
             }
 
             private Color MapColor(IndexedColor color, Color fallback)
@@ -153,11 +167,11 @@ namespace BCad.UI.View
             {
                 GraphicsDevice.Clear(backgroundColor);
                 
-                GraphicsDevice.SetVertexBuffer(vertices);
-                GraphicsDevice.SetVertexInputLayout(inputLayout);
+                GraphicsDevice.SetVertexBuffer(lineVertices);
+                GraphicsDevice.SetVertexInputLayout(lineInputLayout);
 
                 basicEffect.CurrentTechnique.Passes[0].Apply();
-                GraphicsDevice.Draw(PrimitiveType.LineList, vertices.ElementCount);
+                GraphicsDevice.Draw(PrimitiveType.LineList, lineVertices.ElementCount);
 
                 base.Draw(gameTime);
             }

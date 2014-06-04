@@ -265,7 +265,7 @@ namespace BCad.Extensions
             var up = ellipse.Normal.Cross(right).Normalize();
             var radiusX = ellipse.MajorAxis.Length;
             var radiusY = radiusX * ellipse.MinorAxisRatio;
-            var transform = ellipse.FromUnitCircleProjection();
+            var transform = ellipse.FromUnitCircle;
             var inverse = transform;
             inverse.Invert();
 
@@ -406,7 +406,7 @@ namespace BCad.Extensions
 
         public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, PrimitivePoint point, bool withinBounds = true)
         {
-            var fromUnit = ellipse.FromUnitCircleProjection();
+            var fromUnit = ellipse.FromUnitCircle;
             var toUnit = fromUnit;
             toUnit.Invert();
             var pointOnUnit = (Vector)toUnit.Transform(point.Location);
@@ -449,7 +449,7 @@ namespace BCad.Extensions
                 {
                     // if they share a point or second.Center is on the first plane, they are the same plane
                     // project second back to a unit circle and find intersection points
-                    var fromUnit = first.FromUnitCircleProjection();
+                    var fromUnit = first.FromUnitCircle;
                     var toUnit = fromUnit;
                     toUnit.Invert();
 
@@ -653,8 +653,8 @@ namespace BCad.Extensions
             // verify points are in angle bounds
             if (withinBounds)
             {
-                var toFirstUnit = first.FromUnitCircleProjection();
-                var toSecondUnit = second.FromUnitCircleProjection();
+                var toFirstUnit = first.FromUnitCircle;
+                var toSecondUnit = second.FromUnitCircle;
                 toFirstUnit.Invert();
                 toSecondUnit.Invert();
                 results = from res in results
@@ -698,15 +698,6 @@ namespace BCad.Extensions
         }
 
         #endregion
-
-        public static Matrix4 FromUnitCircleProjection(this PrimitiveEllipse el)
-        {
-            var normal = el.Normal.Normalize();
-            var right = el.MajorAxis.Normalize();
-            var up = normal.Cross(right).Normalize();
-            var radiusX = el.MajorAxis.Length;
-            return Matrix4.FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
-        }
 
         public static Entity ToEntity(this IPrimitive primitive)
         {
@@ -821,7 +812,7 @@ namespace BCad.Extensions
 
         private static bool ContainsPoint(this PrimitiveEllipse el, Point point)
         {
-            var unitMatrix = el.FromUnitCircleProjection();
+            var unitMatrix = el.FromUnitCircle;
             unitMatrix.Invert();
             var unitPoint = unitMatrix.Transform(point);
             return MathHelper.CloseTo(0.0, unitPoint.Z) // on the XY plane
@@ -854,9 +845,8 @@ namespace BCad.Extensions
 
         public static Point GetPoint(this PrimitiveEllipse ellipse, double angle)
         {
-            var projection = ellipse.FromUnitCircleProjection();
             var pointUnit = new Point(Math.Cos(angle * MathHelper.DegreesToRadians), Math.Sin(angle * MathHelper.DegreesToRadians), 0.0);
-            var pointTransformed = projection.Transform(pointUnit);
+            var pointTransformed = ellipse.FromUnitCircle.Transform(pointUnit);
             return pointTransformed;
         }
 
@@ -920,7 +910,7 @@ namespace BCad.Extensions
             var vertexCount = (int)Math.Ceiling((endAngleDeg - startAngleDeg) / MathHelper.ThreeSixty * maxSeg);
             var points = new Point[vertexCount + 1];
             var angleDelta = MathHelper.ThreeSixty / maxSeg * MathHelper.DegreesToRadians;
-            var trans = ellipse.FromUnitCircleProjection();
+            var trans = ellipse.FromUnitCircle;
             double angle;
             int i;
             for (angle = startAngleRad, i = 0; i < vertexCount; angle += angleDelta, i++)

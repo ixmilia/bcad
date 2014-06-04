@@ -85,7 +85,7 @@ namespace BCad.Helpers
         public static PrimitiveEllipse Project(PrimitiveEllipse ellipse, Matrix4 transform)
         {
             // brute-force the endpoints
-            var fromUnit = Matrix4.CreateScale(1.0, 1.0, 0.0) * transform * ellipse.FromUnitCircleProjection();
+            var fromUnit = Matrix4.CreateScale(1.0, 1.0, 0.0) * transform * ellipse.FromUnitCircle;
             var center = transform.Transform(ellipse.Center);
             var minPoint = fromUnit.Transform(new Point(MathHelper.COS[0], MathHelper.SIN[0], 0));
             var maxPoint = minPoint;

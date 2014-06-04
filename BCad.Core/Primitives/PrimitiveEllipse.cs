@@ -13,6 +13,7 @@ namespace BCad.Primitives
         public double StartAngle { get; private set; }
         public double EndAngle { get; private set; }
         public IndexedColor Color { get; private set; }
+        public Matrix4 FromUnitCircle { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Ellipse; } }
 
         /// <summary>
@@ -29,6 +30,11 @@ namespace BCad.Primitives
             this.StartAngle = startAngle;
             this.EndAngle = endAngle;
             this.Color = color;
+
+            var right = majorAxis.Normalize();
+            var up = normal.Cross(right).Normalize();
+            var radiusX = majorAxis.Length;
+            this.FromUnitCircle = Matrix4.FromUnitCircleProjection(normal.Normalize(), right, up, center, radiusX, radiusX * minorAxisRatio, 1.0);
         }
 
         /// <summary>
@@ -108,7 +114,7 @@ namespace BCad.Primitives
             var circle = ThreePointCircle(a, b, c, idealNormal);
             if (circle != null)
             {
-                var toUnit = circle.FromUnitCircleProjection();
+                var toUnit = circle.FromUnitCircle;
                 toUnit.Invert();
                 var startAngle = toUnit.Transform((Vector)a).ToAngle();
                 var midAngle = toUnit.Transform((Vector)b).ToAngle();

@@ -16,6 +16,7 @@ namespace BCad.Entities
         private readonly Point quadrant2;
         private readonly Point quadrant3;
         private readonly Point quadrant4;
+        private readonly PrimitiveEllipse primitive;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -25,6 +26,8 @@ namespace BCad.Entities
         public Vector Normal { get { return normal; } }
 
         public double Radius { get { return radius; } }
+
+        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
         public Circle(Point center, double radius, Vector normal, IndexedColor color, object tag = null)
             : base(color, tag)
@@ -40,7 +43,8 @@ namespace BCad.Entities
             quadrant3 = points[2];
             quadrant4 = points[3];
 
-            this.primitives = new[] { new PrimitiveEllipse(Center, Radius, Normal, Color) };
+            this.primitive = new PrimitiveEllipse(Center, Radius, Normal, Color);
+            this.primitives = new IPrimitive[] { this.primitive };
             this.snapPoints = new SnapPoint[]
             {
                 new CenterPoint(Center),

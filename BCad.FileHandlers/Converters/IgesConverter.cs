@@ -239,7 +239,7 @@ namespace BCad.FileHandlers.Converters
             {
                 // project back to unit circle to find start/end angles
                 var primitiveCircle = new PrimitiveEllipse(center, radius, normal);
-                var toUnit = primitiveCircle.FromUnitCircleProjection();
+                var toUnit = primitiveCircle.FromUnitCircle;
                 Debug.Assert(AreAllValuesValid(toUnit));
                 toUnit.Invert();
                 Debug.Assert(AreAllValuesValid(toUnit));

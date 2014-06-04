@@ -83,41 +83,26 @@ namespace BCad.Extensions
 
         public static Matrix4 GetUnitCircleProjection(this Entity entity)
         {
-            Vector normal, right, up;
-            Point center;
-            double scaleX, scaleY;
+            Matrix4 matrix;
             switch (entity.Kind)
             {
                 case EntityKind.Arc:
                     var arc = (Arc)entity;
-                    normal = arc.Normal;
-                    right = Vector.RightVectorFromNormal(normal);
-                    up = normal.Cross(right).Normalize();
-                    center = arc.Center;
-                    scaleX = scaleY = arc.Radius;
+                    matrix = arc.FromUnitCircle;
                     break;
                 case EntityKind.Circle:
                     var circle = (Circle)entity;
-                    normal = circle.Normal;
-                    right = Vector.RightVectorFromNormal(normal);
-                    up = normal.Cross(right).Normalize();
-                    center = circle.Center;
-                    scaleX = scaleY = circle.Radius;
+                    matrix = circle.FromUnitCircle;
                     break;
                 case EntityKind.Ellipse:
                     var el = (Ellipse)entity;
-                    normal = el.Normal;
-                    right = el.MajorAxis.Normalize();
-                    up = normal.Cross(right).Normalize();
-                    center = el.Center;
-                    scaleX = el.MajorAxis.Length;
-                    scaleY = scaleX * el.MinorAxisRatio;
+                    matrix = el.FromUnitCircle;
                     break;
                 default:
                     throw new ArgumentException("entity");
             }
 
-            return Matrix4.FromUnitCircleProjection(normal, right, up, center, scaleX, scaleY, 1.0);
+            return matrix;
         }
 
         public static Point MidPoint(this Line line)
