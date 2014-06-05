@@ -106,7 +106,7 @@ namespace BCad.UI.View
                                     break;
                                 case PrimitiveKind.Ellipse:
                                     var el = (PrimitiveEllipse)prim;
-                                    var delta = 10.0;
+                                    var delta = 1.0;
                                     var last = new VertexPositionColor(el.GetPoint(el.StartAngle).ToVector3(), primColor);
                                     for (var angle = el.StartAngle + delta; angle <= el.EndAngle; angle += delta)
                                     {
@@ -116,6 +116,10 @@ namespace BCad.UI.View
                                         lineVerts.Add(next);
                                         last = next;
                                     }
+
+                                    // add final line
+                                    lineVerts.Add(last);
+                                    lineVerts.Add(new VertexPositionColor(el.GetPoint(el.EndAngle).ToVector3(), primColor));
                                     break;
                             }
                         }
