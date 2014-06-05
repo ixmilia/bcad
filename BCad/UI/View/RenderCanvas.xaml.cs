@@ -52,6 +52,8 @@ namespace BCad.UI.View
             DependencyProperty.Register("ColorMap", typeof(ColorMap), typeof(RenderCanvas), new P_Metadata(ColorMap.Default, ColorMapPropertyChanged));
         public static readonly DependencyProperty BackgroundExProperty =
             DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundExPropertyChanged));
+        public static readonly DependencyProperty SupportedPrimitiveTypesProperty =
+            DependencyProperty.Register("SupportedPrimitiveTypes", typeof(PrimitiveKind), typeof(RenderCanvas), new P_Metadata(PrimitiveKind.Ellipse | PrimitiveKind.Line | PrimitiveKind.Point | PrimitiveKind.Text, SupportedPrimitiveTypesPropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -112,6 +114,16 @@ namespace BCad.UI.View
                 {
                     canvas.SetAutocolorFromBackgroundColor(solidBrush.Color);
                 }
+            }
+        }
+
+        private static void SupportedPrimitiveTypesPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = source as RenderCanvas;
+            if (canvas != null)
+            {
+                canvas.Redraw();
+                canvas.CheckAllSelection();
             }
         }
 
@@ -195,6 +207,12 @@ namespace BCad.UI.View
         {
             get { return (ColorMap)GetValue(ColorMapProperty); }
             set { SetValue(ColorMapProperty, value); }
+        }
+
+        public PrimitiveKind SupportedPrimitiveTypes
+        {
+            get { return (PrimitiveKind)GetValue(SupportedPrimitiveTypesProperty); }
+            set { SetValue(SupportedPrimitiveTypesProperty, value); }
         }
 
         private void RecalcTransform()
@@ -301,34 +319,39 @@ namespace BCad.UI.View
             this.theCanvas.Children.Clear();
             this.entityMap.Clear();
             this.currentlySelected.Clear();
+            var supported = SupportedPrimitiveTypes;
             foreach (var layer in Drawing.GetLayers())
             {
                 foreach (var entity in layer.GetEntities())
                 {
                     foreach (var prim in entity.GetPrimitives())
                     {
-                        AddPrimitive(prim, GetColor(prim.Color, layer.Color), entity);
+                        AddPrimitive(prim, GetColor(prim.Color, layer.Color), entity, supported);
                     }
                 }
             }
         }
 
-        private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity)
+        private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity, PrimitiveKind supported)
         {
             FrameworkElement element = null;
             switch (prim.Kind)
             {
                 case PrimitiveKind.Ellipse:
-                    element = CreatePrimitiveEllipse((PrimitiveEllipse)prim, color);
+                    if ((supported & PrimitiveKind.Ellipse) == PrimitiveKind.Ellipse)
+                        element = CreatePrimitiveEllipse((PrimitiveEllipse)prim, color);
                     break;
                 case PrimitiveKind.Line:
-                    element = CreatePrimitiveLine((PrimitiveLine)prim, color);
+                    if ((supported & PrimitiveKind.Line) == PrimitiveKind.Line)
+                        element = CreatePrimitiveLine((PrimitiveLine)prim, color);
                     break;
                 case PrimitiveKind.Point:
-                    element = CreatePrimitivePoint((PrimitivePoint)prim, color);
+                    if ((supported & PrimitiveKind.Point) == PrimitiveKind.Point)
+                        element = CreatePrimitivePoint((PrimitivePoint)prim, color);
                     break;
                 case PrimitiveKind.Text:
-                    element = CreatePrimitiveText((PrimitiveText)prim, color);
+                    if ((supported & PrimitiveKind.Text) == PrimitiveKind.Text)
+                        element = CreatePrimitiveText((PrimitiveText)prim, color);
                     break;
                 default:
                     throw new NotImplementedException();
