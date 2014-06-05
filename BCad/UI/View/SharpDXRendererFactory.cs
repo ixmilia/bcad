@@ -2,7 +2,7 @@
 
 namespace BCad.UI.View
 {
-    [ExportRendererFactory("SharpDX")]
+    [ExportRendererFactory("Hardware")]
     internal class SharpDXRendererFactory : IRendererFactory
     {
         public IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)

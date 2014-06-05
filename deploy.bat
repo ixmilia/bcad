@@ -1,7 +1,7 @@
 @echo off
 set deploytype=desktop
 set deploydir=%1
-if [%deploydir%]==[] then goto baddir
+if [%deploydir%]==[] goto baddir
 goto gooddir
 
 :baddir

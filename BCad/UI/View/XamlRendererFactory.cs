@@ -2,7 +2,7 @@
 
 namespace BCad.UI.View
 {
-    [ExportRendererFactory("Default")]
+    [ExportRendererFactory("Software")]
     internal class XamlRendererFactory : IRendererFactory
     {
         public IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)

@@ -8,7 +8,4 @@ IGS reference:
 
 TODO:
 	Use perspective when rendering text in XamlRenderer
-	Render points at fixed size in XamlRenderer
-	Display selection in XamlRenderer (dashed line)
-	Trim ellipses in XamlRenderer when arcs
 	Update InputService.GetPoint to draw primitives (box?) on the display for Zoom.Window
