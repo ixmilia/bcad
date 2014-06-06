@@ -243,12 +243,16 @@ namespace BCad.UI.View
 
             // select new entities
             var newSelected = SelectedEntities;
+            IList<FrameworkElement> entities;
             foreach (var entity in newSelected)
             {
-                foreach (var element in entityMap[entity.Id])
+                if (entityMap.TryGetValue(entity.Id, out entities))
                 {
-                    SetSelected(element);
-                    currentlySelected.Add(element);
+                    foreach (var element in entities)
+                    {
+                        SetSelected(element);
+                        currentlySelected.Add(element);
+                    }
                 }
             }
         }
