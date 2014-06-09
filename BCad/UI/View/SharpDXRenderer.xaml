@@ -8,9 +8,6 @@
              xmlns:toolkit="clr-namespace:SharpDX.Toolkit;assembly=SharpDX.Toolkit.Game"
              xmlns:view="clr-namespace:BCad.UI.View"
              d:DesignHeight="300" d:DesignWidth="300">
-    <UserControl.Resources>
-        <conv:ColorConverter x:Key="colorConverter" />
-    </UserControl.Resources>
     <Grid ClipToBounds="True">
         <toolkit:SharpDXElement x:Name="surface" SendResizeToGame="True" SendResizeDelay="0" />
         <view:RenderCanvas ViewPort="{Binding Path=ViewPort}"
