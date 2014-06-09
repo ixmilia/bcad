@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BCad.Extensions;
 using BCad.Primitives;
 using SharpDX;
@@ -67,7 +68,7 @@ namespace BCad.UI.View
         {
             var lineVerts = new List<VertexPositionColor>();
             var drawing = workspace.Drawing;
-            foreach (var layer in drawing.GetLayers())
+            foreach (var layer in drawing.GetLayers().Where(l => l.IsVisible))
             {
                 var layerColor = MapColor(layer.Color, autoColor);
                 foreach (var entity in layer.GetEntities())
