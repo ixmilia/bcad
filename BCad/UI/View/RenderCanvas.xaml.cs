@@ -21,6 +21,20 @@ using DisplaySize = Windows.Foundation.Size;
 using P_Metadata = Windows.UI.Xaml.PropertyMetadata;
 #endif
 
+#if BCAD_PHONE
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
+using BCad.Phone.Extensions;
+using Shapes = Windows.UI.Xaml.Shapes;
+using DisplayPoint = Windows.Foundation.Point;
+using DisplaySize = Windows.Foundation.Size;
+using P_Metadata = Windows.UI.Xaml.PropertyMetadata;
+#endif
+
 #if BCAD_WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -127,7 +141,7 @@ namespace BCad.UI.View
             }
         }
 
-#if BCAD_METRO
+#if BCAD_METRO || BCAD_PHONE
         private Func<DoubleCollection> solidLineGenerator = () => new DoubleCollection();
         private Func<DoubleCollection> dashedLineGenerator = () => new DoubleCollection() { 4.0, 4.0 };
 #endif

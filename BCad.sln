@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.21623.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -27,6 +27,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Stl", "BCad.Stl\BCad.Stl.csproj", "{782E0C0A-10D3-444D-9640-263D03D2B20C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.FileHandlers", "BCad.FileHandlers\BCad.FileHandlers.csproj", "{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Phone", "BCad.Phone\BCad.Phone.csproj", "{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F24C8917-1441-491E-AB46-14B29C12E2A7}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -213,6 +222,32 @@ Global
 		{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}.Release|x64.ActiveCfg = Release|Any CPU
 		{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}.Release|x86.ActiveCfg = Release|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|ARM.ActiveCfg = Debug|ARM
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|ARM.Build.0 = Debug|ARM
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|ARM.Deploy.0 = Debug|ARM
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|x86.ActiveCfg = Debug|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|x86.Build.0 = Debug|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Debug|x86.Deploy.0 = Debug|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|ARM.ActiveCfg = Release|ARM
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|ARM.Build.0 = Release|ARM
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|ARM.Deploy.0 = Release|ARM
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|Mixed Platforms.Build.0 = Release|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|x64.ActiveCfg = Release|Any CPU
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|x86.ActiveCfg = Release|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|x86.Build.0 = Release|x86
+		{041AA2CE-19F3-4AF2-9D98-CC930DE7F03F}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,6 +7,12 @@ using Windows.UI;
 using Windows.UI.Xaml.Media;
 #endif
 
+#if BCAD_PHONE
+using BCad.Phone.Extensions;
+using Windows.UI;
+using Windows.UI.Xaml.Media;
+#endif
+
 #if BCAD_WPF
 using BCad.Extensions;
 using System.Dynamic;
@@ -117,7 +123,7 @@ namespace BCad.UI.View
                 }
             }
 
-#if BCAD_METRO
+#if BCAD_METRO || BCAD_PHONE
             // WinRT doesn't property use DynamicObject.TryGetMember() so we have to explicitly implement these here.
             public Brush Brush0 { get { return brushes[0]; } }
             public Brush Brush1 { get { return brushes[1]; } }
