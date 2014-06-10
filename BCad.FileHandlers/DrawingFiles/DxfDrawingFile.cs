@@ -4,7 +4,7 @@ using BCad.Dxf;
 
 namespace BCad.FileHandlers.DrawingFiles
 {
-    internal class DxfDrawingFile : IDrawingFile
+    public class DxfDrawingFile : IDrawingFile
     {
         public DxfFile File { get; set; }
 
