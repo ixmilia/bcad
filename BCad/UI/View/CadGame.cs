@@ -64,6 +64,12 @@ namespace BCad.UI.View
             base.LoadContent();
         }
 
+        public void Resize(int width, int height)
+        {
+            GraphicsDevice.Presenter.Resize(width, height, GraphicsDevice.BackBuffer.Format, null);
+            UpdateMatrices();
+        }
+
         private void UpdateVericies()
         {
             var lineVerts = new List<VertexPositionColor>();
