@@ -196,7 +196,7 @@ namespace BCad.UI
         private async void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
-            var point = await GetCursorPoint();
+            var point = await GetCursorPointAsync();
             UpdateRubberBandLines(point);
             ClearSnapPoints();
             SetCursorVisibility();
@@ -212,14 +212,14 @@ namespace BCad.UI
 
         private async void InputService_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
         {
-            var point = await GetCursorPoint();
+            var point = await GetCursorPointAsync();
             UpdateRubberBandLines(point);
         }
 
         private async void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             selecting = false;
-            var point = await GetCursorPoint();
+            var point = await GetCursorPointAsync();
             UpdateRubberBandLines(point);
             ClearSnapPoints();
             SetCursorVisibility();
@@ -246,19 +246,16 @@ namespace BCad.UI
             }
         }
 
-        private void ViewPortChanged()
+        private async void ViewPortChanged()
         {
             windowsTransformationMatrix = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             unprojectMatrix = windowsTransformationMatrix;
             unprojectMatrix.Invert();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateSnapPoints();
-            new Task((Action)(() =>
-                {
-                    var point = GetCursorPoint().Result;
-                    UpdateCursorText(point);
-                    UpdateRubberBandLines(point);
-                })).Start();
+            var point = await GetCursorPointAsync();
+            UpdateCursorText(point);
+            UpdateRubberBandLines(point);
         }
 
         private void DrawingChanged()
@@ -456,11 +453,16 @@ namespace BCad.UI
             return unprojectMatrix.Transform(point);
         }
 
-        public async Task<Point> GetCursorPoint()
+        public Point GetCursorPoint()
         {
             var mouse = Dispatcher.Invoke(() => Input.Mouse.GetPosition(this));
-            var model = await GetActiveModelPointAsync(mouse.ToPoint());
+            var model = GetActiveModelPoint(mouse.ToPoint());
             return model.WorldPoint;
+        }
+
+        public Task<Point> GetCursorPointAsync()
+        {
+            return Task.Factory.StartNew<Point>(() => GetCursorPoint());
         }
 
         private async void OnMouseDown(object sender, Input.MouseButtonEventArgs e)
@@ -596,7 +598,7 @@ namespace BCad.UI
 
             new Task((Action)(() =>
             {
-                var snapPoint = GetActiveModelPointAsync(cursor.ToPoint()).Result;
+                var snapPoint = GetActiveModelPoint(cursor.ToPoint());
                 UpdateCursorText(snapPoint.WorldPoint);
                 UpdateRubberBandLines(snapPoint.WorldPoint);
                 if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
@@ -672,11 +674,14 @@ namespace BCad.UI
                 UpdateSelectionLines();
             }
 
-            selectionLine1.Visibility = vis;
-            selectionLine2.Visibility = vis;
-            selectionLine3.Visibility = vis;
-            selectionLine4.Visibility = vis;
-            selectionRect.Visibility = vis;
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                selectionLine1.Visibility = vis;
+                selectionLine2.Visibility = vis;
+                selectionLine3.Visibility = vis;
+                selectionLine4.Visibility = vis;
+                selectionRect.Visibility = vis;
+            }));
         }
 
         private void UpdateSelectionLines()
@@ -796,13 +801,17 @@ namespace BCad.UI
             }
         }
 
-        private Task<TransformedSnapPoint> GetActiveModelPointAsync(Point cursor)
+        private TransformedSnapPoint GetActiveModelPoint(Point cursor)
         {
-            return Task.Factory.StartNew<TransformedSnapPoint>(() =>
-                   GetActiveSnapPoint(cursor)
+            return GetActiveSnapPoint(cursor)
                 ?? GetOrthoPoint(cursor)
                 ?? GetAngleSnapPoint(cursor)
-                ?? GetRawModelPoint(cursor));
+                ?? GetRawModelPoint(cursor);
+        }
+
+        private Task<TransformedSnapPoint> GetActiveModelPointAsync(Point cursor)
+        {
+            return Task.Factory.StartNew<TransformedSnapPoint>(() => GetActiveModelPoint(cursor));
         }
 
         private TransformedSnapPoint GetActiveSnapPoint(Point cursor)
