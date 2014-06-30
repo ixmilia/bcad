@@ -200,6 +200,7 @@ namespace BCad
             Workspace.Update(viewControl: viewPane, isDirty: false);
 
             var args = Environment.GetCommandLineArgs().Skip(1); // trim off executable
+            args = args.Where(a => !a.StartsWith("/")); // remove options
             if (args.Count() == 1)
             {
                 var fileName = args.First();
