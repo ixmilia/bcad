@@ -38,6 +38,8 @@ namespace BCad.UI.View
                     SettingsManager_PropertyChanged(workspace.SettingsManager, new PropertyChangedEventArgs(setting));
                 Workspace_WorkspaceChanged(workspace, WorkspaceChangeEventArgs.Reset());
             };
+
+            this.SizeChanged += (_, e) => game.Resize((int)e.NewSize.Width, (int)e.NewSize.Height);
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
