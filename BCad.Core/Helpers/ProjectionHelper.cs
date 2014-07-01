@@ -109,23 +109,30 @@ namespace BCad.Helpers
             }
 
             var majorAxis = maxPoint - center;
+            var minorAxisRatio = Math.Sqrt(minDistance) / Math.Sqrt(maxDistance);
             var startAngle = ellipse.StartAngle;
             var endAngle = ellipse.EndAngle;
-            var minorAxisRatio = Math.Sqrt(minDistance) / Math.Sqrt(maxDistance);
 
-            // TODO: need to find a better way to determine if projection results in a circle
-            if (Math.Abs(maxDistance - minDistance) < MathHelper.Epsilon * 1000)
+            // projection looks like a circle
+            if (Math.Abs(maxDistance - minDistance) < MathHelper.Epsilon * 1000) // TODO: need a better way to do this
             {
-                // for projections that result in a circle, normalize to an X-axis major axis and correct the start/end angles
-                if (ellipse.StartAngle != 0.0 || ellipse.EndAngle != 360.0)
-                {
-                    var startVector = transform.Transform(ellipse.GetStartPoint()) - center;
-                    var endVector = transform.Transform(ellipse.GetEndPoint()) - center;
-                    startAngle = (Math.Atan2(startVector.Y, startVector.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
-                    endAngle = (Math.Atan2(endVector.Y, endVector.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
-                }
-                majorAxis = new Vector(majorAxis.Length, 0.0, 0.0);
+                majorAxis = new Vector(majorAxis.Length, 0.0, 0.0); // right vector
                 minorAxisRatio = 1.0;
+            }
+
+            // correct start/end angles
+            if (!MathHelper.CloseTo(0.0, ellipse.StartAngle) || !MathHelper.CloseTo(MathHelper.ThreeSixty, ellipse.EndAngle))
+            {
+                var tempEllipse = new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minorAxisRatio, 0.0, MathHelper.ThreeSixty, ellipse.Color);
+                var majorAngle = majorAxis.ToAngle();
+                var startPoint = transform.Transform(ellipse.GetStartPoint());
+                var endPoint = transform.Transform(ellipse.GetEndPoint());
+                var toUnit = tempEllipse.FromUnitCircle;
+                toUnit.Invert();
+                var startUnit = (Vector)toUnit.Transform(startPoint);
+                var endUnit = (Vector)toUnit.Transform(endPoint);
+                startAngle = (startUnit.ToAngle() - majorAngle).CorrectAngleDegrees();
+                endAngle = (endUnit.ToAngle() - majorAngle).CorrectAngleDegrees();
             }
 
             return new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minorAxisRatio, startAngle, endAngle, ellipse.Color);
