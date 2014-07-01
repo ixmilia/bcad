@@ -806,7 +806,7 @@ namespace BCad.Extensions
             var lineVector = line.P2 - line.P1;
             var pointVector = point - line.P1;
             return (lineVector.Normalize().CloseTo(pointVector.Normalize()))
-                && (withinSegment
+                && (!withinSegment
                     || MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared));
         }
 

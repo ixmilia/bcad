@@ -435,7 +435,7 @@ namespace BCad.Utilities
             {
                 startAngle = ((Ellipse)entityToTrim).StartAngle;
                 endAngle = ((Ellipse)entityToTrim).EndAngle;
-                isClosed = false;
+                isClosed = MathHelper.CloseTo(0.0, startAngle) && MathHelper.CloseTo(360.0, endAngle);
             }
             else
             {

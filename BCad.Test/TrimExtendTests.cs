@@ -4,10 +4,12 @@ using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Utilities;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+//using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
+    [TestClass]
     public class TrimExtendTests : AbstractDrawingTests
     {
 
@@ -39,16 +41,16 @@ namespace BCad.Test
                 out added);
 
             // verify deleted
-            Assert.Equal(expectTrim, removed.Any());
+            Assert.AreEqual(expectTrim, removed.Any());
             if (expectTrim)
             {
-                Assert.Equal(1, removed.Count());
-                Assert.True(removed.Single().EquivalentTo(entityToTrim));
+                Assert.AreEqual(1, removed.Count());
+                Assert.IsTrue(removed.Single().EquivalentTo(entityToTrim));
             }
 
             // verify added
-            Assert.Equal(expectedAdded.Count(), added.Count());
-            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+            Assert.AreEqual(expectedAdded.Count(), added.Count());
+            Assert.IsTrue(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
         private void DoExtend(IEnumerable<Entity> existingEntities,
@@ -77,21 +79,21 @@ namespace BCad.Test
                 out added);
 
             // verify deleted
-            Assert.Equal(expectExtend, removed.Any());
+            Assert.AreEqual(expectExtend, removed.Any());
             if (expectExtend)
             {
-                Assert.Equal(1, removed.Count());
-                Assert.True(removed.Single().EquivalentTo(entityToExtend));
+                Assert.AreEqual(1, removed.Count());
+                Assert.IsTrue(removed.Single().EquivalentTo(entityToExtend));
             }
 
             // verify added
-            Assert.Equal(expectedAdded.Count(), added.Count());
-            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+            Assert.AreEqual(expectedAdded.Count(), added.Count());
+            Assert.IsTrue(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void SimpleLineTrimTest()
         {
             var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), IndexedColor.Auto);
@@ -108,7 +110,7 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void TrimWholeLineBetweenTest()
         {
             DoTrim(
@@ -123,7 +125,7 @@ namespace BCad.Test
                 null);
         }
 
-        [Fact]
+        [TestMethod]
         public void TrimCircleAtZeroAngleTest()
         {
             DoTrim(
@@ -140,7 +142,7 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void TrimHalfArcTest()
         {
             //      _________            ____
@@ -163,7 +165,31 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
+        public void IsometricCircleTrimTest()
+        {
+            //      ____             ___
+            //     /  / \           /  /
+            //    /  /   |         /  /
+            //   /  /    |   =>   /  /
+            //  |  /    /        |  /
+            //  | /    /o        | /
+            //   \____/           \
+            DoTrim(
+                new[]
+                {
+                    new Line(new Point(-0.612372435695796, -1.0606617177983, 0.0), new Point(0.6123724356958, 1.06066017177983, 0.0), IndexedColor.Auto)
+                },
+                new Ellipse(Point.Origin, new Vector(0.6123724356958, 1.06066017177983, 0.0), 0.577350269189626, 0, 360, Vector.ZAxis, IndexedColor.Auto),
+                new Point(0.612372435695806, -0.353553390593266, 0.0),
+                true,
+                new[]
+                {
+                    new Ellipse(Point.Origin, new Vector(0.6123724356958, 1.06066017177983, 0.0), 0.577350269189626, 0, 180, Vector.ZAxis, IndexedColor.Auto)
+                });
+        }
+
+        [TestMethod]
         public void SimpleExtendTest()
         {
             //          |  =>           |
@@ -183,7 +209,7 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void NoExtendFromFurtherPointTest()
         {
             //          |  =>           |
@@ -200,7 +226,7 @@ namespace BCad.Test
                 null);
         }
 
-        [Fact]
+        [TestMethod]
         public void SimpleArcExtendTest()
         {
             //    o   /        --\  /
@@ -222,7 +248,7 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void SimpleExtendArcNotAtOriginTest()
         {
             //   /           /

@@ -4,23 +4,24 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BCad.Dxf;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests
 {
+    [TestClass]
     public class DxfReaderWriterTests
     {
-        [Fact]
+        [TestMethod]
         public void BinaryReaderTest()
         {
             // this file contains 12 lines
             var stream = new FileStream("diamond-bin.dxf", FileMode.Open);
             var file = DxfFile.Load(stream);
-            Assert.Equal(12, file.Entities.Count);
-            Assert.Equal(12, file.Entities.Where(e => e.EntityType == Dxf.Entities.DxfEntityType.Line).Count());
+            Assert.AreEqual(12, file.Entities.Count);
+            Assert.AreEqual(12, file.Entities.Where(e => e.EntityType == Dxf.Entities.DxfEntityType.Line).Count());
         }
 
-        [Fact]
+        [TestMethod]
         public void SkipBomTest()
         {
             var stream = new MemoryStream();
@@ -30,7 +31,7 @@ namespace BCad.Test.DxfTests
             writer.Flush();
             stream.Seek(0, SeekOrigin.Begin);
             var file = DxfFile.Load(stream);
-            Assert.Equal(0, file.Layers.Count);
+            Assert.AreEqual(0, file.Layers.Count);
         }
     }
 }

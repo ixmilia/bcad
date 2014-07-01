@@ -3,10 +3,11 @@ using System.IO;
 using System.Text;
 using BCad.Iges;
 using BCad.Iges.Entities;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.IgesTests
 {
+    [TestClass]
     public class IgesWriterTests
     {
         private static void VerifyFileText(IgesFile file, string expected, Action<string, string> verifier)
@@ -21,15 +22,15 @@ namespace BCad.Test.IgesTests
 
         private static void VerifyFileExactly(IgesFile file, string expected)
         {
-            VerifyFileText(file, expected, (ex, ac) => Assert.Equal(ex, ac));
+            VerifyFileText(file, expected, (ex, ac) => Assert.AreEqual(ex, ac));
         }
 
         private static void VerifyFileContains(IgesFile file, string expected)
         {
-            VerifyFileText(file, expected, (ex, ac) => Assert.Contains(ex, ac));
+            VerifyFileText(file, expected, (ex, ac) => Assert.IsTrue(ac.Contains(ex)));
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteEmptyFileTest()
         {
             var date = new DateTime(1983, 11, 23, 13, 8, 5);
@@ -46,7 +47,7 @@ S      1G      2D      0P      0                                        T      1
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteLineTest()
         {
             var file = new IgesFile();
@@ -63,7 +64,7 @@ S      1G      2D      0P      0                                        T      1
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteLineWithSpanningParametersTest()
         {
             var file = new IgesFile();
@@ -81,7 +82,7 @@ S      1G      2D      0P      0                                        T      1
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteLineWithTransformationMatrixTest()
         {
             var file = new IgesFile();
@@ -117,7 +118,7 @@ S      1G      2D      0P      0                                        T      1
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteSubfigureEntityTest()
         {
             var trans = new IgesTransformationMatrix()
@@ -156,7 +157,7 @@ S      1G      2D      0P      0                                        T      1
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteSpecificGlobalValuesTest()
         {
             var file = new IgesFile()

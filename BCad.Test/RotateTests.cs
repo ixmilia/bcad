@@ -1,19 +1,20 @@
 ﻿using BCad.Entities;
 using BCad.Extensions;
 using BCad.Utilities;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
+    [TestClass]
     public class RotateTests : AbstractDrawingTests
     {
         private void DoRotate(Entity entityToRotate, Vector origin, double angleInDegrees, Entity expectedResult)
         {
             var actual = EditUtilities.Rotate(entityToRotate, origin, angleInDegrees);
-            Assert.True(expectedResult.EquivalentTo(actual));
+            Assert.IsTrue(expectedResult.EquivalentTo(actual));
         }
 
-        [Fact]
+        [TestMethod]
         public void OriginRotateTest()
         {
             DoRotate(new Line(new Point(0, 0, 0), new Point(1, 0, 0), IndexedColor.Auto),
@@ -22,7 +23,7 @@ namespace BCad.Test
                 new Line(new Point(0, 0, 0), new Point(0, 1, 0), IndexedColor.Auto));
         }
 
-        [Fact]
+        [TestMethod]
         public void NonOriginRotateTest()
         {
             DoRotate(new Line(new Point(2, 2, 0), new Point(3, 2, 0), IndexedColor.Auto),

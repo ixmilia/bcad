@@ -5,10 +5,11 @@ using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
+    [TestClass]
     public class PrimitiveTests
     {
 
@@ -18,7 +19,7 @@ namespace BCad.Test
         {
             var p = first.IntersectionPoints(second, withinBounds).OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
             points = points.OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
-            Assert.Equal(points.Length, p.Length);
+            Assert.AreEqual(points.Length, p.Length);
             for (int i = 0; i < p.Length; i++)
             {
                 AssertClose(points[i], p[i]);
@@ -27,7 +28,7 @@ namespace BCad.Test
 
         private static void AssertClose(double expected, double actual)
         {
-            Assert.True(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+            Assert.IsTrue(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
         private static void AssertClose(Point expected, Point actual)
@@ -78,14 +79,14 @@ namespace BCad.Test
         private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null)
         {
             if (contained != null)
-                Assert.True(contained.All(p => primitive.ContainsPoint(p)));
+                Assert.IsTrue(contained.All(p => primitive.ContainsPoint(p)));
             if (excluded != null)
-                Assert.True(excluded.All(p => !primitive.ContainsPoint(p)));
+                Assert.IsTrue(excluded.All(p => !primitive.ContainsPoint(p)));
         }
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void LineIntersectionTest()
         {
             TestIntersection(
@@ -95,37 +96,37 @@ namespace BCad.Test
                 new Point(0, 0, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void LinePointDistanceTest()
         {
             var l = Line(new Point(0, 0, 0), new Point(2, 0, 0));
             var p = new Point(1, 1, 0);
-            Assert.Equal(new Point(1, 0, 0), l.ClosestPoint(p));
+            Assert.AreEqual(new Point(1, 0, 0), l.ClosestPoint(p));
         }
 
-        [Fact]
+        [TestMethod]
         public void LinePointDistanceTest2()
         {
             var a = Line(new Point(0, 0, 0), new Point(10, 0, 0));
             var b = new Point(5, 3, 0);
             var c = a.ClosestPoint(b);
-            Assert.Equal(new Point(5, 0, 0), c);
+            Assert.AreEqual(new Point(5, 0, 0), c);
         }
 
-        [Fact]
+        [TestMethod]
         public void ThreePointCircleTest()
         {
             var a = new Point(0, 0, 0);
             var b = new Point(0, 2, 0);
             var c = new Point(1, 1, 0);
             var circ = PrimitiveEllipse.ThreePointCircle(a, b, c);
-            Assert.NotNull(circ);
-            Assert.Equal(new Point(0, 1, 0), circ.Center);
-            Assert.Equal(Vector.XAxis, circ.MajorAxis);
-            Assert.Equal(Vector.ZAxis, circ.Normal);
+            Assert.IsNotNull(circ);
+            Assert.AreEqual(new Point(0, 1, 0), circ.Center);
+            Assert.AreEqual(Vector.XAxis, circ.MajorAxis);
+            Assert.AreEqual(Vector.ZAxis, circ.Normal);
         }
 
-        [Fact]
+        [TestMethod]
         public void ThreePointArcNormalizedNormalTest()
         {
             var rad = Math.Sqrt(2.0) / 2.0;
@@ -195,7 +196,7 @@ namespace BCad.Test
                 315.0);
         }
 
-        [Fact]
+        [TestMethod]
         public void LineCircleIntersectionTest1()
         {
             TestIntersection(
@@ -205,7 +206,7 @@ namespace BCad.Test
                 new Point(2, 0, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void LineCircleIntersectionTest2()
         {
             TestIntersection(
@@ -216,7 +217,7 @@ namespace BCad.Test
                 new Point(0, 0, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void LineCircleIntersectionTest3()
         {
             TestIntersection(
@@ -227,7 +228,7 @@ namespace BCad.Test
                 new Point(3, 1, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void LineCircleIntersectionTest4()
         {
             TestIntersection(
@@ -237,7 +238,7 @@ namespace BCad.Test
                 new Point(3, 1, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void LineCircleIntersectionTestOffPlane()
         {
             TestIntersection(
@@ -247,7 +248,7 @@ namespace BCad.Test
                 new Point(1, 0, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void LineCircleIntersectionTestOffPlaneOutsideAngle()
         {
             TestIntersection(
@@ -256,7 +257,7 @@ namespace BCad.Test
                 true);
         }
 
-        [Fact]
+        [TestMethod]
         public void CircleCircleIntersectionTestSamePlaneOnePoint()
         {
             TestIntersection(
@@ -271,7 +272,7 @@ namespace BCad.Test
                 new Point(110, 100, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void CircleCircleIntersectionTestSamePlaneTwoPoints()
         {
             var x = Math.Sqrt(3.0) / 2.0;
@@ -289,7 +290,7 @@ namespace BCad.Test
                 new Point(162.449979983983, 50, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void CircleCircleIntersectionTestSamePlaneNoPoints()
         {
             var x = Math.Sqrt(3.0) / 2.0;
@@ -299,7 +300,7 @@ namespace BCad.Test
                 true);
         }
 
-        [Fact]
+        [TestMethod]
         public void CircleEllipseIntersectionTestSamePlaneOnePoint()
         {
             // x-axis alignment horizontal
@@ -334,7 +335,7 @@ namespace BCad.Test
                 new Point(-0.707106781187, 0.707106781187, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void CircleEllipseIntersectionTestSamePlaneTwoPoints()
         {
             // y-axis alignment
@@ -353,7 +354,7 @@ namespace BCad.Test
                 new Point(1, 0.133974596216, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void CircleEllipseIntersectionTestDifferentPlanes()
         {
             // 1 intersection point, x-axis plane intersection
@@ -383,7 +384,7 @@ namespace BCad.Test
                 new Point(1, 1, 0));
         }
 
-        [Fact]
+        [TestMethod]
         public void PointOnLineTest()
         {
             TestPointContainment(Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
@@ -402,7 +403,7 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void PointOnCircleTest()
         {
             var x = Math.Sin(45.0 * MathHelper.DegreesToRadians);
@@ -442,7 +443,7 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void PointInTextTest()
         {
             // text width = 9.23076923076923
@@ -468,29 +469,29 @@ namespace BCad.Test
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void EllipseAngleContainmentTest()
         {
             var el = new PrimitiveEllipse(Point.Origin, 1.0, 90.0, 360.0, Vector.ZAxis, IndexedColor.Auto);
-            Assert.True(el.IsAngleContained(90.0));
-            Assert.True(el.IsAngleContained(180.0));
-            Assert.True(el.IsAngleContained(270.0));
-            Assert.True(el.IsAngleContained(360.0));
-            Assert.False(el.IsAngleContained(45.0));
+            Assert.IsTrue(el.IsAngleContained(90.0));
+            Assert.IsTrue(el.IsAngleContained(180.0));
+            Assert.IsTrue(el.IsAngleContained(270.0));
+            Assert.IsTrue(el.IsAngleContained(360.0));
+            Assert.IsFalse(el.IsAngleContained(45.0));
         }
 
-        [Fact]
+        [TestMethod]
         public void EllipseGetPointTest()
         {
             var el = new PrimitiveEllipse(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, IndexedColor.Auto);
-            Assert.True(el.GetStartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
-            Assert.True(el.GetEndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
-            Assert.True(el.GetPoint(90.0).CloseTo(new Point(0.0, 1.0, 0.0)));
+            Assert.IsTrue(el.GetStartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
+            Assert.IsTrue(el.GetEndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
+            Assert.IsTrue(el.GetPoint(90.0).CloseTo(new Point(0.0, 1.0, 0.0)));
 
             el = new PrimitiveEllipse(new Point(1.0, 1.0, 0.0), 1.0, 0.0, 180.0, Vector.ZAxis, IndexedColor.Auto);
-            Assert.True(el.GetStartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
-            Assert.True(el.GetEndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
-            Assert.True(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));
+            Assert.IsTrue(el.GetStartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
+            Assert.IsTrue(el.GetEndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
+            Assert.IsTrue(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));
         }
     }
 }

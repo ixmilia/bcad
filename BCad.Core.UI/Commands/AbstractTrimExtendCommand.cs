@@ -26,7 +26,6 @@ namespace BCad.Commands
 
             var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives());
 
-            var drawing = Workspace.Drawing;
             var directive = new UserDirective(GetTrimExtendText());
             var selected = await InputService.GetEntity(directive);
             IEnumerable<Entity> removed;
@@ -34,6 +33,7 @@ namespace BCad.Commands
             string entityLayerName;
             while (!selected.Cancel && selected.HasValue)
             {
+                var drawing = Workspace.Drawing;
                 entityLayerName = drawing.ContainingLayer(selected.Value.Entity).Name;
                 DoTrimExtend(selected.Value, boundaryPrimitives, out removed, out added);
 

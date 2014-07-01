@@ -2,10 +2,11 @@
 using System.IO;
 using BCad.Iges;
 using BCad.Iges.Entities;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.IgesTests
 {
+    [TestClass]
     public class IgesReaderTests
     {
         internal static IgesFile CreateFile(string content)
@@ -19,7 +20,7 @@ namespace BCad.Test.IgesTests
             return file;
         }
 
-        [Fact]
+        [TestMethod]
         public void GlobalParseTest()
         {
             var file = CreateFile(@"
@@ -29,35 +30,35 @@ namespace BCad.Test.IgesTests
 ,7HIxMilia,8,4,13H870508.123456,8Hprotocol;                             G      3
 S      1G      3D      0P      0                                        T      1
 ");
-            Assert.Equal(',', file.FieldDelimiter);
-            Assert.Equal(';', file.RecordDelimiter);
-            Assert.Equal("identifier", file.Identification);
-            Assert.Equal(@"C:\path\to\full\filename.igs", file.FullFileName);
-            Assert.Equal(@"BCAD", file.SystemIdentifier);
-            Assert.Equal(@"1.0", file.SystemVersion);
-            Assert.Equal(16, file.IntegerSize);
-            Assert.Equal(7, file.SingleSize);
-            Assert.Equal(22, file.DecimalDigits);
-            Assert.Equal(10, file.DoubleMagnitude);
-            Assert.Equal(51, file.DoublePrecision);
-            Assert.Equal("ident2", file.Identifier);
-            Assert.Equal(0.75, file.ModelSpaceScale);
-            Assert.Equal(IgesUnits.Centimeters, file.ModelUnits);
-            Assert.Null(file.CustomModelUnits);
-            Assert.Equal(4, file.MaxLineWeightGraduations);
-            Assert.Equal(0.8, file.MaxLineWeight);
-            Assert.Equal(new DateTime(1983, 11, 23, 13, 08, 11), file.TimeStamp);
-            Assert.Equal(0.001, file.MinimumResolution);
-            Assert.Equal(500.0, file.MaxCoordinateValue);
-            Assert.Equal("Brett", file.Author);
-            Assert.Equal("IxMilia", file.Organization);
-            Assert.Equal(IgesVersion.v5_0, file.IgesVersion);
-            Assert.Equal(IgesDraftingStandard.BSI, file.DraftingStandard);
-            Assert.Equal(new DateTime(1987, 5, 8, 12, 34, 56), file.ModifiedTime);
-            Assert.Equal("protocol", file.ApplicationProtocol);
+            Assert.AreEqual(',', file.FieldDelimiter);
+            Assert.AreEqual(';', file.RecordDelimiter);
+            Assert.AreEqual("identifier", file.Identification);
+            Assert.AreEqual(@"C:\path\to\full\filename.igs", file.FullFileName);
+            Assert.AreEqual(@"BCAD", file.SystemIdentifier);
+            Assert.AreEqual(@"1.0", file.SystemVersion);
+            Assert.AreEqual(16, file.IntegerSize);
+            Assert.AreEqual(7, file.SingleSize);
+            Assert.AreEqual(22, file.DecimalDigits);
+            Assert.AreEqual(10, file.DoubleMagnitude);
+            Assert.AreEqual(51, file.DoublePrecision);
+            Assert.AreEqual("ident2", file.Identifier);
+            Assert.AreEqual(0.75, file.ModelSpaceScale);
+            Assert.AreEqual(IgesUnits.Centimeters, file.ModelUnits);
+            Assert.IsNull(file.CustomModelUnits);
+            Assert.AreEqual(4, file.MaxLineWeightGraduations);
+            Assert.AreEqual(0.8, file.MaxLineWeight);
+            Assert.AreEqual(new DateTime(1983, 11, 23, 13, 08, 11), file.TimeStamp);
+            Assert.AreEqual(0.001, file.MinimumResolution);
+            Assert.AreEqual(500.0, file.MaxCoordinateValue);
+            Assert.AreEqual("Brett", file.Author);
+            Assert.AreEqual("IxMilia", file.Organization);
+            Assert.AreEqual(IgesVersion.v5_0, file.IgesVersion);
+            Assert.AreEqual(IgesDraftingStandard.BSI, file.DraftingStandard);
+            Assert.AreEqual(new DateTime(1987, 5, 8, 12, 34, 56), file.ModifiedTime);
+            Assert.AreEqual("protocol", file.ApplicationProtocol);
         }
 
-        [Fact]
+        [TestMethod]
         public void GlobalParseWithLeadingWhitespaceTest()
         {
             var file = CreateFile(@"
@@ -67,12 +68,12 @@ S      1G      3D      0P      0                                        T      1
 t,7HIxMilia, 8,4,13H870508.123456, 8Hprotocol;                          G      3
 S      1G      3D      0P      0                                        T      1
 ");
-            Assert.Equal(0.001, file.MinimumResolution); // leading space on double
-            Assert.Equal(IgesVersion.v5_0, file.IgesVersion); // leading space on int
-            Assert.Equal("protocol", file.ApplicationProtocol); // leading space on string
+            Assert.AreEqual(0.001, file.MinimumResolution); // leading space on double
+            Assert.AreEqual(IgesVersion.v5_0, file.IgesVersion); // leading space on int
+            Assert.AreEqual("protocol", file.ApplicationProtocol); // leading space on string
         }
 
-        [Fact]
+        [TestMethod]
         public void GlobalParseWithMissingStringField()
         {
             var file = CreateFile(@"
@@ -82,10 +83,10 @@ S      1G      3D      0P      0                                        T      1
 ,7HIxMilia,8,4,13H870508.123456,;                                       G      3
 S      1G      3D      0P      0                                        T      1
 ");
-            Assert.Equal(null, file.ApplicationProtocol);
+            Assert.AreEqual(null, file.ApplicationProtocol);
         }
 
-        [Fact]
+        [TestMethod]
         public void GlobalParseWithMissingIntField()
         {
             var file = CreateFile(@"
@@ -95,10 +96,10 @@ S      1G      3D      0P      0                                        T      1
 ,7HIxMilia,8,,13H870508.123456,8Hprotocol;                              G      3
 S      1G      3D      0P      0                                        T      1
 ");
-            Assert.Equal(IgesDraftingStandard.None, file.DraftingStandard);
+            Assert.AreEqual(IgesDraftingStandard.None, file.DraftingStandard);
         }
 
-        [Fact]
+        [TestMethod]
         public void GlobalParseWithMissingDoubleField()
         {
             var file = CreateFile(@"
@@ -108,33 +109,33 @@ S      1G      3D      0P      0                                        T      1
 ia,8,4,13H870508.123456,8Hprotocol;                                     G      3
 S      1G      3D      0P      0                                        T      1
 ");
-            Assert.Equal(0.0, file.MinimumResolution);
+            Assert.AreEqual(0.0, file.MinimumResolution);
         }
 
-        [Fact]
+        [TestMethod]
         public void FileWithNonStandardDelimitersTest()
         {
             var file = CreateFile(@"
                                                                         S      1
 1H//1H#/10Hidentifier/12Hfilename.igs#                                  G      1
 ");
-            Assert.Equal('/', file.FieldDelimiter);
-            Assert.Equal('#', file.RecordDelimiter);
-            Assert.Equal("identifier", file.Identification);
-            Assert.Equal("filename.igs", file.FullFileName);
+            Assert.AreEqual('/', file.FieldDelimiter);
+            Assert.AreEqual('#', file.RecordDelimiter);
+            Assert.AreEqual("identifier", file.Identification);
+            Assert.AreEqual("filename.igs", file.FullFileName);
         }
 
-        [Fact]
+        [TestMethod]
         public void StringContainingDelimiterValuesTest()
         {
             var file = CreateFile(@"
                                                                         S      1
 1H,,1H;,6H,;,;,;;                                                       G      1
 ");
-            Assert.Equal(",;,;,;", file.Identification);
+            Assert.AreEqual(",;,;,;", file.Identification);
         }
 
-        [Fact]
+        [TestMethod]
         public void MissingStartSectionTest()
         {
             var file = CreateFile(@"
@@ -143,33 +144,33 @@ S      1G      3D      0P      0                                        T      1
 ia,8,4,13H870508.123456,8Hprotocol;                                     G      3
 S      0G      3D      0P      0                                        T      1
 ");
-            Assert.Equal(',', file.FieldDelimiter);
+            Assert.AreEqual(',', file.FieldDelimiter);
         }
 
-        [Fact]
+        [TestMethod]
         public void MissingGlobalSectionTest()
         {
             var file = CreateFile(@"
                                                                         S      1
 S      1G      0D      0P      0                                        T      1
 ");
-            Assert.Equal(',', file.FieldDelimiter);
+            Assert.AreEqual(',', file.FieldDelimiter);
         }
 
-        [Fact]
+        [TestMethod]
         public void OnlyTerminateLineTest()
         {
             var file = CreateFile(@"
 S      0G      0D      0P      0                                        T      1
 ");
-            Assert.Equal(',', file.FieldDelimiter);
+            Assert.AreEqual(',', file.FieldDelimiter);
         }
 
-        [Fact]
+        [TestMethod]
         public void EmptyFileTest()
         {
             var file = CreateFile(string.Empty);
-            Assert.Equal(',', file.FieldDelimiter);
+            Assert.AreEqual(',', file.FieldDelimiter);
         }
     }
 }

@@ -3,10 +3,11 @@ using System.IO;
 using System.Linq;
 using BCad.Dxf;
 using BCad.Dxf.Entities;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests
 {
+    [TestClass]
     public class DxfEntityTests : AbstractDxfTests
     {
         #region Private helpers
@@ -35,13 +36,13 @@ ill-placed comment
 {1}
 ", entityType, data.Trim()));
             var entity = file.Entities.Single();
-            Assert.Equal("<handle>", entity.Handle);
-            Assert.Equal("<linetype-name>", entity.LinetypeName);
-            Assert.Equal("<layer>", entity.Layer);
-            Assert.Equal(3.14159, entity.LinetypeScale);
-            Assert.False(entity.IsVisible);
-            Assert.True(entity.IsInPaperSpace);
-            Assert.Equal(DxfColor.FromIndex(1), entity.Color);
+            Assert.AreEqual("<handle>", entity.Handle);
+            Assert.AreEqual("<linetype-name>", entity.LinetypeName);
+            Assert.AreEqual("<layer>", entity.Layer);
+            Assert.AreEqual(3.14159, entity.LinetypeScale);
+            Assert.IsFalse(entity.IsVisible);
+            Assert.IsTrue(entity.IsInPaperSpace);
+            Assert.AreEqual(DxfColor.FromIndex(1), entity.Color);
             return entity;
         }
 
@@ -51,13 +52,13 @@ ill-placed comment
   0
 {0}", entityType));
             var entity = file.Entities.Single();
-            Assert.Null(entity.Handle);
-            Assert.Equal("0", entity.Layer);
-            Assert.Equal("BYLAYER", entity.LinetypeName);
-            Assert.Equal(1.0, entity.LinetypeScale);
-            Assert.True(entity.IsVisible);
-            Assert.False(entity.IsInPaperSpace);
-            Assert.Equal(DxfColor.ByLayer, entity.Color);
+            Assert.IsNull(entity.Handle);
+            Assert.AreEqual("0", entity.Layer);
+            Assert.AreEqual("BYLAYER", entity.LinetypeName);
+            Assert.AreEqual(1.0, entity.LinetypeScale);
+            Assert.IsTrue(entity.IsVisible);
+            Assert.IsFalse(entity.IsInPaperSpace);
+            Assert.AreEqual(DxfColor.ByLayer, entity.Color);
             return entity;
         }
 
@@ -70,177 +71,177 @@ ill-placed comment
             stream.Flush();
             stream.Seek(0, SeekOrigin.Begin);
             var actual = new StreamReader(stream).ReadToEnd();
-            Assert.Contains(text.Trim(), actual);
+            Assert.IsTrue(actual.Contains(text.Trim()));
         }
 
         #endregion
 
         #region Read default value tests
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultLineTest()
         {
             var line = (DxfLine)EmptyEntity("LINE");
-            Assert.Equal(0.0, line.P1.X);
-            Assert.Equal(0.0, line.P1.Y);
-            Assert.Equal(0.0, line.P1.Z);
-            Assert.Equal(0.0, line.P2.X);
-            Assert.Equal(0.0, line.P2.Y);
-            Assert.Equal(0.0, line.P2.Z);
-            Assert.Equal(0.0, line.Thickness);
-            Assert.Equal(0.0, line.ExtrusionDirection.X);
-            Assert.Equal(0.0, line.ExtrusionDirection.Y);
-            Assert.Equal(1.0, line.ExtrusionDirection.Z);
+            Assert.AreEqual(0.0, line.P1.X);
+            Assert.AreEqual(0.0, line.P1.Y);
+            Assert.AreEqual(0.0, line.P1.Z);
+            Assert.AreEqual(0.0, line.P2.X);
+            Assert.AreEqual(0.0, line.P2.Y);
+            Assert.AreEqual(0.0, line.P2.Z);
+            Assert.AreEqual(0.0, line.Thickness);
+            Assert.AreEqual(0.0, line.ExtrusionDirection.X);
+            Assert.AreEqual(0.0, line.ExtrusionDirection.Y);
+            Assert.AreEqual(1.0, line.ExtrusionDirection.Z);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultCircleTest()
         {
             var circle = (DxfCircle)EmptyEntity("CIRCLE");
-            Assert.Equal(0.0, circle.Center.X);
-            Assert.Equal(0.0, circle.Center.Y);
-            Assert.Equal(0.0, circle.Center.Z);
-            Assert.Equal(0.0, circle.Radius);
-            Assert.Equal(0.0, circle.Normal.X);
-            Assert.Equal(0.0, circle.Normal.Y);
-            Assert.Equal(1.0, circle.Normal.Z);
-            Assert.Equal(0.0, circle.Thickness);
+            Assert.AreEqual(0.0, circle.Center.X);
+            Assert.AreEqual(0.0, circle.Center.Y);
+            Assert.AreEqual(0.0, circle.Center.Z);
+            Assert.AreEqual(0.0, circle.Radius);
+            Assert.AreEqual(0.0, circle.Normal.X);
+            Assert.AreEqual(0.0, circle.Normal.Y);
+            Assert.AreEqual(1.0, circle.Normal.Z);
+            Assert.AreEqual(0.0, circle.Thickness);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultArcTest()
         {
             var arc = (DxfArc)EmptyEntity("ARC");
-            Assert.Equal(0.0, arc.Center.X);
-            Assert.Equal(0.0, arc.Center.Y);
-            Assert.Equal(0.0, arc.Center.Z);
-            Assert.Equal(0.0, arc.Radius);
-            Assert.Equal(0.0, arc.Normal.X);
-            Assert.Equal(0.0, arc.Normal.Y);
-            Assert.Equal(1.0, arc.Normal.Z);
-            Assert.Equal(0.0, arc.StartAngle);
-            Assert.Equal(360.0, arc.EndAngle);
-            Assert.Equal(0.0, arc.Thickness);
+            Assert.AreEqual(0.0, arc.Center.X);
+            Assert.AreEqual(0.0, arc.Center.Y);
+            Assert.AreEqual(0.0, arc.Center.Z);
+            Assert.AreEqual(0.0, arc.Radius);
+            Assert.AreEqual(0.0, arc.Normal.X);
+            Assert.AreEqual(0.0, arc.Normal.Y);
+            Assert.AreEqual(1.0, arc.Normal.Z);
+            Assert.AreEqual(0.0, arc.StartAngle);
+            Assert.AreEqual(360.0, arc.EndAngle);
+            Assert.AreEqual(0.0, arc.Thickness);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultEllipseTest()
         {
             var el = (DxfEllipse)EmptyEntity("ELLIPSE");
-            Assert.Equal(0.0, el.Center.X);
-            Assert.Equal(0.0, el.Center.Y);
-            Assert.Equal(0.0, el.Center.Z);
-            Assert.Equal(1.0, el.MajorAxis.X);
-            Assert.Equal(0.0, el.MajorAxis.Y);
-            Assert.Equal(0.0, el.MajorAxis.Z);
-            Assert.Equal(0.0, el.Normal.X);
-            Assert.Equal(0.0, el.Normal.Y);
-            Assert.Equal(1.0, el.Normal.Z);
-            Assert.Equal(1.0, el.MinorAxisRatio);
-            Assert.Equal(0.0, el.StartParameter);
-            Assert.Equal(Math.PI * 2, el.EndParameter);
+            Assert.AreEqual(0.0, el.Center.X);
+            Assert.AreEqual(0.0, el.Center.Y);
+            Assert.AreEqual(0.0, el.Center.Z);
+            Assert.AreEqual(1.0, el.MajorAxis.X);
+            Assert.AreEqual(0.0, el.MajorAxis.Y);
+            Assert.AreEqual(0.0, el.MajorAxis.Z);
+            Assert.AreEqual(0.0, el.Normal.X);
+            Assert.AreEqual(0.0, el.Normal.Y);
+            Assert.AreEqual(1.0, el.Normal.Z);
+            Assert.AreEqual(1.0, el.MinorAxisRatio);
+            Assert.AreEqual(0.0, el.StartParameter);
+            Assert.AreEqual(Math.PI * 2, el.EndParameter);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultTextTest()
         {
             var text = (DxfText)EmptyEntity("TEXT");
-            Assert.Equal(0.0, text.Location.X);
-            Assert.Equal(0.0, text.Location.Y);
-            Assert.Equal(0.0, text.Location.Z);
-            Assert.Equal(0.0, text.Normal.X);
-            Assert.Equal(0.0, text.Normal.Y);
-            Assert.Equal(1.0, text.Normal.Z);
-            Assert.Equal(0.0, text.Rotation);
-            Assert.Equal(1.0, text.TextHeight);
-            Assert.Null(text.Value);
-            Assert.Equal("STANDARD", text.TextStyleName);
-            Assert.Equal(0.0, text.Thickness);
-            Assert.Equal(1.0, text.RelativeXScaleFactor);
-            Assert.Equal(0.0, text.ObliqueAngle);
-            Assert.False(text.IsTextBackward);
-            Assert.False(text.IsTextUpsideDown);
-            Assert.Equal(0.0, text.SecondAlignmentPoint.X);
-            Assert.Equal(0.0, text.SecondAlignmentPoint.Y);
-            Assert.Equal(0.0, text.SecondAlignmentPoint.Z);
-            Assert.Equal(DxfHorizontalTextJustification.Left, text.HorizontalTextJustification);
-            Assert.Equal(DxfVerticalTextJustification.Baseline, text.VerticalTextJustification);
+            Assert.AreEqual(0.0, text.Location.X);
+            Assert.AreEqual(0.0, text.Location.Y);
+            Assert.AreEqual(0.0, text.Location.Z);
+            Assert.AreEqual(0.0, text.Normal.X);
+            Assert.AreEqual(0.0, text.Normal.Y);
+            Assert.AreEqual(1.0, text.Normal.Z);
+            Assert.AreEqual(0.0, text.Rotation);
+            Assert.AreEqual(1.0, text.TextHeight);
+            Assert.IsNull(text.Value);
+            Assert.AreEqual("STANDARD", text.TextStyleName);
+            Assert.AreEqual(0.0, text.Thickness);
+            Assert.AreEqual(1.0, text.RelativeXScaleFactor);
+            Assert.AreEqual(0.0, text.ObliqueAngle);
+            Assert.IsFalse(text.IsTextBackward);
+            Assert.IsFalse(text.IsTextUpsideDown);
+            Assert.AreEqual(0.0, text.SecondAlignmentPoint.X);
+            Assert.AreEqual(0.0, text.SecondAlignmentPoint.Y);
+            Assert.AreEqual(0.0, text.SecondAlignmentPoint.Z);
+            Assert.AreEqual(DxfHorizontalTextJustification.Left, text.HorizontalTextJustification);
+            Assert.AreEqual(DxfVerticalTextJustification.Baseline, text.VerticalTextJustification);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultVertexTest()
         {
             var vertex = (DxfVertex)EmptyEntity("VERTEX");
-            Assert.Equal(0.0, vertex.Location.X);
-            Assert.Equal(0.0, vertex.Location.Y);
-            Assert.Equal(0.0, vertex.Location.Z);
-            Assert.Equal(0.0, vertex.StartingWidth);
-            Assert.Equal(0.0, vertex.EndingWidth);
-            Assert.Equal(0.0, vertex.Bulge);
-            Assert.False(vertex.IsExtraCreatedByCurveFit);
-            Assert.False(vertex.IsCurveFitTangentDefined);
-            Assert.False(vertex.IsSplineVertexCreatedBySplineFitting);
-            Assert.False(vertex.IsSplineFrameControlPoint);
-            Assert.False(vertex.Is3DPolylineVertex);
-            Assert.False(vertex.Is3DPolygonMesh);
-            Assert.False(vertex.IsPolyfaceMeshVertex);
-            Assert.Equal(0.0, vertex.CurveFitTangentDirection);
-            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex1);
-            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex2);
-            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex3);
-            Assert.Equal(0, vertex.PolyfaceMeshVertexIndex4);
+            Assert.AreEqual(0.0, vertex.Location.X);
+            Assert.AreEqual(0.0, vertex.Location.Y);
+            Assert.AreEqual(0.0, vertex.Location.Z);
+            Assert.AreEqual(0.0, vertex.StartingWidth);
+            Assert.AreEqual(0.0, vertex.EndingWidth);
+            Assert.AreEqual(0.0, vertex.Bulge);
+            Assert.IsFalse(vertex.IsExtraCreatedByCurveFit);
+            Assert.IsFalse(vertex.IsCurveFitTangentDefined);
+            Assert.IsFalse(vertex.IsSplineVertexCreatedBySplineFitting);
+            Assert.IsFalse(vertex.IsSplineFrameControlPoint);
+            Assert.IsFalse(vertex.Is3DPolylineVertex);
+            Assert.IsFalse(vertex.Is3DPolygonMesh);
+            Assert.IsFalse(vertex.IsPolyfaceMeshVertex);
+            Assert.AreEqual(0.0, vertex.CurveFitTangentDirection);
+            Assert.AreEqual(0, vertex.PolyfaceMeshVertexIndex1);
+            Assert.AreEqual(0, vertex.PolyfaceMeshVertexIndex2);
+            Assert.AreEqual(0, vertex.PolyfaceMeshVertexIndex3);
+            Assert.AreEqual(0, vertex.PolyfaceMeshVertexIndex4);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultSeqendTest()
         {
             var seqend = (DxfSeqend)EmptyEntity("SEQEND");
             // nothing to verify
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultPolylineTest()
         {
             var poly = (DxfPolyline)EmptyEntity("POLYLINE");
-            Assert.Equal(0.0, poly.Elevation);
-            Assert.Equal(0.0, poly.Normal.X);
-            Assert.Equal(0.0, poly.Normal.Y);
-            Assert.Equal(1.0, poly.Normal.Z);
-            Assert.Equal(0.0, poly.Thickness);
-            Assert.Equal(0.0, poly.DefaultStartingWidth);
-            Assert.Equal(0.0, poly.DefaultEndingWidth);
-            Assert.Equal(0, poly.PolygonMeshMVertexCount);
-            Assert.Equal(0, poly.PolygonMeshNVertexCount);
-            Assert.Equal(0, poly.SmoothSurfaceMDensity);
-            Assert.Equal(0, poly.SmoothSurfaceNDensity);
-            Assert.Equal(DxfPolylineCurvedAndSmoothSurfaceType.None, poly.SurfaceType);
-            Assert.False(poly.IsClosed);
-            Assert.False(poly.CurveFitVerticiesAdded);
-            Assert.False(poly.SplineFitVerticiesAdded);
-            Assert.False(poly.Is3DPolyline);
-            Assert.False(poly.Is3DPolygonMesh);
-            Assert.False(poly.IsPolygonMeshClosedInNDirection);
-            Assert.False(poly.IsPolyfaceMesh);
-            Assert.False(poly.IsLinetypePatternGeneratedContinuously);
+            Assert.AreEqual(0.0, poly.Elevation);
+            Assert.AreEqual(0.0, poly.Normal.X);
+            Assert.AreEqual(0.0, poly.Normal.Y);
+            Assert.AreEqual(1.0, poly.Normal.Z);
+            Assert.AreEqual(0.0, poly.Thickness);
+            Assert.AreEqual(0.0, poly.DefaultStartingWidth);
+            Assert.AreEqual(0.0, poly.DefaultEndingWidth);
+            Assert.AreEqual(0, poly.PolygonMeshMVertexCount);
+            Assert.AreEqual(0, poly.PolygonMeshNVertexCount);
+            Assert.AreEqual(0, poly.SmoothSurfaceMDensity);
+            Assert.AreEqual(0, poly.SmoothSurfaceNDensity);
+            Assert.AreEqual(DxfPolylineCurvedAndSmoothSurfaceType.None, poly.SurfaceType);
+            Assert.IsFalse(poly.IsClosed);
+            Assert.IsFalse(poly.CurveFitVerticiesAdded);
+            Assert.IsFalse(poly.SplineFitVerticiesAdded);
+            Assert.IsFalse(poly.Is3DPolyline);
+            Assert.IsFalse(poly.Is3DPolygonMesh);
+            Assert.IsFalse(poly.IsPolygonMeshClosedInNDirection);
+            Assert.IsFalse(poly.IsPolyfaceMesh);
+            Assert.IsFalse(poly.IsLinetypePatternGeneratedContinuously);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadDefaultSolidTest()
         {
             var solid = (DxfSolid)EmptyEntity("SOLID");
-            Assert.Equal(DxfPoint.Origin, solid.FirstCorner);
-            Assert.Equal(DxfPoint.Origin, solid.SecondCorner);
-            Assert.Equal(DxfPoint.Origin, solid.ThirdCorner);
-            Assert.Equal(DxfPoint.Origin, solid.FourthCorner);
-            Assert.Equal(0.0, solid.Thickness);
-            Assert.Equal(DxfVector.ZAxis, solid.ExtrusionDirection);
+            Assert.AreEqual(DxfPoint.Origin, solid.FirstCorner);
+            Assert.AreEqual(DxfPoint.Origin, solid.SecondCorner);
+            Assert.AreEqual(DxfPoint.Origin, solid.ThirdCorner);
+            Assert.AreEqual(DxfPoint.Origin, solid.FourthCorner);
+            Assert.AreEqual(0.0, solid.Thickness);
+            Assert.AreEqual(DxfVector.ZAxis, solid.ExtrusionDirection);
         }
 
         #endregion
 
         #region Read specific value tests
 
-        [Fact]
+        [TestMethod]
         public void ReadLineTest()
         {
             var line = (DxfLine)Entity("LINE", @"
@@ -265,19 +266,19 @@ ill-placed comment
 230
 1.500000E+002
 ");
-            Assert.Equal(11.0, line.P1.X);
-            Assert.Equal(22.0, line.P1.Y);
-            Assert.Equal(33.0, line.P1.Z);
-            Assert.Equal(44.0, line.P2.X);
-            Assert.Equal(55.0, line.P2.Y);
-            Assert.Equal(66.0, line.P2.Z);
-            Assert.Equal(77.0, line.Thickness);
-            Assert.Equal(88.0, line.ExtrusionDirection.X);
-            Assert.Equal(99.0, line.ExtrusionDirection.Y);
-            Assert.Equal(150.0, line.ExtrusionDirection.Z);
+            Assert.AreEqual(11.0, line.P1.X);
+            Assert.AreEqual(22.0, line.P1.Y);
+            Assert.AreEqual(33.0, line.P1.Z);
+            Assert.AreEqual(44.0, line.P2.X);
+            Assert.AreEqual(55.0, line.P2.Y);
+            Assert.AreEqual(66.0, line.P2.Z);
+            Assert.AreEqual(77.0, line.Thickness);
+            Assert.AreEqual(88.0, line.ExtrusionDirection.X);
+            Assert.AreEqual(99.0, line.ExtrusionDirection.Y);
+            Assert.AreEqual(150.0, line.ExtrusionDirection.Z);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadCircleTest()
         {
             var circle = (DxfCircle)Entity("CIRCLE", @"
@@ -298,17 +299,17 @@ ill-placed comment
 230
 7.700000E+001
 ");
-            Assert.Equal(11.0, circle.Center.X);
-            Assert.Equal(22.0, circle.Center.Y);
-            Assert.Equal(33.0, circle.Center.Z);
-            Assert.Equal(44.0, circle.Radius);
-            Assert.Equal(55.0, circle.Normal.X);
-            Assert.Equal(66.0, circle.Normal.Y);
-            Assert.Equal(77.0, circle.Normal.Z);
-            Assert.Equal(35.0, circle.Thickness);
+            Assert.AreEqual(11.0, circle.Center.X);
+            Assert.AreEqual(22.0, circle.Center.Y);
+            Assert.AreEqual(33.0, circle.Center.Z);
+            Assert.AreEqual(44.0, circle.Radius);
+            Assert.AreEqual(55.0, circle.Normal.X);
+            Assert.AreEqual(66.0, circle.Normal.Y);
+            Assert.AreEqual(77.0, circle.Normal.Z);
+            Assert.AreEqual(35.0, circle.Thickness);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadArcTest()
         {
             var arc = (DxfArc)Entity("ARC", @"
@@ -333,19 +334,19 @@ ill-placed comment
  39
 3.500000E+001
 ");
-            Assert.Equal(11.0, arc.Center.X);
-            Assert.Equal(22.0, arc.Center.Y);
-            Assert.Equal(33.0, arc.Center.Z);
-            Assert.Equal(44.0, arc.Radius);
-            Assert.Equal(55.0, arc.Normal.X);
-            Assert.Equal(66.0, arc.Normal.Y);
-            Assert.Equal(77.0, arc.Normal.Z);
-            Assert.Equal(88.0, arc.StartAngle);
-            Assert.Equal(99.0, arc.EndAngle);
-            Assert.Equal(35.0, arc.Thickness);
+            Assert.AreEqual(11.0, arc.Center.X);
+            Assert.AreEqual(22.0, arc.Center.Y);
+            Assert.AreEqual(33.0, arc.Center.Z);
+            Assert.AreEqual(44.0, arc.Radius);
+            Assert.AreEqual(55.0, arc.Normal.X);
+            Assert.AreEqual(66.0, arc.Normal.Y);
+            Assert.AreEqual(77.0, arc.Normal.Z);
+            Assert.AreEqual(88.0, arc.StartAngle);
+            Assert.AreEqual(99.0, arc.EndAngle);
+            Assert.AreEqual(35.0, arc.Thickness);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadEllipseTest()
         {
             var el = (DxfEllipse)Entity("ELLIPSE", @"
@@ -374,21 +375,21 @@ ill-placed comment
  42
 0.400000E+000
 ");
-            Assert.Equal(11.0, el.Center.X);
-            Assert.Equal(22.0, el.Center.Y);
-            Assert.Equal(33.0, el.Center.Z);
-            Assert.Equal(44.0, el.MajorAxis.X);
-            Assert.Equal(55.0, el.MajorAxis.Y);
-            Assert.Equal(66.0, el.MajorAxis.Z);
-            Assert.Equal(77.0, el.Normal.X);
-            Assert.Equal(88.0, el.Normal.Y);
-            Assert.Equal(99.0, el.Normal.Z);
-            Assert.Equal(12.0, el.MinorAxisRatio);
-            Assert.Equal(0.1, el.StartParameter);
-            Assert.Equal(0.4, el.EndParameter);
+            Assert.AreEqual(11.0, el.Center.X);
+            Assert.AreEqual(22.0, el.Center.Y);
+            Assert.AreEqual(33.0, el.Center.Z);
+            Assert.AreEqual(44.0, el.MajorAxis.X);
+            Assert.AreEqual(55.0, el.MajorAxis.Y);
+            Assert.AreEqual(66.0, el.MajorAxis.Z);
+            Assert.AreEqual(77.0, el.Normal.X);
+            Assert.AreEqual(88.0, el.Normal.Y);
+            Assert.AreEqual(99.0, el.Normal.Z);
+            Assert.AreEqual(12.0, el.MinorAxisRatio);
+            Assert.AreEqual(0.1, el.StartParameter);
+            Assert.AreEqual(0.4, el.EndParameter);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadTextTest()
         {
             var text = (DxfText)Entity("TEXT", @"
@@ -431,29 +432,29 @@ text style name
  230
 8.800000E+001
 ");
-            Assert.Equal("foo bar", text.Value);
-            Assert.Equal("text style name", text.TextStyleName);
-            Assert.Equal(11.0, text.Location.X);
-            Assert.Equal(22.0, text.Location.Y);
-            Assert.Equal(33.0, text.Location.Z);
-            Assert.Equal(39.0, text.Thickness);
-            Assert.Equal(41.0, text.RelativeXScaleFactor);
-            Assert.Equal(44.0, text.TextHeight);
-            Assert.Equal(51.0, text.ObliqueAngle);
-            Assert.True(text.IsTextBackward);
-            Assert.True(text.IsTextUpsideDown);
-            Assert.Equal(DxfHorizontalTextJustification.Aligned, text.HorizontalTextJustification);
-            Assert.Equal(DxfVerticalTextJustification.Bottom, text.VerticalTextJustification);
-            Assert.Equal(91.0, text.SecondAlignmentPoint.X);
-            Assert.Equal(92.0, text.SecondAlignmentPoint.Y);
-            Assert.Equal(93.0, text.SecondAlignmentPoint.Z);
-            Assert.Equal(55.0, text.Rotation);
-            Assert.Equal(66.0, text.Normal.X);
-            Assert.Equal(77.0, text.Normal.Y);
-            Assert.Equal(88.0, text.Normal.Z);
+            Assert.AreEqual("foo bar", text.Value);
+            Assert.AreEqual("text style name", text.TextStyleName);
+            Assert.AreEqual(11.0, text.Location.X);
+            Assert.AreEqual(22.0, text.Location.Y);
+            Assert.AreEqual(33.0, text.Location.Z);
+            Assert.AreEqual(39.0, text.Thickness);
+            Assert.AreEqual(41.0, text.RelativeXScaleFactor);
+            Assert.AreEqual(44.0, text.TextHeight);
+            Assert.AreEqual(51.0, text.ObliqueAngle);
+            Assert.IsTrue(text.IsTextBackward);
+            Assert.IsTrue(text.IsTextUpsideDown);
+            Assert.AreEqual(DxfHorizontalTextJustification.Aligned, text.HorizontalTextJustification);
+            Assert.AreEqual(DxfVerticalTextJustification.Bottom, text.VerticalTextJustification);
+            Assert.AreEqual(91.0, text.SecondAlignmentPoint.X);
+            Assert.AreEqual(92.0, text.SecondAlignmentPoint.Y);
+            Assert.AreEqual(93.0, text.SecondAlignmentPoint.Z);
+            Assert.AreEqual(55.0, text.Rotation);
+            Assert.AreEqual(66.0, text.Normal.X);
+            Assert.AreEqual(77.0, text.Normal.Y);
+            Assert.AreEqual(88.0, text.Normal.Z);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadVertexTest()
         {
             var vertex = (DxfVertex)Entity("VERTEX", @"
@@ -482,34 +483,34 @@ text style name
  74
 74
 ");
-            Assert.Equal(11.0, vertex.Location.X);
-            Assert.Equal(22.0, vertex.Location.Y);
-            Assert.Equal(33.0, vertex.Location.Z);
-            Assert.Equal(40.0, vertex.StartingWidth);
-            Assert.Equal(41.0, vertex.EndingWidth);
-            Assert.Equal(42.0, vertex.Bulge);
-            Assert.True(vertex.IsExtraCreatedByCurveFit);
-            Assert.True(vertex.IsCurveFitTangentDefined);
-            Assert.True(vertex.IsSplineVertexCreatedBySplineFitting);
-            Assert.True(vertex.IsSplineFrameControlPoint);
-            Assert.True(vertex.Is3DPolylineVertex);
-            Assert.True(vertex.Is3DPolygonMesh);
-            Assert.True(vertex.IsPolyfaceMeshVertex);
-            Assert.Equal(50.0, vertex.CurveFitTangentDirection);
-            Assert.Equal(71, vertex.PolyfaceMeshVertexIndex1);
-            Assert.Equal(72, vertex.PolyfaceMeshVertexIndex2);
-            Assert.Equal(73, vertex.PolyfaceMeshVertexIndex3);
-            Assert.Equal(74, vertex.PolyfaceMeshVertexIndex4);
+            Assert.AreEqual(11.0, vertex.Location.X);
+            Assert.AreEqual(22.0, vertex.Location.Y);
+            Assert.AreEqual(33.0, vertex.Location.Z);
+            Assert.AreEqual(40.0, vertex.StartingWidth);
+            Assert.AreEqual(41.0, vertex.EndingWidth);
+            Assert.AreEqual(42.0, vertex.Bulge);
+            Assert.IsTrue(vertex.IsExtraCreatedByCurveFit);
+            Assert.IsTrue(vertex.IsCurveFitTangentDefined);
+            Assert.IsTrue(vertex.IsSplineVertexCreatedBySplineFitting);
+            Assert.IsTrue(vertex.IsSplineFrameControlPoint);
+            Assert.IsTrue(vertex.Is3DPolylineVertex);
+            Assert.IsTrue(vertex.Is3DPolygonMesh);
+            Assert.IsTrue(vertex.IsPolyfaceMeshVertex);
+            Assert.AreEqual(50.0, vertex.CurveFitTangentDirection);
+            Assert.AreEqual(71, vertex.PolyfaceMeshVertexIndex1);
+            Assert.AreEqual(72, vertex.PolyfaceMeshVertexIndex2);
+            Assert.AreEqual(73, vertex.PolyfaceMeshVertexIndex3);
+            Assert.AreEqual(74, vertex.PolyfaceMeshVertexIndex4);
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadSeqendTest()
         {
             var seqend = (DxfSeqend)Entity("SEQEND", "");
             // nothing to verify
         }
 
-        [Fact]
+        [TestMethod]
         public void ReadPolylineTest()
         {
             var poly = (DxfPolyline)Entity("POLYLINE", @"
@@ -558,33 +559,33 @@ VERTEX
   0
 SEQEND
 ");
-            Assert.Equal(11.0, poly.Elevation);
-            Assert.Equal(18.0, poly.Thickness);
-            Assert.Equal(40.0, poly.DefaultStartingWidth);
-            Assert.Equal(41.0, poly.DefaultEndingWidth);
-            Assert.Equal(71, poly.PolygonMeshMVertexCount);
-            Assert.Equal(72, poly.PolygonMeshNVertexCount);
-            Assert.Equal(73, poly.SmoothSurfaceMDensity);
-            Assert.Equal(74, poly.SmoothSurfaceNDensity);
-            Assert.Equal(DxfPolylineCurvedAndSmoothSurfaceType.CubicBSpline, poly.SurfaceType);
-            Assert.True(poly.IsClosed);
-            Assert.True(poly.CurveFitVerticiesAdded);
-            Assert.True(poly.SplineFitVerticiesAdded);
-            Assert.True(poly.Is3DPolyline);
-            Assert.True(poly.Is3DPolygonMesh);
-            Assert.True(poly.IsPolygonMeshClosedInNDirection);
-            Assert.True(poly.IsPolyfaceMesh);
-            Assert.True(poly.IsLinetypePatternGeneratedContinuously);
-            Assert.Equal(22.0, poly.Normal.X);
-            Assert.Equal(33.0, poly.Normal.Y);
-            Assert.Equal(44.0, poly.Normal.Z);
-            Assert.Equal(2, poly.Vertices.Count);
-            Assert.Equal(12.0, poly.Vertices[0].Location.X);
-            Assert.Equal(23.0, poly.Vertices[0].Location.Y);
-            Assert.Equal(34.0, poly.Vertices[0].Location.Z);
-            Assert.Equal(45.0, poly.Vertices[1].Location.X);
-            Assert.Equal(56.0, poly.Vertices[1].Location.Y);
-            Assert.Equal(67.0, poly.Vertices[1].Location.Z);
+            Assert.AreEqual(11.0, poly.Elevation);
+            Assert.AreEqual(18.0, poly.Thickness);
+            Assert.AreEqual(40.0, poly.DefaultStartingWidth);
+            Assert.AreEqual(41.0, poly.DefaultEndingWidth);
+            Assert.AreEqual(71, poly.PolygonMeshMVertexCount);
+            Assert.AreEqual(72, poly.PolygonMeshNVertexCount);
+            Assert.AreEqual(73, poly.SmoothSurfaceMDensity);
+            Assert.AreEqual(74, poly.SmoothSurfaceNDensity);
+            Assert.AreEqual(DxfPolylineCurvedAndSmoothSurfaceType.CubicBSpline, poly.SurfaceType);
+            Assert.IsTrue(poly.IsClosed);
+            Assert.IsTrue(poly.CurveFitVerticiesAdded);
+            Assert.IsTrue(poly.SplineFitVerticiesAdded);
+            Assert.IsTrue(poly.Is3DPolyline);
+            Assert.IsTrue(poly.Is3DPolygonMesh);
+            Assert.IsTrue(poly.IsPolygonMeshClosedInNDirection);
+            Assert.IsTrue(poly.IsPolyfaceMesh);
+            Assert.IsTrue(poly.IsLinetypePatternGeneratedContinuously);
+            Assert.AreEqual(22.0, poly.Normal.X);
+            Assert.AreEqual(33.0, poly.Normal.Y);
+            Assert.AreEqual(44.0, poly.Normal.Z);
+            Assert.AreEqual(2, poly.Vertices.Count);
+            Assert.AreEqual(12.0, poly.Vertices[0].Location.X);
+            Assert.AreEqual(23.0, poly.Vertices[0].Location.Y);
+            Assert.AreEqual(34.0, poly.Vertices[0].Location.Z);
+            Assert.AreEqual(45.0, poly.Vertices[1].Location.X);
+            Assert.AreEqual(56.0, poly.Vertices[1].Location.Y);
+            Assert.AreEqual(67.0, poly.Vertices[1].Location.Z);
         }
 
         public void ReadSolidTest()
@@ -623,19 +624,19 @@ SEQEND
 230
 16
 ");
-            Assert.Equal(new DxfPoint(1, 2, 3), solid.FirstCorner);
-            Assert.Equal(new DxfPoint(4, 5, 6), solid.SecondCorner);
-            Assert.Equal(new DxfPoint(7, 8, 9), solid.ThirdCorner);
-            Assert.Equal(new DxfPoint(10, 11, 12), solid.FourthCorner);
-            Assert.Equal(13.0, solid.Thickness);
-            Assert.Equal(new DxfVector(14, 15, 16), solid.ExtrusionDirection);
+            Assert.AreEqual(new DxfPoint(1, 2, 3), solid.FirstCorner);
+            Assert.AreEqual(new DxfPoint(4, 5, 6), solid.SecondCorner);
+            Assert.AreEqual(new DxfPoint(7, 8, 9), solid.ThirdCorner);
+            Assert.AreEqual(new DxfPoint(10, 11, 12), solid.FourthCorner);
+            Assert.AreEqual(13.0, solid.Thickness);
+            Assert.AreEqual(new DxfVector(14, 15, 16), solid.ExtrusionDirection);
         }
 
         #endregion
 
         #region Write default value tests
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultLineTest()
         {
             EnsureFileContainsEntity(new DxfLine(), @"
@@ -663,7 +664,7 @@ AcDbLine
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultCircleTest()
         {
             EnsureFileContainsEntity(new DxfCircle(), @"
@@ -687,7 +688,7 @@ AcDbCircle
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultArcTest()
         {
             EnsureFileContainsEntity(new DxfArc(), @"
@@ -717,7 +718,7 @@ AcDbArc
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultEllipseTest()
         {
             EnsureFileContainsEntity(new DxfEllipse(), @"
@@ -751,7 +752,7 @@ AcDbEllipse
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultTextTest()
         {
             EnsureFileContainsEntity(new DxfText(), @"
@@ -783,7 +784,7 @@ AcDbText
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultPolylineTest()
         {
             EnsureFileContainsEntity(new DxfPolyline(), @"
@@ -851,7 +852,7 @@ AcDbTrace
 
         #region Write specific value tests TODO
 
-        [Fact]
+        [TestMethod]
         public void WriteLineTest()
         {
             EnsureFileContainsEntity(new DxfLine(new DxfPoint(1, 2, 3), new DxfPoint(4, 5, 6))
@@ -953,27 +954,27 @@ ENDSEC
 EOF");
 
             // 2 blocks
-            Assert.Equal(2, file.Blocks.Count);
+            Assert.AreEqual(2, file.Blocks.Count);
 
             // first block
             var first = file.Blocks[0];
-            Assert.Equal("block #1", first.Name);
-            Assert.Equal(new DxfPoint(1, 2, 3), first.BasePoint);
-            Assert.Equal(1, first.Entities.Count);
+            Assert.AreEqual("block #1", first.Name);
+            Assert.AreEqual(new DxfPoint(1, 2, 3), first.BasePoint);
+            Assert.AreEqual(1, first.Entities.Count);
             var entity = first.Entities.First();
-            Assert.Equal(DxfEntityType.Line, entity.EntityType);
+            Assert.AreEqual(DxfEntityType.Line, entity.EntityType);
             var line = (DxfLine)entity;
-            Assert.Equal(new DxfPoint(10, 20, 30), line.P1);
-            Assert.Equal(new DxfPoint(11, 21, 31), line.P2);
+            Assert.AreEqual(new DxfPoint(10, 20, 30), line.P1);
+            Assert.AreEqual(new DxfPoint(11, 21, 31), line.P2);
 
             // second block
             var second = file.Blocks[1];
-            Assert.Equal("block #2", second.Name);
-            Assert.Equal(2, second.Entities.Count);
-            Assert.Equal(DxfEntityType.Circle, second.Entities[0].EntityType);
-            Assert.Equal(40.0, ((DxfCircle)second.Entities[0]).Radius);
-            Assert.Equal(DxfEntityType.Arc, second.Entities[1].EntityType);
-            Assert.Equal(41.0, ((DxfArc)second.Entities[1]).Radius);
+            Assert.AreEqual("block #2", second.Name);
+            Assert.AreEqual(2, second.Entities.Count);
+            Assert.AreEqual(DxfEntityType.Circle, second.Entities[0].EntityType);
+            Assert.AreEqual(40.0, ((DxfCircle)second.Entities[0]).Radius);
+            Assert.AreEqual(DxfEntityType.Arc, second.Entities[1].EntityType);
+            Assert.AreEqual(41.0, ((DxfArc)second.Entities[1]).Radius);
         }
 
         #endregion
