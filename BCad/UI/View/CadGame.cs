@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Primitives;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -93,8 +94,12 @@ namespace BCad.UI.View
                             case PrimitiveKind.Ellipse:
                                 var el = (PrimitiveEllipse)prim;
                                 var delta = 1.0;
-                                var last = new VertexPositionColor(el.GetPoint(el.StartAngle).ToVector3(), primColor);
-                                for (var angle = el.StartAngle + delta; angle <= el.EndAngle; angle += delta)
+                                var start = el.StartAngle;
+                                var end = el.EndAngle;
+                                if (start > end)
+                                    start -= MathHelper.ThreeSixty;
+                                var last = new VertexPositionColor(el.GetPoint(start).ToVector3(), primColor);
+                                for (var angle = start + delta; angle <= end; angle += delta)
                                 {
                                     var p = el.GetPoint(angle);
                                     var next = new VertexPositionColor(p.ToVector3(), primColor);
