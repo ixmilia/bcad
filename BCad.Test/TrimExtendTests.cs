@@ -185,7 +185,7 @@ namespace BCad.Test
                 true,
                 new[]
                 {
-                    new Ellipse(Point.Origin, new Vector(0.6123724356958, 1.06066017177983, 0.0), 0.577350269189626, 0, 180, Vector.ZAxis, IndexedColor.Auto)
+                    new Ellipse(Point.Origin, new Vector(0.6123724356958, 1.06066017177983, 0.0), 0.577350269189626, 0, 180.000062635721, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
