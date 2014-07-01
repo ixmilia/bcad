@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BCad.Collections;
 using BCad.Entities;
@@ -31,17 +32,17 @@ namespace BCad
         Plane DrawingPlane { get; }
         ViewPort ActiveViewPort { get; }
         IViewControl ViewControl { get; }
-        RubberBandGenerator RubberBandGenerator { get; }
+        RubberBandGenerator RubberBandGenerator { get; set; }
         bool IsDrawing { get; }
 
         void Update(Optional<Drawing> drawing = default(Optional<Drawing>),
             Optional<Plane> drawingPlane = default(Optional<Plane>),
             Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),
             Optional<IViewControl> viewControl = default(Optional<IViewControl>),
-            Optional<RubberBandGenerator> rubberBandGenerator = default(Optional<RubberBandGenerator>),
             bool isDirty = true);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
+        event EventHandler RubberBandGeneratorChanged;
 
         ObservableHashSet<Entity> SelectedEntities { get; }
 

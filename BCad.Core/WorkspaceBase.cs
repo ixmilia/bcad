@@ -13,6 +13,8 @@ namespace BCad
 {
     public abstract class WorkspaceBase : IWorkspace
     {
+        private RubberBandGenerator rubberBandGenerator;
+
         public WorkspaceBase()
         {
             Drawing = new Drawing();
@@ -31,16 +33,27 @@ namespace BCad
 
         protected virtual void OnCommandExecuting(CommandExecutingEventArgs e)
         {
-            if (CommandExecuting != null)
-                CommandExecuting(this, e);
+            var executing = CommandExecuting;
+            if (executing != null)
+                executing(this, e);
         }
 
         public event CommandExecutedEventHandler CommandExecuted;
 
         protected virtual void OnCommandExecuted(CommandExecutedEventArgs e)
         {
-            if (CommandExecuted != null)
-                CommandExecuted(this, e);
+            var executed = CommandExecuted;
+            if (executed != null)
+                executed(this, e);
+        }
+
+        public event EventHandler RubberBandGeneratorChanged;
+
+        protected virtual void OnRubberBandGeneratorChanged(EventArgs e)
+        {
+            var changed = RubberBandGeneratorChanged;
+            if (changed != null)
+                changed(this, e);
         }
 
         #endregion
@@ -57,9 +70,19 @@ namespace BCad
 
         public IViewControl ViewControl { get; private set; }
 
-        public RubberBandGenerator RubberBandGenerator { get; private set; }
-
         public ObservableHashSet<Entity> SelectedEntities { get; private set; }
+
+        public RubberBandGenerator RubberBandGenerator
+        {
+            get { return rubberBandGenerator; }
+            set
+            {
+                if (rubberBandGenerator == value)
+                    return;
+                rubberBandGenerator = value;
+                OnRubberBandGeneratorChanged(new EventArgs());
+            }
+        }
 
         public bool IsDrawing { get { return RubberBandGenerator != null; } }
 
@@ -94,7 +117,6 @@ namespace BCad
             Optional<Plane> drawingPlane = default(Optional<Plane>),
             Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),
             Optional<IViewControl> viewControl = default(Optional<IViewControl>),
-            Optional<RubberBandGenerator> rubberBandGenerator = default(Optional<RubberBandGenerator>),
             bool isDirty = true)
         {
             var e = new WorkspaceChangeEventArgs(
@@ -102,7 +124,6 @@ namespace BCad
                 drawingPlane.HasValue,
                 activeViewPort.HasValue,
                 viewControl.HasValue,
-                rubberBandGenerator.HasValue,
                 this.IsDirty != isDirty);
 
             OnWorkspaceChanging(e);
@@ -114,8 +135,6 @@ namespace BCad
                 this.ActiveViewPort = activeViewPort.Value;
             if (viewControl.HasValue)
                 this.ViewControl = viewControl.Value;
-            if (rubberBandGenerator.HasValue)
-                this.RubberBandGenerator = rubberBandGenerator.Value;
             this.IsDirty = isDirty;
             OnWorkspaceChanged(e);
         }
@@ -158,6 +177,7 @@ namespace BCad
                 result = false;
             }
 
+            RubberBandGenerator = null;
             OnCommandExecuted(new CommandExecutedEventArgs(command));
             return result;
         }

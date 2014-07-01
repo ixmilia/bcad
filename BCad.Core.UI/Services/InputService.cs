@@ -258,7 +258,7 @@ namespace BCad.Services
             pushedEntity = null;
             pushedDirective = null;
             pushedString = null;
-            Workspace.Update(rubberBandGenerator: onCursorMove);
+            Workspace.RubberBandGenerator = onCursorMove;
             return pushValueDone.Task;
         }
 
@@ -271,6 +271,7 @@ namespace BCad.Services
             pushedDirective = null;
             pushedString = null;
             currentDirective = null;
+            Workspace.RubberBandGenerator = null;
             pushValueDone = null;
         }
 

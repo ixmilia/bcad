@@ -38,6 +38,11 @@ namespace BCad.UI.View
                 };
         }
 
+        public void UpdateRubberBandLines()
+        {
+            // TODO:
+        }
+
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)

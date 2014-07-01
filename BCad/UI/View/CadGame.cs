@@ -12,16 +12,21 @@ namespace BCad.UI.View
     public class CadGame : Game
     {
         private IWorkspace workspace;
+        private IViewControl viewControl;
         private GraphicsDeviceManager graphicsDeviceManager;
         private Color4 backgroundColor;
         private Color autoColor;
         private BasicEffect basicEffect;
         private Buffer<VertexPositionColor> lineVertices;
+        private Buffer<VertexPositionColor> rubberBandVertices;
         private VertexInputLayout lineInputLayout;
+        private VertexInputLayout rubberBandInputLayout;
+        private bool drawingRubberBandLines;
 
-        public CadGame(IWorkspace workspace)
+        public CadGame(IWorkspace workspace, IViewControl viewControl)
         {
             this.workspace = workspace;
+            this.viewControl = viewControl;
             graphicsDeviceManager = new GraphicsDeviceManager(this);
             workspace.WorkspaceChanged += (sender, e) =>
             {
@@ -30,6 +35,10 @@ namespace BCad.UI.View
                 if (e.IsActiveViewPortChange)
                     UpdateMatrices();
             };
+            workspace.RubberBandGeneratorChanged += (sender, e) =>
+            {
+                UpdateRubberBandLines();
+            };
             workspace.SettingsManager.PropertyChanged += (sender, e) =>
             {
                 switch (e.PropertyName)
@@ -37,6 +46,7 @@ namespace BCad.UI.View
                     case Constants.BackgroundColorString:
                         SetColors();
                         UpdateVericies();
+                        UpdateRubberBandLines();
                         break;
                 }
             };
@@ -61,6 +71,7 @@ namespace BCad.UI.View
                 World = SharpDX.Matrix.Identity // unused since all objects have absolute world coordinates
             });
             UpdateVericies();
+            UpdateRubberBandLines();
             UpdateMatrices();
             base.LoadContent();
         }
@@ -84,35 +95,7 @@ namespace BCad.UI.View
                     foreach (var prim in entity.GetPrimitives())
                     {
                         var primColor = MapColor(prim.Color, entityColor);
-                        switch (prim.Kind)
-                        {
-                            case PrimitiveKind.Line:
-                                var line = (PrimitiveLine)prim;
-                                lineVerts.Add(new VertexPositionColor(line.P1.ToVector3(), primColor));
-                                lineVerts.Add(new VertexPositionColor(line.P2.ToVector3(), primColor));
-                                break;
-                            case PrimitiveKind.Ellipse:
-                                var el = (PrimitiveEllipse)prim;
-                                var delta = 1.0;
-                                var start = el.StartAngle;
-                                var end = el.EndAngle;
-                                if (start > end)
-                                    start -= MathHelper.ThreeSixty;
-                                var last = new VertexPositionColor(el.GetPoint(start).ToVector3(), primColor);
-                                for (var angle = start + delta; angle <= end; angle += delta)
-                                {
-                                    var p = el.GetPoint(angle);
-                                    var next = new VertexPositionColor(p.ToVector3(), primColor);
-                                    lineVerts.Add(last);
-                                    lineVerts.Add(next);
-                                    last = next;
-                                }
-
-                                // add final line
-                                lineVerts.Add(last);
-                                lineVerts.Add(new VertexPositionColor(el.GetPoint(el.EndAngle).ToVector3(), primColor));
-                                break;
-                        }
+                        AddVerticesToList(prim, primColor, lineVerts);
                     }
                 }
             }
@@ -126,6 +109,71 @@ namespace BCad.UI.View
 
             lineVertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, lineVerts.ToArray(), BufferFlags.VertexBuffer));
             lineInputLayout = VertexInputLayout.FromBuffer(0, lineVertices);
+        }
+
+        public void UpdateRubberBandLines()
+        {
+            var generator = workspace.RubberBandGenerator;
+            if (generator == null || viewControl == null)
+            {
+                drawingRubberBandLines = false;
+                return;
+            }
+
+            var lineVerts = new List<VertexPositionColor>();
+            if (generator != null && viewControl != null)
+            {
+                var primitives = generator(viewControl.GetCursorPoint());
+                foreach (var prim in primitives)
+                {
+                    var primColor = MapColor(prim.Color, autoColor);
+                    AddVerticesToList(prim, primColor, lineVerts);
+                }
+            }
+
+            if (lineVerts.Count == 0)
+            {
+                // we have to display something
+                lineVerts.Add(new VertexPositionColor());
+                lineVerts.Add(new VertexPositionColor());
+            }
+
+            rubberBandVertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, lineVerts.ToArray(), BufferFlags.VertexBuffer));
+            rubberBandInputLayout = VertexInputLayout.FromBuffer(0, lineVertices);
+            drawingRubberBandLines = true;
+        }
+
+        private void AddVerticesToList(IPrimitive primitive, Color color, List<VertexPositionColor> list)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    list.Add(new VertexPositionColor(line.P1.ToVector3(), color));
+                    list.Add(new VertexPositionColor(line.P2.ToVector3(), color));
+                    break;
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    var delta = 1.0;
+                    var start = el.StartAngle;
+                    var end = el.EndAngle;
+                    if (start > end)
+                        start -= MathHelper.ThreeSixty;
+                    var last = new VertexPositionColor(el.GetPoint(start).ToVector3(), color);
+                    for (var angle = start + delta; angle < end; angle += delta)
+                    {
+                        var p = el.GetPoint(angle);
+                        var next = new VertexPositionColor(p.ToVector3(), color);
+                        list.Add(last);
+                        list.Add(next);
+                        last = next;
+                    }
+
+                    // add final line
+                    list.Add(last);
+                    list.Add(new VertexPositionColor(el.GetPoint(el.EndAngle).ToVector3(), color));
+                    break;
+            }
         }
 
         private Color MapColor(IndexedColor color, Color fallback)
@@ -162,11 +210,18 @@ namespace BCad.UI.View
         {
             GraphicsDevice.Clear(backgroundColor);
 
+            basicEffect.CurrentTechnique.Passes[0].Apply();
+            
             GraphicsDevice.SetVertexBuffer(lineVertices);
             GraphicsDevice.SetVertexInputLayout(lineInputLayout);
-
-            basicEffect.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.Draw(PrimitiveType.LineList, lineVertices.ElementCount);
+
+            if (drawingRubberBandLines)
+            {
+                GraphicsDevice.SetVertexBuffer(rubberBandVertices);
+                GraphicsDevice.SetVertexInputLayout(rubberBandInputLayout);
+                GraphicsDevice.Draw(PrimitiveType.LineList, rubberBandVertices.ElementCount);
+            }
 
             base.Draw(gameTime);
         }

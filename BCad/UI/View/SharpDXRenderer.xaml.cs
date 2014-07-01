@@ -12,6 +12,7 @@ namespace BCad.UI.View
     public partial class SharpDXRenderer : UserControl, IRenderer
     {
         private IWorkspace workspace;
+        private CadGame game;
         private RenderCanvasViewModel viewModel = new RenderCanvasViewModel();
 
         public SharpDXRenderer()
@@ -23,7 +24,7 @@ namespace BCad.UI.View
             : this()
         {
             this.workspace = workspace;
-            var game = new CadGame(workspace);
+            game = new CadGame(workspace, viewControl);
             game.Run(surface);
 
             viewModel = new RenderCanvasViewModel();
@@ -40,6 +41,11 @@ namespace BCad.UI.View
             };
 
             this.SizeChanged += (_, e) => game.Resize((int)e.NewSize.Width, (int)e.NewSize.Height);
+        }
+
+        public void UpdateRubberBandLines()
+        {
+            game.UpdateRubberBandLines();
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -8,7 +8,6 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid ClipToBounds="True">
         <ContentControl Name="renderControl" />
-        <Canvas Name="rubberBandLayer" Background="Transparent" />
         <Canvas Name="snapLayer" Background="Transparent" />
         <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
             <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" />

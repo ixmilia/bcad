@@ -50,6 +50,7 @@ namespace BCad.UI
         private System.Windows.Point lastPanPoint;
         private System.Windows.Point firstSelectionPoint;
         private System.Windows.Point currentSelectionPoint;
+        private IRenderer renderer;
         private TaskCompletionSource<SelectionRectangle> selectionDone;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
@@ -147,7 +148,7 @@ namespace BCad.UI
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
             if (factory != null)
             {
-                var renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
+                renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
                 renderControl.Content = renderer;
             }
         }
@@ -422,6 +423,7 @@ namespace BCad.UI
             {
                 var snapPoint = GetActiveModelPoint(cursor.ToPoint());
                 UpdateCursorText(snapPoint.WorldPoint);
+                renderer.UpdateRubberBandLines();
                 if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint);
             })).Start();
