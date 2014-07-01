@@ -14,23 +14,27 @@ namespace BCad.EventArguments
 
         public bool IsDirtyChange { get; private set; }
 
-        public WorkspaceChangeEventArgs(bool isDrawingChange, bool isDrawingPlaneChange, bool isActiveViewPortChange, bool isViewControlChange, bool isDirtyChange)
+        public bool IsRubberBandGeneratorChange { get; private set; }
+
+        public WorkspaceChangeEventArgs(bool isDrawingChange, bool isDrawingPlaneChange, bool isActiveViewPortChange, bool isViewControlChange, bool isRubberBandGeneratorChange, bool isDirtyChange)
         {
             this.IsDrawingChange = isDrawingChange;
             this.IsDrawingPlaneChange = isDrawingPlaneChange;
             this.IsActiveViewPortChange = isActiveViewPortChange;
             this.IsViewControlChange = isViewControlChange;
+            this.IsRubberBandGeneratorChange = isRubberBandGeneratorChange;
             this.IsDirtyChange = isDirtyChange;
+
         }
 
         public bool IsOnlyDirtyChange()
         {
-            return this.IsDirtyChange && !(this.IsDrawingChange || this.IsDrawingPlaneChange || this.IsActiveViewPortChange || this.IsViewControlChange);
+            return this.IsDirtyChange && !(this.IsDrawingChange || this.IsDrawingPlaneChange || this.IsActiveViewPortChange || this.IsViewControlChange || this.IsRubberBandGeneratorChange);
         }
 
         public static WorkspaceChangeEventArgs Reset()
         {
-            return new WorkspaceChangeEventArgs(true, true, true, true, false);
+            return new WorkspaceChangeEventArgs(true, true, true, true, true, false);
         }
     }
 }

@@ -140,7 +140,6 @@ namespace BCad.UI
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
             InputService.ValueRequested += InputService_ValueRequested;
             InputService.ValueReceived += InputService_ValueReceived;
-            InputService.RubberBandGeneratorChanged += InputService_RubberBandGeneratorChanged;
 
             SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.BackgroundColorString));
             SetCursorVisibility();
@@ -197,7 +196,6 @@ namespace BCad.UI
         {
             selecting = false;
             var point = await GetCursorPointAsync();
-            UpdateRubberBandLines(point);
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -210,17 +208,10 @@ namespace BCad.UI
             SetSelectionLineVisibility(Visibility.Hidden);
         }
 
-        private async void InputService_RubberBandGeneratorChanged(object sender, RubberBandGeneratorChangedEventArgs e)
-        {
-            var point = await GetCursorPointAsync();
-            UpdateRubberBandLines(point);
-        }
-
         private async void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             selecting = false;
             var point = await GetCursorPointAsync();
-            UpdateRubberBandLines(point);
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -255,7 +246,6 @@ namespace BCad.UI
             UpdateSnapPoints();
             var point = await GetCursorPointAsync();
             UpdateCursorText(point);
-            UpdateRubberBandLines(point);
         }
 
         private void DrawingChanged()
@@ -273,174 +263,6 @@ namespace BCad.UI
             // populate the snap points
             snapPoints = Workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
                 .Select(sp => new TransformedSnapPoint(sp.Point, Project(sp.Point), sp.Kind));
-        }
-
-        private void UpdateRubberBandLines(Point cursorPoint)
-        {
-            Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    rubberBandLayer.Children.Clear();
-                    var generator = InputService.PrimitiveGenerator;
-                    if (generator != null)
-                    {
-                        var primitives = generator(cursorPoint);
-                        foreach (var primitive in primitives)
-                        {
-                            FrameworkElement element;
-                            switch (primitive.Kind)
-                            {
-                                case PrimitiveKind.Ellipse:
-                                    element = CreateRubberBandEllipse((PrimitiveEllipse)primitive);
-                                    break;
-                                case PrimitiveKind.Line:
-                                    element = CreateRubberBandLine((PrimitiveLine)primitive);
-                                    break;
-                                case PrimitiveKind.Point:
-                                    element = CreateRubberBandPoint((PrimitivePoint)primitive);
-                                    break;
-                                case PrimitiveKind.Text:
-                                    element = CreateRubberBandText((PrimitiveText)primitive);
-                                    break;
-                                default:
-                                    throw new NotImplementedException();
-                            }
-
-                            rubberBandLayer.Children.Add(element);
-                        }
-                    }
-                }));
-        }
-
-        private Shape CreateRubberBandEllipse(PrimitiveEllipse ellipse)
-        {
-            var projected = ProjectionHelper.Project(ellipse, windowsTransformationMatrix);
-            var radiusX = projected.MajorAxis.Length;
-            var radiusY = radiusX * projected.MinorAxisRatio;
-
-            Shape shape;
-            if (projected.StartAngle == 0.0 && projected.EndAngle == 360.0)
-            {
-                // full circle
-                shape = new Shapes.Ellipse() { Width = radiusX * 2.0, Height = radiusY * 2.0 };
-                shape.RenderTransform = new RotateTransform()
-                {
-                    Angle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
-                    CenterX = radiusX,
-                    CenterY = radiusY
-                };
-                Canvas.SetLeft(shape, projected.Center.X - radiusX);
-                Canvas.SetTop(shape, projected.Center.Y - radiusY);
-            }
-            else
-            {
-                // arc
-                var endAngle = ellipse.EndAngle;
-                if (endAngle < ellipse.StartAngle) endAngle += 360.0;
-                var startPoint = projected.GetStartPoint();
-                var endPoint = projected.GetEndPoint();
-                var isLargeArc = (endAngle - ellipse.StartAngle) > 180.0;
-                shape = new Path()
-                {
-                    Data = new GeometryGroup()
-                    {
-                        Children = new GeometryCollection()
-                        {
-                            new PathGeometry()
-                            {
-                                Figures = new PathFigureCollection()
-                                {
-                                    new PathFigure()
-                                    {
-                                        StartPoint = new System.Windows.Point(startPoint.X, startPoint.Y),
-                                        Segments = new PathSegmentCollection()
-                                        {
-                                            new ArcSegment()
-                                            {
-                                                IsLargeArc = isLargeArc,
-                                                Point = new System.Windows.Point(endPoint.X, endPoint.Y),
-                                                SweepDirection = SweepDirection.Counterclockwise,
-                                                RotationAngle = Math.Atan2(projected.MajorAxis.Y, projected.MajorAxis.X) * MathHelper.RadiansToDegrees,
-                                                Size = new Size(radiusX, radiusY)
-                                            }
-                                        }
-                                    },
-                                }
-                            }
-                        }
-                    }
-                };
-            }
-
-            shape.StrokeThickness = 1.0;
-            shape.Stroke = AutoBrush;
-            return shape;
-        }
-
-        private Shapes.Line CreateRubberBandLine(PrimitiveLine line)
-        {
-            var p1 = Project(line.P1);
-            var p2 = Project(line.P2);
-            return new Shapes.Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y, StrokeThickness = 1.0, Stroke = AutoBrush };
-        }
-
-        private Shapes.Path CreateRubberBandPoint(PrimitivePoint point)
-        {
-            const int size = 15 / 2;
-            var loc = Project(point.Location);
-            return new Path()
-            {
-                Data = new GeometryGroup()
-                {
-                    Children = new GeometryCollection()
-                    {
-                        new PathGeometry()
-                        {
-                            Figures = new PathFigureCollection()
-                            {
-                                new PathFigure()
-                                {
-                                    StartPoint = new System.Windows.Point(loc.X - size, loc.Y),
-                                    Segments = new PathSegmentCollection()
-                                    {
-                                        new LineSegment()
-                                        {
-                                            Point = new System.Windows.Point(loc.X + size, loc.Y)
-                                        }
-                                    }
-                                },
-                                new PathFigure()
-                                {
-                                    StartPoint = new System.Windows.Point(loc.X, loc.Y - size),
-                                    Segments = new PathSegmentCollection()
-                                    {
-                                        new LineSegment()
-                                        {
-                                            Point = new System.Windows.Point(loc.X, loc.Y + size)
-                                        }
-                                    }
-                                },
-                            }
-                        }
-                    }
-                },
-                StrokeThickness = 1.0,
-                Stroke = AutoBrush
-            };
-        }
-
-        private TextBlock CreateRubberBandText(PrimitiveText text)
-        {
-            var location = Project(text.Location);
-            var scale = Workspace.ViewControl.DisplayHeight / Workspace.ActiveViewPort.ViewHeight;
-            var t = new TextBlock();
-            t.Text = text.Value;
-            t.FontFamily = new FontFamily("Consolas");
-            t.FontSize = text.Height * 0.75 * scale; // 0.75 = 72ppi/96dpi
-            t.RenderTransform = new RotateTransform() { Angle = -text.Rotation, CenterX = 0, CenterY = text.Height };
-            Canvas.SetLeft(t, location.X);
-            Canvas.SetTop(t, location.Y - text.Height * scale);
-            t.Foreground = AutoBrush;
-            return t;
         }
 
         private Point Project(Point point)
@@ -600,7 +422,6 @@ namespace BCad.UI
             {
                 var snapPoint = GetActiveModelPoint(cursor.ToPoint());
                 UpdateCursorText(snapPoint.WorldPoint);
-                UpdateRubberBandLines(snapPoint.WorldPoint);
                 if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint);
             })).Start();
@@ -832,7 +653,7 @@ namespace BCad.UI
 
         private TransformedSnapPoint GetOrthoPoint(Point cursor)
         {
-            if (InputService.IsDrawing && Workspace.SettingsManager.Ortho)
+            if (Workspace.IsDrawing && Workspace.SettingsManager.Ortho)
             {
                 // if both are on the drawing plane
                 var last = InputService.LastPoint;
@@ -882,7 +703,7 @@ namespace BCad.UI
 
         private TransformedSnapPoint GetAngleSnapPoint(Point cursor)
         {
-            if (InputService.IsDrawing && Workspace.SettingsManager.AngleSnap)
+            if (Workspace.IsDrawing && Workspace.SettingsManager.AngleSnap)
             {
                 // get distance to last point
                 var last = InputService.LastPoint;

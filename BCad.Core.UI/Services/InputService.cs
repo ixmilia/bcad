@@ -45,7 +45,6 @@ namespace BCad.Services
 
         public InputService()
         {
-            PrimitiveGenerator = null;
             LastPoint = Point.Origin;
             Reset();
         }
@@ -64,21 +63,7 @@ namespace BCad.Services
 
         private object callbackGate = new object();
 
-        private RubberBandGenerator primitiveGenerator = null;
-
-        public RubberBandGenerator PrimitiveGenerator
-        {
-            get { return primitiveGenerator; }
-            private set
-            {
-                primitiveGenerator = value;
-                OnRubberBandGeneratorChanged(new RubberBandGeneratorChangedEventArgs(primitiveGenerator));
-            }
-        }
-
         public Point LastPoint { get; private set; }
-
-        public bool IsDrawing { get { return this.PrimitiveGenerator != null; } }
 
         private UserDirective currentDirective = null;
 
@@ -273,7 +258,7 @@ namespace BCad.Services
             pushedEntity = null;
             pushedDirective = null;
             pushedString = null;
-            PrimitiveGenerator = onCursorMove;
+            Workspace.Update(rubberBandGenerator: onCursorMove);
             return pushValueDone.Task;
         }
 
@@ -285,7 +270,6 @@ namespace BCad.Services
             pushedEntity = null;
             pushedDirective = null;
             pushedString = null;
-            PrimitiveGenerator = null;
             currentDirective = null;
             pushValueDone = null;
         }
@@ -518,14 +502,6 @@ namespace BCad.Services
                 pushValueDone.SetResult(true);
             if (ValueReceived != null)
                 ValueReceived(this, e);
-        }
-
-        public event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;
-
-        protected virtual void OnRubberBandGeneratorChanged(RubberBandGeneratorChangedEventArgs e)
-        {
-            if (RubberBandGeneratorChanged != null)
-                RubberBandGeneratorChanged(this, e);
         }
 
         private static Regex relativePoint = new Regex(string.Format("^@{0},{0},{0}$", Point.NumberPattern));

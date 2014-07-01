@@ -15,7 +15,7 @@ namespace BCad.ViewModels
         public HomeRibbonViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, false, false, false, false));
+            WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, false, false, false, false, false));
             this.workspace.WorkspaceChanged += WorkspaceChanged;
         }
 

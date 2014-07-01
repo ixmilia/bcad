@@ -20,6 +20,7 @@ namespace BCad
             ActiveViewPort = ViewPort.CreateDefaultViewPort();
             SelectedEntities = new ObservableHashSet<Entity>();
             ViewControl = null;
+            RubberBandGenerator = null;
 
             SettingsManager = LoadSettings();
         }
@@ -56,7 +57,11 @@ namespace BCad
 
         public IViewControl ViewControl { get; private set; }
 
+        public RubberBandGenerator RubberBandGenerator { get; private set; }
+
         public ObservableHashSet<Entity> SelectedEntities { get; private set; }
+
+        public bool IsDrawing { get { return RubberBandGenerator != null; } }
 
         #endregion
 
@@ -85,29 +90,34 @@ namespace BCad
         public ISettingsManager SettingsManager { get; private set; }
 
         public virtual void Update(
-            Drawing drawing = null,
-            Plane drawingPlane = null,
-            ViewPort activeViewPort = null,
-            IViewControl viewControl = null,
-            bool isDirty = true)
+            Optional<Drawing> drawing = default(Optional<Drawing>),
+            Optional<Plane> drawingPlane = default(Optional<Plane>),
+            Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),
+            Optional<IViewControl> viewControl = default(Optional<IViewControl>),
+            Optional<RubberBandGenerator> rubberBandGenerator = default(Optional<RubberBandGenerator>),
+            Optional<bool> isDirty = default(Optional<bool>))
         {
             var e = new WorkspaceChangeEventArgs(
-                drawing != null,
-                drawingPlane != null,
-                activeViewPort != null,
-                viewControl != null,
-                this.IsDirty != isDirty);
+                drawing.HasValue,
+                drawingPlane.HasValue,
+                activeViewPort.HasValue,
+                viewControl.HasValue,
+                rubberBandGenerator.HasValue,
+                isDirty.HasValue);
 
             OnWorkspaceChanging(e);
-            if (drawing != null)
-                this.Drawing = drawing;
-            if (drawingPlane != null)
-                this.DrawingPlane = drawingPlane;
-            if (activeViewPort != null)
-                this.ActiveViewPort = activeViewPort;
-            if (viewControl != null)
-                this.ViewControl = viewControl;
-            this.IsDirty = isDirty;
+            if (drawing.HasValue)
+                this.Drawing = drawing.Value;
+            if (drawingPlane.HasValue)
+                this.DrawingPlane = drawingPlane.Value;
+            if (activeViewPort.HasValue)
+                this.ActiveViewPort = activeViewPort.Value;
+            if (viewControl.HasValue)
+                this.ViewControl = viewControl.Value;
+            if (rubberBandGenerator.HasValue)
+                this.RubberBandGenerator = rubberBandGenerator.Value;
+            if (isDirty.HasValue)
+                this.IsDirty = isDirty.Value;
             OnWorkspaceChanged(e);
         }
 

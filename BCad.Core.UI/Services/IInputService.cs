@@ -21,13 +21,10 @@ namespace BCad.Services
     public delegate void PromptChangedEventHandler(object sender, PromptChangedEventArgs e);
     public delegate void ValueRequestedEventHandler(object sender, ValueRequestedEventArgs e);
     public delegate void ValueReceivedEventHandler(object sender, ValueReceivedEventArgs e);
-    public delegate void RubberBandGeneratorChangedEventHandler(object sender, RubberBandGeneratorChangedEventArgs e);
-    public delegate IEnumerable<IPrimitive> RubberBandGenerator(Point point);
 
     public interface IInputService
     {
         Point LastPoint { get; }
-        RubberBandGenerator PrimitiveGenerator { get; }
         Task<ValueOrDirective<double>> GetDistance(string prompt = null, Optional<double> defaultDistance = default(Optional<double>));
         Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>));
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
@@ -46,12 +43,10 @@ namespace BCad.Services
 
         InputType AllowedInputTypes { get; }
         IEnumerable<string> AllowedDirectives { get; }
-        bool IsDrawing { get; }
 
         event PromptChangedEventHandler PromptChanged;
         event ValueRequestedEventHandler ValueRequested;
         event ValueReceivedEventHandler ValueReceived;
-        event RubberBandGeneratorChangedEventHandler RubberBandGeneratorChanged;
 
         void Reset();
 
