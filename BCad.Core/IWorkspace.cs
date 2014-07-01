@@ -39,7 +39,7 @@ namespace BCad
             Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),
             Optional<IViewControl> viewControl = default(Optional<IViewControl>),
             Optional<RubberBandGenerator> rubberBandGenerator = default(Optional<RubberBandGenerator>),
-            Optional<bool> isDirty = default(Optional<bool>));
+            bool isDirty = true);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
 

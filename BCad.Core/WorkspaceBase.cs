@@ -95,7 +95,7 @@ namespace BCad
             Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),
             Optional<IViewControl> viewControl = default(Optional<IViewControl>),
             Optional<RubberBandGenerator> rubberBandGenerator = default(Optional<RubberBandGenerator>),
-            Optional<bool> isDirty = default(Optional<bool>))
+            bool isDirty = true)
         {
             var e = new WorkspaceChangeEventArgs(
                 drawing.HasValue,
@@ -103,7 +103,7 @@ namespace BCad
                 activeViewPort.HasValue,
                 viewControl.HasValue,
                 rubberBandGenerator.HasValue,
-                isDirty.HasValue);
+                this.IsDirty != isDirty);
 
             OnWorkspaceChanging(e);
             if (drawing.HasValue)
@@ -116,8 +116,7 @@ namespace BCad
                 this.ViewControl = viewControl.Value;
             if (rubberBandGenerator.HasValue)
                 this.RubberBandGenerator = rubberBandGenerator.Value;
-            if (isDirty.HasValue)
-                this.IsDirty = isDirty.Value;
+            this.IsDirty = isDirty;
             OnWorkspaceChanged(e);
         }
 
