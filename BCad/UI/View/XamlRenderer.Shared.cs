@@ -20,15 +20,17 @@ namespace BCad.UI.View
         private IWorkspace Workspace;
         private RenderCanvasViewModel viewModel = new RenderCanvasViewModel();
 
-        public void Initialize(IWorkspace workspace)
+        public void Initialize(IWorkspace workspace, IViewControl viewControl)
         {
             this.Workspace = workspace;
+            this.ViewControl = viewControl;
 
             viewModel.SelectedEntities = workspace.SelectedEntities;
             DataContext = viewModel;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
             Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
+            Workspace.RubberBandGeneratorChanged += Workspace_RubberBandGeneratorChanged;
 
             this.Loaded += (_, __) =>
                 {
@@ -38,9 +40,14 @@ namespace BCad.UI.View
                 };
         }
 
+        void Workspace_RubberBandGeneratorChanged(object sender, EventArgs e)
+        {
+            viewModel.RubberBandGenerator = Workspace.RubberBandGenerator;
+        }
+
         public void UpdateRubberBandLines()
         {
-            // TODO:
+            viewModel.CursorPoint = ViewControl.GetCursorPoint();
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)

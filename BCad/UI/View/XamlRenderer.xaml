@@ -15,7 +15,9 @@
                            Drawing="{Binding Path=Drawing}"
                            PointSize="{Binding Path=PointSize}"
                            SelectedEntities="{Binding Path=SelectedEntities}"
-                           ColorMap="{Binding Path=ColorMap}">
+                           ColorMap="{Binding Path=ColorMap}"
+                           RubberBandGenerator="{Binding Path=RubberBandGenerator}"
+                           CursorPoint="{Binding Path=CursorPoint}">
             <view:RenderCanvas.Background>
                 <SolidColorBrush Color="{Binding Path=BackgroundColor, Converter={StaticResource colorConverter}}" />
             </view:RenderCanvas.Background>

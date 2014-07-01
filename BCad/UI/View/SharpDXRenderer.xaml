@@ -15,6 +15,8 @@
                            PointSize="{Binding Path=PointSize}"
                            SelectedEntities="{Binding Path=SelectedEntities}"
                            ColorMap="{Binding Path=ColorMap}"
+                           RubberBandGenerator="{Binding Path=RubberBandGenerator}"
+                           CursorPoint="{Binding Path=CursorPoint}"
                            SupportedPrimitiveTypes="Point,Text" />
     </Grid>
 </UserControl>

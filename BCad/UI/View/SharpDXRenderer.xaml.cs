@@ -12,6 +12,7 @@ namespace BCad.UI.View
     public partial class SharpDXRenderer : UserControl, IRenderer
     {
         private IWorkspace workspace;
+        private IViewControl viewControl;
         private CadGame game;
         private RenderCanvasViewModel viewModel = new RenderCanvasViewModel();
 
@@ -24,6 +25,7 @@ namespace BCad.UI.View
             : this()
         {
             this.workspace = workspace;
+            this.viewControl = viewControl;
             game = new CadGame(workspace, viewControl);
             game.Run(surface);
 
@@ -32,6 +34,7 @@ namespace BCad.UI.View
             workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
             workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
+            workspace.RubberBandGeneratorChanged += RubberBandGeneratorChanged;
 
             this.Loaded += (_, __) =>
             {
@@ -43,9 +46,15 @@ namespace BCad.UI.View
             this.SizeChanged += (_, e) => game.Resize((int)e.NewSize.Width, (int)e.NewSize.Height);
         }
 
+        private void RubberBandGeneratorChanged(object sender, EventArgs e)
+        {
+            viewModel.RubberBandGenerator = workspace.RubberBandGenerator;
+        }
+
         public void UpdateRubberBandLines()
         {
             game.UpdateRubberBandLines();
+            viewModel.CursorPoint = viewControl.GetCursorPoint();
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)

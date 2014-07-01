@@ -68,6 +68,10 @@ namespace BCad.UI.View
             DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundExPropertyChanged));
         public static readonly DependencyProperty SupportedPrimitiveTypesProperty =
             DependencyProperty.Register("SupportedPrimitiveTypes", typeof(PrimitiveKind), typeof(RenderCanvas), new P_Metadata(PrimitiveKind.Ellipse | PrimitiveKind.Line | PrimitiveKind.Point | PrimitiveKind.Text, SupportedPrimitiveTypesPropertyChanged));
+        public static readonly DependencyProperty CursorPointProperty =
+            DependencyProperty.Register("CursorPoint", typeof(Point), typeof(RenderCanvas), new P_Metadata(new Point(), OnCursorPointPropertyChanged));
+        public static readonly DependencyProperty RubberBandGeneratorProperty =
+            DependencyProperty.Register("RubberBandGenerator", typeof(RubberBandGenerator), typeof(RenderCanvas), new P_Metadata(null, OnRubberBandGeneratorPropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -138,6 +142,24 @@ namespace BCad.UI.View
             {
                 canvas.Redraw();
                 canvas.CheckAllSelection();
+            }
+        }
+
+        private static void OnCursorPointPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = source as RenderCanvas;
+            if (canvas != null)
+            {
+                canvas.UpdateRubberBandLines();
+            }
+        }
+
+        private static void OnRubberBandGeneratorPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = source as RenderCanvas;
+            if (canvas != null)
+            {
+                canvas.UpdateRubberBandLines();
             }
         }
 
@@ -229,6 +251,18 @@ namespace BCad.UI.View
             set { SetValue(SupportedPrimitiveTypesProperty, value); }
         }
 
+        public Point CursorPoint
+        {
+            get { return (Point)GetValue(CursorPointProperty); }
+            set { SetValue(CursorPointProperty, value); }
+        }
+
+        public RubberBandGenerator RubberBandGenerator
+        {
+            get { return (RubberBandGenerator)GetValue(RubberBandGeneratorProperty); }
+            set { SetValue(RubberBandGeneratorProperty, value); }
+        }
+
         private void RecalcTransform()
         {
             var displayPlane = new Plane(ViewPort.BottomLeft, ViewPort.Sight);
@@ -239,7 +273,8 @@ namespace BCad.UI.View
             t.Children.Add(new TranslateTransform() { X = -ViewPort.BottomLeft.X, Y = -ViewPort.BottomLeft.Y });
             t.Children.Add(new ScaleTransform() { ScaleX = scale, ScaleY = -scale });
             t.Children.Add(new TranslateTransform() { X = 0, Y = ActualHeight });
-            theCanvas.RenderTransform = t;
+            entityCanvas.RenderTransform = t;
+            rubberBandCanvas.RenderTransform = t;
 
             BindObject.Thickness = 1.0 / scale;
             BindObject.Scale = new ScaleTransform() { ScaleX = PointSize / scale, ScaleY = PointSize / scale };
@@ -334,7 +369,7 @@ namespace BCad.UI.View
 
         private void Redraw()
         {
-            this.theCanvas.Children.Clear();
+            this.entityCanvas.Children.Clear();
             this.entityMap.Clear();
             this.currentlySelected.Clear();
             var supported = SupportedPrimitiveTypes;
@@ -344,13 +379,27 @@ namespace BCad.UI.View
                 {
                     foreach (var prim in entity.GetPrimitives())
                     {
-                        AddPrimitive(prim, GetColor(prim.Color, layer.Color), entity, supported);
+                        AddPrimitive(prim, GetColor(prim.Color, layer.Color), entity, supported, entityCanvas);
                     }
                 }
             }
         }
 
-        private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity, PrimitiveKind supported)
+        private void UpdateRubberBandLines()
+        {
+            this.rubberBandCanvas.Children.Clear();
+            var generator = RubberBandGenerator;
+            var supported = SupportedPrimitiveTypes;
+            if (generator != null)
+            {
+                foreach (var prim in generator(CursorPoint))
+                {
+                    AddPrimitive(prim, GetColor(prim.Color, IndexedColor.Auto), null, supported, rubberBandCanvas);
+                }
+            }
+        }
+
+        private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity, PrimitiveKind supported, Canvas canvas)
         {
             FrameworkElement element = null;
             switch (prim.Kind)
@@ -378,10 +427,13 @@ namespace BCad.UI.View
             if (element != null)
             {
                 element.Tag = containingEntity;
-                theCanvas.Children.Add(element);
-                if (!entityMap.ContainsKey(containingEntity.Id))
-                    entityMap.Add(containingEntity.Id, new List<FrameworkElement>());
-                entityMap[containingEntity.Id].Add(element);
+                canvas.Children.Add(element);
+                if (containingEntity != null)
+                {
+                    if (!entityMap.ContainsKey(containingEntity.Id))
+                        entityMap.Add(containingEntity.Id, new List<FrameworkElement>());
+                    entityMap[containingEntity.Id].Add(element);
+                }
             }
         }
 

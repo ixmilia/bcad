@@ -19,7 +19,7 @@ namespace BCad.UI.View
         public XamlRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)
             : this()
         {
-            Initialize(workspace);
+            Initialize(workspace, viewControl);
             ViewControl = viewControl;
             InputService = inputService;
         }

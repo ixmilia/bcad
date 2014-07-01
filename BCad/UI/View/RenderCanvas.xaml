@@ -6,6 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <Canvas Name="theCanvas" />
+        <Canvas Name="entityCanvas" />
+        <Canvas Name="rubberBandCanvas" />
     </Grid>
 </UserControl>

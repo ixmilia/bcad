@@ -13,6 +13,8 @@ namespace BCad.UI.View
         private double pointSize = 15.0;
         private ObservableHashSet<Entity> selectedEntities = new ObservableHashSet<Entity>();
         private ColorMap colorMap = ColorMap.Default;
+        private Point cursorPoint = new Point();
+        private RubberBandGenerator rubberBandGenerator = null;
 
         public RealColor BackgroundColor
         {
@@ -82,6 +84,30 @@ namespace BCad.UI.View
                 if (colorMap == value)
                     return;
                 colorMap = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Point CursorPoint
+        {
+            get { return cursorPoint; }
+            set
+            {
+                if (cursorPoint == value)
+                    return;
+                cursorPoint = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RubberBandGenerator RubberBandGenerator
+        {
+            get { return rubberBandGenerator; }
+            set
+            {
+                if (rubberBandGenerator == value)
+                    return;
+                rubberBandGenerator = value;
                 OnPropertyChanged();
             }
         }
