@@ -25,14 +25,16 @@ namespace BCad.FileHandlers.Converters
                 { "ColorMap", ColorMap.Default }
             };
 
-            var layer = new Layer(stlFile.File.SolidName ?? "stl", IndexedColor.Auto);
+            var lines = new Line[stlFile.File.Triangles.Count * 3];
+            var index = 0;
             foreach (var triangle in stlFile.File.Triangles)
             {
-                layer = layer.Add(new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), IndexedColor.Auto));
-                layer = layer.Add(new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), IndexedColor.Auto));
-                layer = layer.Add(new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), IndexedColor.Auto));
+                lines[index++] = new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), IndexedColor.Auto);
+                lines[index++] = new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), IndexedColor.Auto);
+                lines[index++] = new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), IndexedColor.Auto);
             }
 
+            var layer = new Layer(stlFile.File.SolidName ?? "stl", IndexedColor.Auto, lines);
             drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, -1),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));

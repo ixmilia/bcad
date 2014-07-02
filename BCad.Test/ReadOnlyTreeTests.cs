@@ -291,6 +291,16 @@ namespace BCad.Test
             }
         }
 
+        [TestMethod]
+        public void MutableBatchInsertTest()
+        {
+            var array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var tree = ReadOnlyTree<int, int>.FromEnumerable(array, i => i);
+            Assert.AreEqual(array.Length, tree.Count);
+            AssertArrayEqual(array, tree.GetKeys().ToArray());
+            AssertArrayEqual(array, tree.GetValues().ToArray());
+        }
+
         private ReadOnlyTree<int, int> CreateTree(params int[] values)
         {
             var tree = new ReadOnlyTree<int, int>();

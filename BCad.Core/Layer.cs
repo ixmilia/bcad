@@ -33,6 +33,11 @@ namespace BCad
         {
         }
 
+        public Layer(string name, IndexedColor color, IEnumerable<Entity> entities)
+            : this(name, color, ReadOnlyTree<uint, Entity>.FromEnumerable(entities, (ent) => ent.Id))
+        {
+        }
+
         public Layer(string name, IndexedColor color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
         {
             this.name = name;
