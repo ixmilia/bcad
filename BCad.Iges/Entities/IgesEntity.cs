@@ -98,7 +98,7 @@ namespace BCad.Iges.Entities
             parameters.Add((int)EntityType);
             this.WriteParameters(parameters);
             IgesFileWriter.AddParametersToStringList(parameters.ToArray(), parameterLines, fieldDelimiter, recordDelimiter,
-                lineSuffix: string.Format("{0,7}", nextDirectoryIndex));
+                lineSuffix: string.Format(" {0,7}", nextDirectoryIndex));
 
             return nextDirectoryIndex;
         }
