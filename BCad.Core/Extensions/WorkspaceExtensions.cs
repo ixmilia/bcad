@@ -92,7 +92,8 @@ namespace BCad
         /// <param name="layerName">The name of the desired current layer.</param>
         public static void SetCurrentLayer(this IWorkspace workspace, string layerName)
         {
-            workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layerName));
+            if (workspace.Drawing.CurrentLayerName != layerName)
+                workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layerName));
         }
 
         /// <summary>

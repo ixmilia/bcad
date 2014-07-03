@@ -21,7 +21,6 @@ namespace BCad.EventArguments
             this.IsActiveViewPortChange = isActiveViewPortChange;
             this.IsViewControlChange = isViewControlChange;
             this.IsDirtyChange = isDirtyChange;
-
         }
 
         public bool IsOnlyDirtyChange()
@@ -31,7 +30,7 @@ namespace BCad.EventArguments
 
         public static WorkspaceChangeEventArgs Reset()
         {
-            return new WorkspaceChangeEventArgs(true, true, true, true, false);
+            return new WorkspaceChangeEventArgs(true, true, true, true, true);
         }
     }
 }
