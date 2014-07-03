@@ -142,6 +142,7 @@ namespace BCad.UI
             Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             InputService.ValueRequested += InputService_ValueRequested;
             InputService.ValueReceived += InputService_ValueReceived;
+            InputService.InputCanceled += InputService_InputCanceled;
 
             SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.BackgroundColorString));
             SetCursorVisibility();
@@ -213,6 +214,20 @@ namespace BCad.UI
             selecting = false;
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
+        }
+
+        void InputService_InputCanceled(object sender, EventArgs e)
+        {
+            if (selecting)
+            {
+                selecting = false;
+                SetCursorVisibility();
+                SetSelectionLineVisibility(Visibility.Hidden);
+            }
+            else
+            {
+                Workspace.SelectedEntities.Clear();
+            }
         }
 
         private async void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)

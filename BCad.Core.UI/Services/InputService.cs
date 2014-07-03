@@ -308,6 +308,8 @@ namespace BCad.Services
                 {
                     pvd.SetResult(false);
                 }
+
+                OnInputCanceled(new EventArgs());
             }
         }
 
@@ -503,6 +505,15 @@ namespace BCad.Services
                 pushValueDone.SetResult(true);
             if (ValueReceived != null)
                 ValueReceived(this, e);
+        }
+
+        public event EventHandler InputCanceled;
+
+        protected virtual void OnInputCanceled(EventArgs e)
+        {
+            var cancel = InputCanceled;
+            if (cancel != null)
+                cancel(this, e);
         }
 
         private static Regex relativePoint = new Regex(string.Format("^@{0},{0},{0}$", Point.NumberPattern));

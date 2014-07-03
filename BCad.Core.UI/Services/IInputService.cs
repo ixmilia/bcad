@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.EventArguments;
@@ -47,6 +48,7 @@ namespace BCad.Services
         event PromptChangedEventHandler PromptChanged;
         event ValueRequestedEventHandler ValueRequested;
         event ValueReceivedEventHandler ValueReceived;
+        event EventHandler InputCanceled;
 
         void Reset();
 

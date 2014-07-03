@@ -87,11 +87,6 @@ namespace BCad.UI.Consoles
                     }
                     break;
                 case Input.Key.Escape:
-                    if (InputService.AllowedInputTypes == InputType.Command)
-                    {
-                        Workspace.SelectedEntities.Clear();
-                    }
-
                     SubmitCancel();
                     break;
                 default:
