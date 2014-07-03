@@ -121,7 +121,7 @@ namespace BCad.Helpers
             }
 
             // correct start/end angles
-            if (!MathHelper.CloseTo(0.0, ellipse.StartAngle) || !MathHelper.CloseTo(MathHelper.ThreeSixty, ellipse.EndAngle))
+            if (!ellipse.IsClosed)
             {
                 var tempEllipse = new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minorAxisRatio, 0.0, MathHelper.ThreeSixty, ellipse.Color);
                 var majorAngle = majorAxis.ToAngle();
