@@ -354,10 +354,7 @@ namespace BCad.UI
                             {
                                 if (InputService.AllowedInputTypes == InputType.Command)
                                 {
-                                    foreach (var entity in entities)
-                                    {
-                                        Workspace.SelectedEntities.Add(entity);
-                                    }
+                                    Workspace.SelectedEntities.AddRange(entities);
                                 }
                                 else
                                 {
