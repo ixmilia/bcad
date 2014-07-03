@@ -139,6 +139,7 @@ namespace BCad.UI
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+            Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             InputService.ValueRequested += InputService_ValueRequested;
             InputService.ValueReceived += InputService_ValueReceived;
 
@@ -151,6 +152,11 @@ namespace BCad.UI
                 renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
                 renderControl.Content = renderer;
             }
+        }
+
+        void SelectedEntities_CollectionChanged(object sender, EventArgs e)
+        {
+            UpdateHotPoints();
         }
 
         public int DisplayHeight
@@ -245,6 +251,7 @@ namespace BCad.UI
             unprojectMatrix.Invert();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateSnapPoints();
+            UpdateHotPoints();
             var point = await GetCursorPointAsync();
             UpdateCursorText(point);
         }
@@ -370,11 +377,11 @@ namespace BCad.UI
                     else if (InputService.AllowedInputTypes == InputType.None || InputService.AllowedInputTypes == InputType.Command)
                     {
                         // do hot-point tracking
-                        hotPointLayer.Children.Clear();
+                        Workspace.SelectedEntities.Clear();
                         var selected = GetHitEntity(cursor);
                         if (selected != null)
                         {
-                            DrawHotPoints(selected.Entity);
+                            Workspace.SelectedEntities.Add(selected.Entity);
                         }
                     }
 
@@ -875,9 +882,12 @@ namespace BCad.UI
             return selected;
         }
 
-        private void DrawHotPoints(Entity entity)
+        private void UpdateHotPoints()
         {
-            foreach (var primitive in entity.GetPrimitives())
+            hotPointLayer.Children.Clear();
+            if (InputService.AllowedInputTypes != InputType.Command)
+                return;
+            foreach (var primitive in Workspace.SelectedEntities.SelectMany(entity => entity.GetPrimitives()))
             {
                 switch (primitive.Kind)
                 {
@@ -919,8 +929,7 @@ namespace BCad.UI
         private void AddHotPointIcon(Point location)
         {
             var screen = Project(location);
-            var size = Workspace.SettingsManager.EntitySelectionRadius * 0.5;
-            size = 4.0;
+            var size = Workspace.SettingsManager.EntitySelectionRadius;
             var a = new System.Windows.Point(screen.X - size, screen.Y + size); // top left
             var b = new System.Windows.Point(screen.X + size, screen.Y + size); // top right
             var c = new System.Windows.Point(screen.X + size, screen.Y - size); // bottom right
