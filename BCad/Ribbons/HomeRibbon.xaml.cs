@@ -1,8 +1,9 @@
 ﻿using System.Composition;
 using System.Diagnostics;
 using System.Windows.Input;
-using Microsoft.Windows.Controls.Ribbon;
+using BCad.Services;
 using BCad.ViewModels;
+using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad.Ribbons
 {
@@ -13,6 +14,7 @@ namespace BCad.Ribbons
     public partial class HomeRibbon : RibbonTab
     {
         private IWorkspace workspace;
+        private IInputService inputService;
         private HomeRibbonViewModel viewModel;
 
         public HomeRibbon()
@@ -21,11 +23,12 @@ namespace BCad.Ribbons
         }
 
         [ImportingConstructor]
-        public HomeRibbon(IWorkspace workspace)
+        public HomeRibbon(IWorkspace workspace, IInputService inputService)
             : this()
         {
             this.workspace = workspace;
-            viewModel = new HomeRibbonViewModel(this.workspace);
+            this.inputService = inputService;
+            viewModel = new HomeRibbonViewModel(this.workspace, this.inputService);
             DataContext = viewModel;
         }
 
@@ -40,12 +43,6 @@ namespace BCad.Ribbons
             var command = e.Parameter as string;
             Debug.Assert(command != null, "Command string should not have been null");
             workspace.ExecuteCommand(command);
-        }
-
-        private void CurrentLayerSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            var layer = (Layer)this.currentLayer.SelectedItem;
-            workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
         }
     }
 }

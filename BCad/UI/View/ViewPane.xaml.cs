@@ -314,7 +314,7 @@ namespace BCad.UI
                             InputService.PushEntity(selected);
                         }
                     }
-                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle)
+                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || InputService.AllowedInputTypes == InputType.Command)
                     {
                         if (selecting)
                         {
@@ -347,7 +347,19 @@ namespace BCad.UI
                             selecting = false;
                             SetSelectionLineVisibility(Visibility.Hidden);
                             if (entities != null)
-                                InputService.PushEntities(entities);
+                            {
+                                if (InputService.AllowedInputTypes == InputType.Command)
+                                {
+                                    foreach (var entity in entities)
+                                    {
+                                        Workspace.SelectedEntities.Add(entity);
+                                    }
+                                }
+                                else
+                                {
+                                    InputService.PushEntities(entities);
+                                }
+                            }
                         }
                         else
                         {
@@ -363,7 +375,14 @@ namespace BCad.UI
 
                             if (selected != null)
                             {
-                                InputService.PushEntities(new[] { selected.Entity });
+                                if (InputService.AllowedInputTypes == InputType.Command)
+                                {
+                                    Workspace.SelectedEntities.Add(selected.Entity);
+                                }
+                                else
+                                {
+                                    InputService.PushEntities(new[] { selected.Entity });
+                                }
                             }
                             else
                             {
@@ -377,7 +396,6 @@ namespace BCad.UI
                     else if (InputService.AllowedInputTypes == InputType.None || InputService.AllowedInputTypes == InputType.Command)
                     {
                         // do hot-point tracking
-                        Workspace.SelectedEntities.Clear();
                         var selected = GetHitEntity(cursor);
                         if (selected != null)
                         {
@@ -627,18 +645,6 @@ namespace BCad.UI
             Workspace.Update(activeViewPort: newVp);
             var cursor = await GetActiveModelPointAsync(cursorPoint.ToPoint());
             DrawSnapPoint(cursor);
-        }
-
-        private void OnKeyDown(object sender, Input.KeyEventArgs e)
-        {
-            if (selecting && e.Key == Input.Key.Escape)
-            {
-                selecting = false;
-                selectingRectangle = false;
-                SetSelectionLineVisibility(Visibility.Hidden);
-                selectionDone.SetResult(null);
-                e.Handled = true;
-            }
         }
 
         private TransformedSnapPoint GetActiveModelPoint(Point cursor)

@@ -27,7 +27,6 @@
                 MouseDown="OnMouseDown"
                 MouseUp="OnMouseUp"
                 MouseMove="OnMouseMove"
-                MouseWheel="OnMouseWheel"
-                KeyDown="OnKeyDown"/>
+                MouseWheel="OnMouseWheel" />
     </Grid>
 </UserControl>

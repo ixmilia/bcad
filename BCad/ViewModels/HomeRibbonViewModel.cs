@@ -2,19 +2,22 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using BCad.Services;
 
 namespace BCad.ViewModels
 {
     public class HomeRibbonViewModel : INotifyPropertyChanged
     {
         private IWorkspace workspace;
+        private IInputService inputService;
         private ReadOnlyLayerViewModel[] layers;
         public event PropertyChangedEventHandler PropertyChanged;
         private bool ignoreLayerChange = false;
 
-        public HomeRibbonViewModel(IWorkspace workspace)
+        public HomeRibbonViewModel(IWorkspace workspace, IInputService inputService)
         {
             this.workspace = workspace;
+            this.inputService = inputService;
             WorkspaceChanged(this, new WorkspaceChangeEventArgs(true, false, false, false, false));
             this.workspace.WorkspaceChanged += WorkspaceChanged;
         }
@@ -35,6 +38,18 @@ namespace BCad.ViewModels
                 {
                     ignoreLayerChange = true;
                     workspace.SetCurrentLayer(value.Name);
+                    if (inputService.AllowedInputTypes == InputType.Command && workspace.SelectedEntities.Any())
+                    {
+                        var drawing = workspace.Drawing;
+                        foreach (var entity in workspace.SelectedEntities)
+                        {
+                            drawing = drawing.Remove(entity);
+                            drawing = drawing.Add(drawing.Layers.GetValue(value.Name), entity);
+                        }
+
+                        workspace.Update(drawing: drawing);
+                    }
+
                     ignoreLayerChange = false;
                 }
             }
