@@ -860,6 +860,11 @@ namespace BCad.Extensions
             return ellipse.GetPoint(ellipse.EndAngle);
         }
 
+        public static Point GetMidPoint(this PrimitiveEllipse ellipse)
+        {
+            return ellipse.GetPoint((ellipse.StartAngle + ellipse.EndAngle) * 0.5);
+        }
+
         public static Point[] GetInterestingPoints(this IPrimitive primitive)
         {
             Point[] points;

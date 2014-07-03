@@ -16,6 +16,8 @@ namespace BCad.Primitives
         public Matrix4 FromUnitCircle { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Ellipse; } }
 
+        public bool IsClosed { get { return MathHelper.CloseTo(0.0, StartAngle) && MathHelper.CloseTo(MathHelper.ThreeSixty, EndAngle); } }
+
         /// <summary>
         /// Creates a new PrimitiveEllipse.
         /// </summary>

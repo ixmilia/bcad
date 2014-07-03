@@ -9,6 +9,7 @@
     <Grid ClipToBounds="True">
         <ContentControl Name="renderControl" />
         <Canvas Name="snapLayer" Background="Transparent" />
+        <Canvas Name="hotPointLayer" Background="Transparent" />
         <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
             <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" />
             <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />

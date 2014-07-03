@@ -336,7 +336,7 @@ namespace BCad.UI
                                     Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y)));
                                 entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
                             }
-                            
+
                             selecting = false;
                             SetSelectionLineVisibility(Visibility.Hidden);
                             if (entities != null)
@@ -365,6 +365,16 @@ namespace BCad.UI
                                 currentSelectionPoint = cursor;
                                 SetSelectionLineVisibility(Visibility.Visible);
                             }
+                        }
+                    }
+                    else if (InputService.AllowedInputTypes == InputType.None || InputService.AllowedInputTypes == InputType.Command)
+                    {
+                        // do hot-point tracking
+                        hotPointLayer.Children.Clear();
+                        var selected = GetHitEntity(cursor);
+                        if (selected != null)
+                        {
+                            DrawHotPoints(selected.Entity);
                         }
                     }
 
@@ -863,6 +873,62 @@ namespace BCad.UI
                          select Tuple.Create(dist, Unproject(screenVerticies[i] + offset));
             var selected = points.FirstOrDefault();
             return selected;
+        }
+
+        private void DrawHotPoints(Entity entity)
+        {
+            foreach (var primitive in entity.GetPrimitives())
+            {
+                switch (primitive.Kind)
+                {
+                    case PrimitiveKind.Ellipse:
+                        var el = (PrimitiveEllipse)primitive;
+                        AddHotPointIcon(el.Center);
+                        if (el.IsClosed)
+                        {
+                            AddHotPointIcon(el.GetPoint(0.0));
+                            AddHotPointIcon(el.GetPoint(90.0));
+                            AddHotPointIcon(el.GetPoint(180.0));
+                            AddHotPointIcon(el.GetPoint(270.0));
+                        }
+                        else
+                        {
+                            AddHotPointIcon(el.GetStartPoint());
+                            AddHotPointIcon(el.GetMidPoint());
+                            AddHotPointIcon(el.GetEndPoint());
+                        }
+                        break;
+                    case PrimitiveKind.Line:
+                        var line = (PrimitiveLine)primitive;
+                        AddHotPointIcon(line.P1);
+                        AddHotPointIcon((line.P1 + line.P2) * 0.5);
+                        AddHotPointIcon(line.P2);
+                        break;
+                    case PrimitiveKind.Point:
+                        var point = (PrimitivePoint)primitive;
+                        AddHotPointIcon(point.Location);
+                        break;
+                    case PrimitiveKind.Text:
+                        var text = (PrimitiveText)primitive;
+                        AddHotPointIcon(text.Location);
+                        break;
+                }
+            }
+        }
+
+        private void AddHotPointIcon(Point location)
+        {
+            var screen = Project(location);
+            var size = Workspace.SettingsManager.EntitySelectionRadius * 0.5;
+            size = 4.0;
+            var a = new System.Windows.Point(screen.X - size, screen.Y + size); // top left
+            var b = new System.Windows.Point(screen.X + size, screen.Y + size); // top right
+            var c = new System.Windows.Point(screen.X + size, screen.Y - size); // bottom right
+            var d = new System.Windows.Point(screen.X - size, screen.Y - size); // bottom left
+            hotPointLayer.Children.Add(new Shapes.Line() { X1 = a.X, Y1 = a.Y, X2 = b.X, Y2 = b.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
+            hotPointLayer.Children.Add(new Shapes.Line() { X1 = b.X, Y1 = b.Y, X2 = c.X, Y2 = c.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
+            hotPointLayer.Children.Add(new Shapes.Line() { X1 = c.X, Y1 = c.Y, X2 = d.X, Y2 = d.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
+            hotPointLayer.Children.Add(new Shapes.Line() { X1 = d.X, Y1 = d.Y, X2 = a.X, Y2 = a.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
         }
 
         private void DrawSnapPoint(TransformedSnapPoint snapPoint)
