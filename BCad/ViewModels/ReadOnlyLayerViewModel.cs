@@ -3,6 +3,7 @@
     public class ReadOnlyLayerViewModel
     {
         private ColorMap colorMap;
+
         public Layer Layer { get; private set; }
 
         public ReadOnlyLayerViewModel(Layer layer, ColorMap colorMap)
