@@ -76,8 +76,6 @@ namespace BCad.UI
 
         public ViewPane()
         {
-            BindObject = new BindingClass();
-            DataContext = BindObject;
             InitializeComponent();
 
             var cursors = new[]
@@ -101,6 +99,8 @@ namespace BCad.UI
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
+            BindObject = new BindingClass(Workspace);
+            DataContext = BindObject;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
@@ -156,21 +156,34 @@ namespace BCad.UI
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var updateCursor = false;
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.BackgroundColorString)
             {
                 var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
                 BindObject.AutoBrush = new SolidColorBrush(Color.FromRgb(autoColor.R, autoColor.G, autoColor.B));
                 BindObject.SelectionBrush = new SolidColorBrush(Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
                 BindObject.CursorPen = new Pen(new SolidColorBrush(autoColor), 1.0);
-                updateCursor = true;
             }
-            if (string.IsNullOrEmpty(e.PropertyName) ||
-                e.PropertyName == Constants.CursorSizeString ||
-                e.PropertyName == Constants.EntitySelectionRadiusString ||
-                e.PropertyName == Constants.TextCursorSizeString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.CursorSizeString)
             {
-                updateCursor = true;
+                var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
+                BindObject.LeftCursorExtent = new System.Windows.Point(-cursorSize, 0);
+                BindObject.RightCursorExtent = new System.Windows.Point(cursorSize, 0);
+                BindObject.TopCursorExtent = new System.Windows.Point(0, -cursorSize);
+                BindObject.BottomCursorExtent = new System.Windows.Point(0, cursorSize);
+            }
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.EntitySelectionRadiusString)
+            {
+                var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
+                BindObject.EntitySelectionTopLeft = new System.Windows.Point(-entitySize, -entitySize);
+                BindObject.EntitySelectionTopRight= new System.Windows.Point(entitySize, -entitySize);
+                BindObject.EntitySelectionBottomLeft = new System.Windows.Point(-entitySize, entitySize);
+                BindObject.EntitySelectionBottomRight = new System.Windows.Point(entitySize, entitySize);
+            }
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.TextCursorSizeString)
+            {
+                var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
+                BindObject.TextCursorStart = new System.Windows.Point(0, -textSize);
+                BindObject.TextCursorStart = new System.Windows.Point(0, textSize);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.HotPointColorString)
             {
@@ -183,11 +196,6 @@ namespace BCad.UI
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.SnapPointSizeString)
             {
                 BindObject.SnapPointTransform = new ScaleTransform(Workspace.SettingsManager.SnapPointSize, Workspace.SettingsManager.SnapPointSize);
-            }
-
-            if (updateCursor)
-            {
-                UpdateCursor();
             }
         }
 
@@ -247,6 +255,7 @@ namespace BCad.UI
             if (e.IsDrawingChange)
             {
                 DrawingChanged();
+                BindObject.Refresh();
             }
         }
 
@@ -259,7 +268,6 @@ namespace BCad.UI
             UpdateSnapPoints();
             UpdateHotPoints();
             var point = await GetCursorPointAsync();
-            UpdateCursorText(point);
         }
 
         private void DrawingChanged()
@@ -454,6 +462,7 @@ namespace BCad.UI
                 UpdateSelectionLines();
             }
 
+            BindObject.CursorScreen = cursor;
             foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage, textCursorImage })
             {
                 Canvas.SetLeft(cursorImage, (int)(cursor.X - (cursorImage.ActualWidth / 2.0)));
@@ -463,70 +472,11 @@ namespace BCad.UI
             new Task((Action)(() =>
             {
                 var snapPoint = GetActiveModelPoint(cursor.ToPoint());
-                UpdateCursorText(snapPoint.WorldPoint);
+                BindObject.CursorWorld = snapPoint.WorldPoint;
                 renderer.UpdateRubberBandLines();
                 if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint);
             })).Start();
-        }
-
-        private void UpdateCursorText(Point real)
-        {
-            Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    var cursor = Input.Mouse.GetPosition(this);
-                    positionText.Text = string.Format("Cursor: {0},{1}; Real: {2:F0},{3:F0},{4:F0}", cursor.X, cursor.Y, real.X, real.Y, real.Z);
-                }));
-        }
-
-        private void UpdateCursor()
-        {
-            var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
-            pointCursorImage.Source = new DrawingImage(
-                new GeometryDrawing()
-            {
-                Geometry = new GeometryGroup()
-                {
-                    Children = new GeometryCollection(new[]
-                        {
-                            new LineGeometry(new System.Windows.Point(-cursorSize, 0), new System.Windows.Point(cursorSize, 0)),
-                            new LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
-                        })
-                },
-                Pen = BindObject.CursorPen
-            });
-
-            var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
-            entityCursorImage.Source = new DrawingImage(
-                new GeometryDrawing()
-            {
-                Geometry = new GeometryGroup()
-                {
-                    Children = new GeometryCollection(new[]
-                        {
-                            new LineGeometry(new System.Windows.Point(-entitySize, -entitySize), new System.Windows.Point(entitySize, -entitySize)),
-                            new LineGeometry(new System.Windows.Point(entitySize, -entitySize), new System.Windows.Point(entitySize, entitySize)),
-                            new LineGeometry(new System.Windows.Point(entitySize, entitySize), new System.Windows.Point(-entitySize, entitySize)),
-                            new LineGeometry(new System.Windows.Point(-entitySize, entitySize), new System.Windows.Point(-entitySize, -entitySize))
-                        })
-                },
-                Pen = BindObject.CursorPen
-            });
-
-            var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
-            textCursorImage.Source = new DrawingImage(
-                new GeometryDrawing()
-            {
-                Geometry = new GeometryGroup()
-                {
-                    Children = new GeometryCollection(new[]
-                        {
-                            //new Media.LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
-                            new LineGeometry(new System.Windows.Point(0, -textSize), new System.Windows.Point(0, textSize))
-                        })
-                },
-                Pen = BindObject.CursorPen
-            });
         }
 
         private void SetSelectionLineVisibility(Visibility vis)

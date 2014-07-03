@@ -494,7 +494,7 @@ namespace BCad.Services
             switch (e.InputType)
             {
                 case InputType.Point:
-                    OutputService.WriteLine(e.Point.ToString());
+                    OutputService.WriteLine(Workspace.Format(e.Point));
                     break;
                 case InputType.Text:
                     OutputService.WriteLine(e.Text);
