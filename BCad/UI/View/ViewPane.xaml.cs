@@ -26,7 +26,7 @@ namespace BCad.UI
     /// <summary>
     /// Interaction logic for ViewPane.xaml
     /// </summary>
-    public partial class ViewPane : UserControl, IViewControl, INotifyPropertyChanged
+    public partial class ViewPane : UserControl, IViewControl
     {
         private bool panning;
         private bool selecting;
@@ -39,13 +39,13 @@ namespace BCad.UI
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
         private IEnumerable<TransformedSnapPoint> snapPoints;
-        private Color autoColor;
-        private SolidColorBrush autoBrush;
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
-        private BindingClass BindObject = new BindingClass();
+        private ResourceDictionary resources;
 
-        private ResourceDictionary resources = null;
+        private Dictionary<SnapPointKind, GeometryDrawing> snapPointGeometry = new Dictionary<SnapPointKind, GeometryDrawing>();
+        private Dictionary<SnapPointKind, Image> snapPointImage = new Dictionary<SnapPointKind, Image>();
+
         private ResourceDictionary SnapPointResources
         {
             get
@@ -60,28 +60,7 @@ namespace BCad.UI
             }
         }
 
-        public SolidColorBrush AutoBrush
-        {
-            get { return autoBrush; }
-            set
-            {
-                if (autoBrush == value)
-                    return;
-                autoBrush = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        public BindingClass BindObject { get; private set; }
 
         [Import]
         public IWorkspace Workspace { get; set; }
@@ -97,8 +76,9 @@ namespace BCad.UI
 
         public ViewPane()
         {
+            BindObject = new BindingClass();
+            DataContext = BindObject;
             InitializeComponent();
-            DataContext = this;
 
             var cursors = new[]
                 {
@@ -129,8 +109,7 @@ namespace BCad.UI
             InputService.ValueReceived += InputService_ValueReceived;
             InputService.InputCanceled += InputService_InputCanceled;
 
-            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.BackgroundColorString));
-            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.HotPointColorString));
+            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
             SetCursorVisibility();
 
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
@@ -139,9 +118,17 @@ namespace BCad.UI
                 renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
                 renderControl.Content = renderer;
             }
+
+            // prepare snap point icons
+            foreach (var kind in new[] { SnapPointKind.Center, SnapPointKind.EndPoint, SnapPointKind.MidPoint, SnapPointKind.Quadrant })
+            {
+                snapPointGeometry[kind] = GetSnapGeometry(kind);
+                snapPointImage[kind] = GetSnapIcon(kind);
+                snapLayer.Children.Add(snapPointImage[kind]);
+            }
         }
 
-        void SelectedEntities_CollectionChanged(object sender, EventArgs e)
+        private void SelectedEntities_CollectionChanged(object sender, EventArgs e)
         {
             UpdateHotPoints();
         }
@@ -169,23 +156,38 @@ namespace BCad.UI
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName)
+            var updateCursor = false;
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.BackgroundColorString)
             {
-                case Constants.BackgroundColorString:
-                    //this.Background = new SolidColorBrush(Workspace.SettingsManager.BackgroundColor.ToMediaColor());
-                    autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
-                    AutoBrush = new SolidColorBrush(autoColor);
-                    selectionRect.Fill = new SolidColorBrush(Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
-                    UpdateCursor();
-                    break;
-                case Constants.CursorSizeString:
-                case Constants.EntitySelectionRadiusString:
-                case Constants.TextCursorSizeString:
-                    UpdateCursor();
-                    break;
-                case Constants.HotPointColorString:
-                    BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsManager.HotPointColor.ToMediaColor());
-                    break;
+                var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
+                BindObject.AutoBrush = new SolidColorBrush(Color.FromRgb(autoColor.R, autoColor.G, autoColor.B));
+                BindObject.SelectionBrush = new SolidColorBrush(Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
+                BindObject.CursorPen = new Pen(new SolidColorBrush(autoColor), 1.0);
+                updateCursor = true;
+            }
+            if (string.IsNullOrEmpty(e.PropertyName) ||
+                e.PropertyName == Constants.CursorSizeString ||
+                e.PropertyName == Constants.EntitySelectionRadiusString ||
+                e.PropertyName == Constants.TextCursorSizeString)
+            {
+                updateCursor = true;
+            }
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.HotPointColorString)
+            {
+                BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsManager.HotPointColor.ToMediaColor());
+            }
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.SnapPointColorString)
+            {
+                BindObject.SnapPointPen = new Pen(new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 3.0 / Workspace.SettingsManager.SnapPointSize);
+            }
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.SnapPointSizeString)
+            {
+                BindObject.SnapPointTransform = new ScaleTransform(Workspace.SettingsManager.SnapPointSize, Workspace.SettingsManager.SnapPointSize);
+            }
+
+            if (updateCursor)
+            {
+                UpdateCursor();
             }
         }
 
@@ -267,7 +269,10 @@ namespace BCad.UI
 
         private void ClearSnapPoints()
         {
-            Dispatcher.Invoke(() => snapLayer.Children.Clear());
+            foreach (UIElement child in snapLayer.Children)
+            {
+                child.Visibility = Visibility.Hidden;
+            }
         }
 
         private void UpdateSnapPoints()
@@ -476,8 +481,6 @@ namespace BCad.UI
 
         private void UpdateCursor()
         {
-            var pen = new Pen(new SolidColorBrush(autoColor), 1);
-
             var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
             pointCursorImage.Source = new DrawingImage(
                 new GeometryDrawing()
@@ -490,7 +493,7 @@ namespace BCad.UI
                             new LineGeometry(new System.Windows.Point(0, -cursorSize), new System.Windows.Point(0, cursorSize))
                         })
                 },
-                Pen = pen
+                Pen = BindObject.CursorPen
             });
 
             var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
@@ -507,7 +510,7 @@ namespace BCad.UI
                             new LineGeometry(new System.Windows.Point(-entitySize, entitySize), new System.Windows.Point(-entitySize, -entitySize))
                         })
                 },
-                Pen = pen
+                Pen = BindObject.CursorPen
             });
 
             var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
@@ -522,7 +525,7 @@ namespace BCad.UI
                             new LineGeometry(new System.Windows.Point(0, -textSize), new System.Windows.Point(0, textSize))
                         })
                 },
-                Pen = pen
+                Pen = BindObject.CursorPen
             });
         }
 
@@ -950,29 +953,39 @@ namespace BCad.UI
         private void AddHotPointLine(Point start, Point end)
         {
             var line = new Shapes.Line() { X1 = start.X, Y1 = start.Y, X2 = end.X, Y2 = end.Y, StrokeThickness = 2 };
-            var binding = new Binding() { Path = new PropertyPath("HotPointBrush") };
-            binding.Source = BindObject;
-            BindingOperations.SetBinding(line, Shapes.Line.StrokeProperty, binding);
+            SetAutoBinding(line, Shapes.Line.StrokeProperty, "HotPointBrush");
             hotPointLayer.Children.Add(line);
+        }
+
+        private void SetAutoBinding(DependencyObject element, DependencyProperty property, string path)
+        {
+            var binding = new Binding() { Path = new PropertyPath(path) };
+            binding.Source = BindObject;
+            BindingOperations.SetBinding(element, property, binding);
         }
 
         private void DrawSnapPoint(TransformedSnapPoint snapPoint)
         {
             Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    snapLayer.Children.Clear();
-                    if (snapPoint.Kind == SnapPointKind.None)
-                        return;
+                    ClearSnapPoints();
                     var dist = (snapPoint.ControlPoint - Input.Mouse.GetPosition(this).ToPoint()).Length;
-                    if (dist <= Workspace.SettingsManager.SnapPointDistance)
-                        snapLayer.Children.Add(GetSnapIcon(snapPoint));
+                    if (dist <= Workspace.SettingsManager.SnapPointDistance && snapPoint.Kind != SnapPointKind.None)
+                    {
+                        var geometry = snapPointGeometry[snapPoint.Kind];
+                        var icon = snapPointImage[snapPoint.Kind];
+                        var scale = Workspace.SettingsManager.SnapPointSize;
+                        Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
+                        Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
+                        icon.Visibility = System.Windows.Visibility.Visible;
+                    }
                 }));
         }
 
-        private Image GetSnapIcon(TransformedSnapPoint snapPoint)
+        private GeometryDrawing GetSnapGeometry(SnapPointKind kind)
         {
             string name;
-            switch (snapPoint.Kind)
+            switch (kind)
             {
                 case SnapPointKind.None:
                     name = null;
@@ -996,16 +1009,20 @@ namespace BCad.UI
             if (name == null)
                 return null;
 
-            var geometry = ((Media.GeometryDrawing)SnapPointResources[name]).Clone();
-            var scale = Workspace.SettingsManager.SnapPointSize;
+            return (GeometryDrawing)SnapPointResources[name];
+        }
+
+        private Image GetSnapIcon(SnapPointKind kind)
+        {
+            var geometry = snapPointGeometry[kind];
+            SetAutoBinding(geometry, GeometryDrawing.PenProperty, "SnapPointPen");
             geometry.Pen = new Media.Pen(new Media.SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 0.2);
             var di = new Media.DrawingImage(geometry);
-            var icon = new Image(); // TODO: reuse icons if possible
+            var icon = new Image();
             icon.Source = di;
             icon.Stretch = Media.Stretch.None;
-            icon.LayoutTransform = new Media.ScaleTransform(scale, scale);
-            Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
-            Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
+            SetAutoBinding(icon, FrameworkElement.LayoutTransformProperty, "SnapPointTransform");
+            icon.Visibility = Visibility.Hidden;
             return icon;
         }
     }

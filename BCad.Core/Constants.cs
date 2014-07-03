@@ -14,6 +14,8 @@
         public const string EntitySelectionRadiusString = "EntitySelectionRadius";
         public const string HotPointColorString = "HotPointColor";
         public const string PointSnapString = "PointSnap";
+        public const string SnapPointColorString = "SnapPointColor";
+        public const string SnapPointSizeString = "SnapPointSize";
         public const string TextCursorSizeString = "TextCursorSize";
     }
 }

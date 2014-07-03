@@ -11,7 +11,7 @@
         <Canvas Name="snapLayer" Background="Transparent" />
         <Canvas Name="hotPointLayer" Background="Transparent" />
         <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
-            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" />
+            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" Fill="{Binding Path=SelectionBrush}" />
             <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
             <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
             <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
