@@ -22,6 +22,7 @@ namespace BCad
         double[] SnapAngles { get; set; }
         RealColor BackgroundColor { get; set; }
         RealColor SnapPointColor { get; set; }
+        RealColor HotPointColor { get; set; }
         ColorMap ColorMap { get; set; }
     }
 }

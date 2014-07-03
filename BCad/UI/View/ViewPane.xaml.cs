@@ -5,12 +5,11 @@ using System.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
@@ -18,27 +17,12 @@ using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using BCad.SnapPoints;
-using BCad.UI.View;
 using Input = System.Windows.Input;
 using Media = System.Windows.Media;
 using Shapes = System.Windows.Shapes;
 
 namespace BCad.UI
 {
-    internal class TransformedSnapPoint
-    {
-        public Point WorldPoint;
-        public Point ControlPoint;
-        public SnapPointKind Kind;
-
-        public TransformedSnapPoint(Point worldPoint, Point controlPoint, SnapPointKind kind)
-        {
-            WorldPoint = worldPoint;
-            ControlPoint = controlPoint;
-            Kind = kind;
-        }
-    }
-
     /// <summary>
     /// Interaction logic for ViewPane.xaml
     /// </summary>
@@ -59,6 +43,7 @@ namespace BCad.UI
         private SolidColorBrush autoBrush;
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
+        private BindingClass BindObject = new BindingClass();
 
         private ResourceDictionary resources = null;
         private ResourceDictionary SnapPointResources
@@ -145,6 +130,7 @@ namespace BCad.UI
             InputService.InputCanceled += InputService_InputCanceled;
 
             SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.BackgroundColorString));
+            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(Constants.HotPointColorString));
             SetCursorVisibility();
 
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
@@ -196,6 +182,9 @@ namespace BCad.UI
                 case Constants.EntitySelectionRadiusString:
                 case Constants.TextCursorSizeString:
                     UpdateCursor();
+                    break;
+                case Constants.HotPointColorString:
+                    BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsManager.HotPointColor.ToMediaColor());
                     break;
             }
         }
@@ -951,14 +940,23 @@ namespace BCad.UI
         {
             var screen = Project(location);
             var size = Workspace.SettingsManager.EntitySelectionRadius;
-            var a = new System.Windows.Point(screen.X - size, screen.Y + size); // top left
-            var b = new System.Windows.Point(screen.X + size, screen.Y + size); // top right
-            var c = new System.Windows.Point(screen.X + size, screen.Y - size); // bottom right
-            var d = new System.Windows.Point(screen.X - size, screen.Y - size); // bottom left
-            hotPointLayer.Children.Add(new Shapes.Line() { X1 = a.X, Y1 = a.Y, X2 = b.X, Y2 = b.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
-            hotPointLayer.Children.Add(new Shapes.Line() { X1 = b.X, Y1 = b.Y, X2 = c.X, Y2 = c.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
-            hotPointLayer.Children.Add(new Shapes.Line() { X1 = c.X, Y1 = c.Y, X2 = d.X, Y2 = d.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
-            hotPointLayer.Children.Add(new Shapes.Line() { X1 = d.X, Y1 = d.Y, X2 = a.X, Y2 = a.Y, Stroke = new SolidColorBrush(Colors.Blue), StrokeThickness = 2 });
+            var a = new Point(screen.X - size, screen.Y + size, 0.0); // top left
+            var b = new Point(screen.X + size, screen.Y + size, 0.0); // top right
+            var c = new Point(screen.X + size, screen.Y - size, 0.0); // bottom right
+            var d = new Point(screen.X - size, screen.Y - size, 0.0); // bottom left
+            AddHotPointLine(a, b);
+            AddHotPointLine(b, c);
+            AddHotPointLine(c, d);
+            AddHotPointLine(d, a);
+        }
+
+        private void AddHotPointLine(Point start, Point end)
+        {
+            var line = new Shapes.Line() { X1 = start.X, Y1 = start.Y, X2 = end.X, Y2 = end.Y, StrokeThickness = 2 };
+            var binding = new Binding() { Path = new PropertyPath("HotPointBrush") };
+            binding.Source = BindObject;
+            BindingOperations.SetBinding(line, Shapes.Line.StrokeProperty, binding);
+            hotPointLayer.Children.Add(line);
         }
 
         private void DrawSnapPoint(TransformedSnapPoint snapPoint)

@@ -12,6 +12,7 @@
         public const string OrthoString = "Ortho";
         public const string DebugString = "Debug";
         public const string EntitySelectionRadiusString = "EntitySelectionRadius";
+        public const string HotPointColorString = "HotPointColor";
         public const string PointSnapString = "PointSnap";
         public const string TextCursorSizeString = "TextCursorSize";
     }

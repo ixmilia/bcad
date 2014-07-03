@@ -77,6 +77,11 @@
             get { return FromRgb(0, 0, 0); }
         }
 
+        public static RealColor Blue
+        {
+            get { return FromRgb(0, 0, 255); }
+        }
+
         public static RealColor CornflowerBlue
         {
             get { return FromRgb(0x64, 0x95, 0xED); }

@@ -27,6 +27,7 @@ namespace BCad
         private double[] snapAngles = null;
         private RealColor backgroundColor = RealColor.Black;
         private RealColor snapPointColor = RealColor.Yellow;
+        private RealColor hotPointColor = RealColor.Blue;
         private ColorMap colorMap = null;
 
         [XmlIgnore]
@@ -296,6 +297,27 @@ namespace BCad
         }
 
         [XmlIgnore]
+        public RealColor HotPointColor
+        {
+            get { return this.hotPointColor; }
+            set
+            {
+                if (this.hotPointColor == value)
+                    return;
+                this.hotPointColor = value;
+                OnPropertyChanged("HotPointColor");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName = "HotPointColor")]
+        public string HotPointColorString
+        {
+            get { return HotPointColor.ToColorString(); }
+            set { HotPointColor = value.ParseColor(); }
+        }
+
+        [XmlIgnore]
         public ColorMap ColorMap
         {
             get { return colorMap; }
@@ -354,6 +376,7 @@ namespace BCad
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
             BackgroundColor = RealColor.DarkSlateGray;
             SnapPointColor = RealColor.Yellow;
+            HotPointColor = RealColor.Blue;
             ColorMap = ColorMap.Default;
         }
     }
