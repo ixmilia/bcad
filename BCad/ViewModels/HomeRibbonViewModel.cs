@@ -68,7 +68,9 @@ namespace BCad.ViewModels
             Layers = workspace.Drawing.GetLayers().OrderBy(l => l.Name)
                 .Select(l => new ReadOnlyLayerViewModel(l, workspace.SettingsManager.ColorMap))
                 .ToArray();
+            dontUpdateWorkspace = true;
             CurrentLayer = Layers.Single(l => l.Name == workspace.Drawing.CurrentLayerName);
+            dontUpdateWorkspace = false;
         }
 
         public ReadOnlyLayerViewModel CurrentLayer
