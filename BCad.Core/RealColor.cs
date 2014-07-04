@@ -87,9 +87,19 @@
             get { return FromRgb(0x64, 0x95, 0xED); }
         }
 
+        public static RealColor Cyan
+        {
+            get { return FromRgb(0, 255, 255); }
+        }
+
         public static RealColor DarkSlateGray
         {
             get { return FromRgb(0x2F, 0x2F, 0x2F); }
+        }
+
+        public static RealColor Red
+        {
+            get { return FromRgb(255, 0, 0); }
         }
 
         public static RealColor Yellow

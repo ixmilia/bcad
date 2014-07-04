@@ -123,7 +123,9 @@ namespace BCad.Ribbons
                 return new[]
                 {
                     RealColor.Yellow,
-                    RealColor.White
+                    RealColor.White,
+                    RealColor.Cyan,
+                    RealColor.Red
                 };
             }
         }
