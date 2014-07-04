@@ -29,7 +29,7 @@ namespace BCad.Ribbons
 
         void WorkspaceChanged(object sender, EventArguments.WorkspaceChangeEventArgs e)
         {
-            viewModel.UpdateAll();
+            viewModel.UpdateProperty();
         }
     }
 }

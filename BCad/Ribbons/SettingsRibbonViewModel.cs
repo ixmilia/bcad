@@ -36,7 +36,7 @@ namespace BCad.Ribbons
         public SettingsRibbonViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            workspace.SettingsManager.PropertyChanged += (_, __) => UpdateAll();
+            workspace.SettingsManager.PropertyChanged += (_, e) => UpdateProperty(e.PropertyName);
         }
 
         public ISettingsManager SettingsManager { get { return workspace.SettingsManager; } }
@@ -97,16 +97,6 @@ namespace BCad.Ribbons
             }
         }
 
-        public string RendererId
-        {
-            get { return workspace.SettingsManager.RendererId; }
-            set
-            {
-                workspace.SettingsManager.RendererId = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string[] AvailableRenderers
         {
             get { return new[] { "Hardware", "Software" }; }
@@ -126,15 +116,15 @@ namespace BCad.Ribbons
             }
         }
 
-        public RealColor BackgroundColor
+        public RealColor[] SnapPointColors
         {
-            get { return workspace.SettingsManager.BackgroundColor; }
-            set
+            get
             {
-                if (workspace.SettingsManager.BackgroundColor == value)
-                    return;
-                workspace.SettingsManager.BackgroundColor = value;
-                OnPropertyChanged();
+                return new[]
+                {
+                    RealColor.Yellow,
+                    RealColor.White
+                };
             }
         }
 
@@ -160,7 +150,7 @@ namespace BCad.Ribbons
             }
         }
 
-        public void UpdateAll()
+        public void UpdateProperty(string propertyName = "")
         {
             OnPropertyChangedDirect(string.Empty);
         }

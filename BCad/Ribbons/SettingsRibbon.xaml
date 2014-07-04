@@ -49,12 +49,20 @@
             </Grid>
         </Grid>
     </r:RibbonGroup>
-    <r:RibbonGroup Header="Display">
+    <r:RibbonGroup Header="Background">
         <Grid>
             <ComboBox ItemsSource="{Binding Path=BackgroundColors}"
                       ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
-                      SelectedItem="{Binding Path=BackgroundColor, Mode=TwoWay}" />
+                      SelectedItem="{Binding Path=SettingsManager.BackgroundColor, Mode=TwoWay}" />
         </Grid>
+    </r:RibbonGroup>
+    <r:RibbonGroup Header="Snap points">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Color" />
+            <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
+                      ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
+                      SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
+        </StackPanel>
     </r:RibbonGroup>
     <r:RibbonGroup Header="UI">
         <Grid>
@@ -65,7 +73,7 @@
         <StackPanel>
             <TextBlock Text="Display (restart required)" />
             <ComboBox ItemsSource="{Binding Path=AvailableRenderers}"
-                      SelectedItem="{Binding Path=RendererId}" />
+                      SelectedItem="{Binding Path=SettingsManager.RendererId}" />
         </StackPanel>
     </r:RibbonGroup>
 </r:RibbonTab>

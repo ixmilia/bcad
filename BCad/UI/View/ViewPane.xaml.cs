@@ -966,8 +966,7 @@ namespace BCad.UI
         {
             var geometry = snapPointGeometry[kind];
             SetAutoBinding(geometry, GeometryDrawing.PenProperty, "SnapPointPen");
-            geometry.Pen = new Media.Pen(new Media.SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 0.2);
-            var di = new Media.DrawingImage(geometry);
+            var di = new DrawingImage(geometry);
             var icon = new Image();
             icon.Source = di;
             icon.Stretch = Media.Stretch.None;
