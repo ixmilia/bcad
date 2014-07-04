@@ -127,7 +127,9 @@ namespace BCad
         {
             // precision is requested decimal places
             Debug.Assert(precision >= 0 && precision < decimalFormats.Length);
-            return value.ToString(decimalFormats[precision]);
+            return value == 0.0
+                ? "0"
+                : value.ToString(decimalFormats[precision]);
         }
 
         private static string FormatArchitectural(double value, int precision)

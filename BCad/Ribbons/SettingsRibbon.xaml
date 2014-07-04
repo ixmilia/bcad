@@ -10,13 +10,12 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <r:RibbonTab.Resources>
-        <local:IntToPrecisionConverter x:Key="intToPrecision" />
         <local:ColorConverter x:Key="colorConverter" />
 
         <DataTemplate x:Key="ColorTemplate">
             <Rectangle Margin="1" Width="45" Height="25" Stroke="Black">
                 <Rectangle.Fill>
-                    <SolidColorBrush x:Name="unused" Color="{Binding Converter={StaticResource colorConverter}}" />
+                    <SolidColorBrush x:Name="unused" Color="{Binding Converter={StaticResource ResourceKey=colorConverter}}" />
                 </Rectangle.Fill>
             </Rectangle>
         </DataTemplate>
@@ -33,8 +32,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Units" Margin="3" />
-                <ComboBox Name="unitFormat"
-                          Grid.Column="1"
+                <ComboBox Grid.Column="1"
                           HorizontalAlignment="Stretch"
                           ItemsSource="{Binding Path=DrawingUnitValues}"
                           SelectedItem="{Binding Path=UnitFormat}" />
@@ -45,32 +43,29 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Precision" Margin="3" />
-                <ComboBox Name="drawingPrecision"
-                          Grid.Column="1"
+                <ComboBox Grid.Column="1"
                           ItemsSource="{Binding Path=UnitPrecisionDisplay}"
-                          SelectedItem="{Binding Path=UnitPrecision,
-                                                 Converter={StaticResource intToPrecision}}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Path=Item1}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+                          SelectedItem="{Binding Path=UnitPrecision}" />
             </Grid>
         </Grid>
     </r:RibbonGroup>
     <r:RibbonGroup Header="Display">
-        <Grid x:Name="displayGroup">
-            <ComboBox ItemsSource="{Binding ElementName=theRibbon, Path=BackgroundColors}"
-                  ItemTemplate="{StaticResource ColorTemplate}"
-                  SelectedItem="{Binding Path=BackgroundColor, Mode=TwoWay}" />
+        <Grid>
+            <ComboBox ItemsSource="{Binding Path=BackgroundColors}"
+                      ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
+                      SelectedItem="{Binding Path=BackgroundColor, Mode=TwoWay}" />
         </Grid>
     </r:RibbonGroup>
-    <r:RibbonGroup Header="Input">
-        <Grid x:Name="inputGroup">
+    <r:RibbonGroup Header="UI">
+        <Grid>
             <CheckBox IsChecked="{Binding Path=UseIsoSettings}">
                 Use isometric drawing
             </CheckBox>
         </Grid>
+        <StackPanel>
+            <TextBlock Text="Display (restart required)" />
+            <ComboBox ItemsSource="{Binding Path=AvailableRenderers}"
+                      SelectedItem="{Binding Path=RendererId}" />
+        </StackPanel>
     </r:RibbonGroup>
 </r:RibbonTab>

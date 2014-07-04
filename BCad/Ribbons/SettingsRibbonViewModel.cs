@@ -1,15 +1,143 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace BCad.Ribbons
 {
     public class SettingsRibbonViewModel : INotifyPropertyChanged
     {
-        private ISettingsManager settingsManager;
         private double[] oldSnapAngles = new double[0];
         private double[] isoSnapAngles = new double[] { 30.0, 90.0, 150.0, 210.0, 270.0, 330.0 };
-
         private bool useIsoSettings;
+        private IWorkspace workspace = null;
+        internal static List<Tuple<string, int>> ArchitecturalPrecisionValues;
+        internal static List<Tuple<string, int>> DecimalPrecisionValues;
+
+        static SettingsRibbonViewModel()
+        {
+            ArchitecturalPrecisionValues = new List<Tuple<string, int>>()
+            {
+                Tuple.Create("1\"", 0),
+                Tuple.Create("1/2\"", 2),
+                Tuple.Create("1/4\"", 4),
+                Tuple.Create("1/8\"", 8),
+                Tuple.Create("1/16\"", 16),
+                Tuple.Create("1/32\"", 32),
+            };
+            DecimalPrecisionValues = new List<Tuple<string, int>>();
+            for (int i = 0; i <= 16; i++)
+            {
+                DecimalPrecisionValues.Add(Tuple.Create(i.ToString(), i));
+            }
+        }
+
+        public SettingsRibbonViewModel(IWorkspace workspace)
+        {
+            this.workspace = workspace;
+            workspace.SettingsManager.PropertyChanged += (_, __) => UpdateAll();
+        }
+
+        public ISettingsManager SettingsManager { get { return workspace.SettingsManager; } }
+
+        public UnitFormat[] DrawingUnitValues
+        {
+            get
+            {
+                return new[]
+                {
+                    UnitFormat.Architectural,
+                    UnitFormat.Metric
+                };
+            }
+        }
+
+        public UnitFormat UnitFormat
+        {
+            get { return workspace.Drawing.Settings.UnitFormat; }
+            set
+            {
+                if (value == workspace.Drawing.Settings.UnitFormat)
+                    return;
+                workspace.UpdateDrawingSettings(workspace.Drawing.Settings.Update(unitFormat: value));
+                OnPropertyChanged();
+                OnPropertyChangedDirect("UnitPrecisionDisplay");
+                OnPropertyChangedDirect("UnitPrecision");
+            }
+        }
+
+        public IEnumerable<string> UnitPrecisionDisplay
+        {
+            get { return GetUnitPrecisions().Select(p => p.Item1); }
+        }
+
+        public string UnitPrecision
+        {
+            get
+            {
+                var precisions = GetUnitPrecisions();
+                var prec = precisions.FirstOrDefault(p => p.Item2 == workspace.Drawing.Settings.UnitPrecision);
+                if (prec == null)
+                    return null;
+                return prec.Item1;
+            }
+            set
+            {
+                if (value == null)
+                    return;
+                var precisions = GetUnitPrecisions();
+                var prec = precisions.FirstOrDefault(p => p.Item1 == value);
+                if (prec == null)
+                    throw new InvalidOperationException("Unsupported unit precision");
+                if (prec.Item2 == workspace.Drawing.Settings.UnitPrecision)
+                    return;
+                workspace.UpdateDrawingSettings(workspace.Drawing.Settings.Update(unitPrecision: prec.Item2));
+                OnPropertyChanged();
+            }
+        }
+
+        public string RendererId
+        {
+            get { return workspace.SettingsManager.RendererId; }
+            set
+            {
+                workspace.SettingsManager.RendererId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string[] AvailableRenderers
+        {
+            get { return new[] { "Hardware", "Software" }; }
+        }
+
+        public RealColor[] BackgroundColors
+        {
+            get
+            {
+                return new[]
+                {
+                    RealColor.Black,
+                    RealColor.DarkSlateGray,
+                    RealColor.CornflowerBlue,
+                    RealColor.White
+                };
+            }
+        }
+
+        public RealColor BackgroundColor
+        {
+            get { return workspace.SettingsManager.BackgroundColor; }
+            set
+            {
+                if (workspace.SettingsManager.BackgroundColor == value)
+                    return;
+                workspace.SettingsManager.BackgroundColor = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool UseIsoSettings
         {
             get { return useIsoSettings; }
@@ -20,26 +148,44 @@ namespace BCad.Ribbons
                 useIsoSettings = value;
                 if (useIsoSettings)
                 {
-                    oldSnapAngles = settingsManager.SnapAngles;
-                    settingsManager.SnapAngles = isoSnapAngles;
+                    oldSnapAngles = SettingsManager.SnapAngles;
+                    SettingsManager.SnapAngles = isoSnapAngles;
                 }
                 else
                 {
-                    settingsManager.SnapAngles = oldSnapAngles;
+                    SettingsManager.SnapAngles = oldSnapAngles;
                 }
 
                 OnPropertyChanged();
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public SettingsRibbonViewModel(ISettingsManager settingsManager)
+        public void UpdateAll()
         {
-            this.settingsManager = settingsManager;
+            OnPropertyChangedDirect(string.Empty);
         }
 
+        private IEnumerable<Tuple<string, int>> GetUnitPrecisions()
+        {
+            switch (workspace.Drawing.Settings.UnitFormat)
+            {
+                case UnitFormat.Architectural:
+                    return ArchitecturalPrecisionValues;
+                case UnitFormat.Metric:
+                    return DecimalPrecisionValues;
+                default:
+                    throw new InvalidOperationException("Invalid unit format");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            OnPropertyChangedDirect(propertyName);
+        }
+
+        protected void OnPropertyChangedDirect(string propertyName)
         {
             var changed = PropertyChanged;
             if (changed != null)
