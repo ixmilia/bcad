@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="BCad.UI.View.EditPane"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:local="clr-namespace:BCad.Ribbons"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <local:ColorConverter x:Key="colorConverter" />
+                    <DataTemplate x:Key="LayerTemplate">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="5,0" />
+                        </Grid>
+                    </DataTemplate>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Text="Layer" />
+        <ComboBox Grid.Row="0"
+                  Grid.Column="1"
+                  Width="150"
+                  IsEnabled="{Binding Path=IsEditingEnabled}"
+                  ItemsSource="{Binding Path=Layers}"
+                  SelectedItem="{Binding Path=SelectedItemsLayer}"
+                  ItemTemplate="{StaticResource ResourceKey=LayerTemplate}" />
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Text="Color" />
+        <ComboBox Grid.Row="1"
+                  Grid.Column="1"
+                  HorizontalAlignment="Left"
+                  Width="50"
+                  IsEnabled="{Binding Path=IsEditingEnabled}" />
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <TextBlock Text="Selected count = " />
+            <TextBlock Text="{Binding Path=SelectedCount}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

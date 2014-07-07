@@ -8,9 +8,6 @@ namespace BCad.Ribbons
 {
     public class SettingsRibbonViewModel : INotifyPropertyChanged
     {
-        private double[] oldSnapAngles = new double[0];
-        private double[] isoSnapAngles = new double[] { 30.0, 90.0, 150.0, 210.0, 270.0, 330.0 };
-        private bool useIsoSettings;
         private IWorkspace workspace = null;
         internal static List<Tuple<string, int>> ArchitecturalPrecisionValues;
         internal static List<Tuple<string, int>> DecimalPrecisionValues;
@@ -36,7 +33,7 @@ namespace BCad.Ribbons
         public SettingsRibbonViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            workspace.SettingsManager.PropertyChanged += (_, e) => UpdateProperty(e.PropertyName);
+            workspace.SettingsManager.PropertyChanged += (_, __) => UpdateProperty(string.Empty);
         }
 
         public ISettingsManager SettingsManager { get { return workspace.SettingsManager; } }
@@ -130,27 +127,49 @@ namespace BCad.Ribbons
             }
         }
 
-        public bool UseIsoSettings
+        #region Snap angles
+
+        private double[] ninetyDegreeAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
+        private double[] fortyFiveDegreeAngles = new[] { 0.0, 45.0, 90.0, 135.0, 180.0, 215.0, 270.0, 315.0 };
+        private double[] isoAngles = new[] { 30.0, 90.0, 150.0, 210.0, 270.0, 330.0 };
+
+        public bool IsNinetyDegree
         {
-            get { return useIsoSettings; }
+            get { return AreEqual(ninetyDegreeAngles, SettingsManager.SnapAngles); }
             set
             {
-                if (useIsoSettings == value)
-                    return;
-                useIsoSettings = value;
-                if (useIsoSettings)
+                if (value && !AreEqual(ninetyDegreeAngles, SettingsManager.SnapAngles))
                 {
-                    oldSnapAngles = SettingsManager.SnapAngles;
-                    SettingsManager.SnapAngles = isoSnapAngles;
+                    SettingsManager.SnapAngles = ninetyDegreeAngles;
                 }
-                else
-                {
-                    SettingsManager.SnapAngles = oldSnapAngles;
-                }
-
-                OnPropertyChanged();
             }
         }
+
+        public bool IsFortyFiveDegree
+        {
+            get { return AreEqual(fortyFiveDegreeAngles, SettingsManager.SnapAngles); }
+            set
+            {
+                if (value && !AreEqual(fortyFiveDegreeAngles, SettingsManager.SnapAngles))
+                {
+                    SettingsManager.SnapAngles = fortyFiveDegreeAngles;
+                }
+            }
+        }
+
+        public bool IsIsometric
+        {
+            get { return AreEqual(isoAngles, SettingsManager.SnapAngles); }
+            set
+            {
+                if (value && !AreEqual(isoAngles, SettingsManager.SnapAngles))
+                {
+                    SettingsManager.SnapAngles = isoAngles;
+                }
+            }
+        }
+
+        #endregion
 
         public void UpdateProperty(string propertyName = "")
         {
@@ -168,6 +187,19 @@ namespace BCad.Ribbons
                 default:
                     throw new InvalidOperationException("Invalid unit format");
             }
+        }
+
+        private bool AreEqual(double[] expected, double[] actual)
+        {
+            if (expected.Length != actual.Length)
+                return false;
+            for (int i = 0; i < expected.Length; i++)
+            {
+                if (expected[i] != actual[i])
+                    return false;
+            }
+
+            return true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

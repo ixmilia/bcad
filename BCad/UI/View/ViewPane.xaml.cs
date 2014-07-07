@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Composition;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +16,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using BCad.SnapPoints;
+using BCad.ViewModels;
 using Input = System.Windows.Input;
 using Media = System.Windows.Media;
 using Shapes = System.Windows.Shapes;
@@ -42,6 +42,7 @@ namespace BCad.UI
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
         private ResourceDictionary resources;
+        private EditPaneViewModel editViewModel;
 
         private Dictionary<SnapPointKind, GeometryDrawing> snapPointGeometry = new Dictionary<SnapPointKind, GeometryDrawing>();
         private Dictionary<SnapPointKind, Image> snapPointImage = new Dictionary<SnapPointKind, Image>();
@@ -99,6 +100,8 @@ namespace BCad.UI
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
+            editViewModel = new EditPaneViewModel(Workspace, InputService);
+            editPane.DataContext = editViewModel;
             BindObject = new BindingClass(Workspace);
             DataContext = BindObject;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;

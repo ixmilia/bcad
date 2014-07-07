@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="clr-namespace:BCad.UI"
+             xmlns:view="clr-namespace:BCad.UI.View"
              mc:Ignorable="d"
-             Cursor="None"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid ClipToBounds="True">
         <ContentControl Name="renderControl" />
@@ -78,10 +78,12 @@
         </Canvas>
         <Canvas Name="clicker"
                 Background="White"
+                Cursor="None"
                 Opacity="0.001"
                 MouseDown="OnMouseDown"
                 MouseUp="OnMouseUp"
                 MouseMove="OnMouseMove"
                 MouseWheel="OnMouseWheel" />
+        <view:EditPane x:Name="editPane" HorizontalAlignment="Right" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

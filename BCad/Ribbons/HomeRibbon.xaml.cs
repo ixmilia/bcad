@@ -1,7 +1,6 @@
 ﻿using System.Composition;
 using System.Diagnostics;
 using System.Windows.Input;
-using BCad.Services;
 using BCad.ViewModels;
 using Microsoft.Windows.Controls.Ribbon;
 
@@ -14,7 +13,6 @@ namespace BCad.Ribbons
     public partial class HomeRibbon : RibbonTab
     {
         private IWorkspace workspace;
-        private IInputService inputService;
         private HomeRibbonViewModel viewModel;
 
         public HomeRibbon()
@@ -23,12 +21,11 @@ namespace BCad.Ribbons
         }
 
         [ImportingConstructor]
-        public HomeRibbon(IWorkspace workspace, IInputService inputService)
+        public HomeRibbon(IWorkspace workspace)
             : this()
         {
             this.workspace = workspace;
-            this.inputService = inputService;
-            viewModel = new HomeRibbonViewModel(this.workspace, this.inputService);
+            viewModel = new HomeRibbonViewModel(this.workspace);
             DataContext = viewModel;
         }
 

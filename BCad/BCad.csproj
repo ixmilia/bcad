@@ -126,6 +126,9 @@
       <DependentUpon>DebugRibbon.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\View\CadGame.cs" />
+    <Compile Include="UI\View\EditPane.xaml.cs">
+      <DependentUpon>EditPane.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\View\RenderCanvasViewModel.cs" />
     <Compile Include="UI\View\SharpDXRenderer.xaml.cs">
       <DependentUpon>SharpDXRenderer.xaml</DependentUpon>
@@ -134,6 +137,7 @@
     <Compile Include="UI\View\ViewPane.BindingClass.cs" />
     <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
     <Compile Include="ViewModels\ColorViewModel.cs" />
+    <Compile Include="ViewModels\EditPaneViewModel.cs" />
     <Compile Include="ViewModels\HomeRibbonViewModel.cs" />
     <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
       <DependentUpon>SettingsRibbon.xaml</DependentUpon>
@@ -179,6 +183,7 @@
     <Compile Include="ViewModels\LayerManagerViewModel.cs" />
     <Compile Include="ViewModels\MutableLayerViewModel.cs" />
     <Compile Include="ViewModels\ReadOnlyLayerViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Page Include="Ribbons\DebugRibbon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -218,6 +223,10 @@
     <Page Include="UI\Controls\PlotDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\View\EditPane.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\View\RenderCanvas.xaml">
       <SubType>Designer</SubType>

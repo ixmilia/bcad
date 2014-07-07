@@ -56,20 +56,23 @@
                       SelectedItem="{Binding Path=SettingsManager.BackgroundColor, Mode=TwoWay}" />
         </Grid>
     </r:RibbonGroup>
-    <r:RibbonGroup Header="Snap points">
+    <r:RibbonGroup Header="Snap">
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Color" />
-            <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
-                      ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
-                      SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
+            <GroupBox Header="Snap point color">
+                <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
+                          ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
+                          SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
+            </GroupBox>
+            <GroupBox Header="Snap angles">
+                <StackPanel>
+                    <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsNinetyDegree}" Content="Every 90 degrees" />
+                    <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsFortyFiveDegree}" Content="Every 45 degrees" />
+                    <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsIsometric}" Content="Isometric" />
+                </StackPanel>
+            </GroupBox>
         </StackPanel>
     </r:RibbonGroup>
     <r:RibbonGroup Header="UI">
-        <Grid>
-            <CheckBox IsChecked="{Binding Path=UseIsoSettings}">
-                Use isometric drawing
-            </CheckBox>
-        </Grid>
         <StackPanel>
             <TextBlock Text="Display (restart required)" />
             <ComboBox ItemsSource="{Binding Path=AvailableRenderers}"
