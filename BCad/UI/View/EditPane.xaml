@@ -4,14 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:local="clr-namespace:BCad.Ribbons"
              xmlns:view="clr-namespace:BCad.UI.View"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+             xmlns:controls="clr-namespace:BCad.Core.UI;assembly=BCad.Core.UI">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <local:ColorConverter x:Key="colorConverter" />
                     <view:NullVisibilityConverter x:Key="nullVisibilityConverter" />
-                    <view:PointStringConverter x:Key="pointConverter" />
                     <DataTemplate x:Key="LayerTemplate">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -91,19 +90,23 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="P1" />
-                <TextBox Grid.Row="0"
-                         Grid.Column="1"
-                         Width="148"
-                         Margin="1"
-                         Text="{Binding Path=P1, Converter={StaticResource ResourceKey=pointConverter}}" />
+                <controls:EditablePoint Grid.Row="0"
+                                        Grid.Column="1"
+                                        Width="148"
+                                        Margin="1"
+                                        Point="{Binding Path=P1, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="P2" />
-                <TextBox Grid.Row="1"
-                         Grid.Column="1"
-                         Width="148"
-                         Margin="1"
-                         Text="{Binding Path=P2, Converter={StaticResource ResourceKey=pointConverter}}" />
+                <controls:EditablePoint Grid.Row="1"
+                                        Grid.Column="1"
+                                        Width="148"
+                                        Margin="1"
+                                        Point="{Binding Path=P2, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
         </StackPanel>
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">

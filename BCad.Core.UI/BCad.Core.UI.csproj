@@ -101,6 +101,9 @@
     <Compile Include="ConsoleControl.cs" />
     <Compile Include="ControlMetadata.cs" />
     <Compile Include="DialogFactory.cs" />
+    <Compile Include="EditablePoint.xaml.cs">
+      <DependentUpon>EditablePoint.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
     <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
     <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />
@@ -129,6 +132,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="EditablePoint.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SnapPointIcons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

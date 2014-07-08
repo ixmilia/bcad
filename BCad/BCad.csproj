@@ -130,7 +130,6 @@
       <DependentUpon>EditPane.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\View\NullVisibilityConverter.cs" />
-    <Compile Include="UI\View\PointStringConverter.cs" />
     <Compile Include="UI\View\RenderCanvasViewModel.cs" />
     <Compile Include="UI\View\SharpDXRenderer.xaml.cs">
       <DependentUpon>SharpDXRenderer.xaml</DependentUpon>

@@ -15,6 +15,7 @@ namespace BCad.ViewModels
             this.line = line;
             p1 = line.P1;
             p2 = line.P2;
+            workspace.WorkspaceChanged += (_, __) => OnPropertyChangedDirect(string.Empty);
         }
 
         public Point P1
@@ -41,6 +42,16 @@ namespace BCad.ViewModels
                 ReplaceLine(line.Update(p2: value));
                 OnPropertyChanged();
             }
+        }
+
+        public UnitFormat UnitFormat
+        {
+            get { return workspace.Drawing.Settings.UnitFormat; }
+        }
+
+        public int UnitPrecision
+        {
+            get { return workspace.Drawing.Settings.UnitPrecision; }
         }
 
         private void ReplaceLine(Line newLine)
