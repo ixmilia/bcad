@@ -108,6 +108,26 @@
                                         UnitFormat="{Binding Path=UnitFormat}"
                                         UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
+            <!-- location -->
+            <Grid DataContext="{Binding Path=EditLocationViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Location" />
+                <controls:EditablePoint Grid.Row="0"
+                                        Grid.Column="1"
+                                        Width="148"
+                                        Margin="1"
+                                        Point="{Binding Path=Point, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+            </Grid>
         </StackPanel>
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">
             <TextBlock Text="Selected count = " />

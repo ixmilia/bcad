@@ -14,6 +14,7 @@ namespace BCad.ViewModels
         private IEnumerable<ReadOnlyLayerViewModel> layers;
         private bool ignoreLayerChange;
         private EditLineViewModel editLineViewModel;
+        private EditLocationViewModel editLocationViewModel;
 
         public EditPaneViewModel(IWorkspace workspace, IInputService inputService)
         {
@@ -131,6 +132,18 @@ namespace BCad.ViewModels
             }
         }
 
+        public EditLocationViewModel EditLocationViewModel
+        {
+            get { return editLocationViewModel; }
+            set
+            {
+                if (editLocationViewModel == value)
+                    return;
+                editLocationViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
         private void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
             ignoreLayerChange = true;
@@ -147,7 +160,13 @@ namespace BCad.ViewModels
         private void SetEditableViewModels()
         {
             // clear all
+            if (EditLineViewModel != null)
+                EditLineViewModel.Dispose();
             EditLineViewModel = null;
+
+            if (EditLocationViewModel != null)
+                EditLocationViewModel.Dispose();
+            EditLocationViewModel = null;
 
             switch (workspace.SelectedEntities.Count)
             {
@@ -168,6 +187,9 @@ namespace BCad.ViewModels
             {
                 case EntityKind.Line:
                     EditLineViewModel = new EditLineViewModel(workspace, (Line)entity);
+                    break;
+                case EntityKind.Location:
+                    EditLocationViewModel = new EditLocationViewModel(workspace, (Location)entity);
                     break;
                 default:
                     break;

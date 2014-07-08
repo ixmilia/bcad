@@ -2,20 +2,18 @@
 
 namespace BCad.ViewModels
 {
-    public class EditLineViewModel : ViewModelBase
+    public class EditLineViewModel : EditableEntityViewModel
     {
-        private IWorkspace workspace;
         private Line line;
         private Point p1;
         private Point p2;
 
         public EditLineViewModel(IWorkspace workspace, Line line)
+            : base(workspace)
         {
-            this.workspace = workspace;
             this.line = line;
             p1 = line.P1;
             p2 = line.P2;
-            workspace.WorkspaceChanged += (_, __) => OnPropertyChangedDirect(string.Empty);
         }
 
         public Point P1
@@ -44,22 +42,10 @@ namespace BCad.ViewModels
             }
         }
 
-        public UnitFormat UnitFormat
-        {
-            get { return workspace.Drawing.Settings.UnitFormat; }
-        }
-
-        public int UnitPrecision
-        {
-            get { return workspace.Drawing.Settings.UnitPrecision; }
-        }
-
         private void ReplaceLine(Line newLine)
         {
-            workspace.Update(drawing: workspace.Drawing.Replace(line, newLine));
+            ReplaceEntity(line, newLine);
             line = newLine;
-            workspace.SelectedEntities.Clear();
-            workspace.SelectedEntities.Add(line);
         }
     }
 }

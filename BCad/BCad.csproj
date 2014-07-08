@@ -138,7 +138,9 @@
     <Compile Include="UI\View\ViewPane.BindingClass.cs" />
     <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
     <Compile Include="ViewModels\ColorViewModel.cs" />
+    <Compile Include="ViewModels\EditableEntityViewModel.cs" />
     <Compile Include="ViewModels\EditLineViewModel.cs" />
+    <Compile Include="ViewModels\EditLocationViewModel.cs" />
     <Compile Include="ViewModels\EditPaneViewModel.cs" />
     <Compile Include="ViewModels\HomeRibbonViewModel.cs" />
     <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
