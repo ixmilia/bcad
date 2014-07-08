@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using BCad.Collections;
 using BCad.Entities;
 using BCad.Extensions;
@@ -373,7 +374,7 @@ namespace BCad.UI.View
             this.entityMap.Clear();
             this.currentlySelected.Clear();
             var supported = SupportedPrimitiveTypes;
-            foreach (var layer in Drawing.GetLayers())
+            foreach (var layer in Drawing.GetLayers().Where(l => l.IsVisible))
             {
                 foreach (var entity in layer.GetEntities())
                 {
