@@ -15,12 +15,26 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
+                            <Rectangle Grid.Column="0" Margin="1,0" Width="15" Height="15">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource ResourceKey=colorConverter}}" />
                                 </Rectangle.Fill>
                             </Rectangle>
-                            <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="5,0" />
+                            <TextBlock Grid.Column="1" Text="{Binding Path=Name}" Margin="5,0" />
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="ColorTemplate">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0" Margin="1,0" Width="15" Height="15">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource ResourceKey=colorConverter}}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Grid.Column="1" Text="{Binding Path=Color.DisplayValue}" Margin="1,0" />
                         </Grid>
                     </DataTemplate>
                 </ResourceDictionary>
@@ -42,10 +56,11 @@
                    Text="Layer" />
         <ComboBox Grid.Row="0"
                   Grid.Column="1"
+                  HorizontalAlignment="Left"
                   Width="150"
                   IsEnabled="{Binding Path=IsEditingEnabled}"
                   ItemsSource="{Binding Path=Layers}"
-                  SelectedItem="{Binding Path=SelectedItemsLayer}"
+                  SelectedItem="{Binding Path=SelectedLayer, Mode=TwoWay}"
                   ItemTemplate="{StaticResource ResourceKey=LayerTemplate}" />
         <TextBlock Grid.Row="1"
                    Grid.Column="0"
@@ -53,8 +68,11 @@
         <ComboBox Grid.Row="1"
                   Grid.Column="1"
                   HorizontalAlignment="Left"
-                  Width="50"
-                  IsEnabled="{Binding Path=IsEditingEnabled}" />
+                  Width="90"
+                  IsEnabled="{Binding Path=IsEditingEnabled}"
+                  ItemsSource="{Binding Path=AvailableColors}"
+                  SelectedItem="{Binding Path=SelectedColor, Mode=TwoWay}"
+                  ItemTemplate="{StaticResource ResourceKey=ColorTemplate}" />
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
             <TextBlock Text="Selected count = " />
             <TextBlock Text="{Binding Path=SelectedCount}" />
