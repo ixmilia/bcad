@@ -3,12 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:local="clr-namespace:BCad.Ribbons"
+             xmlns:view="clr-namespace:BCad.UI.View"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <local:ColorConverter x:Key="colorConverter" />
+                    <view:NullVisibilityConverter x:Key="nullVisibilityConverter" />
+                    <view:PointStringConverter x:Key="pointConverter" />
                     <DataTemplate x:Key="LayerTemplate">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -46,6 +49,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50" />
@@ -73,7 +77,36 @@
                   ItemsSource="{Binding Path=AvailableColors}"
                   SelectedItem="{Binding Path=SelectedColor, Mode=TwoWay}"
                   ItemTemplate="{StaticResource ResourceKey=ColorTemplate}" />
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <!-- line -->
+            <Grid DataContext="{Binding Path=EditLineViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="P1" />
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Width="148"
+                         Margin="1"
+                         Text="{Binding Path=P1, Converter={StaticResource ResourceKey=pointConverter}}" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="P2" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Width="148"
+                         Margin="1"
+                         Text="{Binding Path=P2, Converter={StaticResource ResourceKey=pointConverter}}" />
+            </Grid>
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">
             <TextBlock Text="Selected count = " />
             <TextBlock Text="{Binding Path=SelectedCount}" />
         </StackPanel>

@@ -13,6 +13,7 @@ namespace BCad.ViewModels
         private IInputService inputService;
         private IEnumerable<ReadOnlyLayerViewModel> layers;
         private bool ignoreLayerChange;
+        private EditLineViewModel editLineViewModel;
 
         public EditPaneViewModel(IWorkspace workspace, IInputService inputService)
         {
@@ -118,6 +119,18 @@ namespace BCad.ViewModels
             }
         }
 
+        public EditLineViewModel EditLineViewModel
+        {
+            get { return editLineViewModel; }
+            set
+            {
+                if (editLineViewModel == value)
+                    return;
+                editLineViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
         private void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
             ignoreLayerChange = true;
@@ -127,7 +140,38 @@ namespace BCad.ViewModels
 
         private void SelectedEntities_CollectionChanged(object sender, EventArgs e)
         {
+            SetEditableViewModels();
             OnPropertyChangedDirect(string.Empty);
+        }
+
+        private void SetEditableViewModels()
+        {
+            // clear all
+            EditLineViewModel = null;
+
+            switch (workspace.SelectedEntities.Count)
+            {
+                case 0:
+                    break;
+                case 1:
+                    SetEditableViewModel(workspace.SelectedEntities.First());
+                    break;
+                default:
+                    // TODO: multi-edit?
+                    break;
+            }
+        }
+
+        private void SetEditableViewModel(Entity entity)
+        {
+            switch (entity.Kind)
+            {
+                case EntityKind.Line:
+                    EditLineViewModel = new EditLineViewModel(workspace, (Line)entity);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private string ContainingLayerName(Entity entity)
