@@ -2,7 +2,7 @@
 
 namespace BCad.ViewModels
 {
-    public class EditLineViewModel : EditableEntityViewModel
+    public class EditLineViewModel : EditEntityViewModel
     {
         private Line line;
         private Point p1;

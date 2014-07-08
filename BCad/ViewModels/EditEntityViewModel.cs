@@ -4,11 +4,11 @@ using BCad.EventArguments;
 
 namespace BCad.ViewModels
 {
-    public abstract class EditableEntityViewModel : ViewModelBase, IDisposable
+    public abstract class EditEntityViewModel : ViewModelBase, IDisposable
     {
         protected IWorkspace Workspace { get; private set; }
 
-        protected EditableEntityViewModel(IWorkspace workspace)
+        protected EditEntityViewModel(IWorkspace workspace)
         {
             Workspace = workspace;
             Workspace.WorkspaceChanged += WorkspaceChanged;

@@ -130,6 +130,7 @@
       <DependentUpon>EditPane.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\View\NullVisibilityConverter.cs" />
+    <Compile Include="UI\View\PointVectorConverter.cs" />
     <Compile Include="UI\View\RenderCanvasViewModel.cs" />
     <Compile Include="UI\View\SharpDXRenderer.xaml.cs">
       <DependentUpon>SharpDXRenderer.xaml</DependentUpon>
@@ -138,10 +139,11 @@
     <Compile Include="UI\View\ViewPane.BindingClass.cs" />
     <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
     <Compile Include="ViewModels\ColorViewModel.cs" />
-    <Compile Include="ViewModels\EditableEntityViewModel.cs" />
+    <Compile Include="ViewModels\EditEntityViewModel.cs" />
     <Compile Include="ViewModels\EditLineViewModel.cs" />
     <Compile Include="ViewModels\EditLocationViewModel.cs" />
     <Compile Include="ViewModels\EditPaneViewModel.cs" />
+    <Compile Include="ViewModels\EditTextViewModel.cs" />
     <Compile Include="ViewModels\HomeRibbonViewModel.cs" />
     <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
       <DependentUpon>SettingsRibbon.xaml</DependentUpon>

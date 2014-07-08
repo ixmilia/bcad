@@ -2,7 +2,7 @@
 
 namespace BCad.ViewModels
 {
-    public class EditLocationViewModel : EditableEntityViewModel
+    public class EditLocationViewModel : EditEntityViewModel
     {
         private Location location;
         private Point point;

@@ -11,6 +11,7 @@
                 <ResourceDictionary>
                     <local:ColorConverter x:Key="colorConverter" />
                     <view:NullVisibilityConverter x:Key="nullVisibilityConverter" />
+                    <view:PointVectorConverter x:Key="pointVectorConverter" />
                     <DataTemplate x:Key="LayerTemplate">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -127,6 +128,58 @@
                                         Point="{Binding Path=Point, Mode=TwoWay}"
                                         UnitFormat="{Binding Path=UnitFormat}"
                                         UnitPrecision="{Binding Path=UnitPrecision}" />
+            </Grid>
+            <!-- text -->
+            <Grid DataContext="{Binding Path=EditTextViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Value" />
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Text="{Binding Path=Value}" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="Location" />
+                <controls:EditablePoint Grid.Row="1"
+                                        Grid.Column="1"
+                                        Width="148"
+                                        Margin="1"
+                                        Point="{Binding Path=Location, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="Normal" />
+                <controls:EditablePoint Grid.Row="2"
+                                        Grid.Column="1"
+                                        Width="148"
+                                        Margin="1"
+                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Text="Height" />
+                <TextBox Grid.Row="3"
+                         Grid.Column="1"
+                         Text="{Binding Path=Height}" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Text="Rotation" />
+                <TextBox Grid.Row="4"
+                         Grid.Column="1"
+                         Text="{Binding Path=Rotation}" />
             </Grid>
         </StackPanel>
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">
