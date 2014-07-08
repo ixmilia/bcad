@@ -46,6 +46,9 @@ namespace BCad.ViewModels
                     case 1:
                         return AvailableColors.FirstOrDefault(c => c.Color == workspace.SelectedEntities.First().Color);
                     default:
+                        var selectedColors = workspace.SelectedEntities.Select(entity => entity.Color);
+                        if (selectedColors.Distinct().Count() == 1)
+                            return AvailableColors.FirstOrDefault(c => c.Color == selectedColors.First());
                         return null;
                 }
             }
@@ -82,7 +85,7 @@ namespace BCad.ViewModels
                     default:
                         var selectedLayers = workspace.SelectedEntities.Select(entity => ContainingLayerName(entity));
                         if (selectedLayers.Distinct().Count() == 1)
-                            return layers.FirstOrDefault(l => l.Name == selectedLayers.First());
+                            return Layers.FirstOrDefault(l => l.Name == selectedLayers.First());
                         return null;
                 }
             }
