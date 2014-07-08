@@ -19,8 +19,14 @@ namespace BCad.UI.View
         private BasicEffect basicEffect;
         private Buffer<VertexPositionColor> lineVertices;
         private Buffer<VertexPositionColor> rubberBandVertices;
+        private Buffer<VertexPositionColor> pointVerticies;
+        private Buffer<VertexPositionColor> rubberBandPointVertices;
         private VertexInputLayout lineInputLayout;
         private VertexInputLayout rubberBandInputLayout;
+        private VertexInputLayout pointInputLayout;
+        private VertexInputLayout rubberBandPointInputLayout;
+        private List<Matrix> pointMatrices;
+        private List<Matrix> rubberBandPointMatrices;
         private bool drawingRubberBandLines;
 
         public CadGame(IWorkspace workspace, IViewControl viewControl)
@@ -66,9 +72,9 @@ namespace BCad.UI.View
             basicEffect = ToDisposeContent(new BasicEffect(GraphicsDevice)
             {
                 VertexColorEnabled = true,
-                View = SharpDX.Matrix.Scaling(1.0f, 1.0f, 0.0f), // flatten everything to show on the screen
-                Projection = SharpDX.Matrix.Identity, // this gets updated in UpdateMatrices()
-                World = SharpDX.Matrix.Identity // unused since all objects have absolute world coordinates
+                View = Matrix.Scaling(1.0f, 1.0f, 0.0f), // flatten everything to show on the screen
+                Projection = Matrix.Identity, // this gets updated in UpdateMatrices()
+                World = Matrix.Identity // unused since all objects have absolute world coordinates (except for points)
             });
             UpdateVericies();
             UpdateRubberBandLines();
@@ -85,6 +91,8 @@ namespace BCad.UI.View
         private void UpdateVericies()
         {
             var lineVerts = new List<VertexPositionColor>();
+            var pointVerts = new List<VertexPositionColor>();
+            var pointMats = new List<Matrix>();
             var drawing = workspace.Drawing;
             foreach (var layer in drawing.GetLayers().Where(l => l.IsVisible))
             {
@@ -95,20 +103,31 @@ namespace BCad.UI.View
                     foreach (var prim in entity.GetPrimitives())
                     {
                         var primColor = MapColor(prim.Color, entityColor);
-                        AddVerticesToList(prim, primColor, lineVerts);
+                        AddVerticesToList(prim, primColor, lineVerts, pointVerts, pointMats);
                     }
                 }
             }
 
+            // we have to prepare something
             if (lineVerts.Count == 0)
             {
-                // we have to display something
                 lineVerts.Add(new VertexPositionColor());
                 lineVerts.Add(new VertexPositionColor());
             }
 
+            if (pointVerts.Count == 0)
+            {
+                pointVerts.Add(new VertexPositionColor());
+                pointVerts.Add(new VertexPositionColor());
+            }
+
             lineVertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, lineVerts.ToArray(), BufferFlags.VertexBuffer));
             lineInputLayout = VertexInputLayout.FromBuffer(0, lineVertices);
+
+            pointVerticies = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, pointVerts.ToArray(), BufferFlags.VertexBuffer));
+            pointInputLayout = VertexInputLayout.FromBuffer(0, pointVerticies);
+
+            pointMatrices = pointMats;
         }
 
         public void UpdateRubberBandLines()
@@ -121,36 +140,49 @@ namespace BCad.UI.View
             }
 
             var lineVerts = new List<VertexPositionColor>();
+            var pointVerts = new List<VertexPositionColor>();
+            var pointMats = new List<Matrix>();
             if (generator != null && viewControl != null)
             {
                 var primitives = generator(viewControl.GetCursorPoint());
                 foreach (var prim in primitives)
                 {
                     var primColor = MapColor(prim.Color, autoColor);
-                    AddVerticesToList(prim, primColor, lineVerts);
+                    AddVerticesToList(prim, primColor, lineVerts, pointVerts, pointMats);
                 }
             }
 
+            // we have to prepare something
             if (lineVerts.Count == 0)
             {
-                // we have to display something
                 lineVerts.Add(new VertexPositionColor());
                 lineVerts.Add(new VertexPositionColor());
             }
 
+            if (pointVerts.Count == 0)
+            {
+                pointVerts.Add(new VertexPositionColor());
+                pointVerts.Add(new VertexPositionColor());
+            }
+
             rubberBandVertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, lineVerts.ToArray(), BufferFlags.VertexBuffer));
-            rubberBandInputLayout = VertexInputLayout.FromBuffer(0, lineVertices);
+            rubberBandInputLayout = VertexInputLayout.FromBuffer(0, rubberBandVertices);
+
+            rubberBandPointVertices = ToDisposeContent(Buffer<VertexPositionColor>.New(GraphicsDevice, pointVerts.ToArray(), BufferFlags.VertexBuffer));
+            rubberBandPointInputLayout = VertexInputLayout.FromBuffer(0, rubberBandPointVertices);
+
+            rubberBandPointMatrices = pointMats;
             drawingRubberBandLines = true;
         }
 
-        private void AddVerticesToList(IPrimitive primitive, Color color, List<VertexPositionColor> list)
+        private void AddVerticesToList(IPrimitive primitive, Color color, List<VertexPositionColor> lineVerts, List<VertexPositionColor> pointVerts, List<Matrix> pointMats)
         {
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
-                    list.Add(new VertexPositionColor(line.P1.ToVector3(), color));
-                    list.Add(new VertexPositionColor(line.P2.ToVector3(), color));
+                    lineVerts.Add(new VertexPositionColor(line.P1.ToVector3(), color));
+                    lineVerts.Add(new VertexPositionColor(line.P2.ToVector3(), color));
                     break;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
@@ -164,14 +196,23 @@ namespace BCad.UI.View
                     {
                         var p = el.GetPoint(angle);
                         var next = new VertexPositionColor(p.ToVector3(), color);
-                        list.Add(last);
-                        list.Add(next);
+                        lineVerts.Add(last);
+                        lineVerts.Add(next);
                         last = next;
                     }
 
                     // add final line
-                    list.Add(last);
-                    list.Add(new VertexPositionColor(el.GetPoint(el.EndAngle).ToVector3(), color));
+                    lineVerts.Add(last);
+                    lineVerts.Add(new VertexPositionColor(el.GetPoint(el.EndAngle).ToVector3(), color));
+                    break;
+                case PrimitiveKind.Point:
+                    //var point = (PrimitivePoint)primitive;
+                    //var size = 0.5f;
+                    //pointVerts.Add(new VertexPositionColor(new Vector3(-size, 0.0f, 0.0f), color));
+                    //pointVerts.Add(new VertexPositionColor(new Vector3(size, 0.0f, 0.0f), color));
+                    //pointVerts.Add(new VertexPositionColor(new Vector3(0.0f, -size, 0.0f), color));
+                    //pointVerts.Add(new VertexPositionColor(new Vector3(0.0f, size, 0.0f), color));
+                    //pointMats.Add(Matrix.Translation((float)point.Location.X, (float)point.Location.Y, (float)point.Location.Z));
                     break;
             }
         }
@@ -187,7 +228,7 @@ namespace BCad.UI.View
         private void UpdateMatrices()
         {
             var m = workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height);
-            basicEffect.Projection = new SharpDX.Matrix(
+            basicEffect.Projection = new Matrix(
                 (float)m.M11,
                 (float)m.M21,
                 (float)m.M31,
@@ -209,21 +250,44 @@ namespace BCad.UI.View
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(backgroundColor);
-
-            basicEffect.CurrentTechnique.Passes[0].Apply();
             
-            GraphicsDevice.SetVertexBuffer(lineVertices);
-            GraphicsDevice.SetVertexInputLayout(lineInputLayout);
-            GraphicsDevice.Draw(PrimitiveType.LineList, lineVertices.ElementCount);
-
-            if (drawingRubberBandLines)
+            DrawEntities(lineVertices, lineInputLayout);
+            if (pointMatrices.Count > 0)
             {
-                GraphicsDevice.SetVertexBuffer(rubberBandVertices);
-                GraphicsDevice.SetVertexInputLayout(rubberBandInputLayout);
-                GraphicsDevice.Draw(PrimitiveType.LineList, rubberBandVertices.ElementCount);
+                DrawPoints(pointVerticies, pointInputLayout, pointMatrices);
+            }
+
+            if (drawingRubberBandLines && rubberBandVertices.ElementCount > 0)
+            {
+                DrawEntities(rubberBandVertices, rubberBandInputLayout);
+                if (rubberBandPointMatrices.Count > 0)
+                {
+                    DrawPoints(rubberBandPointVertices, rubberBandPointInputLayout, rubberBandPointMatrices);
+                }
             }
 
             base.Draw(gameTime);
+        }
+
+        private void DrawEntities(Buffer<VertexPositionColor> vertices, VertexInputLayout layout)
+        {
+            basicEffect.World = Matrix.Identity;
+            basicEffect.CurrentTechnique.Passes[0].Apply();
+            GraphicsDevice.SetVertexBuffer(vertices);
+            GraphicsDevice.SetVertexInputLayout(layout);
+            GraphicsDevice.Draw(PrimitiveType.LineList, vertices.ElementCount);
+        }
+
+        private void DrawPoints(Buffer<VertexPositionColor> vertices, VertexInputLayout layout, List<Matrix> worldMatrices)
+        {
+            GraphicsDevice.SetVertexBuffer(vertices);
+            GraphicsDevice.SetVertexInputLayout(layout);
+            for (int i = 0; i < worldMatrices.Count; i++)
+            {
+                basicEffect.World = Matrix.Scaling(15f) * worldMatrices[i];
+                basicEffect.CurrentTechnique.Passes[0].Apply();
+                GraphicsDevice.Draw(PrimitiveType.LineList, 4, i * 4);
+            }
         }
     }
 }
