@@ -759,7 +759,7 @@ namespace BCad.UI
 
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
         {
-            var entities = Workspace.Drawing.GetEntities().Where(e => selectionRect.Contains(ProjectedChain(e), includePartial));
+            var entities = Workspace.Drawing.GetLayers().Where(l => l.IsVisible).SelectMany(l => l.GetEntities()).Where(e => selectionRect.Contains(ProjectedChain(e), includePartial));
             return entities;
         }
 
@@ -768,7 +768,8 @@ namespace BCad.UI
             var screenPoint = cursor.ToPoint();
             var selectionRadius = Workspace.SettingsManager.EntitySelectionRadius;
             var selectionRadius2 = selectionRadius * selectionRadius;
-            var entities = from entity in Workspace.Drawing.GetEntities()
+            var entities = from layer in Workspace.Drawing.GetLayers().Where(l => l.IsVisible)
+                           from entity in layer.GetEntities()
                            let dist = ClosestPoint(entity, screenPoint)
                            where dist.Item1 < selectionRadius2
                            orderby dist.Item1
