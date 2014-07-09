@@ -12,8 +12,7 @@ namespace BCad.UI.Consoles
     /// <summary>
     /// Interaction logic for InputConsole.xaml
     /// </summary>
-    [ExportConsole("Default")]
-    public partial class InputConsole : ConsoleControl
+    public partial class InputConsole : UserControl
     {
         public InputConsole()
         {
@@ -54,8 +53,6 @@ namespace BCad.UI.Consoles
                 inputLine.Text = "";
             }));
         }
-
-        public UserControl Control { get { return this; } }
 
         [Import]
         public IInputService InputService { get; set; }

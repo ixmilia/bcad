@@ -13,7 +13,6 @@ namespace BCad
         private string layerDialogId = null;
         private string plotDialogId = null;
         private string rendererId = null;
-        private string consoleControlId = null;
         private double snapPointDist = 0.0;
         private double snapPointSize = 0.0;
         private double entitySelectionRadius = 0.0;
@@ -88,18 +87,6 @@ namespace BCad
                     return;
                 this.rendererId = value;
                 OnPropertyChanged("RendererId");
-            }
-        }
-
-        public string ConsoleControlId
-        {
-            get { return this.consoleControlId; }
-            set
-            {
-                if (this.consoleControlId == value)
-                    return;
-                this.consoleControlId = value;
-                OnPropertyChanged("ConsoleControlId");
             }
         }
 
@@ -362,7 +349,6 @@ namespace BCad
             LayerDialogId = "Default";
             PlotDialogId = "Default";
             RendererId = "Hardware";
-            ConsoleControlId = "Default";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
             EntitySelectionRadius = 3.0;

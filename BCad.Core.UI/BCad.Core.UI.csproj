@@ -98,7 +98,6 @@
     <Compile Include="Commands\RotateCommand.cs" />
     <Compile Include="Commands\TrimCommand.cs" />
     <Compile Include="Commands\UICommandMetadata.cs" />
-    <Compile Include="ConsoleControl.cs" />
     <Compile Include="ControlMetadata.cs" />
     <Compile Include="DialogFactory.cs" />
     <Compile Include="EditablePoint.xaml.cs">
@@ -107,7 +106,6 @@
     <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
     <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
     <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />
-    <Compile Include="ExportConsoleAttribute.cs" />
     <Compile Include="ExportControlAttribute.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />

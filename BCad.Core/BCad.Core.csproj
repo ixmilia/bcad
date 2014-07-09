@@ -47,7 +47,6 @@
     <Compile Include="Commands\UndoCommand.cs" />
     <Compile Include="Commands\ZoomExtentsCommand.cs" />
     <Compile Include="Commands\ZoomWindowCommand.cs" />
-    <Compile Include="ConsoleMetadata.cs" />
     <Compile Include="DefaultSettingsManager.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="FileHandlers\FileHandlerMetadata.cs" />
@@ -106,7 +105,6 @@
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileHandlerAttribute.cs" />
     <Compile Include="Helpers\MathHelper.cs" />
-    <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
     <Compile Include="Primitives\PrimitivePoint.cs" />

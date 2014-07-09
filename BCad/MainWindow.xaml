@@ -6,6 +6,7 @@
                 xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
                 xmlns:ui="clr-namespace:BCad.UI"
                 xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
+                xmlns:consoles="clr-namespace:BCad.UI.Consoles"
                 mc:Ignorable="d"
                 Height="768"
                 Width="1024"
@@ -64,7 +65,7 @@
         </r:Ribbon>
         <ui:ViewPane Grid.Row="1" x:Name="viewPane" />
         <GridSplitter ResizeDirection="Rows" Grid.Row="2" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        <UserControl Grid.Row="3" Name="inputPanel" />
+        <consoles:InputConsole Grid.Row="3" x:Name="inputPanel" />
         <StatusBar Grid.Row="4">
             <TextBlock Name="pointSnapStatus"
                        Text="POINT SNAP"

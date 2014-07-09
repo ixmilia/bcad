@@ -47,9 +47,6 @@ namespace BCad
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<ConsoleControl, ConsoleMetadata>> Consoles { get; set; }
-
-        [ImportMany]
         public IEnumerable<Lazy<IUICommand, UICommandMetadata>> UICommands { get; set; }
 
         [OnImportsSatisfied]
@@ -173,7 +170,7 @@ namespace BCad
 
         private void TakeFocus()
         {
-            this.Dispatcher.BeginInvoke((Action)(() => FocusHelper.Focus(this.inputPanel.Content as UserControl)));
+            this.Dispatcher.BeginInvoke((Action)(() => FocusHelper.Focus(this.inputPanel)));
         }
 
         void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
@@ -192,8 +189,7 @@ namespace BCad
             }
 
             // prepare user console
-            var console = Consoles.First(c => c.Metadata.ControlId == Workspace.SettingsManager.ConsoleControlId).Value;
-            this.inputPanel.Content = console;
+            App.Container.SatisfyImports(inputPanel);
             TakeFocus();
             InputService.Reset();
 

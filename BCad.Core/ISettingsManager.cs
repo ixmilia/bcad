@@ -8,7 +8,6 @@ namespace BCad
         string PlotDialogId { get; set; }
         string LayerDialogId { get; set; }
         string RendererId { get; set; }
-        string ConsoleControlId { get; set; }
         double SnapPointDistance { get; set; }
         double SnapPointSize { get; set; }
         double EntitySelectionRadius { get; set; }
