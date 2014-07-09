@@ -1,5 +1,6 @@
 BCad.Core.dll
 BCad.Core.UI.dll
+BCad.Dwg.dll
 BCad.Dxf.dll
 BCad.exe
 BCad.FileHandlers.dll
