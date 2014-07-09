@@ -288,6 +288,7 @@ namespace BCad.ViewModels
                     EditLocationViewModel = new EditLocationViewModel(workspace, (Location)entity);
                     break;
                 case EntityKind.Polyline:
+                    // TODO: is the list of points editable?
                     break;
                 case EntityKind.Text:
                     EditTextViewModel = new EditTextViewModel(workspace, (Text)entity);
