@@ -77,6 +77,25 @@
                   SelectedItem="{Binding Path=SelectedColor, Mode=TwoWay}"
                   ItemTemplate="{StaticResource ResourceKey=ColorTemplate}" />
         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <!-- aggregate -->
+            <Grid DataContext="{Binding Path=EditAggregateViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Location" />
+                <controls:EditablePoint Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="1"
+                                        Point="{Binding Path=Location, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+            </Grid>
             <!-- arc -->
             <Grid DataContext="{Binding Path=EditArcViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
                 <Grid.RowDefinitions>

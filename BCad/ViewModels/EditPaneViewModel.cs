@@ -13,6 +13,7 @@ namespace BCad.ViewModels
         private IInputService inputService;
         private IEnumerable<ReadOnlyLayerViewModel> layers;
         private bool ignoreLayerChange;
+        private EditAggregateViewModel editAggregateViewModel;
         private EditArcViewModel editArcViewModel;
         private EditCircleViewModel editCircleViewModel;
         private EditEllipseViewModel editEllipseViewModel;
@@ -130,6 +131,18 @@ namespace BCad.ViewModels
             }
         }
 
+        public EditAggregateViewModel EditAggregateViewModel
+        {
+            get { return editAggregateViewModel; }
+            set
+            {
+                if (editAggregateViewModel == value)
+                    return;
+                editAggregateViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
         public EditArcViewModel EditArcViewModel
         {
             get { return editArcViewModel; }
@@ -218,6 +231,10 @@ namespace BCad.ViewModels
         private void SetEditableViewModels()
         {
             // clear all
+            if (EditAggregateViewModel != null)
+                EditAggregateViewModel.Dispose();
+            EditAggregateViewModel = null;
+
             if (EditArcViewModel != null)
                 EditArcViewModel.Dispose();
             EditArcViewModel = null;
@@ -253,6 +270,7 @@ namespace BCad.ViewModels
             switch (entity.Kind)
             {
                 case EntityKind.Aggregate:
+                    EditAggregateViewModel = new EditAggregateViewModel(workspace, (AggregateEntity)entity);
                     break;
                 case EntityKind.Arc:
                     EditArcViewModel = new EditArcViewModel(workspace, (Arc)entity);
