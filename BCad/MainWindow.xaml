@@ -5,6 +5,7 @@
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
                 xmlns:ui="clr-namespace:BCad.UI"
+                xmlns:view="clr-namespace:BCad.UI.View"
                 xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
                 xmlns:consoles="clr-namespace:BCad.UI.Consoles"
                 mc:Ignorable="d"
@@ -63,7 +64,16 @@
                 </r:RibbonQuickAccessToolBar>
             </r:Ribbon.QuickAccessToolBar>
         </r:Ribbon>
-        <ui:ViewPane Grid.Row="1" x:Name="viewPane" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:ViewPane Grid.Column="0" x:Name="viewPane" />
+            <GridSplitter ResizeDirection="Columns" Grid.Column="1" Width="3" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <view:EditPane Grid.Column="2" x:Name="editPane" />
+        </Grid>
         <GridSplitter ResizeDirection="Rows" Grid.Row="2" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         <consoles:InputConsole Grid.Row="3" x:Name="inputPanel" />
         <StatusBar Grid.Row="4">

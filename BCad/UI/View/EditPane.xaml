@@ -53,15 +53,14 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0"
                    Grid.Column="0"
                    Text="Layer" />
         <ComboBox Grid.Row="0"
                   Grid.Column="1"
-                  HorizontalAlignment="Left"
-                  Width="150"
+                  HorizontalAlignment="Stretch"
                   IsEnabled="{Binding Path=IsEditingEnabled}"
                   ItemsSource="{Binding Path=Layers}"
                   SelectedItem="{Binding Path=SelectedLayer, Mode=TwoWay}"
@@ -86,14 +85,13 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="P1" />
                 <controls:EditablePoint Grid.Row="0"
                                         Grid.Column="1"
-                                        Width="148"
                                         Margin="1"
                                         Point="{Binding Path=P1, Mode=TwoWay}"
                                         UnitFormat="{Binding Path=UnitFormat}"
@@ -103,7 +101,6 @@
                            Text="P2" />
                 <controls:EditablePoint Grid.Row="1"
                                         Grid.Column="1"
-                                        Width="148"
                                         Margin="1"
                                         Point="{Binding Path=P2, Mode=TwoWay}"
                                         UnitFormat="{Binding Path=UnitFormat}"
@@ -116,14 +113,13 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Location" />
                 <controls:EditablePoint Grid.Row="0"
                                         Grid.Column="1"
-                                        Width="148"
                                         Margin="1"
                                         Point="{Binding Path=Point, Mode=TwoWay}"
                                         UnitFormat="{Binding Path=UnitFormat}"
@@ -140,7 +136,7 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
@@ -153,7 +149,6 @@
                            Text="Location" />
                 <controls:EditablePoint Grid.Row="1"
                                         Grid.Column="1"
-                                        Width="148"
                                         Margin="1"
                                         Point="{Binding Path=Location, Mode=TwoWay}"
                                         UnitFormat="{Binding Path=UnitFormat}"
@@ -163,7 +158,6 @@
                            Text="Normal" />
                 <controls:EditablePoint Grid.Row="2"
                                         Grid.Column="1"
-                                        Width="148"
                                         Margin="1"
                                         Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
                                         UnitFormat="{Binding Path=UnitFormat}"

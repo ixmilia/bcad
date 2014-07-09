@@ -1,12 +1,4 @@
-﻿using BCad.Commands;
-using BCad.Core.UI;
-using BCad.EventArguments;
-using BCad.Primitives;
-using BCad.Ribbons;
-using BCad.Services;
-using BCad.UI;
-using Microsoft.Windows.Controls.Ribbon;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Composition;
@@ -19,6 +11,14 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using BCad.Commands;
+using BCad.Core.UI;
+using BCad.EventArguments;
+using BCad.Primitives;
+using BCad.Ribbons;
+using BCad.Services;
+using BCad.ViewModels;
+using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad
 {
@@ -27,6 +27,8 @@ namespace BCad
     /// </summary>
     public partial class MainWindow : RibbonWindow
     {
+        private EditPaneViewModel editViewModel;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -52,6 +54,9 @@ namespace BCad
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
+            editViewModel = new EditPaneViewModel(Workspace, InputService);
+            editPane.DataContext = editViewModel;
+
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
