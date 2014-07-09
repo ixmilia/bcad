@@ -55,6 +55,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AscFileHandler.cs" />
     <Compile Include="DxfFileHandler.cs" />
     <Compile Include="IgesFileHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
