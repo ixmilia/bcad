@@ -13,6 +13,7 @@ namespace BCad.ViewModels
         private IInputService inputService;
         private IEnumerable<ReadOnlyLayerViewModel> layers;
         private bool ignoreLayerChange;
+        private EditArcViewModel editArcViewModel;
         private EditLineViewModel editLineViewModel;
         private EditLocationViewModel editLocationViewModel;
         private EditTextViewModel editTextViewModel;
@@ -127,6 +128,18 @@ namespace BCad.ViewModels
             }
         }
 
+        public EditArcViewModel EditArcViewModel
+        {
+            get { return editArcViewModel; }
+            set
+            {
+                if (editArcViewModel == value)
+                    return;
+                editArcViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
         public EditLineViewModel EditLineViewModel
         {
             get { return editLineViewModel; }
@@ -179,6 +192,10 @@ namespace BCad.ViewModels
         private void SetEditableViewModels()
         {
             // clear all
+            if (EditArcViewModel != null)
+                EditArcViewModel.Dispose();
+            EditArcViewModel = null;
+
             if (EditLineViewModel != null)
                 EditLineViewModel.Dispose();
             EditLineViewModel = null;
@@ -201,6 +218,9 @@ namespace BCad.ViewModels
         {
             switch (entity.Kind)
             {
+                case EntityKind.Arc:
+                    EditArcViewModel = new EditArcViewModel(workspace, (Arc)entity);
+                    break;
                 case EntityKind.Line:
                     EditLineViewModel = new EditLineViewModel(workspace, (Line)entity);
                     break;
