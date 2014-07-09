@@ -28,12 +28,12 @@ namespace BCad.ViewModels
 
         public int SelectedCount
         {
-            get { return inputService.AllowedInputTypes != InputType.Command ? 0 : workspace.SelectedEntities.Count; }
+            get { return IsEditingEnabled ? workspace.SelectedEntities.Count : 0; }
         }
 
         public bool IsEditingEnabled
         {
-            get { return SelectedCount != 0; }
+            get { return inputService.AllowedInputTypes == InputType.Command && workspace.SelectedEntities.Count != 0; }
         }
 
         public IEnumerable<ColorViewModel> AvailableColors { get; private set; }
@@ -42,6 +42,9 @@ namespace BCad.ViewModels
         {
             get
             {
+                if (!IsEditingEnabled)
+                    return null;
+
                 switch (workspace.SelectedEntities.Count)
                 {
                     case 0:
@@ -78,6 +81,9 @@ namespace BCad.ViewModels
         {
             get
             {
+                if (!IsEditingEnabled)
+                    return null;
+
                 switch (workspace.SelectedEntities.Count)
                 {
                     case 0:
@@ -185,16 +191,9 @@ namespace BCad.ViewModels
                 EditTextViewModel.Dispose();
             EditTextViewModel = null;
 
-            switch (workspace.SelectedEntities.Count)
+            if (IsEditingEnabled && workspace.SelectedEntities.Count == 1)
             {
-                case 0:
-                    break;
-                case 1:
-                    SetEditableViewModel(workspace.SelectedEntities.First());
-                    break;
-                default:
-                    // TODO: multi-edit?
-                    break;
+                SetEditableViewModel(workspace.SelectedEntities.First());
             }
         }
 
