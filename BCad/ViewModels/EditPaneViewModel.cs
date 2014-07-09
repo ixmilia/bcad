@@ -15,6 +15,7 @@ namespace BCad.ViewModels
         private bool ignoreLayerChange;
         private EditArcViewModel editArcViewModel;
         private EditCircleViewModel editCircleViewModel;
+        private EditEllipseViewModel editEllipseViewModel;
         private EditLineViewModel editLineViewModel;
         private EditLocationViewModel editLocationViewModel;
         private EditTextViewModel editTextViewModel;
@@ -153,6 +154,18 @@ namespace BCad.ViewModels
             }
         }
 
+        public EditEllipseViewModel EditEllipseViewModel
+        {
+            get { return editEllipseViewModel; }
+            set
+            {
+                if (editEllipseViewModel == value)
+                    return;
+                editEllipseViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
         public EditLineViewModel EditLineViewModel
         {
             get { return editLineViewModel; }
@@ -213,6 +226,10 @@ namespace BCad.ViewModels
                 EditCircleViewModel.Dispose();
             EditCircleViewModel = null;
 
+            if (EditEllipseViewModel != null)
+                EditEllipseViewModel.Dispose();
+            EditEllipseViewModel = null;
+
             if (EditLineViewModel != null)
                 EditLineViewModel.Dispose();
             EditLineViewModel = null;
@@ -235,17 +252,24 @@ namespace BCad.ViewModels
         {
             switch (entity.Kind)
             {
+                case EntityKind.Aggregate:
+                    break;
                 case EntityKind.Arc:
                     EditArcViewModel = new EditArcViewModel(workspace, (Arc)entity);
                     break;
                 case EntityKind.Circle:
                     EditCircleViewModel = new EditCircleViewModel(workspace, (Circle)entity);
                     break;
+                case EntityKind.Ellipse:
+                    EditEllipseViewModel = new EditEllipseViewModel(workspace, (Ellipse)entity);
+                    break;
                 case EntityKind.Line:
                     EditLineViewModel = new EditLineViewModel(workspace, (Line)entity);
                     break;
                 case EntityKind.Location:
                     EditLocationViewModel = new EditLocationViewModel(workspace, (Location)entity);
+                    break;
+                case EntityKind.Polyline:
                     break;
                 case EntityKind.Text:
                     EditTextViewModel = new EditTextViewModel(workspace, (Text)entity);

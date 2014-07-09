@@ -141,6 +141,7 @@
     <Compile Include="ViewModels\ColorViewModel.cs" />
     <Compile Include="ViewModels\EditArcViewModel.cs" />
     <Compile Include="ViewModels\EditCircleViewModel.cs" />
+    <Compile Include="ViewModels\EditEllipseViewModel.cs" />
     <Compile Include="ViewModels\EditEntityViewModel.cs" />
     <Compile Include="ViewModels\EditLineViewModel.cs" />
     <Compile Include="ViewModels\EditLocationViewModel.cs" />

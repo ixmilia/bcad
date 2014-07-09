@@ -163,6 +163,66 @@
                                         UnitFormat="{Binding Path=UnitFormat}"
                                         UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
+            <!-- ellipse -->
+            <Grid DataContext="{Binding Path=EditEllipseViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Center" />
+                <controls:EditablePoint Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="1"
+                                        Point="{Binding Path=Center, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="Start angle" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Text="{Binding Path=StartAngle}" />
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="End angle" />
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Text="{Binding Path=EndAngle}" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Text="Normal" />
+                <controls:EditablePoint Grid.Row="3"
+                                        Grid.Column="1"
+                                        Margin="1"
+                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Text="MajorAxis" />
+                <controls:EditablePoint Grid.Row="4"
+                                        Grid.Column="1"
+                                        Margin="1"
+                                        Point="{Binding Path=MajorAxis, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Text="Minor axis ratio" />
+                <TextBox Grid.Row="5"
+                         Grid.Column="1"
+                         Text="{Binding Path=MinorAxisRatio}" />
+            </Grid>
             <!-- line -->
             <Grid DataContext="{Binding Path=EditLineViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
                 <Grid.RowDefinitions>
