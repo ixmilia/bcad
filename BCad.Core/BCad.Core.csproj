@@ -68,7 +68,6 @@
     <Compile Include="Commands\SaveAsCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="IDrawingConverter.cs" />
     <Compile Include="Drawing.cs" />
     <Compile Include="DrawingSettings.cs" />
     <Compile Include="Entities\Ellipse.cs" />
@@ -91,7 +90,6 @@
     <Compile Include="FilePlotters\IFilePlotter.cs" />
     <Compile Include="FilePlotters\IFilePlotterMetadata.cs" />
     <Compile Include="FileHandlers\IFileHandlerMetadata.cs" />
-    <Compile Include="IDrawingFile.cs" />
     <Compile Include="IViewControl.cs" />
     <Compile Include="IWorkspace.cs" />
     <Compile Include="Matrix4.cs" />

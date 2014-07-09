@@ -78,13 +78,9 @@ namespace BCad.Services
             if (writer == null)
                 throw new Exception("Unknown file extension " + extension);
 
-            var converter = writer.GetConverter();
-            IDrawingFile drawingFile;
-            converter.ConvertFromDrawing(fileName, drawing, viewPort, propertyBag, out drawingFile);
-
             using (var fileStream = new FileStream(fileName, FileMode.Create))
             {
-                drawingFile.Save(fileStream);
+                writer.WriteDrawing(fileName, fileStream, drawing, viewPort, propertyBag);
             }
 
             return Task.FromResult(true);
@@ -106,10 +102,7 @@ namespace BCad.Services
 
             using (var fileStream = new FileStream(fileName, FileMode.Open))
             {
-                var drawingFile = reader.Load(fileStream);
-                var converter = reader.GetConverter();
-
-                converter.ConvertToDrawing(fileName, drawingFile, out drawing, out viewPort, out propertyBag);
+                reader.ReadDrawing(fileName, fileStream, out drawing, out viewPort, out propertyBag);
                 if (viewPort == null)
                 {
                     viewPort = drawing.ShowAllViewPort(
