@@ -14,6 +14,7 @@ namespace BCad.ViewModels
         private IEnumerable<ReadOnlyLayerViewModel> layers;
         private bool ignoreLayerChange;
         private EditArcViewModel editArcViewModel;
+        private EditCircleViewModel editCircleViewModel;
         private EditLineViewModel editLineViewModel;
         private EditLocationViewModel editLocationViewModel;
         private EditTextViewModel editTextViewModel;
@@ -140,6 +141,18 @@ namespace BCad.ViewModels
             }
         }
 
+        public EditCircleViewModel EditCircleViewModel
+        {
+            get { return editCircleViewModel; }
+            set
+            {
+                if (editCircleViewModel == value)
+                    return;
+                editCircleViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
         public EditLineViewModel EditLineViewModel
         {
             get { return editLineViewModel; }
@@ -196,6 +209,10 @@ namespace BCad.ViewModels
                 EditArcViewModel.Dispose();
             EditArcViewModel = null;
 
+            if (EditCircleViewModel != null)
+                EditCircleViewModel.Dispose();
+            EditCircleViewModel = null;
+
             if (EditLineViewModel != null)
                 EditLineViewModel.Dispose();
             EditLineViewModel = null;
@@ -220,6 +237,9 @@ namespace BCad.ViewModels
             {
                 case EntityKind.Arc:
                     EditArcViewModel = new EditArcViewModel(workspace, (Arc)entity);
+                    break;
+                case EntityKind.Circle:
+                    EditCircleViewModel = new EditCircleViewModel(workspace, (Circle)entity);
                     break;
                 case EntityKind.Line:
                     EditLineViewModel = new EditLineViewModel(workspace, (Line)entity);

@@ -127,6 +127,42 @@
                                         UnitFormat="{Binding Path=UnitFormat}"
                                         UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
+            <!-- circle -->
+            <Grid DataContext="{Binding Path=EditCircleViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Center" />
+                <controls:EditablePoint Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="1"
+                                        Point="{Binding Path=Center, Mode=TwoWay}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="Radius" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Text="{Binding Path=Radius}" />
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="Normal" />
+                <controls:EditablePoint Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="1"
+                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                        UnitFormat="{Binding Path=UnitFormat}"
+                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+            </Grid>
             <!-- line -->
             <Grid DataContext="{Binding Path=EditLineViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
                 <Grid.RowDefinitions>
