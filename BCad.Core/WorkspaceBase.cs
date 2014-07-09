@@ -86,6 +86,8 @@ namespace BCad
 
         public bool IsDrawing { get { return RubberBandGenerator != null; } }
 
+        public bool IsCommandExecuting { get; private set; }
+
         #endregion
 
         #region Imports
@@ -191,9 +193,9 @@ namespace BCad
 
             lock (executeGate)
             {
-                if (isExecuting)
+                if (IsCommandExecuting)
                     return false;
-                isExecuting = true;
+                IsCommandExecuting = true;
             }
 
             commandName = commandName ?? lastCommand;
@@ -202,7 +204,7 @@ namespace BCad
             if (commandPair == null)
             {
                 OutputService.WriteLine("Command {0} not found", commandName);
-                isExecuting = false;
+                IsCommandExecuting = false;
                 return false;
             }
 
@@ -211,7 +213,7 @@ namespace BCad
             lastCommand = commandName;
             lock (executeGate)
             {
-                isExecuting = false;
+                IsCommandExecuting = false;
                 SelectedEntities = selectedStart;
             }
 
@@ -225,7 +227,7 @@ namespace BCad
 
         public bool CanExecute()
         {
-            return !this.isExecuting;
+            return !this.IsCommandExecuting;
         }
 
         public abstract Task<UnsavedChangesResult> PromptForUnsavedChanges();
@@ -234,7 +236,6 @@ namespace BCad
 
         #region Privates
 
-        private bool isExecuting = false;
         private string lastCommand = null;
         private object executeGate = new object();
 

@@ -54,7 +54,7 @@ namespace BCad
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
-            editViewModel = new EditPaneViewModel(Workspace, InputService);
+            editViewModel = new EditPaneViewModel(Workspace);
             editPane.DataContext = editViewModel;
 
             Workspace.CommandExecuted += Workspace_CommandExecuted;

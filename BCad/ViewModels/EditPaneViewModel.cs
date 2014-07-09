@@ -10,7 +10,6 @@ namespace BCad.ViewModels
     public class EditPaneViewModel : ViewModelBase
     {
         private IWorkspace workspace;
-        private IInputService inputService;
         private IEnumerable<ReadOnlyLayerViewModel> layers;
         private bool ignoreLayerChange;
         private EditAggregateViewModel editAggregateViewModel;
@@ -21,10 +20,9 @@ namespace BCad.ViewModels
         private EditLocationViewModel editLocationViewModel;
         private EditTextViewModel editTextViewModel;
 
-        public EditPaneViewModel(IWorkspace workspace, IInputService inputService)
+        public EditPaneViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            this.inputService = inputService;
             workspace.WorkspaceChanged += WorkspaceChanged;
             workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             AvailableColors = Enumerable.Range(0, 256).Select(i => new ColorViewModel(new IndexedColor((byte)i), workspace.SettingsManager.ColorMap[new IndexedColor((byte)i)]));
@@ -37,7 +35,7 @@ namespace BCad.ViewModels
 
         public bool IsEditingEnabled
         {
-            get { return inputService.AllowedInputTypes == InputType.Command && workspace.SelectedEntities.Count != 0; }
+            get { return !workspace.IsCommandExecuting && workspace.SelectedEntities.Count > 0; }
         }
 
         public IEnumerable<ColorViewModel> AvailableColors { get; private set; }

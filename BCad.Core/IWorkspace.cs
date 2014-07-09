@@ -34,6 +34,7 @@ namespace BCad
         IViewControl ViewControl { get; }
         RubberBandGenerator RubberBandGenerator { get; set; }
         bool IsDrawing { get; }
+        bool IsCommandExecuting { get; }
 
         void Update(Optional<Drawing> drawing = default(Optional<Drawing>),
             Optional<Plane> drawingPlane = default(Optional<Plane>),

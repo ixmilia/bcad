@@ -330,7 +330,7 @@ namespace BCad.UI
                             InputService.PushEntity(selected);
                         }
                     }
-                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || InputService.AllowedInputTypes == InputType.Command)
+                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || !Workspace.IsCommandExecuting)
                     {
                         if (selecting)
                         {
@@ -364,7 +364,7 @@ namespace BCad.UI
                             SetSelectionLineVisibility(Visibility.Hidden);
                             if (entities != null)
                             {
-                                if (InputService.AllowedInputTypes == InputType.Command)
+                                if (!Workspace.IsCommandExecuting)
                                 {
                                     Workspace.SelectedEntities.AddRange(entities);
                                 }
@@ -388,7 +388,7 @@ namespace BCad.UI
 
                             if (selected != null)
                             {
-                                if (InputService.AllowedInputTypes == InputType.Command)
+                                if (!Workspace.IsCommandExecuting)
                                 {
                                     Workspace.SelectedEntities.Add(selected.Entity);
                                 }
@@ -406,7 +406,7 @@ namespace BCad.UI
                             }
                         }
                     }
-                    else if (InputService.AllowedInputTypes == InputType.None || InputService.AllowedInputTypes == InputType.Command)
+                    else if (InputService.AllowedInputTypes == InputType.None || !Workspace.IsCommandExecuting)
                     {
                         // do hot-point tracking
                         var selected = GetHitEntity(cursor);
@@ -845,7 +845,7 @@ namespace BCad.UI
         private void UpdateHotPoints()
         {
             hotPointLayer.Children.Clear();
-            if (InputService.AllowedInputTypes != InputType.Command)
+            if (Workspace.IsCommandExecuting)
                 return;
             foreach (var primitive in Workspace.SelectedEntities.SelectMany(entity => entity.GetPrimitives()))
             {
