@@ -17,6 +17,6 @@
                            ColorMap="{Binding Path=ColorMap}"
                            RubberBandGenerator="{Binding Path=RubberBandGenerator}"
                            CursorPoint="{Binding Path=CursorPoint}"
-                           SupportedPrimitiveTypes="Point,Text" />
+                           SupportedPrimitiveTypes="Text" />
     </Grid>
 </UserControl>

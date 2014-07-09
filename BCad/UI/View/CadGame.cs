@@ -206,13 +206,13 @@ namespace BCad.UI.View
                     lineVerts.Add(new VertexPositionColor(el.GetPoint(el.EndAngle).ToVector3(), color));
                     break;
                 case PrimitiveKind.Point:
-                    //var point = (PrimitivePoint)primitive;
-                    //var size = 0.5f;
-                    //pointVerts.Add(new VertexPositionColor(new Vector3(-size, 0.0f, 0.0f), color));
-                    //pointVerts.Add(new VertexPositionColor(new Vector3(size, 0.0f, 0.0f), color));
-                    //pointVerts.Add(new VertexPositionColor(new Vector3(0.0f, -size, 0.0f), color));
-                    //pointVerts.Add(new VertexPositionColor(new Vector3(0.0f, size, 0.0f), color));
-                    //pointMats.Add(Matrix.Translation((float)point.Location.X, (float)point.Location.Y, (float)point.Location.Z));
+                    var point = (PrimitivePoint)primitive;
+                    var size = 0.5f;
+                    pointVerts.Add(new VertexPositionColor(new Vector3(-size, 0.0f, 0.0f), color));
+                    pointVerts.Add(new VertexPositionColor(new Vector3(size, 0.0f, 0.0f), color));
+                    pointVerts.Add(new VertexPositionColor(new Vector3(0.0f, -size, 0.0f), color));
+                    pointVerts.Add(new VertexPositionColor(new Vector3(0.0f, size, 0.0f), color));
+                    pointMats.Add(Matrix.Translation((float)point.Location.X, (float)point.Location.Y, (float)point.Location.Z));
                     break;
             }
         }
@@ -280,11 +280,15 @@ namespace BCad.UI.View
 
         private void DrawPoints(Buffer<VertexPositionColor> vertices, VertexInputLayout layout, List<Matrix> worldMatrices)
         {
+            // TODO: get point size from settings
+            var pointSize = 15;
+            var scale = workspace.ActiveViewPort.ViewHeight / GraphicsDevice.BackBuffer.Height * pointSize;
+            var scaling = Matrix.Scaling((float)scale);
             GraphicsDevice.SetVertexBuffer(vertices);
             GraphicsDevice.SetVertexInputLayout(layout);
             for (int i = 0; i < worldMatrices.Count; i++)
             {
-                basicEffect.World = Matrix.Scaling(15f) * worldMatrices[i];
+                basicEffect.World = scaling * worldMatrices[i];
                 basicEffect.CurrentTechnique.Passes[0].Apply();
                 GraphicsDevice.Draw(PrimitiveType.LineList, 4, i * 4);
             }
