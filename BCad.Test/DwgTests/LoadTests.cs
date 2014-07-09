@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using BCad.Dwg;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DwgTests
 {
+    [TestClass]
     public class LoadTests
     {
-        [Fact]
+        [TestMethod]
         public void LoadTest()
         {
             //var fileName = @"C:\Users\brettfo\Source\Repos\libredwg\examples\example.dwg";
-            var fileName = @"C:\Users\brettfo\Desktop\brettfo2.dwg";
-            var file = DwgFile.Load(new FileStream(fileName, FileMode.Open));
+            //var fileName = @"C:\Users\brettfo\Desktop\brettfo2.dwg";
+            //var file = DwgFile.Load(new FileStream(fileName, FileMode.Open));
         }
     }
 }
