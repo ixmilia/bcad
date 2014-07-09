@@ -1,0 +1,128 @@
+﻿<ui:BCadControl x:Class="BCad.UI.Controls.PlotDialog"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core.UI"
+                xmlns:local="clr-namespace:BCad.UI"
+                xmlns:controls="clr-namespace:BCad.UI.Controls"
+                xmlns:view="clr-namespace:BCad.UI.View"
+                mc:Ignorable="d" MinWidth="480" MinHeight="300" Background="White">
+    <ui:BCadControl.Resources>
+        <controls:EnumMatchToBooleanConverter x:Key="enumConverter" />
+        <controls:DoubleStringConverter x:Key="doubleStringConverter" />
+    </ui:BCadControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" ItemsSource="{Binding AvailablePlotTypes}" SelectedValue="{Binding PlotType}" Width="75" />
+            <Grid Grid.Column="1" Visibility="{Binding Path=PrintOptionsVisibility}" HorizontalAlignment="Left">
+                <ComboBox Width="100" ItemsSource="{Binding Path=AvailablePageSizes}" SelectedValue="{Binding Path=PageSize}" />
+            </Grid>
+            <Grid Grid.Column="1" Visibility="{Binding Path=FileOptionsVisibility}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="File name" />
+                <TextBox Grid.Column="1" Text="{Binding Path=FileName}" IsReadOnly="True" />
+                <Button Grid.Column="2" Click="BrowseClick">Browse</Button>
+                <TextBlock Grid.Column="3" Text="Size (px)" />
+                <TextBox Grid.Column="4" Width="36" Text="{Binding Path=PixelWidth, Mode=TwoWay}" />
+                <TextBox Grid.Column="5" Width="36" Text="{Binding Path=PixelHeight, Mode=TwoWay}" />
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton GroupName="plotWindow"
+                             Content="Drawing extents"
+                             IsChecked="{Binding Path=ViewportType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Extents}" />
+                <RadioButton GroupName="plotWindow"
+                             IsChecked="{Binding Path=ViewportType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Window}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Window" />
+                        <Button Grid.Column="4" Click="SelectAreaClick">Select</Button>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton GroupName="scaleType"
+                             Content="To fit"
+                             IsChecked="{Binding Path=ScalingType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=ToFit}" />
+                <RadioButton GroupName="scaleType"
+                             IsChecked="{Binding Path=ScalingType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Absolute}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Scale" />
+                        <TextBox Width="100" Text="{Binding Path=ScaleA, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                        <TextBlock Text=" to " />
+                        <TextBox Width="100" Text="{Binding Path=ScaleB, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding Path=FileOptionsVisibility}">
+                            <TextBlock Text="DPI" />
+                            <TextBox Width="36" Text="{Binding Path=Dpi, Converter={StaticResource doubleStringConverter}, Mode=TwoWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="3">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton GroupName="colorMapType"
+                             Content="Drawing default"
+                             IsChecked="{Binding Path=ColorMapType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=DrawingDefault}" />
+                <RadioButton GroupName="colorMapType"
+                             Content="All black"
+                             IsChecked="{Binding Path=ColorMapType,
+                                                 Mode=TwoWay,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=AllBlack}" />
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="4">
+            <TextBlock Text="Preview" />
+            <Border BorderBrush="Black" BorderThickness="1" Width="{Binding Path=MaxPreviewWidth}" Height="{Binding Path=MaxPreviewHeight}">
+                <Grid Width="{Binding Path=MaxPreviewWidth}" Height="{Binding Path=MaxPreviewHeight}" Background="LightGray">
+                    <view:RenderCanvas HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Background="White"
+                                       ClipToBounds="True"
+                                       Width="{Binding Path=PreviewWidth}"
+                                       Height="{Binding Path=PreviewHeight}"
+                                       ViewPort="{Binding Path=ViewPort}"
+                                       ColorMap="{Binding Path=ColorMap}"
+                                       Drawing="{Binding Path=Drawing}" />
+                </Grid>
+            </Border>
+        </StackPanel>
+    </Grid>
+</ui:BCadControl>

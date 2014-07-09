@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Media.Media3D;
 using BCad.Entities;
 using BCad.Helpers;
 using BCad.Primitives;
@@ -13,6 +12,7 @@ namespace BCad.Extensions
     {
         private static double[] SIN;
         private static double[] COS;
+        public const int DefaultPixelBuffer = 20;
 
         static PrimitiveExtensions()
         {
@@ -83,9 +83,9 @@ namespace BCad.Extensions
             }
         }
 
-        public static PrimitiveLine Transform(this PrimitiveLine line, Matrix3D matrix)
+        public static PrimitiveLine Transform(this PrimitiveLine line, Matrix4 matrix)
         {
-            return new PrimitiveLine(line.P1.Transform(matrix), line.P2.Transform(matrix), line.Color);
+            return new PrimitiveLine(matrix.Transform(line.P1), matrix.Transform(line.P2), line.Color);
         }
 
         public static IEnumerable<Point> IntersectionPoints(this IPrimitive primitive, IPrimitive other, bool withinBounds = true)
@@ -99,17 +99,58 @@ namespace BCad.Extensions
                 case PrimitiveKind.Ellipse:
                     result = ((PrimitiveEllipse)primitive).IntersectionPoints(other, withinBounds);
                     break;
+                case PrimitiveKind.Point:
+                    result = ((PrimitivePoint)primitive).IntersectionPoints(other, withinBounds);
+                    break;
                 case PrimitiveKind.Text:
                     result = Enumerable.Empty<Point>();
                     break;
                 default:
-                    Debug.Fail("Unsupported primitive type");
+                    Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
                     break;
             }
 
             return result;
         }
+
+        #region Point-primitive intersection
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitivePoint point, IPrimitive other, bool withinBounds = true)
+        {
+            IEnumerable<Point> result;
+            switch (other.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    result = ((PrimitiveEllipse)other).IntersectionPoints(point, withinBounds);
+                    break;
+                case PrimitiveKind.Line:
+                    result = ((PrimitiveLine)other).IntersectionPoints(point, withinBounds);
+                    break;
+                case PrimitiveKind.Point:
+                    result = point.IntersectionPoints((PrimitivePoint)other);
+                    break;
+                case PrimitiveKind.Text:
+                    result = Enumerable.Empty<Point>();
+                    break;
+                default:
+                    Debug.Assert(false, "Unsupported primitive type");
+                    result = Enumerable.Empty<Point>();
+                    break;
+            }
+
+            return result;
+        }
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitivePoint first, PrimitivePoint second)
+        {
+            if (first.Location.CloseTo(second.Location))
+                return new Point[] { first.Location };
+            else
+                return Enumerable.Empty<Point>();
+        }
+
+        #endregion
 
         #region Line-primitive intersection
 
@@ -119,16 +160,31 @@ namespace BCad.Extensions
             switch (other.Kind)
             {
                 case PrimitiveKind.Line:
-                    result = new[] { line.IntersectionPoint((PrimitiveLine)other, withinBounds) };
+                    var p = line.IntersectionPoint((PrimitiveLine)other, withinBounds);
+                    if (p.HasValue)
+                        result = new[] { p.Value };
+                    else
+                        result = new Point[0];
                     break;
                 case PrimitiveKind.Ellipse:
                     result = line.IntersectionPoints((PrimitiveEllipse)other, withinBounds);
+                    break;
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)other;
+                    if (line.ContainsPoint(point.Location, withinBounds))
+                    {
+                        result = new Point[] { point.Location };
+                    }
+                    else
+                    {
+                        result = new Point[0];
+                    }
                     break;
                 case PrimitiveKind.Text:
                     result = Enumerable.Empty<Point>();
                     break;
                 default:
-                    Debug.Fail("Unsupported primitive type");
+                    Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
                     break;
             }
@@ -140,7 +196,7 @@ namespace BCad.Extensions
 
         #region Line-line intersection
 
-        public static Point IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
+        public static Point? IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
         {
             var minLength = 0.0000000001;
 
@@ -209,7 +265,7 @@ namespace BCad.Extensions
             var up = ellipse.Normal.Cross(right).Normalize();
             var radiusX = ellipse.MajorAxis.Length;
             var radiusY = radiusX * ellipse.MinorAxisRatio;
-            var transform = ellipse.FromUnitCircleProjection();
+            var transform = ellipse.FromUnitCircle;
             var inverse = transform;
             inverse.Invert();
 
@@ -274,14 +330,14 @@ namespace BCad.Extensions
                         points = points.Where(p => ellipse.IsAngleContained(((Vector)p).ToAngle())).ToList();
                     }
 
-                    return points.Select(p => p.Transform(transform));
+                    return points.Select(p => (Point)transform.Transform(p));
                 }
             }
             else
             {
                 // otherwise line and plane intersect in only 1 point, p
                 var d = num / denom;
-                var p = l * d + l0;
+                var p = (Point)(l * d + l0);
 
                 // verify within the line segment
                 if (withinSegment && !MathHelper.Between(0.0, 1.0, d))
@@ -290,7 +346,7 @@ namespace BCad.Extensions
                 }
 
                 // p is the point of intersection.  verify if on transformed unit circle
-                var unitVector = (Vector)p.Transform(inverse);
+                var unitVector = (Vector)inverse.Transform(p);
                 if (Math.Abs(unitVector.Length - 1.0) < MathHelper.Epsilon)
                 {
                     // point is on the unit circle
@@ -329,16 +385,49 @@ namespace BCad.Extensions
                 case PrimitiveKind.Line:
                     result = ((PrimitiveLine)primitive).IntersectionPoints(ellipse, withinBounds);
                     break;
+                case PrimitiveKind.Point:
+                    result = ellipse.IntersectionPoints((PrimitivePoint)primitive, withinBounds);
+                    break;
                 case PrimitiveKind.Text:
                     result = Enumerable.Empty<Point>();
                     break;
                 default:
-                    Debug.Fail("Unsupported primitive type");
+                    Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
                     break;
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region Circle-point intersection
+
+        public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, PrimitivePoint point, bool withinBounds = true)
+        {
+            var fromUnit = ellipse.FromUnitCircle;
+            var toUnit = fromUnit;
+            toUnit.Invert();
+            var pointOnUnit = (Vector)toUnit.Transform(point.Location);
+            if (MathHelper.CloseTo(pointOnUnit.LengthSquared, 1.0))
+            {
+                if (!withinBounds)
+                    return new Point[] { point.Location }; // always a match
+                else
+                {
+                    var pointAngle = pointOnUnit.ToAngle();
+                    if (ellipse.IsAngleContained(pointAngle))
+                        return new Point[] { point.Location };
+                    else
+                        return new Point[0];
+                }
+            }
+            else
+            {
+                // wrong distance
+                return new Point[0];
+            }
         }
 
         #endregion
@@ -360,15 +449,14 @@ namespace BCad.Extensions
                 {
                     // if they share a point or second.Center is on the first plane, they are the same plane
                     // project second back to a unit circle and find intersection points
-                    var fromUnit = first.FromUnitCircleProjection();
+                    var fromUnit = first.FromUnitCircle;
                     var toUnit = fromUnit;
                     toUnit.Invert();
 
                     // transform second ellipse to be on the unit circle's plane
-                    var secondCenter = second.Center.Transform(toUnit);
-                    var secondMajorEnd = (second.Center + second.MajorAxis).Transform(toUnit);
-                    var secondMinorEnd = (second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MajorAxis.Length * second.MinorAxisRatio))
-                        .Transform(toUnit);
+                    var secondCenter = toUnit.Transform(second.Center);
+                    var secondMajorEnd = toUnit.Transform(second.Center + second.MajorAxis);
+                    var secondMinorEnd = toUnit.Transform(second.Center + (second.Normal.Cross(second.MajorAxis).Normalize() * second.MajorAxis.Length * second.MinorAxisRatio));
                     RoundedDouble a = (secondMajorEnd - secondCenter).Length;
                     RoundedDouble b = (secondMinorEnd - secondCenter).Length;
 
@@ -377,9 +465,9 @@ namespace BCad.Extensions
                         // if second ellipse is a circle we can absolutely solve for the intersection points
                         // rotate to place the center of the second circle on the x-axis
                         var angle = ((Vector)secondCenter).ToAngle();
-                        var rotation = RotateAboutZ(angle);
-                        var returnTransform = RotateAboutZ(-angle) * fromUnit;
-                        var newSecondCenter = secondCenter.Transform(rotation);
+                        var rotation = Matrix4.RotateAboutZ(angle);
+                        var returnTransform = fromUnit * Matrix4.RotateAboutZ(-angle);
+                        var newSecondCenter = rotation.Transform(secondCenter);
                         var secondRadius = a;
 
                         if (Math.Abs(newSecondCenter.X) > secondRadius + 1.0)
@@ -400,25 +488,25 @@ namespace BCad.Extensions
                                 };
                         }
 
-                        results = results.Distinct().Select(p => p.Transform(returnTransform));
+                        results = results.Distinct().Select(p => returnTransform.Transform(p));
                     }
                     else
                     {
                         // rotate about the origin to make the major axis align with the x-axis
                         var angle = (secondMajorEnd - secondCenter).ToAngle();
-                        var rotation = RotateAboutZ(angle);
-                        var finalCenter = secondCenter.Transform(rotation);
-                        fromUnit = fromUnit * RotateAboutZ(-angle);
+                        var rotation = Matrix4.RotateAboutZ(angle);
+                        var finalCenter = rotation.Transform(secondCenter);
+                        fromUnit = fromUnit * Matrix4.RotateAboutZ(-angle);
                         toUnit = fromUnit;
                         toUnit.Invert();
 
                         if (a < b)
                         {
                             // rotate to ensure a > b
-                            fromUnit = RotateAboutZ(90) * fromUnit;
+                            fromUnit = fromUnit * Matrix4.RotateAboutZ(90);
                             toUnit = fromUnit;
                             toUnit.Invert();
-                            finalCenter = finalCenter.Transform(RotateAboutZ(-90));
+                            finalCenter = Matrix4.RotateAboutZ(-90).Transform(finalCenter);
 
                             // and swap a and b
                             var temp = a;
@@ -502,7 +590,7 @@ namespace BCad.Extensions
                             .Where(p => !(double.IsNaN(p.X) || double.IsNaN(p.Y) || double.IsNaN(p.Z)))
                             .Where(p => !(double.IsInfinity(p.X) || double.IsInfinity(p.Y) || double.IsInfinity(p.Z)))
                             .Distinct()
-                            .Select(p => p.Transform(fromUnit))
+                            .Select(p => fromUnit.Transform(p))
                             .Select(p => new Point((RoundedDouble)p.X, (RoundedDouble)p.Y, (RoundedDouble)p.Z));
                     }
                 }
@@ -547,7 +635,7 @@ namespace BCad.Extensions
                 }
                 else
                 {
-                    Debug.Fail("zero-vector shouldn't get here");
+                    Debug.Assert(false, "zero-vector shouldn't get here");
                 }
 
                 var point = new Point(x, y, z);
@@ -565,17 +653,17 @@ namespace BCad.Extensions
             // verify points are in angle bounds
             if (withinBounds)
             {
-                var toFirstUnit = first.FromUnitCircleProjection();
-                var toSecondUnit = second.FromUnitCircleProjection();
+                var toFirstUnit = first.FromUnitCircle;
+                var toSecondUnit = second.FromUnitCircle;
                 toFirstUnit.Invert();
                 toSecondUnit.Invert();
                 results = from res in results
                           // verify point is within first ellipse's angles
-                          let trans1 = res.Transform(toFirstUnit)
+                          let trans1 = toFirstUnit.Transform(res)
                           let ang1 = ((Vector)trans1).ToAngle()
                           where first.IsAngleContained(ang1)
                           // and same for second
-                          let trans2 = res.Transform(toSecondUnit)
+                          let trans2 = toSecondUnit.Transform(res)
                           let ang2 = ((Vector)trans2).ToAngle()
                           where second.IsAngleContained(ang2)
                           select res;
@@ -611,59 +699,6 @@ namespace BCad.Extensions
 
         #endregion
 
-        public static Matrix3D FromUnitCircleProjection(Vector normal, Vector right, Vector up, Point center, double scaleX, double scaleY, double scaleZ)
-        {
-            var transformation = Matrix3D.Identity;
-            transformation.M11 = right.X;
-            transformation.M12 = right.Y;
-            transformation.M13 = right.Z;
-            transformation.M21 = up.X;
-            transformation.M22 = up.Y;
-            transformation.M23 = up.Z;
-            transformation.M31 = normal.X;
-            transformation.M32 = normal.Y;
-            transformation.M33 = normal.Z;
-            transformation.OffsetX = center.X;
-            transformation.OffsetY = center.Y;
-            transformation.OffsetZ = center.Z;
-            var scale = Matrix3D.Identity;
-            scale.M11 = scaleX;
-            scale.M22 = scaleY;
-            scale.M33 = scaleZ;
-            return scale * transformation;
-        }
-
-        public static Matrix3D FromUnitCircleProjection(this PrimitiveEllipse el)
-        {
-            var normal = el.Normal.Normalize();
-            var right = el.MajorAxis.Normalize();
-            var up = normal.Cross(right).Normalize();
-            var radiusX = el.MajorAxis.Length;
-            return FromUnitCircleProjection(normal, right, up, el.Center, radiusX, radiusX * el.MinorAxisRatio, 1.0);
-        }
-
-        public static Matrix3D Translation(Vector offset)
-        {
-            var m = Matrix3D.Identity;
-            m.OffsetX = offset.X;
-            m.OffsetY = offset.Y;
-            m.OffsetZ = offset.Z;
-            return m;
-        }
-
-        public static Matrix3D RotateAboutZ(double angleInDegrees)
-        {
-            var theta = angleInDegrees * MathHelper.DegreesToRadians;
-            var cos = Math.Cos(theta);
-            var sin = Math.Sin(theta);
-            var m = Matrix3D.Identity;
-            m.M11 = cos;
-            m.M12 = -sin;
-            m.M21 = sin;
-            m.M22 = cos;
-            return m;
-        }
-
         public static Entity ToEntity(this IPrimitive primitive)
         {
             switch (primitive.Kind)
@@ -698,6 +733,9 @@ namespace BCad.Extensions
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     return new Line(line.P1, line.P2, line.Color);
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)primitive;
+                    return new Location(point.Location, point.Color);
                 case PrimitiveKind.Text:
                     var text = (PrimitiveText)primitive;
                     return new Text(text.Value, text.Location, text.Normal, text.Height, text.Rotation, text.Color);
@@ -726,6 +764,11 @@ namespace BCad.Extensions
                         line.P1 + offset,
                         line.P2 + offset,
                         line.Color);
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)primitive;
+                    return new PrimitivePoint(
+                        point.Location + offset,
+                        point.Color);
                 case PrimitiveKind.Text:
                     var text = (PrimitiveText)primitive;
                     return new PrimitiveText(
@@ -751,26 +794,27 @@ namespace BCad.Extensions
                 case PrimitiveKind.Text:
                     return ContainsPoint((PrimitiveText)primitive, point);
                 default:
-                    Debug.Fail("unexpected primitive: " + primitive.Kind);
+                    Debug.Assert(false, "unexpected primitive: " + primitive.Kind);
                     return false;
             }
         }
 
-        private static bool ContainsPoint(this PrimitiveLine line, Point point)
+        private static bool ContainsPoint(this PrimitiveLine line, Point point, bool withinSegment = true)
         {
             if (point == line.P1)
                 return true;
             var lineVector = line.P2 - line.P1;
             var pointVector = point - line.P1;
-            return (lineVector.Normalize().CloseTo(pointVector.Normalize())) // on the same line
-                && MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared); // and between the points
+            return (lineVector.Normalize().CloseTo(pointVector.Normalize()))
+                && (!withinSegment
+                    || MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared));
         }
 
         private static bool ContainsPoint(this PrimitiveEllipse el, Point point)
         {
-            var unitMatrix = el.FromUnitCircleProjection();
+            var unitMatrix = el.FromUnitCircle;
             unitMatrix.Invert();
-            var unitPoint = point.Transform(unitMatrix);
+            var unitPoint = unitMatrix.Transform(point);
             return MathHelper.CloseTo(0.0, unitPoint.Z) // on the XY plane
                 && MathHelper.CloseTo(1.0, ((Vector)unitPoint).LengthSquared) // on the unit circle
                 && el.IsAngleContained(Math.Atan2(unitPoint.Y, unitPoint.X) * MathHelper.RadiansToDegrees); // within angle bounds
@@ -785,10 +829,10 @@ namespace BCad.Extensions
                 // check for horizontal/vertical containment
                 var right = Vector.RightVectorFromNormal(text.Normal);
                 var up = text.Normal.Cross(right).Normalize();
-                var projection = FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
+                var projection = Matrix4.FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
                 projection.Invert();
 
-                var projected = point.Transform(projection);
+                var projected = projection.Transform(point);
                 if (MathHelper.Between(0.0, text.Width, projected.X) &&
                     MathHelper.Between(0.0, text.Height, projected.Y))
                 {
@@ -801,9 +845,8 @@ namespace BCad.Extensions
 
         public static Point GetPoint(this PrimitiveEllipse ellipse, double angle)
         {
-            var projection = ellipse.FromUnitCircleProjection();
             var pointUnit = new Point(Math.Cos(angle * MathHelper.DegreesToRadians), Math.Sin(angle * MathHelper.DegreesToRadians), 0.0);
-            var pointTransformed = pointUnit.Transform(projection);
+            var pointTransformed = ellipse.FromUnitCircle.Transform(pointUnit);
             return pointTransformed;
         }
 
@@ -815,6 +858,161 @@ namespace BCad.Extensions
         public static Point GetEndPoint(this PrimitiveEllipse ellipse)
         {
             return ellipse.GetPoint(ellipse.EndAngle);
+        }
+
+        public static Point GetMidPoint(this PrimitiveEllipse ellipse)
+        {
+            return ellipse.GetPoint((ellipse.StartAngle + ellipse.EndAngle) * 0.5);
+        }
+
+        public static Point[] GetInterestingPoints(this IPrimitive primitive)
+        {
+            Point[] points;
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    var ellipse = (PrimitiveEllipse)primitive;
+                    points = ellipse.GetInterestingPoints(360);
+                    break;
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    points = new[] { line.P1, line.P2 };
+                    break;
+                case PrimitiveKind.Point:
+                    points = new[] { ((PrimitivePoint)primitive).Location };
+                    break;
+                case PrimitiveKind.Text:
+                    var text = (PrimitiveText)primitive;
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    points = new[]
+                        {
+                            text.Location,
+                            text.Location + right,
+                            text.Location + right + up,
+                            text.Location + up,
+                            text.Location
+                        };
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            return points;
+        }
+
+        public static Point[] GetInterestingPoints(this PrimitiveEllipse ellipse, int maxSeg)
+        {
+            var startAngleDeg = ellipse.StartAngle;
+            var endAngleDeg = ellipse.EndAngle;
+            if (endAngleDeg < startAngleDeg)
+                endAngleDeg += MathHelper.ThreeSixty;
+            var startAngleRad = startAngleDeg * MathHelper.DegreesToRadians;
+            var endAngleRad = endAngleDeg * MathHelper.DegreesToRadians;
+            if (endAngleRad < startAngleRad)
+                endAngleRad += MathHelper.TwoPI;
+            var vertexCount = (int)Math.Ceiling((endAngleDeg - startAngleDeg) / MathHelper.ThreeSixty * maxSeg);
+            var points = new Point[vertexCount + 1];
+            var angleDelta = MathHelper.ThreeSixty / maxSeg * MathHelper.DegreesToRadians;
+            var trans = ellipse.FromUnitCircle;
+            double angle;
+            int i;
+            for (angle = startAngleRad, i = 0; i < vertexCount; angle += angleDelta, i++)
+            {
+                points[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
+            }
+
+            points[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
+            return points;
+        }
+
+        public static ViewPort ShowAllViewPort(this IEnumerable<IPrimitive> primitives, Vector sight, Vector up, int viewPortWidth, int viewPortHeight, int pixelBuffer = DefaultPixelBuffer)
+        {
+            var drawingPlane = new Plane(Point.Origin, sight);
+            var planeProjection = drawingPlane.ToXYPlaneProjection();
+            var allPoints = primitives
+                .SelectMany(p => p.GetInterestingPoints())
+                .Select(p => planeProjection.Transform(p));
+
+            if (allPoints.Count() < 2)
+                return new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 10.0);
+
+            var first = allPoints.First();
+            var minx = first.X;
+            var miny = first.Y;
+            var maxx = first.X;
+            var maxy = first.Y;
+            foreach (var point in allPoints.Skip(1))
+            {
+                if (point.X < minx)
+                    minx = point.X;
+                if (point.X > maxx)
+                    maxx = point.X;
+                if (point.Y < miny)
+                    miny = point.Y;
+                if (point.Y > maxy)
+                    maxy = point.Y;
+            }
+
+            var deltaX = maxx - minx;
+            var deltaY = maxy - miny;
+
+            // translate back out of XY plane
+            var unproj = planeProjection;
+            unproj.Invert();
+            var bottomLeft = unproj.Transform(new Point(minx, miny, 0));
+            var topRight = unproj.Transform(new Point(minx + deltaX, miny + deltaY, 0));
+            var drawingHeight = deltaY;
+            var drawingWidth = deltaX;
+
+            double viewHeight, drawingToViewScale;
+            var viewRatio = (double)viewPortWidth / viewPortHeight;
+            var drawingRatio = drawingWidth / drawingHeight;
+            if (MathHelper.CloseTo(0.0, drawingHeight) || drawingRatio > viewRatio)
+            {
+                // fit to width
+                var viewWidth = drawingWidth;
+                viewHeight = viewPortHeight * viewWidth / viewPortWidth;
+                drawingToViewScale = viewPortWidth / viewWidth;
+
+                // add a buffer of some amount of pixels
+                var pixelWidth = drawingWidth * drawingToViewScale;
+                var newPixelWidth = pixelWidth + (pixelBuffer * 2);
+                viewHeight *= newPixelWidth / pixelWidth;
+            }
+            else
+            {
+                // fit to height
+                viewHeight = drawingHeight;
+                drawingToViewScale = viewPortHeight / viewHeight;
+
+                // add a buffer of some amount of pixels
+                var pixelHeight = drawingHeight * drawingToViewScale;
+                var newPixelHeight = pixelHeight + (pixelBuffer * 2);
+                viewHeight *= newPixelHeight / pixelHeight;
+            }
+
+            // center viewport
+            var tempViewport = new ViewPort(bottomLeft, sight, up, viewHeight);
+            var pixelMatrix = tempViewport.GetTransformationMatrixWindowsStyle(viewPortWidth, viewPortHeight);
+            var bottomLeftScreen = pixelMatrix.Transform(bottomLeft);
+            var topRightScreen = pixelMatrix.Transform(topRight);
+
+            // center horizontally
+            var leftXGap = bottomLeftScreen.X;
+            var rightXGap = viewPortWidth - topRightScreen.X;
+            var xAdjust = Math.Abs((rightXGap - leftXGap) / 2.0) / drawingToViewScale;
+
+            // center vertically
+            var topYGap = topRightScreen.Y;
+            var bottomYGap = viewPortHeight - bottomLeftScreen.Y;
+            var yAdjust = Math.Abs((topYGap - bottomYGap) / 2.0) / drawingToViewScale;
+
+            var newBottomLeft = new Point(bottomLeft.X - xAdjust, bottomLeft.Y - yAdjust, bottomLeft.Z);
+
+            var newVp = tempViewport.Update(bottomLeft: newBottomLeft, viewHeight: viewHeight);
+            return newVp;
         }
     }
 }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
-using BCad.Helpers;
 using BCad.Utilities;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+//using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
+    [TestClass]
     public class TrimExtendTests : AbstractDrawingTests
     {
 
@@ -40,16 +41,16 @@ namespace BCad.Test
                 out added);
 
             // verify deleted
-            Assert.Equal(expectTrim, removed.Any());
+            Assert.AreEqual(expectTrim, removed.Any());
             if (expectTrim)
             {
-                Assert.Equal(1, removed.Count());
-                Assert.True(removed.Single().EquivalentTo(entityToTrim));
+                Assert.AreEqual(1, removed.Count());
+                Assert.IsTrue(removed.Single().EquivalentTo(entityToTrim));
             }
 
             // verify added
-            Assert.Equal(expectedAdded.Count(), added.Count());
-            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+            Assert.AreEqual(expectedAdded.Count(), added.Count());
+            Assert.IsTrue(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
         private void DoExtend(IEnumerable<Entity> existingEntities,
@@ -78,70 +79,70 @@ namespace BCad.Test
                 out added);
 
             // verify deleted
-            Assert.Equal(expectExtend, removed.Any());
+            Assert.AreEqual(expectExtend, removed.Any());
             if (expectExtend)
             {
-                Assert.Equal(1, removed.Count());
-                Assert.True(removed.Single().EquivalentTo(entityToExtend));
+                Assert.AreEqual(1, removed.Count());
+                Assert.IsTrue(removed.Single().EquivalentTo(entityToExtend));
             }
 
             // verify added
-            Assert.Equal(expectedAdded.Count(), added.Count());
-            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+            Assert.AreEqual(expectedAdded.Count(), added.Count());
+            Assert.IsTrue(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
         #endregion
 
-        [Fact]
+        [TestMethod]
         public void SimpleLineTrimTest()
         {
-            var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), Color.Auto);
+            var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), IndexedColor.Auto);
             DoTrim(new[]
                 {
-                    new Line(new Point(1.0, -1.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(1.0, -1.0, 0.0), new Point(1.0, 1.0, 0.0), IndexedColor.Auto)
                 },
                 line,
                 Point.Origin,
                 true,
                 new[]
                 {
-                    new Line(new Point(1, 0, 0), new Point(2, 0, 0), Color.Auto)
+                    new Line(new Point(1, 0, 0), new Point(2, 0, 0), IndexedColor.Auto)
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void TrimWholeLineBetweenTest()
         {
             DoTrim(
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), Color.Auto),
-                    new Line(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), IndexedColor.Auto),
+                    new Line(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 new Point(0.5, 0, 0),
                 false,
                 null);
         }
 
-        [Fact]
+        [TestMethod]
         public void TrimCircleAtZeroAngleTest()
         {
             DoTrim(
                 new[]
                 {
-                    new Line(new Point(-1.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                    new Line(new Point(-1.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 },
-                new Circle(Point.Origin, 1.0, Vector.ZAxis, Color.Auto),
+                new Circle(Point.Origin, 1.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(0.0, -1.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto)
+                    new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void TrimHalfArcTest()
         {
             //      _________            ____
@@ -153,18 +154,42 @@ namespace BCad.Test
             DoTrim(
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, Color.Auto),
+                new Arc(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(-sqrt2 / 2.0, sqrt2 / 2.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(Point.Origin, 1.0, 0.0, 90.0, Vector.ZAxis, Color.Auto)
+                    new Arc(Point.Origin, 1.0, 0.0, 90.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
-        [Fact]
+        [TestMethod]
+        public void IsometricCircleTrimTest()
+        {
+            //      ____             ___
+            //     /  / \           /  /
+            //    /  /   |         /  /
+            //   /  /    |   =>   /  /
+            //  |  /    /        |  /
+            //  | /    /o        | /
+            //   \____/           \
+            DoTrim(
+                new[]
+                {
+                    new Line(new Point(-0.612372435695796, -1.0606617177983, 0.0), new Point(0.6123724356958, 1.06066017177983, 0.0), IndexedColor.Auto)
+                },
+                new Ellipse(Point.Origin, new Vector(0.6123724356958, 1.06066017177983, 0.0), 0.577350269189626, 0, 360, Vector.ZAxis, IndexedColor.Auto),
+                new Point(0.612372435695806, -0.353553390593266, 0.0),
+                true,
+                new[]
+                {
+                    new Ellipse(Point.Origin, new Vector(0.6123724356958, 1.06066017177983, 0.0), 0.577350269189626, 0, 180.000062635721, Vector.ZAxis, IndexedColor.Auto)
+                });
+        }
+
+        [TestMethod]
         public void SimpleExtendTest()
         {
             //          |  =>           |
@@ -173,18 +198,18 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 new Point(1.0, 0.0, 0.0),
                 true,
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0), IndexedColor.Auto)
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void NoExtendFromFurtherPointTest()
         {
             //          |  =>           |
@@ -193,15 +218,15 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(2.0, -1.0, 0.0), new Point(2.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto),
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto),
                 new Point(0.1, 0.0, 0.0),
                 false,
                 null);
         }
 
-        [Fact]
+        [TestMethod]
         public void SimpleArcExtendTest()
         {
             //    o   /        --\  /
@@ -212,31 +237,36 @@ namespace BCad.Test
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), Color.Auto)
+                    new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), IndexedColor.Auto)
                 },
-                new Arc(new Point(0.0, 0.0, 0.0), 1.0, 90.0, 360.0, Vector.ZAxis, Color.Auto),
+                new Arc(new Point(0.0, 0.0, 0.0), 1.0, 90.0, 360.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(0.0, 1.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(new Point(0.0, 0.0, 0.0), 1.0, 45.0, 360.0, Vector.ZAxis, Color.Auto)
+                    new Arc(new Point(0.0, 0.0, 0.0), 1.0, 45.0, 360.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
 
-        [Fact]
+        [TestMethod]
         public void SimpleExtendArcNotAtOriginTest()
         {
+            //   /           /
+            //  /           /
+            // o   |   =>  |   |
+            //     |        \  |
+            //     |         \_|
             DoExtend(
                 new[]
                 {
-                    new Line(new Point(1.0, 1.0, 0.0), new Point(1.0, 0.0, 0.0), Color.Auto)
+                    new Line(new Point(1.0, 1.0, 0.0), new Point(1.0, 0.0, 0.0), IndexedColor.Auto)
                 },
-                new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 180.0, Vector.ZAxis, Color.Auto),
+                new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 180.0, Vector.ZAxis, IndexedColor.Auto),
                 new Point(0.0, 1.0, 0.0),
                 true,
                 new[]
                 {
-                    new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 270.0, Vector.ZAxis, Color.Auto)
+                    new Arc(new Point(1.0, 1.0, 0.0), 1.0, 90.0, 270.0, Vector.ZAxis, IndexedColor.Auto)
                 });
         }
     }

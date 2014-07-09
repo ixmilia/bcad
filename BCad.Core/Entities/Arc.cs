@@ -11,10 +11,10 @@ namespace BCad.Entities
         private readonly double radius;
         private readonly double startAngle;
         private readonly double endAngle;
-        private readonly Color color;
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
+        private readonly PrimitiveEllipse primitive;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -29,16 +29,16 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public Color Color { get { return color; } }
+        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
-        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, Color color)
+        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.center = center;
             this.radius = radius;
             this.startAngle = startAngle;
             this.endAngle = endAngle;
             this.normal = normal;
-            this.color = color;
 
             var right = Vector.RightVectorFromNormal(this.normal);
             var midAngle = (startAngle + endAngle) / 2.0;
@@ -49,7 +49,8 @@ namespace BCad.Entities
             this.endPoint2 = points[1];
             this.midPoint = points[2];
 
-            this.primitives = new[] { new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color) };
+            this.primitive = new PrimitiveEllipse(Center, Radius, StartAngle, EndAngle, Normal, Color);
+            this.primitives = new IPrimitive[] { this.primitive };
             this.snapPoints = new SnapPoint[]
             {
                 new CenterPoint(Center),
@@ -76,19 +77,63 @@ namespace BCad.Entities
             return this.snapPoints;
         }
 
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case CenterText:
+                    return Center;
+                case NormalText:
+                    return Normal;
+                case RadiusText:
+                    return Radius;
+                case StartAngleText:
+                    return StartAngle;
+                case EndAngleText:
+                    return EndAngle;
+                default:
+                    return base.GetProperty(propertyName);
+            }
+        }
+
         public override EntityKind Kind { get { return EntityKind.Arc; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Arc Update(Point center = null, double? radius = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
+        public Arc Update(
+            Optional<Point> center = default(Optional<Point>),
+            Optional<double> radius = default(Optional<double>),
+            Optional<double> startAngle = default(Optional<double>),
+            Optional<double> endAngle = default(Optional<double>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
-            return new Arc(
-                center ?? this.Center,
-                radius ?? this.Radius,
-                startAngle ?? this.StartAngle,
-                endAngle ?? this.EndAngle,
-                normal ?? this.Normal,
-                color ?? this.Color);
+            var newCenter = center.HasValue ? center.Value : this.center;
+            var newRadius = radius.HasValue ? radius.Value : this.radius;
+            var newStartAngle = startAngle.HasValue ? startAngle.Value : this.startAngle;
+            var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
+
+            if (newCenter == this.center &&
+                newRadius == this.radius &&
+                newStartAngle == this.startAngle &&
+                newEndAngle == this.endAngle &&
+                newNormal == this.normal &&
+                newColor == this.Color &&
+                newTag == this.Tag)
+            {
+                return this;
+            }
+
+            return new Arc(newCenter, newRadius, newStartAngle, newEndAngle, newNormal, newColor, newTag);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Arc: center={0}, normal={1}, radius={2}, start/end={3}/{4}, color={5}", Center, Normal, Radius, StartAngle, EndAngle, Color);
         }
     }
 }

@@ -9,20 +9,18 @@ namespace BCad.Entities
 {
     public class Polyline : Entity
     {
+        private const string PointsText = "Points";
         private readonly IEnumerable<Point> points;
-        private readonly Color color;
         private readonly SnapPoint[] snapPoints;
         private readonly IPrimitive[] primitives;
         private readonly BoundingBox boundingBox;
 
         public IEnumerable<Point> Points { get { return this.points; } }
 
-        public Color Color { get { return this.color; } }
-
-        public Polyline(IEnumerable<Point> points, Color color)
+        public Polyline(IEnumerable<Point> points, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.points = new List<Point>(points); // to prevent backing changes
-            this.color = color;
 
             // add end points
             var parr = points.ToArray();
@@ -49,15 +47,38 @@ namespace BCad.Entities
             return this.snapPoints;
         }
 
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case PointsText:
+                    return Points;
+                default:
+                    return base.GetProperty(propertyName);
+            }
+        }
+
         public override EntityKind Kind { get { return EntityKind.Polyline; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Polyline Update(IEnumerable<Point> points = null, Color? color = null)
+        public Polyline Update(
+            IEnumerable<Point> points = null,
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
-            return new Polyline(
-                points ?? this.Points,
-                color ?? this.Color);
+            var newPoints = points ?? this.points;
+            var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
+
+            if (object.ReferenceEquals(newPoints, this.points) &&
+                newColor == this.Color &&
+                newTag == this.Tag)
+            {
+                return this;
+            }
+
+            return new Polyline(newPoints, newColor, newTag);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace BCad.Stl
         private int tokenPos;
         private bool isAscii;
         private uint triangleCount;
-        private Regex headerReg = new Regex("^solid (.*)$", RegexOptions.Compiled);
+        private Regex headerReg = new Regex("^solid (.*)$");
 
         public StlReader(Stream stream)
         {

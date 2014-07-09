@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
 using BCad.Collections;
-using BCad.Entities;
-using BCad.EventArguments;
 
 namespace BCad
 {
@@ -15,6 +10,7 @@ namespace BCad
         private readonly DrawingSettings settings;
         private readonly ReadOnlyTree<string, Layer> layers;
         private readonly string currentLayerName;
+        private readonly string author;
 
         public DrawingSettings Settings { get { return settings; } }
 
@@ -24,22 +20,31 @@ namespace BCad
 
         public ReadOnlyTree<string, Layer> Layers { get { return this.layers; } }
 
+        public string Author { get { return author; } }
+
+        public object Tag { get; set; }
+
         public Drawing()
-            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", Color.Auto)), "0")
+            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", IndexedColor.Auto)), "0", null)
         {
         }
 
         public Drawing(DrawingSettings settings)
-            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", Color.Auto)))
+            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0", IndexedColor.Auto)))
         {
         }
 
         public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers)
-            : this(settings, layers, layers.GetKeys().OrderBy(x => x).First())
+            : this(settings, layers, layers.GetKeys().OrderBy(x => x).First(), null)
         {
         }
 
-        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string currentLayerName)
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string author)
+            : this(settings, layers, layers.GetKeys().OrderBy(x => x).First(), author)
+        {
+        }
+
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string currentLayerName, string author)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
@@ -54,6 +59,7 @@ namespace BCad
             this.settings = settings;
             this.layers = layers;
             this.currentLayerName = currentLayerName;
+            this.author = author;
         }
 
         public IEnumerable<Layer> GetLayers()
@@ -116,13 +122,13 @@ namespace BCad
         /// <param name="layers">The layers for the drawing.</param>
         /// <param name="currentLayerName">The name of the current layer.</param>
         /// <returns>The new drawing with the specified updates.</returns>
-        public Drawing Update(DrawingSettings settings = null, ReadOnlyTree<string, Layer> layers = null, string currentLayerName = null)
+        public Drawing Update(DrawingSettings settings = null, ReadOnlyTree<string, Layer> layers = null, string currentLayerName = null, string author = null)
         {
             var newLayers = layers ?? this.layers;
             if (newLayers.Count == 0)
             {
                 // ensure there is always at least one layer
-                newLayers = newLayers.Insert("0", new Layer("0", Color.Auto));
+                newLayers = newLayers.Insert("0", new Layer("0", IndexedColor.Auto));
             }
 
             var newCurrentName = currentLayerName ?? this.currentLayerName;
@@ -135,7 +141,11 @@ namespace BCad
             return new Drawing(
                 settings ?? this.settings,
                 newLayers,
-                newCurrentName);
+                newCurrentName,
+                author ?? this.author)
+            {
+                Tag = this.Tag
+            };
         }
     }
 }

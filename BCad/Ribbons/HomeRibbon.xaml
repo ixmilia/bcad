@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
-             xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core"
+             xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
+             xmlns:local="clr-namespace:BCad.Ribbons"
+             xmlns:ui="clr-namespace:BCad.UI"
              Header="Home"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -18,6 +20,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="HomeRibbonIcons.xaml" />
                 <ResourceDictionary>
+                    <local:ColorConverter x:Key="colorConverter" />
+                    <ui:BoolToVisibilityConverter x:Key="visibilityConverter" />
                     <DataTemplate x:Key="LayerTemplate">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -25,10 +29,11 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="TODO: VIS" />
+                            <Image Grid.Column="0" Width="15" Height="15" Source="{StaticResource LayerVisible}" Visibility="{Binding Path=IsVisible, Converter={StaticResource visibilityConverter}, ConverterParameter=true}" />
+                            <Image Grid.Column="0" Width="15" Height="15" Source="{StaticResource LayerHidden}" Visibility="{Binding Path=IsVisible, Converter={StaticResource visibilityConverter}, ConverterParameter=false}" />
                             <Rectangle Grid.Column="1" Margin="1" Width="15" Height="15">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color.MediaColor}" />
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                             <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="5,0" />
@@ -114,23 +119,23 @@
                         CommandParameter="Edit.Delete" />
         <r:RibbonButton Label="Trim"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="../Icons/TrimSmall.png"
+                        SmallImageSource="{StaticResource TrimSmall}"
                         CommandParameter="Edit.Trim" />
         <r:RibbonButton Label="Extend"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="../Icons/ExtendSmall.png"
+                        SmallImageSource="{StaticResource ExtendSmall}"
                         CommandParameter="Edit.Extend" />
         <r:RibbonButton Label="Offset"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="../Icons/OffsetSmall.png"
+                        SmallImageSource="{StaticResource OffsetSmall}"
                         CommandParameter="Edit.Offset" />
         <r:RibbonButton Label="Rotate"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="{StaticResource NYI}"
+                        SmallImageSource="{StaticResource RotateSmall}"
                         CommandParameter="Edit.Rotate" />
         <r:RibbonButton Label="Scale"
                         Command="commands:RibbonCommands.CADCommand"
-                        SmallImageSource="{StaticResource NYI}"
+                        SmallImageSource="{StaticResource ScaleSmall}"
                         CommandParameter="Edit.Scale" />
         <r:RibbonButton Label="Array"
                         Command="commands:RibbonCommands.CADCommand"
@@ -154,12 +159,9 @@
                         CommandParameter="Edit.Layers" />
         <ComboBox Name="currentLayer"
                   Width="150"
-                  SelectionChanged="CurrentLayerSelectionChanged"
+                  ItemsSource="{Binding Path=Layers}"
+                  SelectedItem="{Binding Path=CurrentLayer}"
                   ItemTemplate="{StaticResource LayerTemplate}" />
         
-    </r:RibbonGroup>
-    
-    <r:RibbonGroup Header="Debug">
-        <Button Click="DebugButtonClick">Debug</Button>
     </r:RibbonGroup>
 </r:RibbonTab>

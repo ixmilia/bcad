@@ -1,38 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Reflection;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using BCad;
-using BCad.Entities;
+using System.Composition.Hosting;
+using System;
+using System.IO;
 
 namespace BCad
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : Application, IDisposable
     {
-        public static CompositionContainer Container { get; private set; }
+        public static CompositionHost Container { get; private set; }
 
         public App()
         {
             //base.OnStartup(e);
-            this.ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
+            this.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            var catalog = new AggregateCatalog(
-                    new AssemblyCatalog(Assembly.GetExecutingAssembly()),
-                    new AssemblyCatalog("BCad.Core.dll"),
-                    new AssemblyCatalog("BCad.UI.dll")
-                    );
-            if (Container == null)
-                Container = new CompositionContainer(catalog);
-            var batch = new CompositionBatch();
-            Container.Compose(batch);
+            var currentAssembly = typeof(App).GetTypeInfo().Assembly;
+            var assemblyDir = Path.GetDirectoryName(currentAssembly.Location);
+            var configuration = new ContainerConfiguration()
+                .WithAssemblies(new[]
+                {
+                    currentAssembly,
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.Core.dll")),
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.Core.UI.dll")),
+                    Assembly.LoadFile(Path.Combine(assemblyDir, "BCad.FileHandlers.dll"))
+                });
+            Container = configuration.CreateContainer();
+        }
+
+        public void Dispose()
+        {
+            if (Container != null)
+            {
+                Container.Dispose();
+                Container = null;
+            }
         }
     }
 }

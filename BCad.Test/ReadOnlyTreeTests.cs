@@ -2,13 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using BCad.Collections;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
+    [TestClass]
     public class ReadOnlyTreeTests
     {
-        [Fact]
+        private void AssertArrayEqual<T>(T[] expected, T[] actual)
+        {
+            if (expected == null)
+                Assert.IsNull(actual);
+            if (expected != null)
+                Assert.IsNotNull(actual);
+            if (expected.Length != actual.Length)
+                Assert.AreEqual(expected.Length, actual.Length);
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.AreEqual(expected[i], actual[i]);
+            }
+        }
+
+        [TestMethod]
         public void LinearInsertTest()
         {
             int treeSize = 20;
@@ -16,19 +31,19 @@ namespace BCad.Test
             for (int i = 0; i < treeSize; i++)
             {
                 tree = tree.Insert(i, i * i);
-                Assert.Equal(i + 1, tree.Count);
+                Assert.AreEqual(i + 1, tree.Count);
             }
 
-            Assert.Equal(treeSize, tree.Count);
+            Assert.AreEqual(treeSize, tree.Count);
             for (int i = 0; i < treeSize; i++)
             {
                 int value;
-                Assert.True(tree.TryFind(i, out value));
-                Assert.Equal(i * i, value);
+                Assert.IsTrue(tree.TryFind(i, out value));
+                Assert.AreEqual(i * i, value);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void BalancedInsertionTest()
         {
             //       4
@@ -43,50 +58,50 @@ namespace BCad.Test
                 tree = tree.Insert(i, i * i);
             }
 
-            Assert.Equal(7, tree.Count);
+            Assert.AreEqual(7, tree.Count);
             for (int i = 1; i <= 7; i++)
             {
                 int value;
-                Assert.True(tree.TryFind(i, out value));
-                Assert.Equal(i * i, value);
+                Assert.IsTrue(tree.TryFind(i, out value));
+                Assert.AreEqual(i * i, value);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWhenEmptyTest()
         {
             var tree = CreateTree();
             tree = tree.Delete(0);
-            Assert.Equal(0, tree.Count);
+            Assert.AreEqual(0, tree.Count);
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteSingleItemTest()
         {
             var tree = CreateTree(0);
             tree = tree.Delete(0);
-            Assert.Equal(0, tree.Count);
+            Assert.AreEqual(0, tree.Count);
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWithNoRebalancingTest()
         {
             var tree = CreateTree(2, 1, 3);
             
             tree = tree.Delete(1);
-            Assert.Equal(2, tree.Count);
-            Assert.False(tree.KeyExists(1));
-            Assert.True(tree.KeyExists(2));
-            Assert.True(tree.KeyExists(3));
+            Assert.AreEqual(2, tree.Count);
+            Assert.IsFalse(tree.KeyExists(1));
+            Assert.IsTrue(tree.KeyExists(2));
+            Assert.IsTrue(tree.KeyExists(3));
 
             tree = tree.Delete(3);
-            Assert.Equal(1, tree.Count);
-            Assert.False(tree.KeyExists(1));
-            Assert.True(tree.KeyExists(2));
-            Assert.False(tree.KeyExists(3));
+            Assert.AreEqual(1, tree.Count);
+            Assert.IsFalse(tree.KeyExists(1));
+            Assert.IsTrue(tree.KeyExists(2));
+            Assert.IsFalse(tree.KeyExists(3));
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteFullTreeTest()
         {
             var numbers = Enumerable.Range(0, 20).ToArray();
@@ -95,19 +110,19 @@ namespace BCad.Test
             for (var i = 19; i >= 0; i--)
             {
                 tree = tree.Delete(i);
-                Assert.Equal(i, tree.Count);
+                Assert.AreEqual(i, tree.Count);
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void ToListTest()
         {
             var values = new int[]{ 4, 2, 6, 1, 5, 3, 7 };
             var tree = CreateTree(values); // create a balanced tree
-            Assert.Equal(values.OrderBy(x => x).ToArray(), tree.GetKeys().ToArray());
+            AssertArrayEqual(values.OrderBy(x => x).ToArray(), tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWithBothChildren()
         {
             // bug fix
@@ -119,10 +134,10 @@ namespace BCad.Test
             //   3
             //  /
             // 1
-            Assert.Equal(new int[] { 1, 3 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 1, 3 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWithLeftAndRightChildren1()
         {
             // bug fix
@@ -136,10 +151,10 @@ namespace BCad.Test
             //   3
             //  / \
             // 1   4
-            Assert.Equal(new int[] { 1, 3, 4 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 1, 3, 4 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWithLeftAndRightChildren2()
         {
             // bug fix
@@ -153,10 +168,10 @@ namespace BCad.Test
             //   2
             //  / \
             // 1   4
-            Assert.Equal(new int[] { 1, 2, 4 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 1, 2, 4 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWithBothChildrenNotRoot1()
         {
             // bug fix
@@ -172,10 +187,10 @@ namespace BCad.Test
             // 1   5
             //    /
             //   3
-            Assert.Equal(new int[] { 1, 2, 3, 5 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 1, 2, 3, 5 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWithBothChildrenNotRoot2()
         {
             // bug fix
@@ -191,10 +206,10 @@ namespace BCad.Test
             // 1   5
             //  \
             //   3
-            Assert.Equal(new int[] { 1, 3, 4, 5 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 1, 3, 4, 5 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteWhenRightChildOnlyHasLeftChild()
         {
             // bug fix
@@ -208,20 +223,20 @@ namespace BCad.Test
             //   2
             //  / \
             // 0   3
-            Assert.Equal(new int[] { 0, 2, 3 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 0, 2, 3 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void DeleteRebalanceTest()
         {
             // bug fix
             var tree = CreateTree(6, 4, 3, 7, 8, 9, 2);
             tree = tree.Delete(6);
             tree = tree.Delete(8);
-            Assert.Equal(new int[] { 2, 3, 4, 7, 9 }, tree.GetKeys().ToArray());
+            AssertArrayEqual(new int[] { 2, 3, 4, 7, 9 }, tree.GetKeys().ToArray());
         }
 
-        [Fact]
+        [TestMethod]
         public void RandomTreeTest()
         {
             var rand = new Random();
@@ -246,7 +261,7 @@ namespace BCad.Test
                             insertOrder.Add(key);
                             tree = tree.Insert(key, 0);
                             var postCount = tree.Count;
-                            Assert.Equal(1, postCount - preCount);
+                            Assert.AreEqual(1, postCount - preCount);
                         }
                     }
 
@@ -261,7 +276,7 @@ namespace BCad.Test
                             deleteOrder.Add(key);
                             tree = tree.Delete(key);
                             var postCount = tree.Count;
-                            Assert.Equal(1, preCount - postCount);
+                            Assert.AreEqual(1, preCount - postCount);
                         }
                     }
                 }
@@ -276,12 +291,22 @@ namespace BCad.Test
             }
         }
 
+        [TestMethod]
+        public void MutableBatchInsertTest()
+        {
+            var array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var tree = ReadOnlyTree<int, int>.FromEnumerable(array, i => i);
+            Assert.AreEqual(array.Length, tree.Count);
+            AssertArrayEqual(array, tree.GetKeys().ToArray());
+            AssertArrayEqual(array, tree.GetValues().ToArray());
+        }
+
         private ReadOnlyTree<int, int> CreateTree(params int[] values)
         {
             var tree = new ReadOnlyTree<int, int>();
             foreach (var v in values)
                 tree = tree.Insert(v, v * v);
-            Assert.Equal(values.Length, tree.Count);
+            Assert.AreEqual(values.Length, tree.Count);
             return tree;
         }
     }

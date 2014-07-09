@@ -15,6 +15,7 @@ namespace BCad.Iges.Directory
         public int TransformationMatrixPointer { get; set; }
         public int LableDisplay { get; set; }
         public int StatusNumber { get; set; }
+        public int SequenceNumber { get; set; }
 
         public int LineWeight { get; set; }
         public IgesColorNumber Color { get; set; }
@@ -63,25 +64,35 @@ namespace BCad.Iges.Directory
                 : value.Substring(0, Math.Min(8, value.Length));
         }
 
-        public static IgesDirectoryData FromEntity(IgesEntity entity, int parameterPointer)
+        public static IgesDirectoryData FromRawLines(string line1, string line2)
         {
             var dir = new IgesDirectoryData();
-            dir.EntityType = entity.Type;
-            dir.ParameterPointer = parameterPointer;
-            dir.Structure = 0; // TODO: set real values
-            dir.LineFontPattern = 0;
-            dir.Level = 0;
-            dir.View = 0;
-            dir.TransformationMatrixPointer = 0; // TODO: proper pointer
-            dir.LableDisplay = 0;
-            dir.StatusNumber = 0;
-            dir.LineWeight = 0;
-            dir.Color = entity.Color;
-            dir.LineCount = entity.LineCount;
-            dir.FormNumber = entity.Form;
-            dir.EntityLabel = string.Empty;
-            dir.EntitySubscript = 0;
+            var entityTypeNumber = int.Parse(GetField(line1, 1));
+            dir.EntityType = (IgesEntityType)entityTypeNumber;
+            dir.ParameterPointer = int.Parse(GetField(line1, 2));
+            dir.Structure = int.Parse(GetField(line1, 3));
+            dir.LineFontPattern = int.Parse(GetField(line1, 4));
+            dir.Level = int.Parse(GetField(line1, 5));
+            dir.View = int.Parse(GetField(line1, 6));
+            dir.TransformationMatrixPointer = int.Parse(GetField(line1, 7));
+            dir.LableDisplay = int.Parse(GetField(line1, 8));
+            dir.StatusNumber = int.Parse(GetField(line1, 9));
+
+            dir.LineWeight = int.Parse(GetField(line2, 2));
+            dir.Color = (IgesColorNumber)int.Parse(GetField(line2, 3)); // TODO: could be a negative pointer
+            dir.LineCount = int.Parse(GetField(line2, 4));
+            dir.FormNumber = int.Parse(GetField(line2, 5));
+            dir.EntityLabel = GetField(line2, 8, null);
+            dir.EntitySubscript = int.Parse(GetField(line2, 9));
             return dir;
+        }
+
+        private static string GetField(string str, int field, string defaultValue = "0")
+        {
+            var size = 8;
+            var offset = (field - 1) * size;
+            var value = str.Substring(offset, size).Trim();
+            return string.IsNullOrEmpty(value) ? defaultValue : value;
         }
     }
 }

@@ -1,18 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</ProjectGuid>
+    <ProjectGuid>{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BCad</RootNamespace>
     <AssemblyName>BCad.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,8 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,68 +34,40 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Collections\ObservableHashSet`1.cs" />
+    <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
-    <Compile Include="Color.cs" />
+    <Compile Include="ColorMap.cs" />
+    <Compile Include="Commands\CommandMetadata.cs" />
+    <Compile Include="Commands\DebugDumpCommand.cs" />
+    <Compile Include="Commands\RedoCommand.cs" />
+    <Compile Include="Commands\UndoCommand.cs" />
+    <Compile Include="Commands\ZoomExtentsCommand.cs" />
+    <Compile Include="Commands\ZoomWindowCommand.cs" />
+    <Compile Include="DefaultSettingsManager.cs" />
+    <Compile Include="Entities\Location.cs" />
+    <Compile Include="FileHandlers\FileHandlerMetadata.cs" />
+    <Compile Include="FilePlotters\FilePlotterMetadata.cs" />
+    <Compile Include="FileReadResult.cs" />
+    <Compile Include="IndexedColor.cs" />
+    <Compile Include="Entities\AggregateEntity.cs" />
+    <Compile Include="Entities\ProjectedAggregate.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
-    <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
-    <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
-    <Compile Include="Commands\CopyCommand.cs" />
-    <Compile Include="Commands\DeleteCommand.cs" />
-    <Compile Include="Commands\DistanceCommand.cs" />
-    <Compile Include="Commands\DrawArcCommand.cs" />
-    <Compile Include="Commands\DrawCircleCommand.cs" />
-    <Compile Include="Commands\DrawEllipseCommand.cs" />
-    <Compile Include="Commands\DrawLineCommand.cs" />
-    <Compile Include="Commands\DrawTextCommand.cs" />
-    <Compile Include="Commands\EntityPropertiesCommand.cs" />
-    <Compile Include="Commands\ExtendCommand.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
     <Compile Include="Commands\ExportCommandAttribute.cs" />
-    <Compile Include="FilePlotters\PngFilePlotter.cs" />
-    <Compile Include="FilePlotters\SvgFilePlotter.cs" />
+    <Compile Include="Extensions\SnapPointExtensions.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandMetadata.cs" />
     <Compile Include="Commands\LayersCommand.cs" />
-    <Compile Include="Commands\MoveCommand.cs" />
     <Compile Include="Commands\NewCommand.cs" />
-    <Compile Include="Commands\OffsetCommand.cs" />
     <Compile Include="Commands\OpenCommand.cs" />
-    <Compile Include="Commands\RedoCommand.cs" />
-    <Compile Include="Commands\RotateCommand.cs" />
     <Compile Include="Commands\SaveAsCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
-    <Compile Include="Commands\TrimCommand.cs" />
-    <Compile Include="Commands\UndoCommand.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Converters\DxfConverter.cs" />
-    <Compile Include="Converters\IDrawingConverter.cs" />
-    <Compile Include="Converters\IgesConverter.cs" />
-    <Compile Include="Converters\StlConverter.cs" />
-    <Compile Include="DialogFactory.cs" />
     <Compile Include="Drawing.cs" />
-    <Compile Include="DrawingFiles\IgesDrawingFile.cs" />
-    <Compile Include="DrawingFiles\StlDrawingFile.cs" />
     <Compile Include="DrawingSettings.cs" />
     <Compile Include="Entities\Ellipse.cs" />
     <Compile Include="Entities\EntityKind.cs" />
@@ -110,24 +84,20 @@
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.RoundedDouble.cs" />
-    <Compile Include="DrawingFiles\DxfDrawingFile.cs" />
-    <Compile Include="FileHandlers\DxfFileHandler.cs" />
     <Compile Include="FilePlotters\ExportFilePlotterAttribute.cs" />
     <Compile Include="FileHandlers\IFileHandler.cs" />
     <Compile Include="FilePlotters\IFilePlotter.cs" />
     <Compile Include="FilePlotters\IFilePlotterMetadata.cs" />
     <Compile Include="FileHandlers\IFileHandlerMetadata.cs" />
-    <Compile Include="FileHandlers\IgesFileHandler.cs" />
-    <Compile Include="FileHandlers\StlFileHandler.cs" />
-    <Compile Include="DrawingFiles\IDrawingFile.cs" />
+    <Compile Include="IViewControl.cs" />
+    <Compile Include="IWorkspace.cs" />
+    <Compile Include="Matrix4.cs" />
+    <Compile Include="Optional`1.cs" />
     <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
     <Compile Include="EventArguments\CommandEventArgs.cs" />
     <Compile Include="EventArguments\PromptChangedEventArgs.cs" />
-    <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
-    <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
-    <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
     <Compile Include="Extensions\DrawingExtensions.cs" />
     <Compile Include="Extensions\EntityExtensions.cs" />
@@ -135,18 +105,19 @@
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileHandlerAttribute.cs" />
     <Compile Include="Helpers\MathHelper.cs" />
-    <Compile Include="IConsoleMetadata.cs" />
     <Compile Include="IDialogFactory.cs" />
     <Compile Include="ISettingsManager.cs" />
+    <Compile Include="Primitives\PrimitivePoint.cs" />
+    <Compile Include="Quaternion.cs" />
+    <Compile Include="RealColor.cs" />
+    <Compile Include="SelectionRectangle.cs" />
+    <Compile Include="Services\DebugService.cs" />
+    <Compile Include="Helpers\ProjectionHelper.cs" />
     <Compile Include="Services\FileSpecification.cs" />
-    <Compile Include="Services\IExportService.cs" />
+    <Compile Include="Services\IDebugService.cs" />
     <Compile Include="Services\IFileSystemService.cs" />
+    <Compile Include="Services\IOutputService.cs" />
     <Compile Include="Services\IUndoRedoService.cs" />
-    <Compile Include="Services\IInputService.cs" />
-    <Compile Include="IUserConsoleFactory.cs" />
-    <Compile Include="IViewControlMetadata.cs" />
-    <Compile Include="IWorkspace.cs" />
-    <Compile Include="KeyboardShortcut.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Entities\Arc.cs" />
     <Compile Include="Entities\Circle.cs" />
@@ -155,63 +126,55 @@
     <Compile Include="Primitives\PrimitiveKind.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Primitives\PrimitiveText.cs" />
-    <Compile Include="RibbonCommands\RibbonCommands.cs" />
     <Compile Include="SelectedEntity.cs" />
+    <Compile Include="Services\OutputService.cs" />
+    <Compile Include="Services\UndoRedoService.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />
     <Compile Include="SnapPoints\SnapPoint.cs" />
     <Compile Include="Entities\Line.cs" />
-    <Compile Include="UI\ExportControlAttribute.cs" />
-    <Compile Include="UI\IControlMetadata.cs" />
     <Compile Include="UnitFormat.cs" />
     <Compile Include="Utilities\EditUtilities.cs" />
     <Compile Include="ValueOrDirective`1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnapPoints\MidPoint.cs" />
     <Compile Include="SnapPoints\SnapPointKind.cs" />
-    <Compile Include="UI\BCadControl.cs" />
-    <Compile Include="UI\BCadControl`1.cs" />
-    <Compile Include="UI\BCadDialog.xaml.cs">
-      <DependentUpon>BCadDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\BCadDialogResult.cs" />
-    <Compile Include="UI\BCadDialog`1.cs" />
-    <Compile Include="UI\ConsoleControl.cs" />
-    <Compile Include="UI\ExportConsoleAttribute.cs" />
-    <Compile Include="UI\ExportViewControlAttribute.cs" />
-    <Compile Include="UI\ViewControl.cs" />
     <Compile Include="UserDirective.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Vector.cs" />
     <Compile Include="ViewPort.cs" />
+    <Compile Include="WorkspaceBase.cs" />
+    <Compile Include="WorkspaceLogEntry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="SnapPoints\SnapPointIcons.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\BCadDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Reference Include="System.Composition.AttributedModel">
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Convention">
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Convention.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Hosting">
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Runtime">
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.TypedParts">
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BCad.Dxf\BCad.Dxf.csproj">
-      <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
-      <Name>BCad.Dxf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BCad.Iges\BCad.Iges.csproj">
-      <Project>{59b09ca5-1837-4c2b-858c-91e997939c79}</Project>
-      <Name>BCad.Iges</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
-      <Project>{b6a2dc99-a13c-43ec-92be-79e579e10f57}</Project>
-      <Name>BCad.Stl</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

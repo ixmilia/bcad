@@ -1,21 +1,21 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using BCad.Services;
+using System.Collections.Generic;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
+    [ExportCommand("File.Open", "OPEN")]
     public class OpenCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IUndoRedoService UndoRedoService = null;
+        public IUndoRedoService UndoRedoService { get; set; }
 
         [Import]
-        private IFileSystemService FileSystemService = null;
+        public IFileSystemService FileSystemService { get; set; }
 
         public async Task<bool> Execute(object arg)
         {
@@ -27,15 +27,41 @@ namespace BCad.Commands
                 filename = (string)arg;
 
             if (filename == null)
-                filename = FileSystemService.GetFileNameFromUserForOpen();
+                filename = await FileSystemService.GetFileNameFromUserForOpen();
 
             if (filename == null)
                 return false; // cancel
 
             Drawing drawing;
             ViewPort activeViewPort;
-            FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            Dictionary<string, object> propertyBag;
+            await FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort, out propertyBag);
             Workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
+
+            bool isColorMapSet = false;
+            if (propertyBag != null)
+            {
+                foreach (var key in propertyBag.Keys)
+                {
+                    switch (key)
+                    {
+                        case "ColorMap":
+                            var colorMap = propertyBag[key] as ColorMap;
+                            Workspace.SettingsManager.ColorMap = colorMap ?? ColorMap.Default;
+                            isColorMapSet = true;
+                            break;
+                        default:
+                            // unsupported property
+                            break;
+                    }
+                }
+            }
+
+            if (!isColorMapSet)
+            {
+                Workspace.SettingsManager.ColorMap = ColorMap.Default;
+            }
+
             UndoRedoService.ClearHistory();
 
             return true;

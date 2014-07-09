@@ -1,18 +1,17 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
+    [ExportCommand("File.New", "NEW")]
     public class NewCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IUndoRedoService UndoRedoService = null;
+        public IUndoRedoService UndoRedoService { get; set; }
 
         public async Task<bool> Execute(object arg)
         {
@@ -22,7 +21,7 @@ namespace BCad.Commands
                 return false;
             }
 
-            Workspace.Update(drawing: new Drawing());
+            Workspace.Update(drawing: new Drawing(), activeViewPort: ViewPort.CreateDefaultViewPort(), isDirty: false);
             UndoRedoService.ClearHistory();
             return true;
         }

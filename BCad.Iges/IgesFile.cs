@@ -73,7 +73,7 @@ namespace BCad.Iges
 
         public static IgesFile Load(Stream stream)
         {
-            return new IgesFileReader().Load(stream);
+            return IgesFileReader.Load(stream);
         }
     }
 }

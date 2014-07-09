@@ -4,11 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace BCad.Dxf.Sections
+namespace BCad.Dxf
 {
     public enum DxfUnitFormat
     {
-        None = 0,
         Scientific = 1,
         Decimal = 2,
         Engineering = 3,
@@ -31,35 +30,215 @@ namespace BCad.Dxf.Sections
         All = 2
     }
 
-    public class DxfHeaderSection : DxfSection
+    public enum DxfJustification
     {
-        public short MaintenanceVersion { get; set; }
-        public DxfAcadVersion Version { get; set; }
-        public double AngleZeroDirection { get; set; }
-        public DxfAngleDirection AngleDirection { get; set; }
-        public DxfAttributeVisibility AttributeVisibility { get; set; }
-        public DxfUnitFormat AngleUnitFormat { get; set; }
-        public short AngleUnitPrecision { get; set; }
-        public string CurrentLayer { get; set; }
-        public DxfUnitFormat UnitFormat { get; set; }
-        public short UnitPrecision { get; set; }
+        Top = 0,
+        Middle = 1,
+        Bottom = 2
+    }
 
-        private const string ACADMAINTVER = "$ACADMAINTVER";
-        private const string ACADVER = "$ACADVER";
-        private const string ANGBASE = "$ANGBASE";
-        private const string ANGDIR = "$ANGDIR";
-        private const string ATTMODE = "$ATTMODE";
-        private const string AUNITS = "$AUNITS";
-        private const string AUPREC = "$AUPREC";
-        private const string CLAYER = "$CLAYER";
-        private const string LUNITS = "$LUNITS";
-        private const string LUPREC = "$LUPREC";
+    public enum DxfDimensionTextJustification
+    {
+        AboveLineCenter = 0,
+        AboveLineNextToFirstExtension = 1,
+        AboveLineNextToSecondExtension = 2,
+        AboveLineCenteredOnFirstExtension = 3,
+        AboveLineCenteredOnSecondExtension = 4
+    }
+
+    public enum DxfCoordinateDisplay
+    {
+        Static = 0,
+        ContinuousUpdate = 1,
+        DistanceAngleFormat = 2
+    }
+
+    public enum DxfUnitZeroSuppression
+    {
+        SuppressZeroFeetAndZeroInches = 0,
+        IncludeZeroFeetAndZeroInches = 1,
+        IncludeZeroFeetAndSuppressZeroInches = 2,
+        IncludeZeroInchesAndSuppressZeroFeet = 3
+    }
+
+    public enum DxfAngleFormat
+    {
+        DecimalDegrees = 0,
+        DegreesMinutesSeconds = 1,
+        Gradians = 2,
+        Radians = 3,
+        SurveyorsUnits = 4
+    }
+
+    public enum DxfDimensionFit
+    {
+        TextAndArrowsOutsideLines = 0,
+        MoveArrowsFirst = 1,
+        MoveTextFirst = 2,
+        MoveEitherForBestFit = 3
+    }
+
+    public enum DxfDragMode
+    {
+        Off = 0,
+        On = 1,
+        Auto = 2
+    }
+
+    public enum DxfDrawingUnits
+    {
+        English = 0,
+        Metric = 1
+    }
+
+    public enum DxfPickStyle
+    {
+        None = 0,
+        Group = 1,
+        AssociativeHatch = 2,
+        GroupAndAssociativeHatch = 3
+    }
+
+    public enum DxfShadeEdgeMode
+    {
+        FacesShadedEdgeNotHighlighted = 0,
+        FacesShadedEdgesHighlightedInBlack = 1,
+        FacesNotFilledEdgesInEntityColor = 2,
+        FacesInEntityColorEdgesInBlack = 3
+    }
+
+    public enum DxfPolySketchMode
+    {
+        SketchLines = 0,
+        SketchPolylines = 1
+    }
+
+    public enum DxfShadowMode
+    {
+        CastsAndReceives = 0,
+        CastsOnly = 1,
+        ReceivesOnly = 2,
+        Ignores = 3
+    }
+
+    public enum DxfPlotStyle
+    {
+        ByLayer = 0,
+        ByBlock = 1,
+        ByDictionaryDefault = 2,
+        ByObjectId = 3
+    }
+
+    public enum DxfDimensionAssociativity
+    {
+        NoAssociationExploded = 0,
+        NonAssociativeObjects = 1,
+        AssociativeObjects = 2
+    }
+
+    public enum DxfNonAngularUnits
+    {
+        Scientific = 1,
+        Decimal = 2,
+        Engineering = 3,
+        Architectural = 4,
+        Fractional = 5,
+        WindowsDesktop = 6
+    }
+
+    public enum DxfDimensionTextMovementRule
+    {
+        MoveLineWithText = 0,
+        AddLeaderWhenTextIsMoved = 1,
+        MoveTextFreely = 2
+    }
+
+    public enum DxfEndCapSetting
+    {
+        None = 0,
+        Round = 1,
+        Angle = 2,
+        Square = 3
+    }
+
+    public enum DxfLayerAndSpatialIndexSaveMode
+    {
+        None = 0,
+        LayerIndex = 1,
+        SpatialIndex = 2,
+        LayerAndSpatialIndex = 3
+    }
+
+    public enum DxfUnits
+    {
+        Unitless = 0,
+        Inches = 1,
+        Feet = 2,
+        Miles = 3,
+        Millimeters = 4,
+        Centimeters = 5,
+        Meters = 6,
+        Kilometers = 7,
+        Microinches = 8,
+        Mils = 9,
+        Yards = 10,
+        Angstroms = 11,
+        Nanometers = 12,
+        Microns = 13,
+        Decimeters = 14,
+        Decameters = 15,
+        Hectometers = 16,
+        Gigameters = 17,
+        AstronomicalUnits = 18,
+        LightYears = 19,
+        Parsecs = 20
+    }
+
+    public enum DxfJoinStyle
+    {
+        None = 0,
+        Round = 1,
+        Angle = 2,
+        Flat = 3
+    }
+
+    public enum DxfLinetypeStyle
+    {
+        Off = 0,
+        Solid = 1,
+        Dashed = 2,
+        Dotted = 3,
+        ShortDash = 4,
+        MediumDash = 5,
+        LongDash = 6,
+        DoubleShortDash = 7,
+        DoubleMediumDash = 8,
+        DoubleLongDash = 9,
+        MediumLongDash = 10,
+        SparseDot = 11
+    }
+
+    public enum DxfOrthographicViewType
+    {
+        None = 0,
+        Top = 1,
+        Bottom = 2,
+        Front = 3,
+        Back = 4,
+        Left = 5,
+        Right = 6
+    }
+}
+
+namespace BCad.Dxf.Sections
+{
+    internal class DxfHeaderSection : DxfSection
+    {
+        public DxfHeader Header { get; private set; }
 
         public DxfHeaderSection()
         {
-            CurrentLayer = null;
-            Version = DxfAcadVersion.R14;
-            UnitFormat = DxfUnitFormat.None;
+            Header = new DxfHeader();
         }
 
         public override DxfSectionType Type
@@ -67,26 +246,10 @@ namespace BCad.Dxf.Sections
             get { return DxfSectionType.Header; }
         }
 
-        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs()
+        protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
             var values = new List<DxfCodePair>();
-            Action<string, int, object> addValue = (name, code, value) =>
-                {
-                    values.Add(new DxfCodePair(9, name));
-                    values.Add(new DxfCodePair(code, value));
-                };
-
-            if (MaintenanceVersion != 0) addValue(ACADMAINTVER, 70, MaintenanceVersion);
-            if (Version != DxfAcadVersion.R14) addValue(ACADVER, 1, DxfAcadVersionStrings.VersionToString(Version));
-            if (AngleZeroDirection != 0.0) addValue(ANGBASE, 50, AngleZeroDirection);
-            if (AngleDirection != DxfAngleDirection.CounterClockwise) addValue(ANGDIR, 70, (short)AngleDirection);
-            if (AttributeVisibility != DxfAttributeVisibility.None) addValue(ATTMODE, 70, (short)AttributeVisibility);
-            if (AngleUnitFormat != DxfUnitFormat.None) addValue(AUNITS, 70, (short)AngleUnitFormat);
-            if (AngleUnitPrecision != 0) addValue(AUPREC, 70, AngleUnitPrecision);
-            if (!string.IsNullOrEmpty(CurrentLayer)) addValue(CLAYER, 8, CurrentLayer);
-            if (UnitFormat != DxfUnitFormat.None) addValue(LUNITS, 70, (short)UnitFormat);
-            if (UnitPrecision != 0) addValue(LUPREC, 70, (short)UnitPrecision);
-
+            DxfHeader.AddValueToList(values, this.Header, version);
             return values;
         }
 
@@ -94,6 +257,8 @@ namespace BCad.Dxf.Sections
         {
             var section = new DxfHeaderSection();
             string keyName = null;
+            Func<short, bool> shortToBool = value => value != 0;
+
             while (buffer.ItemsRemain)
             {
                 var pair = buffer.Peek();
@@ -104,84 +269,18 @@ namespace BCad.Dxf.Sections
                     break;
                 }
 
-                if (keyName == null)
+                if (pair.Code == 9)
                 {
-                    // what setting to set
-                    if (pair.Code == 9)
-                    {
-                        keyName = pair.StringValue;
-                    }
-
-                    // otherwise, ignore values until another 9 code
+                    // what setting to get
+                    keyName = pair.StringValue;
                 }
                 else
                 {
-                    // the value of the setting
-                    switch (keyName)
-                    {
-                        case ACADMAINTVER:
-                            EnsureCode(pair, 70);
-                            section.MaintenanceVersion = pair.ShortValue;
-                            break;
-                        case ACADVER:
-                            EnsureCode(pair, 1);
-                            section.Version = DxfAcadVersionStrings.StringToVersion(pair.StringValue);
-                            break;
-                        case ANGBASE:
-                            EnsureCode(pair, 50);
-                            section.AngleZeroDirection = pair.DoubleValue;
-                            break;
-                        case ANGDIR:
-                            EnsureCode(pair, 70);
-                            section.AngleDirection = (DxfAngleDirection)pair.ShortValue;
-                            break;
-                        case ATTMODE:
-                            EnsureCode(pair, 70);
-                            section.AttributeVisibility = (DxfAttributeVisibility)pair.ShortValue;
-                            break;
-                        case AUNITS:
-                            EnsureCode(pair, 70);
-                            section.AngleUnitFormat = (DxfUnitFormat)pair.ShortValue;
-                            break;
-                        case AUPREC:
-                            EnsureCode(pair, 70);
-                            section.AngleUnitPrecision = pair.ShortValue;
-                            break;
-                        case CLAYER:
-                            EnsureCode(pair, 8);
-                            section.CurrentLayer = pair.StringValue;
-                            break;
-                        case LUNITS:
-                            EnsureCode(pair, 70);
-                            section.UnitFormat = (DxfUnitFormat)pair.ShortValue;
-                            break;
-                        case LUPREC:
-                            EnsureCode(pair, 70);
-                            section.UnitPrecision = pair.ShortValue;
-                            break;
-                        default:
-                            // unsupported variable
-                            break;
-                    }
-
-                    keyName = null; // reset for next read
+                    DxfHeader.SetHeaderVariable(keyName, pair, section.Header);
                 }
             }
 
-            if (keyName != null)
-            {
-                throw new DxfReadException("Expected value for key " + keyName);
-            }
-
             return section;
-        }
-
-        private static void EnsureCode(DxfCodePair pair, int code)
-        {
-            if (pair.Code != code)
-            {
-                throw new DxfReadException(string.Format("Expected code {0}, got {1}", code, pair.Code));
-            }
         }
     }
 }

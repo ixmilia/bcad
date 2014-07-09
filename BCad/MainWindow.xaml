@@ -4,7 +4,10 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
-                xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core"
+                xmlns:ui="clr-namespace:BCad.UI"
+                xmlns:view="clr-namespace:BCad.UI.View"
+                xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
+                xmlns:consoles="clr-namespace:BCad.UI.Consoles"
                 mc:Ignorable="d"
                 Height="768"
                 Width="1024"
@@ -12,7 +15,8 @@
                 d:DesignHeight="300" d:DesignWidth="300"
                 FocusManager.FocusedElement="{Binding ElementName=inputPanel}"
                 Loaded="MainWindowLoaded"
-                Closing="Window_Closing">
+                Closing="Window_Closing"
+                Icon="BCad.ico">
     <r:RibbonWindow.CommandBindings>
         <CommandBinding Command="commands:RibbonCommands.CADCommand"
                         CanExecute="CommandBinding_CanExecute"
@@ -60,9 +64,18 @@
                 </r:RibbonQuickAccessToolBar>
             </r:Ribbon.QuickAccessToolBar>
         </r:Ribbon>
-        <UserControl Grid.Row="1" Name="viewPanel" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="150" />
+            </Grid.ColumnDefinitions>
+            <ui:ViewPane Grid.Column="0" x:Name="viewPane" />
+            <GridSplitter ResizeDirection="Columns" Grid.Column="1" Width="3" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <view:EditPane Grid.Column="2" x:Name="editPane" />
+        </Grid>
         <GridSplitter ResizeDirection="Rows" Grid.Row="2" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        <UserControl Grid.Row="3" Name="inputPanel" />
+        <consoles:InputConsole Grid.Row="3" x:Name="inputPanel" />
         <StatusBar Grid.Row="4">
             <TextBlock Name="pointSnapStatus"
                        Text="POINT SNAP"

@@ -7,22 +7,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using BCad.Iges.Directory;
 using BCad.Iges.Entities;
-using BCad.Iges.Parameter;
 
 namespace BCad.Iges
 {
     internal class IgesFileReader
     {
-        public IgesFile Load(Stream stream)
+        public static IgesFile Load(Stream stream)
         {
             var file = new IgesFile();
-            var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd());
+            var allLines = new StreamReader(stream).ReadToEnd().Split("\n".ToCharArray()).Select(s => s.TrimEnd()).Where(line => !string.IsNullOrEmpty(line));
             string terminateLine = null;
             var startLines = new List<string>();
             var globalLines = new List<string>();
             var directoryLines = new List<string>();
             var parameterLines = new List<string>();
-            var parameterData = new Dictionary<int, IgesParameterData>();
             var sectionLines = new Dictionary<IgesSectionType, List<string>>()
                 {
                     { IgesSectionType.Start, startLines },
@@ -73,10 +71,105 @@ namespace BCad.Iges
             // don't worry if terminate line isn't present
 
             ParseGlobalLines(file, globalLines);
-            ParseParameterLines(file, parameterLines, parameterData);
-            ParseDirectoryLines(file, directoryLines, parameterData);
+            var parameterMap = PrepareParameterLines(parameterLines, file.FieldDelimiter, file.RecordDelimiter);
+            PopulateEntities(file, directoryLines, parameterMap);
 
             return file;
+        }
+
+        private static Dictionary<int, List<string>> PrepareParameterLines(List<string> parameterLines, char fieldDelimiter, char recordDelimiter)
+        {
+            var map = new Dictionary<int, List<string>>();
+            var sb = new StringBuilder();
+            int parameterStart = 1;
+            bool finishedParameters = true;
+            for (int i = 0; i < parameterLines.Count; i++)
+            {
+                var line = parameterLines[i].TrimEnd(); // TODO: could trim off whitespace in a string
+                if (finishedParameters)
+                {
+                    // if the first line of a new parameter set, strip off the entity number
+                    var startIndex = line.IndexOf(',') + 1;
+                    line = line.Substring(startIndex);
+                }
+
+                Debug.Assert(line.Length > 0);
+                sb.Append(line);
+                if (line[line.Length - 1] == recordDelimiter)
+                {
+                    var fullLine = sb.ToString();
+                    var fields = SplitFields(fullLine.Substring(0, fullLine.Length - 1), fieldDelimiter);
+                    map[parameterStart] = fields;
+                    parameterStart = i + 2;
+                    sb.Clear();
+                    finishedParameters = true;
+                }
+                else
+                {
+                    finishedParameters = false;
+                }
+            }
+
+            return map;
+        }
+
+        private static List<string> SplitFields(string text, char fieldDelimiter)
+        {
+            var fields = new List<string>();
+            int startIndex = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                // TODO: allow for string fields that might contain the delimiter
+                if (text[i] == fieldDelimiter)
+                {
+                    var field = text.Substring(startIndex, i - startIndex);
+                    fields.Add(field);
+                    startIndex = i + 1;
+                }
+            }
+
+            fields.Add(text.Substring(startIndex)); // don't forget the last field
+            return fields;
+        }
+
+        private static void PopulateEntities(IgesFile file, List<string> directoryLines, Dictionary<int, List<string>> parameterMap)
+        {
+            var entityMap = new Dictionary<int, IgesEntity>();
+            for (int i = 0; i < directoryLines.Count; i += 2)
+            {
+                var dir = IgesDirectoryData.FromRawLines(directoryLines[i], directoryLines[i + 1]);
+                var entity = IgesEntity.FromData(dir, parameterMap[dir.ParameterPointer]);
+                if (entity != null)
+                {
+                    var directoryIndex = i + 1;
+                    entityMap[directoryIndex] = entity;
+                    file.Entities.Add(entity);
+                }
+            }
+
+            var toTrim = new HashSet<int>();
+            foreach (var entity in file.Entities)
+            {
+                if (entity.TransformationMatrixPointer > 0)
+                {
+                    entity.TransformationMatrix = entityMap[entity.TransformationMatrixPointer] as IgesTransformationMatrix;
+                    toTrim.Add(entity.TransformationMatrixPointer);
+                }
+                else
+                    entity.TransformationMatrix = IgesTransformationMatrix.Identity;
+                foreach (var pointer in entity.SubEntityIndices)
+                {
+                    entity.SubEntities.Add(entityMap[pointer]);
+                    toTrim.Add(pointer);
+                }
+            }
+
+            for (int i = file.Entities.Count - 1; i >= 0; i--)
+            {
+                var deIndex = i * 2 + 1;
+                if (toTrim.Contains(deIndex))
+                    file.Entities.RemoveAt(i);
+            }
         }
 
         private static void ParseGlobalLines(IgesFile file, List<string> globalLines)
@@ -86,202 +179,32 @@ namespace BCad.Iges
                 return;
 
             int index = 0;
-            for (int field = 1; field <= 26; field++)
-            {
-                switch (field)
-                {
-                    case 1:
-                        ParseDelimiterCharacter(file, fullString, ref index, true);
-                        break;
-                    case 2:
-                        ParseDelimiterCharacter(file, fullString, ref index, false);
-                        break;
-                    case 3:
-                        file.Identification = ParseString(file, fullString, ref index);
-                        break;
-                    case 4:
-                        file.FullFileName = ParseString(file, fullString, ref index);
-                        break;
-                    case 5:
-                        file.SystemIdentifier = ParseString(file, fullString, ref index);
-                        break;
-                    case 6:
-                        file.SystemVersion = ParseString(file, fullString, ref index);
-                        break;
-                    case 7:
-                        file.IntegerSize = ParseInt(file, fullString, ref index);
-                        break;
-                    case 8:
-                        file.SingleSize = ParseInt(file, fullString, ref index);
-                        break;
-                    case 9:
-                        file.DecimalDigits = ParseInt(file, fullString, ref index);
-                        break;
-                    case 10:
-                        file.DoubleMagnitude = ParseInt(file, fullString, ref index);
-                        break;
-                    case 11:
-                        file.DoublePrecision = ParseInt(file, fullString, ref index);
-                        break;
-                    case 12:
-                        file.Identifier = ParseString(file, fullString, ref index);
-                        break;
-                    case 13:
-                        file.ModelSpaceScale = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 14:
-                        file.ModelUnits = (IgesUnits)ParseInt(file, fullString, ref index, (int)file.ModelUnits);
-                        break;
-                    case 15:
-                        file.CustomModelUnits = ParseString(file, fullString, ref index);
-                        break;
-                    case 16:
-                        file.MaxLineWeightGraduations = ParseInt(file, fullString, ref index);
-                        break;
-                    case 17:
-                        file.MaxLineWeight = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 18:
-                        file.TimeStamp = ParseDateTime(ParseString(file, fullString, ref index), file.TimeStamp);
-                        break;
-                    case 19:
-                        file.MinimumResolution = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 20:
-                        file.MaxCoordinateValue = ParseDouble(file, fullString, ref index);
-                        break;
-                    case 21:
-                        file.Author = ParseString(file, fullString, ref index);
-                        break;
-                    case 22:
-                        file.Organization = ParseString(file, fullString, ref index);
-                        break;
-                    case 23:
-                        file.IgesVersion = (IgesVersion)ParseInt(file, fullString, ref index);
-                        break;
-                    case 24:
-                        file.DraftingStandard = (IgesDraftingStandard)ParseInt(file, fullString, ref index);
-                        break;
-                    case 25:
-                        file.ModifiedTime = ParseDateTime(ParseString(file, fullString, ref index), file.ModifiedTime);
-                        break;
-                    case 26:
-                        file.ApplicationProtocol = ParseString(file, fullString, ref index);
-                        break;
-                }
-            }
-        }
-
-        private static void ParseParameterLines(IgesFile file, List<string> parameterLines, Dictionary<int, IgesParameterData> parameterData)
-        {
-            // group parameter lines together
-            int index = 1;
-            var sb = new StringBuilder();
-            for (int i = 0; i < parameterLines.Count; i++)
-            {
-                var line = parameterLines[i].Substring(0, IgesFile.MaxParameterLength); // last 16 bytes aren't needed
-                sb.Append(line);
-                if (line.TrimEnd().EndsWith(file.RecordDelimiter.ToString()))
-                {
-                    var fullLine = sb.ToString();
-                    var fields = SplitFields(fullLine, file.FieldDelimiter, file.RecordDelimiter);
-                    if (fields.Count < 2)
-                        throw new IgesException("At least two fields necessary");
-                    var entityType = (IgesEntityType)int.Parse(fields[0]);
-                    var data = IgesParameterData.ParseFields(entityType, fields.Skip(1).ToList());
-                    if (data != null)
-                    {
-                        // TODO: parse and populate directory pointer
-                        parameterData.Add(index, data);
-                    }
-                    index = i + 2; // +1 for zero offset, +1 to skip to the next line
-                    sb.Clear();
-                }
-            }
-        }
-
-        private static void ParseDirectoryLines(IgesFile file, List<string> directoryLines, Dictionary<int, IgesParameterData> parameterData)
-        {
-            if (directoryLines.Count % 2 != 0)
-                throw new IgesException("Expected an even number of lines");
-
-            var transformationMatricies = new Dictionary<int, IgesTransformationMatrix>();
-
-            for (int i = 0; i < directoryLines.Count; i += 2)
-            {
-                var lineNumber = i + 1;
-                var line1 = directoryLines[i];
-                var line2 = directoryLines[i + 1];
-                var entityTypeNumber = int.Parse(GetField(line1, 1));
-                if (entityTypeNumber != 0)
-                {
-                    var dir = new IgesDirectoryData();
-                    dir.EntityType = (IgesEntityType)entityTypeNumber;
-                    dir.ParameterPointer = int.Parse(GetField(line1, 2));
-                    dir.Structure = int.Parse(GetField(line1, 3));
-                    dir.LineFontPattern = int.Parse(GetField(line1, 4));
-                    dir.Level = int.Parse(GetField(line1, 5));
-                    dir.View = int.Parse(GetField(line1, 6));
-                    dir.TransformationMatrixPointer = int.Parse(GetField(line1, 7));
-                    dir.LableDisplay = int.Parse(GetField(line1, 8));
-                    dir.StatusNumber = int.Parse(GetField(line1, 9));
-
-                    dir.LineWeight = int.Parse(GetField(line2, 2));
-                    dir.Color = (IgesColorNumber)int.Parse(GetField(line2, 3)); // TODO: could be a negative pointer
-                    dir.LineCount = int.Parse(GetField(line2, 4));
-                    dir.FormNumber = int.Parse(GetField(line2, 5));
-                    dir.EntityLabel = GetField(line2, 8, null);
-                    dir.EntitySubscript = int.Parse(GetField(line2, 9));
-
-                    if (dir.TransformationMatrixPointer >= lineNumber)
-                        throw new IgesException("Pointer must point back");
-
-                    if (parameterData.ContainsKey(dir.ParameterPointer))
-                    {
-                        var data = parameterData[dir.ParameterPointer];
-                        var entity = IgesEntity.CreateEntity(data, dir, transformationMatricies);
-                        if (entity.Type == IgesEntityType.TransformationMatrix)
-                        {
-                            transformationMatricies.Add(lineNumber, (IgesTransformationMatrix)entity);
-                        }
-                        file.Entities.Add(entity);
-                    }
-                }
-            }
-        }
-
-        private static string GetField(string str, int field, string defaultValue = "0")
-        {
-            var size = 8;
-            var offset = (field - 1) * size;
-            var value = str.Substring(offset, size).Trim();
-            return string.IsNullOrEmpty(value) ? defaultValue : value;
-        }
-
-        private static List<string> SplitFields(string input, char fieldDelimiter, char recordDelimiter)
-        {
-            // TODO: watch for strings containing delimiters
-            var fields = new List<string>();
-            var sb = new StringBuilder();
-            for (int i = 0; i < input.Length; i++)
-            {
-                var c = input[i];
-                if (c == fieldDelimiter || c == recordDelimiter)
-                {
-                    fields.Add(sb.ToString());
-                    sb.Clear();
-                    if (c == recordDelimiter)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-
-            return fields;
+            ParseDelimiterCharacter(file, fullString, ref index, true); // 1
+            ParseDelimiterCharacter(file, fullString, ref index, false); // 2
+            file.Identification = ParseString(file, fullString, ref index); // 3
+            file.FullFileName = ParseString(file, fullString, ref index); // 4
+            file.SystemIdentifier = ParseString(file, fullString, ref index); // 5
+            file.SystemVersion = ParseString(file, fullString, ref index); // 6
+            file.IntegerSize = ParseInt(file, fullString, ref index); // 7
+            file.SingleSize = ParseInt(file, fullString, ref index); // 8
+            file.DecimalDigits = ParseInt(file, fullString, ref index); // 9
+            file.DoubleMagnitude = ParseInt(file, fullString, ref index); // 10
+            file.DoublePrecision = ParseInt(file, fullString, ref index); // 11
+            file.Identifier = ParseString(file, fullString, ref index); // 12
+            file.ModelSpaceScale = ParseDouble(file, fullString, ref index); // 13
+            file.ModelUnits = (IgesUnits)ParseInt(file, fullString, ref index, (int)file.ModelUnits); // 14
+            file.CustomModelUnits = ParseString(file, fullString, ref index); // 15
+            file.MaxLineWeightGraduations = ParseInt(file, fullString, ref index); // 16
+            file.MaxLineWeight = ParseDouble(file, fullString, ref index); // 17
+            file.TimeStamp = ParseDateTime(ParseString(file, fullString, ref index), file.TimeStamp); // 18
+            file.MinimumResolution = ParseDouble(file, fullString, ref index); // 19
+            file.MaxCoordinateValue = ParseDouble(file, fullString, ref index); // 20
+            file.Author = ParseString(file, fullString, ref index); // 21
+            file.Organization = ParseString(file, fullString, ref index); // 22
+            file.IgesVersion = (IgesVersion)ParseInt(file, fullString, ref index); // 23
+            file.DraftingStandard = (IgesDraftingStandard)ParseInt(file, fullString, ref index); // 24
+            file.ModifiedTime = ParseDateTime(ParseString(file, fullString, ref index), file.ModifiedTime); // 25
+            file.ApplicationProtocol = ParseString(file, fullString, ref index); // 26
         }
 
         private static void ParseDelimiterCharacter(IgesFile file, string str, ref int index, bool readFieldSeparator)
@@ -289,6 +212,14 @@ namespace BCad.Iges
             // verify length
             if (index >= str.Length)
                 throw new IgesException("Unexpected end of input");
+
+            // could be empty
+            if (str[index] == IgesFile.DefaultFieldDelimiter)
+            {
+                index++;
+                return;
+            }
+
             if (str[index] != '1')
                 throw new IgesException("Expected delimiter of length 1");
             index++;
@@ -462,7 +393,7 @@ namespace BCad.Iges
             }
         }
 
-        private static Regex dateTimeReg = new Regex(@"((\d{2})|(\d{4}))(\d{2})(\d{2})\.(\d{2})(\d{2})(\d{2})", RegexOptions.Compiled);
+        private static Regex dateTimeReg = new Regex(@"((\d{2})|(\d{4}))(\d{2})(\d{2})\.(\d{2})(\d{2})(\d{2})");
         //                                             12       3       4      5        6      7      8
 
         private static void SwallowDelimiter(string str, char delim, ref int index)

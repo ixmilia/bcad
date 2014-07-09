@@ -1,0 +1,87 @@
+﻿<UserControl x:Class="BCad.UI.ViewPane"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="clr-namespace:BCad.UI"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid ClipToBounds="True">
+        <ContentControl Name="renderControl" />
+        <Canvas Name="snapLayer" Background="Transparent" />
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Cursor" Foreground="{Binding Path=AutoBrush}" />
+            <TextBlock Text=" (" Foreground="{Binding Path=AutoBrush}" />
+            <TextBlock Text="{Binding Path=CursorScreen}" Foreground="{Binding Path=AutoBrush}" />
+            <TextBlock Text=") " Foreground="{Binding Path=AutoBrush}" />
+            <TextBlock Text="World" Foreground="{Binding Path=AutoBrush}" />
+            <TextBlock Text=" " Foreground="{Binding Path=AutoBrush}" />
+            <TextBlock Text="{Binding Path=CursorWorldString}" Foreground="{Binding Path=AutoBrush}" />
+        </StackPanel>
+        <Canvas Name="hotPointLayer" Background="Transparent" />
+        <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
+            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" Fill="{Binding Path=SelectionBrush}" />
+            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Image Name="pointCursorImage" SnapsToDevicePixels="True">
+                <Image.Source>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <GeometryDrawing Pen="{Binding Path=CursorPen}">
+                                <GeometryDrawing.Geometry>
+                                    <GeometryGroup>
+                                        <LineGeometry StartPoint="{Binding Path=LeftCursorExtent}" EndPoint="{Binding Path=RightCursorExtent}" />
+                                        <LineGeometry StartPoint="{Binding Path=TopCursorExtent}" EndPoint="{Binding Path=BottomCursorExtent}" />
+                                    </GeometryGroup>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Image.Source>
+            </Image>
+            <Image Name="entityCursorImage" SnapsToDevicePixels="True">
+                <Image.Source>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <GeometryDrawing Pen="{Binding Path=CursorPen}">
+                                <GeometryDrawing.Geometry>
+                                    <GeometryGroup>
+                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionTopLeft}" EndPoint="{Binding Path=EntitySelectionTopRight}" />
+                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionTopRight}" EndPoint="{Binding Path=EntitySelectionBottomRight}" />
+                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionBottomRight}" EndPoint="{Binding Path=EntitySelectionBottomLeft}" />
+                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionBottomLeft}" EndPoint="{Binding Path=EntitySelectionTopLeft}" />
+                                    </GeometryGroup>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Image.Source>
+            </Image>
+            <Image Name="textCursorImage" SnapsToDevicePixels="True">
+                <Image.Source>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <GeometryDrawing Pen="{Binding Path=CursorPen}">
+                                <GeometryDrawing.Geometry>
+                                    <GeometryGroup>
+                                        <LineGeometry StartPoint="{Binding Path=TextCursorStart}" EndPoint="{Binding Path=TextCursorEnd}" />
+                                    </GeometryGroup>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Image.Source>
+            </Image>
+        </Canvas>
+        <Canvas Name="clicker"
+                Background="White"
+                Cursor="None"
+                Opacity="0.001"
+                MouseDown="OnMouseDown"
+                MouseUp="OnMouseUp"
+                MouseMove="OnMouseMove"
+                MouseWheel="OnMouseWheel" />
+    </Grid>
+</UserControl>

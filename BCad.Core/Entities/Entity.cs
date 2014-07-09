@@ -11,14 +11,52 @@ namespace BCad.Entities
         public abstract EntityKind Kind { get; }
         public abstract BoundingBox BoundingBox { get; }
 
+        private readonly IndexedColor color;
+        private readonly object tag;
+
+        public IndexedColor Color { get { return color; } }
+        public object Tag { get { return tag; } }
+
+        protected const string KindText = "Kind";
+        protected const string BoundingBoxText = "BoundingBox";
+        protected const string IdText = "Id";
+        protected const string ColorText = "Color";
+        protected const string TagText = "Tag";
+        protected const string CenterText = "Center";
+        protected const string NormalText = "Normal";
+        protected const string RadiusText = "Radius";
+        protected const string StartAngleText = "StartAngle";
+        protected const string EndAngleText = "EndAngle";
+
+        protected Entity(IndexedColor color, object tag)
+        {
+            this.color = color;
+            this.tag = tag;
+            this.Id = nextId++;
+        }
+
+        public virtual object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case KindText:
+                    return Kind;
+                case BoundingBoxText:
+                    return BoundingBox;
+                case ColorText:
+                    return Color;
+                case IdText:
+                    return Id;
+                case TagText:
+                    return Tag;
+                default:
+                    throw new KeyNotFoundException("The property could not be found");
+            }
+        }
+
         private static uint nextId = 1;
 
         public uint Id { get; private set; }
-
-        public Entity()
-        {
-            this.Id = nextId++;
-        }
 
         public override int GetHashCode()
         {

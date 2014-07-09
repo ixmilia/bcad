@@ -1,20 +1,29 @@
 ﻿using System.Globalization;
-using Media = System.Windows.Media;
 
 namespace BCad.Extensions
 {
     public static class ColorExtensions
     {
-        public static Media.Color ParseColor(this string s)
+        public static RealColor ParseColor(this string s)
         {
+            if (s == null || s.Length != 7)
+            {
+                return new RealColor();
+            }
+
+            if (s[0] != '#')
+            {
+                return new RealColor();
+            }
+
             int c = int.Parse(s.Substring(1), NumberStyles.HexNumber);
             int r = (c & 0xFF0000) >> 16;
             int g = (c & 0x00FF00) >> 8;
             int b = (c & 0x0000FF);
-            return Media.Color.FromRgb((byte)r, (byte)g, (byte)b);
+            return RealColor.FromRgb((byte)r, (byte)g, (byte)b);
         }
 
-        public static string ToColorString(this Media.Color color)
+        public static string ToColorString(this RealColor color)
         {
             var r = string.Format("{0:X2}", color.R);
             var g = string.Format("{0:X2}", color.G);

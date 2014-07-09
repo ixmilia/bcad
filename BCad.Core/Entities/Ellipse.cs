@@ -6,13 +6,14 @@ namespace BCad.Entities
 {
     public class Ellipse : Entity
     {
+        private const string MajorAxisText = "MajorAxis";
+        private const string MinorAxisRatioText = "MinorAxisRatio";
         private readonly Point center;
         private readonly Vector majorAxis;
         private readonly Vector normal;
         private readonly double minorAxisRatio;
         private readonly double startAngle;
         private readonly double endAngle;
-        private readonly Color color;
         private readonly Point quadrant1;
         private readonly Point quadrant2;
         private readonly Point quadrant3;
@@ -20,6 +21,7 @@ namespace BCad.Entities
         private readonly Point endPoint1;
         private readonly Point endPoint2;
         private readonly Point midPoint;
+        private readonly PrimitiveEllipse primitive;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -36,9 +38,10 @@ namespace BCad.Entities
 
         public double EndAngle { get { return endAngle; } }
 
-        public Color Color { get { return color; } }
+        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, Color color)
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.center = center;
             this.majorAxis = majorAxis;
@@ -46,7 +49,6 @@ namespace BCad.Entities
             this.startAngle = startAngle;
             this.endAngle = endAngle;
             this.normal = normal;
-            this.color = color;
 
             var majorLength = this.majorAxis.Length;
             var points = Circle.TransformedPoints(this.center, this.normal, this.majorAxis, majorLength, majorLength * minorAxisRatio, 0, 90, 180, 270, startAngle, endAngle, (startAngle + endAngle) / 2.0);
@@ -58,7 +60,8 @@ namespace BCad.Entities
             endPoint2 = points[5];
             midPoint = points[6];
 
-            this.primitives = new[] { new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color) };
+            this.primitive = new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color);
+            this.primitives = new IPrimitive[] { this.primitive };
             if (this.startAngle == 0.0 && this.endAngle == 360.0)
             {
                 // treat it like a circle
@@ -95,20 +98,68 @@ namespace BCad.Entities
             return this.snapPoints;
         }
 
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case CenterText:
+                    return Center;
+                case NormalText:
+                    return Normal;
+                case MajorAxisText:
+                    return MajorAxis;
+                case MinorAxisRatioText:
+                    return MinorAxisRatio;
+                case StartAngleText:
+                    return StartAngle;
+                case EndAngleText:
+                    return EndAngle;
+                default:
+                    return base.GetProperty(propertyName);
+            }
+        }
+
         public override EntityKind Kind { get { return EntityKind.Ellipse; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Ellipse Update(Point center = null, Vector majorAxis = null, double? minorAxisRatio = null, double? startAngle = null, double? endAngle = null, Vector normal = null, Color? color = null)
+        public Ellipse Update(
+            Optional<Point> center = default(Optional<Point>),
+            Optional<Vector> majorAxis = default(Optional<Vector>),
+            Optional<double> minorAxisRatio = default(Optional<double>),
+            Optional<double> startAngle = default(Optional<double>),
+            Optional<double> endAngle = default(Optional<double>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
-            return new Ellipse(
-                center ?? this.center,
-                majorAxis ?? this.majorAxis,
-                minorAxisRatio ?? this.minorAxisRatio,
-                startAngle ?? this.startAngle,
-                endAngle ?? this.endAngle,
-                normal ?? this.normal,
-                color ?? this.color);
+            var newCenter = center.HasValue ? center.Value : this.center;
+            var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : this.majorAxis;
+            var newMinorAxisRatio = minorAxisRatio.HasValue ? minorAxisRatio.Value : this.minorAxisRatio;
+            var newStartAngle = startAngle.HasValue ? startAngle.Value : this.startAngle;
+            var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
+
+            if (newCenter == this.center &&
+                newMajorAxis == this.majorAxis &&
+                newMinorAxisRatio == this.minorAxisRatio &&
+                newStartAngle == this.startAngle &&
+                newEndAngle == this.endAngle &&
+                newNormal == this.normal &&
+                newColor == this.Color &&
+                newTag == this.Tag)
+            {
+                return this;
+            }
+
+            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor, newTag);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Ellipse: center={0}, major-axis={1}, normal={2}, minor={3}, start/end={4}/{5}, color={6}", Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color);
         }
     }
 }

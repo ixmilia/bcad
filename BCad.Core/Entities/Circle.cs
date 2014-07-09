@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Media.Media3D;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
@@ -13,11 +12,11 @@ namespace BCad.Entities
         private readonly Point center;
         private readonly Vector normal;
         private readonly double radius;
-        private readonly Color color;
         private readonly Point quadrant1;
         private readonly Point quadrant2;
         private readonly Point quadrant3;
         private readonly Point quadrant4;
+        private readonly PrimitiveEllipse primitive;
         private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
@@ -28,14 +27,14 @@ namespace BCad.Entities
 
         public double Radius { get { return radius; } }
 
-        public Color Color { get { return color; } }
+        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
-        public Circle(Point center, double radius, Vector normal, Color color)
+        public Circle(Point center, double radius, Vector normal, IndexedColor color, object tag = null)
+            : base(color, tag)
         {
             this.center = center;
             this.radius = radius;
             this.normal = normal;
-            this.color = color;
 
             var right = Vector.RightVectorFromNormal(this.normal);
             var points = TransformedPoints(this.center, this.normal, right, this.radius, this.radius, 0, 90, 180, 270);
@@ -44,7 +43,8 @@ namespace BCad.Entities
             quadrant3 = points[2];
             quadrant4 = points[3];
 
-            this.primitives = new[] { new PrimitiveEllipse(Center, Radius, Normal, Color) };
+            this.primitive = new PrimitiveEllipse(Center, Radius, Normal, Color);
+            this.primitives = new IPrimitive[] { this.primitive };
             this.snapPoints = new SnapPoint[]
             {
                 new CenterPoint(Center),
@@ -66,17 +66,48 @@ namespace BCad.Entities
             return this.snapPoints;
         }
 
+        public override object GetProperty(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case CenterText:
+                    return Center;
+                case NormalText:
+                    return Normal;
+                case RadiusText:
+                    return Radius;
+                default:
+                    return base.GetProperty(propertyName);
+            }
+        }
+
         public override EntityKind Kind { get { return EntityKind.Circle; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Circle Update(Point center = null, double? radius = null, Vector normal = null, Color? color = null)
+        public Circle Update(
+            Optional<Point> center = default(Optional<Point>),
+            Optional<double> radius = default(Optional<double>),
+            Optional<Vector> normal = default(Optional<Vector>),
+            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<object> tag = default(Optional<object>))
         {
-            return new Circle(
-                center ?? this.Center,
-                radius ?? this.Radius,
-                normal ?? this.Normal,
-                color ?? this.Color);
+            var newCenter = center.HasValue ? center.Value : this.center;
+            var newRadius = radius.HasValue ? radius.Value : this.radius;
+            var newNormal = normal.HasValue ? normal.Value : this.normal;
+            var newColor = color.HasValue ? color.Value : this.Color;
+            var newTag = tag.HasValue ? tag.Value : this.Tag;
+
+            if (newCenter == this.center &&
+                newRadius == this.radius &&
+                newNormal == this.normal &&
+                newColor == this.Color &&
+                newTag == this.Tag)
+            {
+                return this;
+            }
+
+            return new Circle(newCenter, newRadius, newNormal, newColor, newTag);
         }
 
         internal static Point[] TransformedPoints(Point center, Vector normal, Vector right, double radiusX, double radiusY, params double[] anglesInDegrees)
@@ -85,16 +116,21 @@ namespace BCad.Entities
             var r = right.Normalize();
             var n = normal.Normalize();
             var up = normal.Cross(right).Normalize();
-            var trans = PrimitiveExtensions.FromUnitCircleProjection(n, r, up, center, radiusX, radiusY, 0.0);
+            var trans = Matrix4.FromUnitCircleProjection(n, r, up, center, radiusX, radiusY, 0.0);
 
             for (int i = 0; i < anglesInDegrees.Length; i++)
             {
                 var x = Math.Cos(anglesInDegrees[i] * MathHelper.DegreesToRadians);
                 var y = Math.Sin(anglesInDegrees[i] * MathHelper.DegreesToRadians);
-                result[i] = trans.Transform(new Point3D(x, y, 0.0));
+                result[i] = trans.Transform(new Point(x, y, 0.0));
             }
 
             return result;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Circle: center={0}, normal={1}, radius={2}, color={3}", Center, Normal, Radius, Color);
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Layers", "LAYERS", ModifierKeys.Control, Key.L, "layers", "lay", "la")]
+    [ExportCommand("Edit.Layers", "LAYERS")]
     public class LayersCommand : ICommand
     {
         [Import]

@@ -5,7 +5,7 @@ using System.Text;
 using BCad;
 using BCad.Entities;
 using BCad.Extensions;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
@@ -18,12 +18,12 @@ namespace BCad.Test
 
         public static void AddLayer(this IWorkspace workspace, string layerName)
         {
-            workspace.Add(new Layer(layerName, Color.Auto));
+            workspace.Add(new Layer(layerName, IndexedColor.Auto));
         }
 
         public static void VerifyContains(this Layer layer, Entity entity)
         {
-            Assert.True(layer.GetEntities().Any(o => o.EquivalentTo(entity)));
+            Assert.IsTrue(layer.GetEntities().Any(o => o.EquivalentTo(entity)));
         }
 
         public static IEnumerable<Entity> GetEntities(this IWorkspace workspace)

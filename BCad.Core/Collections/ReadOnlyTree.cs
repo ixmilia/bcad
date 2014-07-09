@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace BCad.Collections
 {
@@ -19,8 +20,7 @@ namespace BCad.Collections
                 set
                 {
                     left = value;
-                    RecalculateHeight();
-                    RecalculateCount();
+                    Recalculate();
                 }
             }
             public Node Right
@@ -29,8 +29,7 @@ namespace BCad.Collections
                 set
                 {
                     right = value;
-                    RecalculateHeight();
-                    RecalculateCount();
+                    Recalculate();
                 }
             }
             public int Height { get; private set; }
@@ -42,8 +41,7 @@ namespace BCad.Collections
                 Value = value;
                 this.left = left;
                 this.right = right;
-                RecalculateHeight();
-                RecalculateCount();
+                Recalculate();
             }
 
             public Node Clone()
@@ -63,6 +61,12 @@ namespace BCad.Collections
                 action(Key, Value);
                 if (Right != null)
                     Right.ForEach(action);
+            }
+
+            public void Recalculate()
+            {
+                RecalculateHeight();
+                RecalculateCount();
             }
 
             private void RecalculateHeight()
@@ -105,11 +109,6 @@ namespace BCad.Collections
         private ReadOnlyTree(Node root)
         {
             this.root = root;
-        }
-
-        private ReadOnlyTree(TKey key, TValue value, bool isRed)
-        {
-            root = new Node(key, value, null, null);
         }
 
         public int Count
@@ -157,6 +156,86 @@ namespace BCad.Collections
             // re-spine the tree
             var newRoot = BalanceAndReSpine(newNode, path, true);
             return new ReadOnlyTree<TKey, TValue>(newRoot);
+        }
+
+        private void InsertMutable(TKey key, TValue value)
+        {
+            if (root == null)
+                root = new Node(key, value, null, null);
+            else
+            {
+                var requiresBalance = true;
+                var current = root;
+                var path = new Stack<Node>();
+                while (current != null)
+                {
+                    var comp = key.CompareTo(current.Key);
+                    if (comp < 0)
+                    {
+                        // go left
+                        path.Push(current);
+                        if (current.Left == null)
+                        {
+                            // place it here
+                            current.Left = new Node(key, value, null, null);
+                            break;
+                        }
+                        else
+                        {
+                            // go deeper
+                            current = current.Left;
+                        }
+                    }
+                    else if (comp > 0)
+                    {
+                        // go right
+                        path.Push(current);
+                        if (current.Right == null)
+                        {
+                            // place it here
+                            current.Right = new Node(key, value, null, null);
+                            break;
+                        }
+                        else
+                        {
+                            // go deeper
+                            current = current.Right;
+                        }
+                    }
+                    else
+                    {
+                        // replace.  parent is correct
+                        current.Value = value;
+                        requiresBalance = false;
+                        break;
+                    }
+                }
+
+                if (requiresBalance)
+                {
+                    // traverse up the stack, rebalancing as we go
+                    while (path.Count > 0)
+                    {
+                        current = path.Pop();
+                        current.Recalculate();
+                        var balanceFactor = current.BalanceFactor;
+                        if (Math.Abs(balanceFactor) <= 1)
+                        {
+                            // nothing to do, this node is balanced
+                        }
+                        else
+                        {
+                            var parent = path.Count > 0 ? path.Peek() : null;
+                            if (balanceFactor == 2)
+                                LeftRebalanceMutable(current, parent);
+                            else if (balanceFactor == -2)
+                                RightRebalanceMutable(current, parent);
+                            else
+                                throw new Exception("Unexpected balance: " + balanceFactor);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -301,9 +380,20 @@ namespace BCad.Collections
             return list;
         }
 
+        public static ReadOnlyTree<TKey, TValue> FromEnumerable(IEnumerable<TValue> values, Func<TValue, TKey> keyGenerator)
+        {
+            var tree = new ReadOnlyTree<TKey, TValue>();
+            foreach (var value in values)
+            {
+                var key = keyGenerator(value);
+                tree.InsertMutable(key, value);
+            }
+
+            return tree;
+        }
+
         private static Node BalanceAndReSpine(Node current, Stack<Node> ancestors, bool insert)
         {
-            // TODO: add flag for mutable re-balancing; useful for batch inserts/creation
             while (ancestors.Count > 0)
             {
                 // re-create parent
@@ -353,6 +443,15 @@ namespace BCad.Collections
                 return RightLeftRebalance(node);
         }
 
+        private void RightRebalanceMutable(Node node, Node parent)
+        {
+            var bf = node.Right.BalanceFactor;
+            if (bf == -1)
+                RightRightRebalanceMutable(node, parent);
+            else
+                RightLeftRebalanceMutable(node, parent);
+        }
+
         private static Node RightRightRebalance(Node root)
         {
             var newLeftChild = root.Clone();
@@ -360,6 +459,34 @@ namespace BCad.Collections
             var newRoot = root.Right.Clone();
             newRoot.Left = newLeftChild;
             return newRoot;
+        }
+
+        private void RightRightRebalanceMutable(Node root, Node parent)
+        {
+            // stealing Wikipedia's diagram: (AVL tree)
+            //   3                4
+            //  / \             /   \
+            // A   4           3     5
+            //    / \     =>  / \   / \
+            //   B   5       A   B C   D
+            //      / \
+            //     C   D
+            var Three = root;
+            var Four = Three.Right;
+            var B = Four.Left;
+            Three.Right = B;
+            Four.Left = Three;
+            if (parent != null)
+            {
+                if (root.Key.CompareTo(parent.Key) < 0)
+                    parent.Left = Four;
+                else
+                    parent.Right = Four;
+            }
+            else
+            {
+                this.root = Four;
+            }
         }
 
         private static Node RightLeftRebalance(Node root)
@@ -373,6 +500,26 @@ namespace BCad.Collections
             return RightRightRebalance(newRoot);
         }
 
+        private void RightLeftRebalanceMutable(Node root, Node parent)
+        {
+            // stealing Wikipedia's diagram: (AVL tree)
+            //   3              3
+            //  / \            / \
+            // A   5          A   4
+            //    / \    =>      / \
+            //   4   D          B   5
+            //  / \                / \
+            // B   C              C   D
+            var Three = root;
+            var Five = Three.Right;
+            var Four = Five.Left;
+            var C = Four.Right;
+            Five.Left = C;
+            Four.Right = Five;
+            Three.Right = Four;
+            RightRightRebalanceMutable(Three, parent);
+        }
+
         private static Node LeftRebalance(Node node, bool insert)
         {
             var l = node.Left;
@@ -381,6 +528,16 @@ namespace BCad.Collections
                 return LeftLeftRebalance(node);
             else
                 return LeftRightRebalance(node);
+        }
+
+        private void LeftRebalanceMutable(Node node, Node parent)
+        {
+            // node is heavy on the left, rotate right
+            var bf = node.Left.BalanceFactor;
+            if (bf == 1)
+                LeftLeftRebalanceMutable(node, parent);
+            else
+                LeftRightRebalanceMutable(node, parent);
         }
 
         private static Node LeftLeftRebalance(Node root)
@@ -392,6 +549,34 @@ namespace BCad.Collections
             return newRoot;
         }
 
+        private void LeftLeftRebalanceMutable(Node root, Node parent)
+        {
+            // stealing Wikipedia's diagram: (AVL tree)
+            //       5             4
+            //      / \          /   \
+            //     4   D        3     5
+            //    / \      =>  / \   / \
+            //   3   C        A   B C   D
+            //  / \
+            // A   B
+            var Five = root;
+            var Four = Five.Left;
+            var C = Four.Right;
+            Five.Left = C;
+            Four.Right = Five;
+            if (parent != null)
+            {
+                if (root.Key.CompareTo(parent.Key) < 0)
+                    parent.Left = Four;
+                else
+                    parent.Right = Four;
+            }
+            else
+            {
+                this.root = Four;
+            }
+        }
+
         private static Node LeftRightRebalance(Node root)
         {
             var newLeftGrandchild = root.Left.Clone();
@@ -401,6 +586,26 @@ namespace BCad.Collections
             var newRoot = root.Clone();
             newRoot.Left = newLeftChild;
             return LeftLeftRebalance(newRoot);
+        }
+
+        private void LeftRightRebalanceMutable(Node root, Node parent)
+        {
+            // stealing Wikipedia's diagram: (AVL tree)
+            //     5               5
+            //    / \             / \
+            //   3   D           4   D
+            //  / \      =>     / \
+            // A   4           3   C
+            //    / \         / \
+            //   B   C       A   B
+            var Five = root;
+            var Three = Five.Left;
+            var Four = Three.Right;
+            var B = Four.Left;
+            Three.Right = B;
+            Four.Left = Three;
+            Five.Left = Four;
+            LeftLeftRebalanceMutable(Five, parent);
         }
 
         public bool KeyExists(TKey key)

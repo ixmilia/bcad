@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using BCad.Helpers;
@@ -17,8 +18,10 @@ namespace BCad
         public UnitFormat UnitFormat { get { return this.unitFormat; } }
         public int UnitPrecision { get { return this.unitPrecision; } }
 
+        private static int[] AllowedArchitecturalPrecisions = new[] { 0, 2, 4, 8, 16, 32 };
+
         public DrawingSettings()
-            : this(null, UnitFormat.None, -1)
+            : this(null, UnitFormat.Architectural, 16)
         {
         }
 
@@ -26,26 +29,45 @@ namespace BCad
         {
             this.fileName = path;
             this.unitFormat = unitFormat;
-            this.unitPrecision = unitPrecision;
+            this.unitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
+
+            switch (unitFormat)
+            {
+                case UnitFormat.Architectural:
+                    // only allowable values are 0, 2, 4, 8, 16, 32
+                    this.unitPrecision = AllowedArchitecturalPrecisions.Where(x => x <= this.unitPrecision).Max();
+                    break;
+                case UnitFormat.Metric:
+                    // only allowable values are [0, 16]
+                    this.unitPrecision = Math.Max(0, this.unitPrecision);
+                    this.unitPrecision = Math.Min(16, this.unitPrecision);
+                    break;
+            }
         }
 
-        public DrawingSettings Update(string fileName = null, UnitFormat? unitFormat = null, int? unitPrecision = null)
+        public DrawingSettings Update(string fileName = null, Optional<UnitFormat> unitFormat = default(Optional<UnitFormat>), Optional<int> unitPrecision = default(Optional<int>))
         {
-            return new DrawingSettings(
-                fileName ?? this.fileName,
-                unitFormat ?? this.unitFormat,
-                unitPrecision ?? this.unitPrecision);
+            var newFileName = fileName ?? this.fileName;
+            var newUnitFormat = unitFormat.HasValue ? unitFormat.Value : this.unitFormat;
+            var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : this.unitPrecision;
+
+            if (newFileName == this.fileName &&
+                newUnitFormat == this.unitFormat &&
+                newUnitPrecision == this.unitPrecision)
+            {
+                return this;
+            }
+
+            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision);
         }
 
         public static string FormatUnits(double value, UnitFormat unitFormat, int unitPrecision)
         {
             switch (unitFormat)
             {
-                case BCad.UnitFormat.None:
-                    return value.ToString();
-                case BCad.UnitFormat.Architectural:
+                case UnitFormat.Architectural:
                     return FormatArchitectural(value, unitPrecision);
-                case BCad.UnitFormat.Metric:
+                case UnitFormat.Metric:
                     return FormatMetric(value, unitPrecision);
                 default:
                     throw new ArgumentException("value");
@@ -86,11 +108,11 @@ namespace BCad
             return false;
         }
 
-        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?"")?\s*$", RegexOptions.Compiled);
+        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?"")?\s*$");
         //                                                              12       3     45  6     7
         //                                                               feet '  inches  -  num /denom  "
 
-        private static Regex MixedArchitecturalPattern = new Regex(@"^\s*(\d+)'(\d+(\.\d+)?)""?\s*$", RegexOptions.Compiled);
+        private static Regex MixedArchitecturalPattern = new Regex(@"^\s*(\d+)'(\d+(\.\d+)?)""?\s*$");
         //                                                               1     2   3
         //                                                               feet 'inches.partial"
 
@@ -105,7 +127,9 @@ namespace BCad
         {
             // precision is requested decimal places
             Debug.Assert(precision >= 0 && precision < decimalFormats.Length);
-            return value.ToString(decimalFormats[precision]);
+            return value == 0.0
+                ? "0"
+                : value.ToString(decimalFormats[precision]);
         }
 
         private static string FormatArchitectural(double value, int precision)

@@ -1,28 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using BCad.Core;
+using BCad.Extensions;
 using BCad.FileHandlers;
 using Microsoft.Win32;
-using System.Reflection;
-using BCad.DrawingFiles;
 
 namespace BCad.Services
 {
-    [Export(typeof(IFileSystemService))]
+    [Export(typeof(IFileSystemService)), Shared]
     internal class FileSystemService : IFileSystemService
     {
         [ImportMany]
-        private IEnumerable<Lazy<IFileHandler, IFileHandlerMetadata>> FileHandlers = null;
+        public IEnumerable<Lazy<IFileHandler, FileHandlerMetadata>> FileHandlers { get; set; }
 
-        public string GetFileNameFromUserForSave()
+        [Import]
+        public IWorkspace Workspace { get; set; }
+
+        public Task<string> GetFileNameFromUserForSave()
         {
             var x = FileHandlers.Where(fw => fw.Metadata.CanWrite).Select(fw => new FileSpecification(fw.Metadata.DisplayName, fw.Metadata.FileExtensions));
             return GetFileNameFromUserForWrite(x);
         }
 
-        public string GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications)
+        public Task<string> GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications)
         {
             var filter = string.Join("|",
                 from fs in fileSpecifications.OrderBy(f => f.DisplayName)
@@ -34,12 +39,12 @@ namespace BCad.Services
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != true)
-                return null;
+                return Task.FromResult<string>(null);
 
-            return dialog.FileName;
+            return Task.FromResult(dialog.FileName);
         }
 
-        public string GetFileNameFromUserForOpen()
+        public Task<string> GetFileNameFromUserForOpen()
         {
             var fileSpecifications = FileHandlers.Where(fr => fr.Metadata.CanRead).Select(fr => new FileSpecification(fr.Metadata.DisplayName, fr.Metadata.FileExtensions));
             var filter = string.Join("|",
@@ -59,11 +64,11 @@ namespace BCad.Services
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != true)
-                return null;
-            return dialog.FileName;
+                return Task.FromResult<string>(null);
+            return Task.FromResult(dialog.FileName);
         }
 
-        public bool TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort)
+        public Task<bool> TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag)
         {
             if (fileName == null)
                 throw new ArgumentNullException("fileName");
@@ -73,25 +78,22 @@ namespace BCad.Services
             if (writer == null)
                 throw new Exception("Unknown file extension " + extension);
 
-            var converter = writer.GetConverter();
-            IDrawingFile drawingFile;
-            converter.ConvertFromDrawing(fileName, drawing, viewPort, out drawingFile);
-
             using (var fileStream = new FileStream(fileName, FileMode.Create))
             {
-                drawingFile.Save(fileStream);
+                writer.WriteDrawing(fileName, fileStream, drawing, viewPort, propertyBag);
             }
 
-            return true;
+            return Task.FromResult(true);
         }
 
-        public bool TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort)
+        public Task<bool> TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
         {
             if (fileName == null)
                 throw new ArgumentNullException("fileName");
 
             drawing = default(Drawing);
             viewPort = default(ViewPort);
+            propertyBag = null;
 
             var extension = Path.GetExtension(fileName);
             var reader = ReaderFromExtension(extension);
@@ -100,17 +102,23 @@ namespace BCad.Services
 
             using (var fileStream = new FileStream(fileName, FileMode.Open))
             {
-                var drawingFile = reader.Load(fileStream);
-                var converter = reader.GetConverter();
-                converter.ConvertToDrawing(fileName, drawingFile, out drawing, out viewPort);
+                reader.ReadDrawing(fileName, fileStream, out drawing, out viewPort, out propertyBag);
+                if (viewPort == null)
+                {
+                    viewPort = drawing.ShowAllViewPort(
+                        Vector.ZAxis,
+                        Vector.YAxis,
+                        Workspace.ViewControl.DisplayWidth,
+                        Workspace.ViewControl.DisplayHeight);
+                }
             }
 
-            return true;
+            return Task.FromResult(true);
         }
 
         private IFileHandler ReaderFromExtension(string extension)
         {
-            var reader = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension) && r.Metadata.CanRead);
+            var reader = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanRead);
             if (reader == null)
                 return null;
             return reader.Value;
@@ -118,7 +126,7 @@ namespace BCad.Services
 
         private IFileHandler WriterFromExtension(string extension)
         {
-            var writer = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension) && r.Metadata.CanWrite);
+            var writer = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanWrite);
             if (writer == null)
                 return null;
             return writer.Value;

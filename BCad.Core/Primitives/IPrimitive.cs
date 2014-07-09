@@ -2,7 +2,7 @@
 {
     public interface IPrimitive
     {
-        Color Color { get; }
+        IndexedColor Color { get; }
         PrimitiveKind Kind { get; }
     }
 }

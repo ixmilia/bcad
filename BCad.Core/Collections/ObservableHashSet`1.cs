@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BCad.Collections
 {
-    public class ObservableHashSet<T>
+    public class ObservableHashSet<T> : IEnumerable<T>, IEnumerable
     {
         private HashSet<T> items = new HashSet<T>();
-        private HashSet<int> itemHashes = new HashSet<int>();
 
         public event EventHandler CollectionChanged;
 
@@ -15,33 +16,45 @@ namespace BCad.Collections
         public bool Add(T item)
         {
             var result = items.Add(item);
-            itemHashes.Add(item.GetHashCode());
             OnCollectionChanged();
             return result;
         }
 
         public void AddRange(IEnumerable<T> items)
         {
-            foreach (var item in items)
+            if (items.Any())
             {
-                this.items.Add(item);
-                this.itemHashes.Add(item.GetHashCode());
+                foreach (var item in items)
+                {
+                    this.items.Add(item);
+                }
+
+                OnCollectionChanged();
             }
-            OnCollectionChanged();
         }
 
         public void Clear()
         {
-            items.Clear();
-            itemHashes.Clear();
-            OnCollectionChanged();
+            if (items.Count > 0)
+            {
+                items.Clear();
+                OnCollectionChanged();
+            }
         }
 
         public void Set(IEnumerable<T> items)
         {
+            var fireEvent = this.items.Any() || items.Any();
             this.items.Clear();
-            this.itemHashes.Clear();
-            AddRange(items);
+            foreach (var item in items)
+            {
+                this.items.Add(item);
+            }
+
+            if (fireEvent)
+            {
+                OnCollectionChanged();
+            }
         }
 
         public bool Contains(T item)
@@ -49,15 +62,21 @@ namespace BCad.Collections
             return items.Contains(item);
         }
 
-        public bool ContainsHash(int hash)
-        {
-            return itemHashes.Contains(hash);
-        }
-
         protected void OnCollectionChanged()
         {
-            if (CollectionChanged != null)
-                CollectionChanged(this, new EventArgs());
+            var changed = CollectionChanged;
+            if (changed != null)
+                changed(this, new EventArgs());
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this.items.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)this.items).GetEnumerator();
         }
     }
 }

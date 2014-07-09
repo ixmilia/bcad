@@ -1,16 +1,13 @@
-﻿using BCad.Helpers;
-using System;
-
-namespace BCad.Primitives
+﻿namespace BCad.Primitives
 {
     public class PrimitiveLine : IPrimitive
     {
         public Point P1 { get; private set; }
         public Point P2 { get; private set; }
-        public Color Color { get; private set; }
+        public IndexedColor Color { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Line; } }
 
-        public PrimitiveLine(Point p1, Point p2, Color color)
+        public PrimitiveLine(Point p1, Point p2, IndexedColor color)
         {
             this.P1 = p1;
             this.P2 = p2;
@@ -18,7 +15,7 @@ namespace BCad.Primitives
         }
 
         public PrimitiveLine(Point p1, Point p2)
-            : this(p1, p2, Color.Auto)
+            : this(p1, p2, IndexedColor.Auto)
         {
         }
 
@@ -35,7 +32,7 @@ namespace BCad.Primitives
                 this.P2 = this.P1 + new Vector(1.0, slope, 0.0);
             }
 
-            this.Color = Color.Auto;
+            this.Color = IndexedColor.Auto;
         }
     }
 }

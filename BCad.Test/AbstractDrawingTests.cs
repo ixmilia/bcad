@@ -6,7 +6,7 @@ using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Services;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
@@ -23,7 +23,7 @@ namespace BCad.Test
 
         protected void AssertClose(double expected, double actual)
         {
-            Assert.True(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+            Assert.IsTrue(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
         protected void AssertClose(Point expected, Point actual)

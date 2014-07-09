@@ -1,16 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{59B09CA5-1837-4C2B-858C-91E997939C79}</ProjectGuid>
+    <ProjectGuid>{EDB8FB15-5411-47F8-804A-EC0F696CD4E4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BCad.Iges</RootNamespace>
     <AssemblyName>BCad.Iges</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,22 +34,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <None Include="Entities\IgesEntitySpec.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Directory\IgesDirectoryData.cs" />
     <Compile Include="Entities\IgesBounding.cs" />
-    <Compile Include="Entities\IgesCircle.cs" />
     <Compile Include="Entities\IgesEntity.cs" />
-    <Compile Include="Entities\IgesEntityType.cs" />
-    <Compile Include="Entities\IgesLine.cs" />
-    <Compile Include="Entities\IgesTransformationMatrix.cs" />
+    <Compile Include="Entities\IgesEntityGenerated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IgesEntityGenerated.tt</DependentUpon>
+    </Compile>
     <Compile Include="IgesFileWriter.cs" />
     <Compile Include="IgesPoint.cs" />
     <Compile Include="IgesVersion.cs" />
@@ -56,13 +56,21 @@
     <Compile Include="IgesFileReader.cs" />
     <Compile Include="IgesSectionType.cs" />
     <Compile Include="IgesUnits.cs" />
-    <Compile Include="Parameter\IgesCircleParameterData.cs" />
-    <Compile Include="Parameter\IgesLineParameterData.cs" />
-    <Compile Include="Parameter\IgesParameterData.cs" />
-    <Compile Include="Parameter\IgesTransformationMatrixParameterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="Entities\IgesEntityGenerated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IgesEntityGenerated.cs</LastGenOutput>
+    </None>
+    <None Include="Entities\IgesEntitySpec.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

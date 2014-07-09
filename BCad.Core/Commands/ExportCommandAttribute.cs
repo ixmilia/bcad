@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Windows.Input;
+using System.Composition;
 
 namespace BCad.Commands
 {
@@ -9,29 +7,15 @@ namespace BCad.Commands
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ExportCommandAttribute : ExportAttribute, ICommandMetadata
     {
-        public ExportCommandAttribute(string name, string displayName, params string[] aliases)
-            : this(name, displayName, ModifierKeys.None, Key.None, aliases)
-        {
-        }
-
-        public ExportCommandAttribute(string name, string displayName, ModifierKeys modifier, Key key, params string[] aliases)
+        public ExportCommandAttribute(string name, string displayName)
             : base(typeof(ICommand))
         {
-            this.Name = name;
-            this.DisplayName = displayName;
-            this.Modifier = modifier;
-            this.Key = key;
-            this.CommandAliases = aliases ?? new string[0];
-        }
+            Name = name;
+            DisplayName = displayName;
+        }        
 
         public string Name { get; set; }
 
         public string DisplayName { get; set; }
-
-        public IEnumerable<string> CommandAliases { get; set; }
-
-        public ModifierKeys Modifier { get; set; }
-
-        public Key Key { get; set; }
     }
 }

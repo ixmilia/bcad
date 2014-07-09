@@ -1,19 +1,19 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.SaveAs", "SAVEAS", "saveas", "sa")]
+    [ExportCommand("File.SaveAs", "SAVEAS")]
     public class SaveAsCommand : ICommand
     {
         [Import]
-        private IWorkspace Workspace = null;
+        public IWorkspace Workspace { get; set; }
 
         [Import]
-        private IFileSystemService FileSystemService = null;
+        public IFileSystemService FileSystemService { get; set; }
 
-        public Task<bool> Execute(object arg)
+        public async Task<bool> Execute(object arg)
         {
             var drawing = Workspace.Drawing;
             string fileName = null;
@@ -21,17 +21,17 @@ namespace BCad.Commands
                 fileName = (string)arg;
 
             if (fileName == null)
-                fileName = FileSystemService.GetFileNameFromUserForSave();
+                fileName = await FileSystemService.GetFileNameFromUserForSave();
 
             if (fileName == null)
-                return Task.FromResult<bool>(false);
+                return false;
 
-            if (!FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort))
-                return Task.FromResult<bool>(false);
+            if (!await FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort, null))
+                return false;
 
             UpdateDrawingFileName(Workspace, fileName);
 
-            return Task.FromResult<bool>(true);
+            return true;
         }
 
         internal static void UpdateDrawingFileName(IWorkspace workspace, string fileName)

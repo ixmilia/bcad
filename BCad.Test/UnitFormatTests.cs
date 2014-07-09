@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test
 {
+    [TestClass]
     public class UnitFormatTests
     {
-        [Fact]
-        public void NoneFormatTest()
-        {
-            Assert.Equal("3.5", DrawingSettings.FormatUnits(3.5, UnitFormat.None, 0));
-        }
-
-        [Fact]
+        [TestMethod]
         public void MetricFormatTest()
         {
             // nearest whole number
@@ -30,7 +25,7 @@ namespace BCad.Test
             TestMetric(3.14159, "3.1416", 4);
         }
 
-        [Fact]
+        [TestMethod]
         public void ArchitecturalFormatTest()
         {
             // nearest inch
@@ -54,7 +49,7 @@ namespace BCad.Test
             TestArch(15.99999999, "1'4\"", 16);
         }
 
-        [Fact]
+        [TestMethod]
         public void MetricParseTest()
         {
             TestParse("0", 0.0);
@@ -62,7 +57,7 @@ namespace BCad.Test
             TestParse("-4.8", -4.8);
         }
 
-        [Fact]
+        [TestMethod]
         public void ArchitecturalParseTest()
         {
             TestParse("18", 18.0); // just inches, no specifier
@@ -80,7 +75,7 @@ namespace BCad.Test
             TestParse("1'3.5", 15.5); // feet with decimal inches without specifier
         }
 
-        [Fact]
+        [TestMethod]
         public void ParseFailureTest()
         {
             ParseFail(""); // empty string
@@ -91,24 +86,24 @@ namespace BCad.Test
         private void TestParse(string text, double expected)
         {
             double actual;
-            Assert.True(DrawingSettings.TryParseUnits(text, out actual));
-            Assert.Equal(expected, actual);
+            Assert.IsTrue(DrawingSettings.TryParseUnits(text, out actual));
+            Assert.AreEqual(expected, actual);
         }
 
         private void ParseFail(string text)
         {
             double temp;
-            Assert.False(DrawingSettings.TryParseUnits(text, out temp));
+            Assert.IsFalse(DrawingSettings.TryParseUnits(text, out temp));
         }
 
         private void TestMetric(double value, string expected, int precision)
         {
-            Assert.Equal(expected, DrawingSettings.FormatUnits(value, UnitFormat.Metric, precision));
+            Assert.AreEqual(expected, DrawingSettings.FormatUnits(value, UnitFormat.Metric, precision));
         }
 
         private void TestArch(double value, string expected, int precision)
         {
-            Assert.Equal(expected, DrawingSettings.FormatUnits(value, UnitFormat.Architectural, precision));
+            Assert.AreEqual(expected, DrawingSettings.FormatUnits(value, UnitFormat.Architectural, precision));
         }
     }
 }

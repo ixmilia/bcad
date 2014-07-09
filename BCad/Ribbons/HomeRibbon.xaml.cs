@@ -1,10 +1,7 @@
-﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.Composition;
+﻿using System.Composition;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows.Input;
-using BCad.EventArguments;
+using BCad.ViewModels;
 using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad.Ribbons
@@ -12,11 +9,11 @@ namespace BCad.Ribbons
     /// <summary>
     /// Interaction logic for HomeRibbon.xaml
     /// </summary>
-    [Export(typeof(RibbonTab))]
+    [ExportRibbonTab("home")]
     public partial class HomeRibbon : RibbonTab
     {
-        private IWorkspace workspace = null;
-        private bool listenToChangeEvent = true;
+        private IWorkspace workspace;
+        private HomeRibbonViewModel viewModel;
 
         public HomeRibbon()
         {
@@ -28,28 +25,8 @@ namespace BCad.Ribbons
             : this()
         {
             this.workspace = workspace;
-
-            // subscribe to events
-            this.workspace.WorkspaceChanged += WorkspaceChanged;
-
-            // populate the layers
-            PopulateDropDown();
-        }
-
-        void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
-        {
-            if (e.IsDrawingChange)
-                this.Dispatcher.BeginInvoke((Action)(() => PopulateDropDown()));
-        }
-
-        private void PopulateDropDown()
-        {
-            listenToChangeEvent = false;
-            this.currentLayer.Items.Clear();
-            foreach (var layer in workspace.Drawing.GetLayers().OrderBy(l => l.Name))
-                this.currentLayer.Items.Add(layer);
-            this.currentLayer.SelectedItem = workspace.Drawing.CurrentLayer;
-            listenToChangeEvent = true;
+            viewModel = new HomeRibbonViewModel(this.workspace);
+            DataContext = viewModel;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -63,36 +40,6 @@ namespace BCad.Ribbons
             var command = e.Parameter as string;
             Debug.Assert(command != null, "Command string should not have been null");
             workspace.ExecuteCommand(command);
-        }
-
-        private void CurrentLayerSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            if (listenToChangeEvent)
-            {
-                var layer = (Layer)this.currentLayer.SelectedItem;
-                workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layer.Name));
-            }
-        }
-
-        private void DebugButtonClick(object sender, System.Windows.RoutedEventArgs e)
-        {
-            string inputFile, outputFile;
-            if (string.Compare(Environment.MachineName, "bisquik", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                // home machine
-                inputFile = @"D:\Code\BCad\BCad\BellevueHouse.dxf";
-                outputFile = @"D:\Personal\Desktop\bh.svg";
-            }
-            else
-            {
-                // work machine
-                inputFile = @"C:\Users\brettfo\Documents\GitHub\BCad\BCad\RoundyHouse.dxf";
-                outputFile = @"D:\Private\Desktop\test.svg";
-            }
-
-            workspace.ExecuteCommand("File.Open", inputFile).Wait();
-            workspace.ExecuteCommand("File.SaveAs", outputFile).Wait();
-            System.Diagnostics.Process.Start(outputFile);
         }
     }
 }

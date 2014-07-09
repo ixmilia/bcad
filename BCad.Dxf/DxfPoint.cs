@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BCad
+namespace BCad.Dxf
 {
     public class DxfPoint
     {
@@ -67,6 +67,11 @@ namespace BCad
         public DxfVector(double x, double y, double z)
             : base(x, y, z)
         {
+        }
+
+        public static DxfVector Zero
+        {
+            get { return new DxfVector(0, 0, 0); }
         }
 
         public static DxfVector XAxis

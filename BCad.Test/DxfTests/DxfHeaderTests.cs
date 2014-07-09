@@ -3,31 +3,16 @@ using System.IO;
 using BCad.Dxf;
 using BCad.Dxf.Sections;
 using BCad.Dxf.Tables;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests
 {
+    [TestClass]
     public class DxfHeaderTests : AbstractDxfTests
     {
         #region Read tests
 
-        [Fact]
-        public void DefaultHeaderValuesTest()
-        {
-            var file = Section("HEADER", "");
-            Assert.Equal(0, file.HeaderSection.MaintenanceVersion);
-            Assert.Equal(DxfAcadVersion.R14, file.HeaderSection.Version);
-            Assert.Equal(0.0, file.HeaderSection.AngleZeroDirection);
-            Assert.Equal(DxfAngleDirection.CounterClockwise, file.HeaderSection.AngleDirection);
-            Assert.Equal(DxfAttributeVisibility.None, file.HeaderSection.AttributeVisibility);
-            Assert.Equal(DxfUnitFormat.None, file.HeaderSection.AngleUnitFormat);
-            Assert.Equal(0, file.HeaderSection.AngleUnitPrecision);
-            Assert.Null(file.HeaderSection.CurrentLayer);
-            Assert.Equal(DxfUnitFormat.None, file.HeaderSection.UnitFormat);
-            Assert.Equal(0, file.HeaderSection.UnitPrecision);
-        }
-
-        [Fact]
+        [TestMethod]
         public void SpecificHeaderValuesTest()
         {
             var file = Section("HEADER", @"
@@ -72,19 +57,19 @@ $LUPREC
  70
 7
 ");
-            Assert.Equal(16, file.HeaderSection.MaintenanceVersion);
-            Assert.Equal(DxfAcadVersion.R13, file.HeaderSection.Version);
-            Assert.Equal(55.0, file.HeaderSection.AngleZeroDirection);
-            Assert.Equal(DxfAngleDirection.Clockwise, file.HeaderSection.AngleDirection);
-            Assert.Equal(DxfAttributeVisibility.Normal, file.HeaderSection.AttributeVisibility);
-            Assert.Equal(DxfUnitFormat.Engineering, file.HeaderSection.AngleUnitFormat);
-            Assert.Equal(7, file.HeaderSection.AngleUnitPrecision);
-            Assert.Equal("<current layer>", file.HeaderSection.CurrentLayer);
-            Assert.Equal(DxfUnitFormat.Architectural, file.HeaderSection.UnitFormat);
-            Assert.Equal(7, file.HeaderSection.UnitPrecision);
+            Assert.AreEqual(16, file.Header.MaintenenceVersion);
+            Assert.AreEqual(DxfAcadVersion.R13, file.Header.Version);
+            Assert.AreEqual(55.0, file.Header.AngleZeroDirection);
+            Assert.AreEqual(DxfAngleDirection.Clockwise, file.Header.AngleDirection);
+            Assert.AreEqual(DxfAttributeVisibility.Normal, file.Header.AttributeVisibility);
+            Assert.AreEqual(DxfAngleFormat.Radians, file.Header.AngleUnitFormat);
+            Assert.AreEqual(7, file.Header.AngleUnitPrecision);
+            Assert.AreEqual("<current layer>", file.Header.CurrentLayer);
+            Assert.AreEqual(DxfUnitFormat.Architectural, file.Header.UnitFormat);
+            Assert.AreEqual(7, file.Header.UnitPrecision);
         }
 
-        [Fact]
+        [TestMethod]
         public void LayerTableTest()
         {
             var file = Section("TABLES", @"
@@ -107,15 +92,15 @@ b
   0
 ENDTAB
 ");
-            var layers = file.TablesSection.LayerTable.Layers;
-            Assert.Equal(2, layers.Count);
-            Assert.Equal("a", layers[0].Name);
-            Assert.Equal(12, layers[0].Color.RawValue);
-            Assert.Equal("b", layers[1].Name);
-            Assert.Equal(13, layers[1].Color.RawValue);
+            var layers = file.Layers;
+            Assert.AreEqual(2, layers.Count);
+            Assert.AreEqual("a", layers[0].Name);
+            Assert.AreEqual(12, layers[0].Color.RawValue);
+            Assert.AreEqual("b", layers[1].Name);
+            Assert.AreEqual(13, layers[1].Color.RawValue);
         }
 
-        [Fact]
+        [TestMethod]
         public void ViewPortTableTest()
         {
             var file = Section("TABLES", @"
@@ -182,64 +167,64 @@ vport-2
   0
 ENDTAB
 ");
-            var viewPorts = file.TablesSection.ViewPortTable.ViewPorts;
-            Assert.Equal(2, viewPorts.Count);
+            var viewPorts = file.ViewPorts;
+            Assert.AreEqual(2, viewPorts.Count);
 
             // defaults
-            Assert.Equal(null, viewPorts[0].Name);
-            Assert.Equal(0.0, viewPorts[0].LowerLeft.X);
-            Assert.Equal(0.0, viewPorts[0].LowerLeft.Y);
-            Assert.Equal(0.0, viewPorts[0].UpperRight.X);
-            Assert.Equal(0.0, viewPorts[0].UpperRight.Y);
-            Assert.Equal(0.0, viewPorts[0].ViewCenter.X);
-            Assert.Equal(0.0, viewPorts[0].ViewCenter.Y);
-            Assert.Equal(0.0, viewPorts[0].SnapBasePoint.X);
-            Assert.Equal(0.0, viewPorts[0].SnapBasePoint.Y);
-            Assert.Equal(0.0, viewPorts[0].SnapSpacing.X);
-            Assert.Equal(0.0, viewPorts[0].SnapSpacing.Y);
-            Assert.Equal(0.0, viewPorts[0].GridSpacing.X);
-            Assert.Equal(0.0, viewPorts[0].GridSpacing.Y);
-            Assert.Equal(0.0, viewPorts[0].ViewDirection.X);
-            Assert.Equal(0.0, viewPorts[0].ViewDirection.Y);
-            Assert.Equal(1.0, viewPorts[0].ViewDirection.Z);
-            Assert.Equal(0.0, viewPorts[0].TargetViewPoint.X);
-            Assert.Equal(0.0, viewPorts[0].TargetViewPoint.Y);
-            Assert.Equal(0.0, viewPorts[0].TargetViewPoint.Z);
-            Assert.Equal(0.0, viewPorts[0].ViewHeight);
-            Assert.Equal(0.0, viewPorts[0].ViewPortAspectRatio);
-            Assert.Equal(0.0, viewPorts[0].LensLength);
-            Assert.Equal(0.0, viewPorts[0].FrontClippingPlane);
-            Assert.Equal(0.0, viewPorts[0].BackClippingPlane);
-            Assert.Equal(0.0, viewPorts[0].SnapRotationAngle);
-            Assert.Equal(0.0, viewPorts[0].ViewTwistAngle);
+            Assert.AreEqual(null, viewPorts[0].Name);
+            Assert.AreEqual(0.0, viewPorts[0].LowerLeft.X);
+            Assert.AreEqual(0.0, viewPorts[0].LowerLeft.Y);
+            Assert.AreEqual(0.0, viewPorts[0].UpperRight.X);
+            Assert.AreEqual(0.0, viewPorts[0].UpperRight.Y);
+            Assert.AreEqual(0.0, viewPorts[0].ViewCenter.X);
+            Assert.AreEqual(0.0, viewPorts[0].ViewCenter.Y);
+            Assert.AreEqual(0.0, viewPorts[0].SnapBasePoint.X);
+            Assert.AreEqual(0.0, viewPorts[0].SnapBasePoint.Y);
+            Assert.AreEqual(0.0, viewPorts[0].SnapSpacing.X);
+            Assert.AreEqual(0.0, viewPorts[0].SnapSpacing.Y);
+            Assert.AreEqual(0.0, viewPorts[0].GridSpacing.X);
+            Assert.AreEqual(0.0, viewPorts[0].GridSpacing.Y);
+            Assert.AreEqual(0.0, viewPorts[0].ViewDirection.X);
+            Assert.AreEqual(0.0, viewPorts[0].ViewDirection.Y);
+            Assert.AreEqual(1.0, viewPorts[0].ViewDirection.Z);
+            Assert.AreEqual(0.0, viewPorts[0].TargetViewPoint.X);
+            Assert.AreEqual(0.0, viewPorts[0].TargetViewPoint.Y);
+            Assert.AreEqual(0.0, viewPorts[0].TargetViewPoint.Z);
+            Assert.AreEqual(0.0, viewPorts[0].ViewHeight);
+            Assert.AreEqual(0.0, viewPorts[0].ViewPortAspectRatio);
+            Assert.AreEqual(0.0, viewPorts[0].LensLength);
+            Assert.AreEqual(0.0, viewPorts[0].FrontClippingPlane);
+            Assert.AreEqual(0.0, viewPorts[0].BackClippingPlane);
+            Assert.AreEqual(0.0, viewPorts[0].SnapRotationAngle);
+            Assert.AreEqual(0.0, viewPorts[0].ViewTwistAngle);
 
             // specifics
-            Assert.Equal("vport-2", viewPorts[1].Name);
-            Assert.Equal(11.0, viewPorts[1].LowerLeft.X);
-            Assert.Equal(22.0, viewPorts[1].LowerLeft.Y);
-            Assert.Equal(33.0, viewPorts[1].UpperRight.X);
-            Assert.Equal(44.0, viewPorts[1].UpperRight.Y);
-            Assert.Equal(55.0, viewPorts[1].ViewCenter.X);
-            Assert.Equal(66.0, viewPorts[1].ViewCenter.Y);
-            Assert.Equal(77.0, viewPorts[1].SnapBasePoint.X);
-            Assert.Equal(88.0, viewPorts[1].SnapBasePoint.Y);
-            Assert.Equal(99.0, viewPorts[1].SnapSpacing.X);
-            Assert.Equal(12.0, viewPorts[1].SnapSpacing.Y);
-            Assert.Equal(13.0, viewPorts[1].GridSpacing.X);
-            Assert.Equal(14.0, viewPorts[1].GridSpacing.Y);
-            Assert.Equal(15.0, viewPorts[1].ViewDirection.X);
-            Assert.Equal(16.0, viewPorts[1].ViewDirection.Y);
-            Assert.Equal(17.0, viewPorts[1].ViewDirection.Z);
-            Assert.Equal(18.0, viewPorts[1].TargetViewPoint.X);
-            Assert.Equal(19.0, viewPorts[1].TargetViewPoint.Y);
-            Assert.Equal(20.0, viewPorts[1].TargetViewPoint.Z);
-            Assert.Equal(21.0, viewPorts[1].ViewHeight);
-            Assert.Equal(22.0, viewPorts[1].ViewPortAspectRatio);
-            Assert.Equal(23.0, viewPorts[1].LensLength);
-            Assert.Equal(24.0, viewPorts[1].FrontClippingPlane);
-            Assert.Equal(25.0, viewPorts[1].BackClippingPlane);
-            Assert.Equal(26.0, viewPorts[1].SnapRotationAngle);
-            Assert.Equal(27.0, viewPorts[1].ViewTwistAngle);
+            Assert.AreEqual("vport-2", viewPorts[1].Name);
+            Assert.AreEqual(11.0, viewPorts[1].LowerLeft.X);
+            Assert.AreEqual(22.0, viewPorts[1].LowerLeft.Y);
+            Assert.AreEqual(33.0, viewPorts[1].UpperRight.X);
+            Assert.AreEqual(44.0, viewPorts[1].UpperRight.Y);
+            Assert.AreEqual(55.0, viewPorts[1].ViewCenter.X);
+            Assert.AreEqual(66.0, viewPorts[1].ViewCenter.Y);
+            Assert.AreEqual(77.0, viewPorts[1].SnapBasePoint.X);
+            Assert.AreEqual(88.0, viewPorts[1].SnapBasePoint.Y);
+            Assert.AreEqual(99.0, viewPorts[1].SnapSpacing.X);
+            Assert.AreEqual(12.0, viewPorts[1].SnapSpacing.Y);
+            Assert.AreEqual(13.0, viewPorts[1].GridSpacing.X);
+            Assert.AreEqual(14.0, viewPorts[1].GridSpacing.Y);
+            Assert.AreEqual(15.0, viewPorts[1].ViewDirection.X);
+            Assert.AreEqual(16.0, viewPorts[1].ViewDirection.Y);
+            Assert.AreEqual(17.0, viewPorts[1].ViewDirection.Z);
+            Assert.AreEqual(18.0, viewPorts[1].TargetViewPoint.X);
+            Assert.AreEqual(19.0, viewPorts[1].TargetViewPoint.Y);
+            Assert.AreEqual(20.0, viewPorts[1].TargetViewPoint.Z);
+            Assert.AreEqual(21.0, viewPorts[1].ViewHeight);
+            Assert.AreEqual(22.0, viewPorts[1].ViewPortAspectRatio);
+            Assert.AreEqual(23.0, viewPorts[1].LensLength);
+            Assert.AreEqual(24.0, viewPorts[1].FrontClippingPlane);
+            Assert.AreEqual(25.0, viewPorts[1].BackClippingPlane);
+            Assert.AreEqual(26.0, viewPorts[1].SnapRotationAngle);
+            Assert.AreEqual(27.0, viewPorts[1].ViewTwistAngle);
         }
 
         #endregion
@@ -258,89 +243,43 @@ ENDTAB
 
         private static void VerifyFileContains(DxfFile file, string expected)
         {
-            VerifyFileContents(file, expected, (ex, ac) => Assert.Contains(ex.Trim(), ac));
+            VerifyFileContents(file, expected, (ex, ac) => Assert.IsTrue(ac.Contains(ex.Trim())));
         }
 
         private static void VerifyFileIsExactly(DxfFile file, string expected)
         {
-            VerifyFileContents(file, expected, (ex, ac) => Assert.Equal(ex.Trim(), ac.Trim()));
+            VerifyFileContents(file, expected, (ex, ac) => Assert.AreEqual(ex.Trim(), ac.Trim()));
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteDefaultHeaderValuesTest()
         {
-            VerifyFileIsExactly(new DxfFile(), "0\r\nEOF");
-        }
-
-        [Fact]
-        public void WriteSpecificHeaderValuesTest()
-        {
-            var file = new DxfFile();
-            file.HeaderSection.MaintenanceVersion = 16;
-            file.HeaderSection.AngleZeroDirection = 55.0;
-            file.HeaderSection.AngleDirection = DxfAngleDirection.Clockwise;
-            file.HeaderSection.Version = DxfAcadVersion.R13;
-            file.HeaderSection.AttributeVisibility = DxfAttributeVisibility.All;
-            file.HeaderSection.AngleUnitFormat = DxfUnitFormat.Fractional;
-            file.HeaderSection.AngleUnitPrecision = 12;
-            file.HeaderSection.CurrentLayer = "<current layer>";
-            file.HeaderSection.UnitFormat = DxfUnitFormat.Engineering;
-            file.HeaderSection.UnitPrecision = 4;
-            VerifyFileContains(file, @"
-  0
-SECTION
-  2
-HEADER
+            VerifyFileContains(new DxfFile(), @"
   9
-$ACADMAINTVER
- 70
-16
-  9
-$ACADVER
-  1
-AC1012
-  9
-$ANGBASE
- 50
-5.5000000000000000E+001
-  9
-$ANGDIR
- 70
-1
-  9
-$ATTMODE
- 70
-2
-  9
-$AUNITS
- 70
-7
-  9
-$AUPREC
- 70
-12
-  9
-$CLAYER
-  8
-<current layer>
-  9
-$LUNITS
- 70
-3
-  9
-$LUPREC
- 70
-4
-  0
-ENDSEC
+$DIMGAP
+ 40
+0.0000000000000000E+000
 ");
         }
 
-        [Fact]
+        [TestMethod]
+        public void WriteSpecificHeaderValuesTest()
+        {
+            var file = new DxfFile();
+            file.Header.DimensionLineGap = 11.0;
+            VerifyFileContains(file, @"
+  9
+$DIMGAP
+ 40
+1.1000000000000000E+001
+");
+        }
+
+        [TestMethod]
         public void WriteLayersTest()
         {
             var file = new DxfFile();
-            file.TablesSection.LayerTable.Layers.Add(new DxfLayer("default"));
+            file.Layers.Add(new DxfLayer("default"));
             VerifyFileContains(file, @"
   0
 SECTION
@@ -354,6 +293,8 @@ LAYER
 LAYER
   2
 default
+ 70
+0
  62
 0
   0
@@ -363,11 +304,11 @@ ENDSEC
 ");
         }
 
-        [Fact]
+        [TestMethod]
         public void WriteViewportTest()
         {
             var file = new DxfFile();
-            file.TablesSection.ViewPortTable.ViewPorts.Add(new DxfViewPort());
+            file.ViewPorts.Add(new DxfViewPort());
             VerifyFileContains(file, @"
   0
 SECTION

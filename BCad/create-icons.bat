@@ -1,0 +1,1 @@
+convert -antialias -background transparent BCad.ico.svg -resize 32x32 BCad.ico

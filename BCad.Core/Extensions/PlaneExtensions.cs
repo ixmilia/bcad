@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Windows.Media.Media3D;
 using BCad.Entities;
 using BCad.Primitives;
 
@@ -26,6 +25,9 @@ namespace BCad.Extensions
                 case PrimitiveKind.Line:
                     var line = (PrimitiveLine)primitive;
                     return plane.Contains(line.P1) && plane.Contains(line.P2);
+                case PrimitiveKind.Point:
+                    var p = (PrimitivePoint)primitive;
+                    return plane.Contains(p.Location);
                 case PrimitiveKind.Text:
                     var t = (PrimitiveText)primitive;
                     return plane.Contains(t.Location)
@@ -40,27 +42,27 @@ namespace BCad.Extensions
             return entity.GetPrimitives().All(p => plane.Contains(p));
         }
 
-        public static Matrix3D ToXYPlaneProjection(this Plane plane)
+        public static Matrix4 ToXYPlaneProjection(this Plane plane)
         {
             var right = Vector.XAxis;
             if (plane.Normal.IsParallelTo(right))
                 right = Vector.YAxis;
             var up = plane.Normal.Cross(right).Normalize();
             right = up.Cross(plane.Normal).Normalize();
-            var matrix = PrimitiveExtensions.FromUnitCircleProjection(plane.Normal, right, up, Point.Origin, 1.0, 1.0, 1.0);
+            var matrix = Matrix4.FromUnitCircleProjection(plane.Normal, right, up, Point.Origin, 1.0, 1.0, 1.0);
             return matrix;
         }
 
         public static Point ToXYPlane(this Plane plane, Point point)
         {
-            return point.Transform(plane.ToXYPlaneProjection());
+            return plane.ToXYPlaneProjection().Transform(point);
         }
 
         public static Point FromXYPlane(this Plane plane, Point point)
         {
             var matrix = plane.ToXYPlaneProjection();
             matrix.Invert();
-            return point.Transform(matrix);
+            return matrix.Transform(point);
         }
     }
 }

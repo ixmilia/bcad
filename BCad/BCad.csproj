@@ -1,8 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <GlobalConstants>BCAD_WPF</GlobalConstants>
+    <NuGetPackageImportStamp>0d14ae2e</NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A978C366-6CC2-4F82-908A-8C830F7E6113}</ProjectGuid>
@@ -17,27 +23,28 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;$(GlobalConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;$(GlobalConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>BCad.ico</ApplicationIcon>
@@ -51,10 +58,49 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\RibbonControlsLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Game">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Game.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Graphics">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Graphics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Composition.AttributedModel, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Convention, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Convention.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Hosting, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Runtime, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.TypedParts, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -72,17 +118,90 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="Extensions\PointExtensions.cs" />
+    <Compile Include="Extensions\PrimitiveExtensions.cs" />
+    <Compile Include="Ribbons\ColorConverter.cs" />
+    <Compile Include="Ribbons\DebugRibbon.xaml.cs">
+      <DependentUpon>DebugRibbon.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\View\CadGame.cs" />
+    <Compile Include="UI\View\EditPane.xaml.cs">
+      <DependentUpon>EditPane.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\View\NullVisibilityConverter.cs" />
+    <Compile Include="UI\View\PointVectorConverter.cs" />
+    <Compile Include="UI\View\RenderCanvasViewModel.cs" />
+    <Compile Include="UI\View\SharpDXRenderer.xaml.cs">
+      <DependentUpon>SharpDXRenderer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\View\SharpDXRendererFactory.cs" />
+    <Compile Include="UI\View\ViewPane.BindingClass.cs" />
+    <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
+    <Compile Include="ViewModels\ColorViewModel.cs" />
+    <Compile Include="ViewModels\EditAggregateViewModel.cs" />
+    <Compile Include="ViewModels\EditArcViewModel.cs" />
+    <Compile Include="ViewModels\EditCircleViewModel.cs" />
+    <Compile Include="ViewModels\EditEllipseViewModel.cs" />
+    <Compile Include="ViewModels\EditEntityViewModel.cs" />
+    <Compile Include="ViewModels\EditLineViewModel.cs" />
+    <Compile Include="ViewModels\EditLocationViewModel.cs" />
+    <Compile Include="ViewModels\EditPaneViewModel.cs" />
+    <Compile Include="ViewModels\EditTextViewModel.cs" />
+    <Compile Include="ViewModels\HomeRibbonViewModel.cs" />
+    <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
+      <DependentUpon>SettingsRibbon.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Ribbons\ExportRibbonTabAttribute.cs" />
     <Compile Include="Ribbons\HomeRibbon.xaml.cs">
       <DependentUpon>HomeRibbon.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Services\ExportService.cs" />
+    <Compile Include="Ribbons\IRibbonTabMetadata.cs" />
+    <Compile Include="Ribbons\RibbonTabMetadata.cs" />
+    <Compile Include="Ribbons\SettingsRibbonViewModel.cs" />
     <Compile Include="Services\FileSystemService.cs" />
-    <Compile Include="SettingsManager.cs" />
     <Compile Include="ToggleSettingsCommand.cs" />
-    <Compile Include="Services\UndoRedoService.cs" />
-    <Compile Include="Services\InputService.cs" />
+    <Compile Include="UI\BoolToVisibilityConverter.cs" />
+    <Compile Include="UI\Consoles\InputConsole.xaml.cs">
+      <DependentUpon>InputConsole.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\LayerManager.xaml.cs">
+      <DependentUpon>LayerManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\PlotDialog.xaml.cs">
+      <DependentUpon>PlotDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\PlotDialogViewModel.cs" />
+    <Compile Include="UI\View\IRenderer.cs" />
+    <Compile Include="UI\View\ISlimDXRenderEngine.cs" />
+    <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
+    <Compile Include="UI\View\IRendererFactory.cs" />
+    <Compile Include="UI\View\RenderCanvas.BindingClass.cs" />
+    <Compile Include="UI\View\RenderCanvas.xaml.cs">
+      <DependentUpon>RenderCanvas.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\View\RenderFactoryMetadata.cs" />
+    <Compile Include="UI\View\ViewPane.xaml.cs">
+      <DependentUpon>ViewPane.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\View\XamlRenderer.Shared.cs" />
+    <Compile Include="UI\View\XamlRenderer.xaml.cs">
+      <DependentUpon>XamlRenderer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\View\XamlRendererFactory.cs" />
     <Compile Include="UserCommand.cs" />
-    <Compile Include="Workspace.cs" />
+    <Compile Include="ViewModels\LayerManagerViewModel.cs" />
+    <Compile Include="ViewModels\MutableLayerViewModel.cs" />
+    <Compile Include="ViewModels\ReadOnlyLayerViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Page Include="Ribbons\DebugRibbon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ribbons\SettingsRibbon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ribbons\HomeRibbonIcons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -100,6 +219,38 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Ribbons\HomeRibbon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Consoles\InputConsole.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\LayerManager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\PlotDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\View\EditPane.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\View\RenderCanvas.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\View\SharpDXRenderer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\View\ViewPane.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\View\XamlRenderer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -123,8 +274,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="BCad.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\Settings.settings">
@@ -140,8 +290,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BCad.Core.UI\BCad.Core.UI.csproj">
+      <Project>{b02cc174-511b-4272-b625-b492074f7bc5}</Project>
+      <Name>BCad.Core.UI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
-      <Project>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</Project>
+      <Project>{ae1e5dc5-64db-4fba-847c-5b84a865eec1}</Project>
       <Name>BCad.Core</Name>
     </ProjectReference>
   </ItemGroup>
@@ -156,18 +310,20 @@
     <Resource Include="Icons\UndoSmall.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\TrimSmall.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\ExtendSmall.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\OffsetSmall.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="notes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\SharpDX.2.6.0\build\SharpDX.targets" Condition="Exists('..\packages\SharpDX.2.6.0\build\SharpDX.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\SharpDX.2.6.0\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpDX.2.6.0\build\SharpDX.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpDX.Toolkit.2.6.0\build\SharpDX.Toolkit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpDX.Toolkit.2.6.0\build\SharpDX.Toolkit.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <Import Project="..\packages\SharpDX.Toolkit.2.6.0\build\SharpDX.Toolkit.targets" Condition="Exists('..\packages\SharpDX.Toolkit.2.6.0\build\SharpDX.Toolkit.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

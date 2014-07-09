@@ -109,8 +109,17 @@ namespace BCad.Dxf.Tables
             DxfTable result;
             switch (pair.StringValue)
             {
+                case DxfTable.DimStyleText:
+                    result = DxfDimStyleTable.DimStyleTableFromBuffer(buffer);
+                    break;
                 case DxfTable.LayerText:
                     result = DxfLayerTable.LayerTableFromBuffer(buffer);
+                    break;
+                case DxfTable.LTypeText:
+                    result = DxfLinetypeTable.LinetypeTableFromBuffer(buffer);
+                    break;
+                case DxfTable.StyleText:
+                    result = DxfStyleTable.StyleTableFromBuffer(buffer);
                     break;
                 case DxfViewPort.ViewPortText:
                     result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);

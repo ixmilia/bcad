@@ -1,9 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BCad.Dxf.Tables
+namespace BCad.Dxf
 {
-    public class DxfViewPort
+    public enum DxfUcsIconVisibility
+    {
+        None = 0,
+        LowerLeft = 1,
+        AtOrigin = 2
+    }
+
+    public enum DxfSnapStyle
+    {
+        Standard = 0,
+        Isometric = 1
+    }
+
+    public enum DxfSnapIsometricPlane
+    {
+        Left = 0,
+        Top = 1,
+        Right = 2
+    }
+
+    public class DxfViewPort : DxfSymbolTableFlags
     {
         public const string ViewPortText = "VPORT";
 
@@ -41,6 +61,22 @@ namespace BCad.Dxf.Tables
 
         public double ViewTwistAngle { get; set; }
 
+        public DxfViewMode ViewMode { get; set; }
+
+        public short CircleZoomPercent { get; set; }
+
+        public bool FastZoom { get; set; }
+
+        public DxfUcsIconVisibility UcsIconVisibility { get; set; }
+
+        public bool SnapOn { get; set; }
+
+        public bool GridOn { get; set; }
+
+        public DxfSnapStyle SnapStyle { get; set; }
+
+        public DxfSnapIsometricPlane SnapIsometricPlane { get; set; }
+
         public DxfViewPort()
         {
             Name = null;
@@ -59,6 +95,14 @@ namespace BCad.Dxf.Tables
             BackClippingPlane = 0.0;
             SnapRotationAngle = 0.0;
             ViewTwistAngle = 0.0;
+            ViewMode = new DxfViewMode();
+            CircleZoomPercent = 0;
+            FastZoom = false;
+            UcsIconVisibility = DxfUcsIconVisibility.None;
+            SnapOn = false;
+            GridOn = false;
+            SnapStyle = DxfSnapStyle.Standard;
+            SnapIsometricPlane = DxfSnapIsometricPlane.Left;
         }
 
         internal IEnumerable<DxfCodePair> GetValuePairs()
@@ -70,8 +114,11 @@ namespace BCad.Dxf.Tables
                         pairs.Add(new DxfCodePair(code, actualValue));
                 };
 
+            Func<bool, short> toShort = (value) => (short)(value ? 0 : 1);
+
             pairs.Add(new DxfCodePair(0, ViewPortText));
             pairs.Add(new DxfCodePair(2, Name ?? ActiveViewPortName));
+            addIfNotDefault(70, (short)Flags, (short)0);
             addIfNotDefault(10, LowerLeft.X, 0.0);
             addIfNotDefault(20, LowerLeft.Y, 0.0);
             addIfNotDefault(11, UpperRight.X, 0.0);
@@ -97,6 +144,14 @@ namespace BCad.Dxf.Tables
             addIfNotDefault(44, BackClippingPlane, 0.0);
             addIfNotDefault(50, SnapRotationAngle, 0.0);
             addIfNotDefault(51, ViewTwistAngle, 0.0);
+            addIfNotDefault(71, ViewMode.Value, 0);
+            addIfNotDefault(72, CircleZoomPercent, (short)0);
+            addIfNotDefault(73, toShort(FastZoom), toShort(false));
+            addIfNotDefault(74, (short)UcsIconVisibility, (short)DxfUcsIconVisibility.None);
+            addIfNotDefault(75, toShort(SnapOn), toShort(false));
+            addIfNotDefault(76, toShort(GridOn), toShort(false));
+            addIfNotDefault(77, (short)SnapStyle, (short)DxfSnapStyle.Standard);
+            addIfNotDefault(78, (short)SnapIsometricPlane, (short)DxfSnapIsometricPlane.Left);
 
             return pairs;
         }
@@ -104,6 +159,7 @@ namespace BCad.Dxf.Tables
         internal static DxfViewPort FromBuffer(DxfCodePairBufferReader buffer)
         {
             var viewPort = new DxfViewPort();
+            Func<short, bool> toBool = (value) => value != 0;
             while (buffer.ItemsRemain)
             {
                 var pair = buffer.Peek();
@@ -192,6 +248,33 @@ namespace BCad.Dxf.Tables
                         break;
                     case 51:
                         viewPort.ViewTwistAngle = pair.DoubleValue;
+                        break;
+                    case 70:
+                        viewPort.Flags = pair.ShortValue;
+                        break;
+                    case 71:
+                        viewPort.ViewMode = new DxfViewMode(pair.ShortValue);
+                        break;
+                    case 72:
+                        viewPort.CircleZoomPercent = pair.ShortValue;
+                        break;
+                    case 73:
+                        viewPort.FastZoom = toBool(pair.ShortValue);
+                        break;
+                    case 74:
+                        viewPort.UcsIconVisibility = (DxfUcsIconVisibility)pair.ShortValue;
+                        break;
+                    case 75:
+                        viewPort.SnapOn = toBool(pair.ShortValue);
+                        break;
+                    case 76:
+                        viewPort.GridOn = toBool(pair.ShortValue);
+                        break;
+                    case 77:
+                        viewPort.SnapStyle = (DxfSnapStyle)pair.ShortValue;
+                        break;
+                    case 78:
+                        viewPort.SnapIsometricPlane = (DxfSnapIsometricPlane)pair.ShortValue;
                         break;
                 }
             }

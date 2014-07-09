@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using BCad.Entities;
+using BCad.Extensions;
 
 namespace BCad
 {
@@ -140,6 +141,11 @@ namespace BCad
         {
             var newSettings = drawing.Settings.Update(fileName: fileName);
             return drawing.Update(settings: newSettings);
+        }
+
+        public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, int viewPortWidth, int viewPortHeight, int pixelBuffer = PrimitiveExtensions.DefaultPixelBuffer)
+        {
+            return drawing.GetEntities().SelectMany(e => e.GetPrimitives()).ShowAllViewPort(sight, up, viewPortWidth, viewPortHeight, pixelBuffer);
         }
     }
 }

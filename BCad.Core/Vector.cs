@@ -1,16 +1,21 @@
 ﻿using System;
-using System.Windows.Media.Media3D;
 using BCad.Helpers;
 
 namespace BCad
 {
-    public class Vector
+    public struct Vector
     {
-        public double X { get; private set; }
+        public readonly double X;
+        public readonly double Y;
+        public readonly double Z;
 
-        public double Y { get; private set; }
-
-        public double Z { get; private set; }
+        public Vector(double x, double y, double z)
+            : this()
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
 
         public double LengthSquared
         {
@@ -25,20 +30,6 @@ namespace BCad
         public bool IsZeroVector
         {
             get { return this.X == 0.0 && this.Y == 0.0 && this.Z == 0.0; }
-        }
-
-        public Vector(double x, double y, double z)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-        }
-
-        public Vector(Vector3D vector)
-        {
-            this.X = vector.X;
-            this.Y = vector.Y;
-            this.Z = vector.Z;
         }
 
         public Vector Normalize()
@@ -61,19 +52,19 @@ namespace BCad
             return new Point(vector.X, vector.Y, vector.Z);
         }
 
-        public static implicit operator Vector3D(Vector vector)
-        {
-            return new Vector3D(vector.X, vector.Y, vector.Z);
-        }
-
-        public static implicit operator Vector(Vector3D vector)
-        {
-            return new Vector(vector.X, vector.Y, vector.Z);
-        }
-
         public static Vector operator -(Vector vector)
         {
             return new Vector(-vector.X, -vector.Y, -vector.Z);
+        }
+
+        public static Vector operator +(Vector p1, Vector p2)
+        {
+            return new Vector(p1.X + p2.X, p1.Y + p2.Y, p1.Z + p2.Z);
+        }
+
+        public static Vector operator -(Vector p1, Vector p2)
+        {
+            return new Vector(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
         }
 
         public static Vector operator *(Vector vector, double operand)
@@ -160,6 +151,11 @@ namespace BCad
         public static Vector Zero
         {
             get { return new Vector(0, 0, 0); }
+        }
+
+        public static Vector SixtyDegrees
+        {
+            get { return new Vector(0.5, Math.Sqrt(3.0) * 0.5, 0); }
         }
 
         public override string ToString()

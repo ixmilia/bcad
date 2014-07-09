@@ -11,6 +11,58 @@ namespace BCad.Utilities
 {
     public static class EditUtilities
     {
+        private static object rotateCacheLock = new object();
+        private static Vector cachedRotateOffset;
+        private static double cachedRotateAngle;
+        private static Matrix4 cachedRotateMatrix;
+        private static Matrix4 GetRotateMatrix(Vector offset, double angleInDegrees)
+        {
+            lock (rotateCacheLock)
+            {
+                // it will be common to re-use a specific rotation multiple times in a row
+                if (offset != cachedRotateOffset || angleInDegrees != cachedRotateAngle)
+                {
+                    cachedRotateOffset = offset;
+                    cachedRotateAngle = angleInDegrees;
+                    cachedRotateMatrix = Matrix4.CreateTranslate(offset)
+                        * Matrix4.RotateAboutZ(-angleInDegrees)
+                        * Matrix4.CreateTranslate(-offset);
+                }
+
+                return cachedRotateMatrix;
+            }
+        }
+
+        public static Entity Rotate(Entity entity, Vector offset, double angleInDegrees)
+        {
+            var transform = GetRotateMatrix(offset, angleInDegrees);
+            var inSitu = GetRotateMatrix(Vector.Zero, angleInDegrees);
+            switch (entity.Kind)
+            {
+                case EntityKind.Arc:
+                    var arc = (Arc)entity;
+                    return arc.Update(
+                        center: transform.Transform(arc.Center),
+                        startAngle: MathHelper.CorrectAngleDegrees(arc.StartAngle + angleInDegrees),
+                        endAngle: MathHelper.CorrectAngleDegrees(arc.EndAngle + angleInDegrees));
+                case EntityKind.Circle:
+                    var circ = (Circle)entity;
+                    return circ.Update(center: transform.Transform(circ.Center));
+                case EntityKind.Ellipse:
+                    var el = (Ellipse)entity;
+                    return el.Update(center: transform.Transform(el.Center),
+                        majorAxis: inSitu.Transform(el.MajorAxis));
+                case EntityKind.Line:
+                    var line = (Line)entity;
+                    return line.Update(p1: transform.Transform(line.P1), p2: transform.Transform(line.P2));
+                case EntityKind.Location:
+                    var loc = (Location)entity;
+                    return loc.Update(point: transform.Transform(loc.Point));
+                default:
+                    throw new ArgumentException("Unsupported entity type " + entity.Kind);
+            }
+        }
+
         public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var selectionPrimitives = entityToTrim.Entity.GetPrimitives();
@@ -36,7 +88,7 @@ namespace BCad.Utilities
                         TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
-                        Debug.Fail("unsupported trim entity: " + entityToTrim.Entity.Kind);
+                        Debug.Assert(false, "unsupported trim entity: " + entityToTrim.Entity.Kind);
                         removed = new List<Entity>();
                         added = new List<Entity>();
                         break;
@@ -74,7 +126,7 @@ namespace BCad.Utilities
                         ExtendLine((Line)entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
-                        Debug.Fail("unsupported extend entity: " + entityToExtend.Entity.Kind);
+                        Debug.Assert(false, "unsupported extend entity: " + entityToExtend.Entity.Kind);
                         removed = new List<Entity>();
                         added = new List<Entity>();
                         break;
@@ -96,6 +148,8 @@ namespace BCad.Utilities
                 case EntityKind.Ellipse:
                 case EntityKind.Line:
                     return true;
+                case EntityKind.Aggregate:
+                case EntityKind.Location:
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return false;
@@ -114,10 +168,9 @@ namespace BCad.Utilities
             {
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var projection = el.FromUnitCircleProjection();
+                    var projection = el.FromUnitCircle;
                     projection.Invert();
-                    var isInside = ((Vector)(offsetDirection).Transform(projection))
-                        .LengthSquared <= 1.0;
+                    var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
                     var majorLength = el.MajorAxis.Length;
                     if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)
                         || (offsetDistance >= majorLength))
@@ -155,9 +208,9 @@ namespace BCad.Utilities
                     var pline = new PrimitiveLine(p1, p2);
                     var perpendicular = new PrimitiveLine(picked, pline.PerpendicularSlope());
                     var intersection = pline.IntersectionPoint(perpendicular, false);
-                    if (intersection != null && intersection != picked)
+                    if (intersection.HasValue && intersection.Value != picked)
                     {
-                        var offsetVector = (picked - intersection).Normalize() * offsetDistance;
+                        var offsetVector = (picked - intersection.Value).Normalize() * offsetDistance;
                         offsetVector = drawingPlane.FromXYPlane(offsetVector);
                         result = new PrimitiveLine(
                             p1: line.P1 + offsetVector,
@@ -169,6 +222,11 @@ namespace BCad.Utilities
                         // the selected point was directly on the line
                         result = null;
                     }
+                    break;
+                case PrimitiveKind.Point:
+                    var point = (PrimitivePoint)primitive;
+                    var pointOffsetVector = (offsetDirection - point.Location).Normalize() * offsetDistance;
+                    result = new PrimitivePoint(point.Location + pointOffsetVector, point.Color);
                     break;
                 case PrimitiveKind.Text:
                     result = null;
@@ -194,6 +252,8 @@ namespace BCad.Utilities
                         offsetDirection,
                         offsetDistance);
                     return offset == null ? null : offset.ToEntity();
+                case EntityKind.Aggregate:
+                case EntityKind.Location:
                 case EntityKind.Polyline:
                 case EntityKind.Text:
                     return null;
@@ -227,26 +287,29 @@ namespace BCad.Utilities
                                    from s in secondOffsets
                                    where f != null && s != null
                                    select f.IntersectionPoints(s, false))
-                                  .SelectMany(x => x)
-                                  .Where(x => x != null);
+                                  .SelectMany(x => x);
 
-            var center = candidatePoints.OrderBy(x =>
+            if (candidatePoints.Any())
             {
-                return (x - firstEntity.SelectionPoint).LengthSquared
-                    * (x - secondEntity.SelectionPoint).LengthSquared;
-            })
-                .FirstOrDefault();
+                var center = candidatePoints.OrderBy(x =>
+                {
+                    return (x - firstEntity.SelectionPoint).LengthSquared
+                        * (x - secondEntity.SelectionPoint).LengthSquared;
+                }).First();
 
-            if (center == null)
-                return null;
+                return new PrimitiveEllipse(center, radius, drawingPlane.Normal, IndexedColor.Auto);
+            }
 
-            return new PrimitiveEllipse(center, radius, drawingPlane.Normal, Color.Auto);
+            return null;
         }
 
         public static Entity Move(Entity entity, Vector offset)
         {
             switch (entity.Kind)
             {
+                case EntityKind.Aggregate:
+                    var agg = (AggregateEntity)entity;
+                    return agg.Update(location: agg.Location + offset);
                 case EntityKind.Arc:
                     var arc = (Arc)entity;
                     return arc.Update(center: arc.Center + offset);
@@ -259,6 +322,9 @@ namespace BCad.Utilities
                 case EntityKind.Line:
                     var line = (Line)entity;
                     return line.Update(p1: line.P1 + offset, p2: line.P2 + offset);
+                case EntityKind.Location:
+                    var location = (Location)entity;
+                    return location.Update(point: location.Point + offset);
                 case EntityKind.Polyline:
                     var poly = (Polyline)entity;
                     return poly.Update(points: poly.Points.Select(p => p + offset));
@@ -295,6 +361,8 @@ namespace BCad.Utilities
                             Offset(drawingPlane, line, line.P1 + offsetVector, distance),
                             Offset(drawingPlane, line, line.P1 - offsetVector, distance)
                         };
+                case PrimitiveKind.Point:
+                    return Enumerable.Empty<IPrimitive>();
                 case PrimitiveKind.Text:
                     return Enumerable.Empty<IPrimitive>();
                 default:
@@ -326,22 +394,22 @@ namespace BCad.Utilities
             }
 
             // find the closest points on each side.  these are the new endpoints
-            var leftPoint = left.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
-            var rightPoint = right.OrderBy(p => (p - pivot).LengthSquared).FirstOrDefault();
+            var leftPoints = left.OrderBy(p => (p - pivot).LengthSquared);
+            var rightPoints = right.OrderBy(p => (p - pivot).LengthSquared);
 
-            if (leftPoint != null || rightPoint != null)
+            if (leftPoints.Any() || rightPoints.Any())
             {
                 // remove the original line
                 removedList.Add(lineToTrim);
 
                 // add the new shorted lines where appropriate
-                if (leftPoint != null)
+                if (leftPoints.Any())
                 {
-                    addedList.Add(lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoint));
+                    addedList.Add(lineToTrim.Update(p1: lineToTrim.P1, p2: leftPoints.First()));
                 }
-                if (rightPoint != null)
+                if (rightPoints.Any())
                 {
-                    addedList.Add(lineToTrim.Update(p1: rightPoint, p2: lineToTrim.P2));
+                    addedList.Add(lineToTrim.Update(p1: rightPoints.First(), p2: lineToTrim.P2));
                 }
             }
 
@@ -367,7 +435,7 @@ namespace BCad.Utilities
             {
                 startAngle = ((Ellipse)entityToTrim).StartAngle;
                 endAngle = ((Ellipse)entityToTrim).EndAngle;
-                isClosed = false;
+                isClosed = MathHelper.CloseTo(0.0, startAngle) && MathHelper.CloseTo(360.0, endAngle);
             }
             else
             {
@@ -381,12 +449,12 @@ namespace BCad.Utilities
             inverse.Invert();
 
             var angles = intersectionPoints
-                .Select(p => p.Transform(inverse))
+                .Select(p => inverse.Transform(p))
                 .Select(p => (Math.Atan2(p.Y, p.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees())
                 .Where(a => isClosed || (!MathHelper.CloseTo(a, startAngle) && !MathHelper.CloseTo(a, endAngle)))
                 .OrderBy(a => a)
                 .ToList();
-            var unitPivot = pivot.Transform(inverse);
+            var unitPivot = inverse.Transform(pivot);
             var selectionAngle = (Math.Atan2(unitPivot.Y, unitPivot.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
             var selectionAfterIndex = angles.Where(a => a < selectionAngle).Count() - 1;
             if (selectionAfterIndex < 0)
@@ -487,9 +555,11 @@ namespace BCad.Utilities
             var addedList = new List<Entity>();
 
             // find closest intersection point to the selection
-            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
-            if (closestRealPoint != null)
+            var closestRealPoints = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared);
+            if (closestRealPoints.Any())
             {
+                var closestRealPoint = closestRealPoints.First();
+
                 // find closest end point to the selection
                 var closestEndPoint = (lineToExtend.P1 - selectionPoint).LengthSquared < (lineToExtend.P2 - selectionPoint).LengthSquared
                     ? lineToExtend.P1
@@ -532,21 +602,22 @@ namespace BCad.Utilities
             var ellipse = (PrimitiveEllipse)primitive;
 
             // prepare transformation matrix
-            var fromUnitMatrix = ellipse.FromUnitCircleProjection();
+            var fromUnitMatrix = ellipse.FromUnitCircle;
             var toUnitMatrix = fromUnitMatrix;
             toUnitMatrix.Invert();
-            var selectionUnit = selectionPoint.Transform(toUnitMatrix);
+            var selectionUnit = toUnitMatrix.Transform(selectionPoint);
 
             // find closest intersection point to the selection
-            var closestRealPoint = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared).FirstOrDefault();
-            if (closestRealPoint != null)
+            var closestRealPoints = intersectionPoints.OrderBy(p => (p - selectionPoint).LengthSquared);
+            if (closestRealPoints.Any())
             {
-                var closestUnitPoint = closestRealPoint.Transform(toUnitMatrix);
+                var closestRealPoint = closestRealPoints.First();
+                var closestUnitPoint = toUnitMatrix.Transform(closestRealPoint);
                 var newAngle = (Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
 
                 // find the closest end point to the selection
-                var startPoint = ellipse.GetStartPoint().Transform(toUnitMatrix);
-                var endPoint = ellipse.GetEndPoint().Transform(toUnitMatrix);
+                var startPoint = toUnitMatrix.Transform(ellipse.GetStartPoint());
+                var endPoint = toUnitMatrix.Transform(ellipse.GetEndPoint());
                 var startAngle = ellipse.StartAngle;
                 var endAngle = ellipse.EndAngle;
                 if ((startPoint - selectionUnit).LengthSquared < (endPoint - selectionUnit).LengthSquared)

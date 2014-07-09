@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,10 +12,12 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using BCad.Commands;
+using BCad.Core.UI;
 using BCad.EventArguments;
 using BCad.Primitives;
+using BCad.Ribbons;
 using BCad.Services;
-using BCad.UI;
+using BCad.ViewModels;
 using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad
@@ -23,35 +25,38 @@ namespace BCad
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : RibbonWindow, IPartImportsSatisfiedNotification
+    public partial class MainWindow : RibbonWindow
     {
+        private EditPaneViewModel editViewModel;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            App.Container.SatisfyImportsOnce(this);
+            App.Container.SatisfyImports(this);
         }
 
         [Import]
-        private IWorkspace Workspace = null;
+        public IUIWorkspace Workspace { get; set; }
 
         [Import]
-        private IInputService InputService = null;
+        public IInputService InputService { get; set; }
+
+        [Import]
+        public IOutputService OutputService { get; set; }
 
         [ImportMany]
-        private IEnumerable<RibbonTab> RibbonTabs = null; // TODO: import lazily and sort by name
+        public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        private IEnumerable<Lazy<ViewControl, IViewControlMetadata>> Views = null;
+        public IEnumerable<Lazy<IUICommand, UICommandMetadata>> UICommands { get; set; }
 
-        [ImportMany]
-        private IEnumerable<Lazy<ConsoleControl, IConsoleMetadata>> Consoles = null;
-
-        [ImportMany]
-        private IEnumerable<Lazy<BCad.Commands.ICommand, ICommandMetadata>> Commands = null;
-
+        [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
+            editViewModel = new EditPaneViewModel(Workspace);
+            editPane.DataContext = editViewModel;
+
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
@@ -69,10 +74,22 @@ namespace BCad
             }
 
             // add keyboard shortcuts for command bindings
-            foreach (var command in from c in Commands
-                                    where c.Metadata.Key != Key.None
-                                       || c.Metadata.Modifier != ModifierKeys.None
-                                    select c.Metadata)
+            foreach (var command in from c in UICommands
+                                    let metadata = c.Metadata
+                                    where metadata.Key != Key.None
+                                       || metadata.Modifier != ModifierKeys.None
+                                    select metadata)
+            {
+                this.InputBindings.Add(new InputBinding(
+                    new UserCommand(this.Workspace, command.Name),
+                    new KeyGesture(command.Key, command.Modifier)));
+            }
+
+            // add keyboard shortcuts for supplimented commands
+            foreach (var command in from c in Workspace.SupplimentedCommands
+                                    where c.Key != Key.None
+                                       || c.Modifier != ModifierKeys.None
+                                    select c)
             {
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),
@@ -80,11 +97,13 @@ namespace BCad
             }
 
             // add keyboard shortcuts for toggled settings
+            var uiSettings = Workspace.SettingsManager as SettingsManager;
+            Debug.Assert(uiSettings != null);
             foreach (var setting in new[] {
-                                        new { Name = Constants.AngleSnapString, Shortcut = Workspace.SettingsManager.AngleSnapShortcut },
-                                        new { Name = Constants.PointSnapString, Shortcut = Workspace.SettingsManager.PointSnapShortcut },
-                                        new { Name = Constants.OrthoString, Shortcut = Workspace.SettingsManager.OrthoShortcut },
-                                        new { Name = Constants.DebugString, Shortcut = Workspace.SettingsManager.DebugShortcut } })
+                new { Name = Constants.AngleSnapString, Shortcut = uiSettings.AngleSnapShortcut },
+                new { Name = Constants.PointSnapString, Shortcut = uiSettings.PointSnapShortcut },
+                new { Name = Constants.OrthoString, Shortcut = uiSettings.OrthoShortcut },
+                new { Name = Constants.DebugString, Shortcut = uiSettings.DebugShortcut } })
             {
                 if (setting.Shortcut.HasValue)
                 {
@@ -127,7 +146,7 @@ namespace BCad
 
         private void SetDebugText()
         {
-            int lineCount = 0, ellipseCount = 0, textCount = 0;
+            int lineCount = 0, ellipseCount = 0, pointCount = 0, textCount = 0;
             foreach (var ent in Workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities()).SelectMany(en => en.GetPrimitives()))
             {
                 switch (ent.Kind)
@@ -138,6 +157,9 @@ namespace BCad
                     case PrimitiveKind.Line:
                         lineCount++;
                         break;
+                    case PrimitiveKind.Point:
+                        pointCount++;
+                        break;
                     case PrimitiveKind.Text:
                         textCount++;
                         break;
@@ -146,14 +168,14 @@ namespace BCad
             this.Dispatcher.BeginInvoke((Action)(() =>
                 {
                     debugText.Height = double.NaN;
-                    debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} text, {3} total.",
-                        ellipseCount, lineCount, textCount, ellipseCount + lineCount + textCount);
+                    debugText.Text = string.Format("Primitive counts - {0} ellipses, {1} lines, {2} points, {3} text, {4} total.",
+                        ellipseCount, lineCount, pointCount, textCount, ellipseCount + lineCount + pointCount + textCount);
                 }));
         }
 
         private void TakeFocus()
         {
-            this.Dispatcher.BeginInvoke((Action)(() => FocusHelper.Focus(this.inputPanel.Content as UserControl)));
+            this.Dispatcher.BeginInvoke((Action)(() => FocusHelper.Focus(this.inputPanel)));
         }
 
         void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
@@ -164,24 +186,39 @@ namespace BCad
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
             // prepare ribbon
-            // TODO: order as specified in settings
-            foreach (var tab in RibbonTabs)
+            foreach (var ribbonId in Workspace.SettingsManager.RibbonOrder)
             {
-                this.ribbon.Items.Add(tab);
+                var rib = RibbonTabs.FirstOrDefault(t => t.Metadata.Id == ribbonId);
+                if (rib != null)
+                    this.ribbon.Items.Add(rib.Value);
             }
 
             // prepare user console
-            var console = Consoles.First(c => c.Metadata.ControlId == Workspace.SettingsManager.ConsoleControlId).Value;
-            this.inputPanel.Content = console;
+            App.Container.SatisfyImports(inputPanel);
             TakeFocus();
             InputService.Reset();
 
-            // prepare view control
-            var view = Views.First(v => v.Metadata.ControlId == Workspace.SettingsManager.ViewControlId).Value;
-            this.viewPanel.Content = view;
-            Workspace.Update(viewControl: view, isDirty: false);
+            Workspace.Update(viewControl: viewPane, isDirty: false);
 
-            SetTitle(Workspace.Drawing);
+            var args = Environment.GetCommandLineArgs().Skip(1); // trim off executable
+            args = args.Where(a => !a.StartsWith("/")); // remove options
+            if (args.Count() == 1)
+            {
+                var fileName = args.First();
+                if (File.Exists(fileName))
+                {
+                    Workspace.Update(isDirty: false);
+                    Workspace.ExecuteCommand("File.Open", fileName);
+                }
+                else
+                {
+                    OutputService.WriteLine("Unable to open file: ", fileName);
+                }
+            }
+            else
+            {
+                SetTitle(Workspace.Drawing);
+            }
         }
 
         private void SetTitle(Drawing drawing)

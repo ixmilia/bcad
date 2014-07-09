@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BCad.Collections;
 using BCad.Entities;
 using BCad.EventArguments;
-using BCad.UI;
+using BCad.Primitives;
 
 namespace BCad
 {
@@ -14,6 +15,8 @@ namespace BCad
     public delegate void WorkspaceChangingEventHandler(object sender, WorkspaceChangeEventArgs e);
 
     public delegate void WorkspaceChangedEventHandler(object sender, WorkspaceChangeEventArgs e);
+
+    public delegate IEnumerable<IPrimitive> RubberBandGenerator(Point point);
 
     public enum UnsavedChangesResult
     {
@@ -28,11 +31,19 @@ namespace BCad
         Drawing Drawing { get; }
         Plane DrawingPlane { get; }
         ViewPort ActiveViewPort { get; }
-        ViewControl ViewControl { get; }
+        IViewControl ViewControl { get; }
+        RubberBandGenerator RubberBandGenerator { get; set; }
+        bool IsDrawing { get; }
+        bool IsCommandExecuting { get; }
 
-        void Update(Drawing drawing = null, Plane drawingPlane = null, ViewPort activeViewPort = null, ViewControl viewControl = null, bool? isDirty = true);
+        void Update(Optional<Drawing> drawing = default(Optional<Drawing>),
+            Optional<Plane> drawingPlane = default(Optional<Plane>),
+            Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),
+            Optional<IViewControl> viewControl = default(Optional<IViewControl>),
+            bool isDirty = true);
         event WorkspaceChangingEventHandler WorkspaceChanging;
         event WorkspaceChangedEventHandler WorkspaceChanged;
+        event EventHandler RubberBandGeneratorChanged;
 
         ObservableHashSet<Entity> SelectedEntities { get; }
 

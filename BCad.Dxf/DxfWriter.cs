@@ -11,16 +11,9 @@ namespace BCad.Dxf
     {
         private StreamWriter textWriter = null;
         private BinaryWriter binWriter = null;
-        private ASCIIEncoding ascii = new ASCIIEncoding();
         private Stream fileStream = null;
 
         private bool asText = true;
-
-        public DxfWriter(string filename, bool asText)
-        {
-            fileStream = new FileStream(filename, FileMode.OpenOrCreate);
-            this.asText = asText;
-        }
 
         public DxfWriter(Stream stream, bool asText)
         {
@@ -37,7 +30,7 @@ namespace BCad.Dxf
             else
             {
                 binWriter = new BinaryWriter(fileStream);
-                binWriter.Write(ascii.GetBytes(DxfFile.BinarySentinel));
+                binWriter.Write(GetAsciiBytes(DxfFile.BinarySentinel));
                 binWriter.Write("\r\n");
                 binWriter.Write((byte)26);
                 binWriter.Write((byte)0);
@@ -95,7 +88,7 @@ namespace BCad.Dxf
 
         private void WriteValue(int code, object value)
         {
-            var type = DxfCodePair.ExpectedTypeForCode(code);
+            var type = DxfCodePair.ExpectedType(code);
             if (type == typeof(string))
                 WriteString((string)value);
             else if (type == typeof(double))
@@ -106,6 +99,8 @@ namespace BCad.Dxf
                 WriteInt((int)value);
             else if (type == typeof(long))
                 WriteLong((long)value);
+            else if (type == typeof(bool))
+                WriteBool((bool)value);
             else
                 throw new DxfReadException("No writer available");
         }
@@ -116,7 +111,7 @@ namespace BCad.Dxf
                 textWriter.WriteLine(value);
             else if (binWriter != null)
             {
-                binWriter.Write(ascii.GetBytes((string)value));
+                binWriter.Write(GetAsciiBytes(value));
                 binWriter.Write((byte)0);
             }
         }
@@ -151,6 +146,22 @@ namespace BCad.Dxf
                 textWriter.WriteLine(value);
             else if (binWriter != null)
                 binWriter.Write(value);
+        }
+
+        private void WriteBool(bool value)
+        {
+            WriteShort(value ? (short)1 : (short)0);
+        }
+
+        private static byte[] GetAsciiBytes(string value)
+        {
+            var result = new byte[value.Length];
+            for (int i = 0; i < value.Length; i++)
+            {
+                result[i] = (byte)value[i];
+            }
+
+            return result;
         }
     }
 }

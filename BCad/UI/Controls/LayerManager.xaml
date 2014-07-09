@@ -1,0 +1,111 @@
+﻿<ui:BCadControl x:Class="BCad.UI.Controls.LayerManager"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core.UI"
+                xmlns:local="clr-namespace:BCad.UI"
+                xmlns:rib="clr-namespace:BCad.Ribbons"
+                mc:Ignorable="d" Width="480" Height="300">
+    <ui:BCadControl.Resources>
+        <local:BoolToVisibilityConverter x:Key="boolToVis" />
+        <rib:ColorConverter x:Key="colorConverter" />
+
+        <Style TargetType="{x:Type FrameworkElement}" x:Key="GridBlockStyle">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Visibility"
+                    Value="{Binding Path=IsSelected,
+                                    RelativeSource={RelativeSource FindAncestor,
+                                        AncestorType={x:Type ListViewItem}},
+                                    Converter={StaticResource boolToVis},
+                                    ConverterParameter=False}" />
+        </Style>
+
+        <Style TargetType="{x:Type FrameworkElement}" x:Key="GridEditStyle">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Visibility"
+                    Value="{Binding Path=IsSelected,
+                                    RelativeSource={RelativeSource FindAncestor,
+                                        AncestorType={x:Type ListViewItem}},
+                                    Converter={StaticResource boolToVis},
+                                    ConverterParameter=True}" />
+        </Style>
+        
+        <DataTemplate x:Key="ColorTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
+                    <Rectangle.Fill>
+                        <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
+                    </Rectangle.Fill>
+                </Rectangle>
+                <TextBlock Grid.Column="1" Text="{Binding Path=Color.DisplayValue}" Margin="1" />
+            </Grid>
+        </DataTemplate>
+    </ui:BCadControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ListView Grid.Row="0" ItemsSource="{Binding Path=Layers}" Name="layerList">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="240" Header="Name">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding Path=Name}" Style="{StaticResource GridBlockStyle}" />
+                                    <TextBox Text="{Binding Path=Name}" Style="{StaticResource GridEditStyle}" />
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="90" Header="Color">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <ContentPresenter Content="{Binding Path=Color}"
+                                                      ContentTemplate="{StaticResource ColorTemplate}"
+                                                      Style="{StaticResource GridBlockStyle}" />
+                                    <ComboBox SelectedItem="{Binding Path=Color}"
+                                              ItemsSource="{Binding ElementName=layerList, Path=DataContext.AvailableColors}"
+                                              ItemTemplate="{StaticResource ColorTemplate}"
+                                              Style="{StaticResource GridEditStyle}">
+                                    </ComboBox>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="60" Header="Visible">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Path=IsVisible}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Margin="3" Click="Add_Click">
+                <Label Margin="3,0">Add</Label>
+            </Button>
+            <Button Grid.Column="1" Margin="3" Click="Remove_Click">
+                <Label Margin="3,0">Remove</Label>
+            </Button>
+        </Grid>
+    </Grid>
+</ui:BCadControl>

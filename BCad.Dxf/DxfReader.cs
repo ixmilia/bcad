@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -59,6 +60,12 @@ namespace BCad.Dxf
             {
                 readText = false;
                 firstLine = null;
+
+                // swallow next two characters
+                var sub = binReader.ReadChar();
+                Debug.Assert(sub == 0x1A);
+                var nul = binReader.ReadChar();
+                Debug.Assert(nul == 0x00);
             }
             else
             {
@@ -74,7 +81,7 @@ namespace BCad.Dxf
             int code = ReadCode();
             if (code == -1)
                 return null;
-            object value = ReadValue(DxfCodePair.ExpectedTypeForCode(code));
+            object value = ReadValue(DxfCodePair.ExpectedType(code));
             return new DxfCodePair(code, value);
         }
 
@@ -95,9 +102,16 @@ namespace BCad.Dxf
             }
             else
             {
-                code = binReader.ReadByte();
-                if (code == 255)
-                    code = binReader.ReadInt16();
+                if (binReader.BaseStream.Position >= binReader.BaseStream.Length)
+                {
+                    code = -1;
+                }
+                else
+                {
+                    code = binReader.ReadByte();
+                    if (code == 255)
+                        code = binReader.ReadInt16();
+                }
             }
 
             return code;

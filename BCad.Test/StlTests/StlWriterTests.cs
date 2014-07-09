@@ -1,12 +1,13 @@
 ﻿using System.IO;
 using BCad.Stl;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.StlTests
 {
+    [TestClass]
     public class StlWriterTests
     {
-        [Fact]
+        [TestMethod]
         public void AsciiWriterTest()
         {
             var file = new StlFile();
@@ -16,7 +17,7 @@ namespace BCad.Test.StlTests
             file.Save(stream);
             stream.Seek(0, SeekOrigin.Begin);
             var content = new StreamReader(stream).ReadToEnd();
-            Assert.Equal(@"solid foo
+            Assert.AreEqual(@"solid foo
   facet normal 1.000000e+000 2.000000e+000 3.000000e+000
     outer loop
       vertex 4.000000e+000 5.000000e+000 6.000000e+000
@@ -28,7 +29,7 @@ endsolid foo
 ", content);
         }
 
-        [Fact]
+        [TestMethod]
         public void BinaryWriterTest()
         {
             var file = new StlFile();
@@ -39,7 +40,7 @@ endsolid foo
             stream.Seek(0, SeekOrigin.Begin);
             var buffer = new byte[256];
             var read = stream.Read(buffer, 0, buffer.Length);
-            Assert.Equal(134, read);
+            Assert.AreEqual(134, read);
             var expected = new byte[]
             {
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 80 byte header
@@ -67,7 +68,7 @@ endsolid foo
             };
             for (int i = 0; i < read; i++)
             {
-                Assert.Equal(expected[i], buffer[i]);
+                Assert.AreEqual(expected[i], buffer[i]);
             }
         }
     }

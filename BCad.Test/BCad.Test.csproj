@@ -13,6 +13,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +26,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,10 +38,30 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Composition.AttributedModel, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Convention, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Convention.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Hosting, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Runtime, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.TypedParts, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml" />
@@ -48,10 +71,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\xUnit\xunit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDrawingTests.cs" />
@@ -66,12 +85,15 @@
     <Compile Include="IgesTests\IgesReaderTests.cs" />
     <Compile Include="IgesTests\IgesTransformMatrixTests.cs" />
     <Compile Include="IgesTests\IgesWriterTests.cs" />
+    <Compile Include="MatrixTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />
     <Compile Include="PointTests.cs" />
     <Compile Include="PrimitiveTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadOnlyListTests.cs" />
     <Compile Include="ReadOnlyTreeTests.cs" />
+    <Compile Include="RotateTests.cs" />
     <Compile Include="StlTests\StlReaderTests.cs" />
     <Compile Include="StlTests\StlWriterTests.cs" />
     <Compile Include="TestExtensions.cs" />
@@ -79,10 +101,15 @@
     <Compile Include="TrimExtendTests.cs" />
     <Compile Include="UnitFormatTests.cs" />
     <Compile Include="VectorTests.cs" />
+    <Compile Include="ViewPortTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BCad.Core.UI\BCad.Core.UI.csproj">
+      <Project>{b02cc174-511b-4272-b625-b492074f7bc5}</Project>
+      <Name>BCad.Core.UI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
-      <Project>{F97D8A46-E96D-4C7C-9F69-2CD86A354F62}</Project>
+      <Project>{ae1e5dc5-64db-4fba-847c-5b84a865eec1}</Project>
       <Name>BCad.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Dwg\BCad.Dwg.csproj">
@@ -90,15 +117,15 @@
       <Name>BCad.Dwg</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Dxf\BCad.Dxf.csproj">
-      <Project>{8C5A1440-8C5F-40AA-948F-67E8A2227000}</Project>
+      <Project>{c067e97d-3b96-462a-b09d-33fad60de761}</Project>
       <Name>BCad.Dxf</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Iges\BCad.Iges.csproj">
-      <Project>{59b09ca5-1837-4c2b-858c-91e997939c79}</Project>
+      <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
       <Name>BCad.Iges</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
-      <Project>{b6a2dc99-a13c-43ec-92be-79e579e10f57}</Project>
+      <Project>{782e0c0a-10d3-444d-9640-263d03d2b20c}</Project>
       <Name>BCad.Stl</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad\BCad.csproj">
@@ -113,11 +140,22 @@
     <None Include="diamond.dxf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="square.dxf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
