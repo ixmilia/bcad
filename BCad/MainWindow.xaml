@@ -68,7 +68,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="150" />
             </Grid.ColumnDefinitions>
             <ui:ViewPane Grid.Column="0" x:Name="viewPane" />
             <GridSplitter ResizeDirection="Columns" Grid.Column="1" Width="3" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
