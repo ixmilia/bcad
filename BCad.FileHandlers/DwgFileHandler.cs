@@ -85,7 +85,7 @@ namespace BCad.FileHandlers
 
         private static Text ToText(DwgText text)
         {
-            return new Text(text.Value, new Point(text.InsertionPoint.Item1, text.InsertionPoint.Item2, text.Elevation), ToVector(text.Extrusion), text.Height, text.RotationAngle, ToColor(text.Color), text);
+            return new Text(text.Value, new Point(text.InsertionPoint.X, text.InsertionPoint.Y, text.Elevation), ToVector(text.Extrusion), text.Height, text.RotationAngle, ToColor(text.Color), text);
         }
 
         private static IndexedColor ToColor(short color)
@@ -100,14 +100,9 @@ namespace BCad.FileHandlers
             return new Point(point.X, point.Y, point.Z);
         }
 
-        private static Vector ToVector(DwgPoint point)
+        private static Vector ToVector(DwgVector vector)
         {
-            return new Vector(point.X, point.Y, point.Z);
-        }
-
-        private static Vector ToVector(Tuple<double, double, double> point)
-        {
-            return new Vector(point.Item1, point.Item2, point.Item3);
+            return new Vector(vector.X, vector.Y, vector.Z);
         }
     }
 }
