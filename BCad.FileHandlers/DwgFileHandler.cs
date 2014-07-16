@@ -20,7 +20,7 @@ namespace BCad.FileHandlers
             var layers = new ReadOnlyTree<string, Layer>();
             foreach (var layer in file.ObjectMap.Objects.OfType<DwgLayer>())
             {
-                var blayer = new Layer(layer.Name, new IndexedColor((byte)layer.Color));
+                var blayer = new Layer(layer.Name, ToColor(layer.Color));
                 layers = layers.Insert(blayer.Name, blayer);
             }
 
@@ -29,9 +29,17 @@ namespace BCad.FileHandlers
                 Entity entity = null;
                 switch (ent.Type)
                 {
+                    case DwgObjectType.Text:
+                        entity = ToText((DwgText)ent);
+                        break;
+                    case DwgObjectType.Arc:
+                        entity = ToArc((DwgArc)ent);
+                        break;
+                    case DwgObjectType.Circle:
+                        entity = ToCircle((DwgCircle)ent);
+                        break;
                     case DwgObjectType.Line:
-                        var line = (DwgLine)ent;
-                        entity = ToLine(line);
+                        entity = ToLine((DwgLine)ent);
                         break;
                 }
 
@@ -65,6 +73,21 @@ namespace BCad.FileHandlers
             return new Line(ToPoint(line.StartPoint), ToPoint(line.EndPoint), ToColor(line.Color), line);
         }
 
+        private static Circle ToCircle(DwgCircle circle)
+        {
+            return new Circle(ToPoint(circle.Center), circle.Radius, ToVector(circle.Extrusion), ToColor(circle.Color), circle);
+        }
+
+        private static Arc ToArc(DwgArc arc)
+        {
+            return new Arc(ToPoint(arc.Center), arc.Radius, arc.StartAngle, arc.EndAngle, ToVector(arc.Extrusion), ToColor(arc.Color), arc);
+        }
+
+        private static Text ToText(DwgText text)
+        {
+            return new Text(text.Value, new Point(text.InsertionPoint.Item1, text.InsertionPoint.Item2, text.Elevation), ToVector(text.Extrusion), text.Height, text.RotationAngle, ToColor(text.Color), text);
+        }
+
         private static IndexedColor ToColor(short color)
         {
             if (color == 0 || color == 256)
@@ -75,6 +98,16 @@ namespace BCad.FileHandlers
         private static Point ToPoint(DwgPoint point)
         {
             return new Point(point.X, point.Y, point.Z);
+        }
+
+        private static Vector ToVector(DwgPoint point)
+        {
+            return new Vector(point.X, point.Y, point.Z);
+        }
+
+        private static Vector ToVector(Tuple<double, double, double> point)
+        {
+            return new Vector(point.Item1, point.Item2, point.Item3);
         }
     }
 }
