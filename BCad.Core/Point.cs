@@ -77,11 +77,6 @@ namespace BCad
             return new Point(p.X / scalar, p.Y / scalar, p.Z / scalar);
         }
 
-        public bool Equals(Point p)
-        {
-            return this == p;
-        }
-
         public override bool Equals(object obj)
         {
             if (obj == null)
