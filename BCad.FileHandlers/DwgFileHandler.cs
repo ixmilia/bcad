@@ -53,6 +53,11 @@ namespace BCad.FileHandlers
                 }
             }
 
+            if (layers.Count == 0)
+            {
+                layers = layers.Insert("0", new Layer("0", IndexedColor.Auto));
+            }
+
             drawing = new Drawing(
                 new DrawingSettings(),
                 layers);
@@ -88,7 +93,7 @@ namespace BCad.FileHandlers
             return new Text(text.Value, new Point(text.InsertionPoint.X, text.InsertionPoint.Y, text.Elevation), ToVector(text.Extrusion), text.Height, text.RotationAngle, ToColor(text.Color), text);
         }
 
-        private static IndexedColor ToColor(short color)
+        private static IndexedColor ToColor(int color)
         {
             if (color == 0 || color == 256)
                 return IndexedColor.Auto;
