@@ -38,6 +38,9 @@ namespace BCad.FileHandlers
                     case DwgObjectType.Circle:
                         entity = ToCircle((DwgCircle)ent);
                         break;
+                    case DwgObjectType.Point:
+                        entity = ToLocation((DwgEntityPoint)ent);
+                        break;
                     case DwgObjectType.Line:
                         entity = ToLine((DwgLine)ent);
                         break;
@@ -47,7 +50,7 @@ namespace BCad.FileHandlers
                 {
                     var layerCandidate = file.ObjectMap.Objects.FirstOrDefault(o => o.Handle == ent.LayerHandle);
                     var dwgLayer = layerCandidate as DwgLayer;
-                    var layerName = dwgLayer.Name;
+                    var layerName = dwgLayer == null ? "0" : dwgLayer.Name;
                     var newLayer = layers.GetValue(layerName).Add(entity);
                     layers = layers.Insert(layerName, newLayer);
                 }
@@ -81,6 +84,11 @@ namespace BCad.FileHandlers
         private static Circle ToCircle(DwgCircle circle)
         {
             return new Circle(ToPoint(circle.Center), circle.Radius, ToVector(circle.Extrusion), ToColor(circle.Color), circle);
+        }
+
+        private static Location ToLocation(DwgEntityPoint point)
+        {
+            return new Location(ToPoint(point.Location), ToColor(point.Color), point);
         }
 
         private static Arc ToArc(DwgArc arc)
