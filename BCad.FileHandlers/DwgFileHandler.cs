@@ -24,7 +24,7 @@ namespace BCad.FileHandlers
                 layers = layers.Insert(blayer.Name, blayer);
             }
 
-            foreach (var ent in file.ObjectMap.Objects.OfType<DwgEntity>())
+            foreach (var ent in file.ObjectMap.Objects.OfType<DwgEntity>().Where(e => e.SubentityReferenceHandle == 0))
             {
                 Entity entity = null;
                 switch (ent.Type)
