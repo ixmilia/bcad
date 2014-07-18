@@ -215,6 +215,11 @@ namespace BCad.FileHandlers
             return new Polyline(poly.Vertices.Select(v => v.Location.ToPoint()), poly.Color.ToColor(), poly);
         }
 
+        public static Polyline ToPolyline(this DxfLeader leader)
+        {
+            return new Polyline(leader.Vertices.Select(v => v.ToPoint()), leader.Color.ToColor(), leader);
+        }
+
         public static Circle ToCircle(this DxfCircle circle)
         {
             return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor(), circle);
@@ -248,6 +253,9 @@ namespace BCad.FileHandlers
                     break;
                 case DxfEntityType.Ellipse:
                     entity = ((DxfEllipse)item).ToEllipse();
+                    break;
+                case DxfEntityType.Leader:
+                    entity = ((DxfLeader)item).ToPolyline();
                     break;
                 case DxfEntityType.Line:
                     entity = ((DxfLine)item).ToLine();
