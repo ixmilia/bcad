@@ -8,7 +8,7 @@ using BCad.Entities;
 
 namespace BCad.FileHandlers
 {
-    [ExportFileHandler(DwgFileHandler.DisplayName, true, true, DwgFileHandler.FileExtension)]
+    [ExportFileHandler(DwgFileHandler.DisplayName, true, false, DwgFileHandler.FileExtension)]
     public class DwgFileHandler : IFileHandler
     {
         public const string DisplayName = "DWG Files (" + FileExtension + ")";
