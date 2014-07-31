@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using BCad.SnapPoints;
 
 namespace BCad.Ribbons
 {
@@ -125,6 +126,73 @@ namespace BCad.Ribbons
                     RealColor.Red
                 };
             }
+        }
+
+        public bool IsEndPoint
+        {
+            get { return HasSnapPointFlag(SnapPointKind.EndPoint); }
+            set
+            {
+                if (value)
+                    SetSnapPointFlag(SnapPointKind.EndPoint);
+                else
+                    ClearSnapPointFlag(SnapPointKind.EndPoint);
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsMidPoint
+        {
+            get { return HasSnapPointFlag(SnapPointKind.MidPoint); }
+            set
+            {
+                if (value)
+                    SetSnapPointFlag(SnapPointKind.MidPoint);
+                else
+                    ClearSnapPointFlag(SnapPointKind.MidPoint);
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsCenter
+        {
+            get { return HasSnapPointFlag(SnapPointKind.Center); }
+            set
+            {
+                if (value)
+                    SetSnapPointFlag(SnapPointKind.Center);
+                else
+                    ClearSnapPointFlag(SnapPointKind.Center);
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsQuadrant
+        {
+            get { return HasSnapPointFlag(SnapPointKind.Quadrant); }
+            set
+            {
+                if (value)
+                    SetSnapPointFlag(SnapPointKind.Quadrant);
+                else
+                    ClearSnapPointFlag(SnapPointKind.Quadrant);
+                OnPropertyChanged();
+            }
+        }
+
+        private bool HasSnapPointFlag(SnapPointKind kind)
+        {
+            return (SettingsManager.AllowedSnapPoints & kind) == kind;
+        }
+
+        private void SetSnapPointFlag(SnapPointKind kind)
+        {
+            SettingsManager.AllowedSnapPoints |= kind;
+        }
+
+        private void ClearSnapPointFlag(SnapPointKind kind)
+        {
+            SettingsManager.AllowedSnapPoints &= ~kind;
         }
 
         #region Snap angles

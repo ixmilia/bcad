@@ -57,20 +57,22 @@
         </Grid>
     </r:RibbonGroup>
     <r:RibbonGroup Header="Snap">
-        <StackPanel Orientation="Horizontal">
-            <GroupBox Header="Snap point color">
-                <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
-                          ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
-                          SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
-            </GroupBox>
-            <GroupBox Header="Snap angles">
-                <StackPanel>
-                    <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsNinetyDegree}" Content="Every 90 degrees" />
-                    <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsFortyFiveDegree}" Content="Every 45 degrees" />
-                    <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsIsometric}" Content="Isometric" />
-                </StackPanel>
-            </GroupBox>
-        </StackPanel>
+        <r:RibbonGroup Header="Kind">
+            <CheckBox IsChecked="{Binding Path=IsEndPoint}" Content="End Point" />
+            <CheckBox IsChecked="{Binding Path=IsMidPoint}" Content="Mid Point" />
+            <CheckBox IsChecked="{Binding Path=IsCenter}" Content="Center" />
+            <CheckBox IsChecked="{Binding Path=IsQuadrant}" Content="Quadrant" />
+        </r:RibbonGroup>
+        <r:RibbonGroup Header="Color">
+            <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
+                        ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
+                        SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
+        </r:RibbonGroup>
+        <r:RibbonGroup Header="Angles">
+            <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsNinetyDegree}" Content="Every 90 degrees" />
+            <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsFortyFiveDegree}" Content="Every 45 degrees" />
+            <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsIsometric}" Content="Isometric" />
+        </r:RibbonGroup>
     </r:RibbonGroup>
     <r:RibbonGroup Header="UI">
         <StackPanel>

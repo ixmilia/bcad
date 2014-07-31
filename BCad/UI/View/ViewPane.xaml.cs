@@ -617,8 +617,10 @@ namespace BCad.UI
         {
             if (Workspace.SettingsManager.PointSnap && (InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
+                var allowed = Workspace.SettingsManager.AllowedSnapPoints;
                 var maxDistSq = Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance;
                 var points = from sp in snapPoints
+                             where (allowed & sp.Kind) != 0
                              let dist = (cursor - sp.ControlPoint).LengthSquared
                              where dist <= maxDistSq
                              orderby dist

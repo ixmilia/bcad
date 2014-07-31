@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using BCad.SnapPoints;
 
 namespace BCad
 {
@@ -23,5 +24,6 @@ namespace BCad
         RealColor SnapPointColor { get; set; }
         RealColor HotPointColor { get; set; }
         ColorMap ColorMap { get; set; }
+        SnapPointKind AllowedSnapPoints { get; set; }
     }
 }

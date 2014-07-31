@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using BCad.Extensions;
 using BCad.Services;
+using BCad.SnapPoints;
 
 namespace BCad
 {
@@ -28,6 +30,7 @@ namespace BCad
         private RealColor snapPointColor = RealColor.Yellow;
         private RealColor hotPointColor = RealColor.Blue;
         private ColorMap colorMap = null;
+        private SnapPointKind allowedSnapPoints = SnapPointKind.All;
 
         [XmlIgnore]
         public string[] RibbonOrder
@@ -329,6 +332,28 @@ namespace BCad
             }
         }
 
+        [XmlIgnore]
+        public SnapPointKind AllowedSnapPoints
+        {
+            get { return allowedSnapPoints; }
+            set
+            {
+                allowedSnapPoints = value;
+                OnPropertyChanged("AllowedSnapPoints");
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement(ElementName = "AllowedSnapPoints")]
+        public string AllowedSnapPointsString
+        {
+            get { return AllowedSnapPoints.ToString(); }
+            set
+            {
+                AllowedSnapPoints = (SnapPointKind)Enum.Parse(typeof(SnapPointKind), value);
+            }
+        }
+
         public DefaultSettingsManager()
         {
             LoadDefaults();
@@ -364,6 +389,7 @@ namespace BCad
             SnapPointColor = RealColor.Yellow;
             HotPointColor = RealColor.Blue;
             ColorMap = ColorMap.Default;
+            AllowedSnapPoints = SnapPointKind.All;
         }
     }
 }
