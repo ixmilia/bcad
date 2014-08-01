@@ -1,5 +1,6 @@
 ﻿DXF reference:
 http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=12272454&linkID=10809853
+http://www.autodesk.com/techpubs/autocad/acad2000/dxf/
 
 HEADER section - complete
 CLASSES section - complete

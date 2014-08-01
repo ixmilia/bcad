@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace BCad.Dxf
 {
@@ -74,7 +71,7 @@ namespace BCad.Dxf
         {
             if (pair.Code != code)
             {
-                throw new DxfReadException(string.Format("Expected code {0}, got {1}", code, pair.Code));
+                Debug.Assert(false, string.Format("Expected code {0}, got {1}", code, pair.Code));
             }
         }
 

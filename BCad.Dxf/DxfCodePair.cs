@@ -49,7 +49,14 @@ namespace BCad.Dxf
 
         public bool BoolValue
         {
-            get { return (bool)Value; }
+            get
+            {
+                // In some AutoCAD 2010 files (AC1024), the header variables $HIDETEXT, $XCLIPFRAME, and $INTERSECTIONDISPLAY
+                // are encoded as code 280 shorts instead of 290 bools.  This is to special-case just those scenarios.
+                return Value.GetType() == typeof(short)
+                    ? (short)Value != 0
+                    : (bool)Value;
+            }
         }
 
         public string HandleValue
