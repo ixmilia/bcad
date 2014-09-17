@@ -10,7 +10,7 @@ namespace BCad.Test.DwgTests
         [TestMethod]
         public void ReadBitTest()
         {
-            var reader = new BitReader(new MemoryStream(new byte[] { 0x5F, 0xF5 }));
+            var reader = new BitReader(new byte[] { 0x5F, 0xF5 });
             Assert.AreEqual(0, reader.ReadBit());
             Assert.AreEqual(1, reader.ReadBit());
             Assert.AreEqual(0, reader.ReadBit());
@@ -35,7 +35,7 @@ namespace BCad.Test.DwgTests
         [TestMethod]
         public void ReadWholeBytesTest()
         {
-            var reader = new BitReader(new MemoryStream(new byte[] { 0x5F, 0xF5 }));
+            var reader = new BitReader(new byte[] { 0x5F, 0xF5 });
             Assert.AreEqual((byte)0x5F, reader.ReadByte());
             Assert.AreEqual((byte)0xF5, reader.ReadByte());
         }
@@ -43,7 +43,7 @@ namespace BCad.Test.DwgTests
         [TestMethod]
         public void ReadBytesWithOffsetTest()
         {
-            var reader = new BitReader(new MemoryStream(new byte[] { 0x5F, 0xF5 }));
+            var reader = new BitReader(new byte[] { 0x5F, 0xF5 });
             Assert.AreEqual(0, reader.ReadBit());
             Assert.AreEqual((byte)0xBF, reader.ReadByte());
         }
@@ -51,7 +51,7 @@ namespace BCad.Test.DwgTests
         [TestMethod]
         public void ReadBytesWithHalfOffsetTest()
         {
-            var reader = new BitReader(new MemoryStream(new byte[] { 0x5F, 0xF5 }));
+            var reader = new BitReader(new byte[] { 0x5F, 0xF5 });
             Assert.AreEqual(0, reader.ReadBit());
             Assert.AreEqual(1, reader.ReadBit());
             Assert.AreEqual(0, reader.ReadBit());
