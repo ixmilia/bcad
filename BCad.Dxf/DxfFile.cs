@@ -20,6 +20,7 @@ namespace BCad.Dxf
         internal DxfTablesSection TablesSection { get; private set; }
         internal DxfBlocksSection BlocksSection { get; private set; }
         internal DxfEntitiesSection EntitiesSection { get; private set; }
+        internal DxfThumbnailImageSection ThumbnailImageSection { get; private set; }
 
         public List<DxfEntity> Entities { get { return EntitiesSection.Entities; } }
 
@@ -47,6 +48,24 @@ namespace BCad.Dxf
 
         public List<DxfStyle> Styles { get { return TablesSection.StyleTable.Styles; } }
 
+        public byte[] ThumbnailImage
+        {
+            get { return ThumbnailImageSection == null ? null : ThumbnailImageSection.Data; }
+            set
+            {
+                if (value == null)
+                {
+                    ThumbnailImageSection = null;
+                }
+                else
+                {
+                    if (ThumbnailImageSection == null)
+                        ThumbnailImageSection = new DxfThumbnailImageSection();
+                    ThumbnailImageSection.Data = value;
+                }
+            }
+        }
+
         internal IEnumerable<DxfSection> Sections
         {
             get
@@ -56,6 +75,8 @@ namespace BCad.Dxf
                 yield return this.TablesSection;
                 yield return this.BlocksSection;
                 yield return this.EntitiesSection;
+                if (Header.Version >= DxfAcadVersion.R2000 && this.ThumbnailImageSection != null)
+                    yield return this.ThumbnailImageSection;
             }
         }
 
@@ -66,6 +87,7 @@ namespace BCad.Dxf
             this.TablesSection = new DxfTablesSection();
             this.BlocksSection = new DxfBlocksSection();
             this.EntitiesSection = new DxfEntitiesSection();
+            this.ThumbnailImageSection = null; // not always present
         }
 
         public static DxfFile Load(Stream stream)
@@ -98,6 +120,9 @@ namespace BCad.Dxf
                                 break;
                             case DxfSectionType.Tables:
                                 file.TablesSection = (DxfTablesSection)section;
+                                break;
+                            case DxfSectionType.Thumbnail:
+                                file.ThumbnailImageSection = (DxfThumbnailImageSection)section;
                                 break;
                         }
                     }

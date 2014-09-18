@@ -13,6 +13,7 @@ namespace BCad.Dxf.Sections
         internal const string BlocksSectionText = "BLOCKS";
         internal const string EntitiesSectionText = "ENTITIES";
         internal const string ObjectsSectionText = "OBJECTS";
+        internal const string ThumbnailImageSectionText = "THUMBNAILIMAGE";
 
         internal const string SectionText = "SECTION";
         internal const string EndSectionText = "ENDSEC";
@@ -72,6 +73,9 @@ namespace BCad.Dxf.Sections
                     break;
                 case TablesSectionText:
                     section = DxfTablesSection.TablesSectionFromBuffer(buffer);
+                    break;
+                case ThumbnailImageSectionText:
+                    section = DxfThumbnailImageSection.ThumbnailImageSectionFromBuffer(buffer);
                     break;
                 default:
                     SwallowSection(buffer);

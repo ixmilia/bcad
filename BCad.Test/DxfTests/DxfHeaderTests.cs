@@ -231,26 +231,6 @@ ENDTAB
 
         #region Write tests
 
-        private static void VerifyFileContents(DxfFile file, string expected, Action<string, string> predicate)
-        {
-            var stream = new MemoryStream();
-            file.Save(stream);
-            stream.Flush();
-            stream.Seek(0, SeekOrigin.Begin);
-            var actual = new StreamReader(stream).ReadToEnd();
-            predicate(expected, actual);
-        }
-
-        private static void VerifyFileContains(DxfFile file, string expected)
-        {
-            VerifyFileContents(file, expected, (ex, ac) => Assert.IsTrue(ac.Contains(ex.Trim())));
-        }
-
-        private static void VerifyFileIsExactly(DxfFile file, string expected)
-        {
-            VerifyFileContents(file, expected, (ex, ac) => Assert.AreEqual(ex.Trim(), ac.Trim()));
-        }
-
         [TestMethod]
         public void WriteDefaultHeaderValuesTest()
         {

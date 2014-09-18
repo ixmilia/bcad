@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BCad.Test.DxfTests
 {
     [TestClass]
-    public class DxfReaderWriterTests
+    public class DxfReaderWriterTests : AbstractDxfTests
     {
         [TestMethod]
         public void BinaryReaderTest()
@@ -32,6 +32,46 @@ namespace BCad.Test.DxfTests
             stream.Seek(0, SeekOrigin.Begin);
             var file = DxfFile.Load(stream);
             Assert.AreEqual(0, file.Layers.Count);
+        }
+
+        [TestMethod]
+        public void ReadThumbnailTest()
+        {
+            var file = Section("THUMBNAILIMAGE", @" 90
+3
+310
+012345");
+            AssertArrayEqual(file.ThumbnailImage, new byte[] { 0x01, 0x23, 0x45 });
+        }
+
+        [TestMethod]
+        public void WriteThumbnailTestR14()
+        {
+            var file = new DxfFile();
+            file.Header.Version = DxfAcadVersion.R14;
+            file.ThumbnailImage = new byte[] { 0x01, 0x23, 0x45 };
+            VerifyFileDoesNotContain(file, @"  0
+SECTION
+  2
+THUMBNAILIMAGE");
+        }
+
+        [TestMethod]
+        public void WriteThumbnailTestR2000()
+        {
+            var file = new DxfFile();
+            file.Header.Version = DxfAcadVersion.R2000;
+            file.ThumbnailImage = new byte[] { 0x01, 0x23, 0x45 };
+            VerifyFileContains(file, @"  0
+SECTION
+  2
+THUMBNAILIMAGE
+ 90
+3
+310
+012345
+  0
+ENDSEC");
         }
     }
 }

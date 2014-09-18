@@ -10,7 +10,8 @@ namespace BCad.Dxf.Sections
         Tables,
         Blocks,
         Entities,
-        Objects
+        Objects,
+        Thumbnail
     }
 
     internal static class DxfSectionTypeHelper
@@ -40,6 +41,9 @@ namespace BCad.Dxf.Sections
                 case DxfSectionType.Objects:
                     name = DxfSection.ObjectsSectionText;
                     break;
+                case DxfSectionType.Thumbnail:
+                    name = DxfSection.ThumbnailImageSectionText;
+                    break;
             }
             return name;
         }
@@ -66,6 +70,9 @@ namespace BCad.Dxf.Sections
                     break;
                 case DxfSection.ObjectsSectionText:
                     sec = DxfSectionType.Objects;
+                    break;
+                case DxfSection.ThumbnailImageSectionText:
+                    sec = DxfSectionType.Thumbnail;
                     break;
             }
             return sec;

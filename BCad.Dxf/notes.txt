@@ -11,4 +11,5 @@ OBJECTS section - NYI
 
 TODO:
 	add min/max for classes/tables/blocks/objects sections
-	add THUMBNAIL section from R2000
+	rename BCad namespace to IxMilia
+	fork sources and publish to NuGet
