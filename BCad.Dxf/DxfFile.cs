@@ -48,9 +48,32 @@ namespace BCad.Dxf
 
         public List<DxfStyle> Styles { get { return TablesSection.StyleTable.Styles; } }
 
-        public byte[] ThumbnailImage
+        /// <summary>
+        /// Gets the thumbnail bitmap.
+        /// </summary>
+        /// <returns>Raw bytes that should serialize to a .BMP file.</returns>
+        public byte[] GetThumbnailBitmap()
         {
-            get { return ThumbnailImageSection == null ? null : ThumbnailImageSection.Data; }
+            return ThumbnailImageSection == null ? null : ThumbnailImageSection.GetThumbnailBitmap();
+        }
+
+        /// <summary>
+        /// Sets the bitmap thumbnail.
+        /// </summary>
+        /// <param name="thumbnail">Raw data of the thumbnail image.  Should be a 256-color bitmap, 180 pixels wide, any height.</param>
+        public void SetThumbnailBitmap(byte[] thumbnail)
+        {
+            if (ThumbnailImageSection == null)
+                ThumbnailImageSection = new DxfThumbnailImageSection();
+            ThumbnailImageSection.SetThumbnailBitmap(thumbnail);
+        }
+
+        /// <summary>
+        /// Raw data of the thumbnail image.  Should be a 256-color bitmap, 180 pixels wide, any height.
+        /// </summary>
+        public byte[] RawThumbnail
+        {
+            get { return ThumbnailImageSection == null ? null : ThumbnailImageSection.RawData; }
             set
             {
                 if (value == null)
@@ -61,7 +84,7 @@ namespace BCad.Dxf
                 {
                     if (ThumbnailImageSection == null)
                         ThumbnailImageSection = new DxfThumbnailImageSection();
-                    ThumbnailImageSection.Data = value;
+                    ThumbnailImageSection.RawData = value;
                 }
             }
         }

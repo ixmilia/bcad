@@ -15,17 +15,17 @@ namespace BCad.Dxf.Sections
         protected internal override IEnumerable<DxfCodePair> GetSpecificPairs(DxfAcadVersion version)
         {
             var list = new List<DxfCodePair>();
-            list.Add(new DxfCodePair(90, Data.Length));
+            list.Add(new DxfCodePair(90, RawData.Length));
 
             // write lines in 128-byte chunks (expands to 256 hex bytes)
             var sb = new StringBuilder();
-            var chunkCount = (int)Math.Ceiling((double)Data.Length / ChunkSize);
+            var chunkCount = (int)Math.Ceiling((double)RawData.Length / ChunkSize);
             for (int i = 0; i < chunkCount; i++)
             {
                 sb.Clear();
-                for (int offset = i * ChunkSize; offset < ChunkSize && offset < Data.Length; offset++)
+                for (int offset = i * ChunkSize; offset < ChunkSize && offset < RawData.Length; offset++)
                 {
-                    sb.Append(Data[offset].ToString("X2"));
+                    sb.Append(RawData[offset].ToString("X2"));
                 }
 
                 list.Add(new DxfCodePair(310, sb.ToString()));
@@ -36,7 +36,59 @@ namespace BCad.Dxf.Sections
 
         private const int ChunkSize = 128;
 
-        public byte[] Data { get; set; }
+        public byte[] RawData { get; set; }
+
+        public byte[] GetThumbnailBitmap()
+        {
+            var result = new byte[RawData.Length + BITMAPFILEHEADER.Length];
+
+            // populate the bitmap header
+            for (int i = 0; i < BITMAPFILEHEADER.Length; i++)
+            {
+                result[i] = BITMAPFILEHEADER[i];
+            }
+
+            // write the file length
+            var lengthBytes = BitConverter.GetBytes(RawData.Length);
+            for (int i = 0; i < lengthBytes.Length; i++)
+            {
+                result[i + BITMAPFILELENGTHOFFSET] = lengthBytes[i];
+            }
+
+            // copy the raw data
+            Array.Copy(RawData, 0, result, BITMAPFILEHEADER.Length, RawData.Length);
+
+            return result;
+        }
+
+        public void SetThumbnailBitmap(byte[] thumbnail)
+        {
+            // strip off bitmap header
+            Debug.Assert(thumbnail != null);
+            Debug.Assert(thumbnail.Length > BITMAPFILEHEADER.Length);
+            Debug.Assert(thumbnail[0] == (byte)'B');
+            Debug.Assert(thumbnail[0] == (byte)'M');
+            RawData = new byte[thumbnail.Length - BITMAPFILEHEADER.Length];
+            Array.Copy(thumbnail, BITMAPFILEHEADER.Length, RawData, 0, RawData.Length);
+        }
+
+        // BITMAPFILEHEADER structure
+        private static byte[] BITMAPFILEHEADER
+        {
+            get
+            {
+                return new byte[]
+                {
+                    (byte)'B', (byte)'M', // magic number
+                    0x00, 0x00, 0x00, 0x00, // file length (calculated later)
+                    0x00, 0x00, // reserved
+                    0x00, 0x00, // reserved
+                    0x36, 0x04, 0x00, 0x00 // bit offset; always 1078
+                };
+            }
+        }
+
+        private const int BITMAPFILELENGTHOFFSET = 2;
 
         internal static DxfThumbnailImageSection ThumbnailImageSectionFromBuffer(DxfCodePairBufferReader buffer)
         {
@@ -69,7 +121,7 @@ namespace BCad.Dxf.Sections
                 }
 
                 var section = new DxfThumbnailImageSection();
-                section.Data = data;
+                section.RawData = data;
                 return section;
             }
 

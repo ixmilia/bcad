@@ -41,7 +41,7 @@ namespace BCad.Test.DxfTests
 3
 310
 012345");
-            AssertArrayEqual(file.ThumbnailImage, new byte[] { 0x01, 0x23, 0x45 });
+            AssertArrayEqual(file.RawThumbnail, new byte[] { 0x01, 0x23, 0x45 });
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace BCad.Test.DxfTests
         {
             var file = new DxfFile();
             file.Header.Version = DxfAcadVersion.R14;
-            file.ThumbnailImage = new byte[] { 0x01, 0x23, 0x45 };
+            file.RawThumbnail = new byte[] { 0x01, 0x23, 0x45 };
             VerifyFileDoesNotContain(file, @"  0
 SECTION
   2
@@ -61,7 +61,7 @@ THUMBNAILIMAGE");
         {
             var file = new DxfFile();
             file.Header.Version = DxfAcadVersion.R2000;
-            file.ThumbnailImage = new byte[] { 0x01, 0x23, 0x45 };
+            file.RawThumbnail = new byte[] { 0x01, 0x23, 0x45 };
             VerifyFileContains(file, @"  0
 SECTION
   2
