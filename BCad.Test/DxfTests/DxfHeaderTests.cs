@@ -70,6 +70,29 @@ $LUPREC
         }
 
         [TestMethod]
+        public void DateConversionTest()
+        {
+            // from Autodesk spec: 2451544.91568287 = December 31, 1999, 9:58:35 pm.
+
+            // verify reading
+            var file = Section("HEADER", @"
+  9
+$TDCREATE
+ 40
+2451544.91568287
+");
+            Assert.AreEqual(new DateTime(1999, 12, 31, 21, 58, 35), file.Header.CreationDate);
+
+            // verify writing.  appending "04" to double value for precision issues.
+            VerifyFileContains(file, @"
+  9
+$TDCREATE
+ 40
+2.4515449156828704E+006
+");
+        }
+
+        [TestMethod]
         public void LayerTableTest()
         {
             var file = Section("TABLES", @"

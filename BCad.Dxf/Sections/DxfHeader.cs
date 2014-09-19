@@ -42,19 +42,21 @@ namespace BCad.Dxf
             return new Guid(s);
         }
 
-        private const double JulianOffset = 2415018.999733797;
+        // the Dublin Julian date epoch is December 31, 1899, and defined as the Julian day 2415020
+        // see http://en.wikipedia.org/wiki/Julian_day
+        private static DateTime JulianDublinBase = new DateTime(1899, 12, 31, 0, 0, 0);
+        private const double JulianDublinOffset = 2415020.0;
 
-        private static DateTime DateDouble(double d)
+        private static DateTime DateDouble(double date)
         {
-            var offset = d - JulianOffset;
-            if (offset < 0.0)
-                offset = 0.0;
-            return FromOADate(offset);
+            var daysFromDublin = date - JulianDublinOffset;
+            return JulianDublinBase.AddDays(daysFromDublin);
         }
 
-        private static double DateDouble(DateTime d)
+        private static double DateDouble(DateTime date)
         {
-            return ToOADate(d) + JulianOffset;
+            var daysFromDublin = (date - JulianDublinBase).TotalDays;
+            return JulianDublinOffset + daysFromDublin;
         }
 
         private static TimeSpan TimeSpanDouble(double d)
@@ -91,59 +93,6 @@ namespace BCad.Dxf
                 default:
                     break;
             }
-        }
-
-        private static DateTime FromOADate(double value)
-        {
-            return new DateTime(DoubleDateToTicks(value), DateTimeKind.Unspecified);
-        }
-
-        private static double ToOADate(DateTime d)
-        {
-            return TicksToOADate(d.Ticks);
-        }
-
-        private const long TicksPerMillisecond = 10000;
-        private const long TicksPerDay = TicksPerMillisecond * 1000 * 60 * 60 * 24;
-        private const int MillisecondsPerDay = 1000 * 60 * 60 * 24;
-        private const long DoubleDateOffset = (146097 * 4 + 36524 * 3 - 367) * TicksPerDay;
-
-        private static long DoubleDateToTicks(double value)
-        {
-            var milliseconds = (long)(value * MillisecondsPerDay + (value >= 0 ? 0.5 : -0.5));
-            if (milliseconds < 0)
-            {
-                milliseconds -= (milliseconds % MillisecondsPerDay) * 2;
-            }
-
-            milliseconds += DoubleDateOffset / TicksPerMillisecond;
-
-            return milliseconds * TicksPerMillisecond;
-        }
-
-        private static double TicksToOADate(long value)
-        {
-            if (value == 0)
-            {
-                return 0.0;
-            }
-
-            if (value < TicksPerDay)
-            {
-                value += DoubleDateOffset;
-            }
-
-            var milliseconds = (value - DoubleDateOffset) / TicksPerMillisecond;
-            if (milliseconds < 0)
-            {
-                var frac = milliseconds % MillisecondsPerDay;
-                if (frac != 0)
-                {
-                    milliseconds -= (MillisecondsPerDay + frac) * 2;
-                }
-            }
-
-            return (double)milliseconds / MillisecondsPerDay;
         }
     }
 }
