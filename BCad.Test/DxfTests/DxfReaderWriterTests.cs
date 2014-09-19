@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BCad.Dxf;
+using IxMilia.Dxf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests
@@ -18,7 +18,7 @@ namespace BCad.Test.DxfTests
             var stream = new FileStream("diamond-bin.dxf", FileMode.Open);
             var file = DxfFile.Load(stream);
             Assert.AreEqual(12, file.Entities.Count);
-            Assert.AreEqual(12, file.Entities.Where(e => e.EntityType == Dxf.Entities.DxfEntityType.Line).Count());
+            Assert.AreEqual(12, file.Entities.Where(e => e.EntityType == IxMilia.Dxf.Entities.DxfEntityType.Line).Count());
         }
 
         [TestMethod]

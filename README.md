@@ -5,11 +5,11 @@ Runtime requirements
 --------------------
 * BCad.Core.dll
 * BCad.Core.UI.dll
-* BCad.Dxf.dll
 * BCad.exe (main entry point)
 * BCad.FileHandlers.dll
 * BCad.Iges.dll
 * BCad.Stl.dll
+* IxMilia.Dxf.dll
 * Microsoft.Windows.Shell.dll
 * RibbonControlsLibrary.dll
 * SharpDX.D3DCompiler.dll

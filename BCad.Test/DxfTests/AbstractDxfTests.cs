@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using BCad.Dxf;
+using IxMilia.Dxf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests

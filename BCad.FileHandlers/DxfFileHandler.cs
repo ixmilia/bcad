@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BCad.Collections;
-using BCad.Dxf;
-using BCad.Dxf.Blocks;
-using BCad.Dxf.Entities;
+using IxMilia.Dxf;
+using IxMilia.Dxf.Blocks;
+using IxMilia.Dxf.Entities;
 using BCad.Entities;
 
 namespace BCad.FileHandlers

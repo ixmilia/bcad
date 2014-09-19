@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using BCad.Dxf;
-using BCad.Dxf.Sections;
-using BCad.Dxf.Tables;
+using IxMilia.Dxf;
+using IxMilia.Dxf.Sections;
+using IxMilia.Dxf.Tables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests
