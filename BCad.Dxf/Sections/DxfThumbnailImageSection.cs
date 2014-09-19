@@ -43,17 +43,11 @@ namespace BCad.Dxf.Sections
             var result = new byte[RawData.Length + BITMAPFILEHEADER.Length];
 
             // populate the bitmap header
-            for (int i = 0; i < BITMAPFILEHEADER.Length; i++)
-            {
-                result[i] = BITMAPFILEHEADER[i];
-            }
+            Array.Copy(BITMAPFILEHEADER, 0, result, 0, BITMAPFILEHEADER.Length);
 
             // write the file length
             var lengthBytes = BitConverter.GetBytes(RawData.Length);
-            for (int i = 0; i < lengthBytes.Length; i++)
-            {
-                result[i + BITMAPFILELENGTHOFFSET] = lengthBytes[i];
-            }
+            Array.Copy(lengthBytes, 0, result, BITMAPFILELENGTHOFFSET, lengthBytes.Length);
 
             // copy the raw data
             Array.Copy(RawData, 0, result, BITMAPFILEHEADER.Length, RawData.Length);
