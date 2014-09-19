@@ -15,6 +15,7 @@ namespace BCad.Dxf.Entities
         AttributeDefinition,
         Body,
         Circle,
+        Dimension,
         Ellipse,
         Face,
         Image,
@@ -80,6 +81,8 @@ namespace BCad.Dxf.Entities
                         return "BODY";
                     case DxfEntityType.Circle:
                         return "CIRCLE";
+                    case DxfEntityType.Dimension:
+                        return "DIMENSION";
                     case DxfEntityType.Ellipse:
                         return "ELLIPSE";
                     case DxfEntityType.Image:
@@ -241,6 +244,9 @@ namespace BCad.Dxf.Entities
                 case "CIRCLE":
                     entity = new DxfCircle();
                     break;
+                case "DIMENSION":
+                    entity = new DxfDimensionBase();
+                    break;
                 case "ELLIPSE":
                     entity = new DxfEllipse();
                     break;
@@ -318,7 +324,7 @@ namespace BCad.Dxf.Entities
 
             if (entity != null)
             {
-                entity.PopulateFromBuffer(buffer);
+                entity = entity.PopulateFromBuffer(buffer);
             }
 
             return entity;
@@ -1566,6 +1572,540 @@ namespace BCad.Dxf.Entities
                     break;
                 case 230:
                     this.Normal.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfDimensionBase class
+    /// </summary>
+    public partial class DxfDimensionBase : DxfEntity
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public string BlockName { get; set; }
+        public DxfPoint DefinitionPoint1 { get; set; }
+        public DxfPoint TextMidPoint { get; set; }
+        public DxfDimensionType DimensionType { get; set; }
+        public DxfAttachmentPoint AttachmentPoint { get; set; }
+        public DxfTextLineSpacingStyle TextLineSpacingStyle { get; set; }
+
+        public DxfDimensionBase()
+            : base()
+        {
+            this.BlockName = null;
+            this.DefinitionPoint1 = DxfPoint.Origin;
+            this.TextMidPoint = DxfPoint.Origin;
+            this.DimensionType = DxfDimensionType.RotatedHorizontalOrVertical;
+            this.AttachmentPoint = DxfAttachmentPoint.TopLeft;
+            this.TextLineSpacingStyle = DxfTextLineSpacingStyle.AtLeast;
+        }
+
+        protected DxfDimensionBase(DxfDimensionBase other)
+            : this()
+        {
+            this.BlockName = other.BlockName;
+            this.DefinitionPoint1 = other.DefinitionPoint1;
+            this.TextMidPoint = other.TextMidPoint;
+            this.DimensionType = other.DimensionType;
+            this.AttachmentPoint = other.AttachmentPoint;
+            this.TextLineSpacingStyle = other.TextLineSpacingStyle;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbDimension"));
+            pairs.Add(new DxfCodePair(2, (this.BlockName)));
+            pairs.Add(new DxfCodePair(10, DefinitionPoint1.X));
+            pairs.Add(new DxfCodePair(20, DefinitionPoint1.Y));
+            pairs.Add(new DxfCodePair(30, DefinitionPoint1.Z));
+            pairs.Add(new DxfCodePair(11, TextMidPoint.X));
+            pairs.Add(new DxfCodePair(21, TextMidPoint.Y));
+            pairs.Add(new DxfCodePair(31, TextMidPoint.Z));
+            pairs.Add(new DxfCodePair(70, (short)(this.DimensionType)));
+            pairs.Add(new DxfCodePair(71, (short)(this.AttachmentPoint)));
+            if (this.TextLineSpacingStyle != DxfTextLineSpacingStyle.AtLeast)
+            {
+                pairs.Add(new DxfCodePair(72, (short)(this.TextLineSpacingStyle)));
+            }
+
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 2:
+                    this.BlockName = (pair.StringValue);
+                    break;
+                case 10:
+                    this.DefinitionPoint1.X = pair.DoubleValue;
+                    break;
+                case 20:
+                    this.DefinitionPoint1.Y = pair.DoubleValue;
+                    break;
+                case 30:
+                    this.DefinitionPoint1.Z = pair.DoubleValue;
+                    break;
+                case 11:
+                    this.TextMidPoint.X = pair.DoubleValue;
+                    break;
+                case 21:
+                    this.TextMidPoint.Y = pair.DoubleValue;
+                    break;
+                case 31:
+                    this.TextMidPoint.Z = pair.DoubleValue;
+                    break;
+                case 70:
+                    this.DimensionType = (DxfDimensionType)(pair.ShortValue);
+                    break;
+                case 71:
+                    this.AttachmentPoint = (DxfAttachmentPoint)(pair.ShortValue);
+                    break;
+                case 72:
+                    this.TextLineSpacingStyle = (DxfTextLineSpacingStyle)(pair.ShortValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfAlignedDimension class
+    /// </summary>
+    public partial class DxfAlignedDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint InsertionPoint { get; set; }
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public DxfPoint DefinitionPoint3 { get; set; }
+
+        public DxfAlignedDimension()
+            : base()
+        {
+            this.InsertionPoint = DxfPoint.Origin;
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+        }
+
+        internal DxfAlignedDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbAlignedDimension"));
+            pairs.Add(new DxfCodePair(12, InsertionPoint.X));
+            pairs.Add(new DxfCodePair(22, InsertionPoint.Y));
+            pairs.Add(new DxfCodePair(32, InsertionPoint.Z));
+            pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(14, DefinitionPoint3.X));
+            pairs.Add(new DxfCodePair(24, DefinitionPoint3.Y));
+            pairs.Add(new DxfCodePair(34, DefinitionPoint3.Z));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 12:
+                    this.InsertionPoint.X = pair.DoubleValue;
+                    break;
+                case 22:
+                    this.InsertionPoint.Y = pair.DoubleValue;
+                    break;
+                case 32:
+                    this.InsertionPoint.Z = pair.DoubleValue;
+                    break;
+                case 13:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 23:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 33:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 14:
+                    this.DefinitionPoint3.X = pair.DoubleValue;
+                    break;
+                case 24:
+                    this.DefinitionPoint3.Y = pair.DoubleValue;
+                    break;
+                case 34:
+                    this.DefinitionPoint3.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfRotatedDimension class
+    /// </summary>
+    public partial class DxfRotatedDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint InsertionPoint { get; set; }
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public DxfPoint DefinitionPoint3 { get; set; }
+        public double RotationAngle { get; set; }
+        public double ExtensionLineAngle { get; set; }
+
+        public DxfRotatedDimension()
+            : base()
+        {
+            this.InsertionPoint = DxfPoint.Origin;
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+            this.RotationAngle = 0.0;
+            this.ExtensionLineAngle = 0.0;
+        }
+
+        internal DxfRotatedDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbAlignedDimension"));
+            pairs.Add(new DxfCodePair(12, InsertionPoint.X));
+            pairs.Add(new DxfCodePair(22, InsertionPoint.Y));
+            pairs.Add(new DxfCodePair(32, InsertionPoint.Z));
+            pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(14, DefinitionPoint3.X));
+            pairs.Add(new DxfCodePair(24, DefinitionPoint3.Y));
+            pairs.Add(new DxfCodePair(34, DefinitionPoint3.Z));
+            pairs.Add(new DxfCodePair(50, (this.RotationAngle)));
+            pairs.Add(new DxfCodePair(52, (this.ExtensionLineAngle)));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 12:
+                    this.InsertionPoint.X = pair.DoubleValue;
+                    break;
+                case 22:
+                    this.InsertionPoint.Y = pair.DoubleValue;
+                    break;
+                case 32:
+                    this.InsertionPoint.Z = pair.DoubleValue;
+                    break;
+                case 13:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 23:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 33:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 14:
+                    this.DefinitionPoint3.X = pair.DoubleValue;
+                    break;
+                case 24:
+                    this.DefinitionPoint3.Y = pair.DoubleValue;
+                    break;
+                case 34:
+                    this.DefinitionPoint3.Z = pair.DoubleValue;
+                    break;
+                case 50:
+                    this.RotationAngle = (pair.DoubleValue);
+                    break;
+                case 52:
+                    this.ExtensionLineAngle = (pair.DoubleValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfRadialDimension class
+    /// </summary>
+    public partial class DxfRadialDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public double LeaderLength { get; set; }
+
+        public DxfRadialDimension()
+            : base()
+        {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.LeaderLength = 0.0;
+        }
+
+        internal DxfRadialDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbRadialDimension"));
+            pairs.Add(new DxfCodePair(15, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(25, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(35, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(40, (this.LeaderLength)));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 15:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 25:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 35:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 40:
+                    this.LeaderLength = (pair.DoubleValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfDiameterDimension class
+    /// </summary>
+    public partial class DxfDiameterDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public double LeaderLength { get; set; }
+
+        public DxfDiameterDimension()
+            : base()
+        {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.LeaderLength = 0.0;
+        }
+
+        internal DxfDiameterDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbRadialDiametricDimension"));
+            pairs.Add(new DxfCodePair(15, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(25, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(35, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(40, (this.LeaderLength)));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 15:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 25:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 35:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 40:
+                    this.LeaderLength = (pair.DoubleValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfAngularDimension class
+    /// </summary>
+    public partial class DxfAngularDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public DxfPoint DefinitionPoint3 { get; set; }
+        public DxfPoint DefinitionPoint4 { get; set; }
+        public DxfPoint DefinitionPoint5 { get; set; }
+
+        public DxfAngularDimension()
+            : base()
+        {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+            this.DefinitionPoint4 = DxfPoint.Origin;
+            this.DefinitionPoint5 = DxfPoint.Origin;
+        }
+
+        internal DxfAngularDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDb3PointAngularDimension"));
+            pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(14, DefinitionPoint3.X));
+            pairs.Add(new DxfCodePair(24, DefinitionPoint3.Y));
+            pairs.Add(new DxfCodePair(34, DefinitionPoint3.Z));
+            pairs.Add(new DxfCodePair(15, DefinitionPoint4.X));
+            pairs.Add(new DxfCodePair(25, DefinitionPoint4.Y));
+            pairs.Add(new DxfCodePair(35, DefinitionPoint4.Z));
+            pairs.Add(new DxfCodePair(16, DefinitionPoint5.X));
+            pairs.Add(new DxfCodePair(26, DefinitionPoint5.Y));
+            pairs.Add(new DxfCodePair(36, DefinitionPoint5.Z));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 13:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 23:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 33:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 14:
+                    this.DefinitionPoint3.X = pair.DoubleValue;
+                    break;
+                case 24:
+                    this.DefinitionPoint3.Y = pair.DoubleValue;
+                    break;
+                case 34:
+                    this.DefinitionPoint3.Z = pair.DoubleValue;
+                    break;
+                case 15:
+                    this.DefinitionPoint4.X = pair.DoubleValue;
+                    break;
+                case 25:
+                    this.DefinitionPoint4.Y = pair.DoubleValue;
+                    break;
+                case 35:
+                    this.DefinitionPoint4.Z = pair.DoubleValue;
+                    break;
+                case 16:
+                    this.DefinitionPoint5.X = pair.DoubleValue;
+                    break;
+                case 26:
+                    this.DefinitionPoint5.Y = pair.DoubleValue;
+                    break;
+                case 36:
+                    this.DefinitionPoint5.Z = pair.DoubleValue;
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfOrdinateDimension class
+    /// </summary>
+    public partial class DxfOrdinateDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public DxfPoint DefinitionPoint3 { get; set; }
+
+        public DxfOrdinateDimension()
+            : base()
+        {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+        }
+
+        internal DxfOrdinateDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbOrdinateDimension"));
+            pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(14, DefinitionPoint3.X));
+            pairs.Add(new DxfCodePair(24, DefinitionPoint3.Y));
+            pairs.Add(new DxfCodePair(34, DefinitionPoint3.Z));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 13:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 23:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 33:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 14:
+                    this.DefinitionPoint3.X = pair.DoubleValue;
+                    break;
+                case 24:
+                    this.DefinitionPoint3.Y = pair.DoubleValue;
+                    break;
+                case 34:
+                    this.DefinitionPoint3.Z = pair.DoubleValue;
                     break;
                 default:
                     return base.TrySetPair(pair);
@@ -4393,6 +4933,45 @@ namespace BCad.Dxf.Entities
             }
 
             return true;
+        }
+    }
+
+    public partial class DxfDimensionBase
+    {
+        protected override DxfEntity PostParse()
+        {
+            DxfDimensionBase newDimension = null;
+            switch (DimensionType)
+            {
+                case DxfDimensionType.Aligned:
+                    newDimension = new DxfAlignedDimension(this);
+                    break;
+                case DxfDimensionType.RotatedHorizontalOrVertical:
+                    newDimension = new DxfRotatedDimension(this);
+                    break;
+                case DxfDimensionType.Radius:
+                    newDimension = new DxfRadialDimension(this);
+                    break;
+                case DxfDimensionType.Diameter:
+                    newDimension = new DxfDiameterDimension(this);
+                    break;
+                case DxfDimensionType.Angular:
+                    newDimension = new DxfAngularDimension(this);
+                    break;
+                case DxfDimensionType.Ordinate:
+                    newDimension = new DxfOrdinateDimension(this);
+                    break;
+            }
+
+            if (newDimension != null)
+            {
+                foreach (var pair in ExcessCodePairs)
+                {
+                    newDimension.TrySetPair(pair);
+                }
+            }
+
+            return newDimension;
         }
     }
 

@@ -26,12 +26,18 @@ namespace BCad.Dxf.Entities
     public enum DxfEntityType
     {
 <#
+var enumNames = new HashSet<string>();
 foreach (var entity in entities.OrderBy(e => EntityType(e)))
 {
+	var entityType = EntityType(entity);
+	if (!string.IsNullOrEmpty(entityType) && !enumNames.Contains(entityType))
+	{
+		enumNames.Add(entityType);
 #>
-        <#= EntityType(entity) #>,
+        <#= entityType #>,
 <#
-}
+	} // if
+} // foreach entity
 #>
     }
 
@@ -61,10 +67,14 @@ foreach (var property in GetProperties(baseEntity))
 <#
 foreach (var entity in entities)
 {
+	var typeString = TypeString(entity);
+	if (!string.IsNullOrEmpty(typeString))
+	{
 #>
                     case DxfEntityType.<#= EntityType(entity) #>:
-                        return "<#= TypeString(entity) #>";
+                        return "<#= typeString #>";
 <#
+	} // if
 } // foreach entity
 #>
                     default:
@@ -165,11 +175,15 @@ foreach (var property in GetProperties(baseEntity))
 <#
 foreach (var entity in entities)
 {
+	var typeString = TypeString(entity);
+	if (!string.IsNullOrEmpty(typeString))
+	{
 #>
-                case "<#= TypeString(entity) #>":
+                case "<#= typeString #>":
                     entity = new <#= Name(entity) #>();
                     break;
 <#
+	} // if
 } // foreach entity
 #>
                 default:
@@ -180,7 +194,7 @@ foreach (var entity in entities)
 
             if (entity != null)
             {
-                entity.PopulateFromBuffer(buffer);
+                entity = entity.PopulateFromBuffer(buffer);
             }
 
             return entity;
@@ -323,6 +337,46 @@ foreach (var entity in entities)
 <#
 		} // foreach constructor
 	} // if
+
+	//
+	// Copy constructor
+	//
+	var copyConstructorAccessibility = CopyConstructor(entity);
+	if (copyConstructorAccessibility != null)
+	{
+		if (copyConstructorAccessibility == "inherited")
+		{
+#>
+        internal <#= className #>(<#= BaseClass(entity) #> other)
+            : base(other)
+        {
+        }
+<#
+		}
+		else
+		{
+#>
+        <#= copyConstructorAccessibility #> <#= className #>(<#= className #> other)
+            : this()
+        {
+<#
+		foreach (var property in GetProperties(entity))
+		{
+			var defaultValue = AllowMultiples(property)
+				? string.Format("new List<{0}>()", Type(property))
+				: DefaultValue(property);
+#>
+            this.<#= Name(property) #> = other.<#= Name(property) #>;
+<#
+		} // foreach property
+#>
+        }
+<#
+		} // else
+#>
+
+<#
+	} // copyConstructorAccessibility != null
 #>
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
@@ -416,6 +470,37 @@ foreach (var entity in entities)
 <#
 } // foreach entity
 #>
+    public partial class DxfDimensionBase
+    {
+        protected override DxfEntity PostParse()
+        {
+            DxfDimensionBase newDimension = null;
+            switch (DimensionType)
+            {
+<#
+foreach (var entity in entities.OrderBy(e => EntityType(e)).Where(e => BaseClass(e) == "DxfDimensionBase"))
+{
+#>
+                case DxfDimensionType.<#= Tag(entity) #>:
+                    newDimension = new <#= Name(entity) #>(this);
+                    break;
+<#
+}
+#>
+            }
+
+            if (newDimension != null)
+            {
+                foreach (var pair in ExcessCodePairs)
+                {
+                    newDimension.TrySetPair(pair);
+                }
+            }
+
+            return newDimension;
+        }
+    }
+
 }
 <#+
 string SubclassMarker(XElement entity)
@@ -588,6 +673,18 @@ IEnumerable<string> WriteProperty(XElement spec, XElement entity)
 {
 	var property = GetProperties(entity).Single(p => Name(p) == spec.Attribute("Property").Value);
 	return GetPropertyWriteLines(property);
+}
+
+string CopyConstructor(XElement entity)
+{
+	var att = entity.Attribute("CopyConstructor");
+	return att == null || att.Value == "None" ? null : CamlCase(att.Value);
+}
+
+string Tag(XElement entity)
+{
+	var att = entity.Attribute("Tag");
+	return att == null ? null : att.Value;
 }
 
 string MinVersion(XElement property)

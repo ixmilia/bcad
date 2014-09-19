@@ -79,8 +79,40 @@ namespace BCad.Dxf.Entities
         SHX = 1
     }
 
+    public enum DxfDimensionType
+    {
+        RotatedHorizontalOrVertical = 0,
+        Aligned = 1,
+        Angular = 2,
+        Diameter = 3,
+        Radius = 4,
+        Angular3Point = 5,
+        Ordinate = 6
+    }
+
+    public enum DxfAttachmentPoint
+    {
+        TopLeft = 1,
+        TopCenter = 2,
+        TopRight = 3,
+        MiddleLeft = 4,
+        MiddleCenter = 5,
+        MiddleRight = 6,
+        BottomLeft = 7,
+        BottomCenter = 8,
+        BottomRight = 9
+    }
+
+    public enum DxfTextLineSpacingStyle
+    {
+        AtLeast = 1,
+        Exact = 2
+    }
+
     public abstract partial class DxfEntity
     {
+        protected List<DxfCodePair> ExcessCodePairs = new List<DxfCodePair>();
+
         public abstract DxfEntityType EntityType { get; }
 
         protected virtual DxfAcadVersion MinVersion
@@ -97,8 +129,9 @@ namespace BCad.Dxf.Entities
         {
         }
 
-        protected virtual void PostParse()
+        protected virtual DxfEntity PostParse()
         {
+            return this;
         }
 
         public IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
@@ -113,7 +146,7 @@ namespace BCad.Dxf.Entities
             return pairs;
         }
 
-        internal virtual void PopulateFromBuffer(DxfCodePairBufferReader buffer)
+        internal virtual DxfEntity PopulateFromBuffer(DxfCodePairBufferReader buffer)
         {
             while (buffer.ItemsRemain)
             {
@@ -123,11 +156,15 @@ namespace BCad.Dxf.Entities
                     break;
                 }
 
-                TrySetPair(pair);
+                if (!TrySetPair(pair))
+                {
+                    ExcessCodePairs.Add(pair);
+                }
+
                 buffer.Advance();
             }
 
-            PostParse();
+            return PostParse();
         }
 
         protected static bool BoolShort(short s)
@@ -215,7 +252,7 @@ namespace BCad.Dxf.Entities
             get { return vertices; }
         }
 
-        protected override void PostParse()
+        protected override DxfEntity PostParse()
         {
             Debug.Assert((VertexCount == VerticesX.Count) && (VertexCount == VerticesY.Count) && (VertexCount == VerticesZ.Count));
             for (int i = 0; i < VertexCount; i++)
@@ -226,6 +263,7 @@ namespace BCad.Dxf.Entities
             VerticesX.Clear();
             VerticesY.Clear();
             VerticesZ.Clear();
+            return this;
         }
     }
 
@@ -237,12 +275,13 @@ namespace BCad.Dxf.Entities
             get { return clippingVertices; }
         }
 
-        protected override void PostParse()
+        protected override DxfEntity PostParse()
         {
             Debug.Assert((ClippingVertexCount == ClippingVerticesX.Count) && (ClippingVertexCount == ClippingVerticesY.Count));
             clippingVertices.AddRange(ClippingVerticesX.Zip(ClippingVerticesY, (x, y) => new DxfPoint(x, y, 0.0)));
             ClippingVerticesX.Clear();
             ClippingVerticesY.Clear();
+            return this;
         }
     }
 
@@ -289,11 +328,12 @@ namespace BCad.Dxf.Entities
             get { return vertices; }
         }
 
-        protected override void PostParse()
+        protected override DxfEntity PostParse()
         {
             Debug.Assert((VertexCount == VertexCoordinateX.Count) && (VertexCount == VertexCoordinateY.Count));
             // TODO: how to read optional starting/ending width and bulge in this way?
             vertices.AddRange(VertexCoordinateX.Zip(VertexCoordinateY, (x, y) => new DxfLwPolylineVertex() { Location = new DxfPoint(x, y, 0.0) }));
+            return this;
         }
     }
 
@@ -326,7 +366,7 @@ namespace BCad.Dxf.Entities
             get { return fitPoints; }
         }
 
-        protected override void PostParse()
+        protected override DxfEntity PostParse()
         {
             Debug.Assert((ControlPointX.Count == ControlPointY.Count) && (ControlPointX.Count == ControlPointZ.Count));
             for (int i = 0; i < ControlPointX.Count; i++)
@@ -347,6 +387,8 @@ namespace BCad.Dxf.Entities
             FitPointX.Clear();
             FitPointY.Clear();
             FitPointZ.Clear();
+
+            return this;
         }
     }
 }

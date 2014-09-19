@@ -21,6 +21,17 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="CopyConstructorType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Public" />
+      <xs:enumeration value="Protected" />
+      <xs:enumeration value="Private" />
+      <xs:enumeration value="Internal" />
+      <xs:enumeration value="Inherited" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="AccessibilityType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="public" />
@@ -128,6 +139,8 @@
       <xs:attribute name="TypeString" type="xs:string" use="required" />
       <xs:attribute name="SubclassMarker" type="xs:string" use="required" />
       <xs:attribute name="BaseClass" type="xs:string" use="optional" />
+      <xs:attribute name="CopyConstructor" type="CopyConstructorType" use="optional" />
+      <xs:attribute name="Tag" type="xs:string" use="optional" />
       <xs:attribute name="MinVersion" type="VersionType" use="optional" />
       <xs:attribute name="MaxVersion" type="VersionType" use="optional" />
     </xs:complexType>
