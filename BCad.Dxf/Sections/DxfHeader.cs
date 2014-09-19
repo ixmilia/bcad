@@ -49,6 +49,8 @@ namespace BCad.Dxf
 
         private static DateTime DateDouble(double date)
         {
+            if (date == 0.0)
+                return JulianDublinBase;
             var daysFromDublin = date - JulianDublinOffset;
             return JulianDublinBase.AddDays(daysFromDublin);
         }
