@@ -11,5 +11,4 @@ OBJECTS section - NYI
 
 TODO:
 	add min/max for classes/tables/blocks/objects sections
-	rename IxMilia namespace to IxMilia
 	fork sources and publish to NuGet
