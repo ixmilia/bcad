@@ -38,7 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F24C89
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Dwg", "BCad.Dwg\BCad.Dwg.csproj", "{1421FDD2-B6C0-4464-B269-FB82C2A9BA1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Dwg", "IxMilia.Dwg\IxMilia.Dwg.csproj", "{1421FDD2-B6C0-4464-B269-FB82C2A9BA1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Dxf", "IxMilia.Dxf\IxMilia.Dxf.csproj", "{C067E97D-3B96-462A-B09D-33FAD60DE761}"
 EndProject

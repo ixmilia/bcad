@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using BCad.Dwg;
+using IxMilia.Dwg;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DwgTests
