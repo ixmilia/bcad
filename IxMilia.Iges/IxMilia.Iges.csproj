@@ -8,8 +8,8 @@
     <ProjectGuid>{EDB8FB15-5411-47F8-804A-EC0F696CD4E4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BCad.Iges</RootNamespace>
-    <AssemblyName>BCad.Iges</AssemblyName>
+    <RootNamespace>IxMilia.Iges</RootNamespace>
+    <AssemblyName>IxMilia.Iges</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>

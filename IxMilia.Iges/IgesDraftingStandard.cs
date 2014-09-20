@@ -1,4 +1,4 @@
-﻿namespace BCad.Iges
+﻿namespace IxMilia.Iges
 {
     public enum IgesDraftingStandard
     {

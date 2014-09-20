@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using BCad.Iges.Entities;
+using IxMilia.Iges.Entities;
 
-namespace BCad.Iges
+namespace IxMilia.Iges
 {
     public class IgesFile
     {

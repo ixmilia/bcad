@@ -6,8 +6,8 @@ using BCad.Collections;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
-using BCad.Iges;
-using BCad.Iges.Entities;
+using IxMilia.Iges;
+using IxMilia.Iges.Entities;
 using BCad.Primitives;
 
 namespace BCad.FileHandlers

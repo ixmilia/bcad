@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using BCad.Iges.Directory;
-using BCad.Iges.Entities;
+using IxMilia.Iges.Directory;
+using IxMilia.Iges.Entities;
 
-namespace BCad.Iges
+namespace IxMilia.Iges
 {
     internal class IgesFileReader
     {

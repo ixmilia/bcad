@@ -1,4 +1,4 @@
-﻿namespace BCad.Iges.Entities
+﻿namespace IxMilia.Iges.Entities
 {
     public enum IgesBounding
     {

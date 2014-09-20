@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using BCad.Iges;
-using BCad.Iges.Entities;
+using IxMilia.Iges;
+using IxMilia.Iges.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.IgesTests

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BCad.Iges
+namespace IxMilia.Iges
 {
     public class IgesException : Exception
     {

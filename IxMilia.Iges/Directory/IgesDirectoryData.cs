@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BCad.Iges.Entities;
+using IxMilia.Iges.Entities;
 
-namespace BCad.Iges.Directory
+namespace IxMilia.Iges.Directory
 {
     internal class IgesDirectoryData
     {

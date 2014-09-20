@@ -116,9 +116,9 @@
       <Project>{1421fdd2-b6c0-4464-b269-fb82c2a9ba1b}</Project>
       <Name>BCad.Dwg</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BCad.Iges\BCad.Iges.csproj">
+    <ProjectReference Include="..\IxMilia.Iges\IxMilia.Iges.csproj">
       <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
-      <Name>BCad.Iges</Name>
+      <Name>IxMilia.Iges</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
       <Project>{782e0c0a-10d3-444d-9640-263d03d2b20c}</Project>

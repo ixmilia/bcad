@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BCad.Iges.Directory;
+using IxMilia.Iges.Directory;
 
-namespace BCad.Iges
+namespace IxMilia.Iges
 {
     internal class IgesFileWriter
     {

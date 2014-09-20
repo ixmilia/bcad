@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using BCad.Iges.Directory;
+using IxMilia.Iges.Directory;
 
-namespace BCad.Iges.Entities
+namespace IxMilia.Iges.Entities
 {
     public abstract partial class IgesEntity
     {

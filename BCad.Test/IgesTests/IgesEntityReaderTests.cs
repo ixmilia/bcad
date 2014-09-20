@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BCad.Iges;
-using BCad.Iges.Entities;
+using IxMilia.Iges;
+using IxMilia.Iges.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.IgesTests
