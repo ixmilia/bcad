@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BCad.Stl
+namespace IxMilia.Stl
 {
     public class StlReadException : Exception
     {

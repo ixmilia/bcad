@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace BCad.Stl
+namespace IxMilia.Stl
 {
     internal class StlReader
     {

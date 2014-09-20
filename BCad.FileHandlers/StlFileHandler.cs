@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using BCad.Collections;
 using BCad.Entities;
-using BCad.Stl;
+using IxMilia.Stl;
 
 namespace BCad.FileHandlers
 {

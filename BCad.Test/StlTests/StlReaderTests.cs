@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BCad.Stl;
+using IxMilia.Stl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.StlTests

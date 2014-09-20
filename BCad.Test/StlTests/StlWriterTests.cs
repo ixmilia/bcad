@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using BCad.Stl;
+using IxMilia.Stl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.StlTests

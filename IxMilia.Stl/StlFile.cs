@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace BCad.Stl
+namespace IxMilia.Stl
 {
     public class StlFile
     {

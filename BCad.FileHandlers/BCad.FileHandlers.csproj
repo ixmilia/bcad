@@ -49,9 +49,9 @@
       <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
       <Name>IxMilia.Iges</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BCad.Stl\BCad.Stl.csproj">
+    <ProjectReference Include="..\IxMilia.Stl\IxMilia.Stl.csproj">
       <Project>{782e0c0a-10d3-444d-9640-263d03d2b20c}</Project>
-      <Name>BCad.Stl</Name>
+      <Name>IxMilia.Stl</Name>
     </ProjectReference>
     <ProjectReference Include="..\IxMilia.Dxf\IxMilia.Dxf.csproj">
       <Project>{c067e97d-3b96-462a-b09d-33fad60de761}</Project>

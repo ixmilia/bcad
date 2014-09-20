@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace BCad.Stl
+namespace IxMilia.Stl
 {
     internal class StlWriter
     {

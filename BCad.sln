@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Core", "BCad.Core\BCad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Iges", "IxMilia.Iges\IxMilia.Iges.csproj", "{EDB8FB15-5411-47F8-804A-EC0F696CD4E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Stl", "BCad.Stl\BCad.Stl.csproj", "{782E0C0A-10D3-444D-9640-263D03D2B20C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Stl", "IxMilia.Stl\IxMilia.Stl.csproj", "{782E0C0A-10D3-444D-9640-263D03D2B20C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.FileHandlers", "BCad.FileHandlers\BCad.FileHandlers.csproj", "{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}"
 EndProject

@@ -1,4 +1,4 @@
-﻿namespace BCad.Stl
+﻿namespace IxMilia.Stl
 {
     public class StlTriangle
     {
