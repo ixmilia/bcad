@@ -232,227 +232,1105 @@ namespace IxMilia.Dxf
         private const string XCLIPFRAME = "$XCLIPFRAME";
         private const string XEDIT = "$XEDIT";
 
-        // properties
-        public short MaintenenceVersion { get; set; } // ACADMAINTVER
-        public DxfAcadVersion Version { get; set; } // ACADVER
-        public double AngleZeroDirection { get; set; } // ANGBASE
-        public DxfAngleDirection AngleDirection { get; set; } // ANGDIR
-        public bool ShowAttributeEntryDialogs { get; set; } // ATTDIA
-        public DxfAttributeVisibility AttributeVisibility { get; set; } // ATTMODE
-        public bool PromptForAttributeOnInsert { get; set; } // ATTREQ
-        public DxfAngleFormat AngleUnitFormat { get; set; } // AUNITS
-        public short AngleUnitPrecision { get; set; } // AUPREC
-        public bool BlipMode { get; set; } // BLIPMODE
-        public DxfColor CurrentEntityColor { get; set; } // CECOLOR
-        public double CurrentEntityLinetypeScale { get; set; } // CELTSCALE
-        public string CurrentEntityLinetype { get; set; } // CELTYPE
-        public short NewObjectLineWeight { get; set; } // CELWEIGHT
-        public string NewObjectPlotStyleHandle { get; set; } // CEPSNID
-        public DxfPlotStyle NewObjectPlotStyle { get; set; } // CEPSNTYPE
-        public double FirstChamferDistance { get; set; } // CHAMFERA
-        public double SecondChamferDistance { get; set; } // CHAMFERB
-        public double ChamferLength { get; set; } // CHAMFERC
-        public double ChamferAngle { get; set; } // CHAMFERD
-        public string CurrentLayer { get; set; } // CLAYER
-        public DxfJustification CurrentMultilineJustification { get; set; } // CMLJUST
-        public double CurrentMultilineScale { get; set; } // CMLSCALE
-        public string CurrentMultilineStyle { get; set; } // CMLSTYLE
-        public DxfCoordinateDisplay CoordinateDisplay { get; set; } // COORDS
-        public DxfShadowMode ShadowMode { get; set; } // CSHADOW
-        public bool RetainDeletedObjects { get; set; } // DELOBJ
-        public short AngularDimensionPrecision { get; set; } // DIMADEC
-        public bool UseAlternateDimensioning { get; set; } // DIMALT
-        public short AlternateDimensioningDecimalPlaces { get; set; } // DIMALTD
-        public double AlternateDimensioningScaleFactor { get; set; } // DIMALTF
-        public double AlternateDimensioningUnitRounding { get; set; } // DIMALTRND
-        public short AlternateDimensioningToleranceDecimalPlaces { get; set; } // DIMALTTD
-        public DxfUnitZeroSuppression AlternateDimensioningToleranceZeroSupression { get; set; } // DIMALTTZ
-        public DxfUnitFormat AlternateDimensioningUnits { get; set; } // DIMALTU
-        public DxfUnitZeroSuppression AlternateDimensioningZeroSupression { get; set; } // DIMALTZ
-        public string AlternateDimensioningSuffix { get; set; } // DIMAPOST
-        public bool CreateAssociativeDimensioning { get; set; } // DIMASO
-        public DxfDimensionAssociativity DimensionObjectAssociativity { get; set; } // DIMASSOC
-        public double DimensioningArrowSize { get; set; } // DIMASZ
-        public DxfDimensionFit DimensionTextAndArrowPlacement { get; set; } // DIMATFIT
-        public DxfAngleFormat DimensioningAngleFormat { get; set; } // DIMAUNIT
-        public DxfUnitZeroSuppression DimensionToleranceZeroSuppression { get; set; } // DIMAZIN
-        public string ArrowBlockName { get; set; } // DIMBLK
-        public string FirstArrowBlockName { get; set; } // DIMBLK1
-        public string SecondArrowBlockName { get; set; } // DIMBLK2
-        public double CenterMarkSize { get; set; } // DIMCEN
-        public DxfColor DimensionLineColor { get; set; } // DIMCLRD
-        public DxfColor DimensionExtensionLineColor { get; set; } // DIMCLRE
-        public DxfColor DimensionTextColor { get; set; } // DIMCLRT
-        public short DimensionUnitToleranceDecimalPlaces { get; set; } // DIMDEC
-        public double DimensionLineExtension { get; set; } // DIMDLE
-        public double DimensionLineIncrement { get; set; } // DIMDLI
-        public char DimensionDecimalSeparatorChar { get; set; } // DIMDSEP
-        public double DimensionExtensionLineExtension { get; set; } // DIMEXE
-        public double DimensionExtensionLineOffset { get; set; } // DIMEXO
-        public double DimensionTextHeightScaleFactor { get; set; } // DIMFAC
-        public double DimensionLineGap { get; set; } // DIMGAP
-        public DxfDimensionTextJustification DimensionTextJustification { get; set; } // DIMJUST
-        public string DimensionLeaderBlockName { get; set; } // DIMLDRBLK
-        public double DimensionLinearMeasurementsScaleFactor { get; set; } // DIMLFAC
-        public bool GenerateDimensionLimits { get; set; } // DIMLIM
-        public DxfNonAngularUnits DimensionNonAngularUnits { get; set; } // DIMLUNIT
-        public string DimensioningSuffix { get; set; } // DIMPOST
-        public double DimensionDistanceRoundingValue { get; set; } // DIMRND
-        public bool UseSeparateArrowBlocksForDimensions { get; set; } // DIMSAH
-        public double DimensioningScaleFactor { get; set; } // DIMSCALE
-        public bool SuppressFirstDimensionExtensionLine { get; set; } // DIMSD1
-        public bool SuppressSecondDimensionExtensionLine { get; set; } // DIMSD2
-        public bool RecomputeDimensionsWhileDragging { get; set; } // DIMSHO
-        public bool SuppressOutsideExtensionDimensionLines { get; set; } // DIMSOXD
-        public string DimensionStyleName { get; set; } // DIMSTYLE
-        public bool TextAboveDimensionLine { get; set; } // DIMTAD
-        public short DimensionToleranceDecimalPlaces { get; set; } // DIMTDEC
-        public double DimensionToleranceDisplayScaleFactor { get; set; } // DIMTFAC
-        public bool DimensionTextInsideHorizontal { get; set; } // DIMTIH
-        public bool ForceDimensionTextInsideExtensions { get; set; } // DIMTIX
-        public double DimensionMinusTolerance { get; set; } // DIMTM
-        public DxfDimensionTextMovementRule DimensionTextMovementRule { get; set; } // DIMTMOVE
-        public bool ForceDimensionLineExtensionsOutsideIfTextIs { get; set; } // DIMTOFL
-        public bool DimensionTextOutsideHorizontal { get; set; } // DIMTOH
-        public bool GenerateDimensionTolerances { get; set; } // DIMTOL
-        public DxfJustification DimensionToleranceVerticalJustification { get; set; } // DIMTOLJ
-        public double DimensionPlusTolerance { get; set; } // DIMTP
-        public double DimensioningTickSize { get; set; } // DIMTSZ
-        public double DimensionVerticalTextPosition { get; set; } // DIMTVP
-        public string DimensionTextStyle { get; set; } // DIMTXSTY
-        public double DimensioningTextHeight { get; set; } // DIMTXT
-        public DxfUnitFormat DimensionUnitFormat { get; set; } // DIMUNIT
-        public bool DimensionCursorControlsTextPosition { get; set; } // DIMUPT
-        public DxfUnitZeroSuppression DimensionUnitZeroSuppression { get; set; } // DIMZIN
-        public bool DisplaySilhouetteCurvesInWireframeMode { get; set; } // DISPSILH
-        public DxfDragMode DragMode { get; set; } // DRAGMODE
-        public string ThreeDSolidCreationVisualStyle { get; set; } // DRAGVS
-        public string DrawingCodePage { get; set; } // DWGCODEPAGE
-        public double Elevation { get; set; } // ELEVATION
-        public DxfEndCapSetting EndCapSetting { get; set; } // ENDCAPS
-        public DxfPoint MaximumDrawingExtents { get; set; } // EXTMAX
-        public DxfPoint MinimumDrawingExtents { get; set; } // EXTMIN
-        public bool UseACad2000SymbolTableNaming { get; set; } // EXTNAMES
-        public double FilletRadius { get; set; } // FILLETRAD
-        public bool FillModeOn { get; set; } // FILLMODE
-        public Guid FingerprintGuid { get; set; } // FINGERPRINTGUID
-        public double HaloGapPercent { get; set; } // HALOGAP
-        public int NextAvailableHandle { get; set; } // HANDLING
-        public string NextAvailableHandle2 { get; set; } // HANDSEED
-        public bool HideTextObjectsWhenProducintHiddenView { get; set; } // HIDETEXT
-        public string HyperlinBase { get; set; } // HYPERLINKBASE
-        public DxfLayerAndSpatialIndexSaveMode LayerAndSpatialIndexSaveMode { get; set; } // INDEXCTL
-        public DxfPoint InsertionBase { get; set; } // INSBASE
-        public DxfUnits DefaultDrawingUnits { get; set; } // INSUNITS
-        public DxfColor InterferenceObjectColor { get; set; } // INTERFERECOLOR
-        public string InterferenceObjectVisualStylePointer { get; set; } // INTERFEREOBJVS
-        public string InterferenceViewPortVisualStylePointer { get; set; } // INTERFEREVPVS
-        public DxfColor IntersectionPolylineColor { get; set; } // INTERSECTIONCOLOR
-        public bool DisplayIntersectionPolylines { get; set; } // INTERSECTIONDISPLAY
-        public DxfJoinStyle LineweightJointSetting { get; set; } // JOINSTYLE
-        public bool UseLimitsChecking { get; set; } // LIMCHECK
-        public DxfPoint MaximumDrawingLimits { get; set; } // LIMMAX
-        public DxfPoint MinimumDrawingLimits { get; set; } // LIMMIN
-        public double LinetypeScale { get; set; } // LTSCALE
-        public DxfUnitFormat UnitFormat { get; set; } // LUNITS
-        public short UnitPrecision { get; set; } // LUPREC
-        public bool DisplayLinewieghtInModelAndLayoutTab { get; set; } // LWDISPLAY
-        public short MaximumActiveViewports { get; set; } // MAXACTVP
-        public DxfDrawingUnits DrawingUnits { get; set; } // MEASUREMENT
-        public string FileName { get; set; } // MENU
-        public bool MirrorText { get; set; } // MIRRTEXT
-        public DxfColor ObscuredLineColor { get; set; } // OBSCOLOR
-        public DxfLinetypeStyle ObscuredLineTypeStyle { get; set; } // OBSLTYPE
-        public bool DrawOrthoganalLines { get; set; } // ORTHOMODE
-        public int ObjectSnapFlags { get; set; } // OSMODE
-        public int PointDisplayMode { get; set; } // PDMODE
-        public double PointDisplaySize { get; set; } // PDSIZE
-        public double PaperspaceElevation { get; set; } // PELEVATION
-        public DxfPoint PaperspaceMaximumDrawingExtents { get; set; } // PEXTMAX
-        public DxfPoint PaperspaceMinimumDrawingExtents { get; set; } // PEXTMIN
-        public DxfPickStyle PickStyle { get; set; } // PICKSTYLE
-        public DxfPoint PaperspaceInsertionBase { get; set; } // PINSBASE
-        public bool LimitCheckingInPaperspace { get; set; } // PLIMCHECK
-        public DxfPoint PaperspaceMaximumDrawingLimits { get; set; } // PLIMMAX
-        public DxfPoint PaperspaceMinimumDrawingLimits { get; set; } // PLIMMIN
-        public bool IsPolylineContinuousAroundVerticies { get; set; } // PLINEGEN
-        public double DefaultPolylineWidth { get; set; } // PLINEWID
-        public string ProjectName { get; set; } // PROJECTNAME
-        public bool SaveProxyGraphics { get; set; } // PROXYGRAPHICS
-        public bool ScaleLinetypesInPaperspace { get; set; } // PSLTSCALE
-        public bool UsesColorDependentPlotStyleTables { get; set; } // PSTYLEMODE
-        public double ViewportViewScaleFactor { get; set; } // PSVPSCALE
-        public string PaperspaceUCSDefinitionName { get; set; } // PUCSBASE
-        public string PaperspaceUCSName { get; set; } // PUCSNAME
-        public DxfPoint PaperspaceUCSOrigin { get; set; } // PUCSORG
-        public DxfPoint PaperspaceUCSOriginBack { get; set; } // PUCSORGBACK
-        public DxfPoint PaperspaceUCSOriginBottom { get; set; } // PUCSORGBOTTOM
-        public DxfPoint PaperspaceUCSOriginFront { get; set; } // PUCSORGFRONT
-        public DxfPoint PaperspaceUCSOriginLeft { get; set; } // PUCSORGLEFT
-        public DxfPoint PaperspaceUCSOriginRight { get; set; } // PUCSORGRIGHT
-        public DxfPoint PaperspaceUCSOriginTop { get; set; } // PUCSORGTOP
-        public string PaperspaceOrthoUCSReference { get; set; } // PUCSORTHOREF
-        public DxfOrthographicViewType PaperspaceOrthographicViewType { get; set; } // PUCSORTHOVIEW
-        public DxfVector PaperspaceXAxis { get; set; } // PUCSXDIR
-        public DxfVector PaperspaceYAxis { get; set; } // PUCSYDIR
-        public bool UseQuickTextMode { get; set; } // QTEXTMODE
-        public bool UseRegenMode { get; set; } // REGENMODE
-        public DxfShadeEdgeMode EdgeShading { get; set; } // SHADEDGE
-        public short PercentAmbientToDiffuse { get; set; } // SHADEDIF
-        public double ShadowPlaneZOffset { get; set; } // SHADOWPLANELOCATION
-        public double SketchRecordIncrement { get; set; } // SKETCHINC
-        public DxfPolySketchMode PolylineSketchMode { get; set; } // SKPOLY
-        public int ObjectSortingMethodsFlags { get; set; } // SORTENTS
-        public bool DisplaySplinePolygonControl { get; set; } // SPLFRAME
-        public short LineSegmentsPerSplinePatch { get; set; } // SPLINESEGS
-        public short PEditSplineCurveType { get; set; } // SPLINETYPE
-        public short MeshTabulationsInFirstDirection { get; set; } // SURFTAB1
-        public short MeshTabulationsInSecondDirection { get; set; } // SURFTAB2
-        public short PEditSmoothSurfaceType { get; set; } // SURFTYPE
-        public short PEditSmoothMDensith { get; set; } // SURFU
-        public short PEditSmoothNDensith { get; set; } // SURFV
-        public DateTime CreationDate { get; set; } // TDCREATE
-        public TimeSpan TimeInDrawing { get; set; } // TDINDWG
-        public DateTime CreationDateUniversal { get; set; } // TDUCREATE
-        public DateTime UpdateDate { get; set; } // TDUPDATE
-        public TimeSpan UserElapsedTimer { get; set; } // TDUSRTIMER
-        public DateTime UpdateDateUniversal { get; set; } // TDUUPDATE
-        public double DefaultTextHeight { get; set; } // TEXTSIZE
-        public string TextStyle { get; set; } // TEXTSTYLE
-        public double Thickness { get; set; } // THICKNESS
-        public bool PreviousReleaseTileCompatability { get; set; } // TILEMODE
-        public double TraceWidth { get; set; } // TRACEWID
-        public short SpacialIndexMaxDepth { get; set; } // TREEDEPTH
-        public string UCSDefinitionName { get; set; } // UCSBASE
-        public string UCSName { get; set; } // UCSNAME
-        public DxfPoint UCSOrigin { get; set; } // UCSORG
-        public DxfPoint UCSOriginBack { get; set; } // UCSORGBACK
-        public DxfPoint UCSOriginBottom { get; set; } // UCSORGBOTTOM
-        public DxfPoint UCSOriginFront { get; set; } // UCSORGFRONT
-        public DxfPoint UCSOriginLeft { get; set; } // UCSORGLEFT
-        public DxfPoint UCSOriginRight { get; set; } // UCSORGRIGHT
-        public DxfPoint UCSOriginTop { get; set; } // UCSORGTOP
-        public string OrthoUCSReference { get; set; } // UCSORTHOREF
-        public DxfOrthographicViewType OrthgraphicViewType { get; set; } // UCSORTHOVIEW
-        public DxfVector UCSXAxis { get; set; } // UCSXDIR
-        public DxfVector UCSYAxis { get; set; } // UCSYDIR
-        public bool DisplayFractionsInInput { get; set; } // UNITMODE
-        public short UserInt1 { get; set; } // USERI1
-        public short UserInt2 { get; set; } // USERI2
-        public short UserInt3 { get; set; } // USERI3
-        public short UserInt4 { get; set; } // USERI4
-        public short UserInt5 { get; set; } // USERI5
-        public double UserReal1 { get; set; } // USERR1
-        public double UserReal2 { get; set; } // USERR2
-        public double UserReal3 { get; set; } // USERR3
-        public double UserReal4 { get; set; } // USERR4
-        public double UserReal5 { get; set; } // USERR5
-        public bool UserTimerOn { get; set; } // USRTIMER
-        public Guid VersionGuid { get; set; } // VERSIONGUID
-        public bool RetainXRefDependentVisibilitySettings { get; set; } // VISRETAIN
-        public bool SetUCSToWCSInDViewOrVPoint { get; set; } // WORLDVIEW
-        public bool IsXRefClippingBoundaryVisible { get; set; } // XCLIPFRAME
-        public bool CanUseInPlaceReferenceEditing { get; set; } // XEDIT
+        /// <summary>
+        /// The $ACADMAINTVER header variable.
+        /// </summary>
+        public short MaintenenceVersion { get; set; }
+
+        /// <summary>
+        /// The $ACADVER header variable.
+        /// </summary>
+        public DxfAcadVersion Version { get; set; }
+
+        /// <summary>
+        /// The $ANGBASE header variable.
+        /// </summary>
+        public double AngleZeroDirection { get; set; }
+
+        /// <summary>
+        /// The $ANGDIR header variable.
+        /// </summary>
+        public DxfAngleDirection AngleDirection { get; set; }
+
+        /// <summary>
+        /// The $ATTDIA header variable.
+        /// </summary>
+        public bool ShowAttributeEntryDialogs { get; set; }
+
+        /// <summary>
+        /// The $ATTMODE header variable.
+        /// </summary>
+        public DxfAttributeVisibility AttributeVisibility { get; set; }
+
+        /// <summary>
+        /// The $ATTREQ header variable.
+        /// </summary>
+        public bool PromptForAttributeOnInsert { get; set; }
+
+        /// <summary>
+        /// The $AUNITS header variable.
+        /// </summary>
+        public DxfAngleFormat AngleUnitFormat { get; set; }
+
+        /// <summary>
+        /// The $AUPREC header variable.
+        /// </summary>
+        public short AngleUnitPrecision { get; set; }
+
+        /// <summary>
+        /// The $BLIPMODE header variable.
+        /// </summary>
+        public bool BlipMode { get; set; }
+
+        /// <summary>
+        /// The $CECOLOR header variable.
+        /// </summary>
+        public DxfColor CurrentEntityColor { get; set; }
+
+        /// <summary>
+        /// The $CELTSCALE header variable.
+        /// </summary>
+        public double CurrentEntityLinetypeScale { get; set; }
+
+        /// <summary>
+        /// The $CELTYPE header variable.
+        /// </summary>
+        public string CurrentEntityLinetype { get; set; }
+
+        /// <summary>
+        /// The $CELWEIGHT header variable.
+        /// </summary>
+        public short NewObjectLineWeight { get; set; }
+
+        /// <summary>
+        /// The $CEPSNID header variable.
+        /// </summary>
+        public string NewObjectPlotStyleHandle { get; set; }
+
+        /// <summary>
+        /// The $CEPSNTYPE header variable.
+        /// </summary>
+        public DxfPlotStyle NewObjectPlotStyle { get; set; }
+
+        /// <summary>
+        /// The $CHAMFERA header variable.
+        /// </summary>
+        public double FirstChamferDistance { get; set; }
+
+        /// <summary>
+        /// The $CHAMFERB header variable.
+        /// </summary>
+        public double SecondChamferDistance { get; set; }
+
+        /// <summary>
+        /// The $CHAMFERC header variable.
+        /// </summary>
+        public double ChamferLength { get; set; }
+
+        /// <summary>
+        /// The $CHAMFERD header variable.
+        /// </summary>
+        public double ChamferAngle { get; set; }
+
+        /// <summary>
+        /// The $CLAYER header variable.
+        /// </summary>
+        public string CurrentLayer { get; set; }
+
+        /// <summary>
+        /// The $CMLJUST header variable.
+        /// </summary>
+        public DxfJustification CurrentMultilineJustification { get; set; }
+
+        /// <summary>
+        /// The $CMLSCALE header variable.
+        /// </summary>
+        public double CurrentMultilineScale { get; set; }
+
+        /// <summary>
+        /// The $CMLSTYLE header variable.
+        /// </summary>
+        public string CurrentMultilineStyle { get; set; }
+
+        /// <summary>
+        /// The $COORDS header variable.
+        /// </summary>
+        public DxfCoordinateDisplay CoordinateDisplay { get; set; }
+
+        /// <summary>
+        /// The $CSHADOW header variable.
+        /// </summary>
+        public DxfShadowMode ShadowMode { get; set; }
+
+        /// <summary>
+        /// The $DELOBJ header variable.
+        /// </summary>
+        public bool RetainDeletedObjects { get; set; }
+
+        /// <summary>
+        /// The $DIMADEC header variable.
+        /// </summary>
+        public short AngularDimensionPrecision { get; set; }
+
+        /// <summary>
+        /// The $DIMALT header variable.
+        /// </summary>
+        public bool UseAlternateDimensioning { get; set; }
+
+        /// <summary>
+        /// The $DIMALTD header variable.
+        /// </summary>
+        public short AlternateDimensioningDecimalPlaces { get; set; }
+
+        /// <summary>
+        /// The $DIMALTF header variable.
+        /// </summary>
+        public double AlternateDimensioningScaleFactor { get; set; }
+
+        /// <summary>
+        /// The $DIMALTRND header variable.
+        /// </summary>
+        public double AlternateDimensioningUnitRounding { get; set; }
+
+        /// <summary>
+        /// The $DIMALTTD header variable.
+        /// </summary>
+        public short AlternateDimensioningToleranceDecimalPlaces { get; set; }
+
+        /// <summary>
+        /// The $DIMALTTZ header variable.
+        /// </summary>
+        public DxfUnitZeroSuppression AlternateDimensioningToleranceZeroSupression { get; set; }
+
+        /// <summary>
+        /// The $DIMALTU header variable.
+        /// </summary>
+        public DxfUnitFormat AlternateDimensioningUnits { get; set; }
+
+        /// <summary>
+        /// The $DIMALTZ header variable.
+        /// </summary>
+        public DxfUnitZeroSuppression AlternateDimensioningZeroSupression { get; set; }
+
+        /// <summary>
+        /// The $DIMAPOST header variable.
+        /// </summary>
+        public string AlternateDimensioningSuffix { get; set; }
+
+        /// <summary>
+        /// The $DIMASO header variable.
+        /// </summary>
+        public bool CreateAssociativeDimensioning { get; set; }
+
+        /// <summary>
+        /// The $DIMASSOC header variable.
+        /// </summary>
+        public DxfDimensionAssociativity DimensionObjectAssociativity { get; set; }
+
+        /// <summary>
+        /// The $DIMASZ header variable.
+        /// </summary>
+        public double DimensioningArrowSize { get; set; }
+
+        /// <summary>
+        /// The $DIMATFIT header variable.
+        /// </summary>
+        public DxfDimensionFit DimensionTextAndArrowPlacement { get; set; }
+
+        /// <summary>
+        /// The $DIMAUNIT header variable.
+        /// </summary>
+        public DxfAngleFormat DimensioningAngleFormat { get; set; }
+
+        /// <summary>
+        /// The $DIMAZIN header variable.
+        /// </summary>
+        public DxfUnitZeroSuppression DimensionToleranceZeroSuppression { get; set; }
+
+        /// <summary>
+        /// The $DIMBLK header variable.
+        /// </summary>
+        public string ArrowBlockName { get; set; }
+
+        /// <summary>
+        /// The $DIMBLK1 header variable.
+        /// </summary>
+        public string FirstArrowBlockName { get; set; }
+
+        /// <summary>
+        /// The $DIMBLK2 header variable.
+        /// </summary>
+        public string SecondArrowBlockName { get; set; }
+
+        /// <summary>
+        /// The $DIMCEN header variable.
+        /// </summary>
+        public double CenterMarkSize { get; set; }
+
+        /// <summary>
+        /// The $DIMCLRD header variable.
+        /// </summary>
+        public DxfColor DimensionLineColor { get; set; }
+
+        /// <summary>
+        /// The $DIMCLRE header variable.
+        /// </summary>
+        public DxfColor DimensionExtensionLineColor { get; set; }
+
+        /// <summary>
+        /// The $DIMCLRT header variable.
+        /// </summary>
+        public DxfColor DimensionTextColor { get; set; }
+
+        /// <summary>
+        /// The $DIMDEC header variable.
+        /// </summary>
+        public short DimensionUnitToleranceDecimalPlaces { get; set; }
+
+        /// <summary>
+        /// The $DIMDLE header variable.
+        /// </summary>
+        public double DimensionLineExtension { get; set; }
+
+        /// <summary>
+        /// The $DIMDLI header variable.
+        /// </summary>
+        public double DimensionLineIncrement { get; set; }
+
+        /// <summary>
+        /// The $DIMDSEP header variable.
+        /// </summary>
+        public char DimensionDecimalSeparatorChar { get; set; }
+
+        /// <summary>
+        /// The $DIMEXE header variable.
+        /// </summary>
+        public double DimensionExtensionLineExtension { get; set; }
+
+        /// <summary>
+        /// The $DIMEXO header variable.
+        /// </summary>
+        public double DimensionExtensionLineOffset { get; set; }
+
+        /// <summary>
+        /// The $DIMFAC header variable.
+        /// </summary>
+        public double DimensionTextHeightScaleFactor { get; set; }
+
+        /// <summary>
+        /// The $DIMGAP header variable.
+        /// </summary>
+        public double DimensionLineGap { get; set; }
+
+        /// <summary>
+        /// The $DIMJUST header variable.
+        /// </summary>
+        public DxfDimensionTextJustification DimensionTextJustification { get; set; }
+
+        /// <summary>
+        /// The $DIMLDRBLK header variable.
+        /// </summary>
+        public string DimensionLeaderBlockName { get; set; }
+
+        /// <summary>
+        /// The $DIMLFAC header variable.
+        /// </summary>
+        public double DimensionLinearMeasurementsScaleFactor { get; set; }
+
+        /// <summary>
+        /// The $DIMLIM header variable.
+        /// </summary>
+        public bool GenerateDimensionLimits { get; set; }
+
+        /// <summary>
+        /// The $DIMLUNIT header variable.
+        /// </summary>
+        public DxfNonAngularUnits DimensionNonAngularUnits { get; set; }
+
+        /// <summary>
+        /// The $DIMPOST header variable.
+        /// </summary>
+        public string DimensioningSuffix { get; set; }
+
+        /// <summary>
+        /// The $DIMRND header variable.
+        /// </summary>
+        public double DimensionDistanceRoundingValue { get; set; }
+
+        /// <summary>
+        /// The $DIMSAH header variable.
+        /// </summary>
+        public bool UseSeparateArrowBlocksForDimensions { get; set; }
+
+        /// <summary>
+        /// The $DIMSCALE header variable.
+        /// </summary>
+        public double DimensioningScaleFactor { get; set; }
+
+        /// <summary>
+        /// The $DIMSD1 header variable.
+        /// </summary>
+        public bool SuppressFirstDimensionExtensionLine { get; set; }
+
+        /// <summary>
+        /// The $DIMSD2 header variable.
+        /// </summary>
+        public bool SuppressSecondDimensionExtensionLine { get; set; }
+
+        /// <summary>
+        /// The $DIMSHO header variable.
+        /// </summary>
+        public bool RecomputeDimensionsWhileDragging { get; set; }
+
+        /// <summary>
+        /// The $DIMSOXD header variable.
+        /// </summary>
+        public bool SuppressOutsideExtensionDimensionLines { get; set; }
+
+        /// <summary>
+        /// The $DIMSTYLE header variable.
+        /// </summary>
+        public string DimensionStyleName { get; set; }
+
+        /// <summary>
+        /// The $DIMTAD header variable.
+        /// </summary>
+        public bool TextAboveDimensionLine { get; set; }
+
+        /// <summary>
+        /// The $DIMTDEC header variable.
+        /// </summary>
+        public short DimensionToleranceDecimalPlaces { get; set; }
+
+        /// <summary>
+        /// The $DIMTFAC header variable.
+        /// </summary>
+        public double DimensionToleranceDisplayScaleFactor { get; set; }
+
+        /// <summary>
+        /// The $DIMTIH header variable.
+        /// </summary>
+        public bool DimensionTextInsideHorizontal { get; set; }
+
+        /// <summary>
+        /// The $DIMTIX header variable.
+        /// </summary>
+        public bool ForceDimensionTextInsideExtensions { get; set; }
+
+        /// <summary>
+        /// The $DIMTM header variable.
+        /// </summary>
+        public double DimensionMinusTolerance { get; set; }
+
+        /// <summary>
+        /// The $DIMTMOVE header variable.
+        /// </summary>
+        public DxfDimensionTextMovementRule DimensionTextMovementRule { get; set; }
+
+        /// <summary>
+        /// The $DIMTOFL header variable.
+        /// </summary>
+        public bool ForceDimensionLineExtensionsOutsideIfTextIs { get; set; }
+
+        /// <summary>
+        /// The $DIMTOH header variable.
+        /// </summary>
+        public bool DimensionTextOutsideHorizontal { get; set; }
+
+        /// <summary>
+        /// The $DIMTOL header variable.
+        /// </summary>
+        public bool GenerateDimensionTolerances { get; set; }
+
+        /// <summary>
+        /// The $DIMTOLJ header variable.
+        /// </summary>
+        public DxfJustification DimensionToleranceVerticalJustification { get; set; }
+
+        /// <summary>
+        /// The $DIMTP header variable.
+        /// </summary>
+        public double DimensionPlusTolerance { get; set; }
+
+        /// <summary>
+        /// The $DIMTSZ header variable.
+        /// </summary>
+        public double DimensioningTickSize { get; set; }
+
+        /// <summary>
+        /// The $DIMTVP header variable.
+        /// </summary>
+        public double DimensionVerticalTextPosition { get; set; }
+
+        /// <summary>
+        /// The $DIMTXSTY header variable.
+        /// </summary>
+        public string DimensionTextStyle { get; set; }
+
+        /// <summary>
+        /// The $DIMTXT header variable.
+        /// </summary>
+        public double DimensioningTextHeight { get; set; }
+
+        /// <summary>
+        /// The $DIMUNIT header variable.
+        /// </summary>
+        public DxfUnitFormat DimensionUnitFormat { get; set; }
+
+        /// <summary>
+        /// The $DIMUPT header variable.
+        /// </summary>
+        public bool DimensionCursorControlsTextPosition { get; set; }
+
+        /// <summary>
+        /// The $DIMZIN header variable.
+        /// </summary>
+        public DxfUnitZeroSuppression DimensionUnitZeroSuppression { get; set; }
+
+        /// <summary>
+        /// The $DISPSILH header variable.
+        /// </summary>
+        public bool DisplaySilhouetteCurvesInWireframeMode { get; set; }
+
+        /// <summary>
+        /// The $DRAGMODE header variable.
+        /// </summary>
+        public DxfDragMode DragMode { get; set; }
+
+        /// <summary>
+        /// The $DRAGVS header variable.
+        /// </summary>
+        public string ThreeDSolidCreationVisualStyle { get; set; }
+
+        /// <summary>
+        /// The $DWGCODEPAGE header variable.
+        /// </summary>
+        public string DrawingCodePage { get; set; }
+
+        /// <summary>
+        /// The $ELEVATION header variable.
+        /// </summary>
+        public double Elevation { get; set; }
+
+        /// <summary>
+        /// The $ENDCAPS header variable.
+        /// </summary>
+        public DxfEndCapSetting EndCapSetting { get; set; }
+
+        /// <summary>
+        /// The $EXTMAX header variable.
+        /// </summary>
+        public DxfPoint MaximumDrawingExtents { get; set; }
+
+        /// <summary>
+        /// The $EXTMIN header variable.
+        /// </summary>
+        public DxfPoint MinimumDrawingExtents { get; set; }
+
+        /// <summary>
+        /// The $EXTNAMES header variable.
+        /// </summary>
+        public bool UseACad2000SymbolTableNaming { get; set; }
+
+        /// <summary>
+        /// The $FILLETRAD header variable.
+        /// </summary>
+        public double FilletRadius { get; set; }
+
+        /// <summary>
+        /// The $FILLMODE header variable.
+        /// </summary>
+        public bool FillModeOn { get; set; }
+
+        /// <summary>
+        /// The $FINGERPRINTGUID header variable.
+        /// </summary>
+        public Guid FingerprintGuid { get; set; }
+
+        /// <summary>
+        /// The $HALOGAP header variable.
+        /// </summary>
+        public double HaloGapPercent { get; set; }
+
+        /// <summary>
+        /// The $HANDLING header variable.
+        /// </summary>
+        public int NextAvailableHandle { get; set; }
+
+        /// <summary>
+        /// The $HANDSEED header variable.
+        /// </summary>
+        public string NextAvailableHandle2 { get; set; }
+
+        /// <summary>
+        /// The $HIDETEXT header variable.
+        /// </summary>
+        public bool HideTextObjectsWhenProducintHiddenView { get; set; }
+
+        /// <summary>
+        /// The $HYPERLINKBASE header variable.
+        /// </summary>
+        public string HyperlinBase { get; set; }
+
+        /// <summary>
+        /// The $INDEXCTL header variable.
+        /// </summary>
+        public DxfLayerAndSpatialIndexSaveMode LayerAndSpatialIndexSaveMode { get; set; }
+
+        /// <summary>
+        /// The $INSBASE header variable.
+        /// </summary>
+        public DxfPoint InsertionBase { get; set; }
+
+        /// <summary>
+        /// The $INSUNITS header variable.
+        /// </summary>
+        public DxfUnits DefaultDrawingUnits { get; set; }
+
+        /// <summary>
+        /// The $INTERFERECOLOR header variable.
+        /// </summary>
+        public DxfColor InterferenceObjectColor { get; set; }
+
+        /// <summary>
+        /// The $INTERFEREOBJVS header variable.
+        /// </summary>
+        public string InterferenceObjectVisualStylePointer { get; set; }
+
+        /// <summary>
+        /// The $INTERFEREVPVS header variable.
+        /// </summary>
+        public string InterferenceViewPortVisualStylePointer { get; set; }
+
+        /// <summary>
+        /// The $INTERSECTIONCOLOR header variable.
+        /// </summary>
+        public DxfColor IntersectionPolylineColor { get; set; }
+
+        /// <summary>
+        /// The $INTERSECTIONDISPLAY header variable.
+        /// </summary>
+        public bool DisplayIntersectionPolylines { get; set; }
+
+        /// <summary>
+        /// The $JOINSTYLE header variable.
+        /// </summary>
+        public DxfJoinStyle LineweightJointSetting { get; set; }
+
+        /// <summary>
+        /// The $LIMCHECK header variable.
+        /// </summary>
+        public bool UseLimitsChecking { get; set; }
+
+        /// <summary>
+        /// The $LIMMAX header variable.
+        /// </summary>
+        public DxfPoint MaximumDrawingLimits { get; set; }
+
+        /// <summary>
+        /// The $LIMMIN header variable.
+        /// </summary>
+        public DxfPoint MinimumDrawingLimits { get; set; }
+
+        /// <summary>
+        /// The $LTSCALE header variable.
+        /// </summary>
+        public double LinetypeScale { get; set; }
+
+        /// <summary>
+        /// The $LUNITS header variable.
+        /// </summary>
+        public DxfUnitFormat UnitFormat { get; set; }
+
+        /// <summary>
+        /// The $LUPREC header variable.
+        /// </summary>
+        public short UnitPrecision { get; set; }
+
+        /// <summary>
+        /// The $LWDISPLAY header variable.
+        /// </summary>
+        public bool DisplayLinewieghtInModelAndLayoutTab { get; set; }
+
+        /// <summary>
+        /// The $MAXACTVP header variable.
+        /// </summary>
+        public short MaximumActiveViewports { get; set; }
+
+        /// <summary>
+        /// The $MEASUREMENT header variable.
+        /// </summary>
+        public DxfDrawingUnits DrawingUnits { get; set; }
+
+        /// <summary>
+        /// The $MENU header variable.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// The $MIRRTEXT header variable.
+        /// </summary>
+        public bool MirrorText { get; set; }
+
+        /// <summary>
+        /// The $OBSCOLOR header variable.
+        /// </summary>
+        public DxfColor ObscuredLineColor { get; set; }
+
+        /// <summary>
+        /// The $OBSLTYPE header variable.
+        /// </summary>
+        public DxfLinetypeStyle ObscuredLineTypeStyle { get; set; }
+
+        /// <summary>
+        /// The $ORTHOMODE header variable.
+        /// </summary>
+        public bool DrawOrthoganalLines { get; set; }
+
+        /// <summary>
+        /// The $OSMODE header variable.
+        /// </summary>
+        public int ObjectSnapFlags { get; set; }
+
+        /// <summary>
+        /// The $PDMODE header variable.
+        /// </summary>
+        public int PointDisplayMode { get; set; }
+
+        /// <summary>
+        /// The $PDSIZE header variable.
+        /// </summary>
+        public double PointDisplaySize { get; set; }
+
+        /// <summary>
+        /// The $PELEVATION header variable.
+        /// </summary>
+        public double PaperspaceElevation { get; set; }
+
+        /// <summary>
+        /// The $PEXTMAX header variable.
+        /// </summary>
+        public DxfPoint PaperspaceMaximumDrawingExtents { get; set; }
+
+        /// <summary>
+        /// The $PEXTMIN header variable.
+        /// </summary>
+        public DxfPoint PaperspaceMinimumDrawingExtents { get; set; }
+
+        /// <summary>
+        /// The $PICKSTYLE header variable.
+        /// </summary>
+        public DxfPickStyle PickStyle { get; set; }
+
+        /// <summary>
+        /// The $PINSBASE header variable.
+        /// </summary>
+        public DxfPoint PaperspaceInsertionBase { get; set; }
+
+        /// <summary>
+        /// The $PLIMCHECK header variable.
+        /// </summary>
+        public bool LimitCheckingInPaperspace { get; set; }
+
+        /// <summary>
+        /// The $PLIMMAX header variable.
+        /// </summary>
+        public DxfPoint PaperspaceMaximumDrawingLimits { get; set; }
+
+        /// <summary>
+        /// The $PLIMMIN header variable.
+        /// </summary>
+        public DxfPoint PaperspaceMinimumDrawingLimits { get; set; }
+
+        /// <summary>
+        /// The $PLINEGEN header variable.
+        /// </summary>
+        public bool IsPolylineContinuousAroundVerticies { get; set; }
+
+        /// <summary>
+        /// The $PLINEWID header variable.
+        /// </summary>
+        public double DefaultPolylineWidth { get; set; }
+
+        /// <summary>
+        /// The $PROJECTNAME header variable.
+        /// </summary>
+        public string ProjectName { get; set; }
+
+        /// <summary>
+        /// The $PROXYGRAPHICS header variable.
+        /// </summary>
+        public bool SaveProxyGraphics { get; set; }
+
+        /// <summary>
+        /// The $PSLTSCALE header variable.
+        /// </summary>
+        public bool ScaleLinetypesInPaperspace { get; set; }
+
+        /// <summary>
+        /// The $PSTYLEMODE header variable.
+        /// </summary>
+        public bool UsesColorDependentPlotStyleTables { get; set; }
+
+        /// <summary>
+        /// The $PSVPSCALE header variable.
+        /// </summary>
+        public double ViewportViewScaleFactor { get; set; }
+
+        /// <summary>
+        /// The $PUCSBASE header variable.
+        /// </summary>
+        public string PaperspaceUCSDefinitionName { get; set; }
+
+        /// <summary>
+        /// The $PUCSNAME header variable.
+        /// </summary>
+        public string PaperspaceUCSName { get; set; }
+
+        /// <summary>
+        /// The $PUCSORG header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOrigin { get; set; }
+
+        /// <summary>
+        /// The $PUCSORGBACK header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOriginBack { get; set; }
+
+        /// <summary>
+        /// The $PUCSORGBOTTOM header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOriginBottom { get; set; }
+
+        /// <summary>
+        /// The $PUCSORGFRONT header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOriginFront { get; set; }
+
+        /// <summary>
+        /// The $PUCSORGLEFT header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOriginLeft { get; set; }
+
+        /// <summary>
+        /// The $PUCSORGRIGHT header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOriginRight { get; set; }
+
+        /// <summary>
+        /// The $PUCSORGTOP header variable.
+        /// </summary>
+        public DxfPoint PaperspaceUCSOriginTop { get; set; }
+
+        /// <summary>
+        /// The $PUCSORTHOREF header variable.
+        /// </summary>
+        public string PaperspaceOrthoUCSReference { get; set; }
+
+        /// <summary>
+        /// The $PUCSORTHOVIEW header variable.
+        /// </summary>
+        public DxfOrthographicViewType PaperspaceOrthographicViewType { get; set; }
+
+        /// <summary>
+        /// The $PUCSXDIR header variable.
+        /// </summary>
+        public DxfVector PaperspaceXAxis { get; set; }
+
+        /// <summary>
+        /// The $PUCSYDIR header variable.
+        /// </summary>
+        public DxfVector PaperspaceYAxis { get; set; }
+
+        /// <summary>
+        /// The $QTEXTMODE header variable.
+        /// </summary>
+        public bool UseQuickTextMode { get; set; }
+
+        /// <summary>
+        /// The $REGENMODE header variable.
+        /// </summary>
+        public bool UseRegenMode { get; set; }
+
+        /// <summary>
+        /// The $SHADEDGE header variable.
+        /// </summary>
+        public DxfShadeEdgeMode EdgeShading { get; set; }
+
+        /// <summary>
+        /// The $SHADEDIF header variable.
+        /// </summary>
+        public short PercentAmbientToDiffuse { get; set; }
+
+        /// <summary>
+        /// The $SHADOWPLANELOCATION header variable.
+        /// </summary>
+        public double ShadowPlaneZOffset { get; set; }
+
+        /// <summary>
+        /// The $SKETCHINC header variable.
+        /// </summary>
+        public double SketchRecordIncrement { get; set; }
+
+        /// <summary>
+        /// The $SKPOLY header variable.
+        /// </summary>
+        public DxfPolySketchMode PolylineSketchMode { get; set; }
+
+        /// <summary>
+        /// The $SORTENTS header variable.
+        /// </summary>
+        public int ObjectSortingMethodsFlags { get; set; }
+
+        /// <summary>
+        /// The $SPLFRAME header variable.
+        /// </summary>
+        public bool DisplaySplinePolygonControl { get; set; }
+
+        /// <summary>
+        /// The $SPLINESEGS header variable.
+        /// </summary>
+        public short LineSegmentsPerSplinePatch { get; set; }
+
+        /// <summary>
+        /// The $SPLINETYPE header variable.
+        /// </summary>
+        public short PEditSplineCurveType { get; set; }
+
+        /// <summary>
+        /// The $SURFTAB1 header variable.
+        /// </summary>
+        public short MeshTabulationsInFirstDirection { get; set; }
+
+        /// <summary>
+        /// The $SURFTAB2 header variable.
+        /// </summary>
+        public short MeshTabulationsInSecondDirection { get; set; }
+
+        /// <summary>
+        /// The $SURFTYPE header variable.
+        /// </summary>
+        public short PEditSmoothSurfaceType { get; set; }
+
+        /// <summary>
+        /// The $SURFU header variable.
+        /// </summary>
+        public short PEditSmoothMDensith { get; set; }
+
+        /// <summary>
+        /// The $SURFV header variable.
+        /// </summary>
+        public short PEditSmoothNDensith { get; set; }
+
+        /// <summary>
+        /// The $TDCREATE header variable.
+        /// </summary>
+        public DateTime CreationDate { get; set; }
+
+        /// <summary>
+        /// The $TDINDWG header variable.
+        /// </summary>
+        public TimeSpan TimeInDrawing { get; set; }
+
+        /// <summary>
+        /// The $TDUCREATE header variable.
+        /// </summary>
+        public DateTime CreationDateUniversal { get; set; }
+
+        /// <summary>
+        /// The $TDUPDATE header variable.
+        /// </summary>
+        public DateTime UpdateDate { get; set; }
+
+        /// <summary>
+        /// The $TDUSRTIMER header variable.
+        /// </summary>
+        public TimeSpan UserElapsedTimer { get; set; }
+
+        /// <summary>
+        /// The $TDUUPDATE header variable.
+        /// </summary>
+        public DateTime UpdateDateUniversal { get; set; }
+
+        /// <summary>
+        /// The $TEXTSIZE header variable.
+        /// </summary>
+        public double DefaultTextHeight { get; set; }
+
+        /// <summary>
+        /// The $TEXTSTYLE header variable.
+        /// </summary>
+        public string TextStyle { get; set; }
+
+        /// <summary>
+        /// The $THICKNESS header variable.
+        /// </summary>
+        public double Thickness { get; set; }
+
+        /// <summary>
+        /// The $TILEMODE header variable.
+        /// </summary>
+        public bool PreviousReleaseTileCompatability { get; set; }
+
+        /// <summary>
+        /// The $TRACEWID header variable.
+        /// </summary>
+        public double TraceWidth { get; set; }
+
+        /// <summary>
+        /// The $TREEDEPTH header variable.
+        /// </summary>
+        public short SpacialIndexMaxDepth { get; set; }
+
+        /// <summary>
+        /// The $UCSBASE header variable.
+        /// </summary>
+        public string UCSDefinitionName { get; set; }
+
+        /// <summary>
+        /// The $UCSNAME header variable.
+        /// </summary>
+        public string UCSName { get; set; }
+
+        /// <summary>
+        /// The $UCSORG header variable.
+        /// </summary>
+        public DxfPoint UCSOrigin { get; set; }
+
+        /// <summary>
+        /// The $UCSORGBACK header variable.
+        /// </summary>
+        public DxfPoint UCSOriginBack { get; set; }
+
+        /// <summary>
+        /// The $UCSORGBOTTOM header variable.
+        /// </summary>
+        public DxfPoint UCSOriginBottom { get; set; }
+
+        /// <summary>
+        /// The $UCSORGFRONT header variable.
+        /// </summary>
+        public DxfPoint UCSOriginFront { get; set; }
+
+        /// <summary>
+        /// The $UCSORGLEFT header variable.
+        /// </summary>
+        public DxfPoint UCSOriginLeft { get; set; }
+
+        /// <summary>
+        /// The $UCSORGRIGHT header variable.
+        /// </summary>
+        public DxfPoint UCSOriginRight { get; set; }
+
+        /// <summary>
+        /// The $UCSORGTOP header variable.
+        /// </summary>
+        public DxfPoint UCSOriginTop { get; set; }
+
+        /// <summary>
+        /// The $UCSORTHOREF header variable.
+        /// </summary>
+        public string OrthoUCSReference { get; set; }
+
+        /// <summary>
+        /// The $UCSORTHOVIEW header variable.
+        /// </summary>
+        public DxfOrthographicViewType OrthgraphicViewType { get; set; }
+
+        /// <summary>
+        /// The $UCSXDIR header variable.
+        /// </summary>
+        public DxfVector UCSXAxis { get; set; }
+
+        /// <summary>
+        /// The $UCSYDIR header variable.
+        /// </summary>
+        public DxfVector UCSYAxis { get; set; }
+
+        /// <summary>
+        /// The $UNITMODE header variable.
+        /// </summary>
+        public bool DisplayFractionsInInput { get; set; }
+
+        /// <summary>
+        /// The $USERI1 header variable.
+        /// </summary>
+        public short UserInt1 { get; set; }
+
+        /// <summary>
+        /// The $USERI2 header variable.
+        /// </summary>
+        public short UserInt2 { get; set; }
+
+        /// <summary>
+        /// The $USERI3 header variable.
+        /// </summary>
+        public short UserInt3 { get; set; }
+
+        /// <summary>
+        /// The $USERI4 header variable.
+        /// </summary>
+        public short UserInt4 { get; set; }
+
+        /// <summary>
+        /// The $USERI5 header variable.
+        /// </summary>
+        public short UserInt5 { get; set; }
+
+        /// <summary>
+        /// The $USERR1 header variable.
+        /// </summary>
+        public double UserReal1 { get; set; }
+
+        /// <summary>
+        /// The $USERR2 header variable.
+        /// </summary>
+        public double UserReal2 { get; set; }
+
+        /// <summary>
+        /// The $USERR3 header variable.
+        /// </summary>
+        public double UserReal3 { get; set; }
+
+        /// <summary>
+        /// The $USERR4 header variable.
+        /// </summary>
+        public double UserReal4 { get; set; }
+
+        /// <summary>
+        /// The $USERR5 header variable.
+        /// </summary>
+        public double UserReal5 { get; set; }
+
+        /// <summary>
+        /// The $USRTIMER header variable.
+        /// </summary>
+        public bool UserTimerOn { get; set; }
+
+        /// <summary>
+        /// The $VERSIONGUID header variable.
+        /// </summary>
+        public Guid VersionGuid { get; set; }
+
+        /// <summary>
+        /// The $VISRETAIN header variable.
+        /// </summary>
+        public bool RetainXRefDependentVisibilitySettings { get; set; }
+
+        /// <summary>
+        /// The $WORLDVIEW header variable.
+        /// </summary>
+        public bool SetUCSToWCSInDViewOrVPoint { get; set; }
+
+        /// <summary>
+        /// The $XCLIPFRAME header variable.
+        /// </summary>
+        public bool IsXRefClippingBoundaryVisible { get; set; }
+
+        /// <summary>
+        /// The $XEDIT header variable.
+        /// </summary>
+        public bool CanUseInPlaceReferenceEditing { get; set; }
 
         // set defaults
         private void SetDefaults()

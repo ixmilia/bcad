@@ -29,17 +29,19 @@ namespace IxMilia.Dxf
     var name = property.Attribute("Name").Value.ToUpper();
 #>
         private const string <#= name #> = "$<#= name #>";
-<# } #>
+<# }
 
-        // properties
-<#
 var seenProperties = new HashSet<string>();
 foreach (var property in variables) {
 	var propertyName = property.Attribute("Property").Value;
     if (!seenProperties.Contains(propertyName)) {
 		seenProperties.Add(propertyName); // don't write duplicate properties
 #>
-        public <#= property.Attribute("Type").Value #> <#= property.Attribute("Property").Value #> { get; set; } // <#= property.Attribute("Name").Value #>
+
+        /// <summary>
+        /// The $<#= property.Attribute("Name").Value #> header variable.
+        /// </summary>
+        public <#= property.Attribute("Type").Value #> <#= property.Attribute("Property").Value #> { get; set; }
 <#
 	} // if
 	else
