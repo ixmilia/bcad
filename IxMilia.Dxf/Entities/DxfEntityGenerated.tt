@@ -85,14 +85,7 @@ foreach (var entity in entities)
 
         protected DxfEntity()
         {
-<#
-foreach (var property in GetProperties(baseEntity))
-{
-#>
-            this.<#= Name(property) #> = <#= DefaultValue(property) #>;
-<#
-} // foreach property
-#>
+            Initialize();
         }
 
         protected DxfEntity(DxfEntity other)
@@ -103,6 +96,21 @@ foreach (var property in GetProperties(baseEntity))
 {
 #>
             this.<#= Name(property) #> = other.<#= Name(property) #>;
+<#
+} // foreach property
+#>
+        }
+
+        protected virtual void Initialize()
+        {
+<#
+foreach (var property in GetProperties(baseEntity))
+{
+	var defaultValue = AllowMultiples(property)
+		? string.Format("new List<{0}>()", Type(property))
+		: DefaultValue(property);
+#>
+            this.<#= Name(property) #> = <#= defaultValue #>;
 <#
 } // foreach property
 #>
@@ -299,17 +307,6 @@ foreach (var entity in entities)
         public <#= className #>()
             : base()
         {
-<#
-    foreach (var property in GetProperties(entity))
-	{
-		var defaultValue = AllowMultiples(property)
-			? string.Format("new List<{0}>()", Type(property))
-			: DefaultValue(property);
-#>
-            this.<#= Name(property) #> = <#= defaultValue #>;
-<#
-	} // foreach property
-#>
         }
 
 <#
@@ -363,17 +360,6 @@ foreach (var entity in entities)
         internal <#= className #>(<#= BaseClass(entity) #> other)
             : base(other)
         {
-<#
-    foreach (var property in GetProperties(entity))
-	{
-		var defaultValue = AllowMultiples(property)
-			? string.Format("new List<{0}>()", Type(property))
-			: DefaultValue(property);
-#>
-            this.<#= Name(property) #> = <#= defaultValue #>;
-<#
-	} // foreach property
-#>
         }
 <#
 		}
@@ -386,9 +372,6 @@ foreach (var entity in entities)
 <#
 		foreach (var property in GetProperties(entity))
 		{
-			var defaultValue = AllowMultiples(property)
-				? string.Format("new List<{0}>()", Type(property))
-				: DefaultValue(property);
 #>
             this.<#= Name(property) #> = other.<#= Name(property) #>;
 <#
@@ -402,6 +385,22 @@ foreach (var entity in entities)
 <#
 	} // copyConstructorAccessibility != null
 #>
+        protected override void Initialize()
+        {
+            base.Initialize();
+<#
+		foreach (var property in GetProperties(entity))
+		{
+			var defaultValue = AllowMultiples(property)
+				? string.Format("new List<{0}>()", Type(property))
+				: DefaultValue(property);
+#>
+            this.<#= Name(property) #> = <#= defaultValue #>;
+<#
+		} // foreach property
+#>
+        }
+
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             base.AddValuePairs(pairs, version);

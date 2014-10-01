@@ -137,13 +137,7 @@ namespace IxMilia.Dxf.Entities
 
         protected DxfEntity()
         {
-            this.Handle = null;
-            this.IsInPaperSpace = false;
-            this.Layer = "0";
-            this.LinetypeName = "BYLAYER";
-            this.Color = DxfColor.ByLayer;
-            this.LinetypeScale = 1.0;
-            this.IsVisible = true;
+            Initialize();
         }
 
         protected DxfEntity(DxfEntity other)
@@ -156,6 +150,17 @@ namespace IxMilia.Dxf.Entities
             this.Color = other.Color;
             this.LinetypeScale = other.LinetypeScale;
             this.IsVisible = other.IsVisible;
+        }
+
+        protected virtual void Initialize()
+        {
+            this.Handle = null;
+            this.IsInPaperSpace = false;
+            this.Layer = "0";
+            this.LinetypeName = "BYLAYER";
+            this.Color = DxfColor.ByLayer;
+            this.LinetypeScale = 1.0;
+            this.IsVisible = true;
         }
 
         protected virtual void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -405,6 +410,11 @@ namespace IxMilia.Dxf.Entities
         public Dxf3DFace()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.FirstCorner = DxfPoint.Origin;
             this.SecondCorner = DxfPoint.Origin;
             this.ThirdCorner = DxfPoint.Origin;
@@ -500,6 +510,11 @@ namespace IxMilia.Dxf.Entities
         public Dxf3DSolid()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.FormatVersionNumber = 1;
             this.CustomData = new List<string>();
             this.CustomData2 = new List<string>();
@@ -559,6 +574,11 @@ namespace IxMilia.Dxf.Entities
         public DxfProxyEntity()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.ProxyEntityClassId = 498;
             this.ApplicationEntityClassId = 500;
             this.GraphicsDataSize = 0;
@@ -662,8 +682,6 @@ namespace IxMilia.Dxf.Entities
         public DxfArc()
             : base()
         {
-            this.StartAngle = 0.0;
-            this.EndAngle = 360.0;
         }
 
         //
@@ -676,6 +694,13 @@ namespace IxMilia.Dxf.Entities
             this.Radius = radius;
             this.StartAngle = startAngle;
             this.EndAngle = endAngle;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.StartAngle = 0.0;
+            this.EndAngle = 360.0;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -744,6 +769,11 @@ namespace IxMilia.Dxf.Entities
         public DxfArcAlignedText()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Text = null;
             this.FontName = null;
             this.BigfontName = null;
@@ -1022,6 +1052,11 @@ namespace IxMilia.Dxf.Entities
         public DxfAttributeDefinition()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Thickness = 0.0;
             this.Location = DxfPoint.Origin;
             this.TextHeight = 1.0;
@@ -1290,6 +1325,11 @@ namespace IxMilia.Dxf.Entities
         public DxfAttribute()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Thickness = 0.0;
             this.Location = DxfPoint.Origin;
             this.TextHeight = 1.0;
@@ -1469,6 +1509,11 @@ namespace IxMilia.Dxf.Entities
         public DxfBody()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.FormatVersionNumber = 1;
             this.CustomData = new List<string>();
             this.CustomData2 = new List<string>();
@@ -1519,10 +1564,6 @@ namespace IxMilia.Dxf.Entities
         public DxfCircle()
             : base()
         {
-            this.Thickness = 0.0;
-            this.Center = DxfPoint.Origin;
-            this.Radius = 0.0;
-            this.Normal = DxfVector.ZAxis;
         }
 
         //
@@ -1533,6 +1574,15 @@ namespace IxMilia.Dxf.Entities
         {
             this.Center = center;
             this.Radius = radius;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.Thickness = 0.0;
+            this.Center = DxfPoint.Origin;
+            this.Radius = 0.0;
+            this.Normal = DxfVector.ZAxis;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -1611,13 +1661,6 @@ namespace IxMilia.Dxf.Entities
         public DxfDimensionBase()
             : base()
         {
-            this.BlockName = null;
-            this.DefinitionPoint1 = DxfPoint.Origin;
-            this.TextMidPoint = DxfPoint.Origin;
-            this.DimensionType = DxfDimensionType.RotatedHorizontalOrVertical;
-            this.Text = "<>";
-            this.AttachmentPoint = DxfAttachmentPoint.TopLeft;
-            this.TextLineSpacingStyle = DxfTextLineSpacingStyle.AtLeast;
         }
 
         protected DxfDimensionBase(DxfDimensionBase other)
@@ -1630,6 +1673,18 @@ namespace IxMilia.Dxf.Entities
             this.Text = other.Text;
             this.AttachmentPoint = other.AttachmentPoint;
             this.TextLineSpacingStyle = other.TextLineSpacingStyle;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.BlockName = null;
+            this.DefinitionPoint1 = DxfPoint.Origin;
+            this.TextMidPoint = DxfPoint.Origin;
+            this.DimensionType = DxfDimensionType.RotatedHorizontalOrVertical;
+            this.Text = "<>";
+            this.AttachmentPoint = DxfAttachmentPoint.TopLeft;
+            this.TextLineSpacingStyle = DxfTextLineSpacingStyle.AtLeast;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -1712,14 +1767,16 @@ namespace IxMilia.Dxf.Entities
         public DxfAlignedDimension()
             : base()
         {
-            this.InsertionPoint = DxfPoint.Origin;
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.DefinitionPoint3 = DxfPoint.Origin;
         }
 
         internal DxfAlignedDimension(DxfDimensionBase other)
             : base(other)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.InsertionPoint = DxfPoint.Origin;
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.DefinitionPoint3 = DxfPoint.Origin;
@@ -1795,16 +1852,16 @@ namespace IxMilia.Dxf.Entities
         public DxfRotatedDimension()
             : base()
         {
-            this.InsertionPoint = DxfPoint.Origin;
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.DefinitionPoint3 = DxfPoint.Origin;
-            this.RotationAngle = 0.0;
-            this.ExtensionLineAngle = 0.0;
         }
 
         internal DxfRotatedDimension(DxfDimensionBase other)
             : base(other)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.InsertionPoint = DxfPoint.Origin;
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.DefinitionPoint3 = DxfPoint.Origin;
@@ -1887,13 +1944,16 @@ namespace IxMilia.Dxf.Entities
         public DxfRadialDimension()
             : base()
         {
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.LeaderLength = 0.0;
         }
 
         internal DxfRadialDimension(DxfDimensionBase other)
             : base(other)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.LeaderLength = 0.0;
         }
@@ -1945,13 +2005,16 @@ namespace IxMilia.Dxf.Entities
         public DxfDiameterDimension()
             : base()
         {
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.LeaderLength = 0.0;
         }
 
         internal DxfDiameterDimension(DxfDimensionBase other)
             : base(other)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.LeaderLength = 0.0;
         }
@@ -2005,15 +2068,16 @@ namespace IxMilia.Dxf.Entities
         public DxfAngularDimension()
             : base()
         {
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.DefinitionPoint3 = DxfPoint.Origin;
-            this.DefinitionPoint4 = DxfPoint.Origin;
-            this.DefinitionPoint5 = DxfPoint.Origin;
         }
 
         internal DxfAngularDimension(DxfDimensionBase other)
             : base(other)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.DefinitionPoint3 = DxfPoint.Origin;
             this.DefinitionPoint4 = DxfPoint.Origin;
@@ -2099,13 +2163,16 @@ namespace IxMilia.Dxf.Entities
         public DxfOrdinateDimension()
             : base()
         {
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.DefinitionPoint3 = DxfPoint.Origin;
         }
 
         internal DxfOrdinateDimension(DxfDimensionBase other)
             : base(other)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.DefinitionPoint3 = DxfPoint.Origin;
         }
@@ -2169,12 +2236,6 @@ namespace IxMilia.Dxf.Entities
         public DxfEllipse()
             : base()
         {
-            this.Center = DxfPoint.Origin;
-            this.MajorAxis = DxfVector.XAxis;
-            this.Normal = DxfVector.ZAxis;
-            this.MinorAxisRatio = 1.0;
-            this.StartParameter = 0.0;
-            this.EndParameter = Math.PI * 2;
         }
 
         //
@@ -2186,6 +2247,17 @@ namespace IxMilia.Dxf.Entities
             this.Center = center;
             this.MajorAxis = majorAxis;
             this.MinorAxisRatio = minorAxisRatio;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.Center = DxfPoint.Origin;
+            this.MajorAxis = DxfVector.XAxis;
+            this.Normal = DxfVector.ZAxis;
+            this.MinorAxisRatio = 1.0;
+            this.StartParameter = 0.0;
+            this.EndParameter = Math.PI * 2;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -2331,6 +2403,11 @@ namespace IxMilia.Dxf.Entities
         public DxfImage()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.ClassVersion = 0;
             this.Location = DxfPoint.Origin;
             this.UVector = DxfVector.XAxis;
@@ -2486,6 +2563,11 @@ namespace IxMilia.Dxf.Entities
         public DxfInsert()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.HasAttributes = false;
             this.Name = null;
             this.Location = DxfPoint.Origin;
@@ -2647,6 +2729,11 @@ namespace IxMilia.Dxf.Entities
         public DxfLeader()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.DimensionStyleName = null;
             this.UseArrowheads = true;
             this.PathType = DxfLeaderPathType.StraightLineSegments;
@@ -2812,10 +2899,6 @@ namespace IxMilia.Dxf.Entities
         public DxfLine()
             : base()
         {
-            this.Thickness = 0.0;
-            this.P1 = DxfPoint.Origin;
-            this.P2 = DxfPoint.Origin;
-            this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
         //
@@ -2826,6 +2909,15 @@ namespace IxMilia.Dxf.Entities
         {
             this.P1 = p1;
             this.P2 = p2;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.Thickness = 0.0;
+            this.P1 = DxfPoint.Origin;
+            this.P2 = DxfPoint.Origin;
+            this.ExtrusionDirection = DxfVector.ZAxis;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -2940,6 +3032,11 @@ namespace IxMilia.Dxf.Entities
         public DxfLwPolyline()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.VertexCount = 0;
             this.Flags = 0;
             this.ConstantWidth = 0.0;
@@ -3057,6 +3154,11 @@ namespace IxMilia.Dxf.Entities
         public DxfOleFrame()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.VersionNumber = 0;
             this.BinaryDataLength = 0;
             this.BinaryDataStrings = new List<string>();
@@ -3116,6 +3218,11 @@ namespace IxMilia.Dxf.Entities
         public DxfOle2Frame()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.VersionNumber = 0;
             this.Description = null;
             this.UpperLeftCorner = DxfPoint.Origin;
@@ -3212,10 +3319,6 @@ namespace IxMilia.Dxf.Entities
         public DxfModelPoint()
             : base()
         {
-            this.Location = DxfPoint.Origin;
-            this.Thickness = 0.0;
-            this.ExtrusionDirection = DxfVector.ZAxis;
-            this.Angle = 0.0;
         }
 
         //
@@ -3225,6 +3328,15 @@ namespace IxMilia.Dxf.Entities
             : this()
         {
             this.Location = location;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.Location = DxfPoint.Origin;
+            this.Thickness = 0.0;
+            this.ExtrusionDirection = DxfVector.ZAxis;
+            this.Angle = 0.0;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -3401,6 +3513,11 @@ namespace IxMilia.Dxf.Entities
         public DxfPolyline()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Location = DxfPoint.Origin;
             this.Thickness = 0.0;
             this.Flags = 0;
@@ -3545,8 +3662,6 @@ namespace IxMilia.Dxf.Entities
         public DxfRay()
             : base()
         {
-            this.StartPoint = DxfPoint.Origin;
-            this.UnitDirectionVector = DxfVector.XAxis;
         }
 
         //
@@ -3557,6 +3672,13 @@ namespace IxMilia.Dxf.Entities
         {
             this.StartPoint = startPoint;
             this.UnitDirectionVector = unitDirectionVector;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.StartPoint = DxfPoint.Origin;
+            this.UnitDirectionVector = DxfVector.XAxis;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -3615,6 +3737,11 @@ namespace IxMilia.Dxf.Entities
         public DxfRegion()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.FormatVersionNumber = 1;
             this.CustomData = new List<string>();
             this.CustomData2 = new List<string>();
@@ -3693,6 +3820,11 @@ namespace IxMilia.Dxf.Entities
         public DxfRText()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.InsertionPoint = DxfPoint.Origin;
             this.ExtrusionDirection = DxfVector.ZAxis;
             this.RotationAngle = 0.0;
@@ -3781,6 +3913,11 @@ namespace IxMilia.Dxf.Entities
         {
         }
 
+        protected override void Initialize()
+        {
+            base.Initialize();
+        }
+
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             base.AddValuePairs(pairs, version);
@@ -3806,6 +3943,11 @@ namespace IxMilia.Dxf.Entities
         public DxfShape()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Thickness = 0.0;
             this.Location = DxfPoint.Origin;
             this.Size = 0.0;
@@ -3919,6 +4061,11 @@ namespace IxMilia.Dxf.Entities
         public DxfSolid()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.FirstCorner = DxfPoint.Origin;
             this.SecondCorner = DxfPoint.Origin;
             this.ThirdCorner = DxfPoint.Origin;
@@ -4104,6 +4251,11 @@ namespace IxMilia.Dxf.Entities
         public DxfSpline()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Normal = DxfVector.ZAxis;
             this.Flags = 0;
             this.DegreeOfCurve = 0;
@@ -4314,6 +4466,22 @@ namespace IxMilia.Dxf.Entities
         public DxfText()
             : base()
         {
+        }
+
+        //
+        // Parameterized constructors
+        //
+        public DxfText(DxfPoint location, double textHeight, string value)
+            : this()
+        {
+            this.Location = location;
+            this.TextHeight = textHeight;
+            this.Value = value;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Thickness = 0.0;
             this.Location = DxfPoint.Origin;
             this.TextHeight = 1.0;
@@ -4327,17 +4495,6 @@ namespace IxMilia.Dxf.Entities
             this.SecondAlignmentPoint = DxfPoint.Origin;
             this.Normal = DxfVector.ZAxis;
             this.VerticalTextJustification = DxfVerticalTextJustification.Baseline;
-        }
-
-        //
-        // Parameterized constructors
-        //
-        public DxfText(DxfPoint location, double textHeight, string value)
-            : this()
-        {
-            this.Location = location;
-            this.TextHeight = textHeight;
-            this.Value = value;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -4485,6 +4642,11 @@ namespace IxMilia.Dxf.Entities
         public DxfTolerance()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.DimensionStyleName = null;
             this.InsertionPoint = DxfPoint.Origin;
             this.ExtrusionDirection = DxfVector.ZAxis;
@@ -4570,6 +4732,11 @@ namespace IxMilia.Dxf.Entities
         public DxfTrace()
             : base()
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.FirstCorner = DxfPoint.Origin;
             this.SecondCorner = DxfPoint.Origin;
             this.ThirdCorner = DxfPoint.Origin;
@@ -4768,6 +4935,20 @@ namespace IxMilia.Dxf.Entities
         public DxfVertex()
             : base()
         {
+        }
+
+        //
+        // Parameterized constructors
+        //
+        public DxfVertex(DxfPoint location)
+            : this()
+        {
+            this.Location = location;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             this.Location = DxfPoint.Origin;
             this.StartingWidth = 0.0;
             this.EndingWidth = 0.0;
@@ -4778,15 +4959,6 @@ namespace IxMilia.Dxf.Entities
             this.PolyfaceMeshVertexIndex2 = 0;
             this.PolyfaceMeshVertexIndex3 = 0;
             this.PolyfaceMeshVertexIndex4 = 0;
-        }
-
-        //
-        // Parameterized constructors
-        //
-        public DxfVertex(DxfPoint location)
-            : this()
-        {
-            this.Location = location;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -4897,6 +5069,11 @@ namespace IxMilia.Dxf.Entities
         {
         }
 
+        protected override void Initialize()
+        {
+            base.Initialize();
+        }
+
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             base.AddValuePairs(pairs, version);
@@ -4917,8 +5094,6 @@ namespace IxMilia.Dxf.Entities
         public DxfXLine()
             : base()
         {
-            this.FirstPoint = DxfPoint.Origin;
-            this.UnitDirectionVector = DxfVector.XAxis;
         }
 
         //
@@ -4929,6 +5104,13 @@ namespace IxMilia.Dxf.Entities
         {
             this.FirstPoint = firstPoint;
             this.UnitDirectionVector = unitDirectionVector;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.FirstPoint = DxfPoint.Origin;
+            this.UnitDirectionVector = DxfVector.XAxis;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
