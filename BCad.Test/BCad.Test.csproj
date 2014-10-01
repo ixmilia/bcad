@@ -77,10 +77,6 @@
     <Compile Include="DrawingTests.cs" />
     <Compile Include="DwgTests\BitReaderTests.cs" />
     <Compile Include="DwgTests\LoadTests.cs" />
-    <Compile Include="DxfTests\AbstractDxfTests.cs" />
-    <Compile Include="DxfTests\DxfEntityTests.cs" />
-    <Compile Include="DxfTests\DxfHeaderTests.cs" />
-    <Compile Include="DxfTests\DxfReaderWriterTests.cs" />
     <Compile Include="IgesTests\IgesEntityReaderTests.cs" />
     <Compile Include="IgesTests\IgesReaderTests.cs" />
     <Compile Include="IgesTests\IgesTransformMatrixTests.cs" />
@@ -128,15 +124,8 @@
       <Project>{a978c366-6cc2-4f82-908a-8c830f7e6113}</Project>
       <Name>BCad</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Dxf\IxMilia.Dxf.csproj">
-      <Project>{c067e97d-3b96-462a-b09d-33fad60de761}</Project>
-      <Name>IxMilia.Dxf</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="diamond-bin.dxf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="diamond.dxf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -253,6 +253,7 @@
     <Property Name="DefinitionPoint1" Code="10" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="10,20,30" />
     <Property Name="TextMidPoint" Code="11" Type="DxfPoint" DefaultValue="DxfPoint.Origin" CodeOverrides="11,21,31" />
     <Property Name="DimensionType" Code="70" Type="DxfDimensionType" DefaultValue="DxfDimensionType.RotatedHorizontalOrVertical" ReadConverter="(DxfDimensionType)" WriteConverter="(short)" />
+    <Property Name="Text" Code="1" Type="string" DefaultValue="&lt;&gt;" />
     <Property Name="AttachmentPoint" Code="71" Type="DxfAttachmentPoint" DefaultValue="DxfAttachmentPoint.TopLeft" ReadConverter="(DxfAttachmentPoint)" WriteConverter="(short)" />
     <Property Name="TextLineSpacingStyle" Code="72" Type="DxfTextLineSpacingStyle" DefaultValue="DxfTextLineSpacingStyle.AtLeast" ReadConverter="(DxfTextLineSpacingStyle)" WriteConverter="(short)" DisableWritingDefault="true" />
   </Entity>

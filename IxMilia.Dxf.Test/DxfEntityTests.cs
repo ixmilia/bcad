@@ -242,6 +242,33 @@ ill-placed comment
         #region Read specific value tests
 
         [TestMethod]
+        public void ReadDimensionTest()
+        {
+            var dimension = (DxfAlignedDimension)Entity("DIMENSION", @"
+  1
+text
+ 10
+330.250000
+ 20
+1310.000000
+ 13
+330.250000
+ 23
+1282.000000
+ 14
+319.750000
+ 24
+1282.000000
+ 70
+1
+");
+            Assert.AreEqual(new DxfPoint(330.25, 1310.0, 0.0), dimension.DefinitionPoint1);
+            Assert.AreEqual(new DxfPoint(330.25, 1282, 0.0), dimension.DefinitionPoint2);
+            Assert.AreEqual(new DxfPoint(319.75, 1282, 0.0), dimension.DefinitionPoint3);
+            Assert.AreEqual("text", dimension.Text);
+        }
+
+        [TestMethod]
         public void ReadLineTest()
         {
             var line = (DxfLine)Entity("LINE", @"
@@ -894,6 +921,72 @@ AcDbLine
 230
 1.0000000000000000E+001
   0
+");
+        }
+
+        [TestMethod]
+        public void WriteDimensionTest()
+        {
+            EnsureFileContainsEntity(new DxfAlignedDimension()
+            {
+                Color = DxfColor.FromIndex(7),
+                DefinitionPoint1 = new DxfPoint(330.25, 1310.0, 330.25),
+                DefinitionPoint2 = new DxfPoint(330.25, 1282.0, 0.0),
+                DefinitionPoint3 = new DxfPoint(319.75, 1282.0, 0.0),
+                Handle = "foo",
+                Layer = "bar",
+                Text = "text"
+            }, @"
+  0
+DIMENSION
+  5
+foo
+  8
+bar
+ 62
+7
+100
+AcDbDimension
+  2
+
+ 10
+3.3025000000000000E+002
+ 20
+1.3100000000000000E+003
+ 30
+3.3025000000000000E+002
+ 11
+0.0000000000000000E+000
+ 21
+0.0000000000000000E+000
+ 31
+0.0000000000000000E+000
+ 70
+0
+  1
+text
+ 71
+1
+100
+AcDbAlignedDimension
+ 12
+0.0000000000000000E+000
+ 22
+0.0000000000000000E+000
+ 32
+0.0000000000000000E+000
+ 13
+3.3025000000000000E+002
+ 23
+1.2820000000000000E+003
+ 33
+0.0000000000000000E+000
+ 14
+3.1975000000000000E+002
+ 24
+1.2820000000000000E+003
+ 34
+0.0000000000000000E+000
 ");
         }
 

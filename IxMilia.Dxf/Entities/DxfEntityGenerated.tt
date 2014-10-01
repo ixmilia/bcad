@@ -95,6 +95,19 @@ foreach (var property in GetProperties(baseEntity))
 #>
         }
 
+        protected DxfEntity(DxfEntity other)
+            : this()
+        {
+<#
+foreach (var property in GetProperties(baseEntity))
+{
+#>
+            this.<#= Name(property) #> = other.<#= Name(property) #>;
+<#
+} // foreach property
+#>
+        }
+
         protected virtual void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
@@ -350,6 +363,17 @@ foreach (var entity in entities)
         internal <#= className #>(<#= BaseClass(entity) #> other)
             : base(other)
         {
+<#
+    foreach (var property in GetProperties(entity))
+	{
+		var defaultValue = AllowMultiples(property)
+			? string.Format("new List<{0}>()", Type(property))
+			: DefaultValue(property);
+#>
+            this.<#= Name(property) #> = <#= defaultValue #>;
+<#
+	} // foreach property
+#>
         }
 <#
 		}
@@ -357,7 +381,7 @@ foreach (var entity in entities)
 		{
 #>
         <#= copyConstructorAccessibility #> <#= className #>(<#= className #> other)
-            : this()
+            : base(other)
         {
 <#
 		foreach (var property in GetProperties(entity))

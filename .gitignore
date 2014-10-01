@@ -10,3 +10,4 @@
 *.ide
 /BCad.Metro/AppPackages
 /packages
+*.user

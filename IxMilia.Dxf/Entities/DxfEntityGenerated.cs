@@ -146,6 +146,18 @@ namespace IxMilia.Dxf.Entities
             this.IsVisible = true;
         }
 
+        protected DxfEntity(DxfEntity other)
+            : this()
+        {
+            this.Handle = other.Handle;
+            this.IsInPaperSpace = other.IsInPaperSpace;
+            this.Layer = other.Layer;
+            this.LinetypeName = other.LinetypeName;
+            this.Color = other.Color;
+            this.LinetypeScale = other.LinetypeScale;
+            this.IsVisible = other.IsVisible;
+        }
+
         protected virtual void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
@@ -1592,6 +1604,7 @@ namespace IxMilia.Dxf.Entities
         public DxfPoint DefinitionPoint1 { get; set; }
         public DxfPoint TextMidPoint { get; set; }
         public DxfDimensionType DimensionType { get; set; }
+        public string Text { get; set; }
         public DxfAttachmentPoint AttachmentPoint { get; set; }
         public DxfTextLineSpacingStyle TextLineSpacingStyle { get; set; }
 
@@ -1602,17 +1615,19 @@ namespace IxMilia.Dxf.Entities
             this.DefinitionPoint1 = DxfPoint.Origin;
             this.TextMidPoint = DxfPoint.Origin;
             this.DimensionType = DxfDimensionType.RotatedHorizontalOrVertical;
+            this.Text = "<>";
             this.AttachmentPoint = DxfAttachmentPoint.TopLeft;
             this.TextLineSpacingStyle = DxfTextLineSpacingStyle.AtLeast;
         }
 
         protected DxfDimensionBase(DxfDimensionBase other)
-            : this()
+            : base(other)
         {
             this.BlockName = other.BlockName;
             this.DefinitionPoint1 = other.DefinitionPoint1;
             this.TextMidPoint = other.TextMidPoint;
             this.DimensionType = other.DimensionType;
+            this.Text = other.Text;
             this.AttachmentPoint = other.AttachmentPoint;
             this.TextLineSpacingStyle = other.TextLineSpacingStyle;
         }
@@ -1629,6 +1644,7 @@ namespace IxMilia.Dxf.Entities
             pairs.Add(new DxfCodePair(21, TextMidPoint.Y));
             pairs.Add(new DxfCodePair(31, TextMidPoint.Z));
             pairs.Add(new DxfCodePair(70, (short)(this.DimensionType)));
+            pairs.Add(new DxfCodePair(1, (this.Text)));
             pairs.Add(new DxfCodePair(71, (short)(this.AttachmentPoint)));
             if (this.TextLineSpacingStyle != DxfTextLineSpacingStyle.AtLeast)
             {
@@ -1641,6 +1657,9 @@ namespace IxMilia.Dxf.Entities
         {
             switch (pair.Code)
             {
+                case 1:
+                    this.Text = (pair.StringValue);
+                    break;
                 case 2:
                     this.BlockName = (pair.StringValue);
                     break;
@@ -1701,6 +1720,9 @@ namespace IxMilia.Dxf.Entities
         internal DxfAlignedDimension(DxfDimensionBase other)
             : base(other)
         {
+            this.InsertionPoint = DxfPoint.Origin;
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -1783,6 +1805,11 @@ namespace IxMilia.Dxf.Entities
         internal DxfRotatedDimension(DxfDimensionBase other)
             : base(other)
         {
+            this.InsertionPoint = DxfPoint.Origin;
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+            this.RotationAngle = 0.0;
+            this.ExtensionLineAngle = 0.0;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -1867,6 +1894,8 @@ namespace IxMilia.Dxf.Entities
         internal DxfRadialDimension(DxfDimensionBase other)
             : base(other)
         {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.LeaderLength = 0.0;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -1923,6 +1952,8 @@ namespace IxMilia.Dxf.Entities
         internal DxfDiameterDimension(DxfDimensionBase other)
             : base(other)
         {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.LeaderLength = 0.0;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -1983,6 +2014,10 @@ namespace IxMilia.Dxf.Entities
         internal DxfAngularDimension(DxfDimensionBase other)
             : base(other)
         {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+            this.DefinitionPoint4 = DxfPoint.Origin;
+            this.DefinitionPoint5 = DxfPoint.Origin;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
@@ -2071,6 +2106,8 @@ namespace IxMilia.Dxf.Entities
         internal DxfOrdinateDimension(DxfDimensionBase other)
             : base(other)
         {
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
