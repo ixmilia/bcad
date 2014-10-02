@@ -1658,7 +1658,7 @@ namespace IxMilia.Dxf.Entities
         public DxfAttachmentPoint AttachmentPoint { get; set; }
         public DxfTextLineSpacingStyle TextLineSpacingStyle { get; set; }
 
-        public DxfDimensionBase()
+        internal DxfDimensionBase()
             : base()
         {
         }

@@ -21,7 +21,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="CopyConstructorType">
+  <xs:simpleType name="ConstructorType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="None" />
       <xs:enumeration value="Public" />
@@ -139,7 +139,8 @@
       <xs:attribute name="TypeString" type="xs:string" use="required" />
       <xs:attribute name="SubclassMarker" type="xs:string" use="required" />
       <xs:attribute name="BaseClass" type="xs:string" use="optional" />
-      <xs:attribute name="CopyConstructor" type="CopyConstructorType" use="optional" />
+      <xs:attribute name="CopyConstructor" type="ConstructorType" use="optional" />
+      <xs:attribute name="DefaultConstructor" type="ConstructorType" use="optional" />
       <xs:attribute name="Tag" type="xs:string" use="optional" />
       <xs:attribute name="MinVersion" type="VersionType" use="optional" />
       <xs:attribute name="MaxVersion" type="VersionType" use="optional" />

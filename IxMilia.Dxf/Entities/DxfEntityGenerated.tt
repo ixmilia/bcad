@@ -299,17 +299,22 @@ foreach (var entity in entities)
 		} // if
 	} // foreach property
 
-	//
-	// Default constructor
-	//
+	var defaultConstructorType = DefaultConstructor(entity);
+	if (defaultConstructorType != null)
+	{
+	    //
+	    // Default constructor
+	    //
 #>
 
-        public <#= className #>()
+        <#= defaultConstructorType #> <#= className #>()
             : base()
         {
         }
 
 <#
+	} // if (defaultConstructorType != null)
+
 	var constructors = entity.Elements(XName.Get("Constructor", xmlns));
 	if (constructors.Any())
 	{
@@ -701,6 +706,14 @@ IEnumerable<string> WriteProperty(XElement spec, XElement entity)
 string CopyConstructor(XElement entity)
 {
 	var att = entity.Attribute("CopyConstructor");
+	return att == null || att.Value == "None" ? null : CamlCase(att.Value);
+}
+
+string DefaultConstructor(XElement entity)
+{
+	var att = entity.Attribute("DefaultConstructor");
+	if (att == null)
+		return "public";
 	return att == null || att.Value == "None" ? null : CamlCase(att.Value);
 }
 
