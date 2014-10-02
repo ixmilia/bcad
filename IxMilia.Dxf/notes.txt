@@ -6,9 +6,10 @@ HEADER section - complete
 CLASSES section - complete
 TABLES section - complete
 BLOCKS section - complete
-ENTITIES section - complete through R2000, DIMENSION complete through R2012
+ENTITIES section - common complete through R2013, entities complete through R2000, DIMENSION complete through R2013
 OBJECTS section - NYI
 
 TODO:
+	102 codes for entities
 	add min/max for classes/tables/blocks/objects sections
 	fork sources and publish to NuGet

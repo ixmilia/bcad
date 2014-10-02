@@ -52,8 +52,11 @@ var baseEntity = xml.Elements(XName.Get("Entity", xmlns)).Where(x => Name(x) == 
 <#
 foreach (var property in GetProperties(baseEntity))
 {
+	var typeString = Type(property);
+	if (AllowMultiples(property))
+		typeString = string.Format("List<{0}>", typeString);
 #>
-        public <#= Type(property) #> <#= Name(property) #> { get; set; }
+        public <#= typeString #> <#= Name(property) #> { get; set; }
 <#
 } // foreach property
 #>
@@ -120,28 +123,21 @@ foreach (var property in GetProperties(baseEntity))
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
 <#
-foreach (var property in GetProperties(baseEntity))
-{
-	var disableAtt = property.Attribute("DisableWritingDefault");
-	var disableWriting = disableAtt != null && bool.Parse(disableAtt.Value);
-	if (disableWriting)
-	{
+			foreach (var line in GetWriteCommands(baseEntity))
+			{
+				if (string.IsNullOrWhiteSpace(line))
+				{
 #>
-            if (this.<#= Name(property) #> != <#= DefaultValue(property) #>)
-            {
-<#
-	} // if
-#>
-<# if (disableWriting) { #>    <# } #>            pairs.Add(new DxfCodePair(<#= Code(property) #>, <#= WriteConverter(property) #>(<#= Name(property) #>)));
-<#
-	if (disableWriting)
-	{
-#>
-            }
 
 <#
-	}
-} // foreach property
+				}
+				else
+				{
+#>
+            <#= line #>
+<#
+				}
+			} // foreach
 #>
         }
 
@@ -150,34 +146,52 @@ foreach (var property in GetProperties(baseEntity))
             switch (pair.Code)
             {
 <#
-foreach (var property in GetProperties(baseEntity))
-{
-	var code = Code(property);
-	var name = Name(property);
-	var codes = GetCodeOverrides(property);
-	if (codes != null)
-	{
-		var suffix = 'X';
-		for (int i = 0; i < codes.Length; i++, suffix++)
+		foreach (var propertyGroup in GetProperties(baseEntity).Where(p => !ProtectedSet(p)).GroupBy(p => Code(p)).OrderBy(p => p.Key))
 		{
+			var code = propertyGroup.Key;
+			if (propertyGroup.Count() == 1)
+			{
+				var property = propertyGroup.Single();
+				var name = Name(property);
+				var codes = GetCodeOverrides(property);
+				if (codes != null)
+				{
+					var suffix = 'X';
+					for (int i = 0; i < codes.Length; i++, suffix++)
+					{
 #>
                 case <#= codes[i] #>:
                     this.<#= name #>.<#= suffix #> = pair.DoubleValue;
                     break;
 <#
-		} // for
-	} // if
-	else
-	{
-		var codeType = DxfCodePair.ExpectedType(code);
-		var codeTypeValue = TypeToString(codeType);
+					} // for
+				} // if
+				else
+				{
+					var codeType = DxfCodePair.ExpectedType(code);
+					var codeTypeValue = TypeToString(codeType);
+					var assignCode = AllowMultiples(property)
+						? string.Format("this.{0}.Add(", Name(property))
+						: string.Format("this.{0} = ", Name(property));
+					var assignSuffix = AllowMultiples(property)
+						? ")"
+						: "";
 #>
                 case <#= code #>:
-                    this.<#= name #> = <#= ReadConverter(property) #>(pair.<#= codeTypeValue #>);
+                    <#= assignCode #><#= ReadConverter(property) #>(pair.<#= codeTypeValue #>)<#= assignSuffix #>;
                     break;
 <#
-	} // else
-}
+				} // else
+			} // if one property per code
+			else
+			{
+#>
+                case <#= code #>:
+                    // TODO: code is shared by properties <#= string.Join(", ", propertyGroup.Select(p => Name(p))) #>
+                    break;
+<#
+			} // else multiple properties per code
+		} // foreach property
 #>
                 default:
                     return false;
@@ -644,7 +658,7 @@ List<string> GetWriteCommands(XElement entity)
 	if (att == null)
 	{
 		// default order
-		if (SubclassMarker(entity) != null)
+		if (!string.IsNullOrEmpty(SubclassMarker(entity)))
 			lines.Add(string.Format("pairs.Add(new DxfCodePair(100, \"{0}\"));", SubclassMarker(entity)));
 		foreach (var property in GetProperties(entity))
 		{

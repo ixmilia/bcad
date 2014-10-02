@@ -50,12 +50,22 @@ namespace IxMilia.Dxf.Entities
     public partial class DxfEntity
     {
         public string Handle { get; set; }
+        public string OwnerHandle { get; set; }
         public bool IsInPaperSpace { get; set; }
         public string Layer { get; set; }
         public string LinetypeName { get; set; }
+        public string MaterialHandle { get; set; }
         public DxfColor Color { get; set; }
+        public short LineweightEnumValue { get; set; }
         public double LinetypeScale { get; set; }
         public bool IsVisible { get; set; }
+        public int ImageByteCount { get; set; }
+        public List<string> PreviewImageData { get; set; }
+        public int Color24Bit { get; set; }
+        public string ColorName { get; set; }
+        public int Transparency { get; set; }
+        public string PlotStyleHandle { get; set; }
+        public DxfShadowMode ShadowMode { get; set; }
 
         public string EntityTypeString
         {
@@ -144,53 +154,123 @@ namespace IxMilia.Dxf.Entities
             : this()
         {
             this.Handle = other.Handle;
+            this.OwnerHandle = other.OwnerHandle;
             this.IsInPaperSpace = other.IsInPaperSpace;
             this.Layer = other.Layer;
             this.LinetypeName = other.LinetypeName;
+            this.MaterialHandle = other.MaterialHandle;
             this.Color = other.Color;
+            this.LineweightEnumValue = other.LineweightEnumValue;
             this.LinetypeScale = other.LinetypeScale;
             this.IsVisible = other.IsVisible;
+            this.ImageByteCount = other.ImageByteCount;
+            this.PreviewImageData = other.PreviewImageData;
+            this.Color24Bit = other.Color24Bit;
+            this.ColorName = other.ColorName;
+            this.Transparency = other.Transparency;
+            this.PlotStyleHandle = other.PlotStyleHandle;
+            this.ShadowMode = other.ShadowMode;
         }
 
         protected virtual void Initialize()
         {
             this.Handle = null;
+            this.OwnerHandle = null;
             this.IsInPaperSpace = false;
             this.Layer = "0";
             this.LinetypeName = "BYLAYER";
+            this.MaterialHandle = "BYLAYER";
             this.Color = DxfColor.ByLayer;
+            this.LineweightEnumValue = 0;
             this.LinetypeScale = 1.0;
             this.IsVisible = true;
+            this.ImageByteCount = 0;
+            this.PreviewImageData = new List<string>();
+            this.Color24Bit = 0;
+            this.ColorName = null;
+            this.Transparency = 0;
+            this.PlotStyleHandle = null;
+            this.ShadowMode = DxfShadowMode.CastsAndReceivesShadows;
         }
 
         protected virtual void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             pairs.Add(new DxfCodePair(0, EntityTypeString));
-            pairs.Add(new DxfCodePair(5, (Handle)));
-            if (this.IsInPaperSpace != false)
+            pairs.Add(new DxfCodePair(5, (this.Handle)));
+            if (version >= DxfAcadVersion.R2000)
             {
-                pairs.Add(new DxfCodePair(67, BoolShort(IsInPaperSpace)));
+                pairs.Add(new DxfCodePair(330, (this.OwnerHandle)));
             }
 
-            pairs.Add(new DxfCodePair(8, (Layer)));
+            if (this.IsInPaperSpace != false)
+            {
+                pairs.Add(new DxfCodePair(67, BoolShort(this.IsInPaperSpace)));
+            }
+
+            pairs.Add(new DxfCodePair(8, (this.Layer)));
             if (this.LinetypeName != "BYLAYER")
             {
-                pairs.Add(new DxfCodePair(6, (LinetypeName)));
+                pairs.Add(new DxfCodePair(6, (this.LinetypeName)));
+            }
+
+            if (version >= DxfAcadVersion.R2007 && this.MaterialHandle != "BYLAYER")
+            {
+                pairs.Add(new DxfCodePair(347, (this.MaterialHandle)));
             }
 
             if (this.Color != DxfColor.ByLayer)
             {
-                pairs.Add(new DxfCodePair(62, DxfColor.GetRawValue(Color)));
+                pairs.Add(new DxfCodePair(62, DxfColor.GetRawValue(this.Color)));
+            }
+
+            if (version >= DxfAcadVersion.R2000)
+            {
+                pairs.Add(new DxfCodePair(370, (this.LineweightEnumValue)));
             }
 
             if (this.LinetypeScale != 1.0)
             {
-                pairs.Add(new DxfCodePair(48, (LinetypeScale)));
+                pairs.Add(new DxfCodePair(48, (this.LinetypeScale)));
             }
 
             if (this.IsVisible != true)
             {
-                pairs.Add(new DxfCodePair(60, NotBoolShort(IsVisible)));
+                pairs.Add(new DxfCodePair(60, NotBoolShort(this.IsVisible)));
+            }
+
+            if (version >= DxfAcadVersion.R2000 && this.ImageByteCount != 0)
+            {
+                pairs.Add(new DxfCodePair(92, (this.ImageByteCount)));
+            }
+
+            if (version >= DxfAcadVersion.R2000)
+            {
+                pairs.AddRange(this.PreviewImageData.Select(p => new DxfCodePair(310, p)));
+            }
+
+            if (version >= DxfAcadVersion.R2004)
+            {
+                pairs.Add(new DxfCodePair(420, (this.Color24Bit)));
+            }
+
+            if (version >= DxfAcadVersion.R2004)
+            {
+                pairs.Add(new DxfCodePair(430, (this.ColorName)));
+            }
+
+            if (version >= DxfAcadVersion.R2004)
+            {
+                pairs.Add(new DxfCodePair(440, (this.Transparency)));
+            }
+
+            if (version >= DxfAcadVersion.R2007)
+            {
+                pairs.Add(new DxfCodePair(390, (this.PlotStyleHandle)));
+            }
+
+            if (version >= DxfAcadVersion.R2007)
+            {
+                pairs.Add(new DxfCodePair(284, (short)(this.ShadowMode)));
             }
 
         }
@@ -202,23 +282,53 @@ namespace IxMilia.Dxf.Entities
                 case 5:
                     this.Handle = (pair.StringValue);
                     break;
-                case 67:
-                    this.IsInPaperSpace = BoolShort(pair.ShortValue);
-                    break;
-                case 8:
-                    this.Layer = (pair.StringValue);
-                    break;
                 case 6:
                     this.LinetypeName = (pair.StringValue);
                     break;
-                case 62:
-                    this.Color = DxfColor.FromRawValue(pair.ShortValue);
+                case 8:
+                    this.Layer = (pair.StringValue);
                     break;
                 case 48:
                     this.LinetypeScale = (pair.DoubleValue);
                     break;
                 case 60:
                     this.IsVisible = !BoolShort(pair.ShortValue);
+                    break;
+                case 62:
+                    this.Color = DxfColor.FromRawValue(pair.ShortValue);
+                    break;
+                case 67:
+                    this.IsInPaperSpace = BoolShort(pair.ShortValue);
+                    break;
+                case 92:
+                    this.ImageByteCount = (pair.IntegerValue);
+                    break;
+                case 284:
+                    this.ShadowMode = (DxfShadowMode)(pair.ShortValue);
+                    break;
+                case 310:
+                    this.PreviewImageData.Add((pair.StringValue));
+                    break;
+                case 330:
+                    this.OwnerHandle = (pair.StringValue);
+                    break;
+                case 347:
+                    this.MaterialHandle = (pair.StringValue);
+                    break;
+                case 370:
+                    this.LineweightEnumValue = (pair.ShortValue);
+                    break;
+                case 390:
+                    this.PlotStyleHandle = (pair.StringValue);
+                    break;
+                case 420:
+                    this.Color24Bit = (pair.IntegerValue);
+                    break;
+                case 430:
+                    this.ColorName = (pair.StringValue);
+                    break;
+                case 440:
+                    this.Transparency = (pair.IntegerValue);
                     break;
                 default:
                     return false;
