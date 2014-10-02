@@ -6,7 +6,7 @@ HEADER section - complete
 CLASSES section - complete
 TABLES section - complete
 BLOCKS section - complete
-ENTITIES section - (mostly) complete through R2000
+ENTITIES section - complete through R2000, DIMENSION complete through R2012
 OBJECTS section - NYI
 
 TODO:

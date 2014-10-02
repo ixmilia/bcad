@@ -1650,13 +1650,20 @@ namespace IxMilia.Dxf.Entities
     {
         public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
 
+        public DxfDimensionVersion DimensionVersion { get; set; }
         public string BlockName { get; set; }
         public DxfPoint DefinitionPoint1 { get; set; }
         public DxfPoint TextMidPoint { get; set; }
         public DxfDimensionType DimensionType { get; set; }
-        public string Text { get; set; }
         public DxfAttachmentPoint AttachmentPoint { get; set; }
         public DxfTextLineSpacingStyle TextLineSpacingStyle { get; set; }
+        public double TextLineSpacingFactor { get; set; }
+        public double ActualMeasurement { get; protected set; }
+        public string Text { get; set; }
+        public double TextRotationAngle { get; set; }
+        public double HorizontalDirectionAngle { get; set; }
+        public DxfVector Normal { get; set; }
+        public string DimensionStyleName { get; set; }
 
         internal DxfDimensionBase()
             : base()
@@ -1666,31 +1673,50 @@ namespace IxMilia.Dxf.Entities
         protected DxfDimensionBase(DxfDimensionBase other)
             : base(other)
         {
+            this.DimensionVersion = other.DimensionVersion;
             this.BlockName = other.BlockName;
             this.DefinitionPoint1 = other.DefinitionPoint1;
             this.TextMidPoint = other.TextMidPoint;
             this.DimensionType = other.DimensionType;
-            this.Text = other.Text;
             this.AttachmentPoint = other.AttachmentPoint;
             this.TextLineSpacingStyle = other.TextLineSpacingStyle;
+            this.TextLineSpacingFactor = other.TextLineSpacingFactor;
+            this.ActualMeasurement = other.ActualMeasurement;
+            this.Text = other.Text;
+            this.TextRotationAngle = other.TextRotationAngle;
+            this.HorizontalDirectionAngle = other.HorizontalDirectionAngle;
+            this.Normal = other.Normal;
+            this.DimensionStyleName = other.DimensionStyleName;
         }
 
         protected override void Initialize()
         {
             base.Initialize();
+            this.DimensionVersion = DxfDimensionVersion.R2010;
             this.BlockName = null;
             this.DefinitionPoint1 = DxfPoint.Origin;
             this.TextMidPoint = DxfPoint.Origin;
             this.DimensionType = DxfDimensionType.RotatedHorizontalOrVertical;
-            this.Text = "<>";
             this.AttachmentPoint = DxfAttachmentPoint.TopLeft;
             this.TextLineSpacingStyle = DxfTextLineSpacingStyle.AtLeast;
+            this.TextLineSpacingFactor = 1.0;
+            this.ActualMeasurement = 0.0;
+            this.Text = "<>";
+            this.TextRotationAngle = 0.0;
+            this.HorizontalDirectionAngle = 0.0;
+            this.Normal = DxfVector.ZAxis;
+            this.DimensionStyleName = null;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             base.AddValuePairs(pairs, version);
             pairs.Add(new DxfCodePair(100, "AcDbDimension"));
+            if (version >= DxfAcadVersion.R2010)
+            {
+                pairs.Add(new DxfCodePair(280, (short)(this.DimensionVersion)));
+            }
+
             pairs.Add(new DxfCodePair(2, (this.BlockName)));
             pairs.Add(new DxfCodePair(10, DefinitionPoint1.X));
             pairs.Add(new DxfCodePair(20, DefinitionPoint1.Y));
@@ -1699,13 +1725,45 @@ namespace IxMilia.Dxf.Entities
             pairs.Add(new DxfCodePair(21, TextMidPoint.Y));
             pairs.Add(new DxfCodePair(31, TextMidPoint.Z));
             pairs.Add(new DxfCodePair(70, (short)(this.DimensionType)));
-            pairs.Add(new DxfCodePair(1, (this.Text)));
-            pairs.Add(new DxfCodePair(71, (short)(this.AttachmentPoint)));
-            if (this.TextLineSpacingStyle != DxfTextLineSpacingStyle.AtLeast)
+            if (version >= DxfAcadVersion.R2000)
+            {
+                pairs.Add(new DxfCodePair(71, (short)(this.AttachmentPoint)));
+            }
+
+            if (version >= DxfAcadVersion.R2000 && this.TextLineSpacingStyle != DxfTextLineSpacingStyle.AtLeast)
             {
                 pairs.Add(new DxfCodePair(72, (short)(this.TextLineSpacingStyle)));
             }
 
+            if (version >= DxfAcadVersion.R2000 && this.TextLineSpacingFactor != 1.0)
+            {
+                pairs.Add(new DxfCodePair(41, (this.TextLineSpacingFactor)));
+            }
+
+            if (version >= DxfAcadVersion.R2000 && this.ActualMeasurement != 0.0)
+            {
+                pairs.Add(new DxfCodePair(42, (this.ActualMeasurement)));
+            }
+
+            pairs.Add(new DxfCodePair(1, (this.Text)));
+            if (this.TextRotationAngle != 0.0)
+            {
+                pairs.Add(new DxfCodePair(53, (this.TextRotationAngle)));
+            }
+
+            if (this.HorizontalDirectionAngle != 0.0)
+            {
+                pairs.Add(new DxfCodePair(51, (this.HorizontalDirectionAngle)));
+            }
+
+            if (this.Normal != DxfVector.ZAxis)
+            {
+                pairs.Add(new DxfCodePair(210, Normal.X));
+                pairs.Add(new DxfCodePair(220, Normal.Y));
+                pairs.Add(new DxfCodePair(230, Normal.Z));
+            }
+
+            pairs.Add(new DxfCodePair(3, (this.DimensionStyleName)));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
@@ -1717,6 +1775,9 @@ namespace IxMilia.Dxf.Entities
                     break;
                 case 2:
                     this.BlockName = (pair.StringValue);
+                    break;
+                case 3:
+                    this.DimensionStyleName = (pair.StringValue);
                     break;
                 case 10:
                     this.DefinitionPoint1.X = pair.DoubleValue;
@@ -1736,6 +1797,15 @@ namespace IxMilia.Dxf.Entities
                 case 31:
                     this.TextMidPoint.Z = pair.DoubleValue;
                     break;
+                case 41:
+                    this.TextLineSpacingFactor = (pair.DoubleValue);
+                    break;
+                case 51:
+                    this.HorizontalDirectionAngle = (pair.DoubleValue);
+                    break;
+                case 53:
+                    this.TextRotationAngle = (pair.DoubleValue);
+                    break;
                 case 70:
                     this.DimensionType = (DxfDimensionType)(pair.ShortValue);
                     break;
@@ -1744,6 +1814,114 @@ namespace IxMilia.Dxf.Entities
                     break;
                 case 72:
                     this.TextLineSpacingStyle = (DxfTextLineSpacingStyle)(pair.ShortValue);
+                    break;
+                case 210:
+                    this.Normal.X = pair.DoubleValue;
+                    break;
+                case 220:
+                    this.Normal.Y = pair.DoubleValue;
+                    break;
+                case 230:
+                    this.Normal.Z = pair.DoubleValue;
+                    break;
+                case 280:
+                    this.DimensionVersion = (DxfDimensionVersion)(pair.ShortValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfRotatedDimension class
+    /// </summary>
+    public partial class DxfRotatedDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint InsertionPoint { get; set; }
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public DxfPoint DefinitionPoint3 { get; set; }
+        public double RotationAngle { get; set; }
+        public double ExtensionLineAngle { get; set; }
+
+        public DxfRotatedDimension()
+            : base()
+        {
+        }
+
+        internal DxfRotatedDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.InsertionPoint = DxfPoint.Origin;
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.DefinitionPoint3 = DxfPoint.Origin;
+            this.RotationAngle = 0.0;
+            this.ExtensionLineAngle = 0.0;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbAlignedDimension"));
+            pairs.Add(new DxfCodePair(12, InsertionPoint.X));
+            pairs.Add(new DxfCodePair(22, InsertionPoint.Y));
+            pairs.Add(new DxfCodePair(32, InsertionPoint.Z));
+            pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(14, DefinitionPoint3.X));
+            pairs.Add(new DxfCodePair(24, DefinitionPoint3.Y));
+            pairs.Add(new DxfCodePair(34, DefinitionPoint3.Z));
+            pairs.Add(new DxfCodePair(50, (this.RotationAngle)));
+            pairs.Add(new DxfCodePair(52, (this.ExtensionLineAngle)));
+            pairs.Add(new DxfCodePair(100, "AcDbRotatedDimension"));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 12:
+                    this.InsertionPoint.X = pair.DoubleValue;
+                    break;
+                case 22:
+                    this.InsertionPoint.Y = pair.DoubleValue;
+                    break;
+                case 32:
+                    this.InsertionPoint.Z = pair.DoubleValue;
+                    break;
+                case 13:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 23:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 33:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 14:
+                    this.DefinitionPoint3.X = pair.DoubleValue;
+                    break;
+                case 24:
+                    this.DefinitionPoint3.Y = pair.DoubleValue;
+                    break;
+                case 34:
+                    this.DefinitionPoint3.Z = pair.DoubleValue;
+                    break;
+                case 50:
+                    this.RotationAngle = (pair.DoubleValue);
+                    break;
+                case 52:
+                    this.ExtensionLineAngle = (pair.DoubleValue);
                     break;
                 default:
                     return base.TrySetPair(pair);
@@ -1837,24 +2015,23 @@ namespace IxMilia.Dxf.Entities
     }
 
     /// <summary>
-    /// DxfRotatedDimension class
+    /// DxfAngularDimension class
     /// </summary>
-    public partial class DxfRotatedDimension : DxfDimensionBase
+    public partial class DxfAngularDimension : DxfDimensionBase
     {
         public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
 
-        public DxfPoint InsertionPoint { get; set; }
         public DxfPoint DefinitionPoint2 { get; set; }
         public DxfPoint DefinitionPoint3 { get; set; }
-        public double RotationAngle { get; set; }
-        public double ExtensionLineAngle { get; set; }
+        public DxfPoint DefinitionPoint4 { get; set; }
+        public DxfPoint DefinitionPoint5 { get; set; }
 
-        public DxfRotatedDimension()
+        public DxfAngularDimension()
             : base()
         {
         }
 
-        internal DxfRotatedDimension(DxfDimensionBase other)
+        internal DxfAngularDimension(DxfDimensionBase other)
             : base(other)
         {
         }
@@ -1862,43 +2039,34 @@ namespace IxMilia.Dxf.Entities
         protected override void Initialize()
         {
             base.Initialize();
-            this.InsertionPoint = DxfPoint.Origin;
             this.DefinitionPoint2 = DxfPoint.Origin;
             this.DefinitionPoint3 = DxfPoint.Origin;
-            this.RotationAngle = 0.0;
-            this.ExtensionLineAngle = 0.0;
+            this.DefinitionPoint4 = DxfPoint.Origin;
+            this.DefinitionPoint5 = DxfPoint.Origin;
         }
 
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             base.AddValuePairs(pairs, version);
-            pairs.Add(new DxfCodePair(100, "AcDbAlignedDimension"));
-            pairs.Add(new DxfCodePair(12, InsertionPoint.X));
-            pairs.Add(new DxfCodePair(22, InsertionPoint.Y));
-            pairs.Add(new DxfCodePair(32, InsertionPoint.Z));
+            pairs.Add(new DxfCodePair(100, "AcDb3PointAngularDimension"));
             pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
             pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
             pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
             pairs.Add(new DxfCodePair(14, DefinitionPoint3.X));
             pairs.Add(new DxfCodePair(24, DefinitionPoint3.Y));
             pairs.Add(new DxfCodePair(34, DefinitionPoint3.Z));
-            pairs.Add(new DxfCodePair(50, (this.RotationAngle)));
-            pairs.Add(new DxfCodePair(52, (this.ExtensionLineAngle)));
+            pairs.Add(new DxfCodePair(15, DefinitionPoint4.X));
+            pairs.Add(new DxfCodePair(25, DefinitionPoint4.Y));
+            pairs.Add(new DxfCodePair(35, DefinitionPoint4.Z));
+            pairs.Add(new DxfCodePair(16, DefinitionPoint5.X));
+            pairs.Add(new DxfCodePair(26, DefinitionPoint5.Y));
+            pairs.Add(new DxfCodePair(36, DefinitionPoint5.Z));
         }
 
         internal override bool TrySetPair(DxfCodePair pair)
         {
             switch (pair.Code)
             {
-                case 12:
-                    this.InsertionPoint.X = pair.DoubleValue;
-                    break;
-                case 22:
-                    this.InsertionPoint.Y = pair.DoubleValue;
-                    break;
-                case 32:
-                    this.InsertionPoint.Z = pair.DoubleValue;
-                    break;
                 case 13:
                     this.DefinitionPoint2.X = pair.DoubleValue;
                     break;
@@ -1917,72 +2085,23 @@ namespace IxMilia.Dxf.Entities
                 case 34:
                     this.DefinitionPoint3.Z = pair.DoubleValue;
                     break;
-                case 50:
-                    this.RotationAngle = (pair.DoubleValue);
-                    break;
-                case 52:
-                    this.ExtensionLineAngle = (pair.DoubleValue);
-                    break;
-                default:
-                    return base.TrySetPair(pair);
-            }
-
-            return true;
-        }
-    }
-
-    /// <summary>
-    /// DxfRadialDimension class
-    /// </summary>
-    public partial class DxfRadialDimension : DxfDimensionBase
-    {
-        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
-
-        public DxfPoint DefinitionPoint2 { get; set; }
-        public double LeaderLength { get; set; }
-
-        public DxfRadialDimension()
-            : base()
-        {
-        }
-
-        internal DxfRadialDimension(DxfDimensionBase other)
-            : base(other)
-        {
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            this.DefinitionPoint2 = DxfPoint.Origin;
-            this.LeaderLength = 0.0;
-        }
-
-        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
-        {
-            base.AddValuePairs(pairs, version);
-            pairs.Add(new DxfCodePair(100, "AcDbRadialDimension"));
-            pairs.Add(new DxfCodePair(15, DefinitionPoint2.X));
-            pairs.Add(new DxfCodePair(25, DefinitionPoint2.Y));
-            pairs.Add(new DxfCodePair(35, DefinitionPoint2.Z));
-            pairs.Add(new DxfCodePair(40, (this.LeaderLength)));
-        }
-
-        internal override bool TrySetPair(DxfCodePair pair)
-        {
-            switch (pair.Code)
-            {
                 case 15:
-                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    this.DefinitionPoint4.X = pair.DoubleValue;
                     break;
                 case 25:
-                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    this.DefinitionPoint4.Y = pair.DoubleValue;
                     break;
                 case 35:
-                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    this.DefinitionPoint4.Z = pair.DoubleValue;
                     break;
-                case 40:
-                    this.LeaderLength = (pair.DoubleValue);
+                case 16:
+                    this.DefinitionPoint5.X = pair.DoubleValue;
+                    break;
+                case 26:
+                    this.DefinitionPoint5.Y = pair.DoubleValue;
+                    break;
+                case 36:
+                    this.DefinitionPoint5.Z = pair.DoubleValue;
                     break;
                 default:
                     return base.TrySetPair(pair);
@@ -2054,9 +2173,70 @@ namespace IxMilia.Dxf.Entities
     }
 
     /// <summary>
-    /// DxfAngularDimension class
+    /// DxfRadialDimension class
     /// </summary>
-    public partial class DxfAngularDimension : DxfDimensionBase
+    public partial class DxfRadialDimension : DxfDimensionBase
+    {
+        public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
+
+        public DxfPoint DefinitionPoint2 { get; set; }
+        public double LeaderLength { get; set; }
+
+        public DxfRadialDimension()
+            : base()
+        {
+        }
+
+        internal DxfRadialDimension(DxfDimensionBase other)
+            : base(other)
+        {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.DefinitionPoint2 = DxfPoint.Origin;
+            this.LeaderLength = 0.0;
+        }
+
+        protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
+        {
+            base.AddValuePairs(pairs, version);
+            pairs.Add(new DxfCodePair(100, "AcDbRadialDimension"));
+            pairs.Add(new DxfCodePair(15, DefinitionPoint2.X));
+            pairs.Add(new DxfCodePair(25, DefinitionPoint2.Y));
+            pairs.Add(new DxfCodePair(35, DefinitionPoint2.Z));
+            pairs.Add(new DxfCodePair(40, (this.LeaderLength)));
+        }
+
+        internal override bool TrySetPair(DxfCodePair pair)
+        {
+            switch (pair.Code)
+            {
+                case 15:
+                    this.DefinitionPoint2.X = pair.DoubleValue;
+                    break;
+                case 25:
+                    this.DefinitionPoint2.Y = pair.DoubleValue;
+                    break;
+                case 35:
+                    this.DefinitionPoint2.Z = pair.DoubleValue;
+                    break;
+                case 40:
+                    this.LeaderLength = (pair.DoubleValue);
+                    break;
+                default:
+                    return base.TrySetPair(pair);
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// DxfAngularThreePointDimension class
+    /// </summary>
+    public partial class DxfAngularThreePointDimension : DxfDimensionBase
     {
         public override DxfEntityType EntityType { get { return DxfEntityType.Dimension; } }
 
@@ -2065,12 +2245,12 @@ namespace IxMilia.Dxf.Entities
         public DxfPoint DefinitionPoint4 { get; set; }
         public DxfPoint DefinitionPoint5 { get; set; }
 
-        public DxfAngularDimension()
+        public DxfAngularThreePointDimension()
             : base()
         {
         }
 
-        internal DxfAngularDimension(DxfDimensionBase other)
+        internal DxfAngularThreePointDimension(DxfDimensionBase other)
             : base(other)
         {
         }
@@ -2087,7 +2267,7 @@ namespace IxMilia.Dxf.Entities
         protected override void AddValuePairs(List<DxfCodePair> pairs, DxfAcadVersion version)
         {
             base.AddValuePairs(pairs, version);
-            pairs.Add(new DxfCodePair(100, "AcDb3PointAngularDimension"));
+            pairs.Add(new DxfCodePair(100, "AcDbRadialDimension"));
             pairs.Add(new DxfCodePair(13, DefinitionPoint2.X));
             pairs.Add(new DxfCodePair(23, DefinitionPoint2.Y));
             pairs.Add(new DxfCodePair(33, DefinitionPoint2.Z));
@@ -5162,20 +5342,23 @@ namespace IxMilia.Dxf.Entities
             DxfDimensionBase newDimension = null;
             switch (DimensionType)
             {
-                case DxfDimensionType.Aligned:
-                    newDimension = new DxfAlignedDimension(this);
-                    break;
                 case DxfDimensionType.RotatedHorizontalOrVertical:
                     newDimension = new DxfRotatedDimension(this);
                     break;
-                case DxfDimensionType.Radius:
-                    newDimension = new DxfRadialDimension(this);
+                case DxfDimensionType.Aligned:
+                    newDimension = new DxfAlignedDimension(this);
+                    break;
+                case DxfDimensionType.Angular:
+                    newDimension = new DxfAngularDimension(this);
                     break;
                 case DxfDimensionType.Diameter:
                     newDimension = new DxfDiameterDimension(this);
                     break;
-                case DxfDimensionType.Angular:
-                    newDimension = new DxfAngularDimension(this);
+                case DxfDimensionType.Radius:
+                    newDimension = new DxfRadialDimension(this);
+                    break;
+                case DxfDimensionType.AngularThreePoint:
+                    newDimension = new DxfAngularThreePointDimension(this);
                     break;
                 case DxfDimensionType.Ordinate:
                     newDimension = new DxfOrdinateDimension(this);

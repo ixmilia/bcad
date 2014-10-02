@@ -965,8 +965,8 @@ AcDbDimension
 0
   1
 text
- 71
-1
+  3
+
 100
 AcDbAlignedDimension
  12

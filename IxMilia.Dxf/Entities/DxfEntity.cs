@@ -86,7 +86,7 @@ namespace IxMilia.Dxf.Entities
         Angular = 2,
         Diameter = 3,
         Radius = 4,
-        Angular3Point = 5,
+        AngularThreePoint = 5,
         Ordinate = 6
     }
 
@@ -107,6 +107,11 @@ namespace IxMilia.Dxf.Entities
     {
         AtLeast = 1,
         Exact = 2
+    }
+
+    public enum DxfDimensionVersion
+    {
+        R2010 = 0
     }
 
     public abstract partial class DxfEntity

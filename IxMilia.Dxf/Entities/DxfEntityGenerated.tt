@@ -262,12 +262,13 @@ foreach (var entity in entities)
 	foreach (var property in GetProperties(entity))
 	{
 		var propertyType = Type(property);
+		var getset = ProtectedSet(property) ? "{ get; protected set; }" : "{ get; set; }";
 		if (AllowMultiples(property))
 		{
 			propertyType = string.Format("List<{0}>", propertyType);
 		}
 #>
-        <#= Accessibility(property) #> <#= propertyType #> <#= Name(property) #> { get; set; }
+        <#= Accessibility(property) #> <#= propertyType #> <#= Name(property) #> <#= getset #>
 <#
 	} // foreach property
 
@@ -437,7 +438,7 @@ foreach (var entity in entities)
             switch (pair.Code)
             {
 <#
-		foreach (var propertyGroup in GetProperties(entity).GroupBy(p => Code(p)).OrderBy(p => p.Key))
+		foreach (var propertyGroup in GetProperties(entity).Where(p => !ProtectedSet(p)).GroupBy(p => Code(p)).OrderBy(p => p.Key))
 		{
 			var code = propertyGroup.Key;
 			if (propertyGroup.Count() == 1)
@@ -622,6 +623,12 @@ bool AllowMultiples(XElement property)
 {
 	var att = property.Attribute("AllowMultiples");
 	return att != null && bool.Parse(att.Value);
+}
+
+bool ProtectedSet(XElement property)
+{
+	var att = property.Attribute("ProtectedSet");
+	return att == null ? false : bool.Parse(att.Value);
 }
 
 string Accessibility(XElement property)
