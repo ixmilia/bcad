@@ -292,14 +292,28 @@ TABLES
 TABLE
   2
 LAYER
+  5
+
+100
+AcDbSymbolTable
+ 70
+0
   0
 LAYER
+  5
+
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
   2
 default
  70
 0
  62
 0
+  6
+
   0
 ENDTAB
   0
@@ -321,8 +335,20 @@ TABLES
 TABLE
   2
 VPORT
+  5
+
+100
+AcDbSymbolTable
+ 70
+0
   0
 VPORT
+  5
+
+100
+AcDbSymbolTableRecord
+100
+AcDbViewportTableRecord
   2
 *ACTIVE
   0

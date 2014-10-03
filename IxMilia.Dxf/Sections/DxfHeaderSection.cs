@@ -113,14 +113,6 @@ namespace IxMilia.Dxf
         SketchPolylines = 1
     }
 
-    public enum DxfShadowMode
-    {
-        CastsAndReceives = 0,
-        CastsOnly = 1,
-        ReceivesOnly = 2,
-        Ignores = 3
-    }
-
     public enum DxfPlotStyle
     {
         ByLayer = 0,

@@ -77,10 +77,11 @@ namespace IxMilia.Dxf
         public string CppClassName { get; set; }
         public string ApplicationName { get; set; }
         public DxfProxyCapabilities ProxyCapabilities { get; set; }
+        public int InstanceCount { get; set; }
         public bool WasClassLoadedWithFile { get; set; }
         public bool IsEntity { get; set; }
 
-        internal IEnumerable<DxfCodePair> GetValuePairs()
+        internal IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             var list = new List<DxfCodePair>();
             Action<int, object> add = (code, value) => list.Add(new DxfCodePair(code, value));
@@ -89,6 +90,8 @@ namespace IxMilia.Dxf
             add(2, CppClassName);
             add(3, ApplicationName);
             add(90, ProxyCapabilities.Value);
+            if (version >= DxfAcadVersion.R2004)
+                add(91, null);
             add(280, (short)(WasClassLoadedWithFile ? 0 : 1));
             add(281, (short)(IsEntity ? 1 : 0));
 
@@ -120,6 +123,9 @@ namespace IxMilia.Dxf
                         break;
                     case 90:
                         cls.ProxyCapabilities = new DxfProxyCapabilities(pair.IntegerValue);
+                        break;
+                    case 91:
+                        cls.InstanceCount = pair.IntegerValue;
                         break;
                     case 280:
                         cls.WasClassLoadedWithFile = pair.ShortValue == 0;

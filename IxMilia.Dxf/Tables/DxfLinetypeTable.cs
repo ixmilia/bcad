@@ -23,12 +23,15 @@ namespace IxMilia.Dxf.Tables
             Linetypes = new List<DxfLinetype>(linetypes);
         }
 
-        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             if (Linetypes.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, DxfTable.LTypeText);
+            foreach (var common in CommonCodePairs(version))
+            {
+                yield return common;
+            }
+
             foreach (var linetype in Linetypes.OrderBy(l => l.Name))
             {
                 foreach (var pair in linetype.GetValuePairs())

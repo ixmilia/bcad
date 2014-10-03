@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using IxMilia.Dxf.Sections;
+using IxMilia.Dxf.Tables;
 
 namespace IxMilia.Dxf
 {
@@ -71,11 +71,17 @@ namespace IxMilia.Dxf
             DimensionTextColor = DxfColor.ByBlock;
         }
 
+        protected override string TableType { get { return DxfTable.DimStyleText; } }
+
         internal IEnumerable<DxfCodePair> GetValuePairs()
         {
             var list = new List<DxfCodePair>();
             Action<int, object> add = (code, value) => list.Add(new DxfCodePair(code, value));
             Func<bool, short> toShort = (value) => (short)(value ? 1 : 0);
+
+            foreach (var pair in CommonCodePairs())
+                add(pair.Code, pair.Value);
+
             add(100, AcDbDimStyleTableRecordText);
             add(2, Name);
             add(70, (short)Flags);

@@ -18,12 +18,15 @@ namespace IxMilia.Dxf.Tables
             UserCoordinateSystems = new List<DxfUcs>();
         }
 
-        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             if (UserCoordinateSystems.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, DxfTable.UcsText);
+            foreach (var common in CommonCodePairs(version))
+            {
+                yield return common;
+            }
+
             foreach (var ucs in UserCoordinateSystems.OrderBy(d => d.Name))
             {
                 foreach (var pair in ucs.GetValuePairs())

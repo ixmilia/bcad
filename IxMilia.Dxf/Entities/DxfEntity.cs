@@ -114,14 +114,6 @@ namespace IxMilia.Dxf.Entities
         R2010 = 0
     }
 
-    public enum DxfShadowMode
-    {
-        CastsAndReceivesShadows = 0,
-        CastsShadows = 1,
-        ReceivesShadows = 2,
-        IgnoresShadows = 3
-    }
-
     public abstract partial class DxfEntity
     {
         protected List<DxfCodePair> ExcessCodePairs = new List<DxfCodePair>();

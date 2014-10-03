@@ -38,7 +38,7 @@ namespace IxMilia.Dxf.Sections
         {
             foreach (var table in new DxfTable[] { AppIdTable, BlockRecordTable, DimStyleTable, LayerTable, LTypeTable, StyleTable, UcsTable, ViewTable, ViewPortTable })
             {
-                foreach (var pair in table.GetValuePairs())
+                foreach (var pair in table.GetValuePairs(version))
                     yield return pair;
             }
         }

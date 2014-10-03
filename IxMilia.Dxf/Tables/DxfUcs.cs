@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using IxMilia.Dxf.Tables;
 
 namespace IxMilia.Dxf
 {
@@ -19,10 +20,16 @@ namespace IxMilia.Dxf
             YAxisDirection = DxfVector.YAxis;
         }
 
+        protected override string TableType { get { return DxfTable.UcsText; } }
+
         internal IEnumerable<DxfCodePair> GetValuePairs()
         {
             var list = new List<DxfCodePair>();
             Action<int, object> add = (code, value) => list.Add(new DxfCodePair(code, value));
+
+            foreach (var pair in CommonCodePairs())
+                add(pair.Code, pair.Value);
+
             add(100, AcDbUCSTableRecordText);
             add(2, Name);
             add(70, (short)Flags);

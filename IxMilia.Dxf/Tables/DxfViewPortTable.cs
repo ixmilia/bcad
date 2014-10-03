@@ -23,12 +23,15 @@ namespace IxMilia.Dxf.Tables
             ViewPorts = new List<DxfViewPort>(viewPorts);
         }
 
-        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             if (ViewPorts.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, DxfTable.ViewPortText);
+            foreach (var common in CommonCodePairs(version))
+            {
+                yield return common;
+            }
+
             foreach (var viewPort in ViewPorts)
             {
                 foreach (var pair in viewPort.GetValuePairs())

@@ -23,12 +23,15 @@ namespace IxMilia.Dxf.Tables
             Layers = new List<DxfLayer>(layers);
         }
 
-        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             if (Layers.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, DxfTable.LayerText);
+            foreach (var common in CommonCodePairs(version))
+            {
+                yield return common;
+            }
+
             foreach (var layer in Layers.OrderBy(l => l.Name))
             {
                 foreach (var pair in layer.GetValuePairs())

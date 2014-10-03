@@ -18,12 +18,15 @@ namespace IxMilia.Dxf.Tables
             ApplicationIds = new List<DxfAppId>();
         }
 
-        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             if (ApplicationIds.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, DxfTable.AppIdText);
+            foreach (var common in CommonCodePairs(version))
+            {
+                yield return common;
+            }
+
             foreach (var appId in ApplicationIds.OrderBy(d => d.Name))
             {
                 foreach (var pair in appId.GetValuePairs())

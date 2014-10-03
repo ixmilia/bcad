@@ -1361,7 +1361,7 @@ namespace IxMilia.Dxf
             this.CurrentMultilineStyle = null; // CMLSTYLE
             this.CoordinateDisplay = DxfCoordinateDisplay.Static; // COORDS
             this.NewObjectPlotStyleHandle = null; // CPSNID
-            this.ShadowMode = DxfShadowMode.CastsAndReceives; // CSHADOW
+            this.ShadowMode = DxfShadowMode.CastsAndReceivesShadows; // CSHADOW
             this.RetainDeletedObjects = false; // DELOBJ
             this.AngularDimensionPrecision = 12; // DIMADEC
             this.UseAlternateDimensioning = false; // DIMALT

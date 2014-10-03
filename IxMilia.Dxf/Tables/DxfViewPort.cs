@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using IxMilia.Dxf.Tables;
 
 namespace IxMilia.Dxf
 {
@@ -25,6 +26,8 @@ namespace IxMilia.Dxf
 
     public class DxfViewPort : DxfSymbolTableFlags
     {
+        private const string AcDbViewportTableRecordText = "AcDbViewportTableRecord";
+
         public const string ViewPortText = "VPORT";
 
         public const string ActiveViewPortName = "*ACTIVE";
@@ -105,6 +108,8 @@ namespace IxMilia.Dxf
             SnapIsometricPlane = DxfSnapIsometricPlane.Left;
         }
 
+        protected override string TableType { get { return DxfTable.ViewPortText; } }
+
         internal IEnumerable<DxfCodePair> GetValuePairs()
         {
             var pairs = new List<DxfCodePair>();
@@ -116,7 +121,10 @@ namespace IxMilia.Dxf
 
             Func<bool, short> toShort = (value) => (short)(value ? 0 : 1);
 
-            pairs.Add(new DxfCodePair(0, ViewPortText));
+            foreach (var pair in CommonCodePairs())
+                pairs.Add(pair);
+
+            pairs.Add(new DxfCodePair(100, AcDbViewportTableRecordText));
             pairs.Add(new DxfCodePair(2, Name ?? ActiveViewPortName));
             addIfNotDefault(70, (short)Flags, (short)0);
             addIfNotDefault(10, LowerLeft.X, 0.0);

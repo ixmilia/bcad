@@ -26,7 +26,7 @@
   <Variable Name="CMLSTYLE" Code="2" Type="string" Property="CurrentMultilineStyle" DefaultValue="null" />
   <Variable Name="COORDS" Code="70" Type="DxfCoordinateDisplay" Property="CoordinateDisplay" DefaultValue="DxfCoordinateDisplay.Static" ReadConverter="(DxfCoordinateDisplay)" WriteConverter="(short)" MaxVersion="R14" />
   <Variable Name="CPSNID" Code="390" Type="string" Property="NewObjectPlotStyleHandle" DefaultValue="null" MinVersion="R2000" MaxVersion="R2000" />
-  <Variable Name="CSHADOW" Code="280" Type="DxfShadowMode" Property="ShadowMode" DefaultValue="DxfShadowMode.CastsAndReceives" ReadConverter="(DxfShadowMode)" WriteConverter="(short)" MinVersion="R2007" />
+  <Variable Name="CSHADOW" Code="280" Type="DxfShadowMode" Property="ShadowMode" DefaultValue="DxfShadowMode.CastsAndReceivesShadows" ReadConverter="(DxfShadowMode)" WriteConverter="(short)" MinVersion="R2007" />
   <Variable Name="DELOBJ" Code="70" Type="bool" Property="RetainDeletedObjects" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" MaxVersion="R14" />
   <Variable Name="DIMADEC" Code="70" Type="short" Property="AngularDimensionPrecision" DefaultValue="12" MinVersion="R2000" />
   <Variable Name="DIMALT" Code="70" Type="bool" Property="UseAlternateDimensioning" DefaultValue="false" ReadConverter="BoolShort" WriteConverter="BoolShort" />

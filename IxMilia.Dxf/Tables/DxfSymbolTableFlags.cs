@@ -1,8 +1,20 @@
-﻿namespace IxMilia.Dxf
+﻿using System.Collections.Generic;
+
+namespace IxMilia.Dxf
 {
     public abstract class DxfSymbolTableFlags
     {
         protected int Flags = 0;
+
+        protected abstract string TableType { get; }
+        public string Handle { get; set; }
+
+        protected IEnumerable<DxfCodePair> CommonCodePairs()
+        {
+            yield return new DxfCodePair(0, TableType);
+            yield return new DxfCodePair(5, Handle);
+            yield return new DxfCodePair(100, "AcDbSymbolTableRecord");
+        }
 
         public DxfSymbolTableFlags()
         {

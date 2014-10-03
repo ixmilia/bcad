@@ -82,9 +82,13 @@ namespace IxMilia.Dxf
             TextStrings = new List<string>();
         }
 
+        protected override string TableType { get { return DxfTable.LTypeText; } }
+
         internal IEnumerable<DxfCodePair> GetValuePairs()
         {
-            yield return new DxfCodePair(0, DxfTable.LTypeText);
+            foreach (var pair in CommonCodePairs())
+                yield return pair;
+
             yield return new DxfCodePair(100, AcDbLinetypeTableRecordString);
             yield return new DxfCodePair(2, Name);
             yield return new DxfCodePair(70, (short)Flags);

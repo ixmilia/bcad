@@ -49,6 +49,7 @@
     <Compile Include="DxfPoint.cs" />
     <Compile Include="DxfReader.cs" />
     <Compile Include="DxfReadException.cs" />
+    <Compile Include="DxfShadowMode.cs" />
     <Compile Include="DxfWriter.cs" />
     <Compile Include="Entities\DxfEntity.cs" />
     <Compile Include="Entities\DxfEntityGenerated.cs">

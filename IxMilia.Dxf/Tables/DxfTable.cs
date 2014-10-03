@@ -17,8 +17,23 @@ namespace IxMilia.Dxf.Tables
         public const string ViewPortText = "VPORT";
 
         public abstract DxfTableType TableType { get; }
+        public string Handle { get; set; }
+        public int MaxEntries { get; set; }
+        public string OwnerHandle { get; set; }
 
-        abstract internal IEnumerable<DxfCodePair> GetValuePairs();
+        abstract internal IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version);
+
+        protected IEnumerable<DxfCodePair> CommonCodePairs(DxfAcadVersion version)
+        {
+            yield return new DxfCodePair(0, DxfSection.TableText);
+            yield return new DxfCodePair(2, TableTypeToName(TableType));
+            yield return new DxfCodePair(5, Handle);
+            // 102 ({ACAD_XDICTIONARY) codes surrounding code 360
+            if (version >= DxfAcadVersion.R2000)
+                yield return new DxfCodePair(330, OwnerHandle);
+            yield return new DxfCodePair(100, "AcDbSymbolTable");
+            yield return new DxfCodePair(70, (short)MaxEntries);
+        }
 
         public string TableTypeName
         {
@@ -106,8 +121,20 @@ namespace IxMilia.Dxf.Tables
                 throw new DxfReadException("Expected table type.");
             }
 
+            var tableType = pair.StringValue;
+
+            // read common table values
+            var commonValues = new List<DxfCodePair>();
+            pair = buffer.Peek();
+            while (pair != null && pair.Code != 0)
+            {
+                commonValues.Add(pair);
+                buffer.Advance();
+                pair = buffer.Peek();
+            }
+
             DxfTable result;
-            switch (pair.StringValue)
+            switch (tableType)
             {
                 case DxfTable.DimStyleText:
                     result = DxfDimStyleTable.DimStyleTableFromBuffer(buffer);
@@ -128,6 +155,23 @@ namespace IxMilia.Dxf.Tables
                     SwallowTable(buffer);
                     result = null;
                     break;
+            }
+
+            if (result != null)
+            {
+                // set common values
+                foreach (var common in commonValues)
+                {
+                    switch (common.Code)
+                    {
+                        case 5:
+                            result.Handle = common.StringValue;
+                            break;
+                        case 70:
+                            result.MaxEntries = common.ShortValue;
+                            break;
+                    }
+                }
             }
 
             return result;

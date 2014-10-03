@@ -23,12 +23,15 @@ namespace IxMilia.Dxf.Tables
             DimensionStyles = new List<DxfDimStyle>(dimStyles);
         }
 
-        internal override IEnumerable<DxfCodePair> GetValuePairs()
+        internal override IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
         {
             if (DimensionStyles.Count == 0)
                 yield break;
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, DxfTable.DimStyleText);
+            foreach (var common in CommonCodePairs(version))
+            {
+                yield return common;
+            }
+
             foreach (var dimStyle in DimensionStyles.OrderBy(d => d.Name))
             {
                 foreach (var pair in dimStyle.GetValuePairs())
