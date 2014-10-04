@@ -4,12 +4,20 @@
     {
         private int Flags;
 
-        internal int Value { get { return Flags; } }
-
-        internal DxfViewMode(int falgs)
+        public DxfViewMode(int flags)
             : this()
         {
-            Flags = falgs;
+            Flags = flags;
+        }
+
+        public static implicit operator int (DxfViewMode mode)
+        {
+            return mode.Flags;
+        }
+
+        public static implicit operator DxfViewMode(int flags)
+        {
+            return new DxfViewMode(flags);
         }
 
         public bool PerspectiveViewActive

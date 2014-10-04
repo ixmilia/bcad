@@ -15,7 +15,7 @@ namespace IxMilia.Dxf.Sections
         public DxfBlockRecordTable BlockRecordTable { get; private set; }
         public DxfDimStyleTable DimStyleTable { get; private set; }
         public DxfLayerTable LayerTable { get; private set; }
-        public DxfLinetypeTable LTypeTable { get; private set; }
+        public DxfLTypeTable LTypeTable { get; private set; }
         public DxfStyleTable StyleTable { get; private set; }
         public DxfUcsTable UcsTable { get; private set; }
         public DxfViewTable ViewTable { get; private set; }
@@ -27,7 +27,7 @@ namespace IxMilia.Dxf.Sections
             this.BlockRecordTable = new DxfBlockRecordTable();
             this.DimStyleTable = new DxfDimStyleTable();
             this.LayerTable = new DxfLayerTable();
-            this.LTypeTable = new DxfLinetypeTable();
+            this.LTypeTable = new DxfLTypeTable();
             this.StyleTable = new DxfStyleTable();
             this.UcsTable = new DxfUcsTable();
             this.ViewTable = new DxfViewTable();
@@ -78,7 +78,7 @@ namespace IxMilia.Dxf.Sections
                             section.LayerTable = (DxfLayerTable)table;
                             break;
                         case DxfTableType.LType:
-                            section.LTypeTable = (DxfLinetypeTable)table;
+                            section.LTypeTable = (DxfLTypeTable)table;
                             break;
                         case DxfTableType.Style:
                             section.StyleTable = (DxfStyleTable)table;

@@ -30,23 +30,23 @@ namespace IxMilia.Dxf
 
         public DxfHeader Header { get { return HeaderSection.Header; } }
 
-        public List<DxfLayer> Layers { get { return TablesSection.LayerTable.Layers; } }
+        public List<DxfLayer> Layers { get { return TablesSection.LayerTable.Items; } }
 
-        public List<DxfViewPort> ViewPorts { get { return TablesSection.ViewPortTable.ViewPorts; } }
+        public List<DxfViewPort> ViewPorts { get { return TablesSection.ViewPortTable.Items; } }
 
-        public List<DxfDimStyle> DimensionStyles { get { return TablesSection.DimStyleTable.DimensionStyles; } }
+        public List<DxfDimStyle> DimensionStyles { get { return TablesSection.DimStyleTable.Items; } }
 
-        public List<DxfView> Views { get { return TablesSection.ViewTable.Views; } }
+        public List<DxfView> Views { get { return TablesSection.ViewTable.Items; } }
 
-        public List<DxfUcs> UserCoordinateSystems { get { return TablesSection.UcsTable.UserCoordinateSystems; } }
+        public List<DxfUcs> UserCoordinateSystems { get { return TablesSection.UcsTable.Items; } }
 
-        public List<DxfAppId> ApplicationIds { get { return TablesSection.AppIdTable.ApplicationIds; } }
+        public List<DxfAppId> ApplicationIds { get { return TablesSection.AppIdTable.Items; } }
 
-        public List<DxfBlockRecord> BlockRecords { get { return TablesSection.BlockRecordTable.BlockRecords; } }
+        public List<DxfBlockRecord> BlockRecords { get { return TablesSection.BlockRecordTable.Items; } }
 
-        public List<DxfLinetype> Linetypes { get { return TablesSection.LTypeTable.Linetypes; } }
+        public List<DxfLineType> Linetypes { get { return TablesSection.LTypeTable.Items; } }
 
-        public List<DxfStyle> Styles { get { return TablesSection.StyleTable.Styles; } }
+        public List<DxfStyle> Styles { get { return TablesSection.StyleTable.Items; } }
 
         /// <summary>
         /// Gets the thumbnail bitmap.

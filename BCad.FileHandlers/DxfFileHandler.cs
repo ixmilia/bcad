@@ -134,6 +134,7 @@ namespace BCad.FileHandlers
             // save viewport
             file.ViewPorts.Add(new DxfViewPort()
             {
+                Name = DxfViewPort.ActiveViewPortName,
                 LowerLeft = viewPort.BottomLeft.ToDxfPoint(),
                 ViewDirection = viewPort.Sight.ToDxfVector(),
                 ViewHeight = viewPort.ViewHeight

@@ -35,6 +35,13 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <Content Include="Tables\DxfTableGenerated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DxfTableGenerated.cs</LastGenOutput>
+    </Content>
+    <Content Include="Tables\TableSpec.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blocks\DxfBlock.cs" />
@@ -72,28 +79,16 @@
     <Compile Include="Sections\DxfSectionType.cs" />
     <Compile Include="Sections\DxfTablesSection.cs" />
     <Compile Include="Sections\DxfThumbnailImageSection.cs" />
-    <Compile Include="Tables\DxfAppId.cs" />
-    <Compile Include="Tables\DxfAppIdTable.cs" />
-    <Compile Include="Tables\DxfBlockRecord.cs" />
-    <Compile Include="Tables\DxfBlockRecordTable.cs" />
-    <Compile Include="Tables\DxfDimStyle.cs" />
-    <Compile Include="Tables\DxfDimStyleTable.cs" />
-    <Compile Include="Tables\DxfLayer.cs" />
-    <Compile Include="Tables\DxfLayerTable.cs" />
-    <Compile Include="Tables\DxfLinetype.cs" />
-    <Compile Include="Tables\DxfLinetypeTable.cs" />
-    <Compile Include="Tables\DxfStyle.cs" />
-    <Compile Include="Tables\DxfStyleTable.cs" />
     <Compile Include="Tables\DxfSymbolTableFlags.cs" />
     <Compile Include="Tables\DxfTable.cs" />
+    <Compile Include="Tables\DxfTableGenerated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DxfTableGenerated.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Tables\DxfTableItems.cs" />
     <Compile Include="Tables\DxfTableType.cs" />
-    <Compile Include="Tables\DxfUcs.cs" />
-    <Compile Include="Tables\DxfUcsTable.cs" />
-    <Compile Include="Tables\DxfView.cs" />
     <Compile Include="Tables\DxfViewMode.cs" />
-    <Compile Include="Tables\DxfViewPort.cs" />
-    <Compile Include="Tables\DxfViewPortTable.cs" />
-    <Compile Include="Tables\DxfViewTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Entities\DxfEntityGenerated.tt">
@@ -109,6 +104,9 @@
     <None Include="Sections\DxfHeaderGenerated.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DxfHeaderGenerated.cs</LastGenOutput>
+    </None>
+    <None Include="Tables\TableSpec.xsd">
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace IxMilia.Dxf.Tables
 {
-    public abstract class DxfTable
+    public abstract partial class DxfTable
     {
         public const string AppIdText = "APPID";
         public const string BlockRecordText = "BLOCK_RECORD";
@@ -16,23 +16,42 @@ namespace IxMilia.Dxf.Tables
         public const string ViewText = "VIEW";
         public const string ViewPortText = "VPORT";
 
-        public abstract DxfTableType TableType { get; }
+        internal abstract DxfTableType TableType { get; }
         public string Handle { get; set; }
         public int MaxEntries { get; set; }
         public string OwnerHandle { get; set; }
 
-        abstract internal IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version);
-
-        protected IEnumerable<DxfCodePair> CommonCodePairs(DxfAcadVersion version)
+        public DxfTable()
         {
-            yield return new DxfCodePair(0, DxfSection.TableText);
-            yield return new DxfCodePair(2, TableTypeToName(TableType));
-            yield return new DxfCodePair(5, Handle);
+        }
+
+        protected abstract IEnumerable<DxfSymbolTableFlags> GetSymbolItems();
+
+        internal IEnumerable<DxfCodePair> GetValuePairs(DxfAcadVersion version)
+        {
+            var pairs = new List<DxfCodePair>();
+            var symbolItems = GetSymbolItems();
+            if (!symbolItems.Any())
+                return pairs;
+
+            // common pairs
+            pairs.Add(new DxfCodePair(0, DxfSection.TableText));
+            pairs.Add(new DxfCodePair(2, TableTypeToName(TableType)));
+            pairs.Add(new DxfCodePair(5, Handle));
             // 102 ({ACAD_XDICTIONARY) codes surrounding code 360
             if (version >= DxfAcadVersion.R2000)
-                yield return new DxfCodePair(330, OwnerHandle);
-            yield return new DxfCodePair(100, "AcDbSymbolTable");
-            yield return new DxfCodePair(70, (short)MaxEntries);
+                pairs.Add(new DxfCodePair(330, OwnerHandle));
+            pairs.Add(new DxfCodePair(100, "AcDbSymbolTable"));
+            pairs.Add(new DxfCodePair(70, (short)MaxEntries));
+
+            foreach (var item in symbolItems.OrderBy(i => i.Name))
+            {
+                item.AddCommonValuePairs(pairs);
+                item.AddValuePairs(pairs);
+            }
+
+            pairs.Add(new DxfCodePair(0, DxfSection.EndTableText));
+            return pairs;
         }
 
         public string TableTypeName
@@ -137,19 +156,19 @@ namespace IxMilia.Dxf.Tables
             switch (tableType)
             {
                 case DxfTable.DimStyleText:
-                    result = DxfDimStyleTable.DimStyleTableFromBuffer(buffer);
+                    result = DxfDimStyleTable.ReadFromBuffer(buffer);
                     break;
                 case DxfTable.LayerText:
-                    result = DxfLayerTable.LayerTableFromBuffer(buffer);
+                    result = DxfLayerTable.ReadFromBuffer(buffer);
                     break;
                 case DxfTable.LTypeText:
-                    result = DxfLinetypeTable.LinetypeTableFromBuffer(buffer);
+                    result = DxfLTypeTable.ReadFromBuffer(buffer);
                     break;
                 case DxfTable.StyleText:
-                    result = DxfStyleTable.StyleTableFromBuffer(buffer);
+                    result = DxfStyleTable.ReadFromBuffer(buffer);
                     break;
-                case DxfViewPort.ViewPortText:
-                    result = DxfViewPortTable.ViewPortTableFromBuffer(buffer);
+                case DxfTable.ViewPortText:
+                    result = DxfViewPortTable.ReadFromBuffer(buffer);
                     break;
                 default:
                     SwallowTable(buffer);
