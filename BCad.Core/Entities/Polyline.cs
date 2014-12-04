@@ -62,6 +62,8 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
+        public override int PrimitiveCount { get { return this.primitives.Count(); } }
+
         public Polyline Update(
             IEnumerable<Point> points = null,
             Optional<IndexedColor> color = default(Optional<IndexedColor>),

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace BCad.Collections
 {
@@ -52,6 +53,42 @@ namespace BCad.Collections
             public int BalanceFactor
             {
                 get { return GetHeight(Left) - GetHeight(Right); }
+            }
+
+            private IEnumerable<T> GetValues<T>(Func<Node, T> selector, CancellationToken cancellationToken)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (Left != null)
+                {
+                    foreach (var value in Left.GetValues(selector, cancellationToken))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        yield return value;
+                    }
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return selector(this);
+
+                if (Right != null)
+                {
+                    foreach (var value in Right.GetValues(selector, cancellationToken))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        yield return value;
+                    }
+                }
+            }
+
+            public IEnumerable<TValue> GetValues(CancellationToken cancellationToken)
+            {
+                return GetValues(node => node.Value, cancellationToken);
+            }
+
+            public IEnumerable<TKey> GetKeys(CancellationToken cancellationToken)
+            {
+                return GetValues(node => node.Key, cancellationToken);
             }
 
             public void ForEach(Action<TKey, TValue> action)
@@ -360,24 +397,28 @@ namespace BCad.Collections
             return new ReadOnlyTree<TKey, TValue>(newRoot);
         }
 
-        public void ForEach(Action<TKey, TValue> action)
+        public IEnumerable<TKey> GetKeys(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (root != null)
-                root.ForEach(action);
+            if (root == null)
+            {
+                return new TKey[0];
+            }
+            else
+            {
+                return root.GetKeys(cancellationToken);
+            }
         }
 
-        public List<TKey> GetKeys()
+        public IEnumerable<TValue> GetValues(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var list = new List<TKey>(Count);
-            ForEach((key, _value) => list.Add(key));
-            return list;
-        }
-
-        public List<TValue> GetValues()
-        {
-            var list = new List<TValue>(Count);
-            ForEach((_key, value) => list.Add(value));
-            return list;
+            if (root == null)
+            {
+                return new TValue[0];
+            }
+            else
+            {
+                return root.GetValues(cancellationToken);
+            }
         }
 
         public static ReadOnlyTree<TKey, TValue> FromEnumerable(IEnumerable<TValue> values, Func<TValue, TKey> keyGenerator)

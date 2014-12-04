@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BCad.Collections;
+using System.Threading;
 
 namespace BCad
 {
@@ -62,9 +63,9 @@ namespace BCad
             this.author = author;
         }
 
-        public IEnumerable<Layer> GetLayers()
+        public IEnumerable<Layer> GetLayers(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return this.layers.GetValues();
+            return this.layers.GetValues(cancellationToken);
         }
 
         /// <summary>

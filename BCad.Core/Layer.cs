@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BCad.Collections;
 using BCad.Entities;
+using System.Threading;
 
 namespace BCad
 {
@@ -46,9 +47,9 @@ namespace BCad
             this.entities = entities;
         }
 
-        public IEnumerable<Entity> GetEntities()
+        public IEnumerable<Entity> GetEntities(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return this.entities.GetValues();
+            return this.entities.GetValues(cancellationToken);
         }
 
         public Entity GetEntityById(uint id)
