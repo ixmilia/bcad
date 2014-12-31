@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Ribbon;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,14 +19,13 @@ using BCad.Primitives;
 using BCad.Ribbons;
 using BCad.Services;
 using BCad.ViewModels;
-using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : RibbonWindow
+    public partial class MainWindow
     {
         private EditPaneViewModel editViewModel;
 

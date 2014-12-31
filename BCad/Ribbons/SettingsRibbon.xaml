@@ -1,15 +1,14 @@
-﻿<r:RibbonTab x:Class="BCad.Ribbons.SettingsRibbon"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:r="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
-             xmlns:local="clr-namespace:BCad.Ribbons"
-             x:Name="theRibbon"
-             Header="Settings"
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <r:RibbonTab.Resources>
+﻿<RibbonTab x:Class="BCad.Ribbons.SettingsRibbon"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:local="clr-namespace:BCad.Ribbons"
+           x:Name="theRibbon"
+           Header="Settings"
+           mc:Ignorable="d"
+           d:DesignHeight="300" d:DesignWidth="300">
+    <RibbonTab.Resources>
         <local:ColorConverter x:Key="colorConverter" />
 
         <DataTemplate x:Key="ColorTemplate">
@@ -19,8 +18,8 @@
                 </Rectangle.Fill>
             </Rectangle>
         </DataTemplate>
-    </r:RibbonTab.Resources>
-    <r:RibbonGroup Header="Drawing units">
+    </RibbonTab.Resources>
+    <RibbonGroup Header="Drawing units">
         <Grid Width="150">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -48,37 +47,37 @@
                           SelectedItem="{Binding Path=UnitPrecision}" />
             </Grid>
         </Grid>
-    </r:RibbonGroup>
-    <r:RibbonGroup Header="Background">
+    </RibbonGroup>
+    <RibbonGroup Header="Background">
         <Grid>
             <ComboBox ItemsSource="{Binding Path=BackgroundColors}"
                       ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
                       SelectedItem="{Binding Path=SettingsManager.BackgroundColor, Mode=TwoWay}" />
         </Grid>
-    </r:RibbonGroup>
-    <r:RibbonGroup Header="Snap">
-        <r:RibbonGroup Header="Kind">
+    </RibbonGroup>
+    <RibbonGroup Header="Snap">
+        <RibbonGroup Header="Kind">
             <CheckBox IsChecked="{Binding Path=IsEndPoint}" Content="End Point" />
             <CheckBox IsChecked="{Binding Path=IsMidPoint}" Content="Mid Point" />
             <CheckBox IsChecked="{Binding Path=IsCenter}" Content="Center" />
             <CheckBox IsChecked="{Binding Path=IsQuadrant}" Content="Quadrant" />
-        </r:RibbonGroup>
-        <r:RibbonGroup Header="Color">
+        </RibbonGroup>
+        <RibbonGroup Header="Color">
             <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
                         ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
                         SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
-        </r:RibbonGroup>
-        <r:RibbonGroup Header="Angles">
+        </RibbonGroup>
+        <RibbonGroup Header="Angles">
             <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsNinetyDegree}" Content="Every 90 degrees" />
             <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsFortyFiveDegree}" Content="Every 45 degrees" />
             <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsIsometric}" Content="Isometric" />
-        </r:RibbonGroup>
-    </r:RibbonGroup>
-    <r:RibbonGroup Header="UI">
+        </RibbonGroup>
+    </RibbonGroup>
+    <RibbonGroup Header="UI">
         <StackPanel>
             <TextBlock Text="Display (restart required)" />
             <ComboBox ItemsSource="{Binding Path=AvailableRenderers}"
                       SelectedItem="{Binding Path=SettingsManager.RendererId}" />
         </StackPanel>
-    </r:RibbonGroup>
-</r:RibbonTab>
+    </RibbonGroup>
+</RibbonTab>

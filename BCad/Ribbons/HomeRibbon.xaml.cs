@@ -1,8 +1,8 @@
 ﻿using System.Composition;
 using System.Diagnostics;
+using System.Windows.Controls.Ribbon;
 using System.Windows.Input;
 using BCad.ViewModels;
-using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad.Ribbons
 {
