@@ -1,7 +1,4 @@
 ﻿using System.Composition;
-using System.Diagnostics;
-using System.Windows.Controls.Ribbon;
-using System.Windows.Input;
 using BCad.ViewModels;
 
 namespace BCad.Ribbons
@@ -10,36 +7,17 @@ namespace BCad.Ribbons
     /// Interaction logic for HomeRibbon.xaml
     /// </summary>
     [ExportRibbonTab("home")]
-    public partial class HomeRibbon : RibbonTab
+    public partial class HomeRibbon : CadRibbonTab
     {
-        private IWorkspace workspace;
         private HomeRibbonViewModel viewModel;
-
-        public HomeRibbon()
-        {
-            InitializeComponent();
-        }
 
         [ImportingConstructor]
         public HomeRibbon(IWorkspace workspace)
-            : this()
+            : base(workspace)
         {
-            this.workspace = workspace;
-            viewModel = new HomeRibbonViewModel(this.workspace);
+            InitializeComponent();
+            viewModel = new HomeRibbonViewModel(Workspace);
             DataContext = viewModel;
-        }
-
-        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = workspace == null ? false : workspace.CanExecute();
-        }
-
-        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Debug.Assert(workspace != null, "Workspace should not have been null");
-            var command = e.Parameter as string;
-            Debug.Assert(command != null, "Command string should not have been null");
-            workspace.ExecuteCommand(command);
         }
     }
 }

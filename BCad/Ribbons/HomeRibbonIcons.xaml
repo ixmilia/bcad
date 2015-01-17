@@ -224,7 +224,7 @@
         <DrawingImage.Drawing>
             <GeometryDrawing>
                 <GeometryDrawing.Geometry>
-                    <RectangleGeometry Rect="0,0,32,32"></RectangleGeometry>
+                    <RectangleGeometry Rect="0,0,32,32" />
                 </GeometryDrawing.Geometry>
                 <GeometryDrawing.Brush>
                     <VisualBrush>
@@ -254,6 +254,33 @@
                     </VisualBrush>
                 </GeometryDrawing.Brush>
             </GeometryDrawing>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+    <DrawingImage x:Key="DrawPointLarge">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Transparent" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="0,0,32,32" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Black" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="16,5" EndPoint="16,27" />
+                            <LineGeometry StartPoint="5,16" EndPoint="27,16" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
     <DrawingImage x:Key="Layers">
