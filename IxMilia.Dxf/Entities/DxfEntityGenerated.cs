@@ -5488,3 +5488,7 @@ namespace IxMilia.Dxf.Entities
     }
 
 }
+// The following line is required for T4 template generation to work
+// 
+// The following line is required for T4 template generation to work.
+// 

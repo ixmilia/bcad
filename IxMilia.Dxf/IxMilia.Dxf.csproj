@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="Blocks\DxfBlock.cs" />
     <Compile Include="DxfClass.cs" />
-    <Compile Include="DxfCodePairHelper.cs" />
+    <Compile Include="DxfCodePair.ExpectedType.cs" />
     <Compile Include="DxfAcadVersion.cs" />
     <Compile Include="DxfCodePairBufferReader.cs" />
     <Compile Include="DxfCodePair.cs" />

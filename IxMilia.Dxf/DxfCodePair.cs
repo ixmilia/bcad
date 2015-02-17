@@ -1,113 +1,114 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using IxMilia.Dxf.Sections;
+using IxMilia.Dxf;
 
-namespace IxMilia.Dxf
+// This class must not be contained in a namespace because its other partial part (DxfCodePair.ExpectedType.cs) is
+// included as a part of the T4 generation.
+
+public partial class DxfCodePair
 {
-    public partial class DxfCodePair
+    public const int CommentCode = 999;
+
+    private KeyValuePair<int, object> data;
+
+    public int Code
     {
-        public const int CommentCode = 999;
+        get { return data.Key; }
+        set { data = new KeyValuePair<int, object>(value, data.Value); }
+    }
 
-        private KeyValuePair<int, object> data;
+    public object Value
+    {
+        get { return data.Value; }
+        set { data = new KeyValuePair<int, object>(data.Key, value); }
+    }
 
-        public int Code
+    public string StringValue
+    {
+        get { return (string)Value; }
+    }
+
+    public double DoubleValue
+    {
+        get { return (double)Value; }
+    }
+
+    public short ShortValue
+    {
+        get { return (short)Value; }
+    }
+
+    public int IntegerValue
+    {
+        get { return (int)Value; }
+    }
+
+    public long LongValue
+    {
+        get { return (long)Value; }
+    }
+
+    public bool BoolValue
+    {
+        get
         {
-            get { return data.Key; }
-            set { data = new KeyValuePair<int, object>(value, data.Value); }
+            // In some AutoCAD 2010 files (AC1024), the header variables $HIDETEXT, $XCLIPFRAME, and $INTERSECTIONDISPLAY
+            // are encoded as code 280 shorts instead of 290 bools.  This is to special-case just those scenarios.
+            return Value.GetType() == typeof(short)
+                ? (short)Value != 0
+                : (bool)Value;
         }
+    }
 
-        public object Value
+    public string HandleValue
+    {
+        get
         {
-            get { return data.Value; }
-            set { data = new KeyValuePair<int, object>(data.Key, value); }
+            if (IsHandle)
+                return StringValue;
+            else
+                throw new DxfReadException("Value was not a valid handle");
         }
+    }
 
-        public string StringValue
+    public DxfCodePair(int code, object value)
+    {
+        data = new KeyValuePair<int, object>(code, value);
+    }
+
+    private bool IsHandle
+    {
+        get
         {
-            get { return (string)Value; }
+            return handleRegex.IsMatch(StringValue);
         }
+    }
 
-        public double DoubleValue
-        {
-            get { return (double)Value; }
-        }
+    private static Regex handleRegex = new Regex("([a-fA-F0-9]){1,16}");
 
-        public short ShortValue
-        {
-            get { return (short)Value; }
-        }
+    public override string ToString()
+    {
+        return string.Format("[{0}: {1}]", Code, Value);
+    }
 
-        public int IntegerValue
-        {
-            get { return (int)Value; }
-        }
+    public static bool IsSectionStart(DxfCodePair pair)
+    {
+        return pair.Code == 0 && pair.StringValue == DxfSection.SectionText;
+    }
 
-        public long LongValue
-        {
-            get { return (long)Value; }
-        }
+    public static bool IsSectionEnd(DxfCodePair pair)
+    {
+        return pair.Code == 0 && pair.StringValue == DxfSection.EndSectionText;
+    }
 
-        public bool BoolValue
-        {
-            get
-            {
-                // In some AutoCAD 2010 files (AC1024), the header variables $HIDETEXT, $XCLIPFRAME, and $INTERSECTIONDISPLAY
-                // are encoded as code 280 shorts instead of 290 bools.  This is to special-case just those scenarios.
-                return Value.GetType() == typeof(short)
-                    ? (short)Value != 0
-                    : (bool)Value;
-            }
-        }
+    public static bool IsEof(DxfCodePair pair)
+    {
+        return pair.Code == 0 && pair.StringValue == DxfFile.EofText;
+    }
 
-        public string HandleValue
-        {
-            get
-            {
-                if (IsHandle)
-                    return StringValue;
-                else
-                    throw new DxfReadException("Value was not a valid handle");
-            }
-        }
-
-        public DxfCodePair(int code, object value)
-        {
-            data = new KeyValuePair<int, object>(code, value);
-        }
-
-        private bool IsHandle
-        {
-            get
-            {
-                return handleRegex.IsMatch(StringValue);
-            }
-        }
-
-        private static Regex handleRegex = new Regex("([a-fA-F0-9]){1,16}");
-
-        public override string ToString()
-        {
-            return string.Format("[{0}: {1}]", Code, Value);
-        }
-
-        public static bool IsSectionStart(DxfCodePair pair)
-        {
-            return pair.Code == 0 && pair.StringValue == DxfSection.SectionText;
-        }
-
-        public static bool IsSectionEnd(DxfCodePair pair)
-        {
-            return pair.Code == 0 && pair.StringValue == DxfSection.EndSectionText;
-        }
-
-        public static bool IsEof(DxfCodePair pair)
-        {
-            return pair.Code == 0 && pair.StringValue == DxfFile.EofText;
-        }
-
-        public static bool IsComment(DxfCodePair pair)
-        {
-            return pair.Code == CommentCode;
-        }
+    public static bool IsComment(DxfCodePair pair)
+    {
+        return pair.Code == CommentCode;
     }
 }
