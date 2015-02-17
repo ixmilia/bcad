@@ -1522,7 +1522,6 @@ namespace IxMilia.Dxf
         }
     }
 }
-// The following line is required for T4 template generation to work
-// 
-// The following line is required for T4 template generation to work.
-// 
+// This line is required for T4 template generation to work. 
+// This line is required for T4 template generation to work. 
+

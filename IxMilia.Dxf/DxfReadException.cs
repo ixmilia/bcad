@@ -1,22 +1,31 @@
-﻿// The following line is required for T4 template generation to work.
-// <#+
-public class DxfReadException : System.Exception
+﻿// This line is required for T4 template generation to work. <#+
+
+#if DXF
+using System;
+
+namespace IxMilia.Dxf
 {
-    public DxfReadException()
-        : base()
+#endif
+    public class DxfReadException : Exception
     {
+        public DxfReadException()
+            : base()
+        {
+        }
+
+        public DxfReadException(string message)
+            : base(message)
+        {
+        }
+
+        public DxfReadException(string message, System.Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 
-    public DxfReadException(string message)
-        : base(message)
-    {
-    }
-
-    public DxfReadException(string message, System.Exception innerException)
-        : base(message, innerException)
-    {
-    }
+#if DXF
 }
+#endif
 
-// The following line is required for T4 template generation to work.
-// #>
+// This line is required for T4 template generation to work. #>

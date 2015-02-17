@@ -237,21 +237,4 @@ foreach (var property in variables) {
         }
     }
 }
-<#@ include file="$(ProjectDir)\DxfCodePair.ExpectedType.cs" #>
-<#@ include file="$(ProjectDir)\DxfReadException.cs" #>
-<#+
-public string TypeToString(Type type)
-{
-    string expected;
-    if (type == typeof(string)) expected = "String";
-	else if (type == typeof(double)) expected = "Double";
-	else if (type == typeof(short)) expected = "Short";
-	else if (type == typeof(int)) expected = "Integer";
-	else if (type == typeof(long)) expected = "Long";
-	else if (type == typeof(bool)) expected = "Bool";
-	else throw new Exception("Unsupported code pair type");
-	// TODO: handle
-
-    return expected + "Value";
-}
-#>
+<#@ include file="$(ProjectDir)\DxfCommon.t4" #>
