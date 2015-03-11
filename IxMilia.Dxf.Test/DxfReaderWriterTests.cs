@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
 using IxMilia.Dxf;
+using IxMilia.Dxf.Sections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BCad.Test.DxfTests
@@ -72,6 +70,46 @@ THUMBNAILIMAGE
 012345
   0
 ENDSEC");
+        }
+
+        [TestMethod]
+        public void WriteThumbnailTest_SetThumbnailBitmap()
+        {
+            var file = new DxfFile();
+            file.Header.Version = DxfAcadVersion.R2000;
+            var header = DxfThumbnailImageSection.BITMAPFILEHEADER;
+            var bitmap = header.Concat(new byte[] { 0x01, 0x23, 0x45 }).ToArray();
+            file.SetThumbnailBitmap(bitmap);
+            VerifyFileContains(file, @"  0
+SECTION
+  2
+THUMBNAILIMAGE
+ 90
+3
+310
+012345
+  0
+ENDSEC");
+        }
+
+        [TestMethod]
+        public void ReadThumbnailTest_GetThumbnailBitmap()
+        {
+            var file = Section("THUMBNAILIMAGE", @" 90
+3
+310
+012345");
+            var expected = new byte[]
+            {
+                (byte)'B', (byte)'M', // magic number
+                0x03, 0x00, 0x00, 0x00, // file length excluding header
+                0x00, 0x00, // reserved
+                0x00, 0x00, // reserved
+                0x36, 0x04, 0x00, 0x00, // bit offset; always 1078
+                0x01, 0x23, 0x45 // body
+            };
+            var bitmap = file.GetThumbnailBitmap();
+            AssertArrayEqual(expected, bitmap);
         }
     }
 }

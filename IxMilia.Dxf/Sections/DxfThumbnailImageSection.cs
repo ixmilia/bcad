@@ -60,14 +60,14 @@ namespace IxMilia.Dxf.Sections
             // strip off bitmap header
             Debug.Assert(thumbnail != null);
             Debug.Assert(thumbnail.Length > BITMAPFILEHEADER.Length);
-            Debug.Assert(thumbnail[0] == (byte)'B');
-            Debug.Assert(thumbnail[0] == (byte)'M');
+            Debug.Assert(thumbnail[0] == 'B');
+            Debug.Assert(thumbnail[1] == 'M');
             RawData = new byte[thumbnail.Length - BITMAPFILEHEADER.Length];
             Array.Copy(thumbnail, BITMAPFILEHEADER.Length, RawData, 0, RawData.Length);
         }
 
         // BITMAPFILEHEADER structure
-        private static byte[] BITMAPFILEHEADER
+        internal static byte[] BITMAPFILEHEADER
         {
             get
             {
