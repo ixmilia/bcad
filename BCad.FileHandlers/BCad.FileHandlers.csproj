@@ -53,10 +53,6 @@
       <Project>{782e0c0a-10d3-444d-9640-263d03d2b20c}</Project>
       <Name>IxMilia.Stl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Dxf\IxMilia.Dxf.csproj">
-      <Project>{c067e97d-3b96-462a-b09d-33fad60de761}</Project>
-      <Name>IxMilia.Dxf</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AscFileHandler.cs" />
@@ -67,6 +63,10 @@
     <Compile Include="StlFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="IxMilia.Dxf, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IxMilia.Dxf.0.2.0.0\lib\portable-net45+win+wpa81\IxMilia.Dxf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Composition.AttributedModel">
       <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
     </Reference>
@@ -84,7 +84,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
