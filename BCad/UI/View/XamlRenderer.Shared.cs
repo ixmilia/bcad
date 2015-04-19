@@ -47,7 +47,7 @@ namespace BCad.UI.View
 
         public void UpdateRubberBandLines()
         {
-            viewModel.CursorPoint = ViewControl.GetCursorPoint();
+            viewModel.CursorPoint = ViewControl.GetCursorPoint().Result;
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)

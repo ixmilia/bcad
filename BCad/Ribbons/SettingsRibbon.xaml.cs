@@ -1,5 +1,4 @@
 ﻿using System.Composition;
-using Microsoft.Windows.Controls.Ribbon;
 
 namespace BCad.Ribbons
 {
@@ -7,24 +6,18 @@ namespace BCad.Ribbons
     /// Interaction logic for DrawingSettingsRibbon.xaml
     /// </summary>
     [ExportRibbonTab("settings")]
-    public partial class SettingsRibbon : RibbonTab
+    public partial class SettingsRibbon : CadRibbonTab
     {
-        private IWorkspace workspace = null;
         private SettingsRibbonViewModel viewModel = null;
-
-        public SettingsRibbon()
-        {
-            InitializeComponent();
-        }
 
         [ImportingConstructor]
         public SettingsRibbon(IWorkspace workspace)
-            : this()
+            : base(workspace)
         {
-            this.workspace = workspace;
-            viewModel = new SettingsRibbonViewModel(workspace);
+            InitializeComponent();
+            viewModel = new SettingsRibbonViewModel(Workspace);
             DataContext = viewModel;
-            workspace.WorkspaceChanged += WorkspaceChanged;
+            Workspace.WorkspaceChanged += WorkspaceChanged;
         }
 
         void WorkspaceChanged(object sender, EventArguments.WorkspaceChangeEventArgs e)

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,6 +42,15 @@ namespace BCad.UI
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
         private ResourceDictionary resources;
+        private CancellationTokenSource updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource mouseMoveCancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource mouseDownCancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource mouseWheelCancellationTokenSource = new CancellationTokenSource();
+        private Task updateSnapPointsTask = new Task(() => { });
+        private long lastDrawnSnapPointId;
+        private long drawSnapPointId = 1;
+        private object drawSnapPointIdGate = new object();
+        private object lastDrawnSnapPointIdGate = new object();
 
         private Dictionary<SnapPointKind, GeometryDrawing> snapPointGeometry = new Dictionary<SnapPointKind, GeometryDrawing>();
         private Dictionary<SnapPointKind, Image> snapPointImage = new Dictionary<SnapPointKind, Image>();
@@ -201,7 +211,7 @@ namespace BCad.UI
         private async void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
-            var point = await GetCursorPointAsync();
+            var point = await GetCursorPoint();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -231,7 +241,7 @@ namespace BCad.UI
         private async void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
         {
             selecting = false;
-            var point = await GetCursorPointAsync();
+            var point = await GetCursorPoint();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Hidden);
@@ -266,7 +276,7 @@ namespace BCad.UI
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateSnapPoints();
             UpdateHotPoints();
-            var point = await GetCursorPointAsync();
+            var point = await GetCursorPoint();
         }
 
         private void DrawingChanged()
@@ -284,9 +294,29 @@ namespace BCad.UI
 
         private void UpdateSnapPoints()
         {
-            // populate the snap points
-            snapPoints = Workspace.Drawing.GetLayers().SelectMany(l => l.GetEntities().SelectMany(o => o.GetSnapPoints()))
-                .Select(sp => new TransformedSnapPoint(sp.Point, Project(sp.Point), sp.Kind));
+            updateSnapPointsCancellationTokenSource.Cancel();
+            updateSnapPointsTask = Task.Run(() =>
+            {
+                updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
+
+                // populate the snap points
+                var cancellationToken = updateSnapPointsCancellationTokenSource.Token;
+                var transformed = new List<TransformedSnapPoint>();
+                foreach (var layer in Workspace.Drawing.GetLayers(cancellationToken))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    foreach (var entity in layer.GetEntities(cancellationToken))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        foreach (var snapPoint in entity.GetSnapPoints())
+                        {
+                            transformed.Add(new TransformedSnapPoint(snapPoint.Point, Project(snapPoint.Point), snapPoint.Kind));
+                        }
+                    }
+                }
+
+                snapPoints = transformed;
+            });
         }
 
         private Point Project(Point point)
@@ -299,22 +329,20 @@ namespace BCad.UI
             return unprojectMatrix.Transform(point);
         }
 
-        public Point GetCursorPoint()
+        public async Task<Point> GetCursorPoint()
         {
             var mouse = Dispatcher.Invoke(() => Input.Mouse.GetPosition(this));
-            var model = GetActiveModelPoint(mouse.ToPoint());
+            var model = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(mouse.ToPoint(), CancellationToken.None)).ConfigureAwait(false);
             return model.WorldPoint;
-        }
-
-        public Task<Point> GetCursorPointAsync()
-        {
-            return Task.Factory.StartNew<Point>(() => GetCursorPoint());
         }
 
         private async void OnMouseDown(object sender, Input.MouseButtonEventArgs e)
         {
             var cursor = e.GetPosition(this);
-            var sp = await GetActiveModelPointAsync(cursor.ToPoint());
+            mouseMoveCancellationTokenSource.Cancel();
+            mouseMoveCancellationTokenSource = new CancellationTokenSource();
+            var token = mouseMoveCancellationTokenSource.Token;
+            var sp = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(cursor.ToPoint(), token), token);
             switch (e.ChangedButton)
             {
                 case Input.MouseButton.Left:
@@ -468,14 +496,26 @@ namespace BCad.UI
                 Canvas.SetTop(cursorImage, (int)(cursor.Y - (cursorImage.ActualHeight / 2.0)));
             }
 
-            new Task((Action)(() =>
+            mouseMoveCancellationTokenSource.Cancel();
+            mouseMoveCancellationTokenSource = new CancellationTokenSource();
+            var token = mouseMoveCancellationTokenSource.Token;
+            updateSnapPointsTask.ContinueWith(_ =>
             {
-                var snapPoint = GetActiveModelPoint(cursor.ToPoint());
+                var snapPoint = GetActiveModelPoint(cursor.ToPoint(), token);
                 BindObject.CursorWorld = snapPoint.WorldPoint;
                 renderer.UpdateRubberBandLines();
                 if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
-                    DrawSnapPoint(snapPoint);
-            })).Start();
+                    DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
+            }, token).ConfigureAwait(false);
+        }
+
+        private long GetNextDrawSnapPointId()
+        {
+            lock (drawSnapPointIdGate)
+            {
+                var next = drawSnapPointId++;
+                return next;
+            }
         }
 
         private void SetSelectionLineVisibility(Visibility vis)
@@ -573,7 +613,7 @@ namespace BCad.UI
             }
         }
 
-        private async void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
+        private void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
         {
             // scale everything
             var scale = 1.25;
@@ -596,39 +636,57 @@ namespace BCad.UI
                 bottomLeft: (Point)(vp.BottomLeft - botLeftDelta),
                 viewHeight: vp.ViewHeight * scale);
             Workspace.Update(activeViewPort: newVp);
-            var cursor = await GetActiveModelPointAsync(cursorPoint.ToPoint());
-            DrawSnapPoint(cursor);
+
+            mouseWheelCancellationTokenSource.Cancel();
+            mouseWheelCancellationTokenSource = new CancellationTokenSource();
+            var token = mouseWheelCancellationTokenSource.Token;
+            updateSnapPointsTask.ContinueWith(_ =>
+            {
+                var snapPoint = GetActiveModelPoint(cursorPoint.ToPoint(), token);
+                BindObject.CursorWorld = snapPoint.WorldPoint;
+                renderer.UpdateRubberBandLines();
+                if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                    DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
+            }, token).ConfigureAwait(false);
         }
 
-        private TransformedSnapPoint GetActiveModelPoint(Point cursor)
+        private TransformedSnapPoint GetActiveModelPoint(Point cursor, CancellationToken cancellationToken)
         {
-            return GetActiveSnapPoint(cursor)
+            return GetActiveSnapPoint(cursor, cancellationToken)
                 ?? GetOrthoPoint(cursor)
-                ?? GetAngleSnapPoint(cursor)
+                ?? GetAngleSnapPoint(cursor, cancellationToken)
                 ?? GetRawModelPoint(cursor);
         }
 
-        private Task<TransformedSnapPoint> GetActiveModelPointAsync(Point cursor)
-        {
-            return Task.Factory.StartNew<TransformedSnapPoint>(() => GetActiveModelPoint(cursor));
-        }
-
-        private TransformedSnapPoint GetActiveSnapPoint(Point cursor)
+        private TransformedSnapPoint GetActiveSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
             if (Workspace.SettingsManager.PointSnap && (InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
-                var allowed = Workspace.SettingsManager.AllowedSnapPoints;
-                var maxDistSq = Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance;
-                var points = from sp in snapPoints
-                             where (allowed & sp.Kind) != 0
-                             let dist = (cursor - sp.ControlPoint).LengthSquared
-                             where dist <= maxDistSq
-                             orderby dist
-                             select sp;
-                return points.FirstOrDefault();
+                var points = GetSnapPointsByDistance(cursor, cancellationToken)
+                    .OrderBy(tuple => tuple.Item1, new CancellableComparer<double>(cancellationToken));
+                return points.FirstOrDefault()?.Item2;
             }
 
             return null;
+        }
+
+        private IEnumerable<Tuple<double, TransformedSnapPoint>> GetSnapPointsByDistance(Point cursor, CancellationToken cancellationToken)
+        {
+            var allowed = Workspace.SettingsManager.AllowedSnapPoints;
+            var maxDistSq = Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance;
+            var points = snapPoints;
+            foreach (var snapPoint in points)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if ((allowed & snapPoint.Kind) == snapPoint.Kind)
+                {
+                    var distance = (cursor - snapPoint.ControlPoint).LengthSquared;
+                    if (distance <= maxDistSq)
+                    {
+                        yield return Tuple.Create(distance, snapPoint);
+                    }
+                }
+            }
         }
 
         private TransformedSnapPoint GetOrthoPoint(Point cursor)
@@ -681,7 +739,7 @@ namespace BCad.UI
             return null;
         }
 
-        private TransformedSnapPoint GetAngleSnapPoint(Point cursor)
+        private TransformedSnapPoint GetAngleSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
             if (Workspace.IsDrawing && Workspace.SettingsManager.AngleSnap)
             {
@@ -717,17 +775,21 @@ namespace BCad.UI
                     return radVector.Normalize() * dist;
                 };
 
-                var points = from sa in Workspace.SettingsManager.SnapAngles
-                             let rad = sa * MathHelper.DegreesToRadians
-                             let radVector = snapVector(rad)
-                             let snapPoint = last + radVector
-                             let di = (cursor - Project(snapPoint)).Length
-                             where di <= Workspace.SettingsManager.SnapAngleDistance
-                             orderby di
-                             select new TransformedSnapPoint(snapPoint, Project(snapPoint), SnapPointKind.None);
+                var points = new List<Tuple<double, TransformedSnapPoint>>();
+                foreach (var snapAngle in Workspace.SettingsManager.SnapAngles)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var radians = snapAngle * MathHelper.DegreesToRadians;
+                    var radVector = snapVector(radians);
+                    var snapPoint = last + radVector;
+                    var distance = (cursor - Project(snapPoint)).Length;
+                    if (distance < Workspace.SettingsManager.SnapAngleDistance)
+                    {
+                        points.Add(Tuple.Create(distance, new TransformedSnapPoint(snapPoint, Project(snapPoint), SnapPointKind.None)));
+                    }
+                }
 
-                // return the closest one
-                return points.FirstOrDefault();
+                return points.OrderBy(p => p.Item1).FirstOrDefault()?.Item2;
             }
 
             return null;
@@ -916,22 +978,29 @@ namespace BCad.UI
             BindingOperations.SetBinding(element, property, binding);
         }
 
-        private void DrawSnapPoint(TransformedSnapPoint snapPoint)
+        private void DrawSnapPoint(TransformedSnapPoint snapPoint, long drawId)
         {
-            Dispatcher.BeginInvoke((Action)(() =>
+            lock (lastDrawnSnapPointIdGate)
+            {
+                if (drawId > lastDrawnSnapPointId)
                 {
-                    ClearSnapPoints();
-                    var dist = (snapPoint.ControlPoint - Input.Mouse.GetPosition(this).ToPoint()).Length;
-                    if (dist <= Workspace.SettingsManager.SnapPointDistance && snapPoint.Kind != SnapPointKind.None)
+                    lastDrawnSnapPointId = drawId;
+                    Dispatcher.BeginInvoke((Action)(() =>
                     {
-                        var geometry = snapPointGeometry[snapPoint.Kind];
-                        var icon = snapPointImage[snapPoint.Kind];
-                        var scale = Workspace.SettingsManager.SnapPointSize;
-                        Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
-                        Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
-                        icon.Visibility = System.Windows.Visibility.Visible;
-                    }
-                }));
+                        ClearSnapPoints();
+                        var dist = (snapPoint.ControlPoint - Input.Mouse.GetPosition(this).ToPoint()).Length;
+                        if (dist <= Workspace.SettingsManager.SnapPointDistance && snapPoint.Kind != SnapPointKind.None)
+                        {
+                            var geometry = snapPointGeometry[snapPoint.Kind];
+                            var icon = snapPointImage[snapPoint.Kind];
+                            var scale = Workspace.SettingsManager.SnapPointSize;
+                            Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
+                            Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
+                            icon.Visibility = System.Windows.Visibility.Visible;
+                        }
+                    }));
+                }
+            }
         }
 
         private GeometryDrawing GetSnapGeometry(SnapPointKind kind)

@@ -1,6 +1,7 @@
 ﻿using System.Composition;
 using System.Threading.Tasks;
 using BCad.Services;
+using System.Threading;
 
 namespace BCad.Commands
 {

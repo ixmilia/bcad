@@ -10,6 +10,7 @@ namespace BCad.Entities
         public abstract IEnumerable<SnapPoint> GetSnapPoints();
         public abstract EntityKind Kind { get; }
         public abstract BoundingBox BoundingBox { get; }
+        public virtual int PrimitiveCount { get { return 1; } }
 
         private readonly IndexedColor color;
         private readonly object tag;

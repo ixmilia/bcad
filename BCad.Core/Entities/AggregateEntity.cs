@@ -70,6 +70,8 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
+        public override int PrimitiveCount { get { return this.primitives.Count(); } }
+
         public AggregateEntity Update(
             Optional<Point> location = default(Optional<Point>),
             ReadOnlyList<Entity> children = null,

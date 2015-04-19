@@ -150,7 +150,7 @@ namespace BCad.UI.View
             var pointCols = new List<Color>();
             if (generator != null && viewControl != null)
             {
-                var primitives = generator(viewControl.GetCursorPoint());
+                var primitives = generator(viewControl.GetCursorPoint().Result);
                 foreach (var prim in primitives)
                 {
                     var primColor = MapColor(prim.Color, autoColor);

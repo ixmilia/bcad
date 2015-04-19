@@ -86,6 +86,7 @@
     <Compile Include="Commands\DrawCircleCommand.cs" />
     <Compile Include="Commands\DrawEllipseCommand.cs" />
     <Compile Include="Commands\DrawLineCommand.cs" />
+    <Compile Include="Commands\DrawPointCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
     <Compile Include="Commands\ExportUICommandAttribute.cs" />

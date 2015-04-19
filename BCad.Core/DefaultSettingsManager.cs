@@ -370,7 +370,7 @@ namespace BCad
 
         public virtual void LoadDefaults()
         {
-            RibbonOrder = new[] { "home", "settings", "debug" };
+            RibbonOrder = new[] { "home", "view", "settings", "debug" };
             LayerDialogId = "Default";
             PlotDialogId = "Default";
             RendererId = "Hardware";

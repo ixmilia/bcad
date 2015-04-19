@@ -11,8 +11,6 @@ Runtime requirements
 * IxMilia.Dxf.dll
 * IxMilia.Iges.dll
 * IxMilia.Stl.dll
-* Microsoft.Windows.Shell.dll
-* RibbonControlsLibrary.dll
 * SharpDX.D3DCompiler.dll
 * SharpDX.Direct2D1.dll
 * SharpDX.Direct3D11.dll

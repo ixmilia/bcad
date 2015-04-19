@@ -8,6 +8,7 @@ using IxMilia.Dxf;
 using IxMilia.Dxf.Blocks;
 using IxMilia.Dxf.Entities;
 using BCad.Entities;
+using System.Threading;
 
 namespace BCad.FileHandlers
 {
