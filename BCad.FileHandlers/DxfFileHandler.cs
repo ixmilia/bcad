@@ -73,9 +73,10 @@ namespace BCad.FileHandlers
             }
 
             drawing = new Drawing(
-                new DrawingSettings(fileName, file.Header.UnitFormat.ToUnitFormat(), file.Header.UnitPrecision),
-                layers,
-                file.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First());
+                settings: new DrawingSettings(fileName, file.Header.UnitFormat.ToUnitFormat(), file.Header.UnitPrecision),
+                layers: layers,
+                currentLayerName: file.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First(),
+                author: null);
             drawing.Tag = file;
 
             var vp = file.ViewPorts.FirstOrDefault();
