@@ -8,7 +8,7 @@
 *.Tests.mdf
 *.Tests_log.ldf
 *.ide
-/BCad.Metro/AppPackages
+AppPackages/
 /packages
 *.user
 /.vs
