@@ -90,8 +90,6 @@
     <Compile Include="ReadOnlyListTests.cs" />
     <Compile Include="ReadOnlyTreeTests.cs" />
     <Compile Include="RotateTests.cs" />
-    <Compile Include="StlTests\StlReaderTests.cs" />
-    <Compile Include="StlTests\StlWriterTests.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestHost.cs" />
     <Compile Include="TrimExtendTests.cs" />
@@ -115,10 +113,6 @@
     <ProjectReference Include="..\IxMilia.Iges\IxMilia.Iges.csproj">
       <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
       <Name>IxMilia.Iges</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Stl\IxMilia.Stl.csproj">
-      <Project>{782e0c0a-10d3-444d-9640-263d03d2b20c}</Project>
-      <Name>IxMilia.Stl</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad\BCad.csproj">
       <Project>{a978c366-6cc2-4f82-908a-8c830f7e6113}</Project>
