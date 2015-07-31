@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F24C89
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Dwg", "IxMilia.Dwg\IxMilia.Dwg.csproj", "{1421FDD2-B6C0-4464-B269-FB82C2A9BA1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Universal", "BCad.Universal\BCad.Universal.csproj", "{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -218,6 +220,32 @@ Global
 		{1421FDD2-B6C0-4464-B269-FB82C2A9BA1B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1421FDD2-B6C0-4464-B269-FB82C2A9BA1B}.Release|x64.ActiveCfg = Release|Any CPU
 		{1421FDD2-B6C0-4464-B269-FB82C2A9BA1B}.Release|x86.ActiveCfg = Release|Any CPU
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|ARM.ActiveCfg = Debug|ARM
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|ARM.Build.0 = Debug|ARM
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|ARM.Deploy.0 = Debug|ARM
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|x64.ActiveCfg = Debug|x64
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|x64.Build.0 = Debug|x64
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|x64.Deploy.0 = Debug|x64
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|x86.ActiveCfg = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|x86.Build.0 = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Debug|x86.Deploy.0 = Debug|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|Any CPU.ActiveCfg = Release|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|ARM.ActiveCfg = Release|ARM
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|ARM.Build.0 = Release|ARM
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|ARM.Deploy.0 = Release|ARM
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|Mixed Platforms.Build.0 = Release|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|x64.ActiveCfg = Release|x64
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|x64.Build.0 = Release|x64
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|x64.Deploy.0 = Release|x64
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|x86.ActiveCfg = Release|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|x86.Build.0 = Release|x86
+		{200FBEB4-89B4-4C1B-9F04-8BB85079F07B}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
