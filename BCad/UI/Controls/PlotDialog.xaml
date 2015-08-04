@@ -1,17 +1,16 @@
-﻿<ui:BCadControl x:Class="BCad.UI.Controls.PlotDialog"
-                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                xmlns:ui="clr-namespace:BCad.UI;assembly=BCad.Core.UI"
-                xmlns:local="clr-namespace:BCad.UI"
-                xmlns:controls="clr-namespace:BCad.UI.Controls"
-                xmlns:view="clr-namespace:BCad.UI.View"
-                mc:Ignorable="d" MinWidth="480" MinHeight="300" Background="White">
-    <ui:BCadControl.Resources>
+﻿<local:BCadControl x:Class="BCad.UI.Controls.PlotDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:local="clr-namespace:BCad.UI"
+                   xmlns:controls="clr-namespace:BCad.UI.Controls"
+                   xmlns:view="clr-namespace:BCad.UI.View"
+                   mc:Ignorable="d" MinWidth="480" MinHeight="300" Background="White">
+    <local:BCadControl.Resources>
         <controls:EnumMatchToBooleanConverter x:Key="enumConverter" />
         <controls:DoubleStringConverter x:Key="doubleStringConverter" />
-    </ui:BCadControl.Resources>
+    </local:BCadControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -125,4 +124,4 @@
             </Border>
         </StackPanel>
     </Grid>
-</ui:BCadControl>
+</local:BCadControl>

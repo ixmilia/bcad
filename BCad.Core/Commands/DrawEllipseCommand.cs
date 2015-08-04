@@ -6,8 +6,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportUICommand("Draw.Ellipse", "ELLIPSE", "ellipse", "el")]
-    internal class DrawEllipseCommand : IUICommand
+    [ExportCommand("Draw.Ellipse", "ELLIPSE", "ellipse", "el")]
+    internal class DrawEllipseCommand : ICommand
     {
         [Import]
         public IInputService InputService { get; set; }

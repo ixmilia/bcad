@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Composition;
 using System.IO;
 using System.Linq;
@@ -7,18 +6,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using BCad.Commands;
-using BCad.Core.UI;
 
 namespace BCad
 {
     [Export(typeof(IWorkspace))]
-    [Export(typeof(IUIWorkspace))]
     [Shared]
-    internal class Workspace : WorkspaceBase, IUIWorkspace
+    internal class Workspace : WorkspaceBase
     {
         private const string SettingsFile = "BCad.settings.xml";
         private Regex SettingsPattern = new Regex(@"^/([a-zA-Z]+):(.*)$");
@@ -31,28 +26,7 @@ namespace BCad
         public Workspace()
         {
             Update(drawing: Drawing.Update(author: Environment.UserName));
-
-            // supliment non-UI commands
-            SupplimentedCommands = new List<CommandSuppliment>()
-            {
-                new CommandSuppliment("Debug.Dump", ModifierKeys.None, Key.None, "dump"),
-                new CommandSuppliment("Edit.Layers", ModifierKeys.Control, Key.L, "layers", "layer", "la"),
-                new CommandSuppliment("Edit.Redo", ModifierKeys.Control, Key.Y, "redo", "re", "r"),
-                new CommandSuppliment("Edit.Undo", ModifierKeys.Control, Key.Z, "undo", "u"),
-                new CommandSuppliment("File.New", ModifierKeys.Control, Key.N, "new", "n"),
-                new CommandSuppliment("File.Open", ModifierKeys.Control, Key.O, "open", "o"),
-                new CommandSuppliment("File.Plot", ModifierKeys.Control, Key.P, "plot"),
-                new CommandSuppliment("File.SaveAs", ModifierKeys.None, Key.None, "saveas", "sa"),
-                new CommandSuppliment("File.Save", ModifierKeys.Control, Key.S, "save", "s"),
-                new CommandSuppliment("Zoom.Extents", ModifierKeys.None, Key.None, "zoomextents", "ze"),
-                new CommandSuppliment("Zoom.Window", ModifierKeys.None, Key.None, "zoomwindow", "zw")
-            };
         }
-
-        [ImportMany]
-        public IEnumerable<Lazy<IUICommand, UICommandMetadata>> UICommands { get; set; }
-
-        public IEnumerable<CommandSuppliment> SupplimentedCommands { get; private set; }
 
         protected override ISettingsManager LoadSettings()
         {
@@ -166,31 +140,6 @@ namespace BCad
             }
 
             return result;
-        }
-
-        protected override Tuple<Commands.ICommand, string> GetCommand(string commandName)
-        {
-            // first look for a supplimented command
-            string realCommandName = null;
-            var realCommand = SupplimentedCommands.SingleOrDefault(c => c.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase));
-            if (realCommand != null)
-            {
-                realCommandName = realCommand.Name;
-            }
-
-            // otherwise do a normal search
-            var command = base.GetCommand(realCommandName ?? commandName);
-            if (command == null)
-            {
-                var lazyCommand = (from c in UICommands
-                                   let data = c.Metadata
-                                   where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                                      || data.CommandAliases.Contains(commandName, StringComparer.OrdinalIgnoreCase)
-                                   select c).SingleOrDefault();
-                command = lazyCommand == null ? null : Tuple.Create((Commands.ICommand)lazyCommand.Value, lazyCommand.Metadata.DisplayName);
-            }
-
-            return command;
         }
     }
 }

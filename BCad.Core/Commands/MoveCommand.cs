@@ -4,7 +4,7 @@ using BCad.Utilities;
 
 namespace BCad.Commands
 {
-    [ExportUICommand("Edit.Move", "MOVE", "move", "mov", "m")]
+    [ExportCommand("Edit.Move", "MOVE", "move", "mov", "m")]
     internal class MoveCommand : AbstractCopyMoveCommand
     {
         protected override Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta)

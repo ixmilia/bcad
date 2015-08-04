@@ -6,8 +6,8 @@ using BCad.Utilities;
 
 namespace BCad.Commands
 {
-    [ExportUICommand("Edit.Rotate", "ROTATE", "rotate", "rot", "ro")]
-    public class RotateCommand : IUICommand
+    [ExportCommand("Edit.Rotate", "ROTATE", "rotate", "rot", "ro")]
+    public class RotateCommand : ICommand
     {
         [Import]
         public IInputService InputService { get; set; }

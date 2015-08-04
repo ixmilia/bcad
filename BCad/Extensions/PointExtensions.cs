@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows;
 using BCad.Helpers;
@@ -18,6 +19,11 @@ namespace BCad.Extensions
         public static System.Windows.Point ToWindowsPoint(this Point point)
         {
             return new System.Windows.Point(point.X, point.Y);
+        }
+
+        public static PointF ToPointF(this Point p)
+        {
+            return new PointF((float)p.X, (float)p.Y);
         }
 
         public static Vector3 ToVector3(this Point point)

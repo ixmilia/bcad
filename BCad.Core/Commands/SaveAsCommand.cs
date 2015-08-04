@@ -4,7 +4,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.SaveAs", "SAVEAS")]
+    [ExportCommand("File.SaveAs", "SAVEAS", "saveas", "sa")]
     public class SaveAsCommand : ICommand
     {
         [Import]

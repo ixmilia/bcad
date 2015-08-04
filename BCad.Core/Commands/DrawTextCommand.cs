@@ -5,8 +5,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportUICommand("Draw.Text", "TEXT", "text", "t")]
-    public class DrawTextCommand : IUICommand
+    [ExportCommand("Draw.Text", "TEXT", "text", "t")]
+    public class DrawTextCommand : ICommand
     {
         [Import]
         public IInputService InputService { get; set; }

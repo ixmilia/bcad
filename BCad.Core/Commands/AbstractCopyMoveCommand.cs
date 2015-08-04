@@ -9,7 +9,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    internal abstract class AbstractCopyMoveCommand : IUICommand
+    internal abstract class AbstractCopyMoveCommand : ICommand
     {
         [Import]
         public IInputService InputService { get; set; }

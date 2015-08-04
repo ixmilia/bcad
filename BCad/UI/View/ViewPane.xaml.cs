@@ -62,7 +62,7 @@ namespace BCad.UI
                 if (resources == null)
                 {
                     resources = new ResourceDictionary();
-                    resources.Source = new Uri("/BCad.Core.UI;component/SnapPointIcons.xaml", UriKind.Relative);
+                    resources.Source = new Uri("/SnapPointIcons.xaml", UriKind.Relative);
                 }
 
                 return resources;

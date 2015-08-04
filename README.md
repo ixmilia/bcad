@@ -4,7 +4,6 @@ BCad
 Runtime requirements
 --------------------
 * BCad.Core.dll
-* BCad.Core.UI.dll
 * BCad.exe (main entry point)
 * BCad.FileHandlers.dll
 * IxMilia.Dwg.dll

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Open", "OPEN")]
+    [ExportCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
     public class OpenCommand : ICommand
     {
         [Import]

@@ -37,7 +37,7 @@ namespace BCad
         }
 
         [Import]
-        public IUIWorkspace Workspace { get; set; }
+        public IWorkspace Workspace { get; set; }
 
         [Import]
         public IInputService InputService { get; set; }
@@ -49,7 +49,7 @@ namespace BCad
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<IUICommand, UICommandMetadata>> UICommands { get; set; }
+        public IEnumerable<Lazy<Commands.ICommand, CommandMetadata>> Commands { get; set; }
 
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
@@ -74,26 +74,15 @@ namespace BCad
             }
 
             // add keyboard shortcuts for command bindings
-            foreach (var command in from c in UICommands
+            foreach (var command in from c in Commands
                                     let metadata = c.Metadata
-                                    where metadata.Key != Key.None
-                                       || metadata.Modifier != ModifierKeys.None
+                                    where metadata.Key != BCad.Commands.Key.None
+                                       || metadata.Modifier != BCad.Commands.ModifierKeys.None
                                     select metadata)
             {
                 this.InputBindings.Add(new InputBinding(
                     new UserCommand(this.Workspace, command.Name),
-                    new KeyGesture(command.Key, command.Modifier)));
-            }
-
-            // add keyboard shortcuts for supplimented commands
-            foreach (var command in from c in Workspace.SupplimentedCommands
-                                    where c.Key != Key.None
-                                       || c.Modifier != ModifierKeys.None
-                                    select c)
-            {
-                this.InputBindings.Add(new InputBinding(
-                    new UserCommand(this.Workspace, command.Name),
-                    new KeyGesture(command.Key, command.Modifier)));
+                    new KeyGesture((System.Windows.Input.Key)command.Key, (System.Windows.Input.ModifierKeys)command.Modifier)));
             }
 
             // add keyboard shortcuts for toggled settings

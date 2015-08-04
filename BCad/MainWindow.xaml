@@ -5,7 +5,7 @@
               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
               xmlns:ui="clr-namespace:BCad.UI"
               xmlns:view="clr-namespace:BCad.UI.View"
-              xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
+              xmlns:commands="clr-namespace:BCad.RibbonCommands"
               xmlns:consoles="clr-namespace:BCad.UI.Consoles"
               mc:Ignorable="d"
               Height="768"

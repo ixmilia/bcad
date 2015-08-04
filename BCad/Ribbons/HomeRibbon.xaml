@@ -3,7 +3,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:commands="clr-namespace:BCad.RibbonCommands;assembly=BCad.Core.UI"
+                    xmlns:commands="clr-namespace:BCad.RibbonCommands"
                     xmlns:local="clr-namespace:BCad.Ribbons"
                     xmlns:ui="clr-namespace:BCad.UI"
                     Header="Home"

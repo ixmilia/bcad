@@ -3,8 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using BCad.Core.UI.Extensions;
 using BCad.Entities;
+using BCad.Extensions;
 using BCad.FilePlotters;
 
 namespace BCad.Commands.FilePlotters

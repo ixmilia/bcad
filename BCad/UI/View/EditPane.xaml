@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:local="clr-namespace:BCad.Ribbons"
              xmlns:view="clr-namespace:BCad.UI.View"
-             xmlns:controls="clr-namespace:BCad.Core.UI;assembly=BCad.Core.UI">
+             xmlns:controls="clr-namespace:BCad.Core.UI">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

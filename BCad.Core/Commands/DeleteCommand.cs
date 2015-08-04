@@ -6,8 +6,8 @@ using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportUICommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
-    public class DeleteCommand : IUICommand
+    [ExportCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
+    public class DeleteCommand : ICommand
     {
         [Import]
         public IInputService InputService { get; set; }

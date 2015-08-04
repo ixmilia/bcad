@@ -244,6 +244,7 @@ namespace BCad
             var command = (from c in Commands
                            let data = c.Metadata
                            where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                              || data.CommandAliases.Any(alias => string.Compare(alias, commandName, StringComparison.OrdinalIgnoreCase) == 0)
                            select c).SingleOrDefault();
             return command == null ? null : Tuple.Create(command.Value, command.Metadata.DisplayName);
         }
