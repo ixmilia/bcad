@@ -18,7 +18,7 @@ namespace BCad.Entities
 
         public Point P2 { get { return p2; } }
 
-        public Line(Point p1, Point p2, IndexedColor color, object tag = null)
+        public Line(Point p1, Point p2, CadColor? color, object tag = null)
             : base(color, tag)
         {
             this.p1 = p1;
@@ -64,7 +64,7 @@ namespace BCad.Entities
         public Line Update(
             Optional<Point> p1 = default(Optional<Point>),
             Optional<Point> p2 = default(Optional<Point>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newP1 = p1.HasValue ? p1.Value : this.p1;

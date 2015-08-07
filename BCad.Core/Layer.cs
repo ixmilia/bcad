@@ -9,13 +9,13 @@ namespace BCad
     public class Layer
     {
         private readonly string name;
-        private readonly IndexedColor color;
+        private readonly CadColor? color;
         private readonly bool isVisible;
         private readonly ReadOnlyTree<uint, Entity> entities;
 
         public string Name { get { return name; } }
 
-        public IndexedColor Color { get { return color; } }
+        public CadColor? Color { get { return color; } }
 
         public bool IsVisible { get { return isVisible; } }
 
@@ -24,22 +24,22 @@ namespace BCad
             get { return this.entities.Count; }
         }
 
-        public Layer(string name, IndexedColor color)
+        public Layer(string name, CadColor? color)
             : this(name, color, new ReadOnlyTree<uint, Entity>())
         {
         }
 
-        public Layer(string name, IndexedColor color, ReadOnlyTree<uint, Entity> entities)
+        public Layer(string name, CadColor? color, ReadOnlyTree<uint, Entity> entities)
             : this(name, color, true, entities)
         {
         }
 
-        public Layer(string name, IndexedColor color, IEnumerable<Entity> entities)
+        public Layer(string name, CadColor? color, IEnumerable<Entity> entities)
             : this(name, color, ReadOnlyTree<uint, Entity>.FromEnumerable(entities, (ent) => ent.Id))
         {
         }
 
-        public Layer(string name, IndexedColor color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
+        public Layer(string name, CadColor? color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
         {
             this.name = name;
             this.color = color;
@@ -91,7 +91,7 @@ namespace BCad
 
         public Layer Update(
             string name = null,
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<bool> isVisible = default(Optional<bool>),
             ReadOnlyTree<uint, Entity> entities = null)
         {

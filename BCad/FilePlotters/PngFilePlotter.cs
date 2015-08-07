@@ -15,62 +15,61 @@ namespace BCad.Commands.FilePlotters
         public const string DisplayName = "PNG Files (" + FileExtension + ")";
         public const string FileExtension = ".png";
 
-        private Dictionary<Color, Brush> brushCache = new Dictionary<Color, Brush>();
-        private Dictionary<Color, Pen> penCache = new Dictionary<Color, Pen>();
+        private Dictionary<CadColor, Brush> brushCache = new Dictionary<CadColor, Brush>();
+        private Dictionary<CadColor, Pen> penCache = new Dictionary<CadColor, Pen>();
         private Color bgColor;
-        private Color autoColor;
+        private CadColor autoColor;
 
         public PngFilePlotter()
         {
-            // TODO: set autocolor
             bgColor = Color.White;
-            autoColor = Color.Black;
+            autoColor = CadColor.Black;
         }
 
-        public void Plot(IEnumerable<ProjectedEntity> entities, ColorMap colorMap, double width, double height, Stream stream)
+        public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
         {
             using (var image = new Bitmap((int)width, (int)height))
             {
                 using (var graphics = Graphics.FromImage(image))
                 {
                     graphics.FillRectangle(new SolidBrush(bgColor), new Rectangle(0, 0, image.Width, image.Height));
-                    PlotGraphics(entities, colorMap, graphics);
+                    PlotGraphics(entities, graphics);
                 }
 
                 image.Save(stream, ImageFormat.Png);
             }
         }
 
-        private void PlotGraphics(IEnumerable<ProjectedEntity> entities, ColorMap colorMap, Graphics graphics)
+        private void PlotGraphics(IEnumerable<ProjectedEntity> entities, Graphics graphics)
         {
             foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
             {
                 var layer = groupedEntity.Key;
                 foreach (var entity in groupedEntity)
                 {
-                    DrawEntity(graphics, entity, layer.Color, colorMap);
+                    DrawEntity(graphics, entity, layer.Color);
                 }
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedEntity entity, IndexedColor layerColor, ColorMap colorMap)
+        private void DrawEntity(Graphics graphics, ProjectedEntity entity, CadColor? layerColor)
         {
             switch (entity.Kind)
             {
                 case EntityKind.Line:
-                    DrawEntity(graphics, (ProjectedLine)entity, layerColor, colorMap);
+                    DrawEntity(graphics, (ProjectedLine)entity, layerColor);
                     break;
                 case EntityKind.Circle:
                 case EntityKind.Ellipse:
-                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor, colorMap);
+                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor);
                     break;
                 case EntityKind.Text:
-                    DrawEntity(graphics, (ProjectedText)entity, layerColor, colorMap);
+                    DrawEntity(graphics, (ProjectedText)entity, layerColor);
                     break;
                 case EntityKind.Aggregate:
                     foreach (var child in ((ProjectedAggregate)entity).Children)
                     {
-                        DrawEntity(graphics, child, layerColor, colorMap);
+                        DrawEntity(graphics, child, layerColor);
                     }
                     break;
                 default:
@@ -78,7 +77,7 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private Brush ColorToBrush(Color color)
+        private Brush ColorToBrush(CadColor color)
         {
             if (brushCache.ContainsKey(color))
             {
@@ -86,35 +85,35 @@ namespace BCad.Commands.FilePlotters
             }
             else
             {
-                var brush = new SolidBrush(color);
+                var brush = new SolidBrush(color.ToDrawingColor());
                 brushCache.Add(color, brush);
                 return brush;
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedLine line, IndexedColor layerColor, ColorMap colorMap)
+        private void DrawEntity(Graphics graphics, ProjectedLine line, CadColor? layerColor)
         {
-            graphics.DrawLine(ColorToPen(GetDisplayColor(layerColor, line.OriginalLine.Color, colorMap)), line.P1.ToPointF(), line.P2.ToPointF());
+            graphics.DrawLine(ColorToPen(layerColor ?? line.OriginalLine.Color ?? autoColor), line.P1.ToPointF(), line.P2.ToPointF());
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedCircle circle, IndexedColor layerColor, ColorMap colorMap)
+        private void DrawEntity(Graphics graphics, ProjectedCircle circle, CadColor? layerColor)
         {
             // TODO: handle rotation
             var width = circle.RadiusX * 2.0;
             var height = circle.RadiusY * 2.0;
             var topLeft = (Point)(circle.Center - new Point(circle.RadiusX, circle.RadiusX, 0.0));
-            graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color, colorMap)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
+            graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedText text, IndexedColor layerColor, ColorMap colorMap)
+        private void DrawEntity(Graphics graphics, ProjectedText text, CadColor? layerColor)
         {
             // TODO: handle rotation
             var x = (float)text.Location.X;
             var y = (float)(text.Location.Y - text.Height);
-            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, new SolidBrush(colorMap[text.OriginalText.Color].ToDrawingColor()), x, y);
+            graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, ColorToBrush(text.OriginalText.Color ?? layerColor ?? autoColor), x, y);
         }
 
-        private Pen ColorToPen(Color color)
+        private Pen ColorToPen(CadColor color)
         {
             if (penCache.ContainsKey(color))
             {
@@ -128,17 +127,9 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private Color GetDisplayColor(IndexedColor layerColor, IndexedColor primitiveColor, ColorMap colorMap)
+        private CadColor GetDisplayColor(CadColor? layerColor, CadColor? primitiveColor)
         {
-            Color display;
-            if (!primitiveColor.IsAuto)
-                display = colorMap[primitiveColor].ToDrawingColor();
-            else if (!layerColor.IsAuto)
-                display = colorMap[layerColor].ToDrawingColor();
-            else
-                display = autoColor;
-
-            return display;
+            return primitiveColor ?? layerColor ?? autoColor;
         }
     }
 }

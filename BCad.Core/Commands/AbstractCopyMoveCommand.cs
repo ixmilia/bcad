@@ -43,7 +43,7 @@ namespace BCad.Commands
             {
                 var offset = p - origin.Value;
                 return primitives.Select(pr => pr.Move(offset))
-                    .Concat(new[] { new PrimitiveLine(origin.Value, p, IndexedColor.Default) });
+                    .Concat(new[] { new PrimitiveLine(origin.Value, p, null) });
             });
 
             if (destination.Cancel || !destination.HasValue)

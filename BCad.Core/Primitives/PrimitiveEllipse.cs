@@ -12,7 +12,7 @@ namespace BCad.Primitives
         public double MinorAxisRatio { get; private set; }
         public double StartAngle { get; private set; }
         public double EndAngle { get; private set; }
-        public IndexedColor Color { get; private set; }
+        public CadColor? Color { get; private set; }
         public Matrix4 FromUnitCircle { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Ellipse; } }
 
@@ -21,7 +21,7 @@ namespace BCad.Primitives
         /// <summary>
         /// Creates a new PrimitiveEllipse.
         /// </summary>
-        public PrimitiveEllipse(Point center, Vector majorAxis, Vector normal, double minorAxisRatio, double startAngle, double endAngle, IndexedColor color)
+        public PrimitiveEllipse(Point center, Vector majorAxis, Vector normal, double minorAxisRatio, double startAngle, double endAngle, CadColor? color)
         {
             Debug.Assert(MathHelper.Between(0.0, 360.0, startAngle));
             Debug.Assert(MathHelper.Between(0.0, 360.0, endAngle));
@@ -43,14 +43,14 @@ namespace BCad.Primitives
         /// Creates a new PrimitiveEllipse based on a circle.
         /// </summary>
         public PrimitiveEllipse(Point center, double radius, Vector normal)
-            : this(center, radius, normal, IndexedColor.Auto)
+            : this(center, radius, normal, null)
         {
         }
 
         /// <summary>
         /// Creates a new PrimitiveEllipse based on a circle.
         /// </summary>
-        public PrimitiveEllipse(Point center, double radius, Vector normal, IndexedColor color)
+        public PrimitiveEllipse(Point center, double radius, Vector normal, CadColor? color)
             : this(center, Vector.RightVectorFromNormal(normal) * radius, normal, 1.0, 0.0, 360.0, color)
         {
         }
@@ -58,7 +58,7 @@ namespace BCad.Primitives
         /// <summary>
         /// Creates a new PrimitiveEllipse based on an arc.
         /// </summary>
-        public PrimitiveEllipse(Point center, double radius, double startAngle, double endAngle, Vector normal, IndexedColor color)
+        public PrimitiveEllipse(Point center, double radius, double startAngle, double endAngle, Vector normal, CadColor? color)
             : this(center, Vector.RightVectorFromNormal(normal) * radius, normal, 1.0, startAngle, endAngle, color)
         {
         }
@@ -99,7 +99,7 @@ namespace BCad.Primitives
             if (idealNormal.HasValue && idealNormal.Value == normal * -1.0)
                 normal = idealNormal.Value;
 
-            return new PrimitiveEllipse(center.Value, (a - center.Value).Length, normal, IndexedColor.Auto);
+            return new PrimitiveEllipse(center.Value, (a - center.Value).Length, normal, null);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace BCad.Primitives
         /// <returns>The PrimitiveEllipse object.</returns>
         public static PrimitiveEllipse Ellipse2d(Point center, double a, double b)
         {
-            return new PrimitiveEllipse(center, new Vector(a, 0.0, 0.0), Vector.ZAxis, b / a, 0, 360, IndexedColor.Auto);
+            return new PrimitiveEllipse(center, new Vector(a, 0.0, 0.0), Vector.ZAxis, b / a, 0, 360, null);
         }
     }
 }

@@ -7,16 +7,15 @@ namespace BCad.UI.View
 {
     public class RenderCanvasViewModel : INotifyPropertyChanged
     {
-        private RealColor backgroundColor = RealColor.Black;
+        private CadColor backgroundColor = CadColor.Black;
         private ViewPort viewPort = ViewPort.CreateDefaultViewPort();
         private Drawing drawing = new Drawing();
         private double pointSize = 15.0;
         private ObservableHashSet<Entity> selectedEntities = new ObservableHashSet<Entity>();
-        private ColorMap colorMap = ColorMap.Default;
         private Point cursorPoint = new Point();
         private RubberBandGenerator rubberBandGenerator = null;
 
-        public RealColor BackgroundColor
+        public CadColor BackgroundColor
         {
             get { return backgroundColor; }
             set
@@ -72,18 +71,6 @@ namespace BCad.UI.View
                 if (selectedEntities == value)
                     return;
                 selectedEntities = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ColorMap ColorMap
-        {
-            get { return colorMap; }
-            set
-            {
-                if (colorMap == value)
-                    return;
-                colorMap = value;
                 OnPropertyChanged();
             }
         }

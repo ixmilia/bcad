@@ -24,8 +24,7 @@ namespace BCad.Test
                 {
                     typeof(TestHost).GetTypeInfo().Assembly, // this assembly
                     typeof(App).GetTypeInfo().Assembly, // BCad.exe
-                    typeof(Drawing).GetTypeInfo().Assembly, // BCad.Core.dll
-                    typeof(BCadControl).GetTypeInfo().Assembly // BCad.Core.UI.dll
+                    typeof(Drawing).GetTypeInfo().Assembly // BCad.Core.dll
                 });
             container = configuration.CreateContainer();
             container.SatisfyImports(this);
@@ -41,7 +40,7 @@ namespace BCad.Test
         {
             var host = CreateHost();
             foreach (string layer in layerNames)
-                host.Workspace.Add(new Layer(layer, IndexedColor.Auto));
+                host.Workspace.Add(new Layer(layer, null));
             return host;
         }
 

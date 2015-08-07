@@ -2,15 +2,12 @@
 {
     public class ColorViewModel
     {
-        public ColorViewModel(IndexedColor color, RealColor realColor)
+        public ColorViewModel(CadColor? color)
         {
             this.Color = color;
-            this.RealColor = realColor;
         }
 
-        public IndexedColor Color { get; private set; }
-
-        public RealColor RealColor { get; private set; }
+        public CadColor? Color { get; private set; }
 
         public override bool Equals(object obj)
         {

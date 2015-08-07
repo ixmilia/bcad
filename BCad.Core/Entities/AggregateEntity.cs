@@ -23,11 +23,11 @@ namespace BCad.Entities
         public ReadOnlyList<Entity> Children { get { return children; } }
 
         public AggregateEntity()
-            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), IndexedColor.Auto, null)
+            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), null, null)
         {
         }
 
-        public AggregateEntity(Point location, ReadOnlyList<Entity> children, IndexedColor color, object tag = null)
+        public AggregateEntity(Point location, ReadOnlyList<Entity> children, CadColor? color, object tag = null)
             : base(color, tag)
         {
             if (children == null)
@@ -75,7 +75,7 @@ namespace BCad.Entities
         public AggregateEntity Update(
             Optional<Point> location = default(Optional<Point>),
             ReadOnlyList<Entity> children = null,
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newLocation = location.HasValue ? location.Value : this.location;

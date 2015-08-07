@@ -12,17 +12,17 @@ namespace BCad.ViewModels
         private string name;
         private Layer layer;
 
-        public MutableLayerViewModel(string name, ColorMap colorMap)
+        public MutableLayerViewModel(string name)
         {
             this.name = name;
-            this.color = new ColorViewModel(IndexedColor.Auto, colorMap[IndexedColor.Auto]);
+            this.color = new ColorViewModel(null);
         }
 
-        public MutableLayerViewModel(Layer layer, ColorMap colorMap)
+        public MutableLayerViewModel(Layer layer)
         {
             this.layer = layer;
             this.name = layer.Name;
-            this.color = new ColorViewModel(layer.Color, colorMap[layer.Color]);
+            this.color = new ColorViewModel(layer.Color);
             this.isVisible = layer.IsVisible;
         }
 

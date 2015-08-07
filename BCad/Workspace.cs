@@ -11,8 +11,7 @@ using System.Xml.Serialization;
 
 namespace BCad
 {
-    [Export(typeof(IWorkspace))]
-    [Shared]
+    [Export(typeof(IWorkspace)), Shared]
     internal class Workspace : WorkspaceBase
     {
         private const string SettingsFile = "BCad.settings.xml";
@@ -121,7 +120,7 @@ namespace BCad
                             fileName = await FileSystemService.GetFileNameFromUserForSave();
                         if (fileName == null)
                             result = UnsavedChangesResult.Cancel;
-                        else if (await FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort, null))
+                        else if (await FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;

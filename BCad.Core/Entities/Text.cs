@@ -36,7 +36,7 @@ namespace BCad.Entities
 
         public double Rotation { get { return this.rotation; } }
 
-        public Text(string value, Point location, Vector normal, double height, double rotation, IndexedColor color, object tag = null)
+        public Text(string value, Point location, Vector normal, double height, double rotation, CadColor? color, object tag = null)
             : base(color, tag)
         {
             if (value == null)
@@ -107,7 +107,7 @@ namespace BCad.Entities
             Optional<Vector> normal = default(Optional<Vector>),
             Optional<double> height = default(Optional<double>),
             Optional<double> rotation = default(Optional<double>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newValue = value ?? this.value;

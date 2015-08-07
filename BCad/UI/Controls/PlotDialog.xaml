@@ -118,7 +118,6 @@
                                        Width="{Binding Path=PreviewWidth}"
                                        Height="{Binding Path=PreviewHeight}"
                                        ViewPort="{Binding Path=ViewPort}"
-                                       ColorMap="{Binding Path=ColorMap}"
                                        Drawing="{Binding Path=Drawing}" />
                 </Grid>
             </Border>

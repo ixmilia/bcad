@@ -18,7 +18,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
-        public Location(Point location, IndexedColor color, object tag = null)
+        public Location(Point location, CadColor? color, object tag = null)
             : base(color, tag)
         {
             this.location = location;
@@ -56,7 +56,7 @@ namespace BCad.Entities
 
         public Location Update(
             Optional<Point> point = default(Optional<Point>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newPoint = point.HasValue ? point.Value : this.Point;

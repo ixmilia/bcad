@@ -25,7 +25,6 @@ namespace BCad.Ribbons
 
         private void DebugButtonClick(object sender, System.Windows.RoutedEventArgs e)
         {
-            workspace.SettingsManager.ColorMap = ColorMap.AllBlack;
         }
     }
 }

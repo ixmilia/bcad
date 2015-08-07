@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <GlobalConstants>BCAD_WPF</GlobalConstants>
     <NuGetPackageImportStamp>eb563a44</NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -123,6 +122,8 @@
     </Compile>
     <Compile Include="UI\BCadDialogResult.cs" />
     <Compile Include="UI\BCadDialog`1.cs" />
+    <Compile Include="UI\CadColors.cs" />
+    <Compile Include="UI\ColorDisplayNameConverter.cs" />
     <Compile Include="UI\ControlMetadata.cs" />
     <Compile Include="UI\DialogFactory.cs" />
     <Compile Include="UI\EditablePoint.xaml.cs">
@@ -337,6 +338,10 @@
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
       <Project>{ae1e5dc5-64db-4fba-847c-5b84a865eec1}</Project>
       <Name>BCad.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BCad.FileHandlers\BCad.FileHandlers.csproj">
+      <Project>{0b2dc042-30b6-4d2b-ac56-5f12d1eb5a55}</Project>
+      <Name>BCad.FileHandlers</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

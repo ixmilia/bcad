@@ -29,7 +29,7 @@ namespace BCad.Entities
 
         public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
-        public Circle(Point center, double radius, Vector normal, IndexedColor color, object tag = null)
+        public Circle(Point center, double radius, Vector normal, CadColor? color, object tag = null)
             : base(color, tag)
         {
             this.center = center;
@@ -89,7 +89,7 @@ namespace BCad.Entities
             Optional<Point> center = default(Optional<Point>),
             Optional<double> radius = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newCenter = center.HasValue ? center.Value : this.center;

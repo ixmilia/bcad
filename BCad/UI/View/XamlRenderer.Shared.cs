@@ -1,17 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using BCad.Collections;
-using BCad.Entities;
-using BCad.EventArguments;
-
-#if BCAD_METRO
-using Windows.UI.Xaml.Controls;
-#endif
-
-#if BCAD_WPF
 using System.Windows.Controls;
-#endif
+using BCad.EventArguments;
 
 namespace BCad.UI.View
 {
@@ -56,9 +46,6 @@ namespace BCad.UI.View
             {
                 case Constants.BackgroundColorString:
                     viewModel.BackgroundColor = Workspace.SettingsManager.BackgroundColor;
-                    break;
-                case Constants.ColorMapString:
-                    viewModel.ColorMap = Workspace.SettingsManager.ColorMap;
                     break;
             }
         }

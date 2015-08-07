@@ -17,7 +17,7 @@ namespace BCad.Entities
 
         public IEnumerable<Point> Points { get { return this.points; } }
 
-        public Polyline(IEnumerable<Point> points, IndexedColor color, object tag = null)
+        public Polyline(IEnumerable<Point> points, CadColor? color, object tag = null)
             : base(color, tag)
         {
             this.points = new List<Point>(points); // to prevent backing changes
@@ -66,7 +66,7 @@ namespace BCad.Entities
 
         public Polyline Update(
             IEnumerable<Point> points = null,
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newPoints = points ?? this.points;

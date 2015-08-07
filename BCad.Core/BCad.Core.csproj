@@ -37,10 +37,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BoundingBox.cs" />
+    <Compile Include="CadColor.cs" />
     <Compile Include="Collections\ObservableHashSet`1.cs" />
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
-    <Compile Include="ColorMap.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
     <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
     <Compile Include="Commands\CommandMetadata.cs" />
@@ -74,7 +74,6 @@
     <Compile Include="FileHandlers\FileHandlerMetadata.cs" />
     <Compile Include="FilePlotters\FilePlotterMetadata.cs" />
     <Compile Include="FileReadResult.cs" />
-    <Compile Include="IndexedColor.cs" />
     <Compile Include="Entities\AggregateEntity.cs" />
     <Compile Include="Entities\ProjectedAggregate.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
@@ -130,7 +129,6 @@
     <Compile Include="ISettingsManager.cs" />
     <Compile Include="Primitives\PrimitivePoint.cs" />
     <Compile Include="Quaternion.cs" />
-    <Compile Include="RealColor.cs" />
     <Compile Include="SelectionRectangle.cs" />
     <Compile Include="Services\DebugService.cs" />
     <Compile Include="Helpers\ProjectionHelper.cs" />

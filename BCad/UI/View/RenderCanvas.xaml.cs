@@ -2,51 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using BCad.Collections;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
-
-#if BCAD_METRO
-using Windows.UI;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
-using BCad.Metro.Extensions;
-using Shapes = Windows.UI.Xaml.Shapes;
-using DisplayPoint = Windows.Foundation.Point;
-using DisplaySize = Windows.Foundation.Size;
-using P_Metadata = Windows.UI.Xaml.PropertyMetadata;
-#endif
-
-#if BCAD_PHONE
-using Windows.UI;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
-using BCad.Phone.Extensions;
-using Shapes = Windows.UI.Xaml.Shapes;
-using DisplayPoint = Windows.Foundation.Point;
-using DisplaySize = Windows.Foundation.Size;
-using P_Metadata = Windows.UI.Xaml.PropertyMetadata;
-#endif
-
-#if BCAD_WPF
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Shapes = System.Windows.Shapes;
+using BCad.Collections;
+using BCad.Entities;
+using BCad.Extensions;
+using BCad.Helpers;
+using BCad.Primitives;
 using DisplayPoint = System.Windows.Point;
 using DisplaySize = System.Windows.Size;
 using P_Metadata = System.Windows.FrameworkPropertyMetadata;
-#endif
+using Shapes = System.Windows.Shapes;
 
 namespace BCad.UI.View
 {
@@ -63,8 +32,6 @@ namespace BCad.UI.View
             DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new P_Metadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
             DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new P_Metadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
-        public static readonly DependencyProperty ColorMapProperty =
-            DependencyProperty.Register("ColorMap", typeof(ColorMap), typeof(RenderCanvas), new P_Metadata(ColorMap.Default, ColorMapPropertyChanged));
         public static readonly DependencyProperty BackgroundExProperty =
             DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundExPropertyChanged));
         public static readonly DependencyProperty SupportedPrimitiveTypesProperty =
@@ -114,15 +81,6 @@ namespace BCad.UI.View
             }
         }
 
-        private static void ColorMapPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-            var control = source as RenderCanvas;
-            if (control != null)
-            {
-                control.RebindBrushes();
-            }
-        }
-
         private static void BackgroundExPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var canvas = source as RenderCanvas;
@@ -164,21 +122,15 @@ namespace BCad.UI.View
             }
         }
 
-#if BCAD_METRO || BCAD_PHONE
-        private Func<DoubleCollection> solidLineGenerator = () => new DoubleCollection();
-        private Func<DoubleCollection> dashedLineGenerator = () => new DoubleCollection() { 4.0, 4.0 };
-#endif
-
-#if BCAD_WPF
         private static DoubleCollection solidLineInstance = new DoubleCollection();
         private static DoubleCollection dashedLineInstance = new DoubleCollection() { 4.0, 4.0 };
         private Func<DoubleCollection> solidLineGenerator = () => solidLineInstance;
         private Func<DoubleCollection> dashedLineGenerator = () => dashedLineInstance;
-#endif
         private BindingClass BindObject = new BindingClass();
         private Matrix4 PlaneProjection = Matrix4.Identity;
         private Dictionary<uint, IList<FrameworkElement>> entityMap = new Dictionary<uint, IList<FrameworkElement>>();
         private List<FrameworkElement> currentlySelected = new List<FrameworkElement>();
+        private CadColor _autoColor;
 
         public RenderCanvas()
         {
@@ -193,14 +145,13 @@ namespace BCad.UI.View
                 Source = this
             };
             BindingOperations.SetBinding(this, BackgroundExProperty, binding);
-            RebindBrushes();
         }
 
         internal void SetAutocolorFromBackgroundColor(Color bgColor)
         {
-            var real = RealColor.FromRgb(bgColor.R, bgColor.G, bgColor.B);
-            var autoColor = real.GetAutoContrastingColor().ToMediaColor();
-            this.BindObject.AutoBrush = new SolidColorBrush(autoColor);
+            var real = CadColor.FromRgb(bgColor.R, bgColor.G, bgColor.B);
+            _autoColor = real.GetAutoContrastingColor();
+            this.BindObject.AutoBrush = new SolidColorBrush(_autoColor.ToMediaColor());
         }
 
         private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
@@ -238,12 +189,6 @@ namespace BCad.UI.View
         {
             get { return (ObservableHashSet<Entity>)GetValue(SelectedEntitiesProperty); }
             set { SetValue(SelectedEntitiesProperty, value); }
-        }
-
-        public ColorMap ColorMap
-        {
-            get { return (ColorMap)GetValue(ColorMapProperty); }
-            set { SetValue(ColorMapProperty, value); }
         }
 
         public PrimitiveKind SupportedPrimitiveTypes
@@ -363,11 +308,6 @@ namespace BCad.UI.View
             }
         }
 
-        private void RebindBrushes()
-        {
-            BindObject.RebindBrushes(ColorMap);
-        }
-
         private void Redraw()
         {
             this.entityCanvas.Children.Clear();
@@ -376,11 +316,14 @@ namespace BCad.UI.View
             var supported = SupportedPrimitiveTypes;
             foreach (var layer in Drawing.GetLayers().Where(l => l.IsVisible))
             {
+                var layerColor = layer.Color ?? _autoColor;
                 foreach (var entity in layer.GetEntities())
                 {
+                    var entityColor = entity.Color ?? layerColor;
                     foreach (var prim in entity.GetPrimitives())
                     {
-                        AddPrimitive(prim, GetColor(prim.Color, layer.Color), entity, supported, entityCanvas);
+                        var primitiveColor = prim.Color ?? entityColor;
+                        AddPrimitive(prim, primitiveColor, entity, supported, entityCanvas);
                     }
                 }
             }
@@ -395,12 +338,12 @@ namespace BCad.UI.View
             {
                 foreach (var prim in generator(CursorPoint))
                 {
-                    AddPrimitive(prim, GetColor(prim.Color, IndexedColor.Auto), null, supported, rubberBandCanvas);
+                    AddPrimitive(prim, prim.Color, null, supported, rubberBandCanvas);
                 }
             }
         }
 
-        private void AddPrimitive(IPrimitive prim, IndexedColor color, Entity containingEntity, PrimitiveKind supported, Canvas canvas)
+        private void AddPrimitive(IPrimitive prim, CadColor? color, Entity containingEntity, PrimitiveKind supported, Canvas canvas)
         {
             FrameworkElement element = null;
             switch (prim.Kind)
@@ -438,7 +381,7 @@ namespace BCad.UI.View
             }
         }
 
-        private Shape CreatePrimitiveEllipse(PrimitiveEllipse ellipse, IndexedColor color)
+        private Shape CreatePrimitiveEllipse(PrimitiveEllipse ellipse, CadColor? color)
         {
             // rendering zero-radius ellipses (and arcs/circles) can cause the WPF layout engine to throw
             if (ellipse.MajorAxis.LengthSquared == 0.0)
@@ -507,7 +450,7 @@ namespace BCad.UI.View
             return shape;
         }
 
-        private Shapes.Line CreatePrimitiveLine(PrimitiveLine line, IndexedColor color)
+        private Shapes.Line CreatePrimitiveLine(PrimitiveLine line, CadColor? color)
         {
             var p1 = PlaneProjection.Transform(line.P1);
             var p2 = PlaneProjection.Transform(line.P2);
@@ -517,7 +460,7 @@ namespace BCad.UI.View
             return newLine;
         }
 
-        private Grid CreatePrimitivePoint(PrimitivePoint point, IndexedColor color)
+        private Grid CreatePrimitivePoint(PrimitivePoint point, CadColor? color)
         {
             const double size = 0.5;
             var loc = PlaneProjection.Transform(point.Location);
@@ -569,7 +512,7 @@ namespace BCad.UI.View
             return grid;
         }
 
-        private TextBlock CreatePrimitiveText(PrimitiveText text, IndexedColor color)
+        private TextBlock CreatePrimitiveText(PrimitiveText text, CadColor? color)
         {
             var location = PlaneProjection.Transform(text.Location);
             var t = new TextBlock();
@@ -586,11 +529,6 @@ namespace BCad.UI.View
             return t;
         }
 
-        private static IndexedColor GetColor(IndexedColor primitiveColor, IndexedColor layerColor)
-        {
-            return primitiveColor.IsAuto ? layerColor : primitiveColor;
-        }
-
         private void SetBinding(DependencyObject element, string propertyName, DependencyProperty property)
         {
             var binding = new Binding() { Path = new PropertyPath(propertyName) };
@@ -603,14 +541,14 @@ namespace BCad.UI.View
             SetBinding(shape, "Thickness", Shape.StrokeThicknessProperty);
         }
 
-        private void SetColorBinding(Shape shape, IndexedColor color)
+        private void SetColorBinding(Shape shape, CadColor? color)
         {
             SetColorBinding(shape, Shape.StrokeProperty, color);
         }
 
-        private void SetColorBinding(FrameworkElement element, DependencyProperty property, IndexedColor color)
+        private void SetColorBinding(FrameworkElement element, DependencyProperty property, CadColor? color)
         {
-            if (color.IsAuto)
+            if (color == null)
             {
                 SetBinding(element, "AutoBrush", property);
             }

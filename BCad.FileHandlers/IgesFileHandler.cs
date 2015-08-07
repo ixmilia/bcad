@@ -19,15 +19,10 @@ namespace BCad.FileHandlers
         public const string FileExtension1 = ".igs";
         public const string FileExtension2 = ".iges";
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
+        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
             var file = IgesFile.Load(fileStream);
-            propertyBag = new Dictionary<string, object>()
-            {
-                { "ColorMap", ColorMap.IgesDefault }
-            };
-
-            var layer = new Layer("igs", IndexedColor.Auto);
+            var layer = new Layer("igs", null);
             foreach (var entity in file.Entities)
             {
                 var cadEntity = ToEntity(entity);
@@ -49,7 +44,7 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
         {
             var file = new IgesFile();
             var oldFile = drawing.Tag as IgesFile;
@@ -119,7 +114,7 @@ namespace BCad.FileHandlers
         {
             Point center;
             double startAngle, endAngle;
-            IndexedColor color;
+            CadColor? color;
             switch (entity.Kind)
             {
                 case EntityKind.Arc:
@@ -294,55 +289,63 @@ namespace BCad.FileHandlers
             return null;
         }
 
-        private static IndexedColor ToColor(IgesColorNumber color)
+        private static CadColor? ToColor(IgesColorNumber color)
         {
             switch (color)
             {
                 case IgesColorNumber.Default:
-                    return IndexedColor.Auto;
+                    return null;
                 case IgesColorNumber.Black:
-                    return new IndexedColor(1);
+                    return CadColor.Black;
                 case IgesColorNumber.Red:
-                    return new IndexedColor(2);
+                    return CadColor.Red;
                 case IgesColorNumber.Green:
-                    return new IndexedColor(3);
+                    return CadColor.Green;
                 case IgesColorNumber.Blue:
-                    return new IndexedColor(4);
+                    return CadColor.Blue;
                 case IgesColorNumber.Yellow:
-                    return new IndexedColor(5);
+                    return CadColor.Yellow;
                 case IgesColorNumber.Magenta:
-                    return new IndexedColor(6);
+                    return CadColor.Magenta;
                 case IgesColorNumber.Cyan:
-                    return new IndexedColor(7);
+                    return CadColor.Cyan;
                 case IgesColorNumber.White:
-                    return new IndexedColor(8);
+                    return CadColor.Cyan;
                 default:
-                    return IndexedColor.Auto;
+                    // TODO: handle custom colors
+                    return null;
             }
         }
 
-        private static IgesColorNumber ToColor(IndexedColor color)
+        private static IgesColorNumber ToColor(CadColor? color)
         {
-            switch (color.Value)
+            if (color == null)
             {
-                case 0:
-                    return IgesColorNumber.Black;
-                case 1:
-                    return IgesColorNumber.Red;
-                case 2:
-                    return IgesColorNumber.Yellow;
-                case 3:
-                    return IgesColorNumber.Green;
-                case 4:
-                    return IgesColorNumber.Cyan;
-                case 5:
-                    return IgesColorNumber.Blue;
-                case 6:
-                    return IgesColorNumber.Magenta;
-                case 7:
-                    return IgesColorNumber.White;
-                default:
-                    return IgesColorNumber.Default;
+                return IgesColorNumber.Default;
+            }
+            else
+            {
+                switch (color.Value.ToInt32())
+                {
+                    case 0x000000:
+                        return IgesColorNumber.Black;
+                    case 0xFF0000:
+                        return IgesColorNumber.Red;
+                    case 0xFFFF00:
+                        return IgesColorNumber.Yellow;
+                    case 0x00FF00:
+                        return IgesColorNumber.Green;
+                    case 0x00FFFF:
+                        return IgesColorNumber.Cyan;
+                    case 0x0000FF:
+                        return IgesColorNumber.Blue;
+                    case 0xFF00FF:
+                        return IgesColorNumber.Magenta;
+                    case 0xFFFFFF:
+                        return IgesColorNumber.White;
+                    default:
+                        return IgesColorNumber.Default;
+                }
             }
         }
 

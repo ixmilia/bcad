@@ -25,7 +25,7 @@ namespace BCad.Commands
             var first = start.Value;
             var end = await InputService.GetPoint(new UserDirective("Distance to"), (p) =>
                 {
-                    return new[] { new PrimitiveLine(first, p, IndexedColor.Default) };
+                    return new[] { new PrimitiveLine(first, p, null) };
                 });
             if (end.Cancel || !end.HasValue) return false;
             var between = end.Value - first;

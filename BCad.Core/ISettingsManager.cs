@@ -20,10 +20,9 @@ namespace BCad
         bool Debug { get; set; }
         double SnapAngleDistance { get; set; }
         double[] SnapAngles { get; set; }
-        RealColor BackgroundColor { get; set; }
-        RealColor SnapPointColor { get; set; }
-        RealColor HotPointColor { get; set; }
-        ColorMap ColorMap { get; set; }
+        CadColor BackgroundColor { get; set; }
+        CadColor SnapPointColor { get; set; }
+        CadColor HotPointColor { get; set; }
         SnapPointKind AllowedSnapPoints { get; set; }
     }
 }

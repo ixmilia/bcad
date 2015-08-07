@@ -69,7 +69,6 @@ namespace BCad.UI.Controls
         private double maxPreviewWidth;
         private double maxPreviewHeight;
         private ViewPort activeViewPort;
-        private ColorMap colorMap;
 
         public PlotType PlotType
         {
@@ -158,17 +157,6 @@ namespace BCad.UI.Controls
                     return;
                 this.colorMapType = value;
                 OnPropertyChanged();
-                switch (this.colorMapType)
-                {
-                    case ColorMapType.DrawingDefault:
-                        ColorMap = workspace.SettingsManager.ColorMap;
-                        break;
-                    case ColorMapType.AllBlack:
-                        ColorMap = ColorMap.AllBlack;
-                        break;
-                    default:
-                        throw new InvalidOperationException("unsupported color map type");
-                }
             }
         }
 
@@ -424,18 +412,6 @@ namespace BCad.UI.Controls
             }
         }
 
-        public ColorMap ColorMap
-        {
-            get { return colorMap; }
-            set
-            {
-                if (colorMap == value)
-                    return;
-                colorMap = value;
-                OnPropertyChanged();
-            }
-        }
-
         public PageSize[] AvailablePageSizes
         {
             get { return new[] { PageSize.Letter, PageSize.Landscape, PageSize.Legal }; }
@@ -444,7 +420,6 @@ namespace BCad.UI.Controls
         public PlotDialogViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            colorMap = ColorMap.Default;
             Drawing = new Drawing();
             PlotType = PlotType.File;
             FileName = string.Empty;

@@ -8,6 +8,7 @@
                    mc:Ignorable="d" Width="480" Height="300">
     <local:BCadControl.Resources>
         <local:BoolToVisibilityConverter x:Key="boolToVis" />
+        <local:ColorDisplayNameConverter x:Key="colorDisplayConverter" />
         <rib:ColorConverter x:Key="colorConverter" />
 
         <Style TargetType="{x:Type FrameworkElement}" x:Key="GridBlockStyle">
@@ -38,10 +39,10 @@
                 </Grid.ColumnDefinitions>
                 <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
                     <Rectangle.Fill>
-                        <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
+                        <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource colorConverter}}" />
                     </Rectangle.Fill>
                 </Rectangle>
-                <TextBlock Grid.Column="1" Text="{Binding Path=Color.DisplayValue}" Margin="1" />
+                <TextBlock Grid.Column="1" Text="{Binding Path=Color, Converter={StaticResource colorDisplayConverter}}" Margin="1" />
             </Grid>
         </DataTemplate>
     </local:BCadControl.Resources>

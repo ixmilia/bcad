@@ -27,7 +27,7 @@
                             <Image Grid.Column="0" Width="15" Height="15" Source="{StaticResource LayerHidden}" Visibility="{Binding Path=IsVisible, Converter={StaticResource visibilityConverter}, ConverterParameter=false}" />
                             <Rectangle Grid.Column="1" Margin="1" Width="15" Height="15">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource colorConverter}}" />
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource colorConverter}}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                             <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="5,0" />

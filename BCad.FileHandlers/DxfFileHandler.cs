@@ -18,17 +18,10 @@ namespace BCad.FileHandlers
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
+        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
             var file = DxfFile.Load(fileStream);
-
             var layers = new ReadOnlyTree<string, Layer>();
-
-            propertyBag = new Dictionary<string, object>()
-            {
-                { "ColorMap", ColorMap.AutoCADDefault }
-            };
-
             foreach (var layer in file.Layers)
             {
                 layers = layers.Insert(layer.Name, new Layer(layer.Name, layer.Color.ToColor()));
@@ -67,7 +60,7 @@ namespace BCad.FileHandlers
                 // add the entity to the appropriate layer
                 if (children.Count != 0)
                 {
-                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children, IndexedColor.Auto));
+                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children, null));
                     layers = layers.Insert(layer.Name, layer);
                 }
             }
@@ -96,7 +89,7 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
         {
             var file = new DxfFile();
             var oldFile = drawing.Tag as DxfFile;
@@ -157,7 +150,7 @@ namespace BCad.FileHandlers
             else
             {
                 // add the layer if previously undefined
-                layer = new Layer(layerName, IndexedColor.Auto);
+                layer = new Layer(layerName, null);
                 layers = layers.Insert(layer.Name, layer);
             }
 
@@ -167,20 +160,42 @@ namespace BCad.FileHandlers
 
     internal static class DxfExtensions
     {
-        public static IndexedColor ToColor(this DxfColor color)
+        public static CadColor? ToColor(this DxfColor color)
         {
             if (color.IsIndex)
-                return new IndexedColor(color.Index);
+                return CadColor.Defaults[color.Index];
             else
-                return IndexedColor.Default;
+                return null;
         }
 
-        public static DxfColor ToDxfColor(this IndexedColor color)
+        public static DxfColor ToDxfColor(this CadColor? color)
         {
-            if (color.IsAuto)
+            if (color == null)
+            {
                 return DxfColor.ByLayer;
+            }
             else
-                return DxfColor.FromIndex(color.Value);
+            {
+                // TODO: use the color map from the IxMilia.Dxf library when available
+                int i;
+                for (i = 0; i < CadColor.Defaults.Length; i++)
+                {
+                    if (color.Value == CadColor.Defaults[i])
+                    {
+                        break;
+                    }
+                }
+
+                if (i < 256)
+                {
+                    return DxfColor.FromIndex((byte)i);
+                }
+                else
+                {
+                    Debug.Assert(false, "Unable to find color match, defaulting to BYLAYER");
+                    return DxfColor.ByLayer;
+                }
+            }
         }
 
         public static Point ToPoint(this DxfPoint point)

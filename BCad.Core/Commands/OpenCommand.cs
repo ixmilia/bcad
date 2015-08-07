@@ -34,34 +34,8 @@ namespace BCad.Commands
 
             Drawing drawing;
             ViewPort activeViewPort;
-            Dictionary<string, object> propertyBag;
-            await FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort, out propertyBag);
+            await FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
             Workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
-
-            bool isColorMapSet = false;
-            if (propertyBag != null)
-            {
-                foreach (var key in propertyBag.Keys)
-                {
-                    switch (key)
-                    {
-                        case "ColorMap":
-                            var colorMap = propertyBag[key] as ColorMap;
-                            Workspace.SettingsManager.ColorMap = colorMap ?? ColorMap.Default;
-                            isColorMapSet = true;
-                            break;
-                        default:
-                            // unsupported property
-                            break;
-                    }
-                }
-            }
-
-            if (!isColorMapSet)
-            {
-                Workspace.SettingsManager.ColorMap = ColorMap.Default;
-            }
-
             UndoRedoService.ClearHistory();
 
             return true;

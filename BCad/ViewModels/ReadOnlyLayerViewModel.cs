@@ -2,14 +2,11 @@
 {
     public class ReadOnlyLayerViewModel
     {
-        private ColorMap colorMap;
-
         public Layer Layer { get; private set; }
 
-        public ReadOnlyLayerViewModel(Layer layer, ColorMap colorMap)
+        public ReadOnlyLayerViewModel(Layer layer)
         {
             Layer = layer;
-            this.colorMap = colorMap;
         }
 
         public string Name
@@ -22,9 +19,9 @@
             get { return Layer.IsVisible; }
         }
 
-        public RealColor RealColor
+        public CadColor? Color
         {
-            get { return colorMap[Layer.Color]; }
+            get { return Layer.Color; }
         }
 
         public static bool operator ==(ReadOnlyLayerViewModel a, ReadOnlyLayerViewModel b)

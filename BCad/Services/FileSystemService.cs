@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using BCad.Core;
 using BCad.Extensions;
 using BCad.FileHandlers;
 using Microsoft.Win32;
@@ -68,7 +67,7 @@ namespace BCad.Services
             return Task.FromResult(dialog.FileName);
         }
 
-        public Task<bool> TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag)
+        public Task<bool> TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort)
         {
             if (fileName == null)
                 throw new ArgumentNullException("fileName");
@@ -80,20 +79,19 @@ namespace BCad.Services
 
             using (var fileStream = new FileStream(fileName, FileMode.Create))
             {
-                writer.WriteDrawing(fileName, fileStream, drawing, viewPort, propertyBag);
+                writer.WriteDrawing(fileName, fileStream, drawing, viewPort);
             }
 
             return Task.FromResult(true);
         }
 
-        public Task<bool> TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
+        public Task<bool> TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort)
         {
             if (fileName == null)
                 throw new ArgumentNullException("fileName");
 
             drawing = default(Drawing);
             viewPort = default(ViewPort);
-            propertyBag = null;
 
             var extension = Path.GetExtension(fileName);
             var reader = ReaderFromExtension(extension);
@@ -102,7 +100,7 @@ namespace BCad.Services
 
             using (var fileStream = new FileStream(fileName, FileMode.Open))
             {
-                reader.ReadDrawing(fileName, fileStream, out drawing, out viewPort, out propertyBag);
+                reader.ReadDrawing(fileName, fileStream, out drawing, out viewPort);
                 if (viewPort == null)
                 {
                     viewPort = drawing.ShowAllViewPort(

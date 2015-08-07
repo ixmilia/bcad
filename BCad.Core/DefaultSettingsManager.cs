@@ -26,10 +26,9 @@ namespace BCad
         private bool debug = false;
         private double snapAngleDist = 0.0;
         private double[] snapAngles = null;
-        private RealColor backgroundColor = RealColor.Black;
-        private RealColor snapPointColor = RealColor.Yellow;
-        private RealColor hotPointColor = RealColor.Blue;
-        private ColorMap colorMap = null;
+        private CadColor backgroundColor = CadColor.Black;
+        private CadColor snapPointColor = CadColor.Yellow;
+        private CadColor hotPointColor = CadColor.Blue;
         private SnapPointKind allowedSnapPoints = SnapPointKind.All;
 
         [XmlIgnore]
@@ -239,7 +238,7 @@ namespace BCad
         }
 
         [XmlIgnore]
-        public RealColor BackgroundColor
+        public CadColor BackgroundColor
         {
             get { return this.backgroundColor; }
             set
@@ -266,7 +265,7 @@ namespace BCad
         }
 
         [XmlIgnore]
-        public RealColor SnapPointColor
+        public CadColor SnapPointColor
         {
             get { return this.snapPointColor; }
             set
@@ -287,7 +286,7 @@ namespace BCad
         }
 
         [XmlIgnore]
-        public RealColor HotPointColor
+        public CadColor HotPointColor
         {
             get { return this.hotPointColor; }
             set
@@ -305,31 +304,6 @@ namespace BCad
         {
             get { return HotPointColor.ToColorString(); }
             set { HotPointColor = value.ParseColor(); }
-        }
-
-        [XmlIgnore]
-        public ColorMap ColorMap
-        {
-            get { return colorMap; }
-            set
-            {
-                colorMap = value;
-                OnPropertyChanged("ColorMap");
-            }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "ColorMap")]
-        public string ColorMapString
-        {
-            get
-            {
-                return colorMap.ToString();
-            }
-            set
-            {
-                colorMap = ColorMap.Parse(value);
-            }
         }
 
         [XmlIgnore]
@@ -385,10 +359,9 @@ namespace BCad
             Debug = false;
             SnapAngleDistance = 30.0;
             SnapAngles = new[] { 0.0, 90.0, 180.0, 270.0 };
-            BackgroundColor = RealColor.DarkSlateGray;
-            SnapPointColor = RealColor.Yellow;
-            HotPointColor = RealColor.Blue;
-            ColorMap = ColorMap.Default;
+            BackgroundColor = CadColor.DarkSlateGray;
+            SnapPointColor = CadColor.Yellow;
+            HotPointColor = CadColor.Blue;
             AllowedSnapPoints = SnapPointKind.All;
         }
     }

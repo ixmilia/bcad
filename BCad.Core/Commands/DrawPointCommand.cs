@@ -19,7 +19,7 @@ namespace BCad.Commands
             var location = await InputService.GetPoint(new UserDirective("Location"));
             if (location.Cancel) return false;
             if (!location.HasValue) return true;
-            Workspace.AddToCurrentLayer(new Location(location.Value, IndexedColor.Default));
+            Workspace.AddToCurrentLayer(new Location(location.Value, null));
             return true;
         }
     }

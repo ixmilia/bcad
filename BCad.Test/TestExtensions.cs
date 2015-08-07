@@ -18,7 +18,7 @@ namespace BCad.Test
 
         public static void AddLayer(this IWorkspace workspace, string layerName)
         {
-            workspace.Add(new Layer(layerName, IndexedColor.Auto));
+            workspace.Add(new Layer(layerName, null));
         }
 
         public static void VerifyContains(this Layer layer, Entity entity)

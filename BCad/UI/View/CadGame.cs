@@ -64,8 +64,8 @@ namespace BCad.UI.View
         {
             var bg = workspace.SettingsManager.BackgroundColor;
             var auto = bg.GetAutoContrastingColor();
-            backgroundColor = new Color4(bg.R / 255f, bg.G / 255f, bg.B / 255f, bg.A / 255f);
-            autoColor = new Color(auto.R, auto.G, auto.B, auto.A);
+            backgroundColor = new Color4(bg.R / 255f, bg.G / 255f, bg.B / 255f, 1.0f);
+            autoColor = new Color(auto.R, auto.G, auto.B, (byte)255);
         }
 
         protected override void LoadContent()
@@ -212,12 +212,11 @@ namespace BCad.UI.View
             }
         }
 
-        private Color MapColor(IndexedColor color, Color fallback)
+        private Color MapColor(CadColor? color, Color fallback)
         {
-            if (color.IsAuto)
+            if (color == null)
                 return fallback;
-            var real = workspace.SettingsManager.ColorMap[color];
-            return new Color(real.R, real.G, real.B, real.A);
+            return new Color(color.Value.R, color.Value.G, color.Value.B, (byte)255);
         }
 
         private void UpdateMatrices()

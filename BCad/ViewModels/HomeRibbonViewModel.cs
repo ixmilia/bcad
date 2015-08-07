@@ -21,7 +21,7 @@ namespace BCad.ViewModels
         {
             ignoreLayerChange = true;
             Layers = workspace.Drawing.GetLayers().OrderBy(l => l.Name)
-                .Select(l => new ReadOnlyLayerViewModel(l, workspace.SettingsManager.ColorMap))
+                .Select(l => new ReadOnlyLayerViewModel(l))
                 .ToArray();
             CurrentLayer = Layers.First(l => l.Name == workspace.Drawing.CurrentLayer.Name);
             ignoreLayerChange = false;

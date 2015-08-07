@@ -40,7 +40,7 @@ namespace BCad.Entities
 
         public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, IndexedColor color, object tag = null)
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color, object tag = null)
             : base(color, tag)
         {
             this.center = center;
@@ -130,7 +130,7 @@ namespace BCad.Entities
             Optional<double> startAngle = default(Optional<double>),
             Optional<double> endAngle = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
-            Optional<IndexedColor> color = default(Optional<IndexedColor>),
+            Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newCenter = center.HasValue ? center.Value : this.center;

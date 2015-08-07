@@ -11,13 +11,13 @@ namespace BCad.Ribbons
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var real = RealColor.Black;
+            var real = CadColor.Black;
             if (value != null)
             {
-                if (value.GetType() == typeof(RealColor))
+                if (value.GetType() == typeof(CadColor))
                 {
-                    real = (RealColor)value;
-                    return Color.FromArgb(real.A, real.R, real.G, real.B);
+                    real = (CadColor)value;
+                    return Color.FromArgb(255, real.R, real.G, real.B);
                 }
                 else if (value.GetType() == typeof(string))
                 {
@@ -29,7 +29,7 @@ namespace BCad.Ribbons
                 }
             }
 
-            return Color.FromArgb(real.A, real.R, real.G, real.B);
+            return Color.FromArgb(255, real.R, real.G, real.B);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -37,9 +37,9 @@ namespace BCad.Ribbons
             if (value != null && value.GetType() == typeof(Color))
             {
                 var color = (Color)value;
-                if (targetType == typeof(RealColor))
+                if (targetType == typeof(CadColor))
                 {
-                    return RealColor.FromArgb(color.A, color.R, color.G, color.B);
+                    return CadColor.FromRgb(color.R, color.G, color.B);
                 }
                 else
                 {
@@ -48,7 +48,7 @@ namespace BCad.Ribbons
             }
 
             Debug.Fail("unable to convert color");
-            return RealColor.White; // error
+            return CadColor.White; // error
         }
     }
 }

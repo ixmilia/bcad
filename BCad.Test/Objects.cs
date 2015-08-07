@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BCad.Entities;
+﻿using BCad.Entities;
 
 namespace BCad.Test
 {
@@ -10,7 +6,7 @@ namespace BCad.Test
     {
         public static Line Line()
         {
-            return new Line(Point.Origin, Point.Origin, IndexedColor.Auto);
+            return new Line(Point.Origin, Point.Origin, null);
         }
     }
 }

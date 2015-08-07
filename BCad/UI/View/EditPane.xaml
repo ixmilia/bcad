@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:local="clr-namespace:BCad.Ribbons"
              xmlns:view="clr-namespace:BCad.UI.View"
+             xmlns:ui="clr-namespace:BCad.UI"
              xmlns:controls="clr-namespace:BCad.Core.UI">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -12,6 +13,7 @@
                     <local:ColorConverter x:Key="colorConverter" />
                     <view:NullVisibilityConverter x:Key="nullVisibilityConverter" />
                     <view:PointVectorConverter x:Key="pointVectorConverter" />
+                    <ui:ColorDisplayNameConverter x:Key="colorDisplayConverter" />
                     <DataTemplate x:Key="LayerTemplate">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -20,7 +22,7 @@
                             </Grid.ColumnDefinitions>
                             <Rectangle Grid.Column="0" Margin="1,0" Width="15" Height="15">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource ResourceKey=colorConverter}}" />
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource ResourceKey=colorConverter}}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                             <TextBlock Grid.Column="1" Text="{Binding Path=Name}" Margin="5,0" />
@@ -34,10 +36,10 @@
                             </Grid.ColumnDefinitions>
                             <Rectangle Grid.Column="0" Margin="1,0" Width="15" Height="15">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=RealColor, Converter={StaticResource ResourceKey=colorConverter}}" />
+                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource ResourceKey=colorConverter}}" />
                                 </Rectangle.Fill>
                             </Rectangle>
-                            <TextBlock Grid.Column="1" Text="{Binding Path=Color.DisplayValue}" Margin="1,0" />
+                            <TextBlock Grid.Column="1" Text="{Binding Path=Color, Converter={StaticResource ResourceKey=colorDisplayConverter}}" Margin="1,0" />
                         </Grid>
                     </DataTemplate>
                 </ResourceDictionary>

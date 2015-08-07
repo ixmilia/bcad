@@ -2,7 +2,7 @@
 {
     public interface IPrimitive
     {
-        IndexedColor Color { get; }
+        CadColor? Color { get; }
         PrimitiveKind Kind { get; }
     }
 }

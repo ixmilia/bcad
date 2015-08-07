@@ -81,7 +81,7 @@ namespace BCad.UI.Controls
             stream = new FileStream(viewModel.FileName, FileMode.Create);
 
             var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, viewModel.PixelWidth, viewModel.PixelHeight);
-            plotter.Plot(entities, viewModel.ColorMap, viewModel.PixelWidth, viewModel.PixelHeight, stream);
+            plotter.Plot(entities, viewModel.PixelWidth, viewModel.PixelHeight, stream);
 
 
             stream.Close();
@@ -112,7 +112,6 @@ namespace BCad.UI.Controls
                     Background = new SolidColorBrush(Colors.White),
                     ViewPort = viewModel.ViewPort.Update(viewHeight: printHeight / 100),
                     Drawing = workspace.Drawing,
-                    ColorMap = viewModel.ColorMap,
                     PointSize = 15.0,
                     Width = printWidth,
                     Height = printHeight,

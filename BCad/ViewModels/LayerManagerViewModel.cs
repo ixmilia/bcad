@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using BCad.UI;
 
 namespace BCad.ViewModels
 {
@@ -16,9 +17,8 @@ namespace BCad.ViewModels
             this.workspace = workspace;
             Layers = new ObservableCollection<MutableLayerViewModel>(
                 this.workspace.Drawing.GetLayers().OrderBy(l => l.Name)
-                .Select(l => new MutableLayerViewModel(l, this.workspace.SettingsManager.ColorMap)));
-            AvailableColors = new ObservableCollection<ColorViewModel>(
-                Enumerable.Range(0, 256).Select(i => new ColorViewModel(new IndexedColor((byte)i), workspace.SettingsManager.ColorMap[new IndexedColor((byte)i)])));
+                .Select(l => new MutableLayerViewModel(l)));
+            AvailableColors = new ObservableCollection<ColorViewModel>(CadColors.AllColors.Select(color => new ColorViewModel(color)));
         }
     }
 }

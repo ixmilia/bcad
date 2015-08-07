@@ -16,7 +16,7 @@ namespace BCad.Test
         {
             var offset = EditUtilities.Offset(
                 Workspace,
-                new Circle(Point.Origin, 2.0, Vector.ZAxis, IndexedColor.Auto),
+                new Circle(Point.Origin, 2.0, Vector.ZAxis, null),
                 Point.Origin,
                 1.0);
             Assert.IsTrue(offset is Circle);
@@ -30,7 +30,7 @@ namespace BCad.Test
         {
             var circle = (Circle)EditUtilities.Offset(
                 Workspace,
-                new Circle(Point.Origin, 2.0, Vector.ZAxis, IndexedColor.Auto),
+                new Circle(Point.Origin, 2.0, Vector.ZAxis, null),
                 new Point(3, 0, 0),
                 1.0);
             Assert.AreEqual(Point.Origin, circle.Center);
@@ -42,7 +42,7 @@ namespace BCad.Test
         {
             var offset = (Line)EditUtilities.Offset(
                 Workspace,
-                new Line(new Point(1, 0, 0), new Point(1, 1, 0), IndexedColor.Auto),
+                new Line(new Point(1, 0, 0), new Point(1, 1, 0), null),
                 Point.Origin,
                 1.0);
             Assert.AreEqual(new Point(0, 0, 0), offset.P1);
@@ -54,7 +54,7 @@ namespace BCad.Test
         {
             var offset = (Line)EditUtilities.Offset(
                 Workspace,
-                new Line(new Point(1, 0, 0), new Point(1, 1, 0), IndexedColor.Auto),
+                new Line(new Point(1, 0, 0), new Point(1, 1, 0), null),
                 new Point(2, 0, 0),
                 1.0);
             Assert.AreEqual(new Point(2, 0, 0), offset.P1);
@@ -66,7 +66,7 @@ namespace BCad.Test
         {
             var offset = (Line)EditUtilities.Offset(
                 Workspace,
-                new Line(new Point(0, 1, 0), new Point(1, 1, 0), IndexedColor.Auto),
+                new Line(new Point(0, 1, 0), new Point(1, 1, 0), null),
                 new Point(0, 2, 0),
                 1.0);
             Assert.AreEqual(new Point(0, 2, 0), offset.P1);
@@ -78,7 +78,7 @@ namespace BCad.Test
         {
             var offset = (Line)EditUtilities.Offset(
                 Workspace,
-                new Line(new Point(0, 1, 0), new Point(1, 1, 0), IndexedColor.Auto),
+                new Line(new Point(0, 1, 0), new Point(1, 1, 0), null),
                 Point.Origin,
                 1.0);
             Assert.AreEqual(new Point(0, 0, 0), offset.P1);
@@ -90,7 +90,7 @@ namespace BCad.Test
         {
             var offset = (Line)EditUtilities.Offset(
                 Workspace,
-                new Line(new Point(0, 1, 0), new Point(1, 2, 0), IndexedColor.Auto),
+                new Line(new Point(0, 1, 0), new Point(1, 2, 0), null),
                 Point.Origin,
                 1.0);
             AssertClose(new Point(0.707106781186547, 0.292893218813453, 0), offset.P1);
@@ -103,7 +103,7 @@ namespace BCad.Test
             // line
             var offset = EditUtilities.Offset(
                 Workspace,
-                new Line(new Point(-1, 0, 0), new Point(1, 0, 0), IndexedColor.Auto),
+                new Line(new Point(-1, 0, 0), new Point(1, 0, 0), null),
                 Point.Origin,
                 1.0);
             Assert.IsNull(offset);
@@ -111,7 +111,7 @@ namespace BCad.Test
             // circle
             offset = EditUtilities.Offset(
                 Workspace,
-                new Circle(Point.Origin, 1.0, Vector.ZAxis, IndexedColor.Auto),
+                new Circle(Point.Origin, 1.0, Vector.ZAxis, null),
                 new Point(1.0, 0, 0),
                 1.0);
             Assert.IsNull(offset);
@@ -124,7 +124,7 @@ namespace BCad.Test
             // whether the offset point is inside the circle or not
             var offset = (Circle)EditUtilities.Offset(
                 Workspace,
-                new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, IndexedColor.Auto),
+                new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, null),
                 new Point(100, 0, 0),
                 10);
             Assert.AreEqual(new Point(100, 0, 0), offset.Center);

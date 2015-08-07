@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.EventArguments;
-using BCad.Services;
+using BCad.UI;
 
 namespace BCad.ViewModels
 {
@@ -25,7 +25,7 @@ namespace BCad.ViewModels
             this.workspace = workspace;
             workspace.WorkspaceChanged += WorkspaceChanged;
             workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
-            AvailableColors = Enumerable.Range(0, 256).Select(i => new ColorViewModel(new IndexedColor((byte)i), workspace.SettingsManager.ColorMap[new IndexedColor((byte)i)]));
+            AvailableColors = CadColors.AllColors.Select(color => new ColorViewModel(color));
         }
 
         public int SelectedCount
@@ -216,7 +216,7 @@ namespace BCad.ViewModels
         private void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
             ignoreLayerChange = true;
-            Layers = workspace.Drawing.GetLayers().OrderBy(l => l.Name).Select(l => new ReadOnlyLayerViewModel(l, workspace.SettingsManager.ColorMap));
+            Layers = workspace.Drawing.GetLayers().OrderBy(l => l.Name).Select(l => new ReadOnlyLayerViewModel(l));
             ignoreLayerChange = false;
         }
 
@@ -304,7 +304,7 @@ namespace BCad.ViewModels
             return null;
         }
 
-        private Entity UpdateColor(Entity entity, IndexedColor newColor)
+        private Entity UpdateColor(Entity entity, CadColor? newColor)
         {
             switch (entity.Kind)
             {

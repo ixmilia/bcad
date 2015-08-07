@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BCad.Collections;
@@ -14,7 +13,7 @@ namespace BCad.FileHandlers
         public const string DisplayName = "DWG Files (" + FileExtension + ")";
         public const string FileExtension = ".dwg";
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
+        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
             var file = DwgFile.Load(fileStream);
             var layers = new ReadOnlyTree<string, Layer>();
@@ -58,7 +57,7 @@ namespace BCad.FileHandlers
 
             if (layers.Count == 0)
             {
-                layers = layers.Insert("0", new Layer("0", IndexedColor.Auto));
+                layers = layers.Insert("0", new Layer("0", null));
             }
 
             drawing = new Drawing(
@@ -66,12 +65,11 @@ namespace BCad.FileHandlers
                 layers);
             drawing.Tag = file;
             viewPort = null;
-            propertyBag = null;
 
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
         {
             throw new NotImplementedException();
         }
@@ -101,11 +99,11 @@ namespace BCad.FileHandlers
             return new Text(text.Value, new Point(text.InsertionPoint.X, text.InsertionPoint.Y, text.Elevation), ToVector(text.Extrusion), text.Height, text.RotationAngle, ToColor(text.Color), text);
         }
 
-        private static IndexedColor ToColor(int color)
+        private static CadColor? ToColor(int color)
         {
             if (color == 0 || color == 256)
-                return IndexedColor.Auto;
-            return new IndexedColor((byte)color);
+                return null;
+            return CadColor.FromInt32(color);
         }
 
         private static Point ToPoint(DwgPoint point)

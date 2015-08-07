@@ -100,30 +100,30 @@ namespace BCad.Ribbons
             get { return new[] { "Hardware", "Software" }; }
         }
 
-        public RealColor[] BackgroundColors
+        public CadColor[] BackgroundColors
         {
             get
             {
                 return new[]
                 {
-                    RealColor.Black,
-                    RealColor.DarkSlateGray,
-                    RealColor.CornflowerBlue,
-                    RealColor.White
+                    CadColor.Black,
+                    CadColor.DarkSlateGray,
+                    CadColor.CornflowerBlue,
+                    CadColor.White
                 };
             }
         }
 
-        public RealColor[] SnapPointColors
+        public CadColor[] SnapPointColors
         {
             get
             {
                 return new[]
                 {
-                    RealColor.Yellow,
-                    RealColor.White,
-                    RealColor.Cyan,
-                    RealColor.Red
+                    CadColor.Yellow,
+                    CadColor.White,
+                    CadColor.Cyan,
+                    CadColor.Red
                 };
             }
         }

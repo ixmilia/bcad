@@ -12,10 +12,10 @@ namespace BCad.Entities
         public abstract BoundingBox BoundingBox { get; }
         public virtual int PrimitiveCount { get { return 1; } }
 
-        private readonly IndexedColor color;
+        private readonly CadColor? color;
         private readonly object tag;
 
-        public IndexedColor Color { get { return color; } }
+        public CadColor? Color { get { return color; } }
         public object Tag { get { return tag; } }
 
         protected const string KindText = "Kind";
@@ -29,7 +29,7 @@ namespace BCad.Entities
         protected const string StartAngleText = "StartAngle";
         protected const string EndAngleText = "EndAngle";
 
-        protected Entity(IndexedColor color, object tag)
+        protected Entity(CadColor? color, object tag)
         {
             this.color = color;
             this.tag = tag;

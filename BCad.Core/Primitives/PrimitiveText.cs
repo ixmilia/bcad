@@ -2,7 +2,7 @@
 {
     public class PrimitiveText : IPrimitive
     {
-        public IndexedColor Color { get; private set; }
+        public CadColor? Color { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Text; } }
 
         public Point Location { get; private set; }
@@ -12,7 +12,7 @@
         public double Rotation { get; private set; }
         public string Value { get; private set; }
 
-        public PrimitiveText(string value, Point location, double height, Vector normal, double rotation, IndexedColor color)
+        public PrimitiveText(string value, Point location, double height, Vector normal, double rotation, CadColor? color)
         {
             this.Value = value;
             this.Location = location;

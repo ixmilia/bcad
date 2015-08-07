@@ -69,7 +69,7 @@ namespace BCad.UI.Controls
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             this.viewModel.Layers.Add(new MutableLayerViewModel(
-                StringUtilities.NextUniqueName("NewLayer", this.viewModel.Layers.Select(l => l.Name)), workspace.SettingsManager.ColorMap));
+                StringUtilities.NextUniqueName("NewLayer", this.viewModel.Layers.Select(l => l.Name))));
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)

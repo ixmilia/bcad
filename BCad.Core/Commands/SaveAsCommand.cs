@@ -26,7 +26,7 @@ namespace BCad.Commands
             if (fileName == null)
                 return false;
 
-            if (!await FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort, null))
+            if (!await FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort))
                 return false;
 
             UpdateDrawingFileName(Workspace, fileName);

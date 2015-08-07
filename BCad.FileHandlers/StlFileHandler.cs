@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using BCad.Collections;
 using BCad.Entities;
@@ -13,24 +12,19 @@ namespace BCad.FileHandlers
         public const string DisplayName = "STL Files (" + FileExtension + ")";
         public const string FileExtension = ".stl";
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort, out Dictionary<string, object> propertyBag)
+        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
             var file = StlFile.Load(fileStream);
-            propertyBag = new Dictionary<string, object>
-            {
-                { "ColorMap", ColorMap.Default }
-            };
-
             var lines = new Line[file.Triangles.Count * 3];
             var index = 0;
             foreach (var triangle in file.Triangles)
             {
-                lines[index++] = new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), IndexedColor.Auto);
-                lines[index++] = new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), IndexedColor.Auto);
-                lines[index++] = new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), IndexedColor.Auto);
+                lines[index++] = new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), null);
+                lines[index++] = new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), null);
+                lines[index++] = new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), null);
             }
 
-            var layer = new Layer(file.SolidName ?? "stl", IndexedColor.Auto, lines);
+            var layer = new Layer(file.SolidName ?? "stl", null, lines);
             drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, -1),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
@@ -41,7 +35,7 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, Dictionary<string, object> propertyBag)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
         {
             throw new NotImplementedException();
         }

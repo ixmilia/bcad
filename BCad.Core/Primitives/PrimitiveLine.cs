@@ -4,10 +4,10 @@
     {
         public Point P1 { get; private set; }
         public Point P2 { get; private set; }
-        public IndexedColor Color { get; private set; }
+        public CadColor? Color { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Line; } }
 
-        public PrimitiveLine(Point p1, Point p2, IndexedColor color)
+        public PrimitiveLine(Point p1, Point p2, CadColor? color)
         {
             this.P1 = p1;
             this.P2 = p2;
@@ -15,7 +15,7 @@
         }
 
         public PrimitiveLine(Point p1, Point p2)
-            : this(p1, p2, IndexedColor.Auto)
+            : this(p1, p2, null)
         {
         }
 
@@ -32,7 +32,7 @@
                 this.P2 = this.P1 + new Vector(1.0, slope, 0.0);
             }
 
-            this.Color = IndexedColor.Auto;
+            this.Color = null;
         }
     }
 }
