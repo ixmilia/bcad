@@ -32,8 +32,8 @@ namespace BCad.UI.View
             DependencyProperty.Register("PointSize", typeof(double), typeof(RenderCanvas), new P_Metadata(15.0, OnPointSizePropertyChanged));
         public static readonly DependencyProperty SelectedEntitiesProperty =
             DependencyProperty.Register("SelectedEntities", typeof(ObservableHashSet<Entity>), typeof(RenderCanvas), new P_Metadata(new ObservableHashSet<Entity>(), OnSelectedEntitiesPropertyChanged));
-        public static readonly DependencyProperty BackgroundExProperty =
-            DependencyProperty.Register("BackgroundEx", typeof(Brush), typeof(RenderCanvas), new P_Metadata(null, BackgroundExPropertyChanged));
+        public static readonly DependencyProperty DefaultColorProperty =
+            DependencyProperty.Register("DefaultColor", typeof(Color), typeof(RenderCanvas), new P_Metadata(default(Color), OnDefaultColorPropertyChanged));
         public static readonly DependencyProperty SupportedPrimitiveTypesProperty =
             DependencyProperty.Register("SupportedPrimitiveTypes", typeof(PrimitiveKind), typeof(RenderCanvas), new P_Metadata(PrimitiveKind.Ellipse | PrimitiveKind.Line | PrimitiveKind.Point | PrimitiveKind.Text, SupportedPrimitiveTypesPropertyChanged));
         public static readonly DependencyProperty CursorPointProperty =
@@ -81,15 +81,15 @@ namespace BCad.UI.View
             }
         }
 
-        private static void BackgroundExPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        private static void OnDefaultColorPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var canvas = source as RenderCanvas;
-            if (canvas != null)
+            var control = source as RenderCanvas;
+            if (control != null)
             {
-                var solidBrush = canvas.Background as SolidColorBrush;
-                if (solidBrush != null)
+                if (e.NewValue is Color)
                 {
-                    canvas.SetAutocolorFromBackgroundColor(solidBrush.Color);
+                    var color = (Color)e.NewValue;
+                    control._defaultColor = CadColor.FromRgb(color.R, color.G, color.B);
                 }
             }
         }
@@ -130,28 +130,13 @@ namespace BCad.UI.View
         private Matrix4 PlaneProjection = Matrix4.Identity;
         private Dictionary<uint, IList<FrameworkElement>> entityMap = new Dictionary<uint, IList<FrameworkElement>>();
         private List<FrameworkElement> currentlySelected = new List<FrameworkElement>();
-        private CadColor _autoColor;
+        private CadColor _defaultColor;
 
         public RenderCanvas()
         {
             InitializeComponent();
             this.SizeChanged += (_, __) => RecalcTransform();
             this.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
-
-            // listen to the background change
-            var binding = new Binding()
-            {
-                Path = new PropertyPath("Background"),
-                Source = this
-            };
-            BindingOperations.SetBinding(this, BackgroundExProperty, binding);
-        }
-
-        internal void SetAutocolorFromBackgroundColor(Color bgColor)
-        {
-            var real = CadColor.FromRgb(bgColor.R, bgColor.G, bgColor.B);
-            _autoColor = real.GetAutoContrastingColor();
-            this.BindObject.AutoBrush = new SolidColorBrush(_autoColor.ToMediaColor());
         }
 
         private void ResetCollectionChangedEvent(ObservableHashSet<Entity> oldCollection, ObservableHashSet<Entity> newCollection)
@@ -189,6 +174,12 @@ namespace BCad.UI.View
         {
             get { return (ObservableHashSet<Entity>)GetValue(SelectedEntitiesProperty); }
             set { SetValue(SelectedEntitiesProperty, value); }
+        }
+
+        public CadColor DefaultColor
+        {
+            get { return (CadColor)GetValue(DefaultColorProperty); }
+            set { SetValue(DefaultColorProperty, value); }
         }
 
         public PrimitiveKind SupportedPrimitiveTypes
@@ -316,7 +307,7 @@ namespace BCad.UI.View
             var supported = SupportedPrimitiveTypes;
             foreach (var layer in Drawing.GetLayers().Where(l => l.IsVisible))
             {
-                var layerColor = layer.Color ?? _autoColor;
+                var layerColor = layer.Color ?? _defaultColor;
                 foreach (var entity in layer.GetEntities())
                 {
                     var entityColor = entity.Color ?? layerColor;
@@ -446,7 +437,7 @@ namespace BCad.UI.View
             }
 
             SetThicknessBinding(shape);
-            SetColorBinding(shape, color);
+            SetColor(shape, color);
             return shape;
         }
 
@@ -456,7 +447,7 @@ namespace BCad.UI.View
             var p2 = PlaneProjection.Transform(line.P2);
             var newLine = new Shapes.Line() { X1 = p1.X, Y1 = p1.Y, X2 = p2.X, Y2 = p2.Y };
             SetThicknessBinding(newLine);
-            SetColorBinding(newLine, color);
+            SetColor(newLine, color);
             return newLine;
         }
 
@@ -503,7 +494,7 @@ namespace BCad.UI.View
                 StrokeThickness = 1.0 / PointSize
             };
             SetBinding(path, "Scale", Path.RenderTransformProperty);
-            SetColorBinding(path, color);
+            SetColor(path, color);
 
             var grid = new Grid();
             grid.Children.Add(path);
@@ -525,7 +516,7 @@ namespace BCad.UI.View
             t.RenderTransform = trans;
             Canvas.SetLeft(t, location.X);
             Canvas.SetTop(t, location.Y + text.Height);
-            SetColorBinding(t, TextBlock.ForegroundProperty, color);
+            SetColor(t, TextBlock.ForegroundProperty, color);
             return t;
         }
 
@@ -541,12 +532,12 @@ namespace BCad.UI.View
             SetBinding(shape, "Thickness", Shape.StrokeThicknessProperty);
         }
 
-        private void SetColorBinding(Shape shape, CadColor? color)
+        private void SetColor(Shape shape, CadColor? color)
         {
-            SetColorBinding(shape, Shape.StrokeProperty, color);
+            SetColor(shape, Shape.StrokeProperty, color);
         }
 
-        private void SetColorBinding(FrameworkElement element, DependencyProperty property, CadColor? color)
+        private void SetColor(FrameworkElement element, DependencyProperty property, CadColor? color)
         {
             if (color == null)
             {
@@ -554,7 +545,7 @@ namespace BCad.UI.View
             }
             else
             {
-                SetBinding(element, "Brush" + color.Value, property);
+                element.SetValue(property, new SolidColorBrush(color.Value.ToMediaColor()));
             }
         }
     }

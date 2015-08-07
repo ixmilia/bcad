@@ -8,6 +8,7 @@ namespace BCad.UI.View
     public class RenderCanvasViewModel : INotifyPropertyChanged
     {
         private CadColor backgroundColor = CadColor.Black;
+        private CadColor autoColor = CadColor.White;
         private ViewPort viewPort = ViewPort.CreateDefaultViewPort();
         private Drawing drawing = new Drawing();
         private double pointSize = 15.0;
@@ -23,6 +24,19 @@ namespace BCad.UI.View
                 if (backgroundColor == value)
                     return;
                 backgroundColor = value;
+                OnPropertyChanged();
+                AutoColor = backgroundColor.GetAutoContrastingColor();
+            }
+        }
+
+        public CadColor AutoColor
+        {
+            get { return autoColor; }
+            private set
+            {
+                if (autoColor == value)
+                    return;
+                autoColor = value;
                 OnPropertyChanged();
             }
         }

@@ -6,8 +6,12 @@
              mc:Ignorable="d"
              xmlns:conv="clr-namespace:BCad.Ribbons"
              xmlns:toolkit="clr-namespace:SharpDX.Toolkit;assembly=SharpDX.Toolkit.Game"
+             xmlns:local="clr-namespace:BCad.UI"
              xmlns:view="clr-namespace:BCad.UI.View"
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <local:ColorDisplayNameConverter x:Key="colorDisplayConverter" />
+    </UserControl.Resources>
     <Grid ClipToBounds="True">
         <toolkit:SharpDXElement x:Name="surface" SendResizeToGame="True" SendResizeDelay="0" />
         <view:RenderCanvas ViewPort="{Binding Path=ViewPort}"
@@ -16,6 +20,7 @@
                            SelectedEntities="{Binding Path=SelectedEntities}"
                            RubberBandGenerator="{Binding Path=RubberBandGenerator}"
                            CursorPoint="{Binding Path=CursorPoint}"
+                           DefaultColor="{Binding Path=AutoColor, Converter={StaticResource ResourceKey=colorDisplayConverter}}"
                            SupportedPrimitiveTypes="Text" />
     </Grid>
 </UserControl>
