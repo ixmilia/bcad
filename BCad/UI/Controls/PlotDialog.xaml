@@ -118,7 +118,8 @@
                                        Width="{Binding Path=PreviewWidth}"
                                        Height="{Binding Path=PreviewHeight}"
                                        ViewPort="{Binding Path=ViewPort}"
-                                       Drawing="{Binding Path=Drawing}" />
+                                       Drawing="{Binding Path=Drawing}"
+                                       DefaultColor="{Binding Path=DefaultColor}" />
                 </Grid>
             </Border>
         </StackPanel>

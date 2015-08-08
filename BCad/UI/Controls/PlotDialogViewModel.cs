@@ -49,6 +49,7 @@ namespace BCad.UI.Controls
         }
 
         private Drawing drawing;
+        private CadColor defaultColor;
         private PlotType plotType;
         private string fileName;
         private ViewportType viewportType;
@@ -106,6 +107,18 @@ namespace BCad.UI.Controls
                 if (drawing == value)
                     return;
                 drawing = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public CadColor DefaultColor
+        {
+            get { return defaultColor; }
+            set
+            {
+                if (defaultColor == value)
+                    return;
+                defaultColor = value;
                 OnPropertyChanged();
             }
         }
@@ -421,6 +434,7 @@ namespace BCad.UI.Controls
         {
             this.workspace = workspace;
             Drawing = new Drawing();
+            DefaultColor = CadColor.White;
             PlotType = PlotType.File;
             FileName = string.Empty;
             ViewportType = ViewportType.Extents;
@@ -436,6 +450,17 @@ namespace BCad.UI.Controls
             PixelHeight = 600;
             MaxPreviewWidth = 300;
             MaxPreviewHeight = 300;
+
+            workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(nameof(ISettingsManager.BackgroundColor)));
+        }
+
+        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ISettingsManager.BackgroundColor))
+            {
+                DefaultColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
