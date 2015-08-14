@@ -89,7 +89,7 @@ namespace BCad.UI.View
                 if (e.NewValue is Color)
                 {
                     var color = (Color)e.NewValue;
-                    control._defaultColor = CadColor.FromRgb(color.R, color.G, color.B);
+                    control._defaultColor = CadColor.FromArgb(color.A, color.R, color.G, color.B);
                 }
             }
         }

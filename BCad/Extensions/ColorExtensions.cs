@@ -6,12 +6,12 @@ namespace BCad.Extensions
     {
         public static System.Drawing.Color ToDrawingColor(this CadColor color)
         {
-            return System.Drawing.Color.FromArgb(color.R, color.G, color.B);
+            return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
         }
 
         public static Color ToMediaColor(this CadColor color)
         {
-            return Color.FromArgb(255, color.R, color.G, color.B);
+            return Color.FromArgb(color.A, color.R, color.G, color.B);
         }
     }
 }

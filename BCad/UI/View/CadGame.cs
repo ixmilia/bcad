@@ -64,8 +64,8 @@ namespace BCad.UI.View
         {
             var bg = workspace.SettingsManager.BackgroundColor;
             var auto = bg.GetAutoContrastingColor();
-            backgroundColor = new Color4(bg.R / 255f, bg.G / 255f, bg.B / 255f, 1.0f);
-            autoColor = new Color(auto.R, auto.G, auto.B, (byte)255);
+            backgroundColor = new Color4(bg.R / 255f, bg.G / 255f, bg.B / 255f, bg.A / 255f);
+            autoColor = new Color(auto.R, auto.G, auto.B, auto.A);
         }
 
         protected override void LoadContent()
@@ -216,7 +216,7 @@ namespace BCad.UI.View
         {
             if (color == null)
                 return fallback;
-            return new Color(color.Value.R, color.Value.G, color.Value.B, (byte)255);
+            return new Color(color.Value.R, color.Value.G, color.Value.B, color.Value.A);
         }
 
         private void UpdateMatrices()

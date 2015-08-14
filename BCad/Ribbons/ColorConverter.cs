@@ -17,7 +17,7 @@ namespace BCad.Ribbons
                 if (value.GetType() == typeof(CadColor))
                 {
                     real = (CadColor)value;
-                    return Color.FromArgb(255, real.R, real.G, real.B);
+                    return Color.FromArgb(real.A, real.R, real.G, real.B);
                 }
                 else if (value.GetType() == typeof(string))
                 {
@@ -29,7 +29,7 @@ namespace BCad.Ribbons
                 }
             }
 
-            return Color.FromArgb(255, real.R, real.G, real.B);
+            return Color.FromArgb(real.A, real.R, real.G, real.B);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -39,7 +39,7 @@ namespace BCad.Ribbons
                 var color = (Color)value;
                 if (targetType == typeof(CadColor))
                 {
-                    return CadColor.FromRgb(color.R, color.G, color.B);
+                    return CadColor.FromArgb(color.A, color.R, color.G, color.B);
                 }
                 else
                 {
