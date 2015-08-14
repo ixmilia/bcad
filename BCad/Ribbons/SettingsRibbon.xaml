@@ -3,21 +3,11 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:controls="clr-namespace:BCad.UI.Controls"
                     xmlns:local="clr-namespace:BCad.Ribbons"
                     Header="Settings"
                     mc:Ignorable="d"
                     d:DesignHeight="300" d:DesignWidth="300">
-    <RibbonTab.Resources>
-        <local:ColorConverter x:Key="colorConverter" />
-
-        <DataTemplate x:Key="ColorTemplate">
-            <Rectangle Margin="1" Width="45" Height="25" Stroke="Black">
-                <Rectangle.Fill>
-                    <SolidColorBrush x:Name="unused" Color="{Binding Converter={StaticResource ResourceKey=colorConverter}}" />
-                </Rectangle.Fill>
-            </Rectangle>
-        </DataTemplate>
-    </RibbonTab.Resources>
     <RibbonGroup Header="Drawing units">
         <Grid Width="150">
             <Grid.RowDefinitions>
@@ -48,11 +38,12 @@
         </Grid>
     </RibbonGroup>
     <RibbonGroup Header="Background">
-        <Grid>
-            <ComboBox ItemsSource="{Binding Path=BackgroundColors}"
-                      ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
-                      SelectedItem="{Binding Path=SettingsManager.BackgroundColor, Mode=TwoWay}" />
-        </Grid>
+        <controls:ColorPicker ShowNames="False"
+                              PreviewWidth="45"
+                              PreviewHeight="25"
+                              AllowNullColor="False"
+                              AvailableColors="{Binding Path=BackgroundColors}"
+                              SelectedColor="{Binding Path=BackgroundColor, Mode=TwoWay}" />
     </RibbonGroup>
     <RibbonGroup Header="Snap">
         <RibbonGroup Header="Kind">
@@ -62,9 +53,12 @@
             <CheckBox IsChecked="{Binding Path=IsQuadrant}" Content="Quadrant" />
         </RibbonGroup>
         <RibbonGroup Header="Color">
-            <ComboBox ItemsSource="{Binding Path=SnapPointColors}"
-                        ItemTemplate="{StaticResource ResourceKey=ColorTemplate}"
-                        SelectedItem="{Binding Path=SettingsManager.SnapPointColor, Mode=TwoWay}" />
+            <controls:ColorPicker ShowNames="False"
+                                  PreviewWidth="45"
+                                  PreviewHeight="25"
+                                  AllowNullColor="False"
+                                  AvailableColors="{Binding Path=SnapPointColors}"
+                                  SelectedColor="{Binding Path=SnapPointColor, Mode=TwoWay}" />
         </RibbonGroup>
         <RibbonGroup Header="Angles">
             <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsNinetyDegree}" Content="Every 90 degrees" />

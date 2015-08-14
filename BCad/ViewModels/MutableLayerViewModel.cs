@@ -8,21 +8,21 @@ namespace BCad.ViewModels
     public class MutableLayerViewModel : INotifyPropertyChanged
     {
         private bool? isVisible = true;
-        private ColorViewModel color;
+        private CadColor? color;
         private string name;
         private Layer layer;
 
         public MutableLayerViewModel(string name)
         {
             this.name = name;
-            this.color = new ColorViewModel(null);
+            this.color = null;
         }
 
         public MutableLayerViewModel(Layer layer)
         {
             this.layer = layer;
             this.name = layer.Name;
-            this.color = new ColorViewModel(layer.Color);
+            this.color = layer.Color;
             this.isVisible = layer.IsVisible;
         }
 
@@ -39,7 +39,7 @@ namespace BCad.ViewModels
             }
         }
 
-        public ColorViewModel Color
+        public CadColor? Color
         {
             get { return color; }
             set
@@ -73,7 +73,7 @@ namespace BCad.ViewModels
                     ? true
                     : this.Name != this.layer.Name ||
                       this.IsVisible != this.layer.IsVisible ||
-                      this.Color.Color != this.layer.Color;
+                      this.Color != this.layer.Color;
             }
         }
 
@@ -81,11 +81,11 @@ namespace BCad.ViewModels
         {
             if (this.layer == null)
             {
-                return new Layer(this.Name, Color.Color, IsVisible ?? false, new ReadOnlyTree<uint, Entity>());
+                return new Layer(this.Name, Color, IsVisible ?? false, new ReadOnlyTree<uint, Entity>());
             }
             else if (this.IsDirty)
             {
-                return this.layer.Update(name: this.Name, color: this.Color.Color, isVisible: this.IsVisible ?? false);
+                return this.layer.Update(name: this.Name, color: this.Color, isVisible: this.IsVisible ?? false);
             }
             else
             {

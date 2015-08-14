@@ -13,7 +13,6 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using BCad.Commands;
-using BCad.Core.UI;
 using BCad.EventArguments;
 using BCad.Primitives;
 using BCad.Ribbons;

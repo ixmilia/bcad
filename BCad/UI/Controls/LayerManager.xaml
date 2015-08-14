@@ -3,21 +3,25 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:bcad="clr-namespace:BCad;assembly=BCad.Core"
                    xmlns:local="clr-namespace:BCad.UI"
+                   xmlns:controls="clr-namespace:BCad.UI.Controls"
                    xmlns:rib="clr-namespace:BCad.Ribbons"
+                   xmlns:view="clr-namespace:BCad.UI.View"
                    mc:Ignorable="d" Width="480" Height="300">
     <local:BCadControl.Resources>
         <local:BoolToVisibilityConverter x:Key="boolToVis" />
         <local:ColorDisplayNameConverter x:Key="colorDisplayConverter" />
+        <view:NullVisibilityConverter x:Key="nullVisConverter" />
         <rib:ColorConverter x:Key="colorConverter" />
 
         <Style TargetType="{x:Type FrameworkElement}" x:Key="GridBlockStyle">
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Visibility"
                     Value="{Binding Path=IsSelected,
-                                    RelativeSource={RelativeSource FindAncestor,
+                                    RelativeSource={RelativeSource Mode=FindAncestor,
                                         AncestorType={x:Type ListViewItem}},
-                                    Converter={StaticResource boolToVis},
+                                    Converter={StaticResource ResourceKey=boolToVis},
                                     ConverterParameter=False}" />
         </Style>
 
@@ -25,26 +29,11 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Visibility"
                     Value="{Binding Path=IsSelected,
-                                    RelativeSource={RelativeSource FindAncestor,
+                                    RelativeSource={RelativeSource Mode=FindAncestor,
                                         AncestorType={x:Type ListViewItem}},
-                                    Converter={StaticResource boolToVis},
+                                    Converter={StaticResource ResourceKey=boolToVis},
                                     ConverterParameter=True}" />
         </Style>
-        
-        <DataTemplate x:Key="ColorTemplate">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15">
-                    <Rectangle.Fill>
-                        <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource colorConverter}}" />
-                    </Rectangle.Fill>
-                </Rectangle>
-                <TextBlock Grid.Column="1" Text="{Binding Path=Color, Converter={StaticResource colorDisplayConverter}}" Margin="1" />
-            </Grid>
-        </DataTemplate>
     </local:BCadControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -63,24 +52,30 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock Text="{Binding Path=Name}" Style="{StaticResource GridBlockStyle}" />
-                                    <TextBox Text="{Binding Path=Name}" Style="{StaticResource GridEditStyle}" />
+                                    <TextBlock Text="{Binding Path=Name}" Style="{StaticResource ResourceKey=GridBlockStyle}" />
+                                    <TextBox Text="{Binding Path=Name}" Style="{StaticResource ResourceKey=GridEditStyle}" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="90" Header="Color">
+                    <GridViewColumn Width="120" Header="Color">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <ContentPresenter Content="{Binding Path=Color}"
-                                                      ContentTemplate="{StaticResource ColorTemplate}"
-                                                      Style="{StaticResource GridBlockStyle}" />
-                                    <ComboBox SelectedItem="{Binding Path=Color}"
-                                              ItemsSource="{Binding ElementName=layerList, Path=DataContext.AvailableColors}"
-                                              ItemTemplate="{StaticResource ColorTemplate}"
-                                              Style="{StaticResource GridEditStyle}">
-                                    </ComboBox>
+                                    <Grid Style="{StaticResource ResourceKey=GridBlockStyle}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Grid.Column="0" Margin="1" Width="15" Height="15" Visibility="{Binding Path=Color, Converter={StaticResource ResourceKey=nullVisConverter}}">
+                                            <Rectangle.Fill>
+                                                <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource ResourceKey=colorConverter}}" />
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <TextBlock Grid.Column="1" Text="{Binding Path=Color, Converter={StaticResource ResourceKey=colorDisplayConverter}}" Margin="1" />
+                                    </Grid>
+                                    <controls:ColorPicker SelectedColor="{Binding Path=Color, Mode=TwoWay}"
+                                                          Style="{StaticResource ResourceKey=GridEditStyle}" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

@@ -22,7 +22,7 @@ namespace BCad.UI
                 }
             }
 
-            return "Auto";
+            return "(Auto)";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -5,7 +5,7 @@
              xmlns:local="clr-namespace:BCad.Ribbons"
              xmlns:view="clr-namespace:BCad.UI.View"
              xmlns:ui="clr-namespace:BCad.UI"
-             xmlns:controls="clr-namespace:BCad.Core.UI">
+             xmlns:controls="clr-namespace:BCad.UI.Controls">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -26,20 +26,6 @@
                                 </Rectangle.Fill>
                             </Rectangle>
                             <TextBlock Grid.Column="1" Text="{Binding Path=Name}" Margin="5,0" />
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate x:Key="ColorTemplate">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Rectangle Grid.Column="0" Margin="1,0" Width="15" Height="15">
-                                <Rectangle.Fill>
-                                    <SolidColorBrush x:Name="unused" Color="{Binding Path=Color, Converter={StaticResource ResourceKey=colorConverter}}" />
-                                </Rectangle.Fill>
-                            </Rectangle>
-                            <TextBlock Grid.Column="1" Text="{Binding Path=Color, Converter={StaticResource ResourceKey=colorDisplayConverter}}" Margin="1,0" />
                         </Grid>
                     </DataTemplate>
                 </ResourceDictionary>
@@ -70,14 +56,10 @@
         <TextBlock Grid.Row="1"
                    Grid.Column="0"
                    Text="Color" />
-        <ComboBox Grid.Row="1"
-                  Grid.Column="1"
-                  HorizontalAlignment="Left"
-                  Width="90"
-                  IsEnabled="{Binding Path=IsEditingEnabled}"
-                  ItemsSource="{Binding Path=AvailableColors}"
-                  SelectedItem="{Binding Path=SelectedColor, Mode=TwoWay}"
-                  ItemTemplate="{StaticResource ResourceKey=ColorTemplate}" />
+        <controls:ColorPicker Grid.Row="1"
+                              Grid.Column="1"
+                              IsEnabled="{Binding Path=IsEditingEnabled}"
+                              SelectedColor="{Binding Path=SelectedColor, Mode=TwoWay}" />
         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <!-- aggregate -->
             <Grid DataContext="{Binding Path=EditAggregateViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -91,12 +73,12 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Location" />
-                <controls:EditablePoint Grid.Row="0"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Location, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="0"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Location, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
             <!-- arc -->
             <Grid DataContext="{Binding Path=EditArcViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -114,12 +96,12 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Center" />
-                <controls:EditablePoint Grid.Row="0"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Center, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="0"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Center, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="Start angle" />
@@ -141,12 +123,12 @@
                 <TextBlock Grid.Row="4"
                            Grid.Column="0"
                            Text="Normal" />
-                <controls:EditablePoint Grid.Row="4"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="4"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
             <!-- circle -->
             <Grid DataContext="{Binding Path=EditCircleViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -162,12 +144,12 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Center" />
-                <controls:EditablePoint Grid.Row="0"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Center, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="0"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Center, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="Radius" />
@@ -177,12 +159,12 @@
                 <TextBlock Grid.Row="2"
                            Grid.Column="0"
                            Text="Normal" />
-                <controls:EditablePoint Grid.Row="2"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="2"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
             <!-- ellipse -->
             <Grid DataContext="{Binding Path=EditEllipseViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -201,12 +183,12 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Center" />
-                <controls:EditablePoint Grid.Row="0"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Center, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="0"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Center, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="Start angle" />
@@ -222,21 +204,21 @@
                 <TextBlock Grid.Row="3"
                            Grid.Column="0"
                            Text="Normal" />
-                <controls:EditablePoint Grid.Row="3"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="3"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="4"
                            Grid.Column="0"
                            Text="MajorAxis" />
-                <controls:EditablePoint Grid.Row="4"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=MajorAxis, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="4"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=MajorAxis, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="5"
                            Grid.Column="0"
                            Text="Minor axis ratio" />
@@ -257,21 +239,21 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="P1" />
-                <controls:EditablePoint Grid.Row="0"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=P1, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="0"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=P1, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="P2" />
-                <controls:EditablePoint Grid.Row="1"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=P2, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="1"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=P2, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
             <!-- location -->
             <Grid DataContext="{Binding Path=EditLocationViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -285,12 +267,12 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Location" />
-                <controls:EditablePoint Grid.Row="0"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Point, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="0"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Point, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
             </Grid>
             <!-- text -->
             <Grid DataContext="{Binding Path=EditTextViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -314,21 +296,21 @@
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="Location" />
-                <controls:EditablePoint Grid.Row="1"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Location, Mode=TwoWay}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="1"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Location, Mode=TwoWay}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="2"
                            Grid.Column="0"
                            Text="Normal" />
-                <controls:EditablePoint Grid.Row="2"
-                                        Grid.Column="1"
-                                        Margin="1"
-                                        Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
-                                        UnitFormat="{Binding Path=UnitFormat}"
-                                        UnitPrecision="{Binding Path=UnitPrecision}" />
+                <ui:EditablePoint Grid.Row="2"
+                                  Grid.Column="1"
+                                  Margin="1"
+                                  Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
+                                  UnitFormat="{Binding Path=UnitFormat}"
+                                  UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="3"
                            Grid.Column="0"
                            Text="Height" />

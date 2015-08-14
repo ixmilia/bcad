@@ -25,7 +25,6 @@ namespace BCad.ViewModels
             this.workspace = workspace;
             workspace.WorkspaceChanged += WorkspaceChanged;
             workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
-            AvailableColors = CadColors.AllColors.Select(color => new ColorViewModel(color));
         }
 
         public int SelectedCount
@@ -38,9 +37,7 @@ namespace BCad.ViewModels
             get { return !workspace.IsCommandExecuting && workspace.SelectedEntities.Count > 0; }
         }
 
-        public IEnumerable<ColorViewModel> AvailableColors { get; private set; }
-
-        public ColorViewModel SelectedColor
+        public CadColor? SelectedColor
         {
             get
             {
@@ -52,11 +49,11 @@ namespace BCad.ViewModels
                     case 0:
                         return null;
                     case 1:
-                        return AvailableColors.FirstOrDefault(c => c.Color == workspace.SelectedEntities.First().Color);
+                        return workspace.SelectedEntities.Single().Color;
                     default:
                         var selectedColors = workspace.SelectedEntities.Select(entity => entity.Color);
                         if (selectedColors.Distinct().Count() == 1)
-                            return AvailableColors.FirstOrDefault(c => c.Color == selectedColors.First());
+                            return selectedColors.First();
                         return null;
                 }
             }
@@ -68,7 +65,7 @@ namespace BCad.ViewModels
                 {
                     var layerName = drawing.ContainingLayer(entity).Name;
                     drawing = drawing.Remove(entity);
-                    var newEntity = UpdateColor(entity, value.Color);
+                    var newEntity = UpdateColor(entity, value);
                     newSelectedEntities.Add(newEntity);
                     drawing = drawing.Add(drawing.Layers.GetValue(layerName), newEntity);
                 }

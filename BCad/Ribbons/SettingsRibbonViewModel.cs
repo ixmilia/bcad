@@ -114,6 +114,19 @@ namespace BCad.Ribbons
             }
         }
 
+        public CadColor? BackgroundColor
+        {
+            get { return SettingsManager.BackgroundColor; }
+            set
+            {
+                var newColor = value ?? CadColor.Black;
+                if (SettingsManager.BackgroundColor == newColor)
+                    return;
+                SettingsManager.BackgroundColor = newColor;
+                OnPropertyChanged();
+            }
+        }
+
         public CadColor[] SnapPointColors
         {
             get
@@ -125,6 +138,19 @@ namespace BCad.Ribbons
                     CadColor.Cyan,
                     CadColor.Red
                 };
+            }
+        }
+
+        public CadColor? SnapPointColor
+        {
+            get { return SettingsManager.SnapPointColor; }
+            set
+            {
+                var newColor = value ?? CadColor.Black;
+                if (SettingsManager.SnapPointColor == newColor)
+                    return;
+                SettingsManager.SnapPointColor = newColor;
+                OnPropertyChanged();
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace BCad
+﻿using BCad.Extensions;
+
+namespace BCad
 {
     public struct CadColor
     {
@@ -31,6 +33,11 @@
         {
             var brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
             return brightness < 0.67 * 255 ? White : Black;
+        }
+
+        public override string ToString()
+        {
+            return this.ToColorString();
         }
 
         public override bool Equals(object obj)

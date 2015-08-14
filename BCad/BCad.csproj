@@ -122,9 +122,11 @@
     </Compile>
     <Compile Include="UI\BCadDialogResult.cs" />
     <Compile Include="UI\BCadDialog`1.cs" />
-    <Compile Include="UI\CadColors.cs" />
     <Compile Include="UI\ColorDisplayNameConverter.cs" />
     <Compile Include="UI\ControlMetadata.cs" />
+    <Compile Include="UI\Controls\ColorPicker.xaml.cs">
+      <DependentUpon>ColorPicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\DialogFactory.cs" />
     <Compile Include="UI\EditablePoint.xaml.cs">
       <DependentUpon>EditablePoint.xaml</DependentUpon>
@@ -162,7 +164,6 @@
     <Compile Include="UI\View\ViewPane.BindingClass.cs" />
     <Compile Include="UI\View\ViewPane.CancellableComparer`1.cs" />
     <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
-    <Compile Include="ViewModels\ColorViewModel.cs" />
     <Compile Include="ViewModels\EditAggregateViewModel.cs" />
     <Compile Include="ViewModels\EditArcViewModel.cs" />
     <Compile Include="ViewModels\EditCircleViewModel.cs" />
@@ -222,6 +223,10 @@
     <Page Include="UI\BCadDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\ColorPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\EditablePoint.xaml">
       <Generator>MSBuild:Compile</Generator>
