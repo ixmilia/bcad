@@ -12,9 +12,6 @@ namespace BCad.Test
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        [Import]
-        public IInputService InputService { get; set; }
-
         private CompositionHost container;
 
         private TestHost()

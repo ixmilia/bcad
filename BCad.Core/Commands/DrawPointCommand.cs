@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Services;
 
@@ -8,18 +7,13 @@ namespace BCad.Commands
     [ExportCadCommand("Draw.Point", "POINT", "point", "p")]
     public class DrawPointCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var location = await InputService.GetPoint(new UserDirective("Location"));
+            var inputService = workspace.GetService<IInputService>();
+            var location = await inputService.GetPoint(new UserDirective("Location"));
             if (location.Cancel) return false;
             if (!location.HasValue) return true;
-            Workspace.AddToCurrentLayer(new Location(location.Value, null));
+            workspace.AddToCurrentLayer(new Location(location.Value, null));
             return true;
         }
     }

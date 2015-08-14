@@ -1,20 +1,15 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BCad.Services;
 
 namespace BCad.Commands
 {
     [ExportCadCommand("File.Plot", "PLOT", ModifierKeys.Control, Key.P, "plot")]
     public class PlotCommand : ICadCommand
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        [Import]
-        public IDialogFactory DialogFactory { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var result = await DialogFactory.ShowDialog("Plot", Workspace.SettingsManager.PlotDialogId);
+            var dialogFactoryService = workspace.GetService<IDialogFactoryService>();
+            var result = await dialogFactoryService.ShowDialog("Plot", workspace.SettingsManager.PlotDialogId);
             return result == true;
         }
     }

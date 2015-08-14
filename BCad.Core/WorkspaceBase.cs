@@ -92,25 +92,20 @@ namespace BCad
 
         #region Imports
 
-        [Import]
-        public IOutputService OutputService { get; set; }
-
-        [Import]
-        public IFileSystemService FileSystemService { get; set; }
-
-        // required so that the service is created before the undo or redo commands are fired
-        [Import]
-        public IUndoRedoService UndoRedoService { get; set; }
+        [ImportMany]
+        public IEnumerable<IWorkspaceService> Services { get; set; }
 
         [ImportMany]
         public IEnumerable<Lazy<ICadCommand, CadCommandMetadata>> Commands { get; set; }
 
-        [Import]
-        public IDebugService DebugService { get; set; }
-
         #endregion
 
         #region IWorkspace implementation
+
+        public TService GetService<TService>() where TService : class, IWorkspaceService
+        {
+            return Services.OfType<TService>().SingleOrDefault();
+        }
 
         public ISettingsManager SettingsManager { get; private set; }
 
@@ -166,16 +161,17 @@ namespace BCad
         {
             var command = commandPair.Item1;
             var display = commandPair.Item2;
+            var outputService = GetService<IOutputService>();
             OnCommandExecuting(new CadCommandExecutingEventArgs(command));
-            OutputService.WriteLine(display);
+            outputService.WriteLine(display);
             bool result;
             try
             {
-                result = await command.Execute(arg);
+                result = await command.Execute(this, arg);
             }
             catch (Exception ex)
             {
-                OutputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
+                outputService.WriteLine("Error: {0} - {1}", ex.GetType().ToString(), ex.Message);
                 result = false;
             }
 
@@ -199,11 +195,13 @@ namespace BCad
             }
 
             commandName = commandName ?? lastCommand;
-            DebugService.Add(new WorkspaceLogEntry(string.Format("execute {0}", commandName)));
+            var debugService = GetService<IDebugService>();
+            var outputService = GetService<IOutputService>();
+            debugService.Add(new WorkspaceLogEntry(string.Format("execute {0}", commandName)));
             var commandPair = GetCommand(commandName);
             if (commandPair == null)
             {
-                OutputService.WriteLine("Command {0} not found", commandName);
+                outputService.WriteLine("Command {0} not found", commandName);
                 IsCommandExecuting = false;
                 return false;
             }

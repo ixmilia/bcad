@@ -1,20 +1,15 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BCad.Services;
 
 namespace BCad.Commands
 {
     [ExportCadCommand("Edit.Layers", "LAYERS", ModifierKeys.Control, Key.L, "layers", "layer", "la")]
     public class LayersCommand : ICadCommand
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        [Import]
-        public IDialogFactory DialogFactory { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var result = await DialogFactory.ShowDialog("Layer", Workspace.SettingsManager.LayerDialogId);
+            var dialogFactoryService = workspace.GetService<IDialogFactoryService>();
+            var result = await dialogFactoryService.ShowDialog("Layer", workspace.SettingsManager.LayerDialogId);
             return result == true;
         }
     }

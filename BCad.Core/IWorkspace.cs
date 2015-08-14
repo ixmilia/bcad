@@ -5,6 +5,7 @@ using BCad.Collections;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Primitives;
+using BCad.Services;
 
 namespace BCad
 {
@@ -35,6 +36,8 @@ namespace BCad
         RubberBandGenerator RubberBandGenerator { get; set; }
         bool IsDrawing { get; }
         bool IsCommandExecuting { get; }
+
+        TService GetService<TService>() where TService : class, IWorkspaceService;
 
         void Update(Optional<Drawing> drawing = default(Optional<Drawing>),
             Optional<Plane> drawingPlane = default(Optional<Plane>),

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
@@ -11,15 +10,10 @@ namespace BCad.Commands
     [ExportCadCommand("View.Properties", "PROPERTIES", "properties", "prop", "p")]
     internal class EntityPropertiesCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IOutputService OutputService { get; set; }
-
-        public async Task<bool> Execute(object arg = null)
+        public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
-            var entity = await InputService.GetEntity(new UserDirective("Select entity"));
+            var inputService = workspace.GetService<IInputService>();
+            var entity = await inputService.GetEntity(new UserDirective("Select entity"));
             if (!entity.HasValue || entity.Cancel)
                 return false;
 
@@ -52,7 +46,7 @@ namespace BCad.Commands
             }
 
             var details = DetailsFromProperties(entity.Value.Entity, properties);
-            OutputService.WriteLine(details);
+            workspace.GetService<IOutputService>().WriteLine(details);
 
             return true;
         }

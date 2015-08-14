@@ -1,6 +1,6 @@
 ﻿namespace BCad.Services
 {
-    public interface IUndoRedoService
+    public interface IUndoRedoService : IWorkspaceService
     {
         void Undo();
         void Redo();

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Composition;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
@@ -13,12 +12,6 @@ namespace BCad.Commands
     [ExportCadCommand("Draw.Circle", "CIRCLE", "circle", "c", "cir")]
     public class DrawCircleCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
         private static readonly double IsoMinorRatio = Math.Sqrt(1.5) / Math.Sqrt(2.0) * 2.0 / 3.0;
 
         private enum CircleMode
@@ -28,12 +21,13 @@ namespace BCad.Commands
             Isometric
         }
 
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
             Entity circle = null;
-            var drawingPlane = Workspace.DrawingPlane;
+            var drawingPlane = workspace.DrawingPlane;
+            var inputService = workspace.GetService<IInputService>();
 
-            var cen = await InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
+            var cen = await inputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
             if (cen.Cancel) return false;
             if (cen.HasValue)
             {
@@ -44,7 +38,7 @@ namespace BCad.Commands
                     {
                         case CircleMode.Radius:
                             {
-                                var rad = await InputService.GetPoint(new UserDirective("Enter radius or [d]iameter/[i]sometric", "d", "i"), (p) =>
+                                var rad = await inputService.GetPoint(new UserDirective("Enter radius or [d]iameter/[i]sometric", "d", "i"), (p) =>
                                 {
                                     return new IPrimitive[]
                                     {
@@ -79,7 +73,7 @@ namespace BCad.Commands
                             }
                         case CircleMode.Diameter:
                             {
-                                var dia = await InputService.GetPoint(new UserDirective("Enter diameter or [r]adius/[i]sometric", "r", "i"), (p) =>
+                                var dia = await inputService.GetPoint(new UserDirective("Enter diameter or [r]adius/[i]sometric", "r", "i"), (p) =>
                                 {
                                     return new IPrimitive[]
                                     {
@@ -114,7 +108,7 @@ namespace BCad.Commands
                             }
                         case CircleMode.Isometric:
                             {
-                                var isoRad = await InputService.GetPoint(new UserDirective("Enter isometric-radius or [r]adius/[d]iameter", "r", "d"), (p) =>
+                                var isoRad = await inputService.GetPoint(new UserDirective("Enter isometric-radius or [r]adius/[d]iameter", "r", "d"), (p) =>
                                 {
                                     return new IPrimitive[]
                                     {
@@ -167,13 +161,13 @@ namespace BCad.Commands
                 switch (cen.Directive)
                 {
                     case "ttr":
-                        var firstEntity = await InputService.GetEntity(new UserDirective("First entity"));
+                        var firstEntity = await inputService.GetEntity(new UserDirective("First entity"));
                         if (firstEntity.Cancel || !firstEntity.HasValue)
                             break;
-                        var secondEntity = await InputService.GetEntity(new UserDirective("Second entity"));
+                        var secondEntity = await inputService.GetEntity(new UserDirective("Second entity"));
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
-                        var radius = await InputService.GetDistance();
+                        var radius = await inputService.GetDistance();
                         var ellipse = EditUtilities.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
                         if (ellipse != null)
                         {
@@ -183,17 +177,17 @@ namespace BCad.Commands
                     case "2":
                         break;
                     case "th":
-                        var first = await InputService.GetPoint(new UserDirective("First point"));
+                        var first = await inputService.GetPoint(new UserDirective("First point"));
                         if (first.Cancel || !first.HasValue)
                             break;
-                        var second = await InputService.GetPoint(new UserDirective("Second point"), p =>
+                        var second = await inputService.GetPoint(new UserDirective("Second point"), p =>
                             new[]
                             {
                                 new PrimitiveLine(first.Value, p)
                             });
                         if (second.Cancel || !second.HasValue)
                             break;
-                        var third = await InputService.GetPoint(new UserDirective("Third point"), p =>
+                        var third = await inputService.GetPoint(new UserDirective("Third point"), p =>
                             {
                                 var c = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, p);
                                 if (c == null)
@@ -225,7 +219,7 @@ namespace BCad.Commands
 
             if (circle != null)
             {
-                Workspace.AddToCurrentLayer(circle);
+                workspace.AddToCurrentLayer(circle);
             }
 
             return true;

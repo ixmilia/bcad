@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Services;
 
 namespace BCad.Commands
@@ -7,22 +6,17 @@ namespace BCad.Commands
     [ExportCadCommand("Edit.Redo", "REDO", ModifierKeys.Control, Key.Y, "redo", "re", "r")]
     public class RedoCommandCommand : ICadCommand
     {
-        [Import]
-        public IUndoRedoService UndoRedoService { get; set; }
-
-        [Import]
-        public IOutputService OutputService { get; set; }
-
-        public Task<bool> Execute(object arg)
+        public Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            if (UndoRedoService.RedoHistorySize == 0)
+            var undoRedoService = workspace.GetService<IUndoRedoService>();
+            if (undoRedoService.RedoHistorySize == 0)
             {
-                OutputService.WriteLine("Nothing to redo");
+                workspace.GetService<IOutputService>().WriteLine("Nothing to redo");
                 return Task.FromResult<bool>(false);
             }
 
-            UndoRedoService.Redo();
-            return Task.FromResult<bool>(true);
+            undoRedoService.Redo();
+            return Task.FromResult(true);
         }
     }
 }

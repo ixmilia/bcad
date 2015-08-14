@@ -125,13 +125,14 @@
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileHandlerAttribute.cs" />
     <Compile Include="Helpers\MathHelper.cs" />
-    <Compile Include="IDialogFactory.cs" />
+    <Compile Include="Services\IDialogFactoryService.cs" />
     <Compile Include="ISettingsManager.cs" />
     <Compile Include="Primitives\PrimitivePoint.cs" />
     <Compile Include="Quaternion.cs" />
     <Compile Include="SelectionRectangle.cs" />
     <Compile Include="Services\DebugService.cs" />
     <Compile Include="Helpers\ProjectionHelper.cs" />
+    <Compile Include="Services\ExportWorkspaceServiceAttribute.cs" />
     <Compile Include="Services\FileSpecification.cs" />
     <Compile Include="Services\IDebugService.cs" />
     <Compile Include="Services\IFileSystemService.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Point.cs" />
     <Compile Include="Primitives\PrimitiveText.cs" />
     <Compile Include="SelectedEntity.cs" />
+    <Compile Include="Services\IWorkspaceService.cs" />
     <Compile Include="Services\OutputService.cs" />
     <Compile Include="Services\UndoRedoService.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />

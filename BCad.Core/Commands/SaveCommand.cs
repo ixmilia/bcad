@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Services;
 
 namespace BCad.Commands
@@ -7,27 +6,22 @@ namespace BCad.Commands
     [ExportCadCommand("File.Save", "SAVE", ModifierKeys.Control, Key.S, "save", "s")]
     public class SaveCommand : ICadCommand
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        [Import]
-        public IFileSystemService FileSystemService { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var drawing = Workspace.Drawing;
+            var drawing = workspace.Drawing;
+            var fileSystemService = workspace.GetService<IFileSystemService>();
             string fileName = drawing.Settings.FileName;
             if (fileName == null)
             {
-                fileName = await FileSystemService.GetFileNameFromUserForSave();
+                fileName = await fileSystemService.GetFileNameFromUserForSave();
                 if (fileName == null)
                     return false;
             }
 
-            if (!await FileSystemService.TryWriteDrawing(fileName, drawing, Workspace.ActiveViewPort))
+            if (!await fileSystemService.TryWriteDrawing(fileName, drawing, workspace.ActiveViewPort))
                 return false;
 
-            SaveAsCommand.UpdateDrawingFileName(Workspace, fileName);
+            SaveAsCommand.UpdateDrawingFileName(workspace, fileName);
 
             return true;
         }

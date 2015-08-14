@@ -74,14 +74,36 @@ namespace BCad.UI
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IOutputService OutputService { get; set; }
-
         [ImportMany]
         public IEnumerable<Lazy<IRendererFactory, RenderFactoryMetadata>> RendererFactories { get; set; }
+
+        private IInputService _inputService;
+        private IInputService InputService
+        {
+            get
+            {
+                if (_inputService == null)
+                {
+                    _inputService = Workspace.GetService<IInputService>();
+                }
+
+                return _inputService;
+            }
+        }
+
+        private IOutputService _outputService;
+        private IOutputService OutputService
+        {
+            get
+            {
+                if (_outputService == null)
+                {
+                    _outputService = Workspace.GetService<IOutputService>();
+                }
+
+                return _outputService;
+            }
+        }
 
         public ViewPane()
         {

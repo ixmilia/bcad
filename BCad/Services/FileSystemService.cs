@@ -11,7 +11,7 @@ using Microsoft.Win32;
 
 namespace BCad.Services
 {
-    [Export(typeof(IFileSystemService)), Shared]
+    [ExportWorkspaceService, Shared]
     internal class FileSystemService : IFileSystemService
     {
         [ImportMany]

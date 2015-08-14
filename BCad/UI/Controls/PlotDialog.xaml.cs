@@ -35,12 +35,12 @@ namespace BCad.UI.Controls
         }
 
         [ImportingConstructor]
-        public PlotDialog(IWorkspace workspace, IInputService inputService, IFileSystemService fileSystemService, [ImportMany] IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters)
+        public PlotDialog(IWorkspace workspace, [ImportMany] IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters)
             : this()
         {
             this.workspace = workspace;
-            this.inputService = inputService;
-            this.fileSystemService = fileSystemService;
+            this.inputService = workspace.GetService<IInputService>();
+            this.fileSystemService = workspace.GetService<IFileSystemService>();
             this.filePlotters = filePlotters;
 
             viewModel = new PlotDialogViewModel(this.workspace);

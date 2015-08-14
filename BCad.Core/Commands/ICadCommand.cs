@@ -4,6 +4,6 @@ namespace BCad.Commands
 {
     public interface ICadCommand
     {
-        Task<bool> Execute(object arg = null);
+        Task<bool> Execute(IWorkspace workspace, object arg = null);
     }
 }

@@ -3,7 +3,7 @@ using System.Composition;
 
 namespace BCad.Services
 {
-    [Export(typeof(IOutputService)), Shared]
+    [ExportWorkspaceService, Shared]
     internal class OutputService : IOutputService
     {
         public event WriteLineEventHandler LineWritten;

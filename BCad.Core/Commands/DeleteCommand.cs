@@ -1,23 +1,16 @@
 ﻿using BCad.Services;
-using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace BCad.Commands
 {
     [ExportCadCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
     public class DeleteCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var entities = await InputService.GetEntities();
+            var inputService = workspace.GetService<IInputService>();
+            var entities = await inputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
@@ -28,13 +21,13 @@ namespace BCad.Commands
                 return true;
             }
 
-            var dwg = Workspace.Drawing;
+            var dwg = workspace.Drawing;
             foreach (var ent in entities.Value)
             {
                 dwg = dwg.Remove(ent);
             }
 
-            Workspace.Update(drawing: dwg);
+            workspace.Update(drawing: dwg);
             return true;
         }
     }

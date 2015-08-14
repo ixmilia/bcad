@@ -4,12 +4,13 @@ using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using BCad.Services;
 using BCad.UI;
 
 namespace BCad
 {
-    [Export(typeof(IDialogFactory)), Shared]
-    internal class DialogFactory : IDialogFactory
+    [ExportWorkspaceService, Shared]
+    internal class DialogFactory : IDialogFactoryService
     {
         [ImportMany]
         public IEnumerable<Lazy<BCadControl, ControlMetadata>> Controls { get; set; }

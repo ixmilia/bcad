@@ -1,42 +1,32 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Services;
-using System.Collections.Generic;
 
 namespace BCad.Commands
 {
     [ExportCadCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
     public class OpenCommand : ICadCommand
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        [Import]
-        public IUndoRedoService UndoRedoService { get; set; }
-
-        [Import]
-        public IFileSystemService FileSystemService { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            if (await Workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
+            if (await workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
                 return false;
 
             string filename = null;
             if (arg is string)
                 filename = (string)arg;
 
+            var fileSystemService = workspace.GetService<IFileSystemService>();
             if (filename == null)
-                filename = await FileSystemService.GetFileNameFromUserForOpen();
+                filename = await fileSystemService.GetFileNameFromUserForOpen();
 
             if (filename == null)
                 return false; // cancel
 
             Drawing drawing;
             ViewPort activeViewPort;
-            await FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
-            Workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
-            UndoRedoService.ClearHistory();
+            await fileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
+            workspace.GetService<IUndoRedoService>().ClearHistory();
 
             return true;
         }

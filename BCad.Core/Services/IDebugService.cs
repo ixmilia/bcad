@@ -4,7 +4,7 @@
     {
     }
 
-    public interface IDebugService
+    public interface IDebugService : IWorkspaceService
     {
         void Add(LogEntry entry);
         LogEntry[] GetLog();

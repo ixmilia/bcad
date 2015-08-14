@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
@@ -10,15 +9,10 @@ namespace BCad.Commands
 {
     public abstract class AbstractTrimExtendCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var boundaries = await InputService.GetEntities(GetBoundsText());
+            var inputService = workspace.GetService<IInputService>();
+            var boundaries = await inputService.GetEntities(GetBoundsText());
             if (boundaries.Cancel || !boundaries.HasValue || !boundaries.Value.Any())
             {
                 return false;
@@ -27,13 +21,13 @@ namespace BCad.Commands
             var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives());
 
             var directive = new UserDirective(GetTrimExtendText());
-            var selected = await InputService.GetEntity(directive);
+            var selected = await inputService.GetEntity(directive);
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
             string entityLayerName;
             while (!selected.Cancel && selected.HasValue)
             {
-                var drawing = Workspace.Drawing;
+                var drawing = workspace.Drawing;
                 entityLayerName = drawing.ContainingLayer(selected.Value.Entity).Name;
                 DoTrimExtend(selected.Value, boundaryPrimitives, out removed, out added);
 
@@ -44,11 +38,11 @@ namespace BCad.Commands
                     drawing = drawing.Add(drawing.Layers.GetValue(entityLayerName), ent);
 
                 // commit the change
-                if (Workspace.Drawing != drawing)
-                    Workspace.Update(drawing: drawing);
+                if (workspace.Drawing != drawing)
+                    workspace.Update(drawing: drawing);
 
                 // get next entity to trim/extend
-                selected = await InputService.GetEntity(directive);
+                selected = await inputService.GetEntity(directive);
             }
 
             return true;

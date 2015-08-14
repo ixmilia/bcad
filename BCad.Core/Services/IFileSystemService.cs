@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BCad.Services
 {
-    public interface IFileSystemService
+    public interface IFileSystemService : IWorkspaceService
     {
         Task<string> GetFileNameFromUserForSave();
         Task<string> GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications);

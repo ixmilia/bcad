@@ -1,42 +1,33 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Services;
-using System.Threading;
 
 namespace BCad.Commands
 {
     [ExportCadCommand("Debug.Dump", "DUMP", "dump")]
     internal class DebugDumpCommand : ICadCommand
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        [Import]
-        public IDebugService DebugService { get; set; }
-
-        [Import]
-        public IOutputService OutputService { get; set; }
-
-        public Task<bool> Execute(object arg = null)
+        public Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
-            OutputService.WriteLine("input service entries:");
-            var entries = DebugService.GetLog();
+            var outputService = workspace.GetService<IOutputService>();
+            var debugService = workspace.GetService<IDebugService>();
+            outputService.WriteLine("input service entries:");
+            var entries = debugService.GetLog();
             foreach (var entry in entries)
             {
-                OutputService.WriteLine("  " + entry.ToString());
+                outputService.WriteLine("  " + entry.ToString());
             }
 
-            OutputService.WriteLine("drawing structure:");
-            foreach (var layer in Workspace.Drawing.Layers.GetValues())
+            outputService.WriteLine("drawing structure:");
+            foreach (var layer in workspace.Drawing.Layers.GetValues())
             {
-                OutputService.WriteLine("  layer={0}", layer.Name);
+                outputService.WriteLine("  layer={0}", layer.Name);
                 foreach (var entity in layer.GetEntities())
                 {
-                    OutputService.WriteLine("    entity id={0}, detail={1}", entity.Id, entity);
+                    outputService.WriteLine("    entity id={0}, detail={1}", entity.Id, entity);
                 }
             }
 
-            return Task.FromResult<bool>(true);
+            return Task.FromResult(true);
         }
     }
 }

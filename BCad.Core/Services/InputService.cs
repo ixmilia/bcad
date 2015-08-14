@@ -31,17 +31,11 @@ namespace BCad.Services
         }
     }
 
-    [Export(typeof(IInputService)), Shared]
+    [ExportWorkspaceService, Shared]
     internal class InputService : IInputService
     {
         [Import]
         public IWorkspace Workspace { get; set; }
-
-        [Import]
-        public IDebugService DebugService { get; set; }
-
-        [Import]
-        public IOutputService OutputService { get; set; }
 
         public InputService()
         {
@@ -357,7 +351,7 @@ namespace BCad.Services
                     }
                     else
                     {
-                        OutputService.WriteLine("Bad value or directive '{0}'", directive);
+                        Workspace.GetService<IOutputService>().WriteLine("Bad value or directive '{0}'", directive);
                     }
                 }
             }
@@ -488,16 +482,17 @@ namespace BCad.Services
 
         protected virtual void OnValueReceived(ValueReceivedEventArgs e)
         {
-            DebugService.Add(new InputServiceLogEntry(e.InputType, e.Value));
+            Workspace.GetService<IDebugService>().Add(new InputServiceLogEntry(e.InputType, e.Value));
 
             // write out received value
+            var outputService = Workspace.GetService<IOutputService>();
             switch (e.InputType)
             {
                 case InputType.Point:
-                    OutputService.WriteLine(Workspace.Format(e.Point));
+                    outputService.WriteLine(Workspace.Format(e.Point));
                     break;
                 case InputType.Text:
-                    OutputService.WriteLine(e.Text);
+                    outputService.WriteLine(e.Text);
                     break;
             }
 

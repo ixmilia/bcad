@@ -3,7 +3,7 @@ using System.Composition;
 
 namespace BCad.Services
 {
-    [Export(typeof(IDebugService)), Shared]
+    [ExportWorkspaceService, Shared]
     internal class DebugService : IDebugService
     {
         private List<LogEntry> entries;

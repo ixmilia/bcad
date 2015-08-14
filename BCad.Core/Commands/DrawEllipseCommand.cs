@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
 using BCad.Services;
@@ -9,19 +8,14 @@ namespace BCad.Commands
     [ExportCadCommand("Draw.Ellipse", "ELLIPSE", "ellipse", "el")]
     internal class DrawEllipseCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var drawingPlane = Workspace.DrawingPlane;
-            var center = await InputService.GetPoint(new UserDirective("Center"));
+            var drawingPlane = workspace.DrawingPlane;
+            var inputService = workspace.GetService<IInputService>();
+            var center = await inputService.GetPoint(new UserDirective("Center"));
             if (!center.Cancel && center.HasValue)
             {
-                var majorEnd = await InputService.GetPoint(new UserDirective("Major axis endpoint"), p =>
+                var majorEnd = await inputService.GetPoint(new UserDirective("Major axis endpoint"), p =>
                 {
                     return new[]
                     {
@@ -33,7 +27,7 @@ namespace BCad.Commands
                 var majorAxisLength = majorAxis.Length;
                 if (!majorEnd.Cancel && majorEnd.HasValue)
                 {
-                    var minorEnd = await InputService.GetPoint(new UserDirective("Minor axis endpoint"), lastPoint: center.Value, onCursorMove: p =>
+                    var minorEnd = await inputService.GetPoint(new UserDirective("Minor axis endpoint"), lastPoint: center.Value, onCursorMove: p =>
                     {
                         var tempMinorAxis = p - center.Value;
                         var tempMinorAxisRatio = tempMinorAxis.Length / majorAxisLength;
@@ -53,7 +47,7 @@ namespace BCad.Commands
                         if (!minorEnd.Cancel && minorEnd.HasValue)
                         {
                             var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, null);
-                            Workspace.AddToCurrentLayer(el);
+                            workspace.AddToCurrentLayer(el);
                             return true;
                         }
                     }

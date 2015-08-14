@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
 using BCad.Services;
@@ -9,18 +8,13 @@ namespace BCad.Commands
     [ExportCadCommand("Draw.Arc", "ARC", "arc", "a")]
     internal class DrawArcCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var first = await InputService.GetPoint(new UserDirective("First point"));
+            var inputService = workspace.GetService<IInputService>();
+            var first = await inputService.GetPoint(new UserDirective("First point"));
             if (!first.Cancel && first.HasValue)
             {
-                var second = await InputService.GetPoint(new UserDirective("Second point"), (p) =>
+                var second = await inputService.GetPoint(new UserDirective("Second point"), (p) =>
                     {
                         return new[]
                         {
@@ -29,9 +23,9 @@ namespace BCad.Commands
                     });
                 if (!second.Cancel && second.HasValue)
                 {
-                    var third = await InputService.GetPoint(new UserDirective("Third point"), (p) =>
+                    var third = await inputService.GetPoint(new UserDirective("Third point"), (p) =>
                         {
-                            var a = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, p, Workspace.DrawingPlane.Normal);
+                            var a = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, p, workspace.DrawingPlane.Normal);
                             if (a == null)
                             {
                                 return new IPrimitive[0];
@@ -48,7 +42,7 @@ namespace BCad.Commands
                         });
                     if (!third.Cancel && third.HasValue)
                     {
-                        var primitiveArc = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, third.Value, Workspace.DrawingPlane.Normal);
+                        var primitiveArc = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, third.Value, workspace.DrawingPlane.Normal);
                         if (primitiveArc != null)
                         {
                             var arc = new Arc(
@@ -58,7 +52,7 @@ namespace BCad.Commands
                                 primitiveArc.EndAngle,
                                 primitiveArc.Normal,
                                 null);
-                            Workspace.AddToCurrentLayer(arc);
+                            workspace.AddToCurrentLayer(arc);
                             return true;
                         }
                     }

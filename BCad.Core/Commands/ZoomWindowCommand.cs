@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Extensions;
 using BCad.Primitives;
 
@@ -8,27 +7,24 @@ namespace BCad.Commands
     [ExportCadCommand("Zoom.Window", "ZOOMWINDOW", "zoomwindow", "zw")]
     internal class ZoomWindowCommand : ICadCommand
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg = null)
+        public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
-            var selection = await Workspace.ViewControl.GetSelectionRectangle();
+            var selection = await workspace.ViewControl.GetSelectionRectangle();
             if (selection == null)
                 return false;
 
-            var transform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(Workspace.ViewControl.DisplayWidth, Workspace.ViewControl.DisplayHeight);
+            var transform = workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(workspace.ViewControl.DisplayWidth, workspace.ViewControl.DisplayHeight);
             var newVp = GetBoundingPrimitives(selection.TopLeftWorld, selection.BottomRightWorld).ShowAllViewPort(
-                Workspace.ActiveViewPort.Sight,
-                Workspace.ActiveViewPort.Up,
-                Workspace.ViewControl.DisplayWidth,
-                Workspace.ViewControl.DisplayHeight,
+                workspace.ActiveViewPort.Sight,
+                workspace.ActiveViewPort.Up,
+                workspace.ViewControl.DisplayWidth,
+                workspace.ViewControl.DisplayHeight,
                 pixelBuffer: 0);
 
             if (newVp == null)
                 return false;
 
-            Workspace.Update(activeViewPort: newVp);
+            workspace.Update(activeViewPort: newVp);
             return true;
         }
 

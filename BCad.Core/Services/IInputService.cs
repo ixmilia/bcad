@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.EventArguments;
-using BCad.Primitives;
 
 namespace BCad.Services
 {
@@ -23,7 +22,7 @@ namespace BCad.Services
     public delegate void ValueRequestedEventHandler(object sender, ValueRequestedEventArgs e);
     public delegate void ValueReceivedEventHandler(object sender, ValueReceivedEventArgs e);
 
-    public interface IInputService
+    public interface IInputService : IWorkspaceService
     {
         Point LastPoint { get; }
         Task<ValueOrDirective<double>> GetDistance(string prompt = null, Optional<double> defaultDistance = default(Optional<double>));

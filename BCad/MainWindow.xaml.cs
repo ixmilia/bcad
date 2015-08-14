@@ -38,12 +38,6 @@ namespace BCad
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IOutputService OutputService { get; set; }
-
         [ImportMany]
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
@@ -184,7 +178,7 @@ namespace BCad
             // prepare user console
             App.Container.SatisfyImports(inputPanel);
             TakeFocus();
-            InputService.Reset();
+            Workspace.GetService<IInputService>().Reset();
 
             Workspace.Update(viewControl: viewPane, isDirty: false);
 
@@ -200,7 +194,7 @@ namespace BCad
                 }
                 else
                 {
-                    OutputService.WriteLine("Unable to open file: ", fileName);
+                    Workspace.GetService<IOutputService>().WriteLine("Unable to open file: ", fileName);
                 }
             }
             else

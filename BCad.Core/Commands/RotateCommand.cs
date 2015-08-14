@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using BCad.Services;
 using BCad.Utilities;
@@ -9,15 +8,10 @@ namespace BCad.Commands
     [ExportCadCommand("Edit.Rotate", "ROTATE", "rotate", "rot", "ro")]
     public class RotateCommand : ICadCommand
     {
-        [Import]
-        public IInputService InputService { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        public async Task<bool> Execute(object arg)
+        public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var entities = await InputService.GetEntities();
+            var inputService = workspace.GetService<InputService>();
+            var entities = await inputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
@@ -28,13 +22,13 @@ namespace BCad.Commands
                 return true;
             }
 
-            var origin = await InputService.GetPoint(new UserDirective("Point of rotation"));
+            var origin = await inputService.GetPoint(new UserDirective("Point of rotation"));
             if (origin.Cancel || !origin.HasValue)
             {
                 return false;
             }
 
-            var angleText = await InputService.GetText(prompt: "Angle of rotation");
+            var angleText = await inputService.GetText(prompt: "Angle of rotation");
             if (angleText.Cancel || !angleText.HasValue)
             {
                 return false;
@@ -43,13 +37,13 @@ namespace BCad.Commands
             double angle;
             if (double.TryParse(angleText.Value, out angle))
             {
-                var drawing = Workspace.Drawing;
+                var drawing = workspace.Drawing;
                 foreach (var ent in entities.Value)
                 {
                     drawing = drawing.Replace(ent, EditUtilities.Rotate(ent, origin.Value, angle));
                 }
 
-                Workspace.Update(drawing: drawing);
+                workspace.Update(drawing: drawing);
                 return true;
             }
 
