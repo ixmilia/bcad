@@ -4,8 +4,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Undo", "UNDO", ModifierKeys.Control, Key.Z, "undo", "u")]
-    public class UndoCommandCommand : ICommand
+    [ExportCadCommand("Edit.Undo", "UNDO", ModifierKeys.Control, Key.Z, "undo", "u")]
+    public class UndoCommandCommand : ICadCommand
     {
         [Import]
         public IUndoRedoService UndoRedoService { get; set; }

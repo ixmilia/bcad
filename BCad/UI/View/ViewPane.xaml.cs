@@ -238,7 +238,7 @@ namespace BCad.UI
             }
         }
 
-        private async void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        private async void Workspace_CommandExecuted(object sender, CadCommandExecutedEventArgs e)
         {
             selecting = false;
             var point = await GetCursorPoint();

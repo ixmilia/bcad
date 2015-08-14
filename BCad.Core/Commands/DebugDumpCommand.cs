@@ -5,8 +5,8 @@ using System.Threading;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Debug.Dump", "DUMP", "dump")]
-    internal class DebugDumpCommand : ICommand
+    [ExportCadCommand("Debug.Dump", "DUMP", "dump")]
+    internal class DebugDumpCommand : ICadCommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }

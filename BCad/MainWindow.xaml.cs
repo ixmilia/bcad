@@ -48,7 +48,7 @@ namespace BCad
         public IEnumerable<Lazy<RibbonTab, RibbonTabMetadata>> RibbonTabs { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<Commands.ICommand, CommandMetadata>> Commands { get; set; }
+        public IEnumerable<Lazy<ICadCommand, CadCommandMetadata>> Commands { get; set; }
 
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
@@ -166,7 +166,7 @@ namespace BCad
             this.Dispatcher.BeginInvoke((Action)(() => FocusHelper.Focus(this.inputPanel)));
         }
 
-        void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        void Workspace_CommandExecuted(object sender, CadCommandExecutedEventArgs e)
         {
             TakeFocus();
         }

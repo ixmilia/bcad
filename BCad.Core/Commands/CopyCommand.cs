@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Copy", "COPY", ModifierKeys.Control, Key.C, "copy", "co")]
+    [ExportCadCommand("Edit.Copy", "COPY", ModifierKeys.Control, Key.C, "copy", "co")]
     internal class CopyCommand : AbstractCopyMoveCommand
     {
         protected override Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta)

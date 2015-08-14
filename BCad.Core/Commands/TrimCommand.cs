@@ -4,7 +4,7 @@ using BCad.Utilities;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Trim", "TRIM", "trim", "tr")]
+    [ExportCadCommand("Edit.Trim", "TRIM", "trim", "tr")]
     public class TrimCommand : AbstractTrimExtendCommand
     {
         protected override string GetBoundsText()

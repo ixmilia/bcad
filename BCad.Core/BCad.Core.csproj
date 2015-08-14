@@ -43,7 +43,7 @@
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
     <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
-    <Compile Include="Commands\CommandMetadata.cs" />
+    <Compile Include="Commands\CadCommandMetadata.cs" />
     <Compile Include="Commands\CopyCommand.cs" />
     <Compile Include="Commands\DebugDumpCommand.cs" />
     <Compile Include="Commands\DeleteCommand.cs" />
@@ -78,9 +78,9 @@
     <Compile Include="Entities\ProjectedAggregate.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Commands\PlotCommand.cs" />
-    <Compile Include="Commands\ExportCommandAttribute.cs" />
+    <Compile Include="Commands\ExportCadCommandAttribute.cs" />
     <Compile Include="Extensions\SnapPointExtensions.cs" />
-    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\ICadCommand.cs" />
     <Compile Include="Commands\LayersCommand.cs" />
     <Compile Include="Commands\NewCommand.cs" />
     <Compile Include="Commands\OpenCommand.cs" />
@@ -116,7 +116,7 @@
     <Compile Include="Plane.cs" />
     <Compile Include="Primitives\PrimitiveEllipse.cs" />
     <Compile Include="Primitives\PrimitiveLine.cs" />
-    <Compile Include="EventArguments\CommandEventArgs.cs" />
+    <Compile Include="EventArguments\CadCommandEventArgs.cs" />
     <Compile Include="EventArguments\PromptChangedEventArgs.cs" />
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
     <Compile Include="Extensions\DrawingExtensions.cs" />

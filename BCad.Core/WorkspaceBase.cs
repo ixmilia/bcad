@@ -31,7 +31,7 @@ namespace BCad
 
         public event CommandExecutingEventHandler CommandExecuting;
 
-        protected virtual void OnCommandExecuting(CommandExecutingEventArgs e)
+        protected virtual void OnCommandExecuting(CadCommandExecutingEventArgs e)
         {
             var executing = CommandExecuting;
             if (executing != null)
@@ -40,7 +40,7 @@ namespace BCad
 
         public event CommandExecutedEventHandler CommandExecuted;
 
-        protected virtual void OnCommandExecuted(CommandExecutedEventArgs e)
+        protected virtual void OnCommandExecuted(CadCommandExecutedEventArgs e)
         {
             var executed = CommandExecuted;
             if (executed != null)
@@ -103,7 +103,7 @@ namespace BCad
         public IUndoRedoService UndoRedoService { get; set; }
 
         [ImportMany]
-        public IEnumerable<Lazy<ICommand, CommandMetadata>> Commands { get; set; }
+        public IEnumerable<Lazy<ICadCommand, CadCommandMetadata>> Commands { get; set; }
 
         [Import]
         public IDebugService DebugService { get; set; }
@@ -162,11 +162,11 @@ namespace BCad
         protected abstract ISettingsManager LoadSettings();
         public abstract void SaveSettings();
 
-        private async Task<bool> Execute(Tuple<ICommand, string> commandPair, object arg)
+        private async Task<bool> Execute(Tuple<ICadCommand, string> commandPair, object arg)
         {
             var command = commandPair.Item1;
             var display = commandPair.Item2;
-            OnCommandExecuting(new CommandExecutingEventArgs(command));
+            OnCommandExecuting(new CadCommandExecutingEventArgs(command));
             OutputService.WriteLine(display);
             bool result;
             try
@@ -180,7 +180,7 @@ namespace BCad
             }
 
             RubberBandGenerator = null;
-            OnCommandExecuted(new CommandExecutedEventArgs(command));
+            OnCommandExecuted(new CadCommandExecutedEventArgs(command));
             return result;
         }
 
@@ -239,7 +239,7 @@ namespace BCad
         private string lastCommand = null;
         private object executeGate = new object();
 
-        protected virtual Tuple<ICommand, string> GetCommand(string commandName)
+        protected virtual Tuple<ICadCommand, string> GetCommand(string commandName)
         {
             var command = (from c in Commands
                            let data = c.Metadata

@@ -55,7 +55,7 @@ namespace BCad.Services
             Workspace.CommandExecuted += Workspace_CommandExecuted;
         }
 
-        void Workspace_CommandExecuted(object sender, CommandExecutedEventArgs e)
+        void Workspace_CommandExecuted(object sender, CadCommandExecutedEventArgs e)
         {
             Workspace.SelectedEntities.Clear();
             SetPrompt("Command");

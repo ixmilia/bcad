@@ -6,15 +6,15 @@ namespace BCad.Commands
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class ExportCommandAttribute : ExportAttribute
+    public class ExportCadCommandAttribute : ExportAttribute
     {
-        public ExportCommandAttribute(string name, string displayName, params string[] aliases)
+        public ExportCadCommandAttribute(string name, string displayName, params string[] aliases)
             : this(name, displayName, ModifierKeys.None, Key.None, aliases)
         {
         }
 
-        public ExportCommandAttribute(string name, string displayName, ModifierKeys modifier, Key key, params string[] aliases)
-            : base(typeof(ICommand))
+        public ExportCadCommandAttribute(string name, string displayName, ModifierKeys modifier, Key key, params string[] aliases)
+            : base(typeof(ICadCommand))
         {
             Name = name;
             DisplayName = displayName;

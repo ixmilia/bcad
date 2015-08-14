@@ -2,7 +2,7 @@
 
 namespace BCad.Commands
 {
-    public class CommandMetadata
+    public class CadCommandMetadata
     {
         public string DisplayName { get; set; }
 

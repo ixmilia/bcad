@@ -2,7 +2,7 @@
 
 namespace BCad.Commands
 {
-    public interface ICommand
+    public interface ICadCommand
     {
         Task<bool> Execute(object arg = null);
     }

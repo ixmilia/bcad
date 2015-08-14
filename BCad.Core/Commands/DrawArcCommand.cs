@@ -6,8 +6,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Draw.Arc", "ARC", "arc", "a")]
-    internal class DrawArcCommand : ICommand
+    [ExportCadCommand("Draw.Arc", "ARC", "arc", "a")]
+    internal class DrawArcCommand : ICadCommand
     {
         [Import]
         public IInputService InputService { get; set; }

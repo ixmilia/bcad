@@ -46,7 +46,7 @@ namespace BCad.UI.Consoles
             }));
         }
 
-        private void WorkspaceCommandExecuted(object sender, CommandExecutedEventArgs e)
+        private void WorkspaceCommandExecuted(object sender, CadCommandExecutedEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {

@@ -6,8 +6,8 @@ using System.Windows.Input;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
-    public class DeleteCommand : ICommand
+    [ExportCadCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
+    public class DeleteCommand : ICadCommand
     {
         [Import]
         public IInputService InputService { get; set; }

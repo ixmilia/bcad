@@ -17,12 +17,12 @@ namespace BCad
             this.workspace.CommandExecuted += workspace_CommandExecuted;
         }
 
-        void workspace_CommandExecuting(object sender, EventArguments.CommandExecutingEventArgs e)
+        void workspace_CommandExecuting(object sender, EventArguments.CadCommandExecutingEventArgs e)
         {
             OnCanExecuteChanged(new EventArgs());
         }
 
-        void workspace_CommandExecuted(object sender, EventArguments.CommandExecutedEventArgs e)
+        void workspace_CommandExecuted(object sender, EventArguments.CadCommandExecutedEventArgs e)
         {
             OnCanExecuteChanged(new EventArgs());
         }

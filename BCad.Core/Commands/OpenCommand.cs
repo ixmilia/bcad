@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
-    public class OpenCommand : ICommand
+    [ExportCadCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
+    public class OpenCommand : ICadCommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }

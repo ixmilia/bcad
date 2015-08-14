@@ -6,8 +6,8 @@ using BCad.Utilities;
 
 namespace BCad.Commands
 {
-    [ExportCommand("Edit.Offset", "OFFSET", "offset", "off", "of")]
-    public class OffsetCommand : ICommand
+    [ExportCadCommand("Edit.Offset", "OFFSET", "offset", "off", "of")]
+    public class OffsetCommand : ICadCommand
     {
         [Import]
         public IInputService InputService { get; set; }

@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.Plot", "PLOT", ModifierKeys.Control, Key.P, "plot")]
-    public class PlotCommand : ICommand
+    [ExportCadCommand("File.Plot", "PLOT", ModifierKeys.Control, Key.P, "plot")]
+    public class PlotCommand : ICadCommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }

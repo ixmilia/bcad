@@ -8,9 +8,9 @@ using BCad.Primitives;
 
 namespace BCad
 {
-    public delegate void CommandExecutingEventHandler(object sender, CommandExecutingEventArgs e);
+    public delegate void CommandExecutingEventHandler(object sender, CadCommandExecutingEventArgs e);
 
-    public delegate void CommandExecutedEventHandler(object sender, CommandExecutedEventArgs e);
+    public delegate void CommandExecutedEventHandler(object sender, CadCommandExecutedEventArgs e);
 
     public delegate void WorkspaceChangingEventHandler(object sender, WorkspaceChangeEventArgs e);
 

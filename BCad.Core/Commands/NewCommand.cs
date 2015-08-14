@@ -4,8 +4,8 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    [ExportCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
-    public class NewCommand : ICommand
+    [ExportCadCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
+    public class NewCommand : ICadCommand
     {
         [Import]
         public IWorkspace Workspace { get; set; }

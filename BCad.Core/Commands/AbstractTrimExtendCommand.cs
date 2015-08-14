@@ -8,7 +8,7 @@ using BCad.Services;
 
 namespace BCad.Commands
 {
-    public abstract class AbstractTrimExtendCommand : ICommand
+    public abstract class AbstractTrimExtendCommand : ICadCommand
     {
         [Import]
         public IInputService InputService { get; set; }
