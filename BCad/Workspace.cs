@@ -15,7 +15,7 @@ namespace BCad
     internal class Workspace : WorkspaceBase
     {
         private const string SettingsFile = "BCad.settings.xml";
-        private Regex SettingsPattern = new Regex(@"^/([a-zA-Z]+):(.*)$");
+        private Regex SettingsPattern = new Regex(@"^/p:([a-zA-Z]+)=(.*)$");
 
         private string FullSettingsFile
         {
@@ -50,7 +50,7 @@ namespace BCad
                 manager = new SettingsManager();
             }
 
-            // Override settings provided via the command line in the form of "/SettingName:SettingValue".  To do this
+            // Override settings provided via the command line in the form of "/p:SettingName=SettingValue".  To do this
             // we need to serialize the settings, replace the specified values, then deserialize again.
             var args = Environment.GetCommandLineArgs();
             if (args.Length > 1)
