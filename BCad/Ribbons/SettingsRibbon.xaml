@@ -45,6 +45,14 @@
                               AvailableColors="{Binding Path=BackgroundColors}"
                               SelectedColor="{Binding Path=BackgroundColor, Mode=TwoWay}" />
     </RibbonGroup>
+    <RibbonGroup Header="Hot points">
+        <controls:ColorPicker ShowNames="False"
+                              PreviewWidth="45"
+                              PreviewHeight="25"
+                              AllowNullColor="False"
+                              AvailableColors="{Binding Path=HotPointColors}"
+                              SelectedColor="{Binding Path=HotPointColor, Mode=TwoWay}" />
+    </RibbonGroup>
     <RibbonGroup Header="Snap">
         <RibbonGroup Header="Kind">
             <CheckBox IsChecked="{Binding Path=IsEndPoint}" Content="End Point" />

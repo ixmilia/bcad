@@ -127,6 +127,32 @@ namespace BCad.Ribbons
             }
         }
 
+        public CadColor[] HotPointColors
+        {
+            get
+            {
+                return new[]
+                {
+                    CadColor.Blue,
+                    CadColor.Green,
+                    CadColor.Red
+                };
+            }
+        }
+
+        public CadColor? HotPointColor
+        {
+            get { return SettingsManager.HotPointColor; }
+            set
+            {
+                var newColor = value ?? CadColor.Black;
+                if (SettingsManager.HotPointColor == newColor)
+                    return;
+                SettingsManager.HotPointColor = newColor;
+                OnPropertyChanged();
+            }
+        }
+
         public CadColor[] SnapPointColors
         {
             get
