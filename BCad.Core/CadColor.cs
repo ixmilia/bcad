@@ -67,11 +67,6 @@ namespace BCad
             return !(left == right);
         }
 
-        public static CadColor FromRgb(byte r, byte g, byte b)
-        {
-            return new CadColor(0xFF, r, g, b);
-        }
-
         public static CadColor FromArgb(byte a, byte r, byte g, byte b)
         {
             return new CadColor(a, r, g, b);
@@ -82,57 +77,57 @@ namespace BCad
             var r = (color >> 16) & 0xFF;
             var g = (color >> 8) & 0xFF;
             var b = color & 0xFF;
-            return FromRgb((byte)r, (byte)g, (byte)b);
+            return FromArgb(255, (byte)r, (byte)g, (byte)b);
         }
 
         public static CadColor Black
         {
-            get { return FromRgb(0, 0, 0); }
+            get { return FromArgb(255, 0, 0, 0); }
         }
 
         public static CadColor White
         {
-            get { return FromRgb(255, 255, 255); }
+            get { return FromArgb(255, 255, 255, 255); }
         }
 
         public static CadColor Red
         {
-            get { return FromRgb(255, 0, 0); }
+            get { return FromArgb(255, 255, 0, 0); }
         }
 
         public static CadColor Green
         {
-            get { return FromRgb(0, 255, 0); }
+            get { return FromArgb(255, 0, 255, 0); }
         }
 
         public static CadColor Blue
         {
-            get { return FromRgb(0, 0, 255); }
+            get { return FromArgb(255, 0, 0, 255); }
         }
 
         public static CadColor Cyan
         {
-            get { return FromRgb(0, 255, 255); }
+            get { return FromArgb(255, 0, 255, 255); }
         }
 
         public static CadColor Magenta
         {
-            get { return FromRgb(255, 0, 255); }
+            get { return FromArgb(255, 255, 0, 255); }
         }
 
         public static CadColor Yellow
         {
-            get { return FromRgb(255, 255, 0); }
+            get { return FromArgb(255, 255, 255, 0); }
         }
 
         public static CadColor DarkSlateGray
         {
-            get { return FromRgb(0x2F, 0x2F, 0x2F); }
+            get { return FromArgb(0xFF, 0x2F, 0x2F, 0x2F); }
         }
 
         public static CadColor CornflowerBlue
         {
-            get { return FromRgb(0x64, 0x95, 0xED); }
+            get { return FromArgb(0xFF, 0x64, 0x95, 0xED); }
         }
 
         public static CadColor[] Defaults;
