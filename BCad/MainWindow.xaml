@@ -9,7 +9,7 @@
               xmlns:consoles="clr-namespace:BCad.UI.Consoles"
               mc:Ignorable="d"
               Height="768"
-              Width="1024"
+              Width="1280"
               Name="window"
               d:DesignHeight="300" d:DesignWidth="300"
               FocusManager.FocusedElement="{Binding ElementName=inputPanel}"

@@ -95,6 +95,54 @@ namespace BCad.Ribbons
             }
         }
 
+        public double SnapPointSize
+        {
+            get { return SettingsManager.SnapPointSize; }
+            set
+            {
+                if (SettingsManager.SnapPointSize == value)
+                    return;
+                SettingsManager.SnapPointSize = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double SnapPointDistance
+        {
+            get { return SettingsManager.SnapPointDistance; }
+            set
+            {
+                if (SettingsManager.SnapPointDistance == value)
+                    return;
+                SettingsManager.SnapPointDistance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double EntitySelectionRadius
+        {
+            get { return SettingsManager.EntitySelectionRadius; }
+            set
+            {
+                if (SettingsManager.EntitySelectionRadius == value)
+                    return;
+                SettingsManager.EntitySelectionRadius = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int CursorSize
+        {
+            get { return SettingsManager.CursorSize; }
+            set
+            {
+                if (SettingsManager.CursorSize == value)
+                    return;
+                SettingsManager.CursorSize = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string[] AvailableRenderers
         {
             get { return new[] { "Hardware", "Software" }; }

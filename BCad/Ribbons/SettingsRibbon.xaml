@@ -74,6 +74,45 @@
             <RadioButton GroupName="snapAngles" IsChecked="{Binding Path=IsIsometric}" Content="Isometric" />
         </RibbonGroup>
     </RibbonGroup>
+    <RibbonGroup Header="Sizes">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="30" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Snap point" Margin="3" />
+            <TextBox Grid.Row="0"
+                     Grid.Column="1"
+                     HorizontalAlignment="Stretch"
+                     Text="{Binding Path=SnapPointSize}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Snap point dist." Margin="3" />
+            <TextBox Grid.Row="1"
+                     Grid.Column="1"
+                     HorizontalAlignment="Stretch"
+                     Text="{Binding Path=SnapPointDistance}" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Entity selection rad." Margin="3" />
+            <TextBox Grid.Row="2"
+                     Grid.Column="1"
+                     HorizontalAlignment="Stretch"
+                     Text="{Binding Path=EntitySelectionRadius}" />
+
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Cursor" Margin="3" />
+            <TextBox Grid.Row="0"
+                     Grid.Column="3"
+                     HorizontalAlignment="Stretch"
+                     Text="{Binding Path=CursorSize}" />
+        </Grid>
+    </RibbonGroup>
     <RibbonGroup Header="UI">
         <StackPanel>
             <TextBlock Text="Display (restart required)" />
