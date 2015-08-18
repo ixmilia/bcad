@@ -50,7 +50,7 @@ namespace BCad.UI.View
             {
                 switch (e.PropertyName)
                 {
-                    case Constants.BackgroundColorString:
+                    case nameof(workspace.SettingsManager.BackgroundColor):
                         SetColors();
                         UpdateVericies();
                         UpdateRubberBandLines();
@@ -274,9 +274,7 @@ namespace BCad.UI.View
 
         private void DrawPoints(List<Matrix> worldMatrices, List<Color> colors)
         {
-            // TODO: get point size from settings
-            var pointSize = 15;
-            var scale = workspace.ActiveViewPort.ViewHeight / GraphicsDevice.BackBuffer.Height * pointSize;
+            var scale = workspace.ActiveViewPort.ViewHeight / GraphicsDevice.BackBuffer.Height * workspace.SettingsManager.PointSize;
             var scaling = Matrix.Scaling((float)scale);
             GraphicsDevice.SetVertexBuffer(pointVertexBuffer);
             GraphicsDevice.SetVertexInputLayout(pointInputLayout);

@@ -11,220 +11,233 @@ namespace BCad
 {
     public class DefaultSettingsManager : ISettingsManager
     {
-        private string[] ribbonOrder = null;
-        private string layerDialogId = null;
-        private string plotDialogId = null;
-        private string rendererId = null;
-        private double snapPointDist = 0.0;
-        private double snapPointSize = 0.0;
-        private double entitySelectionRadius = 0.0;
-        private int cursorSize = 0;
-        private int textCursorSize = 0;
-        private bool pointSnap = false;
-        private bool angleSnap = false;
-        private bool ortho = false;
-        private bool debug = false;
-        private double snapAngleDist = 0.0;
-        private double[] snapAngles = null;
-        private CadColor backgroundColor = CadColor.Black;
-        private CadColor snapPointColor = CadColor.Yellow;
-        private CadColor hotPointColor = CadColor.Blue;
-        private SnapPointKind allowedSnapPoints = SnapPointKind.All;
+        private string[] _ribbonOrder = null;
+        private string _layerDialogId = null;
+        private string _plotDialogId = null;
+        private string _rendererId = null;
+        private double _snapPointDist = 0.0;
+        private double _snapPointSize = 0.0;
+        private double _pointSize = 0.0;
+        private double _entitySelectionRadius = 0.0;
+        private int _cursorSize = 0;
+        private int _textCursorSize = 0;
+        private bool _pointSnap = false;
+        private bool _angleSnap = false;
+        private bool _ortho = false;
+        private bool _debug = false;
+        private double _snapAngleDist = 0.0;
+        private double[] _snapAngles = null;
+        private CadColor _backgroundColor = CadColor.Black;
+        private CadColor _snapPointColor = CadColor.Yellow;
+        private CadColor _hotPointColor = CadColor.Blue;
+        private SnapPointKind _allowedSnapPoints = SnapPointKind.All;
 
         [XmlIgnore]
         public string[] RibbonOrder
         {
-            get { return ribbonOrder; }
+            get { return _ribbonOrder; }
             set
             {
-                ribbonOrder = value;
-                OnPropertyChanged("RibbonOrder");
+                _ribbonOrder = value;
+                OnPropertyChanged(nameof(RibbonOrder));
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "RibbonOrder")]
+        [XmlElement(ElementName = nameof(RibbonOrder))]
         public string RibbonOrderString
         {
             get
             {
-                return string.Join(";", ribbonOrder);
+                return string.Join(";", _ribbonOrder);
             }
             set
             {
-                ribbonOrder = value.Split(';').ToArray();
+                _ribbonOrder = value.Split(';').ToArray();
             }
         }
 
         public string LayerDialogId
         {
-            get { return this.layerDialogId; }
+            get { return _layerDialogId; }
             set
             {
-                if (this.layerDialogId == value)
+                if (_layerDialogId == value)
                     return;
-                this.layerDialogId = value;
-                OnPropertyChanged("LayerDialogId");
+                _layerDialogId = value;
+                OnPropertyChanged(nameof(LayerDialogId));
             }
         }
 
         public string PlotDialogId
         {
-            get { return this.plotDialogId; }
+            get { return _plotDialogId; }
             set
             {
-                if (this.plotDialogId == value)
+                if (_plotDialogId == value)
                     return;
-                this.plotDialogId = value;
-                OnPropertyChanged("PlotDialogId");
+                _plotDialogId = value;
+                OnPropertyChanged(nameof(PlotDialogId));
             }
         }
 
         public string RendererId
         {
-            get { return this.rendererId; }
+            get { return _rendererId; }
             set
             {
-                if (this.rendererId == value)
+                if (_rendererId == value)
                     return;
-                this.rendererId = value;
-                OnPropertyChanged("RendererId");
+                _rendererId = value;
+                OnPropertyChanged(nameof(RendererId));
             }
         }
 
         public double SnapPointDistance
         {
-            get { return this.snapPointDist; }
+            get { return _snapPointDist; }
             set
             {
-                if (this.snapPointDist == value)
+                if (_snapPointDist == value)
                     return;
-                this.snapPointDist = value;
-                OnPropertyChanged("SnapPointDistance");
+                _snapPointDist = value;
+                OnPropertyChanged(nameof(SnapPointDistance));
             }
         }
 
         public double SnapPointSize
         {
-            get { return this.snapPointSize; }
+            get { return _snapPointSize; }
             set
             {
-                if (this.snapPointSize == value)
+                if (_snapPointSize == value)
                     return;
-                this.snapPointSize = value;
-                OnPropertyChanged("SnapPointSize");
+                _snapPointSize = value;
+                OnPropertyChanged(nameof(SnapPointSize));
+            }
+        }
+
+        public double PointSize
+        {
+            get { return _pointSize; }
+            set
+            {
+                if (_pointSize == value)
+                    return;
+                _pointSize = value;
+                OnPropertyChanged(nameof(PointSize));
             }
         }
 
         public double EntitySelectionRadius
         {
-            get { return this.entitySelectionRadius; }
+            get { return _entitySelectionRadius; }
             set
             {
-                if (this.entitySelectionRadius == value)
+                if (_entitySelectionRadius == value)
                     return;
-                this.entitySelectionRadius = value;
-                OnPropertyChanged("EntitySelectionRadius");
+                _entitySelectionRadius = value;
+                OnPropertyChanged(nameof(EntitySelectionRadius));
             }
         }
 
         public int CursorSize
         {
-            get { return this.cursorSize; }
+            get { return _cursorSize; }
             set
             {
-                if (this.cursorSize == value)
+                if (_cursorSize == value)
                     return;
-                this.cursorSize = value;
-                OnPropertyChanged("CursorSize");
+                _cursorSize = value;
+                OnPropertyChanged(nameof(CursorSize));
             }
         }
 
         public int TextCursorSize
         {
-            get { return this.textCursorSize; }
+            get { return _textCursorSize; }
             set
             {
-                if (this.textCursorSize == value)
+                if (_textCursorSize == value)
                     return;
-                this.textCursorSize = value;
-                OnPropertyChanged("TextCursorSize");
+                _textCursorSize = value;
+                OnPropertyChanged(nameof(TextCursorSize));
             }
         }
 
         public bool PointSnap
         {
-            get { return this.pointSnap; }
+            get { return _pointSnap; }
             set
             {
-                if (this.pointSnap == value)
+                if (_pointSnap == value)
                     return;
-                this.pointSnap = value;
-                OnPropertyChanged(Constants.PointSnapString);
+                _pointSnap = value;
+                OnPropertyChanged(nameof(PointSnap));
             }
         }
 
         public bool AngleSnap
         {
-            get { return this.angleSnap; }
+            get { return _angleSnap; }
             set
             {
-                if (this.angleSnap == value)
+                if (_angleSnap == value)
                     return;
-                this.angleSnap = value;
-                OnPropertyChanged(Constants.AngleSnapString);
+                _angleSnap = value;
+                OnPropertyChanged(nameof(AngleSnap));
             }
         }
 
         public bool Ortho
         {
-            get { return this.ortho; }
+            get { return _ortho; }
             set
             {
-                if (this.ortho == value)
+                if (_ortho == value)
                     return;
-                this.ortho = value;
-                OnPropertyChanged(Constants.OrthoString);
+                _ortho = value;
+                OnPropertyChanged(nameof(Ortho));
             }
         }
 
         public bool Debug
         {
-            get { return this.debug; }
+            get { return _debug; }
             set
             {
-                if (this.debug == value)
+                if (_debug == value)
                     return;
-                this.debug = value;
-                OnPropertyChanged(Constants.DebugString);
+                _debug = value;
+                OnPropertyChanged(nameof(Debug));
             }
         }
 
         public double SnapAngleDistance
         {
-            get { return this.snapAngleDist; }
+            get { return _snapAngleDist; }
             set
             {
-                if (this.snapAngleDist == value)
+                if (_snapAngleDist == value)
                     return;
-                this.snapAngleDist = value;
-                OnPropertyChanged("SnapAngleDistance");
+                _snapAngleDist = value;
+                OnPropertyChanged(nameof(SnapAngleDistance));
             }
         }
 
         [XmlIgnore]
         public double[] SnapAngles
         {
-            get { return this.snapAngles; }
+            get { return _snapAngles; }
             set
             {
-                this.snapAngles = value;
-                OnPropertyChanged("SnapAngles");
+                _snapAngles = value;
+                OnPropertyChanged(nameof(SnapAngles));
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "SnapAngles")]
+        [XmlElement(ElementName = nameof(SnapAngles))]
         public string SnapAnglesString
         {
             get
@@ -240,18 +253,18 @@ namespace BCad
         [XmlIgnore]
         public CadColor BackgroundColor
         {
-            get { return this.backgroundColor; }
+            get { return _backgroundColor; }
             set
             {
-                if (this.backgroundColor == value)
+                if (_backgroundColor == value)
                     return;
-                this.backgroundColor = value;
-                OnPropertyChanged(Constants.BackgroundColorString);
+                _backgroundColor = value;
+                OnPropertyChanged(nameof(BackgroundColor));
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = Constants.BackgroundColorString)]
+        [XmlElement(ElementName = nameof(BackgroundColor))]
         public string BackgroundColorString
         {
             get
@@ -267,18 +280,18 @@ namespace BCad
         [XmlIgnore]
         public CadColor SnapPointColor
         {
-            get { return this.snapPointColor; }
+            get { return _snapPointColor; }
             set
             {
-                if (this.snapPointColor == value)
+                if (_snapPointColor == value)
                     return;
-                this.snapPointColor = value;
-                OnPropertyChanged("SnapPointColor");
+                _snapPointColor = value;
+                OnPropertyChanged(nameof(SnapPointColor));
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "SnapPointColor")]
+        [XmlElement(ElementName = nameof(SnapPointColor))]
         public string SnapPointColorString
         {
             get { return SnapPointColor.ToColorString(); }
@@ -288,18 +301,18 @@ namespace BCad
         [XmlIgnore]
         public CadColor HotPointColor
         {
-            get { return this.hotPointColor; }
+            get { return _hotPointColor; }
             set
             {
-                if (this.hotPointColor == value)
+                if (_hotPointColor == value)
                     return;
-                this.hotPointColor = value;
-                OnPropertyChanged("HotPointColor");
+                _hotPointColor = value;
+                OnPropertyChanged(nameof(HotPointColor));
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "HotPointColor")]
+        [XmlElement(ElementName = nameof(HotPointColor))]
         public string HotPointColorString
         {
             get { return HotPointColor.ToColorString(); }
@@ -309,16 +322,16 @@ namespace BCad
         [XmlIgnore]
         public SnapPointKind AllowedSnapPoints
         {
-            get { return allowedSnapPoints; }
+            get { return _allowedSnapPoints; }
             set
             {
-                allowedSnapPoints = value;
-                OnPropertyChanged("AllowedSnapPoints");
+                _allowedSnapPoints = value;
+                OnPropertyChanged(nameof(AllowedSnapPoints));
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = "AllowedSnapPoints")]
+        [XmlElement(ElementName = nameof(AllowedSnapPoints))]
         public string AllowedSnapPointsString
         {
             get { return AllowedSnapPoints.ToString(); }
@@ -350,6 +363,7 @@ namespace BCad
             RendererId = "Hardware";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
+            PointSize = 15.0;
             EntitySelectionRadius = 3.0;
             CursorSize = 60;
             TextCursorSize = 18;

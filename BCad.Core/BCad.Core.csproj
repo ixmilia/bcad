@@ -86,7 +86,6 @@
     <Compile Include="Commands\OpenCommand.cs" />
     <Compile Include="Commands\SaveAsCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Drawing.cs" />
     <Compile Include="DrawingSettings.cs" />
     <Compile Include="Entities\Ellipse.cs" />

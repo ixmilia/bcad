@@ -11,6 +11,7 @@ namespace BCad
         string RendererId { get; set; }
         double SnapPointDistance { get; set; }
         double SnapPointSize { get; set; }
+        double PointSize { get; set; }
         double EntitySelectionRadius { get; set; }
         int CursorSize { get; set; }
         int TextCursorSize { get; set; }

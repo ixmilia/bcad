@@ -187,14 +187,14 @@ namespace BCad.UI
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.BackgroundColorString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.BackgroundColor))
             {
                 var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToMediaColor();
                 BindObject.AutoBrush = new SolidColorBrush(Color.FromRgb(autoColor.R, autoColor.G, autoColor.B));
                 BindObject.SelectionBrush = new SolidColorBrush(Color.FromArgb(25, autoColor.R, autoColor.G, autoColor.B));
                 BindObject.CursorPen = new Pen(new SolidColorBrush(autoColor), 1.0);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.CursorSizeString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.CursorSize))
             {
                 var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
                 BindObject.LeftCursorExtent = new System.Windows.Point(-cursorSize, 0);
@@ -202,7 +202,7 @@ namespace BCad.UI
                 BindObject.TopCursorExtent = new System.Windows.Point(0, -cursorSize);
                 BindObject.BottomCursorExtent = new System.Windows.Point(0, cursorSize);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.EntitySelectionRadiusString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.EntitySelectionRadius))
             {
                 var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
                 BindObject.EntitySelectionTopLeft = new System.Windows.Point(-entitySize, -entitySize);
@@ -210,21 +210,21 @@ namespace BCad.UI
                 BindObject.EntitySelectionBottomLeft = new System.Windows.Point(-entitySize, entitySize);
                 BindObject.EntitySelectionBottomRight = new System.Windows.Point(entitySize, entitySize);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.TextCursorSizeString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.TextCursorSize))
             {
                 var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
                 BindObject.TextCursorStart = new System.Windows.Point(0, -textSize);
                 BindObject.TextCursorStart = new System.Windows.Point(0, textSize);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.HotPointColorString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.HotPointColor))
             {
                 BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsManager.HotPointColor.ToMediaColor());
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.SnapPointColorString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.SnapPointColor))
             {
                 BindObject.SnapPointPen = new Pen(new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 3.0 / Workspace.SettingsManager.SnapPointSize);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == Constants.SnapPointSizeString)
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.SnapPointSize))
             {
                 BindObject.SnapPointTransform = new ScaleTransform(Workspace.SettingsManager.SnapPointSize, Workspace.SettingsManager.SnapPointSize);
             }

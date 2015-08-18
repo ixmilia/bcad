@@ -55,10 +55,10 @@ namespace BCad
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
 
             // prepare status bar bindings
-            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = Constants.OrthoString },
-                                      new { TextBlock = this.pointSnapStatus, Path = Constants.PointSnapString },
-                                      new { TextBlock = this.angleSnapStatus, Path = Constants.AngleSnapString },
-                                      new { TextBlock = this.debugStatus, Path = Constants.DebugString }})
+            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = nameof(Workspace.SettingsManager.Ortho) },
+                                      new { TextBlock = this.pointSnapStatus, Path = nameof(Workspace.SettingsManager.PointSnap) },
+                                      new { TextBlock = this.angleSnapStatus, Path = nameof(Workspace.SettingsManager.AngleSnap) },
+                                      new { TextBlock = this.debugStatus, Path = nameof(Workspace.SettingsManager.Debug) }})
             {
                 var binding = new Binding(x.Path);
                 binding.Source = Workspace.SettingsManager;
@@ -82,10 +82,10 @@ namespace BCad
             var uiSettings = Workspace.SettingsManager as SettingsManager;
             Debug.Assert(uiSettings != null);
             foreach (var setting in new[] {
-                new { Name = Constants.AngleSnapString, Shortcut = uiSettings.AngleSnapShortcut },
-                new { Name = Constants.PointSnapString, Shortcut = uiSettings.PointSnapShortcut },
-                new { Name = Constants.OrthoString, Shortcut = uiSettings.OrthoShortcut },
-                new { Name = Constants.DebugString, Shortcut = uiSettings.DebugShortcut } })
+                new { Name = nameof(Workspace.SettingsManager.AngleSnap), Shortcut = uiSettings.AngleSnapShortcut },
+                new { Name = nameof(Workspace.SettingsManager.PointSnap), Shortcut = uiSettings.PointSnapShortcut },
+                new { Name = nameof(Workspace.SettingsManager.Ortho), Shortcut = uiSettings.OrthoShortcut },
+                new { Name = nameof(Workspace.SettingsManager.Debug), Shortcut = uiSettings.DebugShortcut } })
             {
                 if (setting.Shortcut.HasValue)
                 {
@@ -102,7 +102,7 @@ namespace BCad
         {
             switch (e.PropertyName)
             {
-                case Constants.DebugString:
+                case nameof(Workspace.SettingsManager.Debug):
                     if (Workspace.SettingsManager.Debug)
                         SetDebugText();
                     else

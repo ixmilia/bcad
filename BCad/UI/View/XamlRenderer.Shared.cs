@@ -24,7 +24,7 @@ namespace BCad.UI.View
 
             this.Loaded += (_, __) =>
                 {
-                    foreach (var setting in new[] { Constants.BackgroundColorString })
+                    foreach (var setting in new[] { nameof(Workspace.SettingsManager.BackgroundColor) })
                         SettingsManager_PropertyChanged(Workspace.SettingsManager, new PropertyChangedEventArgs(setting));
                     Workspace_WorkspaceChanged(Workspace, WorkspaceChangeEventArgs.Reset());
                 };
@@ -44,7 +44,7 @@ namespace BCad.UI.View
         {
             switch (e.PropertyName)
             {
-                case Constants.BackgroundColorString:
+                case nameof(Workspace.SettingsManager.BackgroundColor):
                     viewModel.BackgroundColor = Workspace.SettingsManager.BackgroundColor;
                     break;
             }
