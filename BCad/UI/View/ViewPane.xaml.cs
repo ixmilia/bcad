@@ -220,13 +220,12 @@ namespace BCad.UI
             {
                 BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsManager.HotPointColor.ToMediaColor());
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.SnapPointColor))
-            {
-                BindObject.SnapPointPen = new Pen(new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 3.0 / Workspace.SettingsManager.SnapPointSize);
-            }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.SnapPointSize))
+            if (string.IsNullOrEmpty(e.PropertyName) ||
+                e.PropertyName == nameof(Workspace.SettingsManager.SnapPointColor) ||
+                e.PropertyName == nameof(Workspace.SettingsManager.SnapPointSize))
             {
                 BindObject.SnapPointTransform = new ScaleTransform(Workspace.SettingsManager.SnapPointSize, Workspace.SettingsManager.SnapPointSize);
+                BindObject.SnapPointPen = new Pen(new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToMediaColor()), 3.0 / Workspace.SettingsManager.SnapPointSize);
             }
         }
 
