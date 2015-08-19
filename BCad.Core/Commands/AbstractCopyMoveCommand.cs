@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -14,8 +13,7 @@ namespace BCad.Commands
 
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var inputService = workspace.GetService<IInputService>();
-            var entities = await inputService.GetEntities();
+            var entities = await workspace.InputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
@@ -26,14 +24,14 @@ namespace BCad.Commands
                 return true;
             }
 
-            var origin = await inputService.GetPoint(new UserDirective("Origin point"));
+            var origin = await workspace.InputService.GetPoint(new UserDirective("Origin point"));
             if (origin.Cancel || !origin.HasValue)
             {
                 return false;
             }
 
             var primitives = entities.Value.SelectMany(e => e.GetPrimitives());
-            var destination = await inputService.GetPoint(new UserDirective("Destination point"), p =>
+            var destination = await workspace.InputService.GetPoint(new UserDirective("Destination point"), p =>
             {
                 var offset = p - origin.Value;
                 return primitives.Select(pr => pr.Move(offset))

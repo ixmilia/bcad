@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using BCad.Services;
 
 namespace BCad
 {
@@ -106,7 +105,6 @@ namespace BCad
 
         public override async Task<UnsavedChangesResult> PromptForUnsavedChanges()
         {
-            var fileSystemService = GetService<IFileSystemService>();
             var result = UnsavedChangesResult.Discarded;
             if (this.IsDirty)
             {
@@ -119,10 +117,10 @@ namespace BCad
                     case MessageBoxResult.Yes:
                         var fileName = Drawing.Settings.FileName;
                         if (fileName == null)
-                            fileName = await fileSystemService.GetFileNameFromUserForSave();
+                            fileName = await FileSystemService.GetFileNameFromUserForSave();
                         if (fileName == null)
                             result = UnsavedChangesResult.Cancel;
-                        else if (await fileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
+                        else if (await FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;

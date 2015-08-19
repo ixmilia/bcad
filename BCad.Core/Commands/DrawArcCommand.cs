@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -10,11 +9,10 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var inputService = workspace.GetService<IInputService>();
-            var first = await inputService.GetPoint(new UserDirective("First point"));
+            var first = await workspace.InputService.GetPoint(new UserDirective("First point"));
             if (!first.Cancel && first.HasValue)
             {
-                var second = await inputService.GetPoint(new UserDirective("Second point"), (p) =>
+                var second = await workspace.InputService.GetPoint(new UserDirective("Second point"), (p) =>
                     {
                         return new[]
                         {
@@ -23,7 +21,7 @@ namespace BCad.Commands
                     });
                 if (!second.Cancel && second.HasValue)
                 {
-                    var third = await inputService.GetPoint(new UserDirective("Third point"), (p) =>
+                    var third = await workspace.InputService.GetPoint(new UserDirective("Third point"), (p) =>
                         {
                             var a = PrimitiveEllipse.ThreePointArc(first.Value, second.Value, p, workspace.DrawingPlane.Normal);
                             if (a == null)

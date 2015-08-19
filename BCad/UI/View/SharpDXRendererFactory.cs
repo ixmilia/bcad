@@ -1,13 +1,11 @@
-﻿using BCad.Services;
-
-namespace BCad.UI.View
+﻿namespace BCad.UI.View
 {
     [ExportRendererFactory("Hardware")]
     internal class SharpDXRendererFactory : IRendererFactory
     {
-        public IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)
+        public IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace)
         {
-            return new SharpDXRenderer(viewControl, workspace, inputService);
+            return new SharpDXRenderer(viewControl, workspace);
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -12,8 +11,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
-            var inputService = workspace.GetService<IInputService>();
-            var entity = await inputService.GetEntity(new UserDirective("Select entity"));
+            var entity = await workspace.InputService.GetEntity(new UserDirective("Select entity"));
             if (!entity.HasValue || entity.Cancel)
                 return false;
 
@@ -46,7 +44,7 @@ namespace BCad.Commands
             }
 
             var details = DetailsFromProperties(entity.Value.Entity, properties);
-            workspace.GetService<IOutputService>().WriteLine(details);
+            workspace.OutputService.WriteLine(details);
 
             return true;
         }

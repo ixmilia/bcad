@@ -23,8 +23,6 @@ namespace BCad.UI.Controls
     public partial class PlotDialog : BCadControl
     {
         private IWorkspace workspace = null;
-        private IInputService inputService = null;
-        private IFileSystemService fileSystemService = null;
         private IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters = null;
         private PlotDialogViewModel viewModel = null;
 
@@ -39,8 +37,6 @@ namespace BCad.UI.Controls
             : this()
         {
             this.workspace = workspace;
-            this.inputService = workspace.GetService<IInputService>();
-            this.fileSystemService = workspace.GetService<IFileSystemService>();
             this.filePlotters = filePlotters;
 
             viewModel = new PlotDialogViewModel(this.workspace);
@@ -145,7 +141,7 @@ namespace BCad.UI.Controls
 
         private async void BrowseClick(object sender, RoutedEventArgs e)
         {
-            var filename = await fileSystemService.GetFileNameFromUserForWrite(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
+            var filename = await workspace.FileSystemService.GetFileNameFromUserForWrite(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
             if (filename != null)
             {
                 viewModel.FileName = filename;

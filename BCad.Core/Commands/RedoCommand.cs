@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -8,14 +7,13 @@ namespace BCad.Commands
     {
         public Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var undoRedoService = workspace.GetService<IUndoRedoService>();
-            if (undoRedoService.RedoHistorySize == 0)
+            if (workspace.UndoRedoService.RedoHistorySize == 0)
             {
-                workspace.GetService<IOutputService>().WriteLine("Nothing to redo");
+                workspace.OutputService.WriteLine("Nothing to redo");
                 return Task.FromResult<bool>(false);
             }
 
-            undoRedoService.Redo();
+            workspace.UndoRedoService.Redo();
             return Task.FromResult(true);
         }
     }

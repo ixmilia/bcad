@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -9,16 +8,15 @@ namespace BCad.Commands
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
             var drawing = workspace.Drawing;
-            var fileSystemService = workspace.GetService<IFileSystemService>();
             string fileName = drawing.Settings.FileName;
             if (fileName == null)
             {
-                fileName = await fileSystemService.GetFileNameFromUserForSave();
+                fileName = await workspace.FileSystemService.GetFileNameFromUserForSave();
                 if (fileName == null)
                     return false;
             }
 
-            if (!await fileSystemService.TryWriteDrawing(fileName, drawing, workspace.ActiveViewPort))
+            if (!await workspace.FileSystemService.TryWriteDrawing(fileName, drawing, workspace.ActiveViewPort))
                 return false;
 
             SaveAsCommand.UpdateDrawingFileName(workspace, fileName);

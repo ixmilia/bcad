@@ -23,17 +23,11 @@ namespace BCad.UI.Consoles
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        private IInputService _inputService;
-        private IOutputService _outputService;
-
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
-            _inputService = Workspace.GetService<IInputService>();
-            _outputService = Workspace.GetService<IOutputService>();
-
-            _inputService.PromptChanged += HandlePromptChanged;
-            _outputService.LineWritten += HandleLineWritten;
+            Workspace.InputService.PromptChanged += HandlePromptChanged;
+            Workspace.OutputService.LineWritten += HandleLineWritten;
             Workspace.CommandExecuted += WorkspaceCommandExecuted;
         }
 
@@ -72,12 +66,12 @@ namespace BCad.UI.Consoles
                     SubmitValue();
                     break;
                 case Input.Key.Space:
-                    if (_inputService.AllowedInputTypes.HasFlag(InputType.Command))
+                    if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Command))
                     {
                         e.Handled = true;
                     }
 
-                    if (!_inputService.AllowedInputTypes.HasFlag(InputType.Text))
+                    if (!Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Text))
                     {
                         // space doesn't submit when getting text
                         SubmitValue();
@@ -93,8 +87,7 @@ namespace BCad.UI.Consoles
 
         private void SubmitCancel()
         {
-            _inputService.Cancel();
-
+            Workspace.InputService.Cancel();
             inputLine.Text = string.Empty;
         }
 
@@ -102,37 +95,37 @@ namespace BCad.UI.Consoles
         {
             var text = inputLine.Text;
 
-            if (_inputService.AllowedInputTypes.HasFlag(InputType.Directive) &&
-                _inputService.AllowedDirectives.Contains(text))
+            if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Directive) &&
+                Workspace.InputService.AllowedDirectives.Contains(text))
             {
-                _inputService.PushDirective(text);
+                Workspace.InputService.PushDirective(text);
             }
-            else if (_inputService.AllowedInputTypes.HasFlag(InputType.Distance))
+            else if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Distance))
             {
                 double dist = 0.0;
                 if (string.IsNullOrEmpty(text))
                 {
-                    _inputService.PushNone();
+                    Workspace.InputService.PushNone();
                 }
                 else if (DrawingSettings.TryParseUnits(text, out dist))
                 {
-                    _inputService.PushDistance(dist);
+                    Workspace.InputService.PushDistance(dist);
                 }
             }
-            else if (_inputService.AllowedInputTypes.HasFlag(InputType.Point))
+            else if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
                 Point point;
                 var cursorPoint = Workspace.ViewControl.GetCursorPoint().Result;
-                if (_inputService.TryParsePoint(text, cursorPoint, _inputService.LastPoint, out point))
-                    _inputService.PushPoint(point);
+                if (Workspace.InputService.TryParsePoint(text, cursorPoint, Workspace.InputService.LastPoint, out point))
+                    Workspace.InputService.PushPoint(point);
             }
-            else if (_inputService.AllowedInputTypes.HasFlag(InputType.Command))
+            else if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Command))
             {
-                _inputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
+                Workspace.InputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
             }
-            else if (_inputService.AllowedInputTypes.HasFlag(InputType.Text))
+            else if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Text))
             {
-                _inputService.PushText(text ?? string.Empty);
+                Workspace.InputService.PushText(text ?? string.Empty);
             }
 
             inputLine.Text = string.Empty;

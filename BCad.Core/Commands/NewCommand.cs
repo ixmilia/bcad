@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -15,7 +14,7 @@ namespace BCad.Commands
             }
 
             workspace.Update(drawing: new Drawing(), activeViewPort: ViewPort.CreateDefaultViewPort(), isDirty: false);
-            workspace.GetService<IUndoRedoService>().ClearHistory();
+            workspace.UndoRedoService.ClearHistory();
             return true;
         }
     }

@@ -2,8 +2,6 @@
 using System.Composition;
 using System.Composition.Hosting;
 using System.Reflection;
-using BCad.Services;
-using BCad.UI;
 
 namespace BCad.Test
 {

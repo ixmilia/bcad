@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -11,11 +10,10 @@ namespace BCad.Commands
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
             var drawingPlane = workspace.DrawingPlane;
-            var inputService = workspace.GetService<IInputService>();
-            var center = await inputService.GetPoint(new UserDirective("Center"));
+            var center = await workspace.InputService.GetPoint(new UserDirective("Center"));
             if (!center.Cancel && center.HasValue)
             {
-                var majorEnd = await inputService.GetPoint(new UserDirective("Major axis endpoint"), p =>
+                var majorEnd = await workspace.InputService.GetPoint(new UserDirective("Major axis endpoint"), p =>
                 {
                     return new[]
                     {
@@ -27,7 +25,7 @@ namespace BCad.Commands
                 var majorAxisLength = majorAxis.Length;
                 if (!majorEnd.Cancel && majorEnd.HasValue)
                 {
-                    var minorEnd = await inputService.GetPoint(new UserDirective("Minor axis endpoint"), lastPoint: center.Value, onCursorMove: p =>
+                    var minorEnd = await workspace.InputService.GetPoint(new UserDirective("Minor axis endpoint"), lastPoint: center.Value, onCursorMove: p =>
                     {
                         var tempMinorAxis = p - center.Value;
                         var tempMinorAxisRatio = tempMinorAxis.Length / majorAxisLength;

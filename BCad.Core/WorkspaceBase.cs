@@ -107,6 +107,35 @@ namespace BCad
             return Services.OfType<TService>().SingleOrDefault();
         }
 
+        // well-known services
+        private IDebugService _debugServiceCache;
+        public IDebugService DebugService => CacheService<IDebugService>(ref _debugServiceCache);
+
+        private IDialogFactoryService _dialogFactoryServiceCache;
+        public IDialogFactoryService DialogFactoryService => CacheService<IDialogFactoryService>(ref _dialogFactoryServiceCache);
+
+        private IFileSystemService _fileSystemServiceCache;
+        public IFileSystemService FileSystemService => CacheService<IFileSystemService>(ref _fileSystemServiceCache);
+
+        private IInputService _inputServiceCache;
+        public IInputService InputService => CacheService<IInputService>(ref _inputServiceCache);
+
+        private IOutputService _outputServiceCache;
+        public IOutputService OutputService => CacheService<IOutputService>(ref _outputServiceCache);
+
+        private IUndoRedoService _undoRedoServiceCache;
+        public IUndoRedoService UndoRedoService => CacheService<IUndoRedoService>(ref _undoRedoServiceCache);
+
+        private TService CacheService<TService>(ref TService backingStore) where TService : class, IWorkspaceService
+        {
+            if (backingStore == null)
+            {
+                backingStore = GetService<TService>();
+            }
+
+            return backingStore;
+        }
+
         public ISettingsManager SettingsManager { get; private set; }
 
         public virtual void Update(

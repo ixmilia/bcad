@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -8,8 +7,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var dialogFactoryService = workspace.GetService<IDialogFactoryService>();
-            var result = await dialogFactoryService.ShowDialog("Plot", workspace.SettingsManager.PlotDialogId);
+            var result = await workspace.DialogFactoryService.ShowDialog("Plot", workspace.SettingsManager.PlotDialogId);
             return result == true;
         }
     }

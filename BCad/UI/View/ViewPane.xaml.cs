@@ -78,34 +78,6 @@ namespace BCad.UI
         [ImportMany]
         public IEnumerable<Lazy<IRendererFactory, RenderFactoryMetadata>> RendererFactories { get; set; }
 
-        private IInputService _inputService;
-        private IInputService InputService
-        {
-            get
-            {
-                if (_inputService == null)
-                {
-                    _inputService = Workspace.GetService<IInputService>();
-                }
-
-                return _inputService;
-            }
-        }
-
-        private IOutputService _outputService;
-        private IOutputService OutputService
-        {
-            get
-            {
-                if (_outputService == null)
-                {
-                    _outputService = Workspace.GetService<IOutputService>();
-                }
-
-                return _outputService;
-            }
-        }
-
         public ViewPane()
         {
             InitializeComponent();
@@ -137,9 +109,9 @@ namespace BCad.UI
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
             Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
-            InputService.ValueRequested += InputService_ValueRequested;
-            InputService.ValueReceived += InputService_ValueReceived;
-            InputService.InputCanceled += InputService_InputCanceled;
+            Workspace.InputService.ValueRequested += InputService_ValueRequested;
+            Workspace.InputService.ValueReceived += InputService_ValueReceived;
+            Workspace.InputService.InputCanceled += InputService_InputCanceled;
 
             SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
             SetCursorVisibility();
@@ -147,7 +119,7 @@ namespace BCad.UI
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
             if (factory != null)
             {
-                renderer = factory.Value.CreateRenderer(this, Workspace, InputService);
+                renderer = factory.Value.CreateRenderer(this, Workspace);
                 renderControl.Content = renderer;
             }
 
@@ -180,7 +152,7 @@ namespace BCad.UI
             if (selectingRectangle)
                 throw new InvalidOperationException("Already selecting a rectangle");
             selectingRectangle = true;
-            OutputService.WriteLine("Select first point");
+            Workspace.OutputService.WriteLine("Select first point");
             SetCursorVisibility();
             selectionDone = new TaskCompletionSource<SelectionRectangle>();
             return selectionDone.Task;
@@ -380,19 +352,19 @@ namespace BCad.UI
             switch (e.ChangedButton)
             {
                 case Input.MouseButton.Left:
-                    if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                    if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     {
-                        InputService.PushPoint(sp.WorldPoint);
+                        Workspace.InputService.PushPoint(sp.WorldPoint);
                     }
-                    else if ((InputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
+                    else if ((Workspace.InputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
                     {
                         var selected = GetHitEntity(cursor);
                         if (selected != null)
                         {
-                            InputService.PushEntity(selected);
+                            Workspace.InputService.PushEntity(selected);
                         }
                     }
-                    else if ((InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || !Workspace.IsCommandExecuting)
+                    else if ((Workspace.InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || !Workspace.IsCommandExecuting)
                     {
                         if (selecting)
                         {
@@ -432,7 +404,7 @@ namespace BCad.UI
                                 }
                                 else
                                 {
-                                    InputService.PushEntities(entities);
+                                    Workspace.InputService.PushEntities(entities);
                                 }
                             }
                         }
@@ -441,7 +413,7 @@ namespace BCad.UI
                             SelectedEntity selected = null;
                             if (selectingRectangle)
                             {
-                                OutputService.WriteLine("Select second point");
+                                Workspace.OutputService.WriteLine("Select second point");
                             }
                             else
                             {
@@ -456,7 +428,7 @@ namespace BCad.UI
                                 }
                                 else
                                 {
-                                    InputService.PushEntities(new[] { selected.Entity });
+                                    Workspace.InputService.PushEntities(new[] { selected.Entity });
                                 }
                             }
                             else
@@ -468,7 +440,7 @@ namespace BCad.UI
                             }
                         }
                     }
-                    else if (InputService.AllowedInputTypes == InputType.None || !Workspace.IsCommandExecuting)
+                    else if (Workspace.InputService.AllowedInputTypes == InputType.None || !Workspace.IsCommandExecuting)
                     {
                         // do hot-point tracking
                         var selected = GetHitEntity(cursor);
@@ -484,7 +456,7 @@ namespace BCad.UI
                     lastPanPoint = cursor;
                     break;
                 case Input.MouseButton.Right:
-                    InputService.PushNone();
+                    Workspace.InputService.PushNone();
                     break;
             }
         }
@@ -501,7 +473,7 @@ namespace BCad.UI
 
         private void OnMouseMove(object sender, Input.MouseEventArgs e)
         {
-            if (Workspace == null || InputService == null)
+            if (Workspace == null || Workspace.InputService == null)
                 return;
 
             var cursor = e.GetPosition(this);
@@ -534,7 +506,7 @@ namespace BCad.UI
                 var snapPoint = GetActiveModelPoint(cursor.ToPoint(), token);
                 BindObject.CursorWorld = snapPoint.WorldPoint;
                 renderer.UpdateRubberBandLines();
-                if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
             }, token).ConfigureAwait(false);
         }
@@ -626,7 +598,7 @@ namespace BCad.UI
             else
             {
                 Func<InputType[], Visibility> getVisibility = types =>
-                    types.Any(t => (InputService.AllowedInputTypes & t) == t)
+                    types.Any(t => (Workspace.InputService.AllowedInputTypes & t) == t)
                         ? Visibility.Visible
                         : Visibility.Hidden;
 
@@ -684,7 +656,7 @@ namespace BCad.UI
                 var snapPoint = GetActiveModelPoint(cursorPoint.ToPoint(), token);
                 BindObject.CursorWorld = snapPoint.WorldPoint;
                 renderer.UpdateRubberBandLines();
-                if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
             }, token).ConfigureAwait(false);
         }
@@ -699,7 +671,7 @@ namespace BCad.UI
 
         private TransformedSnapPoint GetActiveSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
-            if (Workspace.SettingsManager.PointSnap && (InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+            if (Workspace.SettingsManager.PointSnap && (Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
                 var points = GetSnapPointsByDistance(cursor, cancellationToken)
                     .OrderBy(tuple => tuple.Item1, new CancellableComparer<double>(cancellationToken));
@@ -733,7 +705,7 @@ namespace BCad.UI
             if (Workspace.IsDrawing && Workspace.SettingsManager.Ortho)
             {
                 // if both are on the drawing plane
-                var last = InputService.LastPoint;
+                var last = Workspace.InputService.LastPoint;
                 var current = Unproject(cursor);
                 var delta = current - last;
                 var drawingPlane = Workspace.DrawingPlane;
@@ -783,7 +755,7 @@ namespace BCad.UI
             if (Workspace.IsDrawing && Workspace.SettingsManager.AngleSnap)
             {
                 // get distance to last point
-                var last = InputService.LastPoint;
+                var last = Workspace.InputService.LastPoint;
                 var current = Unproject(cursor);
                 var vector = current - last;
                 var dist = vector.Length;

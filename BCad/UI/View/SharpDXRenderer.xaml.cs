@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Windows.Controls;
 using BCad.EventArguments;
-using BCad.Services;
 
 namespace BCad.UI.View
 {
@@ -21,7 +20,7 @@ namespace BCad.UI.View
             InitializeComponent();
         }
 
-        public SharpDXRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService)
+        public SharpDXRenderer(IViewControl viewControl, IWorkspace workspace)
             : this()
         {
             this.workspace = workspace;

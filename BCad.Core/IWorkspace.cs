@@ -39,6 +39,13 @@ namespace BCad
 
         TService GetService<TService>() where TService : class, IWorkspaceService;
 
+        IDebugService DebugService { get; }
+        IDialogFactoryService DialogFactoryService { get; }
+        IFileSystemService FileSystemService { get; }
+        IInputService InputService { get; }
+        IOutputService OutputService { get; }
+        IUndoRedoService UndoRedoService { get; }
+
         void Update(Optional<Drawing> drawing = default(Optional<Drawing>),
             Optional<Plane> drawingPlane = default(Optional<Plane>),
             Optional<ViewPort> activeViewPort = default(Optional<ViewPort>),

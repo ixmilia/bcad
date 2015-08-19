@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Primitives;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -11,8 +10,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var inputService = workspace.GetService<IInputService>();
-            var boundaries = await inputService.GetEntities(GetBoundsText());
+            var boundaries = await workspace.InputService.GetEntities(GetBoundsText());
             if (boundaries.Cancel || !boundaries.HasValue || !boundaries.Value.Any())
             {
                 return false;
@@ -21,7 +19,7 @@ namespace BCad.Commands
             var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives());
 
             var directive = new UserDirective(GetTrimExtendText());
-            var selected = await inputService.GetEntity(directive);
+            var selected = await workspace.InputService.GetEntity(directive);
             IEnumerable<Entity> removed;
             IEnumerable<Entity> added;
             string entityLayerName;
@@ -42,7 +40,7 @@ namespace BCad.Commands
                     workspace.Update(drawing: drawing);
 
                 // get next entity to trim/extend
-                selected = await inputService.GetEntity(directive);
+                selected = await workspace.InputService.GetEntity(directive);
             }
 
             return true;

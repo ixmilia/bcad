@@ -351,7 +351,7 @@ namespace BCad.Services
                     }
                     else
                     {
-                        Workspace.GetService<IOutputService>().WriteLine("Bad value or directive '{0}'", directive);
+                        Workspace.OutputService.WriteLine("Bad value or directive '{0}'", directive);
                     }
                 }
             }
@@ -482,17 +482,16 @@ namespace BCad.Services
 
         protected virtual void OnValueReceived(ValueReceivedEventArgs e)
         {
-            Workspace.GetService<IDebugService>().Add(new InputServiceLogEntry(e.InputType, e.Value));
+            Workspace.DebugService.Add(new InputServiceLogEntry(e.InputType, e.Value));
 
             // write out received value
-            var outputService = Workspace.GetService<IOutputService>();
             switch (e.InputType)
             {
                 case InputType.Point:
-                    outputService.WriteLine(Workspace.Format(e.Point));
+                    Workspace.OutputService.WriteLine(Workspace.Format(e.Point));
                     break;
                 case InputType.Text:
-                    outputService.WriteLine(e.Text);
+                    Workspace.OutputService.WriteLine(e.Text);
                     break;
             }
 

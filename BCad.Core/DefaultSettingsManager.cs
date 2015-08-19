@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Serialization;
 using BCad.Extensions;
-using BCad.Services;
 using BCad.SnapPoints;
 
 namespace BCad

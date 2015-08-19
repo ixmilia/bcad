@@ -1,5 +1,4 @@
-﻿using BCad.Services;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 namespace BCad.Commands
@@ -9,8 +8,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var inputService = workspace.GetService<IInputService>();
-            var entities = await inputService.GetEntities();
+            var entities = await workspace.InputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;

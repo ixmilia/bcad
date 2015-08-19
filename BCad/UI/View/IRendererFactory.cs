@@ -1,9 +1,7 @@
-﻿using BCad.Services;
-
-namespace BCad.UI
+﻿namespace BCad.UI
 {
     public interface IRendererFactory
     {
-        IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace, IInputService inputService);
+        IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -15,18 +14,17 @@ namespace BCad.Commands
             if (arg is string)
                 filename = (string)arg;
 
-            var fileSystemService = workspace.GetService<IFileSystemService>();
             if (filename == null)
-                filename = await fileSystemService.GetFileNameFromUserForOpen();
+                filename = await workspace.FileSystemService.GetFileNameFromUserForOpen();
 
             if (filename == null)
                 return false; // cancel
 
             Drawing drawing;
             ViewPort activeViewPort;
-            await fileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            await workspace.FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
             workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
-            workspace.GetService<IUndoRedoService>().ClearHistory();
+            workspace.UndoRedoService.ClearHistory();
 
             return true;
         }

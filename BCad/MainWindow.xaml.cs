@@ -16,7 +16,6 @@ using BCad.Commands;
 using BCad.EventArguments;
 using BCad.Primitives;
 using BCad.Ribbons;
-using BCad.Services;
 using BCad.ViewModels;
 
 namespace BCad
@@ -178,7 +177,7 @@ namespace BCad
             // prepare user console
             App.Container.SatisfyImports(inputPanel);
             TakeFocus();
-            Workspace.GetService<IInputService>().Reset();
+            Workspace.InputService.Reset();
 
             Workspace.Update(viewControl: viewPane, isDirty: false);
 
@@ -194,7 +193,7 @@ namespace BCad
                 }
                 else
                 {
-                    Workspace.GetService<IOutputService>().WriteLine("Unable to open file: ", fileName);
+                    Workspace.OutputService.WriteLine("Unable to open file: ", fileName);
                 }
             }
             else

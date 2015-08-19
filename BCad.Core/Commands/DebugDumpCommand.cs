@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using BCad.Services;
 
 namespace BCad.Commands
 {
@@ -8,22 +7,20 @@ namespace BCad.Commands
     {
         public Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
-            var outputService = workspace.GetService<IOutputService>();
-            var debugService = workspace.GetService<IDebugService>();
-            outputService.WriteLine("input service entries:");
-            var entries = debugService.GetLog();
+            workspace.OutputService.WriteLine("input service entries:");
+            var entries = workspace.DebugService.GetLog();
             foreach (var entry in entries)
             {
-                outputService.WriteLine("  " + entry.ToString());
+                workspace.OutputService.WriteLine("  " + entry.ToString());
             }
 
-            outputService.WriteLine("drawing structure:");
+            workspace.OutputService.WriteLine("drawing structure:");
             foreach (var layer in workspace.Drawing.Layers.GetValues())
             {
-                outputService.WriteLine("  layer={0}", layer.Name);
+                workspace.OutputService.WriteLine("  layer={0}", layer.Name);
                 foreach (var entity in layer.GetEntities())
                 {
-                    outputService.WriteLine("    entity id={0}, detail={1}", entity.Id, entity);
+                    workspace.OutputService.WriteLine("    entity id={0}, detail={1}", entity.Id, entity);
                 }
             }
 

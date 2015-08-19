@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using BCad.Services;
 using BCad.Utilities;
 
 namespace BCad.Commands
@@ -10,8 +9,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var inputService = workspace.GetService<InputService>();
-            var entities = await inputService.GetEntities();
+            var entities = await workspace.InputService.GetEntities();
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
@@ -22,13 +20,13 @@ namespace BCad.Commands
                 return true;
             }
 
-            var origin = await inputService.GetPoint(new UserDirective("Point of rotation"));
+            var origin = await workspace.InputService.GetPoint(new UserDirective("Point of rotation"));
             if (origin.Cancel || !origin.HasValue)
             {
                 return false;
             }
 
-            var angleText = await inputService.GetText(prompt: "Angle of rotation");
+            var angleText = await workspace.InputService.GetText(prompt: "Angle of rotation");
             if (angleText.Cancel || !angleText.HasValue)
             {
                 return false;
