@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Threading;
 using BCad.Entities;
 using BCad.EventArguments;
 using BCad.Extensions;
@@ -201,6 +202,10 @@ namespace BCad.UI
                 BindObject.RightCursorExtent = new System.Windows.Point(cursorSize, 0);
                 BindObject.TopCursorExtent = new System.Windows.Point(0, -cursorSize);
                 BindObject.BottomCursorExtent = new System.Windows.Point(0, cursorSize);
+
+                // only update the cursor location after the previous four binding calls have appropriately propagated
+                // to the UI
+                Dispatcher.Invoke(UpdateCursorLocation, DispatcherPriority.Background);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.EntitySelectionRadius))
             {
@@ -209,12 +214,20 @@ namespace BCad.UI
                 BindObject.EntitySelectionTopRight= new System.Windows.Point(entitySize, -entitySize);
                 BindObject.EntitySelectionBottomLeft = new System.Windows.Point(-entitySize, entitySize);
                 BindObject.EntitySelectionBottomRight = new System.Windows.Point(entitySize, entitySize);
+
+                // only update the cursor location after the previous four binding calls have appropriately propagated
+                // to the UI
+                Dispatcher.Invoke(UpdateCursorLocation, DispatcherPriority.Background);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.TextCursorSize))
             {
                 var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
                 BindObject.TextCursorStart = new System.Windows.Point(0, -textSize);
                 BindObject.TextCursorStart = new System.Windows.Point(0, textSize);
+
+                // only update the cursor location after the previous two binding calls have appropriately propagated
+                // to the UI
+                Dispatcher.Invoke(UpdateCursorLocation, DispatcherPriority.Background);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.HotPointColor))
             {
@@ -511,11 +524,7 @@ namespace BCad.UI
             }
 
             BindObject.CursorScreen = cursor;
-            foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage, textCursorImage })
-            {
-                Canvas.SetLeft(cursorImage, (int)(cursor.X - (cursorImage.ActualWidth / 2.0)));
-                Canvas.SetTop(cursorImage, (int)(cursor.Y - (cursorImage.ActualHeight / 2.0)));
-            }
+            UpdateCursorLocation();
 
             mouseMoveCancellationTokenSource.Cancel();
             mouseMoveCancellationTokenSource = new CancellationTokenSource();
@@ -528,6 +537,15 @@ namespace BCad.UI
                 if ((InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
             }, token).ConfigureAwait(false);
+        }
+
+        private void UpdateCursorLocation()
+        {
+            foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage, textCursorImage })
+            {
+                Canvas.SetLeft(cursorImage, (int)(BindObject.CursorScreen.X - (cursorImage.ActualWidth / 2.0)));
+                Canvas.SetTop(cursorImage, (int)(BindObject.CursorScreen.Y - (cursorImage.ActualHeight / 2.0)));
+            }
         }
 
         private long GetNextDrawSnapPointId()
