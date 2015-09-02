@@ -124,7 +124,7 @@ namespace BCad.UI
             }
 
             // prepare snap point icons
-            foreach (var kind in new[] { SnapPointKind.Center, SnapPointKind.EndPoint, SnapPointKind.MidPoint, SnapPointKind.Quadrant })
+            foreach (var kind in new[] { SnapPointKind.Center, SnapPointKind.EndPoint, SnapPointKind.MidPoint, SnapPointKind.Quadrant, SnapPointKind.Focus })
             {
                 snapPointGeometry[kind] = GetSnapGeometry(kind);
                 snapPointImage[kind] = GetSnapIcon(kind);
@@ -1033,6 +1033,9 @@ namespace BCad.UI
                     break;
                 case SnapPointKind.Quadrant:
                     name = "QuadrantPointIcon";
+                    break;
+                case SnapPointKind.Focus:
+                    name = "FocusPointIcon";
                     break;
                 default:
                     throw new ArgumentException("snapPoint.Kind");

@@ -59,6 +59,7 @@
             <CheckBox IsChecked="{Binding Path=IsMidPoint}" Content="Mid Point" />
             <CheckBox IsChecked="{Binding Path=IsCenter}" Content="Center" />
             <CheckBox IsChecked="{Binding Path=IsQuadrant}" Content="Quadrant" />
+            <CheckBox IsChecked="{Binding Path=IsFocus}" Content="Focus" />
         </RibbonGroup>
         <RibbonGroup Header="Color">
             <controls:ColorPicker ShowNames="False"

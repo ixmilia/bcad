@@ -48,4 +48,14 @@
         </GeometryDrawing.Geometry>
     </GeometryDrawing>
 
+    <GeometryDrawing x:Key="FocusPointIcon">
+        <GeometryDrawing.Geometry>
+            <GeometryGroup>
+                <LineGeometry StartPoint="0,-0.5" EndPoint="0,0.5" />
+                <LineGeometry StartPoint="-0.4,-0.25" EndPoint="0.4,0.25" />
+                <LineGeometry StartPoint="-0.4,0.25" EndPoint="0.4,-0.25" />
+            </GeometryGroup>
+        </GeometryDrawing.Geometry>
+    </GeometryDrawing>
+
 </ResourceDictionary>

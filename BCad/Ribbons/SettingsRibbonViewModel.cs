@@ -280,6 +280,19 @@ namespace BCad.Ribbons
             }
         }
 
+        public bool IsFocus
+        {
+            get { return HasSnapPointFlag(SnapPointKind.Focus); }
+            set
+            {
+                if (value)
+                    SetSnapPointFlag(SnapPointKind.Focus);
+                else
+                    ClearSnapPointFlag(SnapPointKind.Focus);
+                OnPropertyChanged();
+            }
+        }
+
         private bool HasSnapPointFlag(SnapPointKind kind)
         {
             return (SettingsManager.AllowedSnapPoints & kind) == kind;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BCad.Primitives;
 using BCad.SnapPoints;
 
@@ -62,29 +63,37 @@ namespace BCad.Entities
 
             this.primitive = new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color);
             this.primitives = new IPrimitive[] { this.primitive };
+            var snaps = new List<SnapPoint>();
+            snaps.Add(new CenterPoint(Center));
             if (this.startAngle == 0.0 && this.endAngle == 360.0)
             {
                 // treat it like a circle
-                this.snapPoints = new SnapPoint[]
-                {
-                    new CenterPoint(Center),
-                    new QuadrantPoint(quadrant1),
-                    new QuadrantPoint(quadrant2),
-                    new QuadrantPoint(quadrant3),
-                    new QuadrantPoint(quadrant4)
-                };
+                snaps.Add(new QuadrantPoint(quadrant1));
+                snaps.Add(new QuadrantPoint(quadrant2));
+                snaps.Add(new QuadrantPoint(quadrant3));
+                snaps.Add(new QuadrantPoint(quadrant4));
             }
             else
             {
                 // treat it like an arc
-                this.snapPoints = new SnapPoint[]
-                {
-                    new CenterPoint(Center),
-                    new EndPoint(endPoint1),
-                    new EndPoint(endPoint2),
-                    new MidPoint(midPoint)
-                };
+                snaps.Add(new EndPoint(endPoint1));
+                snaps.Add(new EndPoint(endPoint2));
+                snaps.Add(new MidPoint(midPoint));
             }
+
+            if (MinorAxisRatio != 1.0)
+            {
+                // a true ellipse with two distinct foci
+                var majorNormalized = majorAxis.Normalize();
+                var minorLength = majorLength * minorAxisRatio;
+                var focusDistance = Math.Sqrt((majorLength * majorLength) - (minorLength * minorLength));
+                var focus1 = (Point)((majorNormalized * focusDistance) + Center);
+                var focus2 = (Point)((majorNormalized * -focusDistance) + Center);
+                snaps.Add(new FocusPoint(focus1));
+                snaps.Add(new FocusPoint(focus2));
+            }
+
+            this.snapPoints = snaps.ToArray();
             this.boundingBox = BoundingBox.FromPoints(quadrant1, quadrant2, quadrant3, quadrant4);
         }
 

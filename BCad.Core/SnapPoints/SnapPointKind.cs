@@ -10,6 +10,7 @@ namespace BCad.SnapPoints
         EndPoint = 0x02,
         MidPoint = 0x04,
         Quadrant = 0x08,
-        All = 0x0F
+        Focus = 0x10,
+        All = Center | EndPoint | MidPoint | Quadrant | Focus
     }
 }

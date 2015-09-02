@@ -153,6 +153,7 @@
     <Compile Include="Services\UndoRedoService.cs" />
     <Compile Include="SnapPoints\CenterPoint.cs" />
     <Compile Include="SnapPoints\EndPoint.cs" />
+    <Compile Include="SnapPoints\FocusPoint.cs" />
     <Compile Include="SnapPoints\QuadrantPoint.cs" />
     <Compile Include="SnapPoints\SnapPoint.cs" />
     <Compile Include="Entities\Line.cs" />
