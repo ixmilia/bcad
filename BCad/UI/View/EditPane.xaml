@@ -67,7 +67,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
@@ -90,7 +90,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
@@ -138,7 +138,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
@@ -175,9 +175,10 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
@@ -212,7 +213,7 @@
                                   UnitPrecision="{Binding Path=UnitPrecision}" />
                 <TextBlock Grid.Row="4"
                            Grid.Column="0"
-                           Text="MajorAxis" />
+                           Text="Major axis" />
                 <ui:EditablePoint Grid.Row="4"
                                   Grid.Column="1"
                                   Margin="1"
@@ -225,6 +226,12 @@
                 <TextBox Grid.Row="5"
                          Grid.Column="1"
                          Text="{Binding Path=MinorAxisRatio}" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           Text="Eccentricity" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="1"
+                           Text="{Binding Path=Eccentricity}" />
             </Grid>
             <!-- line -->
             <Grid DataContext="{Binding Path=EditLineViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
@@ -233,7 +240,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
@@ -261,7 +268,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
@@ -284,7 +291,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"

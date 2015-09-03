@@ -1,4 +1,5 @@
 ﻿using BCad.Entities;
+using System;
 
 namespace BCad.ViewModels
 {
@@ -86,6 +87,7 @@ namespace BCad.ViewModels
                 majorAxis = value;
                 ReplaceEllipse(ellipse.Update(majorAxis: value));
                 OnPropertyChanged();
+                OnPropertyChangedDirect(nameof(Eccentricity));
             }
         }
 
@@ -99,6 +101,15 @@ namespace BCad.ViewModels
                 minorAxisRatio = value;
                 ReplaceEllipse(ellipse.Update(minorAxisRatio: value));
                 OnPropertyChanged();
+                OnPropertyChangedDirect(nameof(Eccentricity));
+            }
+        }
+
+        public double Eccentricity
+        {
+            get
+            {
+                return Math.Sqrt(1.0 - (minorAxisRatio * minorAxisRatio));
             }
         }
 
