@@ -87,6 +87,7 @@
     <Compile Include="PointTests.cs" />
     <Compile Include="PrimitiveTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuadTreeTests.cs" />
     <Compile Include="ReadOnlyListTests.cs" />
     <Compile Include="ReadOnlyTreeTests.cs" />
     <Compile Include="RotateTests.cs" />

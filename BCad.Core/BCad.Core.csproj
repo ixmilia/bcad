@@ -39,6 +39,9 @@
     <Compile Include="BoundingBox.cs" />
     <Compile Include="CadColor.cs" />
     <Compile Include="Collections\ObservableHashSet`1.cs" />
+    <Compile Include="Collections\QuadTree`1.cs" />
+    <Compile Include="Collections\QuadTree`1.QuadTreeLeaf.cs" />
+    <Compile Include="Collections\QuadTree`1.QuadTreeParent.cs" />
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
@@ -124,6 +127,7 @@
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileHandlerAttribute.cs" />
     <Compile Include="Helpers\MathHelper.cs" />
+    <Compile Include="Collections\Rect.cs" />
     <Compile Include="Services\IDialogFactoryService.cs" />
     <Compile Include="ISettingsManager.cs" />
     <Compile Include="Primitives\PrimitivePoint.cs" />
@@ -188,6 +192,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\QuadTree`1.IQuadTreeNode.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

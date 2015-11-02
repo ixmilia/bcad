@@ -39,7 +39,7 @@ namespace BCad.UI
         private TaskCompletionSource<SelectionRectangle> selectionDone;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
-        private IEnumerable<TransformedSnapPoint> snapPoints;
+        private Collections.QuadTree<TransformedSnapPoint> snapPointsQuadTree;
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection(new[] { 4.0, 4.0 });
         private ResourceDictionary resources;
@@ -301,13 +301,15 @@ namespace BCad.UI
         private void UpdateSnapPoints()
         {
             updateSnapPointsCancellationTokenSource.Cancel();
+            var width = ActualWidth;
+            var height = ActualHeight;
             updateSnapPointsTask = Task.Run(() =>
             {
                 updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
 
                 // populate the snap points
                 var cancellationToken = updateSnapPointsCancellationTokenSource.Token;
-                var transformed = new List<TransformedSnapPoint>();
+                var transformedQuadTree = new Collections.QuadTree<TransformedSnapPoint>(new Collections.Rect(0, 0, width, height), t => new Collections.Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
                 foreach (var layer in Workspace.Drawing.GetLayers(cancellationToken))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -316,12 +318,12 @@ namespace BCad.UI
                         cancellationToken.ThrowIfCancellationRequested();
                         foreach (var snapPoint in entity.GetSnapPoints())
                         {
-                            transformed.Add(new TransformedSnapPoint(snapPoint.Point, Project(snapPoint.Point), snapPoint.Kind));
+                            transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, Project(snapPoint.Point), snapPoint.Kind));
                         }
                     }
                 }
 
-                snapPoints = transformed;
+                snapPointsQuadTree = transformedQuadTree;
             });
         }
 
@@ -673,31 +675,17 @@ namespace BCad.UI
         {
             if (Workspace.SettingsManager.PointSnap && (Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
             {
-                var points = GetSnapPointsByDistance(cursor, cancellationToken)
-                    .OrderBy(tuple => tuple.Item1, new CancellableComparer<double>(cancellationToken));
+                var snapPointDistance = Workspace.SettingsManager.SnapPointDistance;
+                var size = snapPointDistance * 2;
+                var nearPoints = snapPointsQuadTree
+                    .GetContainedItems(new Collections.Rect(cursor.X - snapPointDistance, cursor.Y - snapPointDistance, size, size));
+                var points = nearPoints
+                    .Select(p => Tuple.Create((cursor - p.ControlPoint).LengthSquared, p))
+                    .OrderBy(t => t.Item1, new CancellableComparer<double>(cancellationToken));
                 return points.FirstOrDefault()?.Item2;
             }
 
             return null;
-        }
-
-        private IEnumerable<Tuple<double, TransformedSnapPoint>> GetSnapPointsByDistance(Point cursor, CancellationToken cancellationToken)
-        {
-            var allowed = Workspace.SettingsManager.AllowedSnapPoints;
-            var maxDistSq = Workspace.SettingsManager.SnapPointDistance * Workspace.SettingsManager.SnapPointDistance;
-            var points = snapPoints;
-            foreach (var snapPoint in points)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if ((allowed & snapPoint.Kind) == snapPoint.Kind)
-                {
-                    var distance = (cursor - snapPoint.ControlPoint).LengthSquared;
-                    if (distance <= maxDistSq)
-                    {
-                        yield return Tuple.Create(distance, snapPoint);
-                    }
-                }
-            }
         }
 
         private TransformedSnapPoint GetOrthoPoint(Point cursor)
