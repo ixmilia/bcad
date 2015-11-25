@@ -23,15 +23,16 @@ namespace BCad.Collections
 
             public IQuadTreeNode AddItem(T item)
             {
-                _items.Add(item);
-                if (_items.Count > MAX_ITEMS)
+                if (Rect.Contains(_getBounding(item)))
                 {
-                    return new QuadTreeParent(Rect, _getBounding, _items);
+                    _items.Add(item);
+                    if (_items.Count > MAX_ITEMS)
+                    {
+                        return new QuadTreeParent(Rect, _getBounding, _items);
+                    }
                 }
-                else
-                {
-                    return this;
-                }
+
+                return this;
             }
 
             public void AddContainedItems(HashSet<T> set, Rect rect)
