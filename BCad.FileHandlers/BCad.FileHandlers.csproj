@@ -59,8 +59,8 @@
     <Compile Include="StlFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="IxMilia.Dxf, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\IxMilia.Dxf.0.2.0.0\lib\portable-net45+win+wpa81\IxMilia.Dxf.dll</HintPath>
+    <Reference Include="IxMilia.Dxf, Version=0.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IxMilia.Dxf.0.3.1.0\lib\portable-net45+win+wpa81\IxMilia.Dxf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IxMilia.Stl, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
