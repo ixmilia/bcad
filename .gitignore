@@ -12,3 +12,4 @@ AppPackages/
 /packages
 *.user
 /.vs
+*project.lock.json
