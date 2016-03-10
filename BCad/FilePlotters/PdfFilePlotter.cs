@@ -13,6 +13,9 @@ namespace BCad.FilePlotters
 
         private StringBuilder _builder = new StringBuilder();
         private List<int> _objectOffsets = new List<int>();
+        private CadColor _lastColor = CadColor.Black;
+
+        private static CadColor AutoColor = CadColor.Black;
 
         public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
         {
@@ -21,12 +24,15 @@ namespace BCad.FilePlotters
 
             OutputHeader(width, height);
             var body = new StringBuilder();
+            body.AppendLine("/DeviceRGB CS");
+            SetColor(body, CadColor.Black, doStroke: false);
             foreach (var entity in entities)
             {
                 switch (entity.Kind)
                 {
                     case EntityKind.Line:
                         var line = (ProjectedLine)entity;
+                        SetColor(body, line.OriginalLine.Color ?? line.OriginalLayer.Color ?? AutoColor);
                         body.AppendLine($"{line.P1.X:f} {line.P1.Y:f} m");
                         body.AppendLine($"{line.P2.X:f} {line.P2.Y:f} l");
                         break;
@@ -35,12 +41,12 @@ namespace BCad.FilePlotters
                         break;
                 }
             }
+            body.AppendLine("S"); // final stroke
 
             AddOffset();
             _builder.AppendLine($"4 0 obj <</Length {body.Length}>>");
             _builder.AppendLine("stream");
             _builder.Append(body.ToString());
-            _builder.AppendLine("S");
             _builder.AppendLine("endstream");
             _builder.AppendLine("endobj");
 
@@ -63,6 +69,20 @@ namespace BCad.FilePlotters
             writer.Write(_builder.ToString());
             writer.Flush();
             writer.Close();
+        }
+
+        private void SetColor(StringBuilder body, CadColor color, bool doStroke = true)
+        {
+            if (color != _lastColor)
+            {
+                if (doStroke)
+                {
+                    body.AppendLine("S");
+                }
+
+                body.AppendLine($"{color.R / 255.0} {color.G / 255.0} {color.B / 255.0} SC");
+                _lastColor = color;
+            }
         }
 
         private int CurrentOffset => _builder.Length;
