@@ -38,7 +38,15 @@ namespace BCad.Extensions
             return CadColor.FromArgb((byte)a, (byte)r, (byte)g, (byte)b);
         }
 
-        public static string ToColorString(this CadColor color)
+        public static string ToRGBString(this CadColor color)
+        {
+            var r = string.Format("{0:X2}", color.R);
+            var g = string.Format("{0:X2}", color.G);
+            var b = string.Format("{0:X2}", color.B);
+            return string.Format("#{0}{1}{2}", r, g, b);
+        }
+
+        public static string ToARGBString(this CadColor color)
         {
             var a = string.Format("{0:X2}", color.A);
             var r = string.Format("{0:X2}", color.R);

@@ -31,8 +31,8 @@ namespace BCad.Commands.FilePlotters
                 var layer = groupedEntity.Key;
                 root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
                 var g = new XElement(Xmlns + "g",
-                    new XAttribute("stroke", (layer.Color ?? autoColor).ToColorString()),
-                    new XAttribute("fill", (layer.Color ?? autoColor).ToColorString()));
+                    new XAttribute("stroke", (layer.Color ?? autoColor).ToRGBString()),
+                    new XAttribute("fill", (layer.Color ?? autoColor).ToRGBString()));
                 // TODO: stroke-width="0.5"
                 foreach (var entity in groupedEntity)
                 {
@@ -183,7 +183,7 @@ namespace BCad.Commands.FilePlotters
             if (color.HasValue)
             {
                 var stroke = xml.Attribute("stroke");
-                var colorString = color.Value.ToColorString();
+                var colorString = color.Value.ToRGBString();
                 if (stroke == null)
                 {
                     // add new attribute
@@ -202,7 +202,7 @@ namespace BCad.Commands.FilePlotters
             if (color.HasValue)
             {
                 var stroke = xml.Attribute("fill");
-                var colorString = color.Value.ToColorString();
+                var colorString = color.Value.ToRGBString();
                 if (stroke == null)
                 {
                     // add new attribute

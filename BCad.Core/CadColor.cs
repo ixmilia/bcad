@@ -39,7 +39,7 @@ namespace BCad
 
         public override string ToString()
         {
-            return this.ToColorString();
+            return this.ToARGBString();
         }
 
         public override bool Equals(object obj)

@@ -14,7 +14,7 @@ namespace BCad.UI
             {
                 if (value.GetType() == typeof(CadColor))
                 {
-                    return ((CadColor)value).ToColorString();
+                    return ((CadColor)value).ToARGBString();
                 }
                 else
                 {

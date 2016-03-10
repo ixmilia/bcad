@@ -267,7 +267,7 @@ namespace BCad
         {
             get
             {
-                return BackgroundColor.ToColorString();
+                return BackgroundColor.ToARGBString();
             }
             set
             {
@@ -292,7 +292,7 @@ namespace BCad
         [XmlElement(ElementName = nameof(SnapPointColor))]
         public string SnapPointColorString
         {
-            get { return SnapPointColor.ToColorString(); }
+            get { return SnapPointColor.ToARGBString(); }
             set { SnapPointColor = value.ParseColor(); }
         }
 
@@ -313,7 +313,7 @@ namespace BCad
         [XmlElement(ElementName = nameof(HotPointColor))]
         public string HotPointColorString
         {
-            get { return HotPointColor.ToColorString(); }
+            get { return HotPointColor.ToARGBString(); }
             set { HotPointColor = value.ParseColor(); }
         }
 
