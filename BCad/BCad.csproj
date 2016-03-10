@@ -135,6 +135,7 @@
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
     <Compile Include="Extensions\PrimitiveExtensions.cs" />
+    <Compile Include="FilePlotters\PdfFilePlotter.cs" />
     <Compile Include="FilePlotters\PngFilePlotter.cs" />
     <Compile Include="FilePlotters\SvgFilePlotter.cs" />
     <Compile Include="UI\IControlMetadata.cs" />
