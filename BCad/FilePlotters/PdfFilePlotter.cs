@@ -55,6 +55,7 @@ namespace BCad.FilePlotters
             _builder.AppendLine($"4 0 obj <</Length {body.Length}>>");
             _builder.AppendLine("stream");
             _builder.Append(body.ToString());
+            _builder.AppendLine(); // stream is required to end in \r\n
             _builder.AppendLine("endstream");
             _builder.AppendLine("endobj");
 
@@ -114,7 +115,7 @@ namespace BCad.FilePlotters
             _builder.AppendLine("endobj");
 
             AddOffset();
-            _builder.AppendLine($"3 0 obj <</Type /Page /Parent 2 0 R /Contents [4 0 R] /MediaBox [0 0 {width:f} {height:f}]>>");
+            _builder.AppendLine($"3 0 obj <</Type /Page /Parent 2 0 R /Contents 4 0 R /MediaBox [0 0 {width:f} {height:f}]>>");
             _builder.AppendLine("endobj");
         }
     }
