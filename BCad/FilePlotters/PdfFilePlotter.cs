@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using BCad.Entities;
 
@@ -25,20 +26,27 @@ namespace BCad.FilePlotters
             OutputHeader(width, height);
             var body = new StringBuilder();
             body.AppendLine("/DeviceRGB CS");
+            // set line width with: body.AppendLine("0.5 w");  // 1 == 1/72"
             SetColor(body, CadColor.Black, doStroke: false);
-            foreach (var entity in entities)
+            foreach (var group in entities.GroupBy(e => e.OriginalLayer).OrderBy(l => l.Key.Name))
             {
-                switch (entity.Kind)
+                var layer = group.Key;
+                body.AppendLine();
+                body.AppendLine($"% layer '{layer.Name}'");
+                foreach (var entity in group)
                 {
-                    case EntityKind.Line:
-                        var line = (ProjectedLine)entity;
-                        SetColor(body, line.OriginalLine.Color ?? line.OriginalLayer.Color ?? AutoColor);
-                        body.AppendLine($"{line.P1.X:f} {line.P1.Y:f} m");
-                        body.AppendLine($"{line.P2.X:f} {line.P2.Y:f} l");
-                        break;
-                    default:
-                        // TODO:
-                        break;
+                    switch (entity.Kind)
+                    {
+                        case EntityKind.Line:
+                            var line = (ProjectedLine)entity;
+                            SetColor(body, line.OriginalLine.Color ?? line.OriginalLayer.Color ?? AutoColor);
+                            body.AppendLine($"{line.P1.X:f} {line.P1.Y:f} m");
+                            body.AppendLine($"{line.P2.X:f} {line.P2.Y:f} l");
+                            break;
+                        default:
+                            // TODO:
+                            break;
+                    }
                 }
             }
             body.AppendLine("S"); // final stroke
@@ -53,14 +61,15 @@ namespace BCad.FilePlotters
             _builder.AppendLine();
             _builder.AppendLine("xref");
             var xrefLoc = CurrentOffset;
-            _builder.AppendLine("0 5");
-            _builder.AppendLine($"0000000000 {ushort.MaxValue} f");
+            var xrefCount = _objectOffsets.Count + 1; // + 1 to account for the required zero-id free object
+            _builder.AppendLine($"0 {xrefCount}");
+            _builder.AppendLine($"0000000000 {ushort.MaxValue} f"); // said required zero-id free object
             for (int i = 0; i < _objectOffsets.Count; i++)
             {
                 _builder.AppendLine($"{_objectOffsets[i].ToString().PadLeft(10, '0')} {(0).ToString().PadLeft(5, '0')} n");
             }
 
-            _builder.AppendLine("trailer <</Size 6 /Root 1 0 R>>");
+            _builder.AppendLine($"trailer <</Size {xrefCount} /Root 1 0 R>>");
             _builder.AppendLine("startxref");
             _builder.AppendLine(xrefLoc.ToString());
             _builder.AppendLine("%%EOF");
