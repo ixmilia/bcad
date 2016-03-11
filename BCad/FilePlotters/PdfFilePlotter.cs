@@ -110,11 +110,11 @@ namespace BCad.FilePlotters
             _builder.AppendLine("endobj");
 
             AddOffset();
-            _builder.AppendLine($"2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1 /MediaBox [0 0 {width:f} {height:f}]>>");
+            _builder.AppendLine("2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>>");
             _builder.AppendLine("endobj");
 
             AddOffset();
-            _builder.AppendLine("3 0 obj <</Type /Page /Parent 2 0 R /Contents [4 0 R]>>");
+            _builder.AppendLine($"3 0 obj <</Type /Page /Parent 2 0 R /Contents [4 0 R] /MediaBox [0 0 {width:f} {height:f}]>>");
             _builder.AppendLine("endobj");
         }
     }
