@@ -49,7 +49,7 @@ namespace BCad.FilePlotters
                     }
                 }
             }
-            body.AppendLine("S"); // final stroke
+            body.Append("S"); // final stroke
 
             AddOffset();
             _builder.AppendLine($"4 0 obj <</Length {body.Length}>>");
@@ -59,9 +59,8 @@ namespace BCad.FilePlotters
             _builder.AppendLine("endstream");
             _builder.AppendLine("endobj");
 
-            _builder.AppendLine();
-            _builder.AppendLine("xref");
             var xrefLoc = CurrentOffset;
+            _builder.AppendLine("xref");
             var xrefCount = _objectOffsets.Count + 1; // + 1 to account for the required zero-id free object
             _builder.AppendLine($"0 {xrefCount}");
             _builder.AppendLine($"0000000000 {ushort.MaxValue} f"); // said required zero-id free object
@@ -73,7 +72,7 @@ namespace BCad.FilePlotters
             _builder.AppendLine($"trailer <</Size {xrefCount} /Root 1 0 R>>");
             _builder.AppendLine("startxref");
             _builder.AppendLine(xrefLoc.ToString());
-            _builder.AppendLine("%%EOF");
+            _builder.Append("%%EOF");
 
             var writer = new StreamWriter(stream);
             writer.Write(_builder.ToString());
