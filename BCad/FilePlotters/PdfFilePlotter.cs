@@ -27,6 +27,7 @@ namespace BCad.FilePlotters
             var body = new StringBuilder();
             body.AppendLine("/DeviceRGB CS");
             // set line width with: body.AppendLine("0.5 w");  // 1 == 1/72"
+            body.AppendLine("0 w");
             SetColor(body, CadColor.Black, doStroke: false);
             foreach (var group in entities.GroupBy(e => e.OriginalLayer).OrderBy(l => l.Key.Name))
             {
@@ -52,7 +53,8 @@ namespace BCad.FilePlotters
             body.Append("S"); // final stroke
 
             AddOffset();
-            _builder.AppendLine($"4 0 obj <</Length {body.Length}>>");
+            _builder.AppendLine("4 0 obj");
+            _builder.AppendLine($"<</Length {body.Length}>>");
             _builder.AppendLine("stream");
             _builder.Append(body.ToString());
             _builder.AppendLine(); // stream is required to end in \r\n
@@ -106,15 +108,18 @@ namespace BCad.FilePlotters
             _builder.AppendLine("%PDF-1.6");
 
             AddOffset();
-            _builder.AppendLine("1 0 obj <</Type /Catalog /Pages 2 0 R>>");
+            _builder.AppendLine("1 0 obj");
+            _builder.AppendLine("<</Type /Catalog /Pages 2 0 R>>");
             _builder.AppendLine("endobj");
 
             AddOffset();
-            _builder.AppendLine("2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>>");
+            _builder.AppendLine("2 0 obj");
+            _builder.AppendLine("<</Type /Pages /Kids [3 0 R] /Count 1>>");
             _builder.AppendLine("endobj");
 
             AddOffset();
-            _builder.AppendLine($"3 0 obj <</Type /Page /Parent 2 0 R /Contents 4 0 R /MediaBox [0 0 {width:f} {height:f}]>>");
+            _builder.AppendLine("3 0 obj");
+            _builder.AppendLine($"<</Type /Page /Parent 2 0 R /Contents 4 0 R /MediaBox [0 0 {width:f} {height:f}] /Resources<<>>>>");
             _builder.AppendLine("endobj");
         }
     }
