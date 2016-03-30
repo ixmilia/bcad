@@ -77,10 +77,6 @@
     <Compile Include="DrawingTests.cs" />
     <Compile Include="DwgTests\BitReaderTests.cs" />
     <Compile Include="DwgTests\LoadTests.cs" />
-    <Compile Include="IgesTests\IgesEntityReaderTests.cs" />
-    <Compile Include="IgesTests\IgesReaderTests.cs" />
-    <Compile Include="IgesTests\IgesTransformMatrixTests.cs" />
-    <Compile Include="IgesTests\IgesWriterTests.cs" />
     <Compile Include="MatrixTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />
@@ -106,10 +102,6 @@
     <ProjectReference Include="..\IxMilia.Dwg\IxMilia.Dwg.csproj">
       <Project>{1421fdd2-b6c0-4464-b269-fb82c2a9ba1b}</Project>
       <Name>IxMilia.Dwg</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Iges\IxMilia.Iges.csproj">
-      <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
-      <Name>IxMilia.Iges</Name>
     </ProjectReference>
     <ProjectReference Include="..\BCad\BCad.csproj">
       <Project>{a978c366-6cc2-4f82-908a-8c830f7e6113}</Project>

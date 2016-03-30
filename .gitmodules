@@ -1,0 +1,6 @@
+[submodule "IxMilia.Step"]
+	path = IxMilia.Step
+	url = https://github.com/IxMilia/Step
+[submodule "IxMilia.Iges"]
+	path = IxMilia.Iges
+	url = https://github.com/IxMilia/Iges

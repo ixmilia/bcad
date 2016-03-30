@@ -45,9 +45,13 @@
       <Project>{1421fdd2-b6c0-4464-b269-fb82c2a9ba1b}</Project>
       <Name>IxMilia.Dwg</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Iges\IxMilia.Iges.csproj">
+    <ProjectReference Include="..\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj">
       <Project>{edb8fb15-5411-47f8-804a-ec0f696cd4e4}</Project>
       <Name>IxMilia.Iges</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj">
+      <Project>{7beb4fb6-8a3e-4690-b06c-357130ab4226}</Project>
+      <Name>IxMilia.Step</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +60,7 @@
     <Compile Include="DxfFileHandler.cs" />
     <Compile Include="IgesFileHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StepFileHandler.cs" />
     <Compile Include="StlFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>

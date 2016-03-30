@@ -94,7 +94,7 @@ namespace BCad.FileHandlers
         {
             return new IgesLine()
             {
-                Bounding = IgesBounding.BoundOnBothSides,
+                Bounding = IgesLineBounding.BoundOnBothSides,
                 Color = ToColor(line.Color),
                 P1 = ToIgesPoint(line.P1),
                 P2 = ToIgesPoint(line.P2)
@@ -105,7 +105,9 @@ namespace BCad.FileHandlers
         {
             return new IgesLocation()
             {
-                Location = ToIgesPoint(location.Point),
+                X = location.Point.X,
+                Y = location.Point.Y,
+                Z = location.Point.Z,
                 Color = ToColor(location.Color)
             };
         }
@@ -184,9 +186,6 @@ namespace BCad.FileHandlers
                 case IgesEntityType.Point:
                     result = ToLocation((IgesLocation)entity);
                     break;
-                case IgesEntityType.SingularSubfigureInstance:
-                    result = ToAggregate((IgesSingularSubfigureInstance)entity);
-                    break;
             }
 
             return result;
@@ -200,7 +199,7 @@ namespace BCad.FileHandlers
 
         private static Location ToLocation(IgesLocation point)
         {
-            return new Location(TransformPoint(point, point.Location), ToColor(point.Color), point);
+            return new Location(new Point(point.X, point.Y, point.Z), ToColor(point.Color), point);
         }
 
         private static Entity ToArc(IgesCircularArc arc)
@@ -260,33 +259,6 @@ namespace BCad.FileHandlers
                 && !double.IsNaN(matrix.M42)
                 && !double.IsNaN(matrix.M43)
                 && !double.IsNaN(matrix.M44);
-        }
-
-        private static Entity ToAggregate(IgesSingularSubfigureInstance subfigure)
-        {
-            var sub = subfigure.Subfigure;
-            if (sub != null)
-            {
-                var ag = sub as IgesSubfigureDefinition;
-                if (ag != null)
-                {
-                    var entities = ReadOnlyList<Entity>.Empty();
-                    foreach (var e in ag.Entities)
-                    {
-                        var a = ToEntity(e);
-                        if (a != null)
-                            entities = entities.Add(a);
-                    }
-
-                    if (entities.Count != 0)
-                    {
-                        var offset = new Point(subfigure.Offset.X, subfigure.Offset.Y, subfigure.Offset.Z);
-                        return new AggregateEntity(offset, entities, ToColor(subfigure.Color), subfigure);
-                    }
-                }
-            }
-
-            return null;
         }
 
         private static CadColor? ToColor(IgesColorNumber color)
