@@ -4,6 +4,7 @@ BCad.FileHandlers.dll
 IxMilia.Dwg.dll
 IxMilia.Dxf.dll
 IxMilia.Iges.dll
+IxMilia.Step.dll
 IxMilia.Stl.dll
 SharpDX.D3DCompiler.dll
 SharpDX.Direct2D1.dll
