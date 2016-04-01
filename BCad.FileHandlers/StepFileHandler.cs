@@ -2,7 +2,7 @@
 using System.IO;
 using BCad.Entities;
 using IxMilia.Step;
-using IxMilia.Step.Entities;
+using IxMilia.Step.Items;
 
 namespace BCad.FileHandlers
 {
@@ -17,12 +17,21 @@ namespace BCad.FileHandlers
         {
             var layer = new Layer("step", null);
             var file = StepFile.Load(fileStream);
-            foreach (var entity in file.Entities)
+            foreach (var item in file.Items)
             {
-                switch (entity.EntityType)
+                switch (item.ItemType)
                 {
-                    case StepEntityType.Line:
-                        var stepLine = (StepLine)entity;
+                    case StepItemType.Circle:
+                        var stepCircle = (StepCircle)item;
+                        var center = ToPoint(stepCircle.Position.Location);
+                        var normal = stepCircle.Position is StepAxis2Placement3D
+                            ? ToVector(((StepAxis2Placement3D)stepCircle.Position).Axis)
+                            : Vector.ZAxis;
+                        var circle = new Circle(center, stepCircle.Radius, normal, null);
+                        layer = layer.Add(circle);
+                        break;
+                    case StepItemType.Line:
+                        var stepLine = (StepLine)item;
                         var dx = stepLine.Vector.Direction.X * stepLine.Vector.Length;
                         var dy = stepLine.Vector.Direction.Y * stepLine.Vector.Length;
                         var dz = stepLine.Vector.Direction.Z * stepLine.Vector.Length;
@@ -48,6 +57,11 @@ namespace BCad.FileHandlers
         private static Point ToPoint(StepCartesianPoint point)
         {
             return new Point(point.X, point.Y, point.Z);
+        }
+
+        private static Vector ToVector(StepDirection direction)
+        {
+            return new Vector(direction.X, direction.Y, direction.Z);
         }
     }
 }
