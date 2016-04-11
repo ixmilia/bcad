@@ -16,6 +16,7 @@ using BCad.Commands;
 using BCad.EventArguments;
 using BCad.Primitives;
 using BCad.Ribbons;
+using BCad.UI.Shared;
 using BCad.ViewModels;
 
 namespace BCad
@@ -31,7 +32,7 @@ namespace BCad
         {
             InitializeComponent();
 
-            App.Container.SatisfyImports(this);
+            CompositionContainer.Container.SatisfyImports(this);
         }
 
         [Import]
@@ -175,7 +176,7 @@ namespace BCad
             }
 
             // prepare user console
-            App.Container.SatisfyImports(inputPanel);
+            CompositionContainer.Container.SatisfyImports(inputPanel);
             TakeFocus();
             Workspace.InputService.Reset();
 

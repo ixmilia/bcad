@@ -9,6 +9,11 @@ namespace BCad.Collections
         public double Width;
         public double Height;
 
+        public Point TopLeft => new Point(Left, Top, 0.0);
+        public Point TopRight => new Point(Left + Width, Top, 0.0);
+        public Point BottomLeft => new Point(Left, Top + Height, 0.0);
+        public Point BottomRight => new Point(Left + Width, Top + Height, 0.0);
+
         public Rect(double left, double top, double width, double height)
             : this()
         {
@@ -42,6 +47,12 @@ namespace BCad.Collections
         {
             return other.Left >= this.Left && (other.Left + other.Width) <= (this.Left + this.Width)
                 && other.Top >= this.Top && (other.Top + other.Height) <= (this.Top + this.Height);
+        }
+
+        public bool Contains(Point point)
+        {
+            return point.X >= Left && point.X <= (Left + Width)
+                && point.Y >= Top && point.Y <= (Top + Height);
         }
 
         public bool Intersects(Rect other)

@@ -8,10 +8,5 @@ namespace BCad.Extensions
         {
             return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
         }
-
-        public static Color ToMediaColor(this CadColor color)
-        {
-            return Color.FromArgb(color.A, color.R, color.G, color.B);
-        }
     }
 }

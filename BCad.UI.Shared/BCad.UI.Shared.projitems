@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>6ddb82f8-3e37-4d82-9bf1-40ecfee60739</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>BCad.UI.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AbstractCadRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CompositionContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ColorExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\PointExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewPane.BindingClass.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewPane.CancellableComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewPane.TransformedSnapPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewPane.xaml.cs">
+      <DependentUpon>ViewPane.xaml</DependentUpon>
+    </Compile>
+    <Page Include="$(MSBuildThisFileDirectory)ViewPane.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+</Project>

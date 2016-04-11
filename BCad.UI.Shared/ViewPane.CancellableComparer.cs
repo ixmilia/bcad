@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace BCad.UI
+namespace BCad.UI.Shared
 {
     public partial class ViewPane
     {

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Windows.Controls;
 using BCad.EventArguments;
+using BCad.UI.Shared;
 
 namespace BCad.UI.View
 {
     /// <summary>
     /// Interaction logic for SharpDXRenderer.xaml
     /// </summary>
-    public partial class SharpDXRenderer : UserControl, IRenderer
+    public partial class SharpDXRenderer : AbstractCadRenderer
     {
         private IWorkspace workspace;
         private IViewControl viewControl;
@@ -50,7 +50,7 @@ namespace BCad.UI.View
             viewModel.RubberBandGenerator = workspace.RubberBandGenerator;
         }
 
-        public void UpdateRubberBandLines()
+        public override void UpdateRubberBandLines()
         {
             game.UpdateRubberBandLines();
             viewModel.CursorPoint = viewControl.GetCursorPoint().Result;

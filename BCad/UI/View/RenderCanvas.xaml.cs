@@ -545,7 +545,8 @@ namespace BCad.UI.View
             }
             else
             {
-                element.SetValue(property, new SolidColorBrush(color.Value.ToMediaColor()));
+                var uicolor = Color.FromArgb(color.Value.A, color.Value.R, color.Value.G, color.Value.B);
+                element.SetValue(property, new SolidColorBrush(uicolor));
             }
         }
     }

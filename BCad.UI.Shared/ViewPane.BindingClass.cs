@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+#if WINDOWS_UWP
+using Windows.UI.Xaml.Media;
+#elif WPF
 using System.Windows.Media;
+#endif
 
-namespace BCad.UI
+namespace BCad.UI.Shared
 {
     public partial class ViewPane
     {
@@ -14,18 +18,18 @@ namespace BCad.UI
             private Pen snapPointPen;
             private Brush hotPointBrush;
             private Transform snapPointTransform;
-            private System.Windows.Point cursorScreen;
+            private Point cursorScreen;
             private Point cursorWorld;
-            private System.Windows.Point leftCursorExtent;
-            private System.Windows.Point rightCursorExtent;
-            private System.Windows.Point topCursorExtent;
-            private System.Windows.Point bottomCursorExtent;
-            private System.Windows.Point entitySelectionTopLeft;
-            private System.Windows.Point entitySelectionTopRight;
-            private System.Windows.Point entitySelectionBottomLeft;
-            private System.Windows.Point entitySelectionBottomRight;
-            private System.Windows.Point textCursorStart;
-            private System.Windows.Point textCursorEnd;
+            private Point leftCursorExtent;
+            private Point rightCursorExtent;
+            private Point topCursorExtent;
+            private Point bottomCursorExtent;
+            private Point entitySelectionTopLeft;
+            private Point entitySelectionTopRight;
+            private Point entitySelectionBottomLeft;
+            private Point entitySelectionBottomRight;
+            private Point textCursorStart;
+            private Point textCursorEnd;
             private IWorkspace workspace;
 
             public BindingClass(IWorkspace workspace)
@@ -105,7 +109,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point CursorScreen
+            public Point CursorScreen
             {
                 get { return cursorScreen; }
                 set
@@ -132,7 +136,7 @@ namespace BCad.UI
 
             public string CursorWorldString { get { return workspace.Format(CursorWorld); } }
 
-            public System.Windows.Point LeftCursorExtent
+            public Point LeftCursorExtent
             {
                 get { return leftCursorExtent; }
                 set
@@ -144,7 +148,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point RightCursorExtent
+            public Point RightCursorExtent
             {
                 get { return rightCursorExtent; }
                 set
@@ -156,7 +160,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point TopCursorExtent
+            public Point TopCursorExtent
             {
                 get { return topCursorExtent; }
                 set
@@ -168,7 +172,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point BottomCursorExtent
+            public Point BottomCursorExtent
             {
                 get { return bottomCursorExtent; }
                 set
@@ -180,7 +184,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point EntitySelectionTopLeft
+            public Point EntitySelectionTopLeft
             {
                 get { return entitySelectionTopLeft; }
                 set
@@ -192,7 +196,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point EntitySelectionTopRight
+            public Point EntitySelectionTopRight
             {
                 get { return entitySelectionTopRight; }
                 set
@@ -204,7 +208,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point EntitySelectionBottomLeft
+            public Point EntitySelectionBottomLeft
             {
                 get { return entitySelectionBottomLeft; }
                 set
@@ -216,7 +220,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point EntitySelectionBottomRight
+            public Point EntitySelectionBottomRight
             {
                 get { return entitySelectionBottomRight; }
                 set
@@ -228,7 +232,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point TextCursorStart
+            public Point TextCursorStart
             {
                 get { return textCursorStart; }
                 set
@@ -240,7 +244,7 @@ namespace BCad.UI
                 }
             }
 
-            public System.Windows.Point TextCursorEnd
+            public Point TextCursorEnd
             {
                 get { return textCursorEnd; }
                 set

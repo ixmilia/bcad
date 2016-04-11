@@ -1,11 +1,11 @@
-﻿using System.Windows.Controls;
+﻿using BCad.UI.Shared;
 
 namespace BCad.UI.View
 {
     /// <summary>
     /// Interaction logic for XamlRenderer.xaml
     /// </summary>
-    public partial class XamlRenderer : UserControl, IRenderer
+    public partial class XamlRenderer : AbstractCadRenderer
     {
         private IViewControl ViewControl;
 

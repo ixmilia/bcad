@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Windows.Controls;
 using BCad.EventArguments;
+using BCad.UI.Shared;
 
 namespace BCad.UI.View
 {
-    public partial class XamlRenderer : UserControl
+    public partial class XamlRenderer : AbstractCadRenderer
     {
         private IWorkspace Workspace;
         private RenderCanvasViewModel viewModel = new RenderCanvasViewModel();
@@ -35,7 +35,7 @@ namespace BCad.UI.View
             viewModel.RubberBandGenerator = Workspace.RubberBandGenerator;
         }
 
-        public void UpdateRubberBandLines()
+        public override void UpdateRubberBandLines()
         {
             viewModel.CursorPoint = ViewControl.GetCursorPoint().Result;
         }

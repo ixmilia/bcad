@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="BCad.UI.ViewPane"
+﻿<UserControl x:Class="BCad.UI.Shared.ViewPane"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ui="clr-namespace:BCad.UI"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300"
+             d:DesignWidth="400">
     <Grid ClipToBounds="True">
         <ContentControl Name="renderControl" />
         <Canvas Name="snapLayer" Background="Transparent" />
@@ -20,11 +20,11 @@
         </StackPanel>
         <Canvas Name="hotPointLayer" Background="Transparent" />
         <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
-            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Hidden" Fill="{Binding Path=SelectionBrush}" />
-            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
-            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
-            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
-            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Hidden" Stroke="{Binding Path=AutoBrush}" />
+            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Collapsed" Fill="{Binding Path=SelectionBrush}" />
+            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
             <Image Name="pointCursorImage" SnapsToDevicePixels="True">
                 <Image.Source>
                     <DrawingImage>
@@ -76,12 +76,7 @@
             </Image>
         </Canvas>
         <Canvas Name="clicker"
-                Background="White"
                 Cursor="None"
-                Opacity="0.001"
-                MouseDown="OnMouseDown"
-                MouseUp="OnMouseUp"
-                MouseMove="OnMouseMove"
-                MouseWheel="OnMouseWheel" />
+                Background="Transparent" />
     </Grid>
 </UserControl>

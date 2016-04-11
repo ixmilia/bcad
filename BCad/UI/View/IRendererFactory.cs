@@ -1,7 +1,9 @@
-﻿namespace BCad.UI
+﻿using BCad.UI.Shared;
+
+namespace BCad.UI
 {
     public interface IRendererFactory
     {
-        IRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace);
+        AbstractCadRenderer CreateRenderer(IViewControl viewControl, IWorkspace workspace);
     }
 }
