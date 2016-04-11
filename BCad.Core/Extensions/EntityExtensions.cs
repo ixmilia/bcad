@@ -105,6 +105,11 @@ namespace BCad.Extensions
             return matrix;
         }
 
+        public static bool ContainsPoint(this Polyline polyline, Point point)
+        {
+            return polyline.Points.PolygonContains(point);
+        }
+
         public static Point MidPoint(this Line line)
         {
             return (line.P1 + line.P2) / 2;

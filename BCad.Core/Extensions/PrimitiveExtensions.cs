@@ -1014,5 +1014,24 @@ namespace BCad.Extensions
             var newVp = tempViewport.Update(bottomLeft: newBottomLeft, viewHeight: viewHeight);
             return newVp;
         }
+
+        public static Point MidPoint(this PrimitiveLine line)
+        {
+            return (line.P1 + line.P2) / 2;
+        }
+
+        public static IEnumerable<PrimitiveLine> GetLinesFromPoints(this IEnumerable<Point> points)
+        {
+            var lines = new List<PrimitiveLine>();
+            var last = points.First();
+            foreach (var point in points.Skip(1))
+            {
+                var line = new PrimitiveLine(last, point);
+                lines.Add(line);
+                last = point;
+            }
+
+            return lines;
+        }
     }
 }
