@@ -60,6 +60,7 @@
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
     <Compile Include="Commands\ExtendCommand.cs" />
+    <Compile Include="Commands\IntersectionCommand.cs" />
     <Compile Include="Commands\Key.cs" />
     <Compile Include="Commands\ModifierKeys.cs" />
     <Compile Include="Commands\MoveCommand.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Commands\RotateCommand.cs" />
     <Compile Include="Commands\TrimCommand.cs" />
     <Compile Include="Commands\UndoCommand.cs" />
+    <Compile Include="Commands\CombinePolylinesCommandBase.cs" />
     <Compile Include="Commands\UnionCommand.cs" />
     <Compile Include="Commands\ZoomExtentsCommand.cs" />
     <Compile Include="Commands\ZoomWindowCommand.cs" />

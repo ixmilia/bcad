@@ -9,10 +9,20 @@ namespace BCad.Extensions
     {
         public static IEnumerable<IPrimitive> Union(this Polyline polyline, Polyline other)
         {
+            return CombinePolys(polyline, other, doUnion: true);
+        }
+
+        public static IEnumerable<IPrimitive> Intersection(this Polyline polyline, Polyline other)
+        {
+            return CombinePolys(polyline, other, doUnion: false);
+        }
+
+        private static IEnumerable<IPrimitive> CombinePolys(Polyline poly1, Polyline poly2, bool doUnion)
+        {
             // TODO: for now this only supports straight line segments
             var intersections = new Dictionary<IPrimitive, HashSet<Point>>();
-            var lines1 = polyline.Points.GetLinesFromPoints().ToList();
-            var lines2 = other.Points.GetLinesFromPoints().ToList();
+            var lines1 = poly1.Points.GetLinesFromPoints().ToList();
+            var lines2 = poly2.Points.GetLinesFromPoints().ToList();
 
             // find all intersection points and group by the lines that contain them
             for (int i = 0; i < lines1.Count; i++)
@@ -47,12 +57,12 @@ namespace BCad.Extensions
                     var lineParts = GetLineParts(line, intersections[line]);
                     foreach (var part in lineParts)
                     {
-                        allLines.Add(part, polyline);
+                        allLines.Add(part, poly1);
                     }
                 }
                 else
                 {
-                    allLines.Add(line, polyline);
+                    allLines.Add(line, poly1);
                 }
             }
 
@@ -63,12 +73,12 @@ namespace BCad.Extensions
                     var lineParts = GetLineParts(line, intersections[line]);
                     foreach (var part in lineParts)
                     {
-                        allLines.Add(part, other);
+                        allLines.Add(part, poly2);
                     }
                 }
                 else
                 {
-                    allLines.Add(line, other);
+                    allLines.Add(line, poly2);
                 }
             }
 
@@ -78,8 +88,9 @@ namespace BCad.Extensions
             {
                 var segment = kvp.Key;
                 var poly = kvp.Value;
-                var container = ReferenceEquals(poly, polyline) ? other : polyline;
-                if (!container.ContainsPoint(segment.MidPoint()))
+                var container = ReferenceEquals(poly, poly1) ? poly2 : poly1;
+                var contains = container.ContainsPoint(segment.MidPoint());
+                if (contains != doUnion)
                 {
                     keptLines.Add(segment);
                 }
