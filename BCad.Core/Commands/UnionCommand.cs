@@ -10,7 +10,7 @@ namespace BCad.Commands
     {
         protected override IEnumerable<IPrimitive> Combine(IEnumerable<Polyline> polylines)
         {
-            return PolylineExtensions.UnionPolylines(polylines);
+            return polylines.Union();
         }
     }
 }

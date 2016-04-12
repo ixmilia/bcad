@@ -8,12 +8,12 @@ namespace BCad.Extensions
 {
     public static class PolylineExtensions
     {
-        public static IEnumerable<IPrimitive> UnionPolylines(IEnumerable<Polyline> polylines)
+        public static IEnumerable<IPrimitive> Union(this IEnumerable<Polyline> polylines)
         {
             return CombinePolylines(polylines, doUnion: true);
         }
 
-        public static IEnumerable<IPrimitive> IntersectPolylines(IEnumerable<Polyline> polylines)
+        public static IEnumerable<IPrimitive> Intersect(this IEnumerable<Polyline> polylines)
         {
             return CombinePolylines(polylines, doUnion: false);
         }
