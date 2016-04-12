@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.Primitives;
@@ -7,78 +8,89 @@ namespace BCad.Extensions
 {
     public static class PolylineExtensions
     {
-        public static IEnumerable<IPrimitive> Union(this Polyline polyline, Polyline other)
+        public static IEnumerable<IPrimitive> UnionPolylines(IEnumerable<Polyline> polylines)
         {
-            return CombinePolys(polyline, other, doUnion: true);
+            return CombinePolylines(polylines, doUnion: true);
         }
 
-        public static IEnumerable<IPrimitive> Intersection(this Polyline polyline, Polyline other)
+        public static IEnumerable<IPrimitive> IntersectPolylines(IEnumerable<Polyline> polylines)
         {
-            return CombinePolys(polyline, other, doUnion: false);
+            return CombinePolylines(polylines, doUnion: false);
         }
 
-        private static IEnumerable<IPrimitive> CombinePolys(Polyline poly1, Polyline poly2, bool doUnion)
+        private static IEnumerable<IPrimitive> CombinePolylines(IEnumerable<Polyline> polylineCollection, bool doUnion)
         {
-            // TODO: for now this only supports straight line segments
-            var intersections = new Dictionary<IPrimitive, HashSet<Point>>();
-            var lines1 = poly1.Points.GetLinesFromPoints().ToList();
-            var lines2 = poly2.Points.GetLinesFromPoints().ToList();
-
-            // find all intersection points and group by the lines that contain them
-            for (int i = 0; i < lines1.Count; i++)
+            if (polylineCollection == null)
             {
-                for (int j = 0; j < lines2.Count; j++)
+                throw new ArgumentNullException(nameof(polylineCollection));
+            }
+
+            // TODO: for now this only supports straight line segments
+            var polylines = polylineCollection.ToList();
+            if (polylines.Count <= 1)
+            {
+                throw new InvalidOperationException("Must be performed on 2 or more polylines");
+            }
+
+            var lines = polylines.Select(p => Tuple.Create(p, p.Points.GetLinesFromPoints().ToList())).ToList();
+            var intersections = new Dictionary<IPrimitive, HashSet<Point>>();
+
+            // intersect all polygons
+            for (int i = 0; i < polylines.Count; i++)
+            {
+                for (int j = i + 1; j < polylines.Count; j++)
                 {
-                    var intersectionPoint = lines1[i].IntersectionPoint(lines2[j]);
-                    if (intersectionPoint.HasValue)
+                    // intersect all lines
+                    var lines1 = lines[i].Item2;
+                    var lines2 = lines[j].Item2;
+                    for (int ii = 0; ii < lines1.Count; ii++)
                     {
-                        if (!intersections.ContainsKey(lines1[i]))
+                        for (int jj = 0; jj < lines2.Count; jj++)
                         {
-                            intersections.Add(lines1[i], new HashSet<Point>());
-                        }
+                            var points = lines1[ii].IntersectionPoints(lines2[jj]);
+                            if (points.Count() > 0)
+                            {
+                                if (!intersections.ContainsKey(lines1[ii]))
+                                {
+                                    intersections.Add(lines1[ii], new HashSet<Point>());
+                                }
 
-                        if (!intersections.ContainsKey(lines2[j]))
-                        {
-                            intersections.Add(lines2[j], new HashSet<Point>());
-                        }
+                                if (!intersections.ContainsKey(lines2[jj]))
+                                {
+                                    intersections.Add(lines2[jj], new HashSet<Point>());
+                                }
 
-                        intersections[lines1[i]].Add(intersectionPoint.GetValueOrDefault());
-                        intersections[lines2[j]].Add(intersectionPoint.GetValueOrDefault());
+                                foreach (var point in points)
+                                {
+                                    intersections[lines1[ii]].Add(point);
+                                    intersections[lines2[jj]].Add(point);
+                                }
+                            }
+                        }
                     }
                 }
             }
 
             // split all lines at the intersection points and track back to their original polyline
             var allLines = new Dictionary<PrimitiveLine, Polyline>();
-            foreach (var line in lines1)
+            foreach (var lineGroup in lines)
             {
-                if (intersections.ContainsKey(line))
+                var polyline = lineGroup.Item1;
+                var primitives = lineGroup.Item2;
+                foreach (var line in primitives)
                 {
-                    var lineParts = GetLineParts(line, intersections[line]);
-                    foreach (var part in lineParts)
+                    if (intersections.ContainsKey(line))
                     {
-                        allLines.Add(part, poly1);
+                        var lineParts = GetLineParts(line, intersections[line]);
+                        foreach (var part in lineParts)
+                        {
+                            allLines.Add(part, polyline);
+                        }
                     }
-                }
-                else
-                {
-                    allLines.Add(line, poly1);
-                }
-            }
-
-            foreach (var line in lines2)
-            {
-                if (intersections.ContainsKey(line))
-                {
-                    var lineParts = GetLineParts(line, intersections[line]);
-                    foreach (var part in lineParts)
+                    else
                     {
-                        allLines.Add(part, poly2);
+                        allLines.Add(line, polyline);
                     }
-                }
-                else
-                {
-                    allLines.Add(line, poly2);
                 }
             }
 
@@ -88,8 +100,20 @@ namespace BCad.Extensions
             {
                 var segment = kvp.Key;
                 var poly = kvp.Value;
-                var container = ReferenceEquals(poly, poly1) ? poly2 : poly1;
-                var contains = container.ContainsPoint(segment.MidPoint());
+                var contains = !doUnion;
+                foreach (var container in polylines.Where(p => !ReferenceEquals(poly, p)))
+                {
+                    var containsPoint = container.ContainsPoint(segment.MidPoint());
+                    if (doUnion)
+                    {
+                        contains |= containsPoint;
+                    }
+                    else
+                    {
+                        contains &= containsPoint;
+                    }
+                }
+
                 if (contains != doUnion)
                 {
                     keptLines.Add(segment);

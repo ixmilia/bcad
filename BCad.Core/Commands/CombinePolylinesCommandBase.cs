@@ -9,43 +9,37 @@ namespace BCad.Commands
 {
     public abstract class CombinePolylinesCommandBase : ICadCommand
     {
-        protected abstract IEnumerable<IPrimitive> Combine(Polyline a, Polyline b);
+        protected abstract IEnumerable<IPrimitive> Combine(IEnumerable<Polyline> polylines);
 
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
             var inputService = workspace.InputService;
-            var allEntities = new List<Polyline>();
-            while (true)
+            var entities = await inputService.GetEntities("Select polylines");
+            if (entities.Cancel || !entities.HasValue)
             {
-                var entities = await inputService.GetEntities("Select polylines");
-                if (entities.Cancel || !entities.HasValue || entities.Value.Count() == 0)
-                {
-                    break;
-                }
-
-                allEntities.AddRange(entities.Value.OfType<Polyline>());
-            }
-
-            if (allEntities.Count == 2)
-            {
-                // TODO: handle multiples
-                var first = allEntities[0];
-                var second = allEntities[1];
-                var combined = Combine(first, second);
-                var drawing = workspace.Drawing.Remove(first).Remove(second);
-                foreach (var part in combined.Cast<PrimitiveLine>())
-                {
-                    drawing = drawing.AddToCurrentLayer(part.ToEntity());
-                }
-
-                workspace.Update(drawing: drawing);
-                return true;
-            }
-            else
-            {
-                workspace.OutputService.WriteLine("Only 2 polylines currently supported.");
                 return false;
             }
+
+            var polys = entities.Value.OfType<Polyline>();
+            if (polys.Count() <= 1)
+            {
+                return false;
+            }
+
+            var drawing = workspace.Drawing;
+            foreach (var poly in polys)
+            {
+                drawing = drawing.Remove(poly);
+            }
+
+            var result = Combine(polys);
+            foreach (var line in result)
+            {
+                drawing = drawing.AddToCurrentLayer(line.ToEntity());
+            }
+
+            workspace.Update(drawing: drawing);
+            return true;
         }
     }
 }

@@ -8,9 +8,9 @@ namespace BCad.Commands
     [ExportCadCommand("Edit.Union", "UNION", "union", "un")]
     public class UnionCommand : CombinePolylinesCommandBase
     {
-        protected override IEnumerable<IPrimitive> Combine(Polyline a, Polyline b)
+        protected override IEnumerable<IPrimitive> Combine(IEnumerable<Polyline> polylines)
         {
-            return a.Union(b);
+            return PolylineExtensions.UnionPolylines(polylines);
         }
     }
 }
