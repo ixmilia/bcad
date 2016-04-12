@@ -67,6 +67,7 @@
     <Compile Include="Commands\OffsetCommand.cs" />
     <Compile Include="Commands\RedoCommand.cs" />
     <Compile Include="Commands\RotateCommand.cs" />
+    <Compile Include="Commands\SubtractCommand.cs" />
     <Compile Include="Commands\TrimCommand.cs" />
     <Compile Include="Commands\UndoCommand.cs" />
     <Compile Include="Commands\CombinePolylinesCommandBase.cs" />

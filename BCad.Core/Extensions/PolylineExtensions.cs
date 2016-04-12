@@ -18,7 +18,71 @@ namespace BCad.Extensions
             return CombinePolylines(polylines, doUnion: false);
         }
 
+        public static IEnumerable<IPrimitive> Subtract(this Polyline polyline, IEnumerable<Polyline> others)
+        {
+            var all = new[] { polyline }.Concat(others);
+            var allLines = PerformAllIntersections(all);
+
+            var keptLines = new List<IPrimitive>();
+            foreach (var kvp in allLines)
+            {
+                var segment = kvp.Key;
+                var container = kvp.Value;
+                var keep = true;
+                if (ReferenceEquals(container, polyline))
+                {
+                    // if we're testing a line from the parent polyline, keep if not in any of the others
+                    keep = others.All(o => !o.ContainsPoint(segment.MidPoint()));
+                }
+                else
+                {
+                    // if we're testing a line from a subsequent polyline, keep if in the original
+                    keep = polyline.ContainsPoint(segment.MidPoint());
+                }
+
+                if (keep)
+                {
+                    keptLines.Add(segment);
+                }
+            }
+
+            return keptLines;
+        }
+
         private static IEnumerable<IPrimitive> CombinePolylines(IEnumerable<Polyline> polylineCollection, bool doUnion)
+        {
+            var allLines = PerformAllIntersections(polylineCollection);
+
+            // only keep line segments that aren't contained in the other polyline
+            var keptLines = new List<IPrimitive>();
+            foreach (var kvp in allLines)
+            {
+                var segment = kvp.Key;
+                var poly = kvp.Value;
+                var contains = !doUnion;
+                foreach (var container in polylineCollection.Where(p => !ReferenceEquals(poly, p)))
+                {
+                    var containsPoint = container.ContainsPoint(segment.MidPoint());
+                    if (doUnion)
+                    {
+                        contains |= containsPoint;
+                    }
+                    else
+                    {
+                        contains &= containsPoint;
+                    }
+                }
+
+                if (contains != doUnion)
+                {
+                    keptLines.Add(segment);
+                }
+            }
+
+            return keptLines;
+        }
+
+        private static Dictionary<IPrimitive, Polyline> PerformAllIntersections(IEnumerable<Polyline> polylineCollection)
         {
             if (polylineCollection == null)
             {
@@ -72,7 +136,7 @@ namespace BCad.Extensions
             }
 
             // split all lines at the intersection points and track back to their original polyline
-            var allLines = new Dictionary<PrimitiveLine, Polyline>();
+            var allLines = new Dictionary<IPrimitive, Polyline>();
             foreach (var lineGroup in lines)
             {
                 var polyline = lineGroup.Item1;
@@ -94,33 +158,7 @@ namespace BCad.Extensions
                 }
             }
 
-            // only keep line segments that aren't contained in the other polyline
-            var keptLines = new List<PrimitiveLine>();
-            foreach (var kvp in allLines)
-            {
-                var segment = kvp.Key;
-                var poly = kvp.Value;
-                var contains = !doUnion;
-                foreach (var container in polylines.Where(p => !ReferenceEquals(poly, p)))
-                {
-                    var containsPoint = container.ContainsPoint(segment.MidPoint());
-                    if (doUnion)
-                    {
-                        contains |= containsPoint;
-                    }
-                    else
-                    {
-                        contains &= containsPoint;
-                    }
-                }
-
-                if (contains != doUnion)
-                {
-                    keptLines.Add(segment);
-                }
-            }
-
-            return keptLines;
+            return allLines;
         }
 
         private static IEnumerable<PrimitiveLine> GetLineParts(PrimitiveLine line, IEnumerable<Point> breakingPoints)

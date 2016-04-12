@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BCad.Entities;
 using BCad.Helpers;
 
@@ -112,7 +113,7 @@ namespace BCad.Extensions
 
         public static Point MidPoint(this Line line)
         {
-            return (line.P1 + line.P2) / 2;
+            return line.GetPrimitives().Single().MidPoint();
         }
     }
 }

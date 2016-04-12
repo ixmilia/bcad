@@ -927,7 +927,7 @@ namespace BCad.UI
                         else
                         {
                             AddHotPointIcon(el.GetStartPoint());
-                            AddHotPointIcon(el.GetMidPoint());
+                            AddHotPointIcon(el.MidPoint());
                             AddHotPointIcon(el.GetEndPoint());
                         }
                         break;

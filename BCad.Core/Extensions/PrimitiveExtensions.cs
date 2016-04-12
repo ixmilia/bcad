@@ -860,11 +860,6 @@ namespace BCad.Extensions
             return ellipse.GetPoint(ellipse.EndAngle);
         }
 
-        public static Point GetMidPoint(this PrimitiveEllipse ellipse)
-        {
-            return ellipse.GetPoint((ellipse.StartAngle + ellipse.EndAngle) * 0.5);
-        }
-
         public static Point[] GetInterestingPoints(this IPrimitive primitive)
         {
             Point[] points;
@@ -1015,9 +1010,22 @@ namespace BCad.Extensions
             return newVp;
         }
 
-        public static Point MidPoint(this PrimitiveLine line)
+        public static Point MidPoint(this IPrimitive primitive)
         {
-            return (line.P1 + line.P2) / 2;
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Line:
+                    var line = (PrimitiveLine)primitive;
+                    return (line.P1 + line.P2) / 2;
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    return el.GetPoint((el.StartAngle + el.EndAngle) * 0.5);
+                case PrimitiveKind.Point:
+                    return ((PrimitivePoint)primitive).Location;
+                case PrimitiveKind.Text:
+                default:
+                    throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
+            }
         }
 
         public static IEnumerable<PrimitiveLine> GetLinesFromPoints(this IEnumerable<Point> points)
