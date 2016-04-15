@@ -6,8 +6,8 @@
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
-    <Grid ClipToBounds="True">
-        <ContentControl Name="renderControl" />
+    <Grid>
+        <ContentControl Name="renderControl" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
         <Canvas Name="snapLayer" Background="Transparent" />
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="Cursor" Foreground="{Binding Path=AutoBrush}" />
@@ -19,64 +19,55 @@
             <TextBlock Text="{Binding Path=CursorWorldString}" Foreground="{Binding Path=AutoBrush}" />
         </StackPanel>
         <Canvas Name="hotPointLayer" Background="Transparent" />
-        <Canvas Name="cursorLayer" Background="Transparent" SnapsToDevicePixels="True">
-            <Rectangle Name="selectionRect" SnapsToDevicePixels="True" Visibility="Collapsed" Fill="{Binding Path=SelectionBrush}" />
-            <Line Name="selectionLine1" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
-            <Line Name="selectionLine2" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
-            <Line Name="selectionLine3" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
-            <Line Name="selectionLine4" SnapsToDevicePixels="True" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
-            <Image Name="pointCursorImage" SnapsToDevicePixels="True">
-                <Image.Source>
-                    <DrawingImage>
-                        <DrawingImage.Drawing>
-                            <GeometryDrawing Pen="{Binding Path=CursorPen}">
-                                <GeometryDrawing.Geometry>
-                                    <GeometryGroup>
-                                        <LineGeometry StartPoint="{Binding Path=LeftCursorExtent}" EndPoint="{Binding Path=RightCursorExtent}" />
-                                        <LineGeometry StartPoint="{Binding Path=TopCursorExtent}" EndPoint="{Binding Path=BottomCursorExtent}" />
-                                    </GeometryGroup>
-                                </GeometryDrawing.Geometry>
-                            </GeometryDrawing>
-                        </DrawingImage.Drawing>
-                    </DrawingImage>
-                </Image.Source>
-            </Image>
-            <Image Name="entityCursorImage" SnapsToDevicePixels="True">
-                <Image.Source>
-                    <DrawingImage>
-                        <DrawingImage.Drawing>
-                            <GeometryDrawing Pen="{Binding Path=CursorPen}">
-                                <GeometryDrawing.Geometry>
-                                    <GeometryGroup>
-                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionTopLeft}" EndPoint="{Binding Path=EntitySelectionTopRight}" />
-                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionTopRight}" EndPoint="{Binding Path=EntitySelectionBottomRight}" />
-                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionBottomRight}" EndPoint="{Binding Path=EntitySelectionBottomLeft}" />
-                                        <LineGeometry StartPoint="{Binding Path=EntitySelectionBottomLeft}" EndPoint="{Binding Path=EntitySelectionTopLeft}" />
-                                    </GeometryGroup>
-                                </GeometryDrawing.Geometry>
-                            </GeometryDrawing>
-                        </DrawingImage.Drawing>
-                    </DrawingImage>
-                </Image.Source>
-            </Image>
-            <Image Name="textCursorImage" SnapsToDevicePixels="True">
-                <Image.Source>
-                    <DrawingImage>
-                        <DrawingImage.Drawing>
-                            <GeometryDrawing Pen="{Binding Path=CursorPen}">
-                                <GeometryDrawing.Geometry>
-                                    <GeometryGroup>
-                                        <LineGeometry StartPoint="{Binding Path=TextCursorStart}" EndPoint="{Binding Path=TextCursorEnd}" />
-                                    </GeometryGroup>
-                                </GeometryDrawing.Geometry>
-                            </GeometryDrawing>
-                        </DrawingImage.Drawing>
-                    </DrawingImage>
-                </Image.Source>
-            </Image>
+        <Canvas Name="cursorLayer" Background="Transparent">
+            <Rectangle Name="selectionRect" Visibility="Collapsed" Fill="{Binding Path=SelectionBrush}" />
+            <Line Name="selectionLine1" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine2" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine3" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Line Name="selectionLine4" Visibility="Collapsed" Stroke="{Binding Path=AutoBrush}" />
+            <Canvas Name="pointCursor">
+                <Line X1="{Binding Path=LeftCursorExtent.X}"
+                      Y1="{Binding Path=LeftCursorExtent.Y}"
+                      X2="{Binding Path=RightCursorExtent.X}"
+                      Y2="{Binding Path=RightCursorExtent.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+                <Line X1="{Binding Path=TopCursorExtent.X}"
+                      Y1="{Binding Path=TopCursorExtent.Y}"
+                      X2="{Binding Path=BottomCursorExtent.X}"
+                      Y2="{Binding Path=BottomCursorExtent.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+            </Canvas>
+            <Canvas Name="entityCursor">
+                <Line X1="{Binding Path=EntitySelectionTopLeft.X}"
+                      Y1="{Binding Path=EntitySelectionTopLeft.Y}"
+                      X2="{Binding Path=EntitySelectionTopRight.X}"
+                      Y2="{Binding Path=EntitySelectionTopRight.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+                <Line X1="{Binding Path=EntitySelectionTopRight.X}"
+                      Y1="{Binding Path=EntitySelectionTopRight.Y}"
+                      X2="{Binding Path=EntitySelectionBottomRight.X}"
+                      Y2="{Binding Path=EntitySelectionBottomRight.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+                <Line X1="{Binding Path=EntitySelectionBottomRight.X}"
+                      Y1="{Binding Path=EntitySelectionBottomRight.Y}"
+                      X2="{Binding Path=EntitySelectionBottomLeft.X}"
+                      Y2="{Binding Path=EntitySelectionBottomLeft.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+                <Line X1="{Binding Path=EntitySelectionBottomLeft.X}"
+                      Y1="{Binding Path=EntitySelectionBottomLeft.Y}"
+                      X2="{Binding Path=EntitySelectionTopLeft.X}"
+                      Y2="{Binding Path=EntitySelectionTopLeft.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+            </Canvas>
+            <Canvas Name="textCursor">
+                <Line X1="{Binding Path=TextCursorStart.X}"
+                      Y1="{Binding Path=TextCursorStart.Y}"
+                      X2="{Binding Path=TextCursorEnd.X}"
+                      Y2="{Binding Path=TextCursorEnd.Y}"
+                      Stroke="{Binding Path=AutoBrush}" />
+            </Canvas>
         </Canvas>
         <Canvas Name="clicker"
-                Cursor="None"
                 Background="Transparent" />
     </Grid>
 </UserControl>

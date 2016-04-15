@@ -18,22 +18,32 @@ using BCad.UI.Shared.Extensions;
 
 #if WINDOWS_UWP
 // universal
-using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
-using ResourceDict = Windows.UI.Xaml.ResourceDictionary;
+using MouseWheelEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
+using PointerButtonEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
+using PointerDeviceType = Windows.Devices.Input.PointerDeviceType;
+using PointerEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
+using PointerUpdateKind = Windows.UI.Input.PointerUpdateKind;
+using ResourceDictionary = Windows.UI.Xaml.ResourceDictionary;
+using Shapes = Windows.UI.Xaml.Shapes;
 #elif WPF
 // WPF
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Cursors = System.Windows.Input.Cursors;
 using DependencyObject = System.Windows.DependencyObject;
 using DependencyProperty = System.Windows.DependencyProperty;
 using FrameworkElement = System.Windows.FrameworkElement;
-using Input = System.Windows.Input;
-using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
+using PointerButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
+using PointerEventArgs = System.Windows.Input.MouseEventArgs;
+using MouseButton = System.Windows.Input.MouseButton;
+using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
 using PropertyPath = System.Windows.PropertyPath;
 using ResourceDictionary = System.Windows.ResourceDictionary;
 using Shapes = System.Windows.Shapes;
@@ -73,8 +83,15 @@ namespace BCad.UI.Shared
         private object drawSnapPointIdGate = new object();
         private object lastDrawnSnapPointIdGate = new object();
 
-        private Dictionary<SnapPointKind, GeometryDrawing> snapPointGeometry = new Dictionary<SnapPointKind, GeometryDrawing>();
-        private Dictionary<SnapPointKind, Image> snapPointImage = new Dictionary<SnapPointKind, Image>();
+        private Dictionary<SnapPointKind, FrameworkElement> snapPointGeometry = new Dictionary<SnapPointKind, FrameworkElement>();
+
+        private string SnapPointResourcesUriPrefix =>
+#if WINDOWS_UWP
+            "ms-appx:"
+#elif WPF
+            ""
+#endif
+        ;
 
         private ResourceDictionary SnapPointResources
         {
@@ -83,7 +100,7 @@ namespace BCad.UI.Shared
                 if (resources == null)
                 {
                     resources = new ResourceDictionary();
-                    resources.Source = new Uri("/SnapPointIcons.xaml", UriKind.Relative);
+                    resources.Source = new Uri($"{SnapPointResourcesUriPrefix}/SnapPointIcons.xaml", UriKind.RelativeOrAbsolute);
                 }
 
                 return resources;
@@ -106,9 +123,9 @@ namespace BCad.UI.Shared
 
             var cursors = new[]
                 {
-                    pointCursorImage,
-                    entityCursorImage,
-                    textCursorImage
+                    pointCursor,
+                    entityCursor,
+                    textCursor
                 };
             Loaded += (_, __) =>
             {
@@ -119,10 +136,20 @@ namespace BCad.UI.Shared
                 }
             };
 
+#if WINDOWS_UWP
+            clicker.PointerMoved += OnMouseMove;
+            clicker.PointerPressed += OnMouseDown;
+            clicker.PointerReleased += OnMouseUp;
+            clicker.PointerWheelChanged += OnMouseWheel;
+#endif
+
+#if WPF
+            clicker.Cursor = Cursors.None;
             clicker.MouseMove += OnMouseMove;
             clicker.MouseDown += OnMouseDown;
             clicker.MouseUp += OnMouseUp;
             clicker.MouseWheel += OnMouseWheel;
+#endif
 
             CompositionContainer.Container.SatisfyImports(this);
         }
@@ -159,8 +186,7 @@ namespace BCad.UI.Shared
             foreach (var kind in new[] { SnapPointKind.Center, SnapPointKind.EndPoint, SnapPointKind.MidPoint, SnapPointKind.Quadrant, SnapPointKind.Focus })
             {
                 snapPointGeometry[kind] = GetSnapGeometry(kind);
-                snapPointImage[kind] = GetSnapIcon(kind);
-                snapLayer.Children.Add(snapPointImage[kind]);
+                snapLayer.Children.Add(snapPointGeometry[kind]);
             }
         }
 
@@ -200,7 +226,6 @@ namespace BCad.UI.Shared
                 var autoColorUI = autoColor.ToUIColor();
                 BindObject.AutoBrush = new SolidColorBrush(autoColorUI);
                 BindObject.SelectionBrush = new SolidColorBrush(selectionColor.ToUIColor());
-                BindObject.CursorPen = new Pen(new SolidColorBrush(autoColorUI), 1.0);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.CursorSize))
             {
@@ -212,7 +237,7 @@ namespace BCad.UI.Shared
 
                 // only update the cursor location after the previous four binding calls have appropriately propagated
                 // to the UI
-                Dispatcher.Invoke(UpdateCursorLocation, DispatcherPriority.Background);
+                Invoke(UpdateCursorLocation);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.EntitySelectionRadius))
             {
@@ -224,7 +249,7 @@ namespace BCad.UI.Shared
 
                 // only update the cursor location after the previous four binding calls have appropriately propagated
                 // to the UI
-                Dispatcher.Invoke(UpdateCursorLocation, DispatcherPriority.Background);
+                Invoke(UpdateCursorLocation);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.TextCursorSize))
             {
@@ -234,7 +259,7 @@ namespace BCad.UI.Shared
 
                 // only update the cursor location after the previous two binding calls have appropriately propagated
                 // to the UI
-                Dispatcher.Invoke(UpdateCursorLocation, DispatcherPriority.Background);
+                Invoke(UpdateCursorLocation);
             }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.HotPointColor))
             {
@@ -244,9 +269,50 @@ namespace BCad.UI.Shared
                 e.PropertyName == nameof(Workspace.SettingsManager.SnapPointColor) ||
                 e.PropertyName == nameof(Workspace.SettingsManager.SnapPointSize))
             {
-                BindObject.SnapPointTransform = new ScaleTransform(Workspace.SettingsManager.SnapPointSize, Workspace.SettingsManager.SnapPointSize);
-                BindObject.SnapPointPen = new Pen(new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToUIColor()), 3.0 / Workspace.SettingsManager.SnapPointSize);
+                BindObject.SnapPointTransform = new ScaleTransform() { ScaleX = Workspace.SettingsManager.SnapPointSize, ScaleY = Workspace.SettingsManager.SnapPointSize };
+                BindObject.SnapPointBrush = new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToUIColor());
+                BindObject.SnapPointStrokeThickness = Workspace.SettingsManager.SnapPointSize == 0.0
+                    ? 1.0
+                    : 3.0 / Workspace.SettingsManager.SnapPointSize;
             }
+        }
+
+        private void Invoke(Action action)
+        {
+#if WPF
+            Dispatcher.Invoke(action, DispatcherPriority.Background);
+#endif
+
+#if WINDOWS_UWP
+            Dispatcher.RunAsync(CoreDispatcherPriority.Low, new DispatchedHandler(action)).AsTask();//.GetAwaiter().GetResult();
+#endif
+        }
+
+        private T Invoke<T>(Func<T> func)
+        {
+#if WPF
+            return Dispatcher.Invoke(func);
+#endif
+
+#if WINDOWS_UWP
+            var result = default(T);
+            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
+            {
+                result = func();
+            })).AsTask();//.GetAwaiter().GetResult();
+            return result;
+#endif
+        }
+
+        private void BeginInvoke(Action action)
+        {
+#if WPF
+            Dispatcher.BeginInvoke(action);
+#endif
+
+#if WINDOWS_UWP
+            var unused = Dispatcher.RunAsync(CoreDispatcherPriority.Low, new DispatchedHandler(action));
+#endif
         }
 
         private async void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
@@ -288,6 +354,7 @@ namespace BCad.UI.Shared
             SetSelectionLineVisibility(Visibility.Collapsed);
         }
 
+#if WPF
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -295,6 +362,7 @@ namespace BCad.UI.Shared
             if (Workspace != null)
                 ViewPortChanged();
         }
+#endif
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
@@ -374,144 +442,218 @@ namespace BCad.UI.Shared
 
         public async Task<Point> GetCursorPoint()
         {
-            var mouse = Dispatcher.Invoke(() => Input.Mouse.GetPosition(this));
-            var model = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(mouse.ToPoint(), CancellationToken.None)).ConfigureAwait(false);
+            var mouse = Invoke(GetPointerPosition);
+            var model = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(mouse, CancellationToken.None)).ConfigureAwait(false);
             return model.WorldPoint;
         }
 
-        private async void OnMouseDown(object sender, MouseButtonEventArgs e)
+        private Point GetPointerPosition(PointerEventArgs e)
         {
-            var cursor = e.GetPosition(this).ToPoint();
+#if WPF
+            return e.GetPosition(clicker).ToPoint();
+#endif
+
+#if WINDOWS_UWP
+            return e.GetCurrentPoint(clicker).Position.ToPoint();
+#endif
+        }
+
+        private Point GetPointerPosition()
+        {
+#if WPF
+            return System.Windows.Input.Mouse.GetPosition(clicker).ToPoint();
+#endif
+
+#if WINDOWS_UWP
+            //return e.GetCurrentPoint(clicker).Position.ToPoint();
+            return Point.Origin;
+#endif
+        }
+
+        private bool IsLeftButtonPressed(PointerButtonEventArgs e)
+        {
+#if WPF
+            return e.ChangedButton == MouseButton.Left;
+#endif
+
+#if WINDOWS_UWP
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(clicker).Properties;
+                return properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed
+                    || properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased;
+            }
+
+            return false;
+#endif
+        }
+
+        private bool IsMiddleButtonPressed(PointerButtonEventArgs e)
+        {
+#if WPF
+            return e.ChangedButton == MouseButton.Middle;
+#endif
+
+#if WINDOWS_UWP
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(clicker).Properties;
+                return properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonPressed
+                    || properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonReleased;
+            }
+
+            return false;
+#endif
+        }
+
+        private bool IsRightButtonPressed(PointerButtonEventArgs e)
+        {
+#if WPF
+            return e.ChangedButton == MouseButton.Right;
+#endif
+
+#if WINDOWS_UWP
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(clicker).Properties;
+                return properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed
+                    || properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased;
+            }
+
+            return false;
+#endif
+        }
+
+        private async void OnMouseDown(object sender, PointerButtonEventArgs e)
+        {
+            var cursor = GetPointerPosition(e);
             mouseMoveCancellationTokenSource.Cancel();
             mouseMoveCancellationTokenSource = new CancellationTokenSource();
             var token = mouseMoveCancellationTokenSource.Token;
             var sp = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(cursor, token), token);
-            switch (e.ChangedButton)
+            if (IsLeftButtonPressed(e))
             {
-                case Input.MouseButton.Left:
-                    if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                {
+                    Workspace.InputService.PushPoint(sp.WorldPoint);
+                }
+                else if ((Workspace.InputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
+                {
+                    var selected = GetHitEntity(cursor);
+                    if (selected != null)
                     {
-                        Workspace.InputService.PushPoint(sp.WorldPoint);
+                        Workspace.InputService.PushEntity(selected);
                     }
-                    else if ((Workspace.InputService.AllowedInputTypes & InputType.Entity) == InputType.Entity)
+                }
+                else if ((Workspace.InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || !Workspace.IsCommandExecuting)
+                {
+                    if (selecting)
                     {
-                        var selected = GetHitEntity(cursor);
-                        if (selected != null)
+                        // finish selection
+                        IEnumerable<Entity> entities = null;
+                        if (selectingRectangle)
                         {
-                            Workspace.InputService.PushEntity(selected);
+                            selectingRectangle = false;
+                            var topLeftScreen = new Point(Math.Min(firstSelectionPoint.X, cursor.X), Math.Min(firstSelectionPoint.Y, cursor.Y), 0.0);
+                            var bottomRightScreen = new Point(Math.Max(firstSelectionPoint.X, cursor.X), Math.Max(firstSelectionPoint.Y, cursor.Y), 0.0);
+                            var selection = new SelectionRectangle(
+                                topLeftScreen,
+                                bottomRightScreen,
+                                Unproject(topLeftScreen),
+                                Unproject(bottomRightScreen));
+                            selectionDone.SetResult(selection);
                         }
-                    }
-                    else if ((Workspace.InputService.AllowedInputTypes & InputType.Entities) == InputType.Entities || selectingRectangle || !Workspace.IsCommandExecuting)
-                    {
-                        if (selecting)
+                        else
                         {
-                            // finish selection
-                            IEnumerable<Entity> entities = null;
-                            if (selectingRectangle)
+                            var rect = new Rect(
+                                Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
+                                Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y),
+                                Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
+                                Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y));
+                            entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                        }
+
+                        selecting = false;
+                        SetSelectionLineVisibility(Visibility.Collapsed);
+                        if (entities != null)
+                        {
+                            if (!Workspace.IsCommandExecuting)
                             {
-                                selectingRectangle = false;
-                                var topLeftScreen = new Point(Math.Min(firstSelectionPoint.X, cursor.X), Math.Min(firstSelectionPoint.Y, cursor.Y), 0.0);
-                                var bottomRightScreen = new Point(Math.Max(firstSelectionPoint.X, cursor.X), Math.Max(firstSelectionPoint.Y, cursor.Y), 0.0);
-                                var selection = new SelectionRectangle(
-                                    topLeftScreen,
-                                    bottomRightScreen,
-                                    Unproject(topLeftScreen),
-                                    Unproject(bottomRightScreen));
-                                selectionDone.SetResult(selection);
+                                Workspace.SelectedEntities.AddRange(entities);
                             }
                             else
                             {
-                                var rect = new Rect(
-                                    Math.Min(firstSelectionPoint.X, currentSelectionPoint.X),
-                                    Math.Min(firstSelectionPoint.Y, currentSelectionPoint.Y),
-                                    Math.Abs(firstSelectionPoint.X - currentSelectionPoint.X),
-                                    Math.Abs(firstSelectionPoint.Y - currentSelectionPoint.Y));
-                                entities = GetContainedEntities(rect, currentSelectionPoint.X < firstSelectionPoint.X);
+                                Workspace.InputService.PushEntities(entities);
                             }
+                        }
+                    }
+                    else
+                    {
+                        SelectedEntity selected = null;
+                        if (selectingRectangle)
+                        {
+                            Workspace.OutputService.WriteLine("Select second point");
+                        }
+                        else
+                        {
+                            selected = GetHitEntity(cursor);
+                        }
 
-                            selecting = false;
-                            SetSelectionLineVisibility(Visibility.Collapsed);
-                            if (entities != null)
+                        if (selected != null)
+                        {
+                            if (!Workspace.IsCommandExecuting)
                             {
-                                if (!Workspace.IsCommandExecuting)
-                                {
-                                    Workspace.SelectedEntities.AddRange(entities);
-                                }
-                                else
-                                {
-                                    Workspace.InputService.PushEntities(entities);
-                                }
+                                Workspace.SelectedEntities.Add(selected.Entity);
+                            }
+                            else
+                            {
+                                Workspace.InputService.PushEntities(new[] { selected.Entity });
                             }
                         }
                         else
                         {
-                            SelectedEntity selected = null;
-                            if (selectingRectangle)
-                            {
-                                Workspace.OutputService.WriteLine("Select second point");
-                            }
-                            else
-                            {
-                                selected = GetHitEntity(cursor);
-                            }
-
-                            if (selected != null)
-                            {
-                                if (!Workspace.IsCommandExecuting)
-                                {
-                                    Workspace.SelectedEntities.Add(selected.Entity);
-                                }
-                                else
-                                {
-                                    Workspace.InputService.PushEntities(new[] { selected.Entity });
-                                }
-                            }
-                            else
-                            {
-                                selecting = true;
-                                firstSelectionPoint = cursor;
-                                currentSelectionPoint = cursor;
-                                SetSelectionLineVisibility(Visibility.Visible);
-                            }
+                            selecting = true;
+                            firstSelectionPoint = cursor;
+                            currentSelectionPoint = cursor;
+                            SetSelectionLineVisibility(Visibility.Visible);
                         }
                     }
-                    else if (Workspace.InputService.AllowedInputTypes == InputType.None || !Workspace.IsCommandExecuting)
+                }
+                else if (Workspace.InputService.AllowedInputTypes == InputType.None || !Workspace.IsCommandExecuting)
+                {
+                    // do hot-point tracking
+                    var selected = GetHitEntity(cursor);
+                    if (selected != null)
                     {
-                        // do hot-point tracking
-                        var selected = GetHitEntity(cursor);
-                        if (selected != null)
-                        {
-                            Workspace.SelectedEntities.Add(selected.Entity);
-                        }
+                        Workspace.SelectedEntities.Add(selected.Entity);
                     }
-
-                    break;
-                case Input.MouseButton.Middle:
-                    panning = true;
-                    lastPanPoint = cursor;
-                    break;
-                case Input.MouseButton.Right:
-                    Workspace.InputService.PushNone();
-                    break;
+                }
             }
-        }
-
-        private void OnMouseUp(object sender, Input.MouseButtonEventArgs e)
-        {
-            switch (e.ChangedButton)
+            else if (IsMiddleButtonPressed(e))
             {
-                case Input.MouseButton.Middle:
-                    panning = false;
-                    break;
+                panning = true;
+                lastPanPoint = cursor;
+            }
+            else if (IsRightButtonPressed(e))
+            {
+                Workspace.InputService.PushNone();
             }
         }
 
-        private void OnMouseMove(object sender, Input.MouseEventArgs e)
+        private void OnMouseUp(object sender, PointerButtonEventArgs e)
+        {
+            if (IsMiddleButtonPressed(e))
+            {
+                panning = false;
+            }
+        }
+
+        private void OnMouseMove(object sender, PointerEventArgs e)
         {
             if (Workspace == null || Workspace.InputService == null)
                 return;
 
-            var cursor = e.GetPosition(this).ToPoint();
+            var cursor = GetPointerPosition(e);
             var delta = lastPanPoint - cursor;
             if (panning)
             {
@@ -539,7 +681,7 @@ namespace BCad.UI.Shared
             updateSnapPointsTask.ContinueWith(_ =>
             {
                 var snapPoint = GetActiveModelPoint(cursor, token);
-                BindObject.CursorWorld = snapPoint.WorldPoint;
+                Invoke(() => BindObject.CursorWorld = snapPoint.WorldPoint);
                 _renderer.UpdateRubberBandLines();
                 if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
@@ -548,7 +690,7 @@ namespace BCad.UI.Shared
 
         private void UpdateCursorLocation()
         {
-            foreach (var cursorImage in new[] { pointCursorImage, entityCursorImage, textCursorImage })
+            foreach (var cursorImage in new[] { pointCursor, entityCursor, textCursor})
             {
                 Canvas.SetLeft(cursorImage, (int)(BindObject.CursorScreen.X - (cursorImage.ActualWidth / 2.0)));
                 Canvas.SetTop(cursorImage, (int)(BindObject.CursorScreen.Y - (cursorImage.ActualHeight / 2.0)));
@@ -571,7 +713,7 @@ namespace BCad.UI.Shared
                 UpdateSelectionLines();
             }
 
-            Dispatcher.BeginInvoke((Action)(() =>
+            BeginInvoke((Action)(() =>
             {
                 selectionLine1.Visibility = vis;
                 selectionLine2.Visibility = vis;
@@ -623,11 +765,11 @@ namespace BCad.UI.Shared
         {
             if (selectingRectangle)
             {
-                Dispatcher.Invoke(() =>
+                Invoke(() =>
                 {
-                    pointCursorImage.Visibility = Visibility.Visible;
-                    entityCursorImage.Visibility = Visibility.Collapsed;
-                    textCursorImage.Visibility = Visibility.Collapsed;
+                    pointCursor.Visibility = Visibility.Visible;
+                    entityCursor.Visibility = Visibility.Collapsed;
+                    textCursor.Visibility = Visibility.Collapsed;
                 });
             }
             else
@@ -637,21 +779,21 @@ namespace BCad.UI.Shared
                         ? Visibility.Visible
                         : Visibility.Collapsed;
 
-                Dispatcher.Invoke(() =>
+                Invoke(() =>
                 {
-                    pointCursorImage.Visibility = getVisibility(new[]
+                    pointCursor.Visibility = getVisibility(new[]
                     {
                         InputType.Command,
                         InputType.Distance,
                         InputType.Point
                     });
-                    entityCursorImage.Visibility = getVisibility(new[]
+                    entityCursor.Visibility = getVisibility(new[]
                     {
                         InputType.Command,
                         InputType.Entities,
                         InputType.Entity
                     });
-                    textCursorImage.Visibility = getVisibility(new[]
+                    textCursor.Visibility = getVisibility(new[]
                     {
                         InputType.Text
                     });
@@ -659,14 +801,24 @@ namespace BCad.UI.Shared
             }
         }
 
-        private void OnMouseWheel(object sender, Input.MouseWheelEventArgs e)
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
+            var delta =
+#if WPF
+                e.Delta
+#endif
+
+#if WINDOWS_UWP
+                e.GetCurrentPoint(clicker).Properties.MouseWheelDelta;
+#endif
+                ;
+
             // scale everything
             var scale = 1.25;
-            if (e.Delta > 0) scale = 0.8; // 1.0 / 1.25
+            if (delta > 0) scale = 0.8; // 1.0 / 1.25
 
             // center zoom operation on mouse
-            var cursorPoint = e.GetPosition(this);
+            var cursorPoint = GetPointerPosition(e);
             var vp = Workspace.ActiveViewPort;
             var oldHeight = vp.ViewHeight;
             var oldWidth = ActualWidth * oldHeight / ActualHeight;
@@ -688,8 +840,8 @@ namespace BCad.UI.Shared
             var token = mouseWheelCancellationTokenSource.Token;
             updateSnapPointsTask.ContinueWith(_ =>
             {
-                var snapPoint = GetActiveModelPoint(cursorPoint.ToPoint(), token);
-                BindObject.CursorWorld = snapPoint.WorldPoint;
+                var snapPoint = GetActiveModelPoint(cursorPoint, token);
+                Invoke(() => BindObject.CursorWorld = snapPoint.WorldPoint);
                 _renderer.UpdateRubberBandLines();
                 if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
@@ -998,7 +1150,7 @@ namespace BCad.UI.Shared
         private void AddHotPointLine(Point start, Point end)
         {
             var line = new Shapes.Line() { X1 = start.X, Y1 = start.Y, X2 = end.X, Y2 = end.Y, StrokeThickness = 2 };
-            SetAutoBinding(line, Shapes.Line.StrokeProperty, "HotPointBrush");
+            SetAutoBinding(line, Shapes.Shape.StrokeProperty, nameof(BindObject.HotPointBrush));
             hotPointLayer.Children.Add(line);
         }
 
@@ -1016,25 +1168,24 @@ namespace BCad.UI.Shared
                 if (drawId > lastDrawnSnapPointId)
                 {
                     lastDrawnSnapPointId = drawId;
-                    Dispatcher.BeginInvoke((Action)(() =>
+                    BeginInvoke(() =>
                     {
                         ClearSnapPoints();
-                        var dist = (snapPoint.ControlPoint - Input.Mouse.GetPosition(this).ToPoint()).Length;
+                        var dist = (snapPoint.ControlPoint - GetPointerPosition()).Length;
                         if (dist <= Workspace.SettingsManager.SnapPointDistance && snapPoint.Kind != SnapPointKind.None)
                         {
                             var geometry = snapPointGeometry[snapPoint.Kind];
-                            var icon = snapPointImage[snapPoint.Kind];
                             var scale = Workspace.SettingsManager.SnapPointSize;
-                            Canvas.SetLeft(icon, snapPoint.ControlPoint.X - geometry.Bounds.Width * scale / 2.0);
-                            Canvas.SetTop(icon, snapPoint.ControlPoint.Y - geometry.Bounds.Height * scale / 2.0);
-                            icon.Visibility = Visibility.Visible;
+                            Canvas.SetLeft(geometry, snapPoint.ControlPoint.X - geometry.ActualWidth * scale / 2.0);
+                            Canvas.SetTop(geometry, snapPoint.ControlPoint.Y - geometry.ActualHeight * scale / 2.0);
+                            geometry.Visibility = Visibility.Visible;
                         }
-                    }));
+                    });
                 }
             }
         }
 
-        private GeometryDrawing GetSnapGeometry(SnapPointKind kind)
+        private FrameworkElement GetSnapGeometry(SnapPointKind kind)
         {
             string name;
             switch (kind)
@@ -1064,20 +1215,30 @@ namespace BCad.UI.Shared
             if (name == null)
                 return null;
 
-            return (GeometryDrawing)SnapPointResources[name];
-        }
+            var geometry = (Canvas)SnapPointResources[name];
 
-        private Image GetSnapIcon(SnapPointKind kind)
-        {
-            var geometry = snapPointGeometry[kind];
-            SetAutoBinding(geometry, GeometryDrawing.PenProperty, "SnapPointPen");
-            var di = new DrawingImage(geometry);
-            var icon = new Image();
-            icon.Source = di;
-            icon.Stretch = Stretch.None;
-            SetAutoBinding(icon, FrameworkElement.LayoutTransformProperty, "SnapPointTransform");
-            icon.Visibility = Visibility.Collapsed;
-            return icon;
+#if WINDOWS_UWP
+            // HACK FOR UWP: clone the canvas items by manually copying the children
+            var shapes = new List<UIElement>();
+            foreach (var shape in geometry.Children)
+            {
+                shapes.Add(shape);
+            }
+
+            geometry.Children.Clear();
+            var created = new Canvas();
+            foreach (var shape in shapes)
+            {
+                created.Children.Add(shape);
+            }
+
+            geometry = created;
+#endif
+
+            geometry.Visibility = Visibility.Collapsed;
+            SetAutoBinding(geometry, RenderTransformProperty, nameof(BindObject.SnapPointTransform));
+            geometry.DataContext = BindObject;
+            return geometry;
         }
     }
 }

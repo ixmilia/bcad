@@ -19,6 +19,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewPane.xaml.cs">
       <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
+    <Page Include="$(MSBuildThisFileDirectory)SnapPointIcons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="$(MSBuildThisFileDirectory)ViewPane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

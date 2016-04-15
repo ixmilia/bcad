@@ -14,10 +14,10 @@ namespace BCad.UI.Shared
         {
             private Brush autoBrush;
             private Brush selectionBrush;
-            private Pen cursorPen;
-            private Pen snapPointPen;
+            private Brush snapPointBrush;
             private Brush hotPointBrush;
             private Transform snapPointTransform;
+            private double snapPointStrokeThickness;
             private Point cursorScreen;
             private Point cursorWorld;
             private Point leftCursorExtent;
@@ -61,26 +61,14 @@ namespace BCad.UI.Shared
                 }
             }
 
-            public Pen CursorPen
+            public Brush SnapPointBrush
             {
-                get { return cursorPen; }
+                get { return snapPointBrush; }
                 set
                 {
-                    if (cursorPen == value)
+                    if (snapPointBrush == value)
                         return;
-                    cursorPen = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            public Pen SnapPointPen
-            {
-                get { return snapPointPen; }
-                set
-                {
-                    if (snapPointPen == value)
-                        return;
-                    snapPointPen = value;
+                    snapPointBrush = value;
                     OnPropertyChanged();
                 }
             }
@@ -109,6 +97,18 @@ namespace BCad.UI.Shared
                 }
             }
 
+            public double SnapPointStrokeThickness
+            {
+                get { return snapPointStrokeThickness; }
+                set
+                {
+                    if (snapPointStrokeThickness == value)
+                        return;
+                    snapPointStrokeThickness = value;
+                    OnPropertyChanged();
+                }
+            }
+
             public Point CursorScreen
             {
                 get { return cursorScreen; }
@@ -130,7 +130,7 @@ namespace BCad.UI.Shared
                         return;
                     cursorWorld = value;
                     OnPropertyChanged();
-                    OnPropertyChangedDirect("CursorWorldString");
+                    OnPropertyChangedDirect(nameof(CursorWorldString));
                 }
             }
 
@@ -270,9 +270,7 @@ namespace BCad.UI.Shared
 
             private void OnPropertyChangedDirect(string propertyName)
             {
-                var changed = PropertyChanged;
-                if (changed != null)
-                    changed(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }
