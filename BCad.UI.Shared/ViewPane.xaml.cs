@@ -30,6 +30,7 @@ using PointerEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
 using PointerUpdateKind = Windows.UI.Input.PointerUpdateKind;
 using ResourceDictionary = Windows.UI.Xaml.ResourceDictionary;
 using Shapes = Windows.UI.Xaml.Shapes;
+using SizeChangedEventArgs = Windows.UI.Xaml.SizeChangedEventArgs;
 #elif WPF
 // WPF
 using System.Windows.Controls;
@@ -47,7 +48,7 @@ using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
 using PropertyPath = System.Windows.PropertyPath;
 using ResourceDictionary = System.Windows.ResourceDictionary;
 using Shapes = System.Windows.Shapes;
-using SizeChangedInfo = System.Windows.SizeChangedInfo;
+using SizeChangedEventArgs = System.Windows.SizeChangedEventArgs;
 using UIElement = System.Windows.UIElement;
 using Visibility = System.Windows.Visibility;
 #endif
@@ -134,6 +135,8 @@ namespace BCad.UI.Shared
                 }
             };
 
+            clicker.SizeChanged += ViewPaneSizeChanged;
+
 #if WINDOWS_UWP
             clicker.PointerMoved += OnMouseMove;
             clicker.PointerPressed += OnMouseDown;
@@ -150,6 +153,14 @@ namespace BCad.UI.Shared
 #endif
 
             CompositionContainer.Container.SatisfyImports(this);
+        }
+
+        private void ViewPaneSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (Workspace != null)
+            {
+                ViewPortChanged();
+            }
         }
 
         [OnImportsSatisfied]
@@ -351,16 +362,6 @@ namespace BCad.UI.Shared
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Collapsed);
         }
-
-#if WPF
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
-            base.OnRenderSizeChanged(sizeInfo);
-
-            if (Workspace != null)
-                ViewPortChanged();
-        }
-#endif
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
