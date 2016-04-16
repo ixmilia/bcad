@@ -180,7 +180,7 @@ namespace BCad
             TakeFocus();
             Workspace.InputService.Reset();
 
-            Workspace.Update(viewControl: viewPane, isDirty: false);
+            Workspace.Update(isDirty: false);
 
             var args = Environment.GetCommandLineArgs().Skip(1); // trim off executable
             args = args.Where(a => !a.StartsWith("/")); // remove options

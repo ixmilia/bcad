@@ -67,6 +67,7 @@ namespace BCad.UI.Shared
         private Point lastPanPoint;
         private Point firstSelectionPoint;
         private Point currentSelectionPoint;
+        private Point lastPointerPosition;
         private TaskCompletionSource<SelectionRectangle> selectionDone;
         private Matrix4 windowsTransformationMatrix;
         private Matrix4 unprojectMatrix;
@@ -155,19 +156,12 @@ namespace BCad.UI.Shared
             CompositionContainer.Container.SatisfyImports(this);
         }
 
-        private void ViewPaneSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (Workspace != null)
-            {
-                ViewPortChanged();
-            }
-        }
-
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
             BindObject = new BindingClass(Workspace);
             DataContext = BindObject;
+            Workspace.Update(viewControl: this, isDirty: Workspace.IsDirty);
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
@@ -196,6 +190,14 @@ namespace BCad.UI.Shared
             {
                 snapPointGeometry[kind] = GetSnapGeometry(kind);
                 snapLayer.Children.Add(snapPointGeometry[kind]);
+            }
+        }
+
+        private void ViewPaneSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (Workspace != null)
+            {
+                ViewPortChanged();
             }
         }
 
@@ -403,6 +405,11 @@ namespace BCad.UI.Shared
         private void UpdateSnapPoints()
         {
             var token = CancelAndGetNewToken();
+            if (!allowCancellation)
+            {
+                token = CancellationToken.None;
+            }
+
             var width = ActualWidth;
             var height = ActualHeight;
             updateSnapPointsTask = Task.Run(() =>
@@ -411,10 +418,10 @@ namespace BCad.UI.Shared
                 var transformedQuadTree = new QuadTree<TransformedSnapPoint>(new Rect(0, 0, width, height), t => new Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
                 foreach (var layer in Workspace.Drawing.GetLayers(token))
                 {
-                    ThrowIfCancellationRequested(token);
+                    token.ThrowIfCancellationRequested();
                     foreach (var entity in layer.GetEntities(token))
                     {
-                        ThrowIfCancellationRequested(token);
+                        token.ThrowIfCancellationRequested();
                         foreach (var snapPoint in entity.GetSnapPoints())
                         {
                             transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, Project(snapPoint.Point), snapPoint.Kind));
@@ -438,32 +445,23 @@ namespace BCad.UI.Shared
 
         public async Task<Point> GetCursorPoint()
         {
-            var mouse = Invoke(GetPointerPosition);
-            var model = await GetActiveModelPointAsync(mouse);
+            var mouse = lastPointerPosition;
+            var model = await GetActiveModelPointAsync(mouse).ConfigureAwait(false);
             return model.WorldPoint;
         }
 
         private Point GetPointerPosition(PointerEventArgs e)
         {
+            lastPointerPosition =
 #if WPF
-            return e.GetPosition(clicker).ToPoint();
+                e.GetPosition(clicker).ToPoint();
 #endif
 
 #if WINDOWS_UWP
-            return e.GetCurrentPoint(clicker).Position.ToPoint();
-#endif
-        }
-
-        private Point GetPointerPosition()
-        {
-#if WPF
-            return System.Windows.Input.Mouse.GetPosition(clicker).ToPoint();
+                e.GetCurrentPoint(clicker).Position.ToPoint();
 #endif
 
-#if WINDOWS_UWP
-            //return e.GetCurrentPoint(clicker).Position.ToPoint();
-            return Point.Origin;
-#endif
+            return lastPointerPosition;
         }
 
         private bool IsLeftButtonPressed(PointerButtonEventArgs e)
@@ -525,14 +523,6 @@ namespace BCad.UI.Shared
             updateSnapPointsCancellationTokenSource.Cancel();
             updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
             return updateSnapPointsCancellationTokenSource.Token;
-        }
-
-        private void ThrowIfCancellationRequested(CancellationToken cancellationToken)
-        {
-            if (allowCancellation)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-            }
         }
 
         private async void OnMouseDown(object sender, PointerButtonEventArgs e)
@@ -873,7 +863,7 @@ namespace BCad.UI.Shared
         {
             allowCancellation = false;
             UpdateSnapPoints();
-            var sp = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(cursor, CancellationToken.None));
+            var sp = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(cursor, CancellationToken.None)).ConfigureAwait(false);
             allowCancellation = true;
             return sp;
         }
@@ -992,7 +982,7 @@ namespace BCad.UI.Shared
                 var points = new List<Tuple<double, TransformedSnapPoint>>();
                 foreach (var snapAngle in Workspace.SettingsManager.SnapAngles)
                 {
-                    ThrowIfCancellationRequested(cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
                     var radians = snapAngle * MathHelper.DegreesToRadians;
                     var radVector = snapVector(radians);
                     var snapPoint = last + radVector;
@@ -1201,7 +1191,7 @@ namespace BCad.UI.Shared
                     BeginInvoke(() =>
                     {
                         ClearSnapPoints();
-                        var dist = (snapPoint.ControlPoint - GetPointerPosition()).Length;
+                        var dist = (snapPoint.ControlPoint - lastPointerPosition).Length;
                         if (dist <= Workspace.SettingsManager.SnapPointDistance && snapPoint.Kind != SnapPointKind.None)
                         {
                             var geometry = snapPointGeometry[snapPoint.Kind];
