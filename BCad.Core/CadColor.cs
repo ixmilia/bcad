@@ -37,6 +37,19 @@ namespace BCad
             return brightness < 0.67 * 255 ? White : Black;
         }
 
+        public CadColor With(
+            Optional<byte> a = default(Optional<byte>),
+            Optional<byte> r = default(Optional<byte>),
+            Optional<byte> g = default(Optional<byte>),
+            Optional<byte> b = default(Optional<byte>))
+        {
+            return FromArgb(
+                a.HasValue ? a.Value : A,
+                r.HasValue ? r.Value : R,
+                g.HasValue ? g.Value : G,
+                b.HasValue ? b.Value : B);
+        }
+
         public override string ToString()
         {
             return this.ToARGBString();

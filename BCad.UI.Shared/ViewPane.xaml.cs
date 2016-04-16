@@ -232,8 +232,7 @@ namespace BCad.UI.Shared
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.BackgroundColor))
             {
                 var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor();
-                var selectionColor = CadColor.FromInt32(autoColor.ToInt32());
-                selectionColor.A = 25;
+                var selectionColor = autoColor.With(a: 25);
                 var autoColorUI = autoColor.ToUIColor();
                 BindObject.AutoBrush = new SolidColorBrush(autoColorUI);
                 BindObject.SelectionBrush = new SolidColorBrush(selectionColor.ToUIColor());
