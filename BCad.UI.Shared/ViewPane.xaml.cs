@@ -75,7 +75,6 @@ namespace BCad.UI.Shared
         private DoubleCollection solidLine = new DoubleCollection();
         private DoubleCollection dashedLine = new DoubleCollection() { 4.0, 4.0 };
         private ResourceDictionary resources;
-        private bool allowCancellation = true;
         private CancellationTokenSource updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
         private Task updateSnapPointsTask = new Task(() => { });
         private long lastDrawnSnapPointId;
@@ -377,15 +376,14 @@ namespace BCad.UI.Shared
             }
         }
 
-        private async void ViewPortChanged()
+        private void ViewPortChanged()
         {
             windowsTransformationMatrix = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             unprojectMatrix = windowsTransformationMatrix;
             unprojectMatrix.Invert();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
-            UpdateSnapPoints();
             UpdateHotPoints();
-            var point = await GetCursorPoint();
+            UpdateSnapPoints();
         }
 
         private void DrawingChanged()
@@ -401,13 +399,13 @@ namespace BCad.UI.Shared
             }
         }
 
-        private void UpdateSnapPoints()
+        private Task UpdateSnapPoints(bool allowCancellation = true)
         {
-            var token = CancelAndGetNewToken();
-            if (!allowCancellation)
-            {
-                token = CancellationToken.None;
-            }
+            updateSnapPointsCancellationTokenSource.Cancel();
+            updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
+            var token = allowCancellation
+                ? updateSnapPointsCancellationTokenSource.Token
+                : CancellationToken.None;
 
             var width = ActualWidth;
             var height = ActualHeight;
@@ -430,6 +428,8 @@ namespace BCad.UI.Shared
 
                 snapPointsQuadTree = transformedQuadTree;
             });
+
+            return updateSnapPointsTask;
         }
 
         private Point Project(Point point)
@@ -445,7 +445,7 @@ namespace BCad.UI.Shared
         public async Task<Point> GetCursorPoint()
         {
             var mouse = lastPointerPosition;
-            var model = await GetActiveModelPointAsync(mouse).ConfigureAwait(false);
+            var model = await GetActiveModelPointNowAsync(mouse).ConfigureAwait(false);
             return model.WorldPoint;
         }
 
@@ -517,17 +517,10 @@ namespace BCad.UI.Shared
 #endif
         }
 
-        private CancellationToken CancelAndGetNewToken()
-        {
-            updateSnapPointsCancellationTokenSource.Cancel();
-            updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
-            return updateSnapPointsCancellationTokenSource.Token;
-        }
-
         private async void OnMouseDown(object sender, PointerButtonEventArgs e)
         {
             var cursor = GetPointerPosition(e);
-            var sp = await GetActiveModelPointAsync(cursor);
+            var sp = await GetActiveModelPointNowAsync(cursor);
 
             if (IsLeftButtonPressed(e))
             {
@@ -673,10 +666,9 @@ namespace BCad.UI.Shared
             BindObject.CursorScreen = cursor;
             UpdateCursorLocation();
 
-            var token = CancelAndGetNewToken();
             updateSnapPointsTask.ContinueWith(_ =>
             {
-                var snapPoint = GetActiveModelPoint(cursor, token);
+                var snapPoint = GetActiveModelPoint(cursor, updateSnapPointsCancellationTokenSource.Token);
                 Invoke(() => BindObject.CursorWorld = snapPoint.WorldPoint);
                 _renderer.UpdateRubberBandLines();
                 if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
@@ -847,10 +839,9 @@ namespace BCad.UI.Shared
                 viewHeight: vp.ViewHeight * scale);
             Workspace.Update(activeViewPort: newVp);
 
-            var token = CancelAndGetNewToken();
             updateSnapPointsTask.ContinueWith(_ =>
             {
-                var snapPoint = GetActiveModelPoint(cursorPoint, token);
+                var snapPoint = GetActiveModelPoint(cursorPoint, updateSnapPointsCancellationTokenSource.Token);
                 Invoke(() => BindObject.CursorWorld = snapPoint.WorldPoint);
                 _renderer.UpdateRubberBandLines();
                 if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
@@ -858,13 +849,9 @@ namespace BCad.UI.Shared
             }).ConfigureAwait(false);
         }
 
-        private async Task<TransformedSnapPoint> GetActiveModelPointAsync(Point cursor)
+        private async Task<TransformedSnapPoint> GetActiveModelPointNowAsync(Point cursor)
         {
-            allowCancellation = false;
-            UpdateSnapPoints();
-            var sp = await updateSnapPointsTask.ContinueWith(_ => GetActiveModelPoint(cursor, CancellationToken.None)).ConfigureAwait(false);
-            allowCancellation = true;
-            return sp;
+            return await UpdateSnapPoints(allowCancellation: false).ContinueWith(_ => GetActiveModelPoint(cursor, CancellationToken.None)).ConfigureAwait(false);
         }
 
         private TransformedSnapPoint GetActiveModelPoint(Point cursor, CancellationToken cancellationToken)
