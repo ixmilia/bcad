@@ -18,6 +18,8 @@ namespace BCad.Primitives
 
         public bool IsClosed { get { return MathHelper.CloseTo(0.0, StartAngle) && MathHelper.CloseTo(MathHelper.ThreeSixty, EndAngle); } }
 
+        public bool IsCircle => MinorAxisRatio == 1.0 && IsClosed;
+
         /// <summary>
         /// Creates a new PrimitiveEllipse.
         /// </summary>

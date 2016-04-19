@@ -7,65 +7,52 @@ namespace BCad.Entities
 {
     public class Ellipse : Entity
     {
-        private const string MajorAxisText = "MajorAxis";
-        private const string MinorAxisRatioText = "MinorAxisRatio";
-        private readonly Point center;
-        private readonly Vector majorAxis;
-        private readonly Vector normal;
-        private readonly double minorAxisRatio;
-        private readonly double startAngle;
-        private readonly double endAngle;
-        private readonly Point quadrant1;
-        private readonly Point quadrant2;
-        private readonly Point quadrant3;
-        private readonly Point quadrant4;
-        private readonly Point endPoint1;
-        private readonly Point endPoint2;
-        private readonly Point midPoint;
-        private readonly PrimitiveEllipse primitive;
-        private readonly IPrimitive[] primitives;
-        private readonly SnapPoint[] snapPoints;
-        private readonly BoundingBox boundingBox;
+        private readonly PrimitiveEllipse _primitive;
+        private readonly IPrimitive[] _primitives;
+        private readonly SnapPoint[] _snapPoints;
 
-        public Point Center { get { return center; } }
+        public Point Center => _primitive.Center;
 
-        public Vector MajorAxis { get { return majorAxis; } }
+        public Vector MajorAxis => _primitive.MajorAxis;
 
-        public Vector Normal { get { return normal; } }
+        public Vector Normal => _primitive.Normal;
 
-        public double MinorAxisRatio { get { return minorAxisRatio; } }
+        public double MinorAxisRatio => _primitive.MinorAxisRatio;
 
-        public double StartAngle { get { return startAngle; } }
+        public double StartAngle => _primitive.StartAngle;
 
-        public double EndAngle { get { return endAngle; } }
+        public double EndAngle => _primitive.EndAngle;
 
-        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
+        public Matrix4 FromUnitCircle => _primitive.FromUnitCircle;
+
+        public override EntityKind Kind => EntityKind.Ellipse;
+
+        public override BoundingBox BoundingBox { get; }
 
         public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color, object tag = null)
-            : base(color, tag)
+            : this(new PrimitiveEllipse(center, majorAxis, normal, minorAxisRatio, startAngle, endAngle, color), tag)
         {
-            this.center = center;
-            this.majorAxis = majorAxis;
-            this.minorAxisRatio = minorAxisRatio;
-            this.startAngle = startAngle;
-            this.endAngle = endAngle;
-            this.normal = normal;
+        }
 
-            var majorLength = this.majorAxis.Length;
-            var points = Circle.TransformedPoints(this.center, this.normal, this.majorAxis, majorLength, majorLength * minorAxisRatio, 0, 90, 180, 270, startAngle, endAngle, (startAngle + endAngle) / 2.0);
-            quadrant1 = points[0];
-            quadrant2 = points[1];
-            quadrant3 = points[2];
-            quadrant4 = points[3];
-            endPoint1 = points[4];
-            endPoint2 = points[5];
-            midPoint = points[6];
+        public Ellipse(PrimitiveEllipse ellipse, object tag = null)
+            : base(ellipse.Color, tag)
+        {
+            _primitive = ellipse;
+            _primitives = new[] { _primitive };
 
-            this.primitive = new PrimitiveEllipse(Center, MajorAxis, Normal, MinorAxisRatio, StartAngle, EndAngle, Color);
-            this.primitives = new IPrimitive[] { this.primitive };
+            var majorLength = MajorAxis.Length;
+            var points = Circle.TransformedPoints(Center, Normal, MajorAxis, majorLength, majorLength * MinorAxisRatio, 0, 90, 180, 270, StartAngle, EndAngle, (StartAngle + EndAngle) / 2.0);
+            var quadrant1 = points[0];
+            var quadrant2 = points[1];
+            var quadrant3 = points[2];
+            var quadrant4 = points[3];
+            var endPoint1 = points[4];
+            var endPoint2 = points[5];
+            var midPoint = points[6];
+
             var snaps = new List<SnapPoint>();
             snaps.Add(new CenterPoint(Center));
-            if (this.startAngle == 0.0 && this.endAngle == 360.0)
+            if (StartAngle == 0.0 && EndAngle == 360.0)
             {
                 // treat it like a circle
                 snaps.Add(new QuadrantPoint(quadrant1));
@@ -84,8 +71,8 @@ namespace BCad.Entities
             if (MinorAxisRatio != 1.0)
             {
                 // a true ellipse with two distinct foci
-                var majorNormalized = majorAxis.Normalize();
-                var minorLength = majorLength * minorAxisRatio;
+                var majorNormalized = MajorAxis.Normalize();
+                var minorLength = majorLength * MinorAxisRatio;
                 var focusDistance = Math.Sqrt((majorLength * majorLength) - (minorLength * minorLength));
                 var focus1 = (Point)((majorNormalized * focusDistance) + Center);
                 var focus2 = (Point)((majorNormalized * -focusDistance) + Center);
@@ -93,44 +80,40 @@ namespace BCad.Entities
                 snaps.Add(new FocusPoint(focus2));
             }
 
-            this.snapPoints = snaps.ToArray();
-            this.boundingBox = BoundingBox.FromPoints(quadrant1, quadrant2, quadrant3, quadrant4);
+            _snapPoints = snaps.ToArray();
+            BoundingBox = BoundingBox.FromPoints(quadrant1, quadrant2, quadrant3, quadrant4);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return this.primitives;
+            return _primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return this.snapPoints;
+            return _snapPoints;
         }
 
         public override object GetProperty(string propertyName)
         {
             switch (propertyName)
             {
-                case CenterText:
+                case nameof(Center):
                     return Center;
-                case NormalText:
+                case nameof(Normal):
                     return Normal;
-                case MajorAxisText:
+                case nameof(MajorAxis):
                     return MajorAxis;
-                case MinorAxisRatioText:
+                case nameof(MinorAxisRatio):
                     return MinorAxisRatio;
-                case StartAngleText:
+                case nameof(StartAngle):
                     return StartAngle;
-                case EndAngleText:
+                case nameof(EndAngle):
                     return EndAngle;
                 default:
                     return base.GetProperty(propertyName);
             }
         }
-
-        public override EntityKind Kind { get { return EntityKind.Ellipse; } }
-
-        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Ellipse Update(
             Optional<Point> center = default(Optional<Point>),
@@ -142,23 +125,23 @@ namespace BCad.Entities
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
-            var newCenter = center.HasValue ? center.Value : this.center;
-            var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : this.majorAxis;
-            var newMinorAxisRatio = minorAxisRatio.HasValue ? minorAxisRatio.Value : this.minorAxisRatio;
-            var newStartAngle = startAngle.HasValue ? startAngle.Value : this.startAngle;
-            var newEndAngle = endAngle.HasValue ? endAngle.Value : this.endAngle;
-            var newNormal = normal.HasValue ? normal.Value : this.normal;
-            var newColor = color.HasValue ? color.Value : this.Color;
-            var newTag = tag.HasValue ? tag.Value : this.Tag;
+            var newCenter = center.HasValue ? center.Value : Center;
+            var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : MajorAxis;
+            var newMinorAxisRatio = minorAxisRatio.HasValue ? minorAxisRatio.Value : MinorAxisRatio;
+            var newStartAngle = startAngle.HasValue ? startAngle.Value : StartAngle;
+            var newEndAngle = endAngle.HasValue ? endAngle.Value : EndAngle;
+            var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (newCenter == this.center &&
-                newMajorAxis == this.majorAxis &&
-                newMinorAxisRatio == this.minorAxisRatio &&
-                newStartAngle == this.startAngle &&
-                newEndAngle == this.endAngle &&
-                newNormal == this.normal &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+            if (newCenter == Center &&
+                newMajorAxis == MajorAxis &&
+                newMinorAxisRatio == MinorAxisRatio &&
+                newStartAngle == StartAngle &&
+                newEndAngle == EndAngle &&
+                newNormal == Normal &&
+                newColor == Color &&
+                newTag == Tag)
             {
                 return this;
             }

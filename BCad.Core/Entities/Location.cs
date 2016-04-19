@@ -6,48 +6,48 @@ namespace BCad.Entities
 {
     public class Location : Entity
     {
-        private const string PointText = "Point";
-        private readonly Point location;
-        private readonly IPrimitive[] primitives;
-        private readonly SnapPoint[] snapPoints;
-        private readonly BoundingBox boundingBox;
+        private readonly PrimitivePoint _primitive;
+        private readonly IPrimitive[] _primitives;
+        private readonly SnapPoint[] _snapPoints;
 
-        public Point Point { get { return location; } }
+        public Point Point => _primitive.Location;
 
-        public override EntityKind Kind { get { return EntityKind.Location; } }
+        public override EntityKind Kind => EntityKind.Location;
 
-        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
+        public override BoundingBox BoundingBox { get; }
 
         public Location(Point location, CadColor? color, object tag = null)
-            : base(color, tag)
+            : this(new PrimitivePoint(location, color), tag)
         {
-            this.location = location;
-            this.snapPoints = new[]
+        }
+
+        public Location(PrimitivePoint point, object tag = null)
+            : base(point.Color, tag)
+        {
+            _primitive = point;
+            _primitives = new[] { _primitive };
+            _snapPoints = new[]
             {
-                new EndPoint(location)
+                new EndPoint(Point)
             };
-            this.primitives = new[]
-            {
-                new PrimitivePoint(location, color)
-            };
-            this.boundingBox = new BoundingBox(location, Vector.Zero);
+            BoundingBox = new BoundingBox(Point, Vector.Zero);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return this.primitives;
+            return _primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return this.snapPoints;
+            return _snapPoints;
         }
 
         public override object GetProperty(string propertyName)
         {
             switch (propertyName)
             {
-                case PointText:
+                case nameof(Point):
                     return Point;
                 default:
                     return base.GetProperty(propertyName);
@@ -59,13 +59,13 @@ namespace BCad.Entities
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
-            var newPoint = point.HasValue ? point.Value : this.Point;
-            var newColor = color.HasValue ? color.Value : this.Color;
-            var newTag = tag.HasValue ? tag.Value : this.Tag;
+            var newPoint = point.HasValue ? point.Value : Point;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (newPoint == this.Point &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+            if (newPoint == Point &&
+                newColor == Color &&
+                newTag == Tag)
             {
                 return this;
             }

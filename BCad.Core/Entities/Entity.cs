@@ -18,17 +18,6 @@ namespace BCad.Entities
         public CadColor? Color { get { return color; } }
         public object Tag { get { return tag; } }
 
-        protected const string KindText = "Kind";
-        protected const string BoundingBoxText = "BoundingBox";
-        protected const string IdText = "Id";
-        protected const string ColorText = "Color";
-        protected const string TagText = "Tag";
-        protected const string CenterText = "Center";
-        protected const string NormalText = "Normal";
-        protected const string RadiusText = "Radius";
-        protected const string StartAngleText = "StartAngle";
-        protected const string EndAngleText = "EndAngle";
-
         protected Entity(CadColor? color, object tag)
         {
             this.color = color;
@@ -40,15 +29,15 @@ namespace BCad.Entities
         {
             switch (propertyName)
             {
-                case KindText:
+                case nameof(Kind):
                     return Kind;
-                case BoundingBoxText:
+                case nameof(BoundingBox):
                     return BoundingBox;
-                case ColorText:
+                case nameof(Color):
                     return Color;
-                case IdText:
+                case nameof(Id):
                     return Id;
-                case TagText:
+                case nameof(Text):
                     return Tag;
                 default:
                     throw new KeyNotFoundException("The property could not be found");

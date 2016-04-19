@@ -6,60 +6,59 @@ namespace BCad.Entities
 {
     public class Line : Entity
     {
-        private const string P1Text = "P1";
-        private const string P2Text = "P2";
-        private readonly Point p1;
-        private readonly Point p2;
-        private readonly IPrimitive[] primitives;
-        private readonly SnapPoint[] snapPoints;
-        private readonly BoundingBox boundingBox;
+        private readonly PrimitiveLine _primitive;
+        private readonly IPrimitive[] _primitives;
+        private readonly SnapPoint[] _snapPoints;
 
-        public Point P1 { get { return p1; } }
+        public Point P1 => _primitive.P1;
 
-        public Point P2 { get { return p2; } }
+        public Point P2 => _primitive.P2;
+
+        public override EntityKind Kind => EntityKind.Line;
+
+        public override BoundingBox BoundingBox { get; }
 
         public Line(Point p1, Point p2, CadColor? color, object tag = null)
-            : base(color, tag)
+            : this(new PrimitiveLine(p1, p2, color), tag)
         {
-            this.p1 = p1;
-            this.p2 = p2;
+        }
 
-            this.primitives = new[] { new PrimitiveLine(P1, P2, Color) };
-            this.snapPoints = new SnapPoint[]
+        public Line(PrimitiveLine line, object tag = null)
+            : base(line.Color, tag)
+        {
+            _primitive = line;
+            _primitives = new[] { _primitive };
+            _snapPoints = new SnapPoint[]
             {
                 new EndPoint(P1),
                 new EndPoint(P2),
                 new MidPoint((P1 + P2) / 2.0)
             };
-            this.boundingBox = BoundingBox.FromPoints(P1, P2);
+            BoundingBox = BoundingBox.FromPoints(P1, P2);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return this.primitives;
+            return _primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return this.snapPoints;
+            return _snapPoints;
         }
 
         public override object GetProperty(string propertyName)
         {
             switch (propertyName)
             {
-                case P1Text:
+                case nameof(P1):
                     return P1;
-                case P2Text:
+                case nameof(P2):
                     return P2;
                 default:
                     return base.GetProperty(propertyName);
             }
         }
-
-        public override EntityKind Kind { get { return EntityKind.Line; } }
-
-        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Line Update(
             Optional<Point> p1 = default(Optional<Point>),
@@ -67,15 +66,15 @@ namespace BCad.Entities
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
-            var newP1 = p1.HasValue ? p1.Value : this.p1;
-            var newP2 = p2.HasValue ? p2.Value : this.p2;
-            var newColor = color.HasValue ? color.Value : this.Color;
-            var newTag = tag.HasValue ? tag.Value : this.Tag;
+            var newP1 = p1.HasValue ? p1.Value : P1;
+            var newP2 = p2.HasValue ? p2.Value : P2;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (newP1 == this.p1 &&
-                newP2 == this.p2 &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+            if (newP1 == P1 &&
+                newP2 == P2 &&
+                newColor == Color &&
+                newTag == Tag)
             {
                 return this;
             }

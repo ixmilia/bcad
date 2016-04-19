@@ -708,37 +708,27 @@ namespace BCad.Extensions
                     if (el.MinorAxisRatio == 1.0)
                     {
                         // circle or arc
-                        if (el.StartAngle == 0.0 && el.EndAngle == 360.0)
+                        if (el.IsClosed)
                         {
                             // circle
-                            return new Circle(el.Center, el.MajorAxis.Length, el.Normal, el.Color);
+                            return new Circle(el);
                         }
                         else
                         {
                             // arc
-                            return new Arc(el.Center, el.MajorAxis.Length, el.StartAngle, el.EndAngle, el.Normal, el.Color);
+                            return new Arc(el);
                         }
                     }
                     else
                     {
-                        return new Ellipse(
-                            el.Center,
-                            el.MajorAxis,
-                            el.MinorAxisRatio,
-                            el.StartAngle,
-                            el.EndAngle,
-                            el.Normal,
-                            el.Color);
+                        return new Ellipse(el);
                     }
                 case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    return new Line(line.P1, line.P2, line.Color);
+                    return new Line((PrimitiveLine)primitive);
                 case PrimitiveKind.Point:
-                    var point = (PrimitivePoint)primitive;
-                    return new Location(point.Location, point.Color);
+                    return new Location((PrimitivePoint)primitive);
                 case PrimitiveKind.Text:
-                    var text = (PrimitiveText)primitive;
-                    return new Text(text.Value, text.Location, text.Normal, text.Height, text.Rotation, text.Color);
+                    return new Text((PrimitiveText)primitive);
                 default:
                     throw new ArgumentException("primitive.Kind");
             }

@@ -3,49 +3,52 @@ using System.Collections.Generic;
 using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
-using BCad.Extensions;
 
 namespace BCad.Entities
 {
     public class Circle : Entity
     {
-        private readonly Point center;
-        private readonly Vector normal;
-        private readonly double radius;
-        private readonly Point quadrant1;
-        private readonly Point quadrant2;
-        private readonly Point quadrant3;
-        private readonly Point quadrant4;
-        private readonly PrimitiveEllipse primitive;
-        private readonly IPrimitive[] primitives;
-        private readonly SnapPoint[] snapPoints;
-        private readonly BoundingBox boundingBox;
+        private readonly PrimitiveEllipse _primitive;
+        private readonly IPrimitive[] _primitives;
+        private readonly SnapPoint[] _snapPoints;
 
-        public Point Center { get { return center; } }
+        public Point Center => _primitive.Center;
 
-        public Vector Normal { get { return normal; } }
+        public Vector Normal => _primitive.Normal;
 
-        public double Radius { get { return radius; } }
+        public double Radius { get; }
 
-        public Matrix4 FromUnitCircle { get { return primitive.FromUnitCircle; } }
+        public Matrix4 FromUnitCircle => _primitive.FromUnitCircle;
+
+        public override EntityKind Kind => EntityKind.Circle;
+
+        public override BoundingBox BoundingBox { get; }
 
         public Circle(Point center, double radius, Vector normal, CadColor? color, object tag = null)
-            : base(color, tag)
+            : this(new PrimitiveEllipse(center, radius, normal), tag)
         {
-            this.center = center;
-            this.radius = radius;
-            this.normal = normal;
+        }
 
-            var right = Vector.RightVectorFromNormal(this.normal);
-            var points = TransformedPoints(this.center, this.normal, right, this.radius, this.radius, 0, 90, 180, 270);
-            quadrant1 = points[0];
-            quadrant2 = points[1];
-            quadrant3 = points[2];
-            quadrant4 = points[3];
+        public Circle(PrimitiveEllipse ellipse, object tag = null)
+            : base(ellipse.Color, tag)
+        {
+            if (!ellipse.IsCircle)
+            {
+                throw new ArgumentException($"{nameof(PrimitiveEllipse)} was not a circle");
+            }
 
-            this.primitive = new PrimitiveEllipse(Center, Radius, Normal, Color);
-            this.primitives = new IPrimitive[] { this.primitive };
-            this.snapPoints = new SnapPoint[]
+            _primitive = ellipse;
+            _primitives = new[] { _primitive };
+            Radius = ellipse.MajorAxis.Length;
+
+            var right = Vector.RightVectorFromNormal(Normal);
+            var points = TransformedPoints(Center, Normal, right, Radius, Radius, 0, 90, 180, 270);
+            var quadrant1 = points[0];
+            var quadrant2 = points[1];
+            var quadrant3 = points[2];
+            var quadrant4 = points[3];
+
+            _snapPoints = new SnapPoint[]
             {
                 new CenterPoint(Center),
                 new QuadrantPoint(quadrant1),
@@ -53,37 +56,33 @@ namespace BCad.Entities
                 new QuadrantPoint(quadrant3),
                 new QuadrantPoint(quadrant4)
             };
-            this.boundingBox = BoundingBox.FromPoints(points);
+            BoundingBox = BoundingBox.FromPoints(points);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return this.primitives;
+            return _primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return this.snapPoints;
+            return _snapPoints;
         }
 
         public override object GetProperty(string propertyName)
         {
             switch (propertyName)
             {
-                case CenterText:
+                case nameof(Center):
                     return Center;
-                case NormalText:
+                case nameof(Normal):
                     return Normal;
-                case RadiusText:
+                case nameof(Radius):
                     return Radius;
                 default:
                     return base.GetProperty(propertyName);
             }
         }
-
-        public override EntityKind Kind { get { return EntityKind.Circle; } }
-
-        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Circle Update(
             Optional<Point> center = default(Optional<Point>),
@@ -92,17 +91,17 @@ namespace BCad.Entities
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
-            var newCenter = center.HasValue ? center.Value : this.center;
-            var newRadius = radius.HasValue ? radius.Value : this.radius;
-            var newNormal = normal.HasValue ? normal.Value : this.normal;
-            var newColor = color.HasValue ? color.Value : this.Color;
-            var newTag = tag.HasValue ? tag.Value : this.Tag;
+            var newCenter = center.HasValue ? center.Value : Center;
+            var newRadius = radius.HasValue ? radius.Value : Radius;
+            var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (newCenter == this.center &&
-                newRadius == this.radius &&
-                newNormal == this.normal &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+            if (newCenter == Center &&
+                newRadius == Radius &&
+                newNormal == Normal &&
+                newColor == Color &&
+                newTag == Tag)
             {
                 return this;
             }

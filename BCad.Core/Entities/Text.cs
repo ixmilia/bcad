@@ -8,98 +8,78 @@ namespace BCad.Entities
 {
     public class Text : Entity
     {
-        private const string ValueText = "Value";
-        private const string LocationText = "Location";
-        private const string HeightText = "Height";
-        private const string WidthText = "Width";
-        private const string RotationText = "Rotation";
-        private readonly IPrimitive[] primitives;
-        private readonly SnapPoint[] snapPoints;
+        private readonly PrimitiveText _primitive;
+        private readonly IPrimitive[] _primitives;
+        private readonly SnapPoint[] _snapPoints;
 
-        private readonly string value;
-        private readonly Point location;
-        private readonly Vector normal;
-        private readonly double height;
-        private readonly double width;
-        private readonly double rotation;
-        private readonly BoundingBox boundingBox;
+        public string Value => _primitive.Value;
 
-        public string Value { get { return this.value; } }
+        public Point Location => _primitive.Location;
 
-        public Point Location { get { return this.location; } }
+        public Vector Normal => _primitive.Normal;
 
-        public Vector Normal { get { return this.normal; } }
+        public double Height => _primitive.Height;
 
-        public double Height { get { return this.height; } }
+        public double Width => _primitive.Width;
 
-        public double Width { get { return this.width; } }
+        public double Rotation => _primitive.Rotation;
 
-        public double Rotation { get { return this.rotation; } }
+        public override EntityKind Kind => EntityKind.Text;
+
+        public override BoundingBox BoundingBox { get; }
 
         public Text(string value, Point location, Vector normal, double height, double rotation, CadColor? color, object tag = null)
-            : base(color, tag)
+            : this(new PrimitiveText(value, location, height, normal, rotation, color), tag)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
+        }
 
-            this.value = value;
-            this.location = location;
-            this.normal = normal;
-            this.height = height;
-            this.rotation = rotation;
+        public Text(PrimitiveText text, object tag = null)
+            : base(text.Color, tag)
+        {
+            _primitive = text;
+            _primitives = new[] { _primitive };
+            _snapPoints = new[] { new EndPoint(Location) };
 
-            var textPrimitive = new PrimitiveText(value, location, height, normal, rotation, color);
-
-            primitives = new[] { textPrimitive };
-            snapPoints = new[] { new EndPoint(location) };
-
-            this.width = textPrimitive.Width;
-            var rad = this.rotation * MathHelper.DegreesToRadians;
-            var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * width;
-            var up = normal.Cross(right).Normalize() * this.height;
-            boundingBox = BoundingBox.FromPoints(
-                this.location,
-                this.location + right,
-                this.location + up,
-                this.location + right + up);
+            var rad = Rotation * MathHelper.DegreesToRadians;
+            var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * Width;
+            var up = Normal.Cross(right).Normalize() * Height;
+            BoundingBox = BoundingBox.FromPoints(
+                Location,
+                Location + right,
+                Location + up,
+                Location + right + up);
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return this.primitives;
+            return _primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return this.snapPoints;
+            return _snapPoints;
         }
 
         public override object GetProperty(string propertyName)
         {
             switch (propertyName)
             {
-                case ValueText:
+                case nameof(Value):
                     return Value;
-                case LocationText:
+                case nameof(Location):
                     return Location;
-                case NormalText:
+                case nameof(Normal):
                     return Normal;
-                case HeightText:
+                case nameof(Height):
                     return Height;
-                case WidthText:
+                case nameof(Width):
                     return Width;
-                case RotationText:
+                case nameof(Rotation):
                     return Rotation;
                 default:
                     return base.GetProperty(propertyName);
             }
         }
-
-        public override EntityKind Kind { get { return EntityKind.Text; } }
-
-        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
 
         public Text Update(
             string value = null,
@@ -110,21 +90,21 @@ namespace BCad.Entities
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
-            var newValue = value ?? this.value;
-            var newLocation = location.HasValue ? location.Value : this.location;
-            var newNormal = normal.HasValue ? normal.Value : this.normal;
-            var newHeight = height.HasValue ? height.Value : this.height;
-            var newRotation = rotation.HasValue ? rotation.Value : this.rotation;
-            var newColor = color.HasValue ? color.Value : this.Color;
-            var newTag = tag.HasValue ? tag.Value : this.Tag;
+            var newValue = value ?? Value;
+            var newLocation = location.HasValue ? location.Value : Location;
+            var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newHeight = height.HasValue ? height.Value : Height;
+            var newRotation = rotation.HasValue ? rotation.Value : Rotation;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (newValue == this.value &&
-                newLocation == this.location &&
-                newNormal == this.normal &&
-                newHeight == this.height &&
-                newRotation == this.rotation &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+            if (newValue == Value &&
+                newLocation == Location &&
+                newNormal == Normal &&
+                newHeight == Height &&
+                newRotation == Rotation &&
+                newColor == Color &&
+                newTag == Tag)
             {
                 return this;
             }
