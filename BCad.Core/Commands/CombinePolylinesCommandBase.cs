@@ -2,14 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BCad.Entities;
-using BCad.Extensions;
-using BCad.Primitives;
 
 namespace BCad.Commands
 {
     public abstract class CombinePolylinesCommandBase : ICadCommand
     {
-        protected abstract IEnumerable<IPrimitive> Combine(IEnumerable<Polyline> polylines);
+        protected abstract IEnumerable<Polyline> Combine(IEnumerable<Polyline> polylines);
 
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
@@ -35,7 +33,7 @@ namespace BCad.Commands
             var result = Combine(polys);
             foreach (var line in result)
             {
-                drawing = drawing.AddToCurrentLayer(line.ToEntity());
+                drawing = drawing.AddToCurrentLayer(line);
             }
 
             workspace.Update(drawing: drawing);

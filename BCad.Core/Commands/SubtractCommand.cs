@@ -49,9 +49,9 @@ namespace BCad.Commands
 
             // perform the subtraction and add the new entities
             var result = ((Polyline)original.Value.Entity).Subtract(polys);
-            foreach (var primitive in result)
+            foreach (var poly in result)
             {
-                drawing = drawing.AddToCurrentLayer(primitive.ToEntity());
+                drawing = drawing.AddToCurrentLayer(poly);
             }
 
             workspace.Update(drawing: drawing);

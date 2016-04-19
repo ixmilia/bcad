@@ -493,5 +493,18 @@ namespace BCad.Test
             Assert.IsTrue(el.GetEndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
             Assert.IsTrue(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));
         }
+
+        [TestMethod]
+        public void LinesToLineStripTest()
+        {
+            var lines = new List<PrimitiveLine>()
+            {
+                new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)), // bottom of square
+                new PrimitiveLine(new Point(1.0, 1.0, 0.0), new Point(1.0, 0.0, 0.0)), // right edge of square, points reversed
+                new PrimitiveLine(new Point(1.0, 1.0, 0.0), new Point(0.0, 1.0, 0.0)), // top edge of square
+                new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0)), // left edge of square, points reversed
+            };
+            var points = lines.GetLineStripsFromLines();
+        }
     }
 }

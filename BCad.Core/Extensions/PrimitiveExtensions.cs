@@ -1052,5 +1052,44 @@ namespace BCad.Extensions
             return ellipse.GetInterestingPoints(maxSeg)
                 .Select(p => transformationMatrix.Transform(p));
         }
+
+        public static IEnumerable<IEnumerable<Point>> GetLineStripsFromLines(this IEnumerable<PrimitiveLine> lines)
+        {
+            var remainingLines = new HashSet<PrimitiveLine>(lines);
+            var result = new List<List<Point>>();
+            while (remainingLines.Count > 1)
+            {
+                var points = new List<Point>();
+                var first = remainingLines.First();
+                remainingLines.Remove(first);
+                points.Add(first.P1);
+                points.Add(first.P2);
+
+                while (remainingLines.Count > 0)
+                {
+                    var nextLine = remainingLines.FirstOrDefault(l => l.P1 == points.Last() || l.P2 == points.Last());
+                    if (nextLine == null)
+                    {
+                        // no more lines
+                        break;
+                    }
+
+                    remainingLines.Remove(nextLine);
+                    points.Add(nextLine.P1 == points.Last() ? nextLine.P2 : nextLine.P1);
+                }
+
+                result.Add(points);
+            }
+
+            return result;
+        }
+
+        public static IEnumerable<Polyline> GetPolylinesFromLines(this IEnumerable<IPrimitive> primitives)
+        {
+            // TODO: only lines are currently supported
+            return primitives.Cast<PrimitiveLine>()
+                .GetLineStripsFromLines()
+                .Select(points => new Polyline(points, null));
+        }
     }
 }

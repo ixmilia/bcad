@@ -8,17 +8,17 @@ namespace BCad.Extensions
 {
     public static class PolylineExtensions
     {
-        public static IEnumerable<IPrimitive> Union(this IEnumerable<Polyline> polylines)
+        public static IEnumerable<Polyline> Union(this IEnumerable<Polyline> polylines)
         {
             return CombinePolylines(polylines, doUnion: true);
         }
 
-        public static IEnumerable<IPrimitive> Intersect(this IEnumerable<Polyline> polylines)
+        public static IEnumerable<Polyline> Intersect(this IEnumerable<Polyline> polylines)
         {
             return CombinePolylines(polylines, doUnion: false);
         }
 
-        public static IEnumerable<IPrimitive> Subtract(this Polyline polyline, IEnumerable<Polyline> others)
+        public static IEnumerable<Polyline> Subtract(this Polyline polyline, IEnumerable<Polyline> others)
         {
             var all = new[] { polyline }.Concat(others);
             var allLines = PerformAllIntersections(all);
@@ -46,10 +46,10 @@ namespace BCad.Extensions
                 }
             }
 
-            return keptLines;
+            return keptLines.GetPolylinesFromLines();
         }
 
-        private static IEnumerable<IPrimitive> CombinePolylines(IEnumerable<Polyline> polylineCollection, bool doUnion)
+        private static IEnumerable<Polyline> CombinePolylines(IEnumerable<Polyline> polylineCollection, bool doUnion)
         {
             var allLines = PerformAllIntersections(polylineCollection);
 
@@ -79,7 +79,7 @@ namespace BCad.Extensions
                 }
             }
 
-            return keptLines;
+            return keptLines.GetPolylinesFromLines();
         }
 
         private static Dictionary<IPrimitive, Polyline> PerformAllIntersections(IEnumerable<Polyline> polylineCollection)
