@@ -172,18 +172,6 @@ namespace BCad.UI.Shared
             SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
             SetCursorVisibility();
 
-#if WINDOWS_UWP
-            _renderer = new Universal.UI.Win2DRenderer(Workspace);
-#else
-            var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
-            if (factory != null)
-            {
-                _renderer = factory.Value.CreateRenderer(this, Workspace);
-            }
-#endif
-
-            renderControl.Content = _renderer;
-
             // prepare snap point icons
             foreach (var kind in new[] { SnapPointKind.Center, SnapPointKind.EndPoint, SnapPointKind.MidPoint, SnapPointKind.Quadrant, SnapPointKind.Focus })
             {
@@ -228,6 +216,10 @@ namespace BCad.UI.Shared
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.RendererId))
+            {
+                SetRenderer();
+            }
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.BackgroundColor))
             {
                 var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor();
@@ -284,6 +276,28 @@ namespace BCad.UI.Shared
                     ? 1.0
                     : 3.0 / Workspace.SettingsManager.SnapPointSize;
             }
+        }
+
+        private void SetRenderer()
+        {
+            renderControl.Content = null;
+            var disposable = _renderer as IDisposable;
+            if (disposable != null)
+            {
+                disposable.Dispose();
+            }
+
+#if WINDOWS_UWP
+            _renderer = new Universal.UI.Win2DRenderer(Workspace);
+#else
+            var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
+            if (factory != null)
+            {
+                _renderer = factory.Value.CreateRenderer(this, Workspace);
+            }
+#endif
+
+            renderControl.Content = _renderer;
         }
 
         private void Invoke(Action action)

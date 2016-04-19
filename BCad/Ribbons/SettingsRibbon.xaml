@@ -116,7 +116,7 @@
     </RibbonGroup>
     <RibbonGroup Header="UI">
         <StackPanel>
-            <TextBlock Text="Display (restart required)" />
+            <TextBlock Text="Renderer" />
             <ComboBox ItemsSource="{Binding Path=AvailableRenderers}"
                       SelectedItem="{Binding Path=SettingsManager.RendererId}" />
         </StackPanel>
