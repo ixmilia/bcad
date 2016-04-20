@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using BCad.Extensions;
 using BCad.Helpers;
 
@@ -132,7 +134,6 @@ namespace BCad.Primitives
                 if (realMid < realStart)
                     realMid += 360;
 
-
                 if (realMid < realStart || realMid > realEnd)
                 {
                     var temp = startAngle;
@@ -147,6 +148,77 @@ namespace BCad.Primitives
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Creates all possible arcs (max 2) with the specified endpoints and the resultant included angle.
+        /// </summary>
+        /// <param name="p1">The first point.</param>
+        /// <param name="p2">The second point.</param>
+        /// <param name="includedAngle">The included angle of the resultant arc in degrees.</param>
+        /// <returns>The possible arcs.</returns>
+        public static IEnumerable<PrimitiveEllipse> ArcsFromPointsAndIncludedAngle(Point p1, Point p2, double includedAngle)
+        {
+            if (p1.Z != p2.Z)
+            {
+                throw new InvalidOperationException("only simple planar arcs are currently supported");
+            }
+
+            if (includedAngle < 0.0 || includedAngle >= MathHelper.ThreeSixty)
+            {
+                throw new ArgumentOutOfRangeException(nameof(includedAngle));
+            }
+
+            // given the following diagram:
+            //
+            //                p1
+            //               -)
+            //            -  |  )
+            //        -      |    )
+            //    -          |     )
+            // O ------------|C----T
+            //    -          |  x  )
+            //        -      |    )
+            //            -  |  )
+            //               -)
+            //               p2
+            //
+            // where O is the center of the circle, C is the midpoint between p1 and p2, the
+            // distance x is the amount that C would have to be offset perpendicular to the
+            // line p1p2 to find the third point T from which we can calculate the arcs
+
+            // first, find the required radius
+            // there is an isoceles triangle created between the two points and the center which means splitting that there's
+            // a right triangle whose hypotenuse is a radius of the circle and the opposite side is half of the distance between
+            // the points.
+            var incAngleRad = includedAngle * MathHelper.DegreesToRadians;
+            var halfAngle = incAngleRad / 2.0;
+            var otherLength = (p2 - p1).Length / 2.0;
+            // since sin(theta) = opposite / hypotenuse => opposite / sin(theta) = hypotenuse
+            var radius = otherLength / Math.Sin(halfAngle); // hypotenuse length
+
+            // then, given that Op1C is a right triangle and that the line OC has a length of r - x and assuming y is the distance
+            // between the point C and p1, we get
+            // r^2 = (r-x)^2 + y^2 => x = r - sqrt(r^2 - y^2)
+            var midpoint = (p1 + p2) / 2.0;
+            var y = otherLength;
+            var xOffset = radius - Math.Sqrt((radius * radius) - (y * y));
+
+            // now offset the midpoint by x (both directions) perpendicular to the line p1p2 and compute the arcs
+            var chordVector = p2 - p1;
+            var offsetVector = new Vector(-chordVector.Y, chordVector.X, chordVector.Z).Normalize() * xOffset;
+            var possibleMidpoint1 = midpoint + offsetVector;
+            var possibleMidpoint2 = midpoint - offsetVector;
+
+            // now construct like normal
+            var arc1 = ThreePointArc(p1, possibleMidpoint1, p2);
+            var arc2 = ThreePointArc(p1, possibleMidpoint2, p2);
+
+            return new[]
+            {
+                arc1,
+                arc2
+            };
         }
 
         /// <summary>
