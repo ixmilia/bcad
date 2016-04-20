@@ -45,6 +45,7 @@
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlyTree.cs" />
     <Compile Include="Commands\AbstractCopyMoveCommand.cs" />
+    <Compile Include="Commands\AbstractDrawPolyLineCommand.cs" />
     <Compile Include="Commands\AbstractTrimExtendCommand.cs" />
     <Compile Include="Commands\CadCommandMetadata.cs" />
     <Compile Include="Commands\CopyCommand.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Commands\DrawEllipseCommand.cs" />
     <Compile Include="Commands\DrawLineCommand.cs" />
     <Compile Include="Commands\DrawPointCommand.cs" />
+    <Compile Include="Commands\DrawPolygonCommand.cs" />
     <Compile Include="Commands\DrawPolyLineCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
