@@ -59,6 +59,7 @@
     <Compile Include="Commands\DrawPointCommand.cs" />
     <Compile Include="Commands\DrawPolygonCommand.cs" />
     <Compile Include="Commands\DrawPolyLineCommand.cs" />
+    <Compile Include="Commands\DrawRectangleCommand.cs" />
     <Compile Include="Commands\DrawTextCommand.cs" />
     <Compile Include="Commands\EntityPropertiesCommand.cs" />
     <Compile Include="Commands\ExtendCommand.cs" />

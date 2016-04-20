@@ -268,11 +268,18 @@ namespace BCad
 
         protected virtual Tuple<ICadCommand, string> GetCommand(string commandName)
         {
-            var command = (from c in Commands
-                           let data = c.Metadata
-                           where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                              || data.CommandAliases.Any(alias => string.Compare(alias, commandName, StringComparison.OrdinalIgnoreCase) == 0)
-                           select c).SingleOrDefault();
+            var candidateCommands =
+                from c in Commands
+                let data = c.Metadata
+                where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                   || data.CommandAliases.Any(alias => string.Compare(alias, commandName, StringComparison.OrdinalIgnoreCase) == 0)
+                select c;
+            var command = candidateCommands.FirstOrDefault();
+            if (candidateCommands.Count() > 1)
+            {
+                throw new InvalidOperationException($"Ambiguous command name '{commandName}'.  Possibilities: {string.Join(", ", candidateCommands.Select(c => c.Metadata.Name))}");
+            }
+
             return command == null ? null : Tuple.Create(command.Value, command.Metadata.DisplayName);
         }
 
