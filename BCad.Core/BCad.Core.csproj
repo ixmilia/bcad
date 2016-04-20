@@ -79,6 +79,7 @@
     <Compile Include="Commands\ZoomWindowCommand.cs" />
     <Compile Include="DefaultSettingsManager.cs" />
     <Compile Include="Entities\Location.cs" />
+    <Compile Include="Entities\Vertex.cs" />
     <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
     <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
     <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />

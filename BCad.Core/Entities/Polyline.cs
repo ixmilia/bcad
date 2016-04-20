@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using BCad.Extensions;
+using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
 
@@ -9,78 +10,98 @@ namespace BCad.Entities
 {
     public class Polyline : Entity
     {
-        private const string PointsText = "Points";
-        private readonly IEnumerable<Point> points;
-        private readonly SnapPoint[] snapPoints;
-        private readonly IPrimitive[] primitives;
-        private readonly BoundingBox boundingBox;
+        private readonly List<SnapPoint> _snapPoints;
+        private readonly List<IPrimitive> _primitives;
 
-        public IEnumerable<Point> Points { get { return this.points; } }
+        public IEnumerable<Vertex> Vertices { get; }
 
-        public Polyline(IEnumerable<Point> points, CadColor? color, object tag = null)
+        public override EntityKind Kind => EntityKind.Polyline;
+
+        public override int PrimitiveCount => _primitives.Count;
+
+        public override BoundingBox BoundingBox { get; }
+
+        public Polyline(IEnumerable<Vertex> vertices, CadColor? color, object tag = null)
             : base(color, tag)
         {
-            this.points = new List<Point>(points); // to prevent backing changes
+            var vertexList = new List<Vertex>(vertices); // to prevent backing changes
+            Vertices = vertexList;
 
-            // add end points
-            var parr = points.ToArray();
-            var sp = new List<SnapPoint>(points.Select(p => new EndPoint(p)));
-            var pr = new List<IPrimitive>();
-            // add midpoints
-            for (int i = 0; i < parr.Length - 1; i++)
+            if (vertexList.Count < 2)
             {
-                sp.Add(new MidPoint((parr[i] + parr[i + 1]) / 2.0));
-                pr.Add(new PrimitiveLine(parr[i], parr[i + 1], color));
+                throw new ArgumentOutOfRangeException(nameof(vertices));
             }
-            this.snapPoints = sp.ToArray();
-            this.primitives = pr.ToArray();
-            this.boundingBox = BoundingBox.FromPoints(parr);
+
+            // walk all vertices and compute primitives and snap points
+            _primitives = new List<IPrimitive>();
+            _snapPoints = new List<SnapPoint>();
+
+            var last = vertexList[0];
+            _snapPoints.Add(new EndPoint(last.Location));
+            for (int i = 1; i < vertexList.Count; i++)
+            {
+                var current = vertexList[i];
+                IPrimitive primitive;
+                if (current.Bulge == 0.0)
+                {
+                    primitive = new PrimitiveLine(last.Location, current.Location);
+                }
+                else
+                {
+                    // it's an arc segment and the bulge is 1/4 of the tangent of the included angle
+                    var includedAngle = Math.Atan(current.Bulge * 4.0) * MathHelper.RadiansToDegrees;
+                    // TODO: what primitive to select if it's negative?
+                    primitive = PrimitiveEllipse.ArcsFromPointsAndIncludedAngle(last.Location, current.Location, includedAngle).First();
+                }
+
+                _primitives.Add(primitive);
+                _snapPoints.Add(new MidPoint(primitive.MidPoint()));
+                _snapPoints.Add(new EndPoint(current.Location));
+
+                last = current;
+            }
+
+            BoundingBox = BoundingBox.FromPoints(_snapPoints.Select(sp => sp.Point).ToArray());
         }
 
         public override IEnumerable<IPrimitive> GetPrimitives()
         {
-            return this.primitives;
+            return _primitives;
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {
-            return this.snapPoints;
+            return _snapPoints;
         }
 
         public override object GetProperty(string propertyName)
         {
             switch (propertyName)
             {
-                case PointsText:
-                    return Points;
+                case nameof(Vertices):
+                    return Vertices;
                 default:
                     return base.GetProperty(propertyName);
             }
         }
 
-        public override EntityKind Kind { get { return EntityKind.Polyline; } }
-
-        public override BoundingBox BoundingBox { get { return this.boundingBox; } }
-
-        public override int PrimitiveCount { get { return this.primitives.Count(); } }
-
         public Polyline Update(
-            IEnumerable<Point> points = null,
+            IEnumerable<Vertex> vertices = null,
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
-            var newPoints = points ?? this.points;
-            var newColor = color.HasValue ? color.Value : this.Color;
-            var newTag = tag.HasValue ? tag.Value : this.Tag;
+            var newVectices = vertices ?? Vertices;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (object.ReferenceEquals(newPoints, this.points) &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+            if (object.ReferenceEquals(newVectices, Vertices) &&
+                newColor == Color &&
+                newTag == Tag)
             {
                 return this;
             }
 
-            return new Polyline(newPoints, newColor, newTag);
+            return new Polyline(newVectices, newColor, newTag);
         }
     }
 }

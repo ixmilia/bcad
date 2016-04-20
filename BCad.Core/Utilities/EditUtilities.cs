@@ -327,7 +327,7 @@ namespace BCad.Utilities
                     return location.Update(point: location.Point + offset);
                 case EntityKind.Polyline:
                     var poly = (Polyline)entity;
-                    return poly.Update(points: poly.Points.Select(p => p + offset));
+                    return poly.Update(vertices: poly.Vertices.Select(v => new Vertex(v.Location + offset, v.Bulge)));
                 case EntityKind.Text:
                     var text = (Text)entity;
                     return text.Update(location: text.Location + offset);

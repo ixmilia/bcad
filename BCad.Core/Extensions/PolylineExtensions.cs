@@ -96,7 +96,7 @@ namespace BCad.Extensions
                 throw new InvalidOperationException("Must be performed on 2 or more polylines");
             }
 
-            var lines = polylines.Select(p => Tuple.Create(p, p.Points.GetLinesFromPoints().ToList())).ToList();
+            var lines = polylines.Select(p => Tuple.Create(p, p.Vertices.Select(v => v.Location).GetLinesFromPoints().ToList())).ToList();
             var intersections = new Dictionary<IPrimitive, HashSet<Point>>();
 
             // intersect all polygons

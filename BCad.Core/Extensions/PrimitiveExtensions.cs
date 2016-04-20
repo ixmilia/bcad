@@ -1089,7 +1089,7 @@ namespace BCad.Extensions
             // TODO: only lines are currently supported
             return primitives.Cast<PrimitiveLine>()
                 .GetLineStripsFromLines()
-                .Select(points => new Polyline(points, null));
+                .Select(points => new Polyline(points.Select(p => new Vertex(p)), null));
         }
     }
 }

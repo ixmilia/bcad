@@ -108,7 +108,8 @@ namespace BCad.Extensions
 
         public static bool ContainsPoint(this Polyline polyline, Point point)
         {
-            return polyline.Points.PolygonContains(point);
+            // TODO: update to handle arcs
+            return polyline.Vertices.Select(v => v.Location).PolygonContains(point);
         }
 
         public static Point MidPoint(this Line line)

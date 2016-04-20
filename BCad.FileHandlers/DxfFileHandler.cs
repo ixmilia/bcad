@@ -223,6 +223,16 @@ namespace BCad.FileHandlers
             return new Location(point.Location.ToPoint(), point.Color.ToColor(), point);
         }
 
+        public static Vertex ToVertex(this DxfVertex vertex)
+        {
+            return new Vertex(vertex.Location.ToPoint(), vertex.Bulge);
+        }
+
+        public static DxfVertex ToDxfVertex(this Vertex vertex)
+        {
+            return new DxfVertex(vertex.Location.ToDxfPoint()) { Bulge = vertex.Bulge };
+        }
+
         public static Line ToLine(this DxfLine line)
         {
             return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor(), line);
@@ -230,12 +240,12 @@ namespace BCad.FileHandlers
 
         public static Polyline ToPolyline(this DxfPolyline poly)
         {
-            return new Polyline(poly.Vertices.Select(v => v.Location.ToPoint()), poly.Color.ToColor(), poly);
+            return new Polyline(poly.Vertices.Select(v => v.ToVertex()), poly.Color.ToColor(), poly);
         }
 
         public static Polyline ToPolyline(this DxfLeader leader)
         {
-            return new Polyline(leader.Vertices.Select(v => v.ToPoint()), leader.Color.ToColor(), leader);
+            return new Polyline(leader.Vertices.Select(v => new Vertex(v.ToPoint())), leader.Color.ToColor(), leader);
         }
 
         public static Circle ToCircle(this DxfCircle circle)
@@ -328,11 +338,11 @@ namespace BCad.FileHandlers
             var dp = new DxfPolyline()
             {
                 Color = poly.Color.ToDxfColor(),
-                Elevation = poly.Points.Any() ? poly.Points.First().Z : 0.0,
+                Elevation = poly.Vertices.Any() ? poly.Vertices.First().Location.Z : 0.0,
                 Layer = layer.Name,
                 Normal = DxfVector.ZAxis
             };
-            dp.Vertices.AddRange(poly.Points.Select(p => new DxfVertex(p.ToDxfPoint())));
+            dp.Vertices.AddRange(poly.Vertices.Select(v => v.ToDxfVertex()));
             return dp;
         }
 
