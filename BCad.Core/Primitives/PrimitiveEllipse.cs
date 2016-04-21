@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 
@@ -151,13 +152,14 @@ namespace BCad.Primitives
         }
 
         /// <summary>
-        /// Creates all possible arcs (max 2) with the specified endpoints and the resultant included angle.
+        /// Creates an arc with the specified endpoints and the resultant included angle and vertex direction.
         /// </summary>
         /// <param name="p1">The first point.</param>
         /// <param name="p2">The second point.</param>
         /// <param name="includedAngle">The included angle of the resultant arc in degrees.</param>
-        /// <returns>The possible arcs.</returns>
-        public static IEnumerable<PrimitiveEllipse> ArcsFromPointsAndIncludedAngle(Point p1, Point p2, double includedAngle)
+        /// <param name="vertexDirection">The direction of the vertices specifying the arc.</param>
+        /// <returns>The resultant arc, or null if it couldn't be created.</returns>
+        public static PrimitiveEllipse ArcFromPointsAndIncludedAngle(Point p1, Point p2, double includedAngle, VertexDirection vertexDirection)
         {
             if (p1.Z != p2.Z)
             {
@@ -211,14 +213,18 @@ namespace BCad.Primitives
             var possibleMidpoint2 = midpoint - offsetVector;
 
             // now construct like normal
-            var arc1 = ThreePointArc(p1, possibleMidpoint1, p2);
-            var arc2 = ThreePointArc(p1, possibleMidpoint2, p2);
-
-            return new[]
+            var arc = ThreePointArc(p1, possibleMidpoint1, p2, idealNormal: Vector.ZAxis);
+            var startPoint = arc.GetStartPoint();
+            if (startPoint.CloseTo(p1) ^ vertexDirection != VertexDirection.CounterClockwise)
             {
-                arc1,
-                arc2
-            };
+                // arc is correct
+            }
+            else
+            {
+                arc = ThreePointArc(p1, possibleMidpoint2, p2, idealNormal: Vector.ZAxis);
+            }
+
+            return arc;
         }
 
         /// <summary>

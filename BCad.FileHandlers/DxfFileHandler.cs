@@ -9,6 +9,7 @@ using IxMilia.Dxf.Blocks;
 using IxMilia.Dxf.Entities;
 using BCad.Entities;
 using System.Threading;
+using BCad.Helpers;
 
 namespace BCad.FileHandlers
 {
@@ -225,12 +226,26 @@ namespace BCad.FileHandlers
 
         public static Vertex ToVertex(this DxfVertex vertex)
         {
-            return new Vertex(vertex.Location.ToPoint(), vertex.Bulge);
+            if (vertex.Bulge == 0.0)
+            {
+                // it's a line
+                return new Vertex(vertex.Location.ToPoint());
+            }
+            else
+            {
+                // it's an arc; according to the spec:
+                //   The bulge is the tangent of one fourth the included angle for an arc segment, made negative
+                //   if the arc goes clockwise from the start point to the end point.  A bulge of 0 indicates a
+                //   straight segment, and a bulge of 1.0 is a semicircle.
+                var includedAngle = Math.Atan(Math.Abs(vertex.Bulge) * 4.0) * MathHelper.RadiansToDegrees;
+                var direction = vertex.Bulge > 0.0 ? VertexDirection.CounterClockwise : VertexDirection.Clockwise;
+                return new Vertex(vertex.Location.ToPoint(), includedAngle, direction);
+            }
         }
 
         public static DxfVertex ToDxfVertex(this Vertex vertex)
         {
-            return new DxfVertex(vertex.Location.ToDxfPoint()) { Bulge = vertex.Bulge };
+            return new DxfVertex(vertex.Location.ToDxfPoint()) { Bulge = Math.Tan(vertex.IncludedAngle * MathHelper.DegreesToRadians) * 0.25 };
         }
 
         public static Line ToLine(this DxfLine line)

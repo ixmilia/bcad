@@ -516,22 +516,19 @@ namespace BCad.Test
             var p2 = new Point(0, -1, 0);
             var includedAngle = 90.0;
 
-            // get arcs and sort by X
-            var arcs = PrimitiveEllipse.ArcsFromPointsAndIncludedAngle(p1, p2, includedAngle)
-                .OrderBy(a => a.Center.X)
-                .ToArray();
-
             var sqrt2 = Math.Sqrt(2.0);
 
-            AssertClose(new Point(-1, 0, 0), arcs[0].Center);
-            AssertClose(sqrt2, arcs[0].MajorAxis.Length);
-            AssertClose(315.0, arcs[0].StartAngle);
-            AssertClose(45.0, arcs[0].EndAngle);
+            var arc1 = PrimitiveEllipse.ArcFromPointsAndIncludedAngle(p1, p2, includedAngle, VertexDirection.Clockwise);
+            AssertClose(new Point(-1, 0, 0), arc1.Center);
+            AssertClose(sqrt2, arc1.MajorAxis.Length);
+            AssertClose(315.0, arc1.StartAngle);
+            AssertClose(45.0, arc1.EndAngle);
 
-            AssertClose(new Point(1, 0, 0), arcs[1].Center);
-            AssertClose(sqrt2, arcs[1].MajorAxis.Length);
-            AssertClose(135.0, arcs[1].StartAngle);
-            AssertClose(225.0, arcs[1].EndAngle);
+            var arc2 = PrimitiveEllipse.ArcFromPointsAndIncludedAngle(p1, p2, includedAngle, VertexDirection.CounterClockwise);
+            AssertClose(new Point(1, 0, 0), arc2.Center);
+            AssertClose(sqrt2, arc2.MajorAxis.Length);
+            AssertClose(135.0, arc2.StartAngle);
+            AssertClose(225.0, arc2.EndAngle);
         }
     }
 }

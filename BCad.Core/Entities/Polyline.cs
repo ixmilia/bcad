@@ -42,16 +42,13 @@ namespace BCad.Entities
             {
                 var current = vertexList[i];
                 IPrimitive primitive;
-                if (current.Bulge == 0.0)
+                if (current.IsLine)
                 {
                     primitive = new PrimitiveLine(last.Location, current.Location);
                 }
                 else
                 {
-                    // it's an arc segment and the bulge is 1/4 of the tangent of the included angle
-                    var includedAngle = Math.Atan(current.Bulge * 4.0) * MathHelper.RadiansToDegrees;
-                    // TODO: what primitive to select if it's negative?
-                    primitive = PrimitiveEllipse.ArcsFromPointsAndIncludedAngle(last.Location, current.Location, includedAngle).First();
+                    primitive = PrimitiveEllipse.ArcFromPointsAndIncludedAngle(last.Location, current.Location, current.IncludedAngle, current.Direction);
                 }
 
                 _primitives.Add(primitive);

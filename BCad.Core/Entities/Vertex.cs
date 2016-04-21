@@ -3,17 +3,21 @@
     public class Vertex
     {
         public Point Location { get; }
-        public double Bulge { get; }
+        public double IncludedAngle { get; }
+        public VertexDirection Direction { get; }
+        public bool IsLine => IncludedAngle == 0.0;
+        public bool IsArc => IncludedAngle != 0.0;
 
         public Vertex(Point location)
-            : this(location, 0.0)
+            : this(location, 0.0, default(VertexDirection))
         {
         }
 
-        public Vertex(Point location, double bulge)
+        public Vertex(Point location, double includedAngle, VertexDirection direction)
         {
             Location = location;
-            Bulge = bulge;
+            IncludedAngle = includedAngle;
+            Direction = direction;
         }
     }
 }

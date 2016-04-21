@@ -80,6 +80,7 @@
     <Compile Include="DefaultSettingsManager.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\Vertex.cs" />
+    <Compile Include="Entities\VertexDirection.cs" />
     <Compile Include="EventArguments\RubberBandGeneratorChangedEventArgs.cs" />
     <Compile Include="EventArguments\ValueReceivedEventArgs.cs" />
     <Compile Include="EventArguments\ValueRequestedEventArgs.cs" />
