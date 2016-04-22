@@ -15,8 +15,7 @@ namespace BCad.Test
         {
             var viewPort = new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 100.0);
             var transform = viewPort.GetTransformationMatrixDirect3DStyle(200, 100);
-            var inverse = transform;
-            inverse.Invert();
+            var inverse = transform.Inverse();
             // view port
             // 0,100     200,100
             //
@@ -53,8 +52,7 @@ namespace BCad.Test
         {
             var viewPort = new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 100.0);
             var transform = viewPort.GetTransformationMatrixWindowsStyle(100, 50);
-            var inverse = transform;
-            inverse.Invert();
+            var inverse = transform.Inverse();
             // view port
             // 0,100     200,100
             //
@@ -91,8 +89,7 @@ namespace BCad.Test
         {
             var viewPort = new ViewPort(new Point(100, 100, 0), Vector.ZAxis, Vector.YAxis, 100.0);
             var transform = viewPort.GetTransformationMatrixWindowsStyle(100, 100);
-            var inverse = transform;
-            inverse.Invert();
+            var inverse = transform.Inverse();
             // view port
             // 100,200   200,200
             //      150,150

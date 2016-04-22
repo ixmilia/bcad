@@ -7,9 +7,9 @@ namespace BCad.Commands
     [ExportCadCommand("Edit.Intersection", "INTERSECTION", "intersection", "int")]
     public class IntersectionCommand : CombinePolylinesCommandBase
     {
-        protected override IEnumerable<Polyline> Combine(IEnumerable<Polyline> polylines)
+        protected override IEnumerable<Entity> Combine(IEnumerable<Entity> entities)
         {
-            return polylines.Intersect();
+            return entities.Intersect();
         }
     }
 }

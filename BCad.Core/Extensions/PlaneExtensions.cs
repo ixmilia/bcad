@@ -60,8 +60,7 @@ namespace BCad.Extensions
 
         public static Point FromXYPlane(this Plane plane, Point point)
         {
-            var matrix = plane.ToXYPlaneProjection();
-            matrix.Invert();
+            var matrix = plane.ToXYPlaneProjection().Inverse();
             return matrix.Transform(point);
         }
     }

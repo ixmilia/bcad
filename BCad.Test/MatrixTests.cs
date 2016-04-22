@@ -17,8 +17,7 @@ namespace BCad.Test
         [TestMethod]
         public void InvertIdentityMatrixTest()
         {
-            var matrix = Matrix4.Identity;
-            matrix.Invert();
+            var matrix = Matrix4.Identity.Inverse();
             Assert.IsTrue(matrix.IsIdentity);
         }
 
@@ -29,8 +28,7 @@ namespace BCad.Test
                 3, 0, 2, -1,
                 1, 2, 0, -2,
                 4, 0, 6, -3,
-                5, 0, 2,  0);
-            matrix.Invert();
+                5, 0, 2, 0).Inverse();
             var expected = new Matrix4(
                  0.6, 0,   -0.2, 0,
                 -2.5, 0.5,  0.5, 1,

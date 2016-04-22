@@ -1,4 +1,6 @@
-﻿namespace BCad.Entities
+﻿using BCad.Primitives;
+
+namespace BCad.Entities
 {
     public class Vertex
     {
@@ -18,6 +20,18 @@
             Location = location;
             IncludedAngle = includedAngle;
             Direction = direction;
+        }
+
+        public static IPrimitive PrimitiveFromPointAndVertex(Point lastPoint, Vertex nextVertex)
+        {
+            if (nextVertex.IsLine)
+            {
+                return new PrimitiveLine(lastPoint, nextVertex.Location);
+            }
+            else
+            {
+                return PrimitiveEllipse.ArcFromPointsAndIncludedAngle(lastPoint, nextVertex.Location, nextVertex.IncludedAngle, nextVertex.Direction);
+            }
         }
     }
 }

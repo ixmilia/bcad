@@ -393,8 +393,7 @@ namespace BCad.UI.Shared
         private void ViewPortChanged()
         {
             windowsTransformationMatrix = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
-            unprojectMatrix = windowsTransformationMatrix;
-            unprojectMatrix.Invert();
+            unprojectMatrix = windowsTransformationMatrix.Inverse();
             windowsTransformationMatrix = Matrix4.CreateScale(1, 1, 0) * windowsTransformationMatrix;
             UpdateHotPoints();
             UpdateSnapPoints();
@@ -1130,9 +1129,9 @@ namespace BCad.UI.Shared
                         }
                         else
                         {
-                            AddHotPointIcon(el.GetStartPoint());
+                            AddHotPointIcon(el.StartPoint());
                             AddHotPointIcon(el.MidPoint());
-                            AddHotPointIcon(el.GetEndPoint());
+                            AddHotPointIcon(el.EndPoint());
                         }
                         break;
                     case PrimitiveKind.Line:

@@ -77,6 +77,7 @@
     <Compile Include="DrawingTests.cs" />
     <Compile Include="DwgTests\BitReaderTests.cs" />
     <Compile Include="DwgTests\LoadTests.cs" />
+    <Compile Include="EntityTests.cs" />
     <Compile Include="MatrixTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using BCad.Entities;
 using BCad.Extensions;
@@ -121,21 +120,21 @@ namespace BCad.Primitives
             var circle = ThreePointCircle(a, b, c, idealNormal);
             if (circle != null)
             {
-                var toUnit = circle.FromUnitCircle;
-                toUnit.Invert();
+                var toUnit = circle.FromUnitCircle.Inverse();
                 var startAngle = toUnit.Transform((Vector)a).ToAngle();
                 var midAngle = toUnit.Transform((Vector)b).ToAngle();
                 var endAngle = toUnit.Transform((Vector)c).ToAngle();
 
-                // ensure the midpoint is included in the absolute angle span
-                double realStart = startAngle, realMid = midAngle, realEnd = endAngle;
-                if (realStart > realEnd)
-                    realStart -= 360.0;
+                // normalize mid and end angles to be greater than the start angle
+                var realMid = midAngle;
+                while (realMid < startAngle)
+                    realMid += MathHelper.ThreeSixty;
 
-                if (realMid < realStart)
-                    realMid += 360;
+                var realEnd = endAngle;
+                while (realEnd < startAngle)
+                    realEnd += MathHelper.ThreeSixty;
 
-                if (realMid < realStart || realMid > realEnd)
+                if (realMid > realEnd)
                 {
                     var temp = startAngle;
                     startAngle = endAngle;
@@ -206,6 +205,10 @@ namespace BCad.Primitives
             var y = otherLength;
             var xOffset = radius - Math.Sqrt((radius * radius) - (y * y));
 
+            // for angles greater than 180 degrees, the offset point is really much farther away
+            if (includedAngle >= MathHelper.OneEighty)
+                xOffset = radius + radius - xOffset;
+
             // now offset the midpoint by x (both directions) perpendicular to the line p1p2 and compute the arcs
             var chordVector = p2 - p1;
             var offsetVector = new Vector(-chordVector.Y, chordVector.X, chordVector.Z).Normalize() * xOffset;
@@ -214,7 +217,7 @@ namespace BCad.Primitives
 
             // now construct like normal
             var arc = ThreePointArc(p1, possibleMidpoint1, p2, idealNormal: Vector.ZAxis);
-            var startPoint = arc.GetStartPoint();
+            var startPoint = arc.StartPoint();
             if (startPoint.CloseTo(p1) ^ vertexDirection != VertexDirection.CounterClockwise)
             {
                 // arc is correct
@@ -223,6 +226,10 @@ namespace BCad.Primitives
             {
                 arc = ThreePointArc(p1, possibleMidpoint2, p2, idealNormal: Vector.ZAxis);
             }
+
+            var actualIncludedAngle = (arc.EndAngle - arc.StartAngle).CorrectAngleDegrees();
+            Debug.Assert(MathHelper.CloseTo(arc.MajorAxis.Length, radius));
+            Debug.Assert(MathHelper.CloseTo(includedAngle, actualIncludedAngle));
 
             return arc;
         }

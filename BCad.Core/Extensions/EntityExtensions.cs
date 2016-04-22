@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.Helpers;
+using BCad.Primitives;
 
 namespace BCad.Extensions
 {
@@ -12,7 +14,6 @@ namespace BCad.Extensions
             var other = entity as Arc;
             if (other != null)
             {
-
                 return arc.Center.CloseTo(other.Center)
                     && arc.Color == other.Color
                     && MathHelper.CloseTo(arc.EndAngle, other.EndAngle)
@@ -106,15 +107,214 @@ namespace BCad.Extensions
             return matrix;
         }
 
-        public static bool ContainsPoint(this Polyline polyline, Point point)
+        public static bool EnclosesPoint(this Entity entity, Point point)
         {
-            // TODO: update to handle arcs
-            return polyline.Vertices.Select(v => v.Location).PolygonContains(point);
+            switch (entity.Kind)
+            {
+                case EntityKind.Circle:
+                case EntityKind.Polyline:
+                    return entity.GetPrimitives().PolygonContains(point);
+                default:
+                    return false;
+            }
         }
 
         public static Point MidPoint(this Line line)
         {
             return line.GetPrimitives().Single().MidPoint();
+        }
+
+        public static IEnumerable<Entity> Union(this IEnumerable<Entity> entities)
+        {
+            return CombineEntities(entities, doUnion: true);
+        }
+
+        public static IEnumerable<Entity> Intersect(this IEnumerable<Entity> entities)
+        {
+            return CombineEntities(entities, doUnion: false);
+        }
+
+        private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion)
+        {
+            var allSegments = PerformAllIntersections(entityCollection);
+
+            // only keep segments that aren't contained in the other entity
+            var keptSegments = new List<IPrimitive>();
+            foreach (var kvp in allSegments)
+            {
+                var segment = kvp.Key;
+                var poly = kvp.Value;
+                var contains = !doUnion;
+                foreach (var container in entityCollection.Where(p => !ReferenceEquals(poly, p)))
+                {
+                    var containsPoint = container.EnclosesPoint(segment.MidPoint());
+                    if (doUnion)
+                    {
+                        contains |= containsPoint;
+                    }
+                    else
+                    {
+                        contains &= containsPoint;
+                    }
+                }
+
+                if (contains != doUnion)
+                {
+                    keptSegments.Add(segment);
+                }
+            }
+
+            return keptSegments.GetPolylinesFromSegments();
+        }
+
+        internal static Dictionary<IPrimitive, Entity> PerformAllIntersections(this IEnumerable<Entity> entityCollection)
+        {
+            if (entityCollection == null)
+            {
+                throw new ArgumentNullException(nameof(entityCollection));
+            }
+
+            var entities = entityCollection.ToList();
+            if (entities.Count <= 1)
+            {
+                throw new InvalidOperationException("Must be performed on 2 or more entities");
+            }
+
+            var segments = entities.Select(e => Tuple.Create(e, e.GetPrimitives().ToList())).ToList();
+            var intersections = new Dictionary<IPrimitive, HashSet<Point>>();
+
+            // intersect all polygons
+            for (int i = 0; i < entities.Count; i++)
+            {
+                for (int j = i + 1; j < entities.Count; j++)
+                {
+                    // intersect all segments
+                    var segments1 = segments[i].Item2;
+                    var segments2 = segments[j].Item2;
+                    for (int ii = 0; ii < segments1.Count; ii++)
+                    {
+                        for (int jj = 0; jj < segments2.Count; jj++)
+                        {
+                            var points = segments1[ii].IntersectionPoints(segments2[jj]);
+                            if (points.Count() > 0)
+                            {
+                                if (!intersections.ContainsKey(segments1[ii]))
+                                {
+                                    intersections.Add(segments1[ii], new HashSet<Point>());
+                                }
+
+                                if (!intersections.ContainsKey(segments2[jj]))
+                                {
+                                    intersections.Add(segments2[jj], new HashSet<Point>());
+                                }
+
+                                foreach (var point in points)
+                                {
+                                    intersections[segments1[ii]].Add(point);
+                                    intersections[segments2[jj]].Add(point);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // split all segments at the intersection points and track back to their original entity
+            var allSegments = new Dictionary<IPrimitive, Entity>();
+            foreach (var segmentGroup in segments)
+            {
+                var entity = segmentGroup.Item1;
+                var primitives = segmentGroup.Item2;
+                foreach (var primitive in primitives)
+                {
+                    if (intersections.ContainsKey(primitive))
+                    {
+                        var segmentParts = GetSegmentParts(primitive, intersections[primitive]);
+                        foreach (var part in segmentParts)
+                        {
+                            allSegments.Add(part, entity);
+                        }
+                    }
+                    else
+                    {
+                        allSegments.Add(primitive, entity);
+                    }
+                }
+            }
+
+            return allSegments;
+        }
+
+        private static IEnumerable<IPrimitive> GetSegmentParts(IPrimitive primitive, IEnumerable<Point> breakingPoints)
+        {
+            if (breakingPoints.Count() == 0)
+            {
+                return new[] { primitive };
+            }
+            else
+            {
+                var result = new List<IPrimitive>();
+                switch (primitive.Kind)
+                {
+                    case PrimitiveKind.Line:
+                        {
+                            // order the points by distance from `line.P1` then the resultant line segments are:
+                            //   (line.P1, orderedPoints[0])
+                            //   (orderedPoints[0], orderedPoints[1])
+                            //   ...
+                            //   (orderedPoints[N - 1], line.P2)
+                            var line = (PrimitiveLine)primitive;
+                            var orderedPoints = breakingPoints.OrderBy(p => (line.P1 - p).LengthSquared).ToList();
+                            result.Add(new PrimitiveLine(line.P1, orderedPoints.First()));
+
+                            for (int i = 0; i < orderedPoints.Count - 1; i++)
+                            {
+                                result.Add(new PrimitiveLine(orderedPoints[i], orderedPoints[i + 1]));
+                            }
+
+                            result.Add(new PrimitiveLine(orderedPoints.Last(), line.P2));
+                        }
+                        break;
+                    case PrimitiveKind.Ellipse:
+                        {
+                            // order the points by angle from `el.StartAngle` then the resultant arc segments are:
+                            //   (arc.StartAngle, orderedAngles[0])
+                            //   (orderedAngles[0], orderedAngles[1])
+                            //   ...
+                            //   (orderedAngles[N - 1], arc.EndAngle)
+                            // but if it's closed, don't use the start/end angles, instead do:
+                            //   (orderedAngles[0], orderedAngles[1])
+                            //   (orderedAngles[1], orderedAngles[2])
+                            //   ...
+                            //   (orderedAngles[N - 1], orderedAngles[0])
+
+                            var el = (PrimitiveEllipse)primitive;
+                            var orderedAngles = breakingPoints.Select(p => el.GetAngle(p)).OrderBy(a => a).ToList();
+
+                            if (!el.IsClosed)
+                            {
+                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, el.StartAngle, orderedAngles.First(), el.Color));
+                            }
+
+                            for (int i = 0; i < orderedAngles.Count - 1; i++)
+                            {
+                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, orderedAngles[i], orderedAngles[i + 1], el.Color));
+                            }
+
+                            if (el.IsClosed)
+                            {
+                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, orderedAngles.Last(), orderedAngles.First(), el.Color));
+                            }
+                            else
+                            {
+                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, orderedAngles.Last(), el.EndAngle, el.Color));
+                            }
+                        }
+                        break;
+                }
+
+                return result;
+            }
         }
     }
 }

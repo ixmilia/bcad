@@ -171,7 +171,7 @@ namespace BCad.Extensions
                     break;
                 case PrimitiveKind.Point:
                     var point = (PrimitivePoint)other;
-                    if (line.ContainsPoint(point.Location, withinBounds))
+                    if (line.IsPointOnPrimitive(point.Location, withinBounds))
                     {
                         result = new Point[] { point.Location };
                     }
@@ -198,6 +198,9 @@ namespace BCad.Extensions
 
         public static Point? IntersectionPoint(this PrimitiveLine first, PrimitiveLine second, bool withinSegment = true)
         {
+            // TODO: need to handle a line's endpoint lying directly on the other line
+            // TODO: also need to handle colinear lines
+
             var minLength = 0.0000000001;
 
             //http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
@@ -266,8 +269,7 @@ namespace BCad.Extensions
             var radiusX = ellipse.MajorAxis.Length;
             var radiusY = radiusX * ellipse.MinorAxisRatio;
             var transform = ellipse.FromUnitCircle;
-            var inverse = transform;
-            inverse.Invert();
+            var inverse = transform.Inverse();
 
             var denom = l.Dot(n);
             var num = (p0 - l0).Dot(n);
@@ -407,8 +409,7 @@ namespace BCad.Extensions
         public static IEnumerable<Point> IntersectionPoints(this PrimitiveEllipse ellipse, PrimitivePoint point, bool withinBounds = true)
         {
             var fromUnit = ellipse.FromUnitCircle;
-            var toUnit = fromUnit;
-            toUnit.Invert();
+            var toUnit = fromUnit.Inverse();
             var pointOnUnit = (Vector)toUnit.Transform(point.Location);
             if (MathHelper.CloseTo(pointOnUnit.LengthSquared, 1.0))
             {
@@ -450,8 +451,7 @@ namespace BCad.Extensions
                     // if they share a point or second.Center is on the first plane, they are the same plane
                     // project second back to a unit circle and find intersection points
                     var fromUnit = first.FromUnitCircle;
-                    var toUnit = fromUnit;
-                    toUnit.Invert();
+                    var toUnit = fromUnit.Inverse();
 
                     // transform second ellipse to be on the unit circle's plane
                     var secondCenter = toUnit.Transform(second.Center);
@@ -497,15 +497,13 @@ namespace BCad.Extensions
                         var rotation = Matrix4.RotateAboutZ(angle);
                         var finalCenter = rotation.Transform(secondCenter);
                         fromUnit = fromUnit * Matrix4.RotateAboutZ(-angle);
-                        toUnit = fromUnit;
-                        toUnit.Invert();
+                        toUnit = fromUnit.Inverse();
 
                         if (a < b)
                         {
                             // rotate to ensure a > b
                             fromUnit = fromUnit * Matrix4.RotateAboutZ(90);
-                            toUnit = fromUnit;
-                            toUnit.Invert();
+                            toUnit = fromUnit.Inverse();
                             finalCenter = Matrix4.RotateAboutZ(-90).Transform(finalCenter);
 
                             // and swap a and b
@@ -653,10 +651,8 @@ namespace BCad.Extensions
             // verify points are in angle bounds
             if (withinBounds)
             {
-                var toFirstUnit = first.FromUnitCircle;
-                var toSecondUnit = second.FromUnitCircle;
-                toFirstUnit.Invert();
-                toSecondUnit.Invert();
+                var toFirstUnit = first.FromUnitCircle.Inverse();
+                var toSecondUnit = second.FromUnitCircle.Inverse();
                 results = from res in results
                           // verify point is within first ellipse's angles
                           let trans1 = toFirstUnit.Transform(res)
@@ -773,23 +769,23 @@ namespace BCad.Extensions
             }
         }
 
-        public static bool ContainsPoint(this IPrimitive primitive, Point point)
+        public static bool IsPointOnPrimitive(this IPrimitive primitive, Point point)
         {
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Line:
-                    return ContainsPoint((PrimitiveLine)primitive, point);
+                    return IsPointOnPrimitive((PrimitiveLine)primitive, point);
                 case PrimitiveKind.Ellipse:
-                    return ContainsPoint((PrimitiveEllipse)primitive, point);
+                    return IsPointOnPrimitive((PrimitiveEllipse)primitive, point);
                 case PrimitiveKind.Text:
-                    return ContainsPoint((PrimitiveText)primitive, point);
+                    return IsPointOnPrimitive((PrimitiveText)primitive, point);
                 default:
                     Debug.Assert(false, "unexpected primitive: " + primitive.Kind);
                     return false;
             }
         }
 
-        private static bool ContainsPoint(this PrimitiveLine line, Point point, bool withinSegment = true)
+        private static bool IsPointOnPrimitive(this PrimitiveLine line, Point point, bool withinSegment = true)
         {
             if (point == line.P1)
                 return true;
@@ -800,17 +796,15 @@ namespace BCad.Extensions
                     || MathHelper.Between(0.0, lineVector.LengthSquared, pointVector.LengthSquared));
         }
 
-        private static bool ContainsPoint(this PrimitiveEllipse el, Point point)
+        private static bool IsPointOnPrimitive(this PrimitiveEllipse el, Point point)
         {
-            var unitMatrix = el.FromUnitCircle;
-            unitMatrix.Invert();
-            var unitPoint = unitMatrix.Transform(point);
+            var unitPoint = el.FromUnitCircle.Inverse().Transform(point);
             return MathHelper.CloseTo(0.0, unitPoint.Z) // on the XY plane
                 && MathHelper.CloseTo(1.0, ((Vector)unitPoint).LengthSquared) // on the unit circle
                 && el.IsAngleContained(Math.Atan2(unitPoint.Y, unitPoint.X) * MathHelper.RadiansToDegrees); // within angle bounds
         }
 
-        private static bool ContainsPoint(this PrimitiveText text, Point point)
+        private static bool IsPointOnPrimitive(this PrimitiveText text, Point point)
         {
             // check for plane containment
             var plane = new Plane(text.Location, text.Normal);
@@ -819,8 +813,7 @@ namespace BCad.Extensions
                 // check for horizontal/vertical containment
                 var right = Vector.RightVectorFromNormal(text.Normal);
                 var up = text.Normal.Cross(right).Normalize();
-                var projection = Matrix4.FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0);
-                projection.Invert();
+                var projection = Matrix4.FromUnitCircleProjection(text.Normal, right, up, text.Location, 1.0, 1.0, 1.0).Inverse();
 
                 var projected = projection.Transform(point);
                 if (MathHelper.Between(0.0, text.Width, projected.X) &&
@@ -833,21 +826,19 @@ namespace BCad.Extensions
             return false;
         }
 
+        public static double GetAngle(this PrimitiveEllipse ellipse, Point point)
+        {
+            var transform = ellipse.FromUnitCircle.Inverse();
+            var pointFromUnitCircle = transform.Transform(point);
+            var angle = Math.Atan2(pointFromUnitCircle.Y, pointFromUnitCircle.X) * MathHelper.RadiansToDegrees;
+            return angle.CorrectAngleDegrees();
+        }
+
         public static Point GetPoint(this PrimitiveEllipse ellipse, double angle)
         {
             var pointUnit = new Point(Math.Cos(angle * MathHelper.DegreesToRadians), Math.Sin(angle * MathHelper.DegreesToRadians), 0.0);
             var pointTransformed = ellipse.FromUnitCircle.Transform(pointUnit);
             return pointTransformed;
-        }
-
-        public static Point GetStartPoint(this PrimitiveEllipse ellipse)
-        {
-            return ellipse.GetPoint(ellipse.StartAngle);
-        }
-
-        public static Point GetEndPoint(this PrimitiveEllipse ellipse)
-        {
-            return ellipse.GetPoint(ellipse.EndAngle);
         }
 
         public static Point[] GetInterestingPoints(this IPrimitive primitive)
@@ -944,8 +935,7 @@ namespace BCad.Extensions
             var deltaY = maxy - miny;
 
             // translate back out of XY plane
-            var unproj = planeProjection;
-            unproj.Invert();
+            var unproj = planeProjection.Inverse();
             var bottomLeft = unproj.Transform(new Point(minx, miny, 0));
             var topRight = unproj.Transform(new Point(minx + deltaX, miny + deltaY, 0));
             var drawingHeight = deltaY;
@@ -1000,6 +990,38 @@ namespace BCad.Extensions
             return newVp;
         }
 
+        public static Point StartPoint(this IPrimitive primitive)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Line:
+                    return ((PrimitiveLine)primitive).P1;
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    return el.GetPoint(el.StartAngle);
+                case PrimitiveKind.Point:
+                    return ((PrimitivePoint)primitive).Location;
+                default:
+                    throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
+            }
+        }
+
+        public static Point EndPoint(this IPrimitive primitive)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Line:
+                    return ((PrimitiveLine)primitive).P2;
+                case PrimitiveKind.Ellipse:
+                    var el = (PrimitiveEllipse)primitive;
+                    return el.GetPoint(el.EndAngle);
+                case PrimitiveKind.Point:
+                    return ((PrimitivePoint)primitive).Location;
+                default:
+                    throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
+            }
+        }
+
         public static Point MidPoint(this IPrimitive primitive)
         {
             switch (primitive.Kind)
@@ -1009,27 +1031,19 @@ namespace BCad.Extensions
                     return (line.P1 + line.P2) / 2;
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    return el.GetPoint((el.StartAngle + el.EndAngle) * 0.5);
+                    var endAngle = el.EndAngle;
+                    if (endAngle < el.StartAngle)
+                    {
+                        endAngle += MathHelper.ThreeSixty;
+                    }
+
+                    return el.GetPoint((el.StartAngle + endAngle) * 0.5);
                 case PrimitiveKind.Point:
                     return ((PrimitivePoint)primitive).Location;
                 case PrimitiveKind.Text:
                 default:
                     throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
             }
-        }
-
-        public static IEnumerable<PrimitiveLine> GetLinesFromPoints(this IEnumerable<Point> points)
-        {
-            var lines = new List<PrimitiveLine>();
-            var last = points.First();
-            foreach (var point in points.Skip(1))
-            {
-                var line = new PrimitiveLine(last, point);
-                lines.Add(line);
-                last = point;
-            }
-
-            return lines;
         }
 
         public static IEnumerable<Point> GetProjectedVerticies(this IPrimitive primitive, Matrix4 transformationMatrix)
@@ -1053,43 +1067,48 @@ namespace BCad.Extensions
                 .Select(p => transformationMatrix.Transform(p));
         }
 
-        public static IEnumerable<IEnumerable<Point>> GetLineStripsFromLines(this IEnumerable<PrimitiveLine> lines)
+        public static IEnumerable<IEnumerable<IPrimitive>> GetLineStripsFromPrimitives(this IEnumerable<IPrimitive> primitives)
         {
-            var remainingLines = new HashSet<PrimitiveLine>(lines);
-            var result = new List<List<Point>>();
-            while (remainingLines.Count > 1)
+            var remainingPrimitives = new HashSet<IPrimitive>(primitives);
+            var result = new List<List<IPrimitive>>();
+            while (remainingPrimitives.Count > 1)
             {
-                var points = new List<Point>();
-                var first = remainingLines.First();
-                remainingLines.Remove(first);
-                points.Add(first.P1);
-                points.Add(first.P2);
+                var shapePrimitives = new List<IPrimitive>();
+                var first = remainingPrimitives.First();
+                remainingPrimitives.Remove(first);
+                shapePrimitives.Add(first);
 
-                while (remainingLines.Count > 0)
+                while (remainingPrimitives.Count > 0)
                 {
-                    var nextLine = remainingLines.FirstOrDefault(l => l.P1 == points.Last() || l.P2 == points.Last());
-                    if (nextLine == null)
+                    var nextPrimitive = remainingPrimitives.FirstOrDefault(l => l.StartPoint().CloseTo(shapePrimitives.Last().EndPoint()) || l.EndPoint().CloseTo(shapePrimitives.Last().EndPoint()));
+                    if (nextPrimitive == null)
                     {
-                        // no more lines
+                        // no more segments
                         break;
                     }
 
-                    remainingLines.Remove(nextLine);
-                    points.Add(nextLine.P1 == points.Last() ? nextLine.P2 : nextLine.P1);
+                    remainingPrimitives.Remove(nextPrimitive);
+                    if (!nextPrimitive.StartPoint().CloseTo(shapePrimitives.Last().EndPoint()) && nextPrimitive.Kind == PrimitiveKind.Line)
+                    {
+                        // need to flip the line; arcs are handled elsewhere
+                        var line = (PrimitiveLine)nextPrimitive;
+                        nextPrimitive = new PrimitiveLine(line.P2, line.P1, line.Color);
+                    }
+
+                    shapePrimitives.Add(nextPrimitive);
                 }
 
-                result.Add(points);
+                result.Add(shapePrimitives);
             }
 
             return result;
         }
 
-        public static IEnumerable<Polyline> GetPolylinesFromLines(this IEnumerable<IPrimitive> primitives)
+        public static IEnumerable<Polyline> GetPolylinesFromSegments(this IEnumerable<IPrimitive> primitives)
         {
-            // TODO: only lines are currently supported
-            return primitives.Cast<PrimitiveLine>()
-                .GetLineStripsFromLines()
-                .Select(points => new Polyline(points.Select(p => new Vertex(p)), null));
+            return primitives
+                .GetLineStripsFromPrimitives()
+                .GetPolylinesFromPrimitives();
         }
     }
 }

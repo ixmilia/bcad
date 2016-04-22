@@ -28,7 +28,7 @@ namespace BCad.Services
         Task<ValueOrDirective<double>> GetDistance(string prompt = null, Optional<double> defaultDistance = default(Optional<double>));
         Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>));
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
-        Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null);
+        Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, EntityKind entityKinds = EntityKind.All, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<string>> GetText(string prompt = null);
 
         void Cancel();

@@ -7,18 +7,18 @@ namespace BCad.Commands
 {
     public abstract class CombinePolylinesCommandBase : ICadCommand
     {
-        protected abstract IEnumerable<Polyline> Combine(IEnumerable<Polyline> polylines);
+        protected abstract IEnumerable<Entity> Combine(IEnumerable<Entity> entities);
 
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
             var inputService = workspace.InputService;
-            var entities = await inputService.GetEntities("Select polylines");
+            var entities = await inputService.GetEntities("Select polylines", entityKinds: EntityKind.Circle | EntityKind.Polyline);
             if (entities.Cancel || !entities.HasValue)
             {
                 return false;
             }
 
-            var polys = entities.Value.OfType<Polyline>();
+            var polys = entities.Value;
             if (polys.Count() <= 1)
             {
                 return false;

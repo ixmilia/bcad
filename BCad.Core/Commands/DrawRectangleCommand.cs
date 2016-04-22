@@ -25,7 +25,7 @@ namespace BCad.Commands
             }
 
             var lines = GetRectangleFromPoints(firstCorner.Value, secondCorner.Value);
-            var poly = lines.GetPolylinesFromLines().Single();
+            var poly = lines.GetPolylinesFromSegments().Single();
             workspace.Update(drawing: workspace.Drawing.AddToCurrentLayer(poly));
             return true;
         }

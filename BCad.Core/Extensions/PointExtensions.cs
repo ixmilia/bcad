@@ -23,18 +23,36 @@ namespace BCad.Extensions
                 && MathHelper.CloseTo(expected.Z, actual.Z);
         }
 
-        public static bool PolygonContains(this IEnumerable<Point> verticies, Point point)
+        public static IEnumerable<PrimitiveLine> GetLinesFromPoints(this IEnumerable<Point> points)
         {
-            var arr = verticies.ToArray();
-            var maxX = verticies.Select(v => v.X).Max();
+            var lines = new List<PrimitiveLine>();
+            var last = points.First();
+            foreach (var point in points.Skip(1))
+            {
+                var line = new PrimitiveLine(last, point);
+                lines.Add(line);
+                last = point;
+            }
+
+            return lines;
+        }
+
+        public static bool PolygonContains(this IEnumerable<Point> points, Point point)
+        {
+            return points.GetLinesFromPoints().PolygonContains(point);
+        }
+
+        public static bool PolygonContains(this IEnumerable<IPrimitive> primitives, Point point)
+        {
+            // TODO: this kind of ray casing can fail if the ray and a primitive line are part of the
+            // same infinite line or if the ray barely skims the other primitive
+            var maxX = primitives.Select(p => Math.Max(p.StartPoint().X, p.EndPoint().X)).Max();
             var dist = Math.Abs(maxX - point.X);
             var ray = new PrimitiveLine(point, new Point(point.X + (dist * 1.1), point.Y, point.Z));
             int intersections = 0;
-            for (int i = 0; i < arr.Length - 1; i++)
+            foreach (var primitive in primitives)
             {
-                var segment = new PrimitiveLine(arr[i], arr[i + 1]);
-                if (ray.IntersectionPoint(segment) != null)
-                    intersections++;
+                intersections += ray.IntersectionPoints(primitive).Count();
             }
 
             return intersections % 2 == 1;

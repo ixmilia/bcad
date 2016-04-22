@@ -171,7 +171,7 @@ namespace BCad.Services
             return result;
         }
 
-        public async Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, RubberBandGenerator onCursorMove = null)
+        public async Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, EntityKind entityKinds = EntityKind.All, RubberBandGenerator onCursorMove = null)
         {
             OnValueRequested(new ValueRequestedEventArgs(InputType.Entities | InputType.Directive));
             ValueOrDirective<IEnumerable<Entity>>? result = null;
@@ -194,17 +194,22 @@ namespace BCad.Services
                         awaitingMore = false;
                         break;
                     case PushedValueType.Entity:
-                        entities.Add(pushedEntity.Entity);
-                        Workspace.SelectedEntities.Add(pushedEntity.Entity);
+                        if ((entityKinds & pushedEntity.Entity.Kind) == pushedEntity.Entity.Kind)
+                        {
+                            entities.Add(pushedEntity.Entity);
+                            Workspace.SelectedEntities.Add(pushedEntity.Entity);
+                        }
                         // TODO: print status
                         break;
                     case PushedValueType.Entities:
                         foreach (var e in pushedEntities)
                         {
-                            entities.Add(e);
+                            if ((entityKinds & e.Kind) == e.Kind)
+                            {
+                                entities.Add(e);
+                                Workspace.SelectedEntities.Add(e);
+                            }
                         }
-
-                        Workspace.SelectedEntities.AddRange(pushedEntities);
                         // TODO: print status
                         break;
                     default:

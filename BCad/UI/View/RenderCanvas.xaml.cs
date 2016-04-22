@@ -402,8 +402,8 @@ namespace BCad.UI.View
                 // arc
                 var endAngle = ellipse.EndAngle;
                 if (endAngle < ellipse.StartAngle) endAngle += 360.0;
-                var startPoint = projected.GetStartPoint();
-                var endPoint = projected.GetEndPoint();
+                var startPoint = projected.StartPoint();
+                var endPoint = projected.EndPoint();
                 shape = new Path()
                 {
                     Data = new GeometryGroup()

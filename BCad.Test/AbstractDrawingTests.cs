@@ -16,9 +16,9 @@ namespace BCad.Test
         protected IWorkspace Workspace { get { return Host.Workspace; } }
         protected IInputService InputService { get { return Host.Workspace.InputService; } }
 
-        protected void AssertClose(double expected, double actual)
+        protected void AssertClose(double expected, double actual, double error = MathHelper.Epsilon)
         {
-            Assert.IsTrue(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+            Assert.IsTrue(Math.Abs(expected - actual) < error, string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
         protected void AssertClose(Point expected, Point actual)

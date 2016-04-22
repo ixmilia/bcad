@@ -79,9 +79,9 @@ namespace BCad.Test
         private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null)
         {
             if (contained != null)
-                Assert.IsTrue(contained.All(p => primitive.ContainsPoint(p)));
+                Assert.IsTrue(contained.All(p => primitive.IsPointOnPrimitive(p)));
             if (excluded != null)
-                Assert.IsTrue(excluded.All(p => !primitive.ContainsPoint(p)));
+                Assert.IsTrue(excluded.All(p => !primitive.IsPointOnPrimitive(p)));
         }
 
         #endregion
@@ -194,6 +194,45 @@ namespace BCad.Test
                 rad,
                 135.0,
                 315.0);
+        }
+
+        [TestMethod]
+        public void ThreePointArcWithLargeAngleTest()
+        {
+            var sqrt22 = Math.Sqrt(2.0) / 2.0;
+
+            // counter clockwise
+            //
+            //      1
+            //
+            //      c    3
+            //
+            // 2
+            TestThreePointArcNormal(
+                new Point(0, 1, 0),
+                new Point(-sqrt22, -sqrt22, 0),
+                new Point(1, 0, 0),
+                idealNormal: Vector.ZAxis,
+                expectedCenter: Point.Origin,
+                expectedRadius: 1.0,
+                expectedStartAngle: 90.0,
+                expectedEndAngle: 0.0);
+            // clockwise
+            //
+            //      3
+            //
+            //      c    1
+            //
+            // 2
+            TestThreePointArcNormal(
+                new Point(1, 0, 0),
+                new Point(-sqrt22, -sqrt22, 0),
+                new Point(0, 1, 0),
+                idealNormal: Vector.ZAxis,
+                expectedCenter: Point.Origin,
+                expectedRadius: 1.0,
+                expectedStartAngle: 90.0,
+                expectedEndAngle: 0.0);
         }
 
         [TestMethod]
@@ -484,13 +523,13 @@ namespace BCad.Test
         public void EllipseGetPointTest()
         {
             var el = new PrimitiveEllipse(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, null);
-            Assert.IsTrue(el.GetStartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
-            Assert.IsTrue(el.GetEndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
+            Assert.IsTrue(el.StartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
+            Assert.IsTrue(el.EndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
             Assert.IsTrue(el.GetPoint(90.0).CloseTo(new Point(0.0, 1.0, 0.0)));
 
             el = new PrimitiveEllipse(new Point(1.0, 1.0, 0.0), 1.0, 0.0, 180.0, Vector.ZAxis, null);
-            Assert.IsTrue(el.GetStartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
-            Assert.IsTrue(el.GetEndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
+            Assert.IsTrue(el.StartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
+            Assert.IsTrue(el.EndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
             Assert.IsTrue(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));
         }
 
@@ -504,7 +543,7 @@ namespace BCad.Test
                 new PrimitiveLine(new Point(1.0, 1.0, 0.0), new Point(0.0, 1.0, 0.0)), // top edge of square
                 new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.0, 1.0, 0.0)), // left edge of square, points reversed
             };
-            var points = lines.GetLineStripsFromLines();
+            var points = lines.GetLineStripsFromPrimitives();
         }
 
         [TestMethod]

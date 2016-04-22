@@ -125,10 +125,9 @@ namespace BCad.Helpers
             {
                 var tempEllipse = new PrimitiveEllipse(center, majorAxis, Vector.ZAxis, minorAxisRatio, 0.0, MathHelper.ThreeSixty, ellipse.Color);
                 var majorAngle = majorAxis.ToAngle();
-                var startPoint = transform.Transform(ellipse.GetStartPoint());
-                var endPoint = transform.Transform(ellipse.GetEndPoint());
-                var toUnit = tempEllipse.FromUnitCircle;
-                toUnit.Invert();
+                var startPoint = transform.Transform(ellipse.StartPoint());
+                var endPoint = transform.Transform(ellipse.EndPoint());
+                var toUnit = tempEllipse.FromUnitCircle.Inverse();
                 var startUnit = (Vector)toUnit.Transform(startPoint);
                 var endUnit = (Vector)toUnit.Transform(endPoint);
                 startAngle = (startUnit.ToAngle() - majorAngle).CorrectAngleDegrees();
@@ -163,15 +162,6 @@ namespace BCad.Helpers
             var newOrigin = transform.Transform(Point.Origin);
             var offset = (Point)loc - (Point)newOrigin;
             return new ProjectedAggregate(aggregate, layer, offset, aggregate.Children.Select(c => Project(c, layer, transform)));
-        }
-
-        private static Matrix4 TranslationMatrix(double dx, double dy, double dz)
-        {
-            var matrix = Matrix4.Identity;
-            matrix.M41 = dx;
-            matrix.M42 = dy;
-            matrix.M43 = dz;
-            return matrix;
         }
     }
 }

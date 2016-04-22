@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BCad.Extensions;
-using BCad.Helpers;
 using BCad.Primitives;
 using BCad.SnapPoints;
 
@@ -41,16 +40,7 @@ namespace BCad.Entities
             for (int i = 1; i < vertexList.Count; i++)
             {
                 var current = vertexList[i];
-                IPrimitive primitive;
-                if (current.IsLine)
-                {
-                    primitive = new PrimitiveLine(last.Location, current.Location);
-                }
-                else
-                {
-                    primitive = PrimitiveEllipse.ArcFromPointsAndIncludedAngle(last.Location, current.Location, current.IncludedAngle, current.Direction);
-                }
-
+                var primitive = Vertex.PrimitiveFromPointAndVertex(last.Location, current);
                 _primitives.Add(primitive);
                 _snapPoints.Add(new MidPoint(primitive.MidPoint()));
                 _snapPoints.Add(new EndPoint(current.Location));
@@ -99,6 +89,11 @@ namespace BCad.Entities
             }
 
             return new Polyline(newVectices, newColor, newTag);
+        }
+
+        public bool ContainsPoint(Point point)
+        {
+            return GetPrimitives().PolygonContains(point);
         }
     }
 }

@@ -111,7 +111,7 @@ namespace BCad.Utilities
                 .WhereNotNull()
                 .SelectMany(b => b)
                 .WhereNotNull()
-                .Where(p => boundaryPrimitives.Any(b => b.ContainsPoint(p)) && !selectionPrimitives.Any(b => b.ContainsPoint(p)));
+                .Where(p => boundaryPrimitives.Any(b => b.IsPointOnPrimitive(p)) && !selectionPrimitives.Any(b => b.IsPointOnPrimitive(p)));
 
             if (intersectionPoints.Any())
             {
@@ -168,8 +168,7 @@ namespace BCad.Utilities
             {
                 case PrimitiveKind.Ellipse:
                     var el = (PrimitiveEllipse)primitive;
-                    var projection = el.FromUnitCircle;
-                    projection.Invert();
+                    var projection = el.FromUnitCircle.Inverse();
                     var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
                     var majorLength = el.MajorAxis.Length;
                     if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)
@@ -445,8 +444,7 @@ namespace BCad.Utilities
             }
 
             // convert points to angles
-            var inverse = entityToTrim.GetUnitCircleProjection();
-            inverse.Invert();
+            var inverse = entityToTrim.GetUnitCircleProjection().Inverse();
 
             var angles = intersectionPoints
                 .Select(p => inverse.Transform(p))
@@ -603,8 +601,7 @@ namespace BCad.Utilities
 
             // prepare transformation matrix
             var fromUnitMatrix = ellipse.FromUnitCircle;
-            var toUnitMatrix = fromUnitMatrix;
-            toUnitMatrix.Invert();
+            var toUnitMatrix = fromUnitMatrix.Inverse();
             var selectionUnit = toUnitMatrix.Transform(selectionPoint);
 
             // find closest intersection point to the selection
@@ -616,8 +613,8 @@ namespace BCad.Utilities
                 var newAngle = (Math.Atan2(closestUnitPoint.Y, closestUnitPoint.X) * MathHelper.RadiansToDegrees).CorrectAngleDegrees();
 
                 // find the closest end point to the selection
-                var startPoint = toUnitMatrix.Transform(ellipse.GetStartPoint());
-                var endPoint = toUnitMatrix.Transform(ellipse.GetEndPoint());
+                var startPoint = toUnitMatrix.Transform(ellipse.StartPoint());
+                var endPoint = toUnitMatrix.Transform(ellipse.EndPoint());
                 var startAngle = ellipse.StartAngle;
                 var endAngle = ellipse.EndAngle;
                 if ((startPoint - selectionUnit).LengthSquared < (endPoint - selectionUnit).LengthSquared)
