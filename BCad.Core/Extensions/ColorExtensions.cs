@@ -7,7 +7,7 @@ namespace BCad.Extensions
     {
         public static CadColor ParseColor(this string s)
         {
-            if (s == null || !(s.Length == 7 || s.Length == 9))
+            if (s == null || !(s.Length == 4 || s.Length == 7 || s.Length == 9))
             {
                 return new CadColor();
             }
@@ -15,6 +15,15 @@ namespace BCad.Extensions
             if (s[0] != '#')
             {
                 return new CadColor();
+            }
+
+            if (s.Length == 4)
+            {
+                // color looks like #RGB where it needs to be expanded to #RRGGBB
+                var rs = s[1];
+                var gs = s[2];
+                var bs = s[3];
+                s = string.Concat('#', rs, rs, gs, gs, bs, bs);
             }
 
             uint c = uint.Parse(s.Substring(1), NumberStyles.HexNumber);
