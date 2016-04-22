@@ -134,6 +134,47 @@ namespace BCad.Extensions
             return CombineEntities(entities, doUnion: false);
         }
 
+        public static IEnumerable<Entity> Subtract(this Entity original, IEnumerable<Entity> others)
+        {
+            if (original.Kind != EntityKind.Circle && original.Kind != EntityKind.Polyline)
+            {
+                throw new ArgumentException("Original entity must be a circle or polyline");
+            }
+
+            if (!others.All(o => o.Kind == EntityKind.Circle || o.Kind == EntityKind.Polyline))
+            {
+                throw new ArgumentException("Other entities must be circles or polylines");
+            }
+
+            var all = new[] { original }.Concat(others);
+            var allLines = all.PerformAllIntersections();
+
+            var keptLines = new List<IPrimitive>();
+            foreach (var kvp in allLines)
+            {
+                var segment = kvp.Key;
+                var container = kvp.Value;
+                var keep = true;
+                if (ReferenceEquals(container, original))
+                {
+                    // if we're testing a line from the parent polyline, keep if not in any of the others
+                    keep = others.All(o => !o.EnclosesPoint(segment.MidPoint()));
+                }
+                else
+                {
+                    // if we're testing a line from a subsequent polyline, keep if in the original
+                    keep = original.EnclosesPoint(segment.MidPoint());
+                }
+
+                if (keep)
+                {
+                    keptLines.Add(segment);
+                }
+            }
+
+            return keptLines.GetPolylinesFromSegments();
+        }
+
         private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion)
         {
             var allSegments = PerformAllIntersections(entityCollection);

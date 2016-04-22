@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BCad.Entities;
 using BCad.Extensions;
 
@@ -19,21 +18,15 @@ namespace BCad.Commands
                 return false;
             }
 
-            if (original.Value.Entity.Kind != EntityKind.Polyline)
+            if (original.Value.Entity.Kind != EntityKind.Circle && original.Value.Entity.Kind != EntityKind.Polyline)
             {
-                workspace.OutputService.WriteLine("You must select a polyline");
+                workspace.OutputService.WriteLine("You must select a circle or polyline");
                 return false;
             }
 
             // get the other entities
-            var others = await inputService.GetEntities("Select other polylines");
+            var others = await inputService.GetEntities("Select other polylines", entityKinds: EntityKind.Circle | EntityKind.Polyline);
             if (others.Cancel || !others.HasValue)
-            {
-                return false;
-            }
-
-            var polys = others.Value.OfType<Polyline>();
-            if (polys.Count() == 0)
             {
                 return false;
             }
@@ -48,7 +41,7 @@ namespace BCad.Commands
             }
 
             // perform the subtraction and add the new entities
-            var result = ((Polyline)original.Value.Entity).Subtract(polys);
+            var result = original.Value.Entity.Subtract(others.Value);
             foreach (var poly in result)
             {
                 drawing = drawing.AddToCurrentLayer(poly);

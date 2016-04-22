@@ -9,37 +9,6 @@ namespace BCad.Extensions
 {
     public static class PolylineExtensions
     {
-        public static IEnumerable<Polyline> Subtract(this Polyline polyline, IEnumerable<Polyline> others)
-        {
-            var all = new[] { polyline }.Concat(others);
-            var allLines = all.PerformAllIntersections();
-
-            var keptLines = new List<IPrimitive>();
-            foreach (var kvp in allLines)
-            {
-                var segment = kvp.Key;
-                var container = kvp.Value;
-                var keep = true;
-                if (ReferenceEquals(container, polyline))
-                {
-                    // if we're testing a line from the parent polyline, keep if not in any of the others
-                    keep = others.All(o => !o.ContainsPoint(segment.MidPoint()));
-                }
-                else
-                {
-                    // if we're testing a line from a subsequent polyline, keep if in the original
-                    keep = polyline.ContainsPoint(segment.MidPoint());
-                }
-
-                if (keep)
-                {
-                    keptLines.Add(segment);
-                }
-            }
-
-            return keptLines.GetPolylinesFromSegments();
-        }
-
         public static IEnumerable<Polyline> GetPolylinesFromPrimitives(this IEnumerable<IEnumerable<IPrimitive>> primitiveCollections)
         {
             var result = new List<Polyline>();
