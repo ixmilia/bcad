@@ -108,7 +108,30 @@
                       SmallImageSource="{StaticResource NYI}"
                       CommandParameter="Edit.Array" />
     </RibbonGroup>
-    
+
+    <RibbonGroup Header="Shapes">
+        <RibbonButton Label="Draw rectangle"
+                      Command="commands:RibbonCommands.CADCommand"
+                      SmallImageSource="{StaticResource NYI}"
+                      CommandParameter="Draw.Rectangle" />
+        <RibbonButton Label="Draw polygon"
+                      Command="commands:RibbonCommands.CADCommand"
+                      SmallImageSource="{StaticResource NYI}"
+                      CommandParameter="Draw.Polygon" />
+        <RibbonButton Label="Union"
+                      Command="commands:RibbonCommands.CADCommand"
+                      SmallImageSource="{StaticResource NYI}"
+                      CommandParameter="Edit.Union" />
+        <RibbonButton Label="Intersect"
+                      Command="commands:RibbonCommands.CADCommand"
+                      SmallImageSource="{StaticResource NYI}"
+                      CommandParameter="Edit.Intersection" />
+        <RibbonButton Label="Subtract"
+                      Command="commands:RibbonCommands.CADCommand"
+                      SmallImageSource="{StaticResource NYI}"
+                      CommandParameter="Edit.Subtract" />
+    </RibbonGroup>
+
     <RibbonGroup Header="Layers">
         <RibbonGroup.GroupSizeDefinitions>
             <RibbonGroupSizeDefinitionBaseCollection>
