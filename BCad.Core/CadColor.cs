@@ -87,6 +87,11 @@ namespace BCad
 
         public static CadColor FromInt32(int color)
         {
+            return FromUInt32((uint)color);
+        }
+
+        public static CadColor FromUInt32(uint color)
+        {
             var r = (color >> 16) & 0xFF;
             var g = (color >> 8) & 0xFF;
             var b = color & 0xFF;

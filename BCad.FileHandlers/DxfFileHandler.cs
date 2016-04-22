@@ -163,8 +163,9 @@ namespace BCad.FileHandlers
     {
         public static CadColor? ToColor(this DxfColor color)
         {
+            // from a color index, get the real RGB values
             if (color.IsIndex)
-                return CadColor.Defaults[color.Index];
+                return CadColor.FromUInt32(DxfColor.DefaultColors[color.Index]);
             else
                 return null;
         }
@@ -177,11 +178,11 @@ namespace BCad.FileHandlers
             }
             else
             {
-                // TODO: use the color map from the IxMilia.Dxf library when available
+                // find the index of the matching default color
                 int i;
-                for (i = 0; i < CadColor.Defaults.Length; i++)
+                for (i = 0; i < DxfColor.DefaultColors.Count; i++)
                 {
-                    if (color.Value == CadColor.Defaults[i])
+                    if (color.Value.ToInt32() == DxfColor.DefaultColors[i])
                     {
                         break;
                     }
@@ -193,6 +194,7 @@ namespace BCad.FileHandlers
                 }
                 else
                 {
+                    // TODO: find closest matching color
                     Debug.Assert(false, "Unable to find color match, defaulting to BYLAYER");
                     return DxfColor.ByLayer;
                 }
