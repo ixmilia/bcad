@@ -88,6 +88,15 @@ namespace BCad
         /// </summary>
         public double M44 { get; }
 
+        static Matrix4()
+        {
+            Identity = new Matrix4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+        }
+
         public Matrix4(double m11, double m12, double m13, double m14, double m21, double m22, double m23, double m24, double m31, double m32, double m33, double m34, double m41, double m42, double m43, double m44)
             : this()
         {
@@ -215,17 +224,7 @@ namespace BCad
             return matrix * (Vector)point;
         }
 
-        public static Matrix4 Identity
-        {
-            get
-            {
-                return new Matrix4(
-                    1, 0, 0, 0,
-                    0, 1, 0, 0,
-                    0, 0, 1, 0,
-                    0, 0, 0, 1);
-            }
-        }
+        public static Matrix4 Identity { get; private set; }
 
         public bool IsIdentity
         {
