@@ -359,7 +359,11 @@ namespace BCad.FileHandlers
                 Layer = layer.Name,
                 Normal = DxfVector.ZAxis
             };
-            dp.Vertices.AddRange(poly.Vertices.Select(v => v.ToDxfVertex()));
+            foreach (var vertex in poly.Vertices.Select(v => v.ToDxfVertex()))
+            {
+                dp.Vertices.Add(vertex);
+            }
+
             return dp;
         }
 

@@ -1,1 +1,4 @@
-%~dp0.nuget\NuGet.exe restore %~dp0BCad.sln
+set nugetexe=%~dp0.nuget\NuGet.exe
+
+%nugetexe% restore %~dp0BCad.sln
+%Nugetexe% restore %~dp0BCad\packages.config -SolutionDir %~dp0

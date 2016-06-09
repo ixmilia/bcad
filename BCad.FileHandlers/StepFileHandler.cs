@@ -19,7 +19,7 @@ namespace BCad.FileHandlers
         {
             var layer = new Layer("step", null);
             var file = StepFile.Load(fileStream);
-            foreach (var item in file.GetTopLevelitems())
+            foreach (var item in file.GetTopLevelItems())
             {
                 switch (item.ItemType)
                 {
