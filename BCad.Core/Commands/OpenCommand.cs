@@ -22,7 +22,26 @@ namespace BCad.Commands
 
             Drawing drawing;
             ViewPort activeViewPort;
-            await workspace.FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            var result = await workspace.FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            if (!result)
+            {
+                return false;
+            }
+
+            if (drawing == null)
+            {
+                return false;
+            }
+
+            if (activeViewPort == null)
+            {
+                activeViewPort = drawing.ShowAllViewPort(
+                    Vector.ZAxis,
+                    Vector.YAxis,
+                    workspace.ViewControl.DisplayWidth,
+                    workspace.ViewControl.DisplayHeight);
+            }
+
             workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
             workspace.UndoRedoService.ClearHistory();
 

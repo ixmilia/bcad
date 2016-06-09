@@ -101,14 +101,6 @@ namespace BCad.Services
             using (var fileStream = new FileStream(fileName, FileMode.Open))
             {
                 reader.ReadDrawing(fileName, fileStream, out drawing, out viewPort);
-                if (viewPort == null)
-                {
-                    viewPort = drawing.ShowAllViewPort(
-                        Vector.ZAxis,
-                        Vector.YAxis,
-                        Workspace.ViewControl.DisplayWidth,
-                        Workspace.ViewControl.DisplayHeight);
-                }
             }
 
             return Task.FromResult(true);
