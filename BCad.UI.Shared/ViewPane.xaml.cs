@@ -145,6 +145,7 @@ namespace BCad.UI.Shared
 #endif
 
 #if WPF
+            ClipToBounds = true;
             clicker.Cursor = Cursors.None;
             clicker.MouseMove += OnMouseMove;
             clicker.MouseDown += OnMouseDown;
