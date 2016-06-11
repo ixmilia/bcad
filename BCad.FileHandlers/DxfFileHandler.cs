@@ -182,7 +182,7 @@ namespace BCad.FileHandlers
                 int i;
                 for (i = 0; i < DxfColor.DefaultColors.Count; i++)
                 {
-                    if (color.Value.ToInt32() == DxfColor.DefaultColors[i])
+                    if ((uint)color.Value.ToInt32() == DxfColor.DefaultColors[i])
                     {
                         break;
                     }
