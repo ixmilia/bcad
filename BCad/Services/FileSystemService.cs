@@ -58,7 +58,6 @@ namespace BCad.Services
             filter = string.Join("|", all, filter);
 
             var dialog = new OpenFileDialog();
-            dialog.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); // TODO: this is just for debugging
             dialog.DefaultExt = fileSpecifications.First().FileExtensions.First();
             dialog.Filter = filter;
             var result = dialog.ShowDialog();
