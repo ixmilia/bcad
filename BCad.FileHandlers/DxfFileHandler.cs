@@ -277,7 +277,7 @@ namespace BCad.FileHandlers
 
         public static Ellipse ToEllipse(this DxfEllipse el)
         {
-            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter, el.EndParameter, el.Normal.ToVector(), el.Color.ToColor(), el);
+            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.Color.ToColor(), el);
         }
 
         public static Text ToText(this DxfText text)
@@ -392,8 +392,8 @@ namespace BCad.FileHandlers
             return new DxfEllipse(el.Center.ToDxfPoint(), el.MajorAxis.ToDxfVector(), el.MinorAxisRatio)
             {
                 Color = el.Color.ToDxfColor(),
-                StartParameter = el.StartAngle,
-                EndParameter = el.EndAngle,
+                StartParameter = el.StartAngle * MathHelper.DegreesToRadians,
+                EndParameter = el.EndAngle * MathHelper.DegreesToRadians,
                 Normal = el.Normal.ToDxfVector(),
                 Layer = layer.Name
             };
