@@ -14,6 +14,8 @@ namespace BCad.Extensions
                     return new CenterPoint(newPoint);
                 case SnapPointKind.EndPoint:
                     return new EndPoint(newPoint);
+                case SnapPointKind.Focus:
+                    return new FocusPoint(newPoint);
                 case SnapPointKind.MidPoint:
                     return new MidPoint(newPoint);
                 case SnapPointKind.Quadrant:
