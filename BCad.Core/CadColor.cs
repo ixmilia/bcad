@@ -55,6 +55,11 @@ namespace BCad
             return this.ToARGBString();
         }
 
+        public static CadColor Parse(string s)
+        {
+            return s.ParseColor();
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is CadColor)

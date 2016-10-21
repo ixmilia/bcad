@@ -1,14 +1,11 @@
 ﻿using System.Windows.Input;
-using System.Xml.Serialization;
+using IxMilia.Config;
 
 namespace BCad
 {
     public class KeyboardShortcut
     {
-        [XmlAttribute]
         public ModifierKeys Modifier { get; set; }
-
-        [XmlAttribute]
         public Key Key { get; set; }
 
         public KeyboardShortcut()
@@ -28,6 +25,21 @@ namespace BCad
             {
                 return this.Modifier != ModifierKeys.None || this.Key != Key.None;
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Concat(Modifier.ToConfigString(), "+", Key.ToConfigString());
+        }
+
+        public static KeyboardShortcut Parse(string s)
+        {
+            var parts = s.Split('+');
+            ModifierKeys modifier;
+            Key key;
+            parts[0].TryParseValue(out modifier);
+            parts[1].TryParseValue(out key);
+            return new KeyboardShortcut(modifier, key);
         }
     }
 }

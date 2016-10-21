@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.25807.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Universal", "BCad.Universal\BCad.Universal.csproj", "{1B6C101A-23A2-4A6C-BDBA-35B45F4C952E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BCad.UI.Shared", "BCad.UI.Shared\BCad.UI.Shared.shproj", "{6DDB82F8-3E37-4D82-9BF1-40ECFEE60739}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Config", "IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj", "{B1A59BD1-0661-4B55-9B36-F9B970829D12}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -205,6 +207,26 @@ Global
 		{1B6C101A-23A2-4A6C-BDBA-35B45F4C952E}.Release|x86.ActiveCfg = Release|x86
 		{1B6C101A-23A2-4A6C-BDBA-35B45F4C952E}.Release|x86.Build.0 = Release|x86
 		{1B6C101A-23A2-4A6C-BDBA-35B45F4C952E}.Release|x86.Deploy.0 = Release|x86
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|ARM.Build.0 = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|x64.Build.0 = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Debug|x86.Build.0 = Debug|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|ARM.Build.0 = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|x64.ActiveCfg = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|x64.Build.0 = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|x86.ActiveCfg = Release|Any CPU
+		{B1A59BD1-0661-4B55-9B36-F9B970829D12}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

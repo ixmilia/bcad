@@ -4,3 +4,6 @@
 [submodule "IxMilia.Iges"]
 	path = IxMilia.Iges
 	url = https://github.com/IxMilia/Iges
+[submodule "IxMilia.Config"]
+	path = IxMilia.Config
+	url = https://github.com/IxMilia/Config

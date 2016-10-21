@@ -1,9 +1,8 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using IxMilia.Config;
 
 namespace BCad
 {
-    [Serializable]
     public class SettingsManager : DefaultSettingsManager
     {
         private KeyboardShortcut angleSnapShortcut = null;
@@ -11,6 +10,7 @@ namespace BCad
         private KeyboardShortcut orthoShortcut = null;
         private KeyboardShortcut debugShortcut = null;
 
+        [ConfigPath("UI.AngleSnapShortcut")]
         public KeyboardShortcut AngleSnapShortcut
         {
             get { return this.angleSnapShortcut; }
@@ -21,6 +21,7 @@ namespace BCad
             }
         }
 
+        [ConfigPath("UI.PointSnapShortcut")]
         public KeyboardShortcut PointSnapShortcut
         {
             get { return this.pointSnapShortcut; }
@@ -31,6 +32,7 @@ namespace BCad
             }
         }
 
+        [ConfigPath("UI.OrthoShortcut")]
         public KeyboardShortcut OrthoShortcut
         {
             get { return this.orthoShortcut; }
@@ -41,6 +43,7 @@ namespace BCad
             }
         }
 
+        [ConfigPath("UI.DebugShortcut")]
         public KeyboardShortcut DebugShortcut
         {
             get { return this.debugShortcut; }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Xml.Serialization;
-using BCad.Extensions;
+﻿using System.ComponentModel;
 using BCad.SnapPoints;
 
 namespace BCad
@@ -30,7 +26,6 @@ namespace BCad
         private CadColor _hotPointColor = CadColor.Blue;
         private SnapPointKind _allowedSnapPoints = SnapPointKind.All;
 
-        [XmlIgnore]
         public string[] RibbonOrder
         {
             get { return _ribbonOrder; }
@@ -38,20 +33,6 @@ namespace BCad
             {
                 _ribbonOrder = value;
                 OnPropertyChanged(nameof(RibbonOrder));
-            }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = nameof(RibbonOrder))]
-        public string RibbonOrderString
-        {
-            get
-            {
-                return string.Join(";", _ribbonOrder);
-            }
-            set
-            {
-                _ribbonOrder = value.Split(';').ToArray();
             }
         }
 
@@ -223,7 +204,6 @@ namespace BCad
             }
         }
 
-        [XmlIgnore]
         public double[] SnapAngles
         {
             get { return _snapAngles; }
@@ -234,21 +214,6 @@ namespace BCad
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = nameof(SnapAngles))]
-        public string SnapAnglesString
-        {
-            get
-            {
-                return string.Join(";", SnapAngles);
-            }
-            set
-            {
-                SnapAngles = value.Split(';').Select(s => double.Parse(s.Trim())).ToArray();
-            }
-        }
-
-        [XmlIgnore]
         public CadColor BackgroundColor
         {
             get { return _backgroundColor; }
@@ -261,21 +226,6 @@ namespace BCad
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = nameof(BackgroundColor))]
-        public string BackgroundColorString
-        {
-            get
-            {
-                return BackgroundColor.ToARGBString();
-            }
-            set
-            {
-                BackgroundColor = value.ParseColor();
-            }
-        }
-
-        [XmlIgnore]
         public CadColor SnapPointColor
         {
             get { return _snapPointColor; }
@@ -288,15 +238,6 @@ namespace BCad
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = nameof(SnapPointColor))]
-        public string SnapPointColorString
-        {
-            get { return SnapPointColor.ToARGBString(); }
-            set { SnapPointColor = value.ParseColor(); }
-        }
-
-        [XmlIgnore]
         public CadColor HotPointColor
         {
             get { return _hotPointColor; }
@@ -309,15 +250,6 @@ namespace BCad
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = nameof(HotPointColor))]
-        public string HotPointColorString
-        {
-            get { return HotPointColor.ToARGBString(); }
-            set { HotPointColor = value.ParseColor(); }
-        }
-
-        [XmlIgnore]
         public SnapPointKind AllowedSnapPoints
         {
             get { return _allowedSnapPoints; }
@@ -325,17 +257,6 @@ namespace BCad
             {
                 _allowedSnapPoints = value;
                 OnPropertyChanged(nameof(AllowedSnapPoints));
-            }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement(ElementName = nameof(AllowedSnapPoints))]
-        public string AllowedSnapPointsString
-        {
-            get { return AllowedSnapPoints.ToString(); }
-            set
-            {
-                AllowedSnapPoints = (SnapPointKind)Enum.Parse(typeof(SnapPointKind), value);
             }
         }
 

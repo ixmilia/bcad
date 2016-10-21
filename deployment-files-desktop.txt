@@ -1,6 +1,7 @@
 BCad.Core.dll
 BCad.exe
 BCad.FileHandlers.dll
+IxMilia.Config.dll
 IxMilia.Dwg.dll
 IxMilia.Dxf.dll
 IxMilia.Iges.dll

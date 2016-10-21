@@ -332,6 +332,10 @@
       <Project>{0b2dc042-30b6-4d2b-ac56-5f12d1eb5a55}</Project>
       <Name>BCad.FileHandlers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj">
+      <Project>{b1a59bd1-0661-4b55-9b36-f9b970829d12}</Project>
+      <Name>IxMilia.Config</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="BCad.ico" />

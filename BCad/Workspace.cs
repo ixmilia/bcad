@@ -6,15 +6,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Xml.Linq;
-using System.Xml.Serialization;
+using IxMilia.Config;
 
 namespace BCad
 {
     [Export(typeof(IWorkspace)), Shared]
     internal class Workspace : WorkspaceBase
     {
-        private const string SettingsFile = "BCad.settings.xml";
+        private const string SettingsFile = ".bcadconfig";
         private Regex SettingsPattern = new Regex(@"^/p:([a-zA-Z]+)=(.*)$");
 
         private string FullSettingsFile
@@ -29,65 +28,27 @@ namespace BCad
 
         protected override ISettingsManager LoadSettings()
         {
-            var serializer = new XmlSerializer(typeof(SettingsManager));
-            SettingsManager manager = null;
-            if (File.Exists(FullSettingsFile))
+            var manager = new SettingsManager();
+            try
             {
-                try
-                {
-                    using (var stream = new FileStream(FullSettingsFile, FileMode.Open))
-                    {
-                        manager = (SettingsManager)serializer.Deserialize(stream);
-                    }
-                }
-                catch
-                {
-                }
+                var lines = File.ReadAllLines(FullSettingsFile);
+                manager.DeserializeConfig(lines);
+            }
+            catch
+            {
+                // don't care if we can't read the existing file because it might not exist
             }
 
-            if (manager == null)
-            {
-                manager = new SettingsManager();
-            }
-
-            // Override settings provided via the command line in the form of "/p:SettingName=SettingValue".  To do this
-            // we need to serialize the settings, replace the specified values, then deserialize again.
+            // Override settings provided via the command line in the form of "/p:SettingName=SettingValue".
             var args = Environment.GetCommandLineArgs();
-            if (args.Length > 1)
+            foreach (var arg in args.Skip(1))
             {
-                // serialize the settings manager back to xml
-                var ms = new MemoryStream();
-                serializer.Serialize(ms, manager);
-                ms.Flush();
-                ms.Seek(0, SeekOrigin.Begin);
-                var xml = XDocument.Load(ms);
-
-                // set each value as specified on the command line
-                foreach (var argument in args.Skip(1))
+                var match = SettingsPattern.Match(arg);
+                if (match.Success)
                 {
-                    var match = SettingsPattern.Match(argument);
-                    if (match.Success)
-                    {
-                        var settingName = match.Groups[1].Value;
-                        var settingValue = match.Groups[2].Value;
-                        var element = xml.Root.Element(settingName);
-                        if (element != null)
-                        {
-                            element.Value = settingValue;
-                        }
-                    }
-                }
-
-                // now deserialize again
-                try
-                {
-                    using (var reader = new StringReader(xml.ToString()))
-                    {
-                        manager = (SettingsManager)serializer.Deserialize(reader);
-                    }
-                }
-                catch
-                {
+                    var settingName = match.Groups[1].Value;
+                    var settingValue = match.Groups[2].Value;
+                    manager.DeserializeProperty(settingName, settingValue);
                 }
             }
 
@@ -96,11 +57,18 @@ namespace BCad
 
         public override void SaveSettings()
         {
-            var serializer = new XmlSerializer(typeof(SettingsManager));
-            using (var stream = new FileStream(FullSettingsFile, FileMode.Create))
+            string[] lines = new string[0];
+            try
             {
-                serializer.Serialize(stream, this.SettingsManager);
+                lines = File.ReadAllLines(FullSettingsFile);
             }
+            catch
+            {
+                // don't care if we can't read the existing file because it might not exist
+            }
+
+            var newContent = ((SettingsManager)SettingsManager).SerializeConfig(lines);
+            File.WriteAllText(FullSettingsFile, newContent);
         }
 
         public override async Task<UnsavedChangesResult> PromptForUnsavedChanges()
