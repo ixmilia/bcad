@@ -7,7 +7,6 @@ Runtime requirements
 * BCad.exe (main entry point)
 * BCad.FileHandlers.dll
 * IxMilia.Config.dll
-* IxMilia.Dwg.dll
 * IxMilia.Dxf.dll
 * IxMilia.Iges.dll
 * IxMilia.Stl.dll

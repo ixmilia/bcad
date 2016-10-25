@@ -9,7 +9,7 @@
 *.Tests_log.ldf
 *.ide
 AppPackages/
-/packages
+**/packages
 *.user
 /.vs
 *project.lock.json
