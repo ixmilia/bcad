@@ -167,7 +167,6 @@
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\PlotDialogViewModel.cs" />
-    <Compile Include="UI\View\ISlimDXRenderEngine.cs" />
     <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
     <Compile Include="UI\View\IRendererFactory.cs" />
     <Compile Include="UI\View\RenderCanvas.BindingClass.cs" />
