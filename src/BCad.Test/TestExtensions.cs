@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using BCad;
 using BCad.Entities;
 using BCad.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace BCad.Test
 {
@@ -23,7 +20,7 @@ namespace BCad.Test
 
         public static void VerifyContains(this Layer layer, Entity entity)
         {
-            Assert.IsTrue(layer.GetEntities().Any(o => o.EquivalentTo(entity)));
+            Assert.True(layer.GetEntities().Any(o => o.EquivalentTo(entity)));
         }
 
         public static IEnumerable<Entity> GetEntities(this IWorkspace workspace)

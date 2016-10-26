@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BCad.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace BCad.Test
 {
-    [TestClass]
     public class PointTests : AbstractDrawingTests
     {
         private const double Tolerance = 0.000001;
 
         private void WithinTolerance(double expected, double value)
         {
-            Assert.IsTrue(Math.Abs(expected - value) < Tolerance);
+            Assert.True(Math.Abs(expected - value) < Tolerance);
         }
 
         private void TestParse(string text, Point expected, Optional<Point> cursor = default(Optional<Point>), Optional<Point> last = default(Optional<Point>))
@@ -22,25 +18,25 @@ namespace BCad.Test
             var realCursor = cursor.HasValue ? cursor.Value : Point.Origin;
             var realLast = last.HasValue ? last.Value : Point.Origin;
             Point point;
-            Assert.IsTrue(InputService.TryParsePoint(text, realCursor, realLast, out point));
-            Assert.IsTrue(expected.CloseTo(point));
+            Assert.True(InputService.TryParsePoint(text, realCursor, realLast, out point));
+            Assert.True(expected.CloseTo(point));
         }
 
-        [TestMethod]
+        [Fact]
         public void EqualityTests()
         {
-            Assert.AreEqual(new Point(0, 0, 0), new Point(0, 0, 0));
-            Assert.AreEqual(new Point(1, 1, 1), new Point(1, 1, 1));
-            Assert.AreNotEqual(new Point(0, 0, 0), new Point(1, 0, 0));
+            Assert.Equal(new Point(0, 0, 0), new Point(0, 0, 0));
+            Assert.Equal(new Point(1, 1, 1), new Point(1, 1, 1));
+            Assert.NotEqual(new Point(0, 0, 0), new Point(1, 0, 0));
         }
 
-        [TestMethod]
+        [Fact]
         public void PointParsingTests()
         {
-            Assert.AreEqual(new Point(0, 0, 0), Point.Parse("0,0,0"));
+            Assert.Equal(new Point(0, 0, 0), Point.Parse("0,0,0"));
         }
 
-        [TestMethod]
+        [Fact]
         public void ToAngleTests()
         {
             WithinTolerance(45.0, new Vector(1, 1, 0).ToAngle());
@@ -52,7 +48,7 @@ namespace BCad.Test
             WithinTolerance(315.0, new Vector(1, -1, 0).ToAngle());
         }
 
-        [TestMethod]
+        [Fact]
         public void PointParseTests()
         {
             // non-zero length on current vector

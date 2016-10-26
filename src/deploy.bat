@@ -10,4 +10,4 @@ exit /b 1
 
 :gooddir
 if not exist "%deploydir%" mkdir "%deploydir%"
-for /F "tokens=*" %%f in (%~dp0\deployment-files-%deploytype%.txt) do copy "bin\Debug\%%f" "%deploydir%"
+for /F "tokens=*" %%f in (%~dp0\deployment-files-%deploytype%.txt) do copy "%~dp0Binaries\Debug\%%f" "%deploydir%"

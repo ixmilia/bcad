@@ -11,5 +11,6 @@
 AppPackages/
 **/packages
 *.user
-/.vs
+**/.vs
 *project.lock.json
+NuGet.exe

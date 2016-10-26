@@ -1,15 +1,11 @@
 ﻿{
   "dependencies": {
-    "Microsoft.Composition": "1.0.30",
     "NETStandard.Library": "1.6.0"
   },
   "frameworks": {
-    "net46": { }
+    "net46": {}
   },
   "runtimes": {
-    "win-x86": { },
-    "win-x86-aot": { },
-    "win-x64": { },
-    "win-x64-aot": { }
+    "win": {}
   }
 }

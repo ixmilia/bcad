@@ -4,12 +4,10 @@ using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace BCad.Test
 {
-    [TestClass]
     public class TrimExtendTests : AbstractDrawingTests
     {
 
@@ -41,16 +39,16 @@ namespace BCad.Test
                 out added);
 
             // verify deleted
-            Assert.AreEqual(expectTrim, removed.Any());
+            Assert.Equal(expectTrim, removed.Any());
             if (expectTrim)
             {
-                Assert.AreEqual(1, removed.Count());
-                Assert.IsTrue(removed.Single().EquivalentTo(entityToTrim));
+                Assert.Equal(1, removed.Count());
+                Assert.True(removed.Single().EquivalentTo(entityToTrim));
             }
 
             // verify added
-            Assert.AreEqual(expectedAdded.Count(), added.Count());
-            Assert.IsTrue(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+            Assert.Equal(expectedAdded.Count(), added.Count());
+            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
         private void DoExtend(IEnumerable<Entity> existingEntities,
@@ -79,21 +77,21 @@ namespace BCad.Test
                 out added);
 
             // verify deleted
-            Assert.AreEqual(expectExtend, removed.Any());
+            Assert.Equal(expectExtend, removed.Any());
             if (expectExtend)
             {
-                Assert.AreEqual(1, removed.Count());
-                Assert.IsTrue(removed.Single().EquivalentTo(entityToExtend));
+                Assert.Equal(1, removed.Count());
+                Assert.True(removed.Single().EquivalentTo(entityToExtend));
             }
 
             // verify added
-            Assert.AreEqual(expectedAdded.Count(), added.Count());
-            Assert.IsTrue(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
+            Assert.Equal(expectedAdded.Count(), added.Count());
+            Assert.True(expectedAdded.Zip(added, (a, b) => a.EquivalentTo(b)).All(b => b));
         }
 
         #endregion
 
-        [TestMethod]
+        [Fact]
         public void SimpleLineTrimTest()
         {
             var line = new Line(new Point(0, 0, 0), new Point(2, 0, 0), null);
@@ -110,7 +108,7 @@ namespace BCad.Test
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public void TrimWholeLineBetweenTest()
         {
             DoTrim(
@@ -125,7 +123,7 @@ namespace BCad.Test
                 null);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrimCircleAtZeroAngleTest()
         {
             DoTrim(
@@ -142,7 +140,7 @@ namespace BCad.Test
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public void TrimHalfArcTest()
         {
             //      _________            ____
@@ -165,7 +163,7 @@ namespace BCad.Test
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public void IsometricCircleTrimTest()
         {
             //      ____             ___
@@ -189,7 +187,7 @@ namespace BCad.Test
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public void SimpleExtendTest()
         {
             //          |  =>           |
@@ -209,7 +207,7 @@ namespace BCad.Test
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public void NoExtendFromFurtherPointTest()
         {
             //          |  =>           |
@@ -226,7 +224,7 @@ namespace BCad.Test
                 null);
         }
 
-        [TestMethod]
+        [Fact]
         public void SimpleArcExtendTest()
         {
             //    o   /        --\  /
@@ -248,7 +246,7 @@ namespace BCad.Test
                 });
         }
 
-        [TestMethod]
+        [Fact]
         public void SimpleExtendArcNotAtOriginTest()
         {
             //   /           /

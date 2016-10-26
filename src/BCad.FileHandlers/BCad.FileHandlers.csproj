@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <ImportGroup>
+    <Import Project="..\Targets\IxMilia.targets" />
+  </ImportGroup>
   <PropertyGroup>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}</ProjectGuid>
@@ -10,35 +11,15 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BCad.FileHandlers</RootNamespace>
     <AssemblyName>BCad.FileHandlers</AssemblyName>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <CopyNuGetImplementations>true</CopyNuGetImplementations>
-    <RestorePackages>true</RestorePackages>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
       <Project>{ae1e5dc5-64db-4fba-847c-5b84a865eec1}</Project>
       <Name>BCad.Core</Name>
@@ -53,6 +34,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <NuGetReferences Include="$(UserProfile)\.nuget\packages\IxMilia.Dxf\0.4.0\lib\portable45-net45+win8+wpa81\IxMilia.Dxf.dll" />
+    <NuGetReferences Include="$(UserProfile)\.nuget\packages\IxMilia.Stl\0.1.1\lib\netstandard1.0\IxMilia.Stl.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="AscFileHandler.cs" />
     <Compile Include="DxfFileHandler.cs" />
     <Compile Include="IgesFileHandler.cs" />
@@ -64,18 +49,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
   <Target Name="AfterBuild">
+    <Copy SourceFiles="@(NuGetReferences)" DestinationFolder="$(OutputPath)" />
   </Target>
-  -->
 </Project>

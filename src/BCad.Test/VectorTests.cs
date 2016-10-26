@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace BCad.Test
 {
-    [TestClass]
     public class VectorTests
     {
-        [TestMethod]
+        [Fact]
         public void NormalizeTest()
         {
             var v = new Vector(3, 4, 0);
-            Assert.AreEqual(1.0, v.Normalize().Length);
+            Assert.Equal(1.0, v.Normalize().Length);
         }
     }
 }

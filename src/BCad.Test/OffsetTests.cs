@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BCad.Entities;
+﻿using BCad.Entities;
 using BCad.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace BCad.Test
 {
-    [TestClass]
     public class OffsetTests : AbstractDrawingTests
     {
-        [TestMethod]
+        [Fact]
         public void CircleOffsetInsideTest()
         {
             var offset = EditUtilities.Offset(
@@ -19,13 +14,13 @@ namespace BCad.Test
                 new Circle(Point.Origin, 2.0, Vector.ZAxis, null),
                 Point.Origin,
                 1.0);
-            Assert.IsTrue(offset is Circle);
+            Assert.True(offset is Circle);
             var circle = (Circle)offset;
-            Assert.AreEqual(Point.Origin, circle.Center);
-            Assert.AreEqual(1.0, circle.Radius);
+            Assert.Equal(Point.Origin, circle.Center);
+            Assert.Equal(1.0, circle.Radius);
         }
 
-        [TestMethod]
+        [Fact]
         public void CircleOffsetOutsideTest()
         {
             var circle = (Circle)EditUtilities.Offset(
@@ -33,11 +28,11 @@ namespace BCad.Test
                 new Circle(Point.Origin, 2.0, Vector.ZAxis, null),
                 new Point(3, 0, 0),
                 1.0);
-            Assert.AreEqual(Point.Origin, circle.Center);
-            Assert.AreEqual(3.0, circle.Radius);
+            Assert.Equal(Point.Origin, circle.Center);
+            Assert.Equal(3.0, circle.Radius);
         }
 
-        [TestMethod]
+        [Fact]
         public void VerticalLineOffsetLeftTest()
         {
             var offset = (Line)EditUtilities.Offset(
@@ -45,11 +40,11 @@ namespace BCad.Test
                 new Line(new Point(1, 0, 0), new Point(1, 1, 0), null),
                 Point.Origin,
                 1.0);
-            Assert.AreEqual(new Point(0, 0, 0), offset.P1);
-            Assert.AreEqual(new Point(0, 1, 0), offset.P2);
+            Assert.Equal(new Point(0, 0, 0), offset.P1);
+            Assert.Equal(new Point(0, 1, 0), offset.P2);
         }
 
-        [TestMethod]
+        [Fact]
         public void VerticalLineOffsetRightTest()
         {
             var offset = (Line)EditUtilities.Offset(
@@ -57,11 +52,11 @@ namespace BCad.Test
                 new Line(new Point(1, 0, 0), new Point(1, 1, 0), null),
                 new Point(2, 0, 0),
                 1.0);
-            Assert.AreEqual(new Point(2, 0, 0), offset.P1);
-            Assert.AreEqual(new Point(2, 1, 0), offset.P2);
+            Assert.Equal(new Point(2, 0, 0), offset.P1);
+            Assert.Equal(new Point(2, 1, 0), offset.P2);
         }
 
-        [TestMethod]
+        [Fact]
         public void HorizontalLineOffsetUpTest()
         {
             var offset = (Line)EditUtilities.Offset(
@@ -69,11 +64,11 @@ namespace BCad.Test
                 new Line(new Point(0, 1, 0), new Point(1, 1, 0), null),
                 new Point(0, 2, 0),
                 1.0);
-            Assert.AreEqual(new Point(0, 2, 0), offset.P1);
-            Assert.AreEqual(new Point(1, 2, 0), offset.P2);
+            Assert.Equal(new Point(0, 2, 0), offset.P1);
+            Assert.Equal(new Point(1, 2, 0), offset.P2);
         }
 
-        [TestMethod]
+        [Fact]
         public void HorizontalLineOffsetDownTest()
         {
             var offset = (Line)EditUtilities.Offset(
@@ -81,11 +76,11 @@ namespace BCad.Test
                 new Line(new Point(0, 1, 0), new Point(1, 1, 0), null),
                 Point.Origin,
                 1.0);
-            Assert.AreEqual(new Point(0, 0, 0), offset.P1);
-            Assert.AreEqual(new Point(1, 0, 0), offset.P2);
+            Assert.Equal(new Point(0, 0, 0), offset.P1);
+            Assert.Equal(new Point(1, 0, 0), offset.P2);
         }
 
-        [TestMethod]
+        [Fact]
         public void DiagonalLineOffsetTest()
         {
             var offset = (Line)EditUtilities.Offset(
@@ -97,7 +92,7 @@ namespace BCad.Test
             AssertClose(new Point(1.707106781186547, 1.292893218813453, 0), offset.P2);
         }
 
-        [TestMethod]
+        [Fact]
         public void OffsetPointDirectlyOnEntity()
         {
             // line
@@ -106,7 +101,7 @@ namespace BCad.Test
                 new Line(new Point(-1, 0, 0), new Point(1, 0, 0), null),
                 Point.Origin,
                 1.0);
-            Assert.IsNull(offset);
+            Assert.Null(offset);
             
             // circle
             offset = EditUtilities.Offset(
@@ -114,10 +109,10 @@ namespace BCad.Test
                 new Circle(Point.Origin, 1.0, Vector.ZAxis, null),
                 new Point(1.0, 0, 0),
                 1.0);
-            Assert.IsNull(offset);
+            Assert.Null(offset);
         }
 
-        [TestMethod]
+        [Fact]
         public void CircleOffsetProjectionBug()
         {
             // enuse we're using the correct projection matrix when verifying
@@ -127,8 +122,8 @@ namespace BCad.Test
                 new Circle(new Point(100, 0, 0), 50, Vector.ZAxis, null),
                 new Point(100, 0, 0),
                 10);
-            Assert.AreEqual(new Point(100, 0, 0), offset.Center);
-            Assert.AreEqual(40, offset.Radius);
+            Assert.Equal(new Point(100, 0, 0), offset.Center);
+            Assert.Equal(40, offset.Radius);
         }
     }
 }

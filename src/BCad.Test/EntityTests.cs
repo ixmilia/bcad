@@ -2,14 +2,13 @@
 using BCad.Entities;
 using BCad.Extensions;
 using BCad.Primitives;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace BCad.Test
 {
-    [TestClass]
     public class EntityTests : AbstractDrawingTests
     {
-        [TestMethod]
+        [Fact]
         public void CircleIntersectionTest()
         {
             //          ______                  ______
@@ -27,7 +26,7 @@ namespace BCad.Test
             var polyline = (Polyline)union.Single();
             var arcs = polyline.GetPrimitives().Cast<PrimitiveEllipse>().OrderBy(e => e.Center.X);
 
-            Assert.AreEqual(2, arcs.Count());
+            Assert.Equal(2, arcs.Count());
             var leftArc = arcs.First();
             var rightArc = arcs.Last();
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using BCad.Helpers;
 using BCad.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace BCad.Test
 {
@@ -18,7 +18,7 @@ namespace BCad.Test
 
         protected void AssertClose(double expected, double actual, double error = MathHelper.Epsilon)
         {
-            Assert.IsTrue(Math.Abs(expected - actual) < error, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+            Assert.True(Math.Abs(expected - actual) < error, string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
         protected void AssertClose(Point expected, Point actual)
