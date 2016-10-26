@@ -119,7 +119,6 @@
     <Compile Include="EventArguments\WriteLineEventArgs.cs" />
     <Compile Include="Extensions\DrawingExtensions.cs" />
     <Compile Include="Extensions\EntityExtensions.cs" />
-    <Compile Include="Extensions\ShapeExtensions.cs" />
     <Compile Include="Extensions\WorkspaceExtensions.cs" />
     <Compile Include="FileHandlers\ExportFileHandlerAttribute.cs" />
     <Compile Include="Helpers\MathHelper.cs" />

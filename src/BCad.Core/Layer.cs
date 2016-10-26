@@ -1,8 +1,10 @@
-﻿using System;
+﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using BCad.Collections;
 using BCad.Entities;
-using System.Threading;
 
 namespace BCad
 {
