@@ -1,27 +1,15 @@
 BCad
 ====
 
-Runtime requirements
---------------------
-* BCad.Core.dll
-* BCad.exe (main entry point)
-* BCad.FileHandlers.dll
-* IxMilia.Config.dll
-* IxMilia.Dxf.dll
-* IxMilia.Iges.dll
-* IxMilia.Stl.dll
-* SharpDX.D3DCompiler.dll
-* SharpDX.Direct2D1.dll
-* SharpDX.Direct3D11.dll
-* SharpDX.Direct3D9.dll
-* SharpDX.dll
-* SharpDX.DXGI.dll
-* SharpDX.Toolkit.Compiler.dll
-* SharpDX.Toolkit.dll
-* SharpDX.Toolkit.Game.dll
-* SharpDX.Toolkit.Graphics.dll
-* System.Composition.AttributedModel.dll
-* System.Composition.Convention.dll
-* System.Composition.Hosting.dll
-* System.Composition.Runtime.dll
-* System.Composition.TypedParts.dll
+A .NET WPF application for simple CAD-like work.
+
+## Building
+
+0. Clone.
+1. Run `Init.cmd` in the root of the project to populate the submodules.
+2. `msbuild .\BuildAndTest.proj`.
+
+## Running
+
+Run `src\Binaries\Debug\BCad.exe` directly or use `src\deploy.bat <location>` to copy all relevant files
+to `<location>` where `BCad.exe` can then be run.
