@@ -75,7 +75,10 @@ namespace BCad.FileHandlers
                 author: null);
             drawing.Tag = file;
 
-            var vp = file.ViewPorts.FirstOrDefault();
+            // prefer `*ACTIVE` view port first
+            // TODO: use `DxfFile.ActiveViewPort` when available
+            var vp = file.ViewPorts.FirstOrDefault(v => string.Compare(v.Name, DxfViewPort.ActiveViewPortName, StringComparison.OrdinalIgnoreCase) == 0)
+                ?? file.ViewPorts.FirstOrDefault();
             if (vp != null)
             {
                 viewPort = new ViewPort(
@@ -130,6 +133,8 @@ namespace BCad.FileHandlers
             }
 
             // save viewport
+            // TODO: use `DxfFile.ActiveViewPort` when available
+            file.ViewPorts.Clear();
             file.ViewPorts.Add(new DxfViewPort()
             {
                 Name = DxfViewPort.ActiveViewPortName,
