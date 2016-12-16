@@ -65,12 +65,14 @@ namespace BCad
 
         public static string FormatUnits(double value, UnitFormat unitFormat, int unitPrecision)
         {
+            var prefix = Math.Sign(value) < 0 ? "-" : "";
+            value = Math.Abs(value);
             switch (unitFormat)
             {
                 case UnitFormat.Architectural:
-                    return FormatArchitectural(value, unitPrecision);
+                    return string.Concat(prefix, FormatArchitectural(value, unitPrecision));
                 case UnitFormat.Metric:
-                    return FormatMetric(value, unitPrecision);
+                    return string.Concat(prefix, FormatMetric(value, unitPrecision));
                 default:
                     throw new ArgumentException("value");
             }
@@ -84,6 +86,13 @@ namespace BCad
             if (double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out value))
                 return true;
 
+            var isNegative = false;
+            if (text[0] == '-')
+            {
+                text = text.Substring(1);
+                isNegative = true;
+            }
+
             var match = FullArchitecturalPattern.Match(text);
             if (match.Success)
             {
@@ -94,6 +103,11 @@ namespace BCad
                 var denom = ParseIntAsDouble(match.Groups[7].Value);
                 if (denom == 0.0) denom = 1.0; // hack to prevent zero division
                 value = (feet * 12.0) + inches + (num / denom);
+                if (isNegative)
+                {
+                    value *= -1.0;
+                }
+
                 return true;
             }
 
@@ -104,6 +118,11 @@ namespace BCad
                 var feet = ParseIntAsDouble(match.Groups[1].Value);
                 var inches = double.Parse(match.Groups[2].Value);
                 value = (feet * 12.0) + inches;
+                if (isNegative)
+                {
+                    value *= -1.0;
+                }
+
                 return true;
             }
 

@@ -20,6 +20,9 @@ namespace BCad.Test
 
             // 4 decimal places
             TestMetric(3.14159, "3.1416", 4);
+
+            // negative value
+            TestMetric(-3.0, "-3", 4);
         }
 
         [Fact]
@@ -44,6 +47,9 @@ namespace BCad.Test
 
             // near the upper limit
             TestArch(15.99999999, "1'4\"", 16);
+
+            // negative value
+            TestArch(-18.5, "-1'6-1/2\"", 16);
         }
 
         [Fact]
@@ -70,6 +76,9 @@ namespace BCad.Test
 
             TestParse("1'3.5\"", 15.5); // feet with decimal inches with specifier
             TestParse("1'3.5", 15.5); // feet with decimal inches without specifier
+
+            TestParse("-1'6-1/2\"", -18.5); // negative feet with fractional inches
+            TestParse("-1'6.5\"", -18.5); // negative feet with decimal inches
         }
 
         [Fact]
