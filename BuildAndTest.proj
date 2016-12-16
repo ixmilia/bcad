@@ -34,15 +34,15 @@
 
   <Target Name="RestorePackages">
     <MakeDir Directories="$(NuGetDir)" />
-    <DownloadFile Url="https://dist.nuget.org/win-x86-commandline/v3.5.0-rc1/NuGet.exe" Destination="$(NuGetExe)" Condition="!Exists('$(NuGetExe)')" />
+    <DownloadFile Url="https://dist.nuget.org/win-x86-commandline/v3.5.0/NuGet.exe" Destination="$(NuGetExe)" Condition="!Exists('$(NuGetExe)')" />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad\packages.config" -SolutionDir "$(SolutionDir)"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.Core\project.json"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers\project.json"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.Test\project.json"' />
+    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Core\project.json"' />
+    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.FileHandlers\project.json"' />
+    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\project.json"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\packages.config" -SolutionDir "$(SolutionDir)"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\project.json"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Iges\src\IxMilia.Iges\project.json"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Step\src\IxMilia.Step\project.json"' />
+    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\project.json"' />
+    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\IxMilia.Iges\src\IxMilia.Iges\project.json"' />
+    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\IxMilia.Step\src\IxMilia.Step\project.json"' />
   </Target>
 
   <Target Name="Build" DependsOnTargets="RestorePackages">
