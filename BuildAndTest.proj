@@ -40,7 +40,7 @@
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.FileHandlers\project.json"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\project.json"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\packages.config" -SolutionDir "$(SolutionDir)"' />
-    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\project.json"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\IxMilia.Step\src\IxMilia.Step\project.json"' />
   </Target>
