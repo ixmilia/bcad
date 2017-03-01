@@ -37,7 +37,7 @@
     <DownloadFile Url="https://dist.nuget.org/win-x86-commandline/v3.5.0/NuGet.exe" Destination="$(NuGetExe)" Condition="!Exists('$(NuGetExe)')" />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad\packages.config" -SolutionDir "$(SolutionDir)"' />
     <Exec Command='dotnet restore "$(SolutionDir)\BCad.Core\BCad.Core.csproj"' />
-    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.FileHandlers\project.json"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers\BCad.FileHandlers.csproj"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\project.json"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\packages.config" -SolutionDir "$(SolutionDir)"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj"' />
