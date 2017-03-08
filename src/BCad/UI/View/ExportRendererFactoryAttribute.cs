@@ -2,6 +2,7 @@
 
 using System;
 using System.Composition;
+using BCad.UI.View;
 
 namespace BCad.UI
 {

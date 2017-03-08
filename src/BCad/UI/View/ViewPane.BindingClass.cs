@@ -2,13 +2,9 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-#if WINDOWS_UWP
-using Windows.UI.Xaml.Media;
-#elif WPF
 using System.Windows.Media;
-#endif
 
-namespace BCad.UI.Shared
+namespace BCad.UI.View
 {
     public partial class ViewPane
     {

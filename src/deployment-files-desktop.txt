@@ -6,16 +6,6 @@ IxMilia.Dxf.dll
 IxMilia.Iges.dll
 IxMilia.Step.dll
 IxMilia.Stl.dll
-SharpDX.D3DCompiler.dll
-SharpDX.Direct2D1.dll
-SharpDX.Direct3D11.dll
-SharpDX.Direct3D9.dll
-SharpDX.dll
-SharpDX.DXGI.dll
-SharpDX.Toolkit.Compiler.dll
-SharpDX.Toolkit.dll
-SharpDX.Toolkit.Game.dll
-SharpDX.Toolkit.Graphics.dll
 System.Composition.AttributedModel.dll
 System.Composition.Convention.dll
 System.Composition.Hosting.dll

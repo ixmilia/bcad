@@ -2,7 +2,7 @@
 
 using BCad.SnapPoints;
 
-namespace BCad.UI.Shared
+namespace BCad.UI.View
 {
     public partial class ViewPane
     {

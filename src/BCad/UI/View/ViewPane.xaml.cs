@@ -16,25 +16,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 using BCad.Services;
 using BCad.SnapPoints;
-using BCad.UI.Shared.Extensions;
-
-#if WINDOWS_UWP
-// universal
-using Windows.UI.Core;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media;
-using MouseWheelEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
-using PointerButtonEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
-using PointerDeviceType = Windows.Devices.Input.PointerDeviceType;
-using PointerEventArgs = Windows.UI.Xaml.Input.PointerRoutedEventArgs;
-using PointerUpdateKind = Windows.UI.Input.PointerUpdateKind;
-using ResourceDictionary = Windows.UI.Xaml.ResourceDictionary;
-using Shapes = Windows.UI.Xaml.Shapes;
-using SizeChangedEventArgs = Windows.UI.Xaml.SizeChangedEventArgs;
-#elif WPF
-// WPF
+using BCad.UI.Extensions;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -53,9 +35,8 @@ using Shapes = System.Windows.Shapes;
 using SizeChangedEventArgs = System.Windows.SizeChangedEventArgs;
 using UIElement = System.Windows.UIElement;
 using Visibility = System.Windows.Visibility;
-#endif
 
-namespace BCad.UI.Shared
+namespace BCad.UI.View
 {
     /// <summary>
     /// Interaction logic for ViewPane.xaml
@@ -86,14 +67,6 @@ namespace BCad.UI.Shared
 
         private Dictionary<SnapPointKind, FrameworkElement> snapPointGeometry = new Dictionary<SnapPointKind, FrameworkElement>();
 
-        private string SnapPointResourcesUriPrefix =>
-#if WINDOWS_UWP
-            "ms-appx:"
-#elif WPF
-            ""
-#endif
-        ;
-
         private ResourceDictionary SnapPointResources
         {
             get
@@ -101,7 +74,7 @@ namespace BCad.UI.Shared
                 if (resources == null)
                 {
                     resources = new ResourceDictionary();
-                    resources.Source = new Uri($"{SnapPointResourcesUriPrefix}/SnapPointIcons.xaml", UriKind.RelativeOrAbsolute);
+                    resources.Source = new Uri("UI/SnapPointIcons.xaml", UriKind.RelativeOrAbsolute);
                 }
 
                 return resources;
@@ -113,10 +86,8 @@ namespace BCad.UI.Shared
         [Import]
         public IWorkspace Workspace { get; set; }
 
-#if WPF
         [ImportMany]
         public IEnumerable<Lazy<IRendererFactory, RenderFactoryMetadata>> RendererFactories { get; set; }
-#endif
 
         public ViewPane()
         {
@@ -138,23 +109,12 @@ namespace BCad.UI.Shared
             };
 
             clicker.SizeChanged += ViewPaneSizeChanged;
-
-#if WINDOWS_UWP
-            clicker.PointerMoved += OnMouseMove;
-            clicker.PointerPressed += OnMouseDown;
-            clicker.PointerReleased += OnMouseUp;
-            clicker.PointerWheelChanged += OnMouseWheel;
-#endif
-
-#if WPF
             ClipToBounds = true;
             clicker.Cursor = Cursors.None;
             clicker.MouseMove += OnMouseMove;
             clicker.MouseDown += OnMouseDown;
             clicker.MouseUp += OnMouseUp;
             clicker.MouseWheel += OnMouseWheel;
-#endif
-
             CompositionContainer.Container.SatisfyImports(this);
         }
 
@@ -290,55 +250,28 @@ namespace BCad.UI.Shared
                 disposable.Dispose();
             }
 
-#if WINDOWS_UWP
-            _renderer = new Universal.UI.Win2DRenderer(Workspace);
-#else
             var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
             if (factory != null)
             {
                 _renderer = factory.Value.CreateRenderer(this, Workspace);
             }
-#endif
 
             renderControl.Content = _renderer;
         }
 
         private void Invoke(Action action)
         {
-#if WPF
             Dispatcher.Invoke(action, DispatcherPriority.Background);
-#endif
-
-#if WINDOWS_UWP
-            Dispatcher.RunAsync(CoreDispatcherPriority.Low, new DispatchedHandler(action)).AsTask();//.GetAwaiter().GetResult();
-#endif
         }
 
         private T Invoke<T>(Func<T> func)
         {
-#if WPF
             return Dispatcher.Invoke(func);
-#endif
-
-#if WINDOWS_UWP
-            var result = default(T);
-            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
-            {
-                result = func();
-            })).AsTask();//.GetAwaiter().GetResult();
-            return result;
-#endif
         }
 
         private void BeginInvoke(Action action)
         {
-#if WPF
             Dispatcher.BeginInvoke(action);
-#endif
-
-#if WINDOWS_UWP
-            var unused = Dispatcher.RunAsync(CoreDispatcherPriority.Low, new DispatchedHandler(action));
-#endif
         }
 
         private async void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
@@ -467,70 +400,23 @@ namespace BCad.UI.Shared
 
         private Point GetPointerPosition(PointerEventArgs e)
         {
-            lastPointerPosition =
-#if WPF
-                e.GetPosition(clicker).ToPoint();
-#endif
-
-#if WINDOWS_UWP
-                e.GetCurrentPoint(clicker).Position.ToPoint();
-#endif
-
+            lastPointerPosition = e.GetPosition(clicker).ToPoint();
             return lastPointerPosition;
         }
 
         private bool IsLeftButtonPressed(PointerButtonEventArgs e)
         {
-#if WPF
             return e.ChangedButton == MouseButton.Left;
-#endif
-
-#if WINDOWS_UWP
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
-            {
-                var properties = e.GetCurrentPoint(clicker).Properties;
-                return properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed
-                    || properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased;
-            }
-
-            return false;
-#endif
         }
 
         private bool IsMiddleButtonPressed(PointerButtonEventArgs e)
         {
-#if WPF
             return e.ChangedButton == MouseButton.Middle;
-#endif
-
-#if WINDOWS_UWP
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
-            {
-                var properties = e.GetCurrentPoint(clicker).Properties;
-                return properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonPressed
-                    || properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonReleased;
-            }
-
-            return false;
-#endif
         }
 
         private bool IsRightButtonPressed(PointerButtonEventArgs e)
         {
-#if WPF
             return e.ChangedButton == MouseButton.Right;
-#endif
-
-#if WINDOWS_UWP
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
-            {
-                var properties = e.GetCurrentPoint(clicker).Properties;
-                return properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed
-                    || properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased;
-            }
-
-            return false;
-#endif
         }
 
         private async void OnMouseDown(object sender, PointerButtonEventArgs e)
@@ -767,17 +653,6 @@ namespace BCad.UI.Shared
 
         private void SetStrokeDashArray(Shapes.Shape shape, DoubleCollection collection)
         {
-#if WINDOWS_UWP
-            // UWP has to copy the whole collection
-            var newCollection = new DoubleCollection();
-            foreach (var value in collection)
-            {
-                newCollection.Add(value);
-            }
-
-            collection = newCollection;
-#endif
-
             shape.StrokeDashArray = collection;
         }
 
@@ -823,15 +698,7 @@ namespace BCad.UI.Shared
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            var delta =
-#if WPF
-                e.Delta
-#endif
-
-#if WINDOWS_UWP
-                e.GetCurrentPoint(clicker).Properties.MouseWheelDelta;
-#endif
-                ;
+            var delta = e.Delta;
 
             // scale everything
             var scale = 1.25;
@@ -1238,25 +1105,6 @@ namespace BCad.UI.Shared
                 return null;
 
             var geometry = (Canvas)SnapPointResources[name];
-
-#if WINDOWS_UWP
-            // HACK FOR UWP: clone the canvas items by manually copying the children
-            var shapes = new List<UIElement>();
-            foreach (var shape in geometry.Children)
-            {
-                shapes.Add(shape);
-            }
-
-            geometry.Children.Clear();
-            var created = new Canvas();
-            foreach (var shape in shapes)
-            {
-                created.Children.Add(shape);
-            }
-
-            geometry = created;
-#endif
-
             geometry.Visibility = Visibility.Collapsed;
             SetAutoBinding(geometry, RenderTransformProperty, nameof(BindObject.SnapPointTransform));
             geometry.DataContext = BindObject;

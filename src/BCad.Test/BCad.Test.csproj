@@ -77,7 +77,6 @@
     <Compile Include="OffsetTests.cs" />
     <Compile Include="PointTests.cs" />
     <Compile Include="PrimitiveTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuadTreeTests.cs" />
     <Compile Include="ReadOnlyListTests.cs" />
     <Compile Include="ReadOnlyTreeTests.cs" />
@@ -104,7 +103,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="project.json" />
     <None Include="square.dxf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

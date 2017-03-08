@@ -3,7 +3,6 @@
 using System;
 using System.ComponentModel;
 using BCad.EventArguments;
-using BCad.UI.Shared;
 
 namespace BCad.UI.View
 {

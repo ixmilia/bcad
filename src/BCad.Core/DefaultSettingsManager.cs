@@ -281,7 +281,7 @@ namespace BCad
             RibbonOrder = new[] { "home", "view", "settings", "debug" };
             LayerDialogId = "Default";
             PlotDialogId = "Default";
-            RendererId = "Hardware";
+            RendererId = "Software";
             SnapPointDistance = 15.0;
             SnapPointSize = 15.0;
             PointSize = 15.0;

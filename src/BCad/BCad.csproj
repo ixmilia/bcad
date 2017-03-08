@@ -18,35 +18,13 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <ApplicationIcon>BCad.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Toolkit, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Toolkit.Game, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Game.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Toolkit.Graphics, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Graphics.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Composition.AttributedModel, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -88,6 +66,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CompositionContainer.cs" />
     <Compile Include="UI\BCadControl.cs" />
     <Compile Include="UI\BCadControl`1.cs" />
     <Compile Include="UI\BCadDialog.xaml.cs">
@@ -123,17 +102,19 @@
       <DependentUpon>ViewRibbon.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingsManager.cs" />
-    <Compile Include="UI\View\CadGame.cs" />
+    <Compile Include="UI\View\AbstractCadRenderer.cs" />
     <Compile Include="UI\View\EditPane.xaml.cs">
       <DependentUpon>EditPane.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\View\NullVisibilityConverter.cs" />
     <Compile Include="UI\View\PointVectorConverter.cs" />
     <Compile Include="UI\View\RenderCanvasViewModel.cs" />
-    <Compile Include="UI\View\SharpDXRenderer.xaml.cs">
-      <DependentUpon>SharpDXRenderer.xaml</DependentUpon>
+    <Compile Include="UI\View\ViewPane.BindingClass.cs" />
+    <Compile Include="UI\View\ViewPane.CancellableComparer.cs" />
+    <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
+    <Compile Include="UI\View\ViewPane.xaml.cs">
+      <DependentUpon>ViewPane.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\View\SharpDXRendererFactory.cs" />
     <Compile Include="ViewModels\EditAggregateViewModel.cs" />
     <Compile Include="ViewModels\EditArcViewModel.cs" />
     <Compile Include="ViewModels\EditCircleViewModel.cs" />
@@ -167,6 +148,8 @@
       <DependentUpon>PlotDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\PlotDialogViewModel.cs" />
+    <Compile Include="UI\Extensions\ColorExtensions.cs" />
+    <Compile Include="UI\Extensions\PointExtensions.cs" />
     <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
     <Compile Include="UI\View\IRendererFactory.cs" />
     <Compile Include="UI\View\RenderCanvas.BindingClass.cs" />
@@ -245,6 +228,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="UI\SnapPointIcons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="UI\View\EditPane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -253,9 +240,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\View\SharpDXRenderer.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\View\ViewPane.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\View\XamlRenderer.xaml">
       <SubType>Designer</SubType>
@@ -263,9 +250,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -281,7 +265,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="project.json" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -321,11 +305,8 @@
   <ItemGroup>
     <Resource Include="notes.txt" />
   </ItemGroup>
-  <Import Project="..\BCad.UI.Shared\BCad.UI.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\packages\SharpDX.2.6.3\build\SharpDX.targets')" />
-  <Import Project="..\packages\SharpDX.Toolkit.2.6.3\build\SharpDX.Toolkit.targets" Condition="Exists('..\packages\SharpDX.Toolkit.2.6.3\build\SharpDX.Toolkit.targets')" />
   <Target Name="AfterBuild">
-    <Exec Command='dotnet publish "$(MSBuildThisFileDirectory)..\BCad.FileHandlers\BCad.FileHandlers.csproj" --output "$(OutputPath)"' />
+    <Exec Command="dotnet publish &quot;$(MSBuildThisFileDirectory)..\BCad.FileHandlers\BCad.FileHandlers.csproj&quot; --output &quot;$(OutputPath)&quot;" />
   </Target>
 </Project>

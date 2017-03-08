@@ -18,7 +18,6 @@ using BCad.Commands;
 using BCad.EventArguments;
 using BCad.Primitives;
 using BCad.Ribbons;
-using BCad.UI.Shared;
 using BCad.ViewModels;
 
 namespace BCad

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.25807.0
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -19,15 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Iges", "IxMilia.Ige
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Step", "IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj", "{7BEB4FB6-8A3E-4690-B06C-357130AB4226}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BCad.UI.Shared", "BCad.UI.Shared\BCad.UI.Shared.shproj", "{6DDB82F8-3E37-4D82-9BF1-40ECFEE60739}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Config", "IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj", "{B1A59BD1-0661-4B55-9B36-F9B970829D12}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		BCad.UI.Shared\BCad.UI.Shared.projitems*{6ddb82f8-3e37-4d82-9bf1-40ecfee60739}*SharedItemsImports = 13
-		BCad.UI.Shared\BCad.UI.Shared.projitems*{a978c366-6cc2-4f82-908a-8c830f7e6113}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM

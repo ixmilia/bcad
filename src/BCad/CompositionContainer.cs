@@ -5,7 +5,7 @@ using System.Composition.Hosting;
 using System.Reflection;
 using BCad.FileHandlers;
 
-namespace BCad.UI.Shared
+namespace BCad
 {
     public class CompositionContainer : IDisposable
     {
