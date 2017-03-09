@@ -6,6 +6,10 @@ IxMilia.Dxf.dll
 IxMilia.Iges.dll
 IxMilia.Step.dll
 IxMilia.Stl.dll
+libSkiaSharp.dll
+SkiaSharp.dll
+SkiaSharp.Views.Desktop.dll
+SkiaSharp.Views.WPF.dll
 System.Composition.AttributedModel.dll
 System.Composition.Convention.dll
 System.Composition.Hosting.dll

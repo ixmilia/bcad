@@ -33,6 +33,11 @@ namespace BCad
             return (A << 24) | (R << 16) | (G << 8) | B;
         }
 
+        public uint ToUInt32()
+        {
+            return (uint)ToInt32();
+        }
+
         public CadColor GetAutoContrastingColor()
         {
             var brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;

@@ -4,14 +4,9 @@ using System.Windows.Controls;
 
 namespace BCad.UI.View
 {
-    public class AbstractCadRenderer : UserControl
+    public abstract class AbstractCadRenderer : UserControl
     {
-        public virtual void Invalidate()
-        {
-        }
-
-        public virtual void UpdateRubberBandLines()
-        {
-        }
+        public abstract void Invalidate();
+        public abstract void UpdateRubberBandLines();
     }
 }

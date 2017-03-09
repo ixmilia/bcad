@@ -147,7 +147,7 @@ namespace BCad.Ribbons
 
         public string[] AvailableRenderers
         {
-            get { return new[] { "Software" }; }
+            get { return new[] { "Software", "Skia" }; }
         }
 
         public CadColor[] BackgroundColors

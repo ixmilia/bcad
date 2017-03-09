@@ -350,8 +350,9 @@ namespace BCad.UI.View
 
         private Task UpdateSnapPoints(bool allowCancellation = true)
         {
-            updateSnapPointsCancellationTokenSource.Cancel();
+            var oldTokenSource = updateSnapPointsCancellationTokenSource;
             updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
+            oldTokenSource.Cancel();
             var token = allowCancellation
                 ? updateSnapPointsCancellationTokenSource.Token
                 : CancellationToken.None;

@@ -36,6 +36,11 @@ namespace BCad.UI.View
             viewModel.RubberBandGenerator = Workspace.RubberBandGenerator;
         }
 
+        public override void Invalidate()
+        {
+            // this invalidates itself on every change so this can be a no-op
+        }
+
         public override void UpdateRubberBandLines()
         {
             viewModel.CursorPoint = ViewControl.GetCursorPoint().Result;
