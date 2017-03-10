@@ -3,6 +3,7 @@
 using System;
 using System.Composition;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using BCad.EventArguments;
@@ -117,7 +118,7 @@ namespace BCad.UI.Consoles
             else if (Workspace.InputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
                 Point point;
-                var cursorPoint = Workspace.ViewControl.GetCursorPoint().Result;
+                var cursorPoint = Workspace.ViewControl.GetCursorPoint(CancellationToken.None).Result;
                 if (Workspace.InputService.TryParsePoint(text, cursorPoint, Workspace.InputService.LastPoint, out point))
                     Workspace.InputService.PushPoint(point);
             }

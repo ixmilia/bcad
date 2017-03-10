@@ -94,7 +94,7 @@ namespace BCad.UI.View
                 {
                     paint.Color = defaultColor;
                     paint.PathEffect = null;
-                    var cursorPoint = ViewControl.GetCursorPoint().Result;
+                    var cursorPoint = ViewControl.GetCursorPoint(cancellationToken).Result;
                     foreach (var primitive in generator(cursorPoint))
                     {
                         cancellationToken.ThrowIfCancellationRequested();

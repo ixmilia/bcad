@@ -2,6 +2,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 using BCad.EventArguments;
 
 namespace BCad.UI.View
@@ -43,7 +44,7 @@ namespace BCad.UI.View
 
         public override void UpdateRubberBandLines()
         {
-            viewModel.CursorPoint = ViewControl.GetCursorPoint().Result;
+            viewModel.CursorPoint = ViewControl.GetCursorPoint(CancellationToken.None).Result;
         }
 
         private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)

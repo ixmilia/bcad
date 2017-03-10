@@ -274,10 +274,9 @@ namespace BCad.UI.View
             Dispatcher.BeginInvoke(action);
         }
 
-        private async void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
+        private void InputService_ValueReceived(object sender, ValueReceivedEventArgs e)
         {
             selecting = false;
-            var point = await GetCursorPoint();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Collapsed);
@@ -304,10 +303,9 @@ namespace BCad.UI.View
             }
         }
 
-        private async void Workspace_CommandExecuted(object sender, CadCommandExecutedEventArgs e)
+        private void Workspace_CommandExecuted(object sender, CadCommandExecutedEventArgs e)
         {
             selecting = false;
-            var point = await GetCursorPoint();
             ClearSnapPoints();
             SetCursorVisibility();
             SetSelectionLineVisibility(Visibility.Collapsed);
@@ -353,9 +351,7 @@ namespace BCad.UI.View
             var oldTokenSource = updateSnapPointsCancellationTokenSource;
             updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
             oldTokenSource.Cancel();
-            var token = allowCancellation
-                ? updateSnapPointsCancellationTokenSource.Token
-                : CancellationToken.None;
+            var token = updateSnapPointsCancellationTokenSource.Token;
 
             var width = ActualWidth;
             var height = ActualHeight;
@@ -392,10 +388,10 @@ namespace BCad.UI.View
             return unprojectMatrix.Transform(point);
         }
 
-        public async Task<Point> GetCursorPoint()
+        public async Task<Point> GetCursorPoint(CancellationToken cancellationToken)
         {
             var mouse = lastPointerPosition;
-            var model = await GetActiveModelPointNowAsync(mouse).ConfigureAwait(false);
+            var model = await GetActiveModelPointNowAsync(mouse, cancellationToken).ConfigureAwait(false);
             return model.WorldPoint;
         }
 
@@ -423,7 +419,7 @@ namespace BCad.UI.View
         private async void OnMouseDown(object sender, PointerButtonEventArgs e)
         {
             var cursor = GetPointerPosition(e);
-            var sp = await GetActiveModelPointNowAsync(cursor);
+            var sp = await GetActiveModelPointNowAsync(cursor, CancellationToken.None);
 
             if (IsLeftButtonPressed(e))
             {
@@ -733,9 +729,9 @@ namespace BCad.UI.View
             }).ConfigureAwait(false);
         }
 
-        private async Task<TransformedSnapPoint> GetActiveModelPointNowAsync(Point cursor)
+        private async Task<TransformedSnapPoint> GetActiveModelPointNowAsync(Point cursor, CancellationToken cancellationToken)
         {
-            return await UpdateSnapPoints(allowCancellation: false).ContinueWith(_ => GetActiveModelPoint(cursor, CancellationToken.None)).ConfigureAwait(false);
+            return await UpdateSnapPoints().ContinueWith(_ => GetActiveModelPoint(cursor, cancellationToken)).ConfigureAwait(false);
         }
 
         private TransformedSnapPoint GetActiveModelPoint(Point cursor, CancellationToken cancellationToken)
