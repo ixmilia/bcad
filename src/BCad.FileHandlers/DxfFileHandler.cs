@@ -121,7 +121,10 @@ namespace BCad.FileHandlers
                         var agg = (AggregateEntity)item;
                         var block = new DxfBlock();
                         block.Layer = layer.Name;
-                        block.Entities.AddRange(agg.Children.Select(c => c.ToDxfEntity(layer)));
+                        foreach (var child in agg.Children.Select(c => c.ToDxfEntity(layer)))
+                        {
+                            block.Entities.Add(child);
+                        }
                     }
                     else
                     {
@@ -359,17 +362,13 @@ namespace BCad.FileHandlers
 
         public static DxfPolyline ToDxfPolyline(this Polyline poly, Layer layer)
         {
-            var dp = new DxfPolyline()
+            var dp = new DxfPolyline(poly.Vertices.Select(v => v.ToDxfVertex()))
             {
                 Color = poly.Color.ToDxfColor(),
                 Elevation = poly.Vertices.Any() ? poly.Vertices.First().Location.Z : 0.0,
                 Layer = layer.Name,
                 Normal = DxfVector.ZAxis
             };
-            foreach (var vertex in poly.Vertices.Select(v => v.ToDxfVertex()))
-            {
-                dp.Vertices.Add(vertex);
-            }
 
             return dp;
         }

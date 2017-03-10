@@ -10,13 +10,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj" />
+    <ProjectReference Include="..\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj" />
     <ProjectReference Include="..\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj" />
     <ProjectReference Include="..\IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj" />
+    <ProjectReference Include="..\IxMilia.Stl\src\IxMilia.Stl\IxMilia.Stl.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IxMilia.Dxf" Version="0.4.0" />
-    <PackageReference Include="IxMilia.Stl" Version="0.1.1" />
     <PackageReference Include="Microsoft.Composition" Version="1.0.30" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
   </ItemGroup>
