@@ -7,6 +7,7 @@
                            xmlns:local="clr-namespace:BCad.UI.View"
                            xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
                            mc:Ignorable="d"
+                           Loaded="RendererLoaded"
                            d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <skia:SKElement x:Name="element" PaintSurface="PaintSurface" />
