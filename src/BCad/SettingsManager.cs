@@ -5,12 +5,19 @@ using IxMilia.Config;
 
 namespace BCad
 {
+    public enum SelectedEntityDrawStyle
+    {
+        Dashed,
+        Glow,
+    }
+
     public class SettingsManager : DefaultSettingsManager
     {
         private KeyboardShortcut angleSnapShortcut = null;
         private KeyboardShortcut pointSnapShortcut = null;
         private KeyboardShortcut orthoShortcut = null;
         private KeyboardShortcut debugShortcut = null;
+        private SelectedEntityDrawStyle selectedEntityDrawStyle = SelectedEntityDrawStyle.Dashed;
 
         [ConfigPath("UI.AngleSnapShortcut")]
         public KeyboardShortcut AngleSnapShortcut
@@ -19,7 +26,7 @@ namespace BCad
             set
             {
                 this.angleSnapShortcut = value;
-                OnPropertyChanged("AngleSnapShortcut");
+                OnPropertyChanged(nameof(AngleSnapShortcut));
             }
         }
 
@@ -30,7 +37,7 @@ namespace BCad
             set
             {
                 this.pointSnapShortcut = value;
-                OnPropertyChanged("PointSnapShortcut");
+                OnPropertyChanged(nameof(PointSnapShortcut));
             }
         }
 
@@ -41,7 +48,7 @@ namespace BCad
             set
             {
                 this.orthoShortcut = value;
-                OnPropertyChanged("OrthoShortcut");
+                OnPropertyChanged(nameof(OrthoShortcut));
             }
         }
 
@@ -52,7 +59,18 @@ namespace BCad
             set
             {
                 this.debugShortcut = value;
-                OnPropertyChanged("DebugShortcut");
+                OnPropertyChanged(nameof(DebugShortcut));
+            }
+        }
+
+        [ConfigPath("UI.SelectedEntityDrawStyle")]
+        public SelectedEntityDrawStyle SelectedEntityDrawStyle
+        {
+            get { return this.selectedEntityDrawStyle; }
+            set
+            {
+                this.selectedEntityDrawStyle = value;
+                OnPropertyChanged(nameof(SelectedEntityDrawStyle));
             }
         }
 
@@ -63,6 +81,7 @@ namespace BCad
             PointSnapShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F3);
             OrthoShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F8);
             DebugShortcut = new KeyboardShortcut(ModifierKeys.None, Key.F12);
+            SelectedEntityDrawStyle = SelectedEntityDrawStyle.Dashed;
         }
     }
 }

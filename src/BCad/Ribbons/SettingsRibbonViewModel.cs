@@ -36,7 +36,7 @@ namespace BCad.Ribbons
         public SettingsRibbonViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            workspace.SettingsManager.PropertyChanged += (_, __) => UpdateProperty(string.Empty);
+            workspace.SettingsManager.PropertyChanged += (_, args) => UpdateProperty(args.PropertyName);
         }
 
         public ISettingsManager SettingsManager { get { return workspace.SettingsManager; } }
@@ -148,6 +148,11 @@ namespace BCad.Ribbons
         public string[] AvailableRenderers
         {
             get { return new[] { "Software", "Skia" }; }
+        }
+
+        public SelectedEntityDrawStyle[] AvailableSelectedEntityDrawStyles
+        {
+            get { return (SelectedEntityDrawStyle[])Enum.GetValues(typeof(SelectedEntityDrawStyle)); }
         }
 
         public CadColor[] BackgroundColors
@@ -356,7 +361,7 @@ namespace BCad.Ribbons
 
         public void UpdateProperty(string propertyName = "")
         {
-            OnPropertyChangedDirect(string.Empty);
+            OnPropertyChangedDirect(propertyName);
         }
 
         private IEnumerable<Tuple<string, int>> GetUnitPrecisions()

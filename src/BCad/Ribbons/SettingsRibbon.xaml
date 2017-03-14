@@ -117,10 +117,23 @@
         </Grid>
     </RibbonGroup>
     <RibbonGroup Header="UI">
-        <StackPanel>
-            <TextBlock Text="Renderer" />
-            <ComboBox ItemsSource="{Binding Path=AvailableRenderers}"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Renderer" Grid.Row="0" Grid.Column="0" />
+            <ComboBox Grid.Row="0" Grid.Column="1" 
+                      ItemsSource="{Binding Path=AvailableRenderers}"
                       SelectedItem="{Binding Path=SettingsManager.RendererId}" />
-        </StackPanel>
+            <TextBlock Text="Selected Entities" Grid.Row="1" Grid.Column="0" />
+            <ComboBox Grid.Row="1" Grid.Column="1"
+                      ItemsSource="{Binding Path=AvailableSelectedEntityDrawStyles}"
+                      SelectedItem="{Binding Path=SettingsManager.SelectedEntityDrawStyle}" />
+        </Grid>
     </RibbonGroup>
 </local:CadRibbonTab>

@@ -52,6 +52,7 @@ namespace BCad.UI.View
         private void PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var cancellationToken = renderCancellationTokenSource.Token;
+            var selectedDrawStyle = ((SettingsManager)Workspace.SettingsManager).SelectedEntityDrawStyle;
             var canvas = e.Surface.Canvas;
             canvas.Clear(Workspace.SettingsManager.BackgroundColor.ToSKColor());
             var transform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
@@ -75,6 +76,10 @@ namespace BCad.UI.View
                         var entityColor = entity.Color.HasValue
                             ? entity.Color.GetValueOrDefault().ToSKColor()
                             : layerColor;
+                        var isEntitySelected = Workspace.SelectedEntities.Contains(entity);
+                        paint.PathEffect = isEntitySelected && selectedDrawStyle == SelectedEntityDrawStyle.Dashed
+                            ? DashedLines
+                            : null;
                         foreach (var primitive in entity.GetPrimitives())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
@@ -82,7 +87,17 @@ namespace BCad.UI.View
                                 ? primitive.Color.GetValueOrDefault().ToSKColor()
                                 : entityColor;
                             paint.Color = primitiveColor;
-                            paint.PathEffect = Workspace.SelectedEntities.Contains(entity) ? DashedLines : null;
+                            if (isEntitySelected && selectedDrawStyle == SelectedEntityDrawStyle.Glow)
+                            {
+                                var oldColor = paint.Color;
+                                var oldWidth = paint.StrokeWidth;
+                                paint.Color = paint.Color.WithAlpha(64);
+                                paint.StrokeWidth = 8.0f;
+                                DrawPrimitive(canvas, transform, paint, primitive);
+                                paint.Color = oldColor;
+                                paint.StrokeWidth = oldWidth;
+                            }
+
                             DrawPrimitive(canvas, transform, paint, primitive);
                         }
                     }
