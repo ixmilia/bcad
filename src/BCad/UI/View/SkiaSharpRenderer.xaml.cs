@@ -2,6 +2,8 @@
 
 using System;
 using System.Threading;
+using System.Windows;
+using System.Windows.Media;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
@@ -34,6 +36,13 @@ namespace BCad.UI.View
             Workspace.SelectedEntities.CollectionChanged += (o, args) => Invalidate();
             Workspace.SettingsManager.PropertyChanged += (o, args) => Invalidate();
             Workspace.WorkspaceChanged += (o, args) => Invalidate();
+        }
+
+        private void RendererLoaded(object sender, RoutedEventArgs e)
+        {
+            var presentationSource = PresentationSource.FromVisual(this);
+            var matrix = presentationSource.CompositionTarget.TransformToDevice;
+            RenderTransform = new ScaleTransform(matrix.M11, matrix.M22);
         }
 
         public override void Invalidate()
