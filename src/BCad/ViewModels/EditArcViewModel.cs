@@ -12,6 +12,7 @@ namespace BCad.ViewModels
         private double endAngle;
         private double radius;
         private Vector normal;
+        private double thickness;
 
         public EditArcViewModel(IWorkspace workspace, Arc arc)
             : base(workspace)
@@ -22,6 +23,7 @@ namespace BCad.ViewModels
             endAngle = arc.EndAngle;
             radius = arc.Radius;
             normal = arc.Normal;
+            thickness = arc.Thickness;
         }
 
         public Point Center
@@ -85,6 +87,19 @@ namespace BCad.ViewModels
                     return;
                 normal = value;
                 ReplaceArc(arc.Update(normal: value));
+                OnPropertyChanged();
+            }
+        }
+
+        public double Thickness
+        {
+            get { return thickness; }
+            set
+            {
+                if (thickness == value)
+                    return;
+                thickness = value;
+                ReplaceArc(arc.Update(thickness: value));
                 OnPropertyChanged();
             }
         }

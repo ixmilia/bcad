@@ -10,6 +10,7 @@ namespace BCad.ViewModels
         private Point center;
         private double radius;
         private Vector normal;
+        private double thickness;
 
         public EditCircleViewModel(IWorkspace workspace, Circle circle)
             : base(workspace)
@@ -18,6 +19,7 @@ namespace BCad.ViewModels
             center = circle.Center;
             radius = circle.Radius;
             normal = circle.Normal;
+            thickness = circle.Thickness;
         }
 
         public Point Center
@@ -55,6 +57,19 @@ namespace BCad.ViewModels
                     return;
                 normal = value;
                 ReplaceCircle(circle.Update(normal: value));
+                OnPropertyChanged();
+            }
+        }
+
+        public double Thickness
+        {
+            get { return thickness; }
+            set
+            {
+                if (thickness == value)
+                    return;
+                thickness = value;
+                ReplaceCircle(circle.Update(thickness: value));
                 OnPropertyChanged();
             }
         }

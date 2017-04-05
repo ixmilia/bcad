@@ -130,12 +130,15 @@ namespace BCad.UI.View
 
         private void DrawPrimitive(SKCanvas canvas, Matrix4 transform, SKPaint paint, IPrimitive primitive)
         {
+            var scale = ActualHeight / Workspace.ActiveViewPort.ViewHeight;
+            var oldStrokeWidth = paint.StrokeWidth;
             switch (primitive.Kind)
             {
                 case PrimitiveKind.Ellipse:
                     {
                         paint.IsStroke = true;
                         var el = (PrimitiveEllipse)primitive;
+                        paint.StrokeWidth += (float)(el.Thickness * scale);
                         using (var path = new SKPath())
                         {
                             path.MoveTo(transform.Transform(el.StartPoint()).ToSKPoint());
@@ -160,6 +163,7 @@ namespace BCad.UI.View
                     {
                         paint.IsStroke = true;
                         var line = (PrimitiveLine)primitive;
+                        paint.StrokeWidth += (float)(line.Thickness * scale);
                         var p1 = transform.Transform(line.P1);
                         var p2 = transform.Transform(line.P2);
                         canvas.DrawLine((float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y, paint);
@@ -188,6 +192,8 @@ namespace BCad.UI.View
                         break;
                     }
             }
+
+            paint.StrokeWidth = oldStrokeWidth;
         }
     }
 }

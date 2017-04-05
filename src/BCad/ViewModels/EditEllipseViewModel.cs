@@ -14,6 +14,7 @@ namespace BCad.ViewModels
         private Vector majorAxis;
         private double minorAxisRatio;
         private Vector normal;
+        private double thickness;
 
         public EditEllipseViewModel(IWorkspace workspace, Ellipse ellipse)
             : base(workspace)
@@ -25,6 +26,7 @@ namespace BCad.ViewModels
             majorAxis = ellipse.MajorAxis;
             minorAxisRatio = ellipse.MinorAxisRatio;
             normal = ellipse.Normal;
+            thickness = ellipse.Thickness;
         }
 
         public Point Center
@@ -104,6 +106,19 @@ namespace BCad.ViewModels
                 ReplaceEllipse(ellipse.Update(minorAxisRatio: value));
                 OnPropertyChanged();
                 OnPropertyChangedDirect(nameof(Eccentricity));
+            }
+        }
+
+        public double Thickness
+        {
+            get { return thickness; }
+            set
+            {
+                if (thickness == value)
+                    return;
+                thickness = value;
+                ReplaceEllipse(ellipse.Update(thickness: value));
+                OnPropertyChanged();
             }
         }
 

@@ -9,6 +9,7 @@ namespace BCad.ViewModels
         private Line line;
         private Point p1;
         private Point p2;
+        private double thickness;
 
         public EditLineViewModel(IWorkspace workspace, Line line)
             : base(workspace)
@@ -16,6 +17,7 @@ namespace BCad.ViewModels
             this.line = line;
             p1 = line.P1;
             p2 = line.P2;
+            thickness = line.Thickness;
         }
 
         public Point P1
@@ -40,6 +42,19 @@ namespace BCad.ViewModels
                     return;
                 p2 = value;
                 ReplaceLine(line.Update(p2: value));
+                OnPropertyChanged();
+            }
+        }
+
+        public double Thickness
+        {
+            get { return thickness; }
+            set
+            {
+                if (thickness == value)
+                    return;
+                thickness = value;
+                ReplaceLine(line.Update(thickness: value));
                 OnPropertyChanged();
             }
         }

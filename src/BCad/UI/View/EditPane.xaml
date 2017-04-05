@@ -89,6 +89,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -130,10 +131,17 @@
                                   Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
                                   UnitFormat="{Binding Path=UnitFormat}"
                                   UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Text="Thickness" />
+                <TextBox Grid.Row="5"
+                         Grid.Column="1"
+                         Text="{Binding Path=Thickness}" />
             </Grid>
             <!-- circle -->
             <Grid DataContext="{Binding Path=EditCircleViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -166,10 +174,17 @@
                                   Point="{Binding Path=Normal, Mode=TwoWay, Converter={StaticResource ResourceKey=pointVectorConverter}}"
                                   UnitFormat="{Binding Path=UnitFormat}"
                                   UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Text="Thickness" />
+                <TextBox Grid.Row="3"
+                         Grid.Column="1"
+                         Text="{Binding Path=Thickness}" />
             </Grid>
             <!-- ellipse -->
             <Grid DataContext="{Binding Path=EditEllipseViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -229,14 +244,21 @@
                          Text="{Binding Path=MinorAxisRatio}" />
                 <TextBlock Grid.Row="6"
                            Grid.Column="0"
+                           Text="Thickness" />
+                <TextBox Grid.Row="6"
+                         Grid.Column="1"
+                         Text="{Binding Path=Thickness}" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="0"
                            Text="Eccentricity" />
-                <TextBlock Grid.Row="6"
+                <TextBlock Grid.Row="7"
                            Grid.Column="1"
                            Text="{Binding Path=Eccentricity}" />
             </Grid>
             <!-- line -->
             <Grid DataContext="{Binding Path=EditLineViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -262,6 +284,12 @@
                                   Point="{Binding Path=P2, Mode=TwoWay}"
                                   UnitFormat="{Binding Path=UnitFormat}"
                                   UnitPrecision="{Binding Path=UnitPrecision}" />
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="Thickness" />
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Text="{Binding Path=Thickness}" />
             </Grid>
             <!-- location -->
             <Grid DataContext="{Binding Path=EditLocationViewModel}" Visibility="{Binding Converter={StaticResource ResourceKey=nullVisibilityConverter}}">

@@ -262,7 +262,7 @@ namespace BCad.FileHandlers
 
         public static Line ToLine(this DxfLine line)
         {
-            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor(), line);
+            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor(), line, line.Thickness);
         }
 
         public static Polyline ToPolyline(this DxfPolyline poly)
@@ -277,12 +277,12 @@ namespace BCad.FileHandlers
 
         public static Circle ToCircle(this DxfCircle circle)
         {
-            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor(), circle);
+            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor(), circle, circle.Thickness);
         }
 
         public static Arc ToArc(this DxfArc arc)
         {
-            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor(), arc);
+            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor(), arc, arc.Thickness);
         }
 
         public static Ellipse ToEllipse(this DxfEllipse el)
@@ -356,7 +356,8 @@ namespace BCad.FileHandlers
             return new DxfLine(line.P1.ToDxfPoint(), line.P2.ToDxfPoint())
             {
                 Color = line.Color.ToDxfColor(),
-                Layer = layer.Name
+                Layer = layer.Name,
+                Thickness = line.Thickness
             };
         }
 
@@ -379,7 +380,8 @@ namespace BCad.FileHandlers
             {
                 Color = circle.Color.ToDxfColor(),
                 Normal = circle.Normal.ToDxfVector(),
-                Layer = layer.Name
+                Layer = layer.Name,
+                Thickness = circle.Thickness
             };
         }
 
@@ -389,7 +391,8 @@ namespace BCad.FileHandlers
             {
                 Color = arc.Color.ToDxfColor(),
                 Normal = arc.Normal.ToDxfVector(),
-                Layer = layer.Name
+                Layer = layer.Name,
+                Thickness = arc.Thickness
             };
         }
 

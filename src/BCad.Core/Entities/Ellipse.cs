@@ -27,12 +27,14 @@ namespace BCad.Entities
 
         public Matrix4 FromUnitCircle => _primitive.FromUnitCircle;
 
+        public double Thickness => _primitive.Thickness;
+
         public override EntityKind Kind => EntityKind.Ellipse;
 
         public override BoundingBox BoundingBox { get; }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color, object tag = null)
-            : this(new PrimitiveEllipse(center, majorAxis, normal, minorAxisRatio, startAngle, endAngle, color), tag)
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color, object tag = null, double thickness = default(double))
+            : this(new PrimitiveEllipse(center, majorAxis, normal, minorAxisRatio, startAngle, endAngle, color, thickness), tag)
         {
         }
 
@@ -112,6 +114,8 @@ namespace BCad.Entities
                     return StartAngle;
                 case nameof(EndAngle):
                     return EndAngle;
+                case nameof(Thickness):
+                    return Thickness;
                 default:
                     return base.GetProperty(propertyName);
             }
@@ -124,6 +128,7 @@ namespace BCad.Entities
             Optional<double> startAngle = default(Optional<double>),
             Optional<double> endAngle = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
+            Optional<double> thickness = default(Optional<double>),
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
@@ -133,6 +138,7 @@ namespace BCad.Entities
             var newStartAngle = startAngle.HasValue ? startAngle.Value : StartAngle;
             var newEndAngle = endAngle.HasValue ? endAngle.Value : EndAngle;
             var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newThickness = thickness.HasValue ? thickness.Value : Thickness;
             var newColor = color.HasValue ? color.Value : Color;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
@@ -142,13 +148,14 @@ namespace BCad.Entities
                 newStartAngle == StartAngle &&
                 newEndAngle == EndAngle &&
                 newNormal == Normal &&
+                newThickness == Thickness &&
                 newColor == Color &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor, newTag);
+            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor, newTag, newThickness);
         }
 
         public override string ToString()

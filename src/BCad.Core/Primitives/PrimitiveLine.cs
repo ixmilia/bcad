@@ -7,13 +7,15 @@ namespace BCad.Primitives
         public Point P1 { get; private set; }
         public Point P2 { get; private set; }
         public CadColor? Color { get; private set; }
+        public double Thickness { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Line; } }
 
-        public PrimitiveLine(Point p1, Point p2, CadColor? color)
+        public PrimitiveLine(Point p1, Point p2, CadColor? color, double thickness = default(double))
         {
             this.P1 = p1;
             this.P2 = p2;
             this.Color = color;
+            this.Thickness = thickness;
         }
 
         public PrimitiveLine(Point p1, Point p2)

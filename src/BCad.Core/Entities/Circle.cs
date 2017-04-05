@@ -22,12 +22,14 @@ namespace BCad.Entities
 
         public Matrix4 FromUnitCircle => _primitive.FromUnitCircle;
 
+        public double Thickness => _primitive.Thickness;
+
         public override EntityKind Kind => EntityKind.Circle;
 
         public override BoundingBox BoundingBox { get; }
 
-        public Circle(Point center, double radius, Vector normal, CadColor? color, object tag = null)
-            : this(new PrimitiveEllipse(center, radius, normal), tag)
+        public Circle(Point center, double radius, Vector normal, CadColor? color, object tag = null, double thickness = default(double))
+            : this(new PrimitiveEllipse(center, radius, normal, thickness), tag)
         {
         }
 
@@ -81,6 +83,8 @@ namespace BCad.Entities
                     return Normal;
                 case nameof(Radius):
                     return Radius;
+                case nameof(Thickness):
+                    return Thickness;
                 default:
                     return base.GetProperty(propertyName);
             }
@@ -90,25 +94,28 @@ namespace BCad.Entities
             Optional<Point> center = default(Optional<Point>),
             Optional<double> radius = default(Optional<double>),
             Optional<Vector> normal = default(Optional<Vector>),
+            Optional<double> thickness = default(Optional<double>),
             Optional<CadColor?> color = default(Optional<CadColor?>),
             Optional<object> tag = default(Optional<object>))
         {
             var newCenter = center.HasValue ? center.Value : Center;
             var newRadius = radius.HasValue ? radius.Value : Radius;
             var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newThickness = thickness.HasValue ? thickness.Value : Thickness;
             var newColor = color.HasValue ? color.Value : Color;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newCenter == Center &&
                 newRadius == Radius &&
                 newNormal == Normal &&
+                newThickness == Thickness &&
                 newColor == Color &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Circle(newCenter, newRadius, newNormal, newColor, newTag);
+            return new Circle(newCenter, newRadius, newNormal, newColor, newTag, newThickness);
         }
 
         internal static Point[] TransformedPoints(Point center, Vector normal, Vector right, double radiusX, double radiusY, params double[] anglesInDegrees)
