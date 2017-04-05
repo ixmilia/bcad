@@ -444,8 +444,10 @@ namespace BCad.UI.View
                         if (selectingRectangle)
                         {
                             selectingRectangle = false;
-                            var topLeftScreen = new Point(Math.Min(firstSelectionPoint.X, cursor.X), Math.Min(firstSelectionPoint.Y, cursor.Y), 0.0);
-                            var bottomRightScreen = new Point(Math.Max(firstSelectionPoint.X, cursor.X), Math.Max(firstSelectionPoint.Y, cursor.Y), 0.0);
+                            ClearSnapPoints();
+                            SetCursorVisibility();
+                            var topLeftScreen = new Point(Math.Min(firstSelectionPoint.X, sp.ControlPoint.X), Math.Min(firstSelectionPoint.Y, sp.ControlPoint.Y), 0.0);
+                            var bottomRightScreen = new Point(Math.Max(firstSelectionPoint.X, sp.ControlPoint.X), Math.Max(firstSelectionPoint.Y, sp.ControlPoint.Y), 0.0);
                             var selection = new SelectionRectangle(
                                 topLeftScreen,
                                 bottomRightScreen,
@@ -503,7 +505,7 @@ namespace BCad.UI.View
                         else
                         {
                             selecting = true;
-                            firstSelectionPoint = cursor;
+                            firstSelectionPoint = sp.ControlPoint;
                             currentSelectionPoint = cursor;
                             SetSelectionLineVisibility(Visibility.Visible);
                         }
@@ -570,7 +572,8 @@ namespace BCad.UI.View
                 var snapPoint = GetActiveModelPoint(cursor, updateSnapPointsCancellationTokenSource.Token);
                 Invoke(() => BindObject.CursorWorld = snapPoint.WorldPoint);
                 _renderer.UpdateRubberBandLines();
-                if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                if ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point ||
+                    selectingRectangle)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
             }).ConfigureAwait(false);
         }
@@ -744,7 +747,9 @@ namespace BCad.UI.View
 
         private TransformedSnapPoint GetActiveSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
-            if (Workspace.SettingsManager.PointSnap && (Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+            if (Workspace.SettingsManager.PointSnap &&
+                ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point) ||
+                selectingRectangle)
             {
                 var snapPointDistance = Workspace.SettingsManager.SnapPointDistance;
                 var size = snapPointDistance * 2;
