@@ -43,8 +43,8 @@ namespace BCad.FilePlotters
                         case EntityKind.Line:
                             var line = (ProjectedLine)entity;
                             SetColor(body, line.OriginalLine.Color ?? line.OriginalLayer.Color ?? AutoColor);
-                            body.AppendLine($"{line.P1.X:f} {line.P1.Y:f} m");
-                            body.AppendLine($"{line.P2.X:f} {line.P2.Y:f} l");
+                            body.AppendLine($"{line.P1.X:f} {height - line.P1.Y:f} m");
+                            body.AppendLine($"{line.P2.X:f} {height - line.P2.Y:f} l");
                             break;
                         default:
                             // TODO:
