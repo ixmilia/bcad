@@ -13,3 +13,6 @@
 [submodule "src/IxMilia.Stl"]
 	path = src/IxMilia.Stl
 	url = https://github.com/IxMilia/Stl
+[submodule "src/IxMilia.Pdf"]
+	path = src/IxMilia.Pdf
+	url = https://github.com/IxMilia/Pdf

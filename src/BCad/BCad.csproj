@@ -310,6 +310,10 @@
       <Project>{b1a59bd1-0661-4b55-9b36-f9b970829d12}</Project>
       <Name>IxMilia.Config</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj">
+      <Project>{a1cfab83-7538-4a75-967f-fcc7e5499c6d}</Project>
+      <Name>IxMilia.Pdf</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="BCad.ico" />

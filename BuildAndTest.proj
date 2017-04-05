@@ -42,6 +42,7 @@
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Stl\src\IxMilia.Stl\IxMilia.Stl.csproj"' />
   </Target>

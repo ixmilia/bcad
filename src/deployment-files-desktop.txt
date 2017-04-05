@@ -4,6 +4,7 @@ BCad.FileHandlers.dll
 IxMilia.Config.dll
 IxMilia.Dxf.dll
 IxMilia.Iges.dll
+IxMilia.Pdf.dll
 IxMilia.Step.dll
 IxMilia.Stl.dll
 libSkiaSharp.dll
