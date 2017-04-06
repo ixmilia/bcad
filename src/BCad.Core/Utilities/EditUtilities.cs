@@ -247,12 +247,20 @@ namespace BCad.Utilities
                 case EntityKind.Circle:
                 case EntityKind.Ellipse:
                 case EntityKind.Line:
+                    var primitive = entityToOffset.GetPrimitives().Single();
+                    var thickness = primitive.GetThickness();
                     var offset = Offset(
                         workspace.DrawingPlane,
-                        entityToOffset.GetPrimitives().Single(),
+                        primitive,
                         offsetDirection,
                         offsetDistance);
-                    return offset == null ? null : offset.ToEntity();
+                    var entity = offset?.ToEntity();
+                    if (entity != null)
+                    {
+                        entity = entity.WithThickness(thickness);
+                    }
+
+                    return entity;
                 case EntityKind.Aggregate:
                 case EntityKind.Location:
                 case EntityKind.Polyline:

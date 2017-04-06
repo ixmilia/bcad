@@ -29,6 +29,22 @@ namespace BCad.Extensions
             }
         }
 
+        public static double GetThickness(this IPrimitive primitive)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    return ((PrimitiveEllipse)primitive).Thickness;
+                case PrimitiveKind.Line:
+                    return ((PrimitiveLine)primitive).Thickness;
+                case PrimitiveKind.Point:
+                case PrimitiveKind.Text:
+                    return 0.0;
+                default:
+                    throw new InvalidOperationException("Unsupported primitive.");
+            }
+        }
+
         public static Point ClosestPoint(this PrimitiveLine line, Point point, bool withinBounds = true)
         {
             var v = line.P1;

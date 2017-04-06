@@ -126,6 +126,23 @@ namespace BCad.Extensions
             return line.GetPrimitives().Single().MidPoint();
         }
 
+        public static Entity WithThickness(this Entity entity, double thickness)
+        {
+            switch (entity)
+            {
+                case Arc arc:
+                    return arc.Update(thickness: thickness);
+                case Circle circle:
+                    return circle.Update(thickness: thickness);
+                case Ellipse el:
+                    return el.Update(thickness: thickness);
+                case Line line:
+                    return line.Update(thickness: thickness);
+                default:
+                    return entity;
+            }
+        }
+
         public static IEnumerable<Entity> Union(this IEnumerable<Entity> entities)
         {
             return CombineEntities(entities, doUnion: true);
