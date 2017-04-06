@@ -21,7 +21,8 @@ namespace BCad.Extensions
                     && MathHelper.CloseTo(arc.EndAngle, other.EndAngle)
                     && arc.Normal.CloseTo(other.Normal)
                     && MathHelper.CloseTo(arc.Radius, other.Radius)
-                    && MathHelper.CloseTo(arc.StartAngle, other.StartAngle);
+                    && MathHelper.CloseTo(arc.StartAngle, other.StartAngle)
+                    && MathHelper.CloseTo(arc.Thickness, other.Thickness);
             }
 
             return false;
@@ -35,7 +36,8 @@ namespace BCad.Extensions
                 return circle.Center.CloseTo(other.Center)
                     && circle.Color == other.Color
                     && circle.Normal.CloseTo(other.Normal)
-                    && MathHelper.CloseTo(circle.Radius, other.Radius);
+                    && MathHelper.CloseTo(circle.Radius, other.Radius)
+                    && MathHelper.CloseTo(circle.Thickness, other.Thickness);
             }
 
             return false;
@@ -52,7 +54,8 @@ namespace BCad.Extensions
                     && el.MajorAxis.CloseTo(other.MajorAxis)
                     && MathHelper.CloseTo(el.MinorAxisRatio, other.MinorAxisRatio)
                     && el.Normal.CloseTo(other.Normal)
-                    && MathHelper.CloseTo(el.StartAngle, other.StartAngle);
+                    && MathHelper.CloseTo(el.StartAngle, other.StartAngle)
+                    && MathHelper.CloseTo(el.Thickness, other.Thickness);
             }
 
             return false;
@@ -65,7 +68,8 @@ namespace BCad.Extensions
             {
                 return line.Color == other.Color
                     && line.P1.CloseTo(other.P1)
-                    && line.P2.CloseTo(other.P2);
+                    && line.P2.CloseTo(other.P2)
+                    && MathHelper.CloseTo(line.Thickness, other.Thickness);
             }
 
             return false;

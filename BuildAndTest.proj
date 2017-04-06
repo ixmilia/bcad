@@ -38,6 +38,7 @@
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad\packages.config" -SolutionDir "$(SolutionDir)"' />
     <Exec Command='dotnet restore "$(SolutionDir)\BCad.Core\BCad.Core.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers\BCad.FileHandlers.csproj"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj"' />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\packages.config" -SolutionDir "$(SolutionDir)"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj"' />
@@ -69,6 +70,7 @@
 
   <Target Name="Test">
     <xunit Assemblies="$(TestAssembly)" />
+    <Exec Command='dotnet test "$(SolutionDir)\BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj"' />
   </Target>
 
   <Target Name="BuildAndTest"
