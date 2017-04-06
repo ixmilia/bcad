@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.1</TargetFramework>
     <AssemblyName>BCad.FileHandlers</AssemblyName>
     <PackageId>BCad.FileHandlers</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dotnet5.2;portable-net45</PackageTargetFallback>
   </PropertyGroup>
 
