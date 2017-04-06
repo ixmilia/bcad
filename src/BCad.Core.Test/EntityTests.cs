@@ -6,9 +6,9 @@ using BCad.Extensions;
 using BCad.Primitives;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
-    public class EntityTests : AbstractDrawingTests
+    public class EntityTests : TestBase
     {
         [Fact]
         public void CircleIntersectionTest()

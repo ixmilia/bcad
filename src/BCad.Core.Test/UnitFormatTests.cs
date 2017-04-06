@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
     public class UnitFormatTests
     {

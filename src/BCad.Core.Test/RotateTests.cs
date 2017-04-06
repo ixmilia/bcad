@@ -5,9 +5,9 @@ using BCad.Extensions;
 using BCad.Utilities;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
-    public class RotateTests : AbstractDrawingTests
+    public class RotateTests
     {
         private void DoRotate(Entity entityToRotate, Vector origin, double angleInDegrees, Entity expectedResult)
         {

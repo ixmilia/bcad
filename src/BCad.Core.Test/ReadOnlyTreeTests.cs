@@ -6,7 +6,7 @@ using System.Linq;
 using BCad.Collections;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
     public class ReadOnlyTreeTests
     {

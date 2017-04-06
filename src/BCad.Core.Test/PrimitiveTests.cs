@@ -9,7 +9,7 @@ using BCad.Helpers;
 using BCad.Primitives;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
     public class PrimitiveTests
     {

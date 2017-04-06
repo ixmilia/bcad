@@ -4,7 +4,7 @@ using System;
 using BCad.Collections;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
     public class QuadTreeTests
     {

@@ -71,22 +71,12 @@
   <ItemGroup>
     <Compile Include="AbstractDrawingTests.cs" />
     <Compile Include="DrawingTests.cs" />
-    <Compile Include="EntityTests.cs" />
-    <Compile Include="MatrixTests.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="OffsetTests.cs" />
     <Compile Include="PointTests.cs" />
-    <Compile Include="PrimitiveTests.cs" />
-    <Compile Include="QuadTreeTests.cs" />
-    <Compile Include="ReadOnlyListTests.cs" />
-    <Compile Include="ReadOnlyTreeTests.cs" />
-    <Compile Include="RotateTests.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestHost.cs" />
     <Compile Include="TrimExtendTests.cs" />
-    <Compile Include="UnitFormatTests.cs" />
-    <Compile Include="VectorTests.cs" />
-    <Compile Include="ViewPortTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
