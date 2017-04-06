@@ -4,9 +4,9 @@ using BCad.Entities;
 using BCad.Utilities;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
-    public class OffsetTests : AbstractDrawingTests
+    public class OffsetTests : TestBase
     {
         [Fact]
         public void CircleOffsetInsideTest()

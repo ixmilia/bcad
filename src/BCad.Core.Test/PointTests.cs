@@ -4,9 +4,9 @@ using System;
 using BCad.Extensions;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
-    public class PointTests : AbstractDrawingTests
+    public class PointTests : TestBase
     {
         private const double Tolerance = 0.000001;
 

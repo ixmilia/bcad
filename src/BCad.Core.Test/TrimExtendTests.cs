@@ -8,9 +8,9 @@ using BCad.Extensions;
 using BCad.Utilities;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
-    public class TrimExtendTests : AbstractDrawingTests
+    public class TrimExtendTests : TestBase
     {
 
         #region Helpers

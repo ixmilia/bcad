@@ -6,16 +6,21 @@ using BCad.Extensions;
 using BCad.Utilities;
 using Xunit;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
-    public class DrawingTests : AbstractDrawingTests
+    public class DrawingTests : TestBase
     {
+        private Line Line()
+        {
+            return new Line(Point.Origin, Point.Origin, null);
+        }
+
         [Fact]
         public void CurrentLayerStillSetAfterDrawingTest()
         {
             Workspace.AddLayer("Other");
             Workspace.SetCurrentLayer("Other");
-            Workspace.AddToCurrentLayer(Entities.Line());
+            Workspace.AddToCurrentLayer(Line());
             Assert.Equal(1, Workspace.GetLayer("Other").EntityCount);
             Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
         }
@@ -25,7 +30,7 @@ namespace BCad.Test
         {
             Workspace.AddLayer("Other");
             Workspace.SetCurrentLayer("Other");
-            Workspace.Add(Workspace.GetLayer("0"), Entities.Line());
+            Workspace.Add(Workspace.GetLayer("0"), Line());
             Assert.Equal(1, Workspace.GetLayer("0").EntityCount);
             Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
         }

@@ -5,7 +5,7 @@ using System.Composition;
 using System.Composition.Hosting;
 using System.Reflection;
 
-namespace BCad.Test
+namespace BCad.Core.Test
 {
     public class TestHost : IDisposable
     {
@@ -20,7 +20,6 @@ namespace BCad.Test
                 .WithAssemblies(new[]
                 {
                     typeof(TestHost).GetTypeInfo().Assembly, // this assembly
-                    typeof(App).GetTypeInfo().Assembly, // BCad.exe
                     typeof(Drawing).GetTypeInfo().Assembly // BCad.Core.dll
                 });
             container = configuration.CreateContainer();

@@ -9,13 +9,9 @@
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <SolutionDir>$(MSBuildThisFileDirectory)src</SolutionDir>
     <SolutionFile>$(SolutionDir)\BCad.sln</SolutionFile>
-    <TestAssembly>$(SolutionDir)\Binaries\$(Configuration)\BCad.Test.dll</TestAssembly>
     <NuGetDir>$(MSBuildThisFileDirectory)src\.nuget</NuGetDir>
     <NuGetExe>$(NuGetDir)\NuGet.exe</NuGetExe>
   </PropertyGroup>
-
-  <UsingTask TaskName="Xunit.Runner.MSBuild.xunit"
-             AssemblyFile="src\packages\xunit.runner.msbuild.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.runner.msbuild.dll" />
 
   <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
@@ -40,7 +36,6 @@
     <Exec Command='dotnet restore "$(SolutionDir)\BCad.Core.Test\BCad.Core.Test.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers\BCad.FileHandlers.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj"' />
-    <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad.Test\packages.config" -SolutionDir "$(SolutionDir)"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj"' />
@@ -72,7 +67,6 @@
   <Target Name="Test">
     <Exec Command='dotnet test "$(SolutionDir)\BCad.Core.Test\BCad.Core.Test.csproj"' />
     <Exec Command='dotnet test "$(SolutionDir)\BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj"' />
-    <xunit Assemblies="$(TestAssembly)" />
   </Target>
 
   <Target Name="BuildAndTest"

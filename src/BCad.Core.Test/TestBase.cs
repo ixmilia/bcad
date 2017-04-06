@@ -2,12 +2,22 @@
 
 using System;
 using BCad.Helpers;
+using BCad.Services;
 using Xunit;
 
 namespace BCad.Core.Test
 {
     public abstract class TestBase
     {
+        protected TestBase()
+        {
+            Host = TestHost.CreateHost();
+        }
+
+        protected TestHost Host { get; set; }
+        protected IWorkspace Workspace { get { return Host.Workspace; } }
+        protected IInputService InputService { get { return Host.Workspace.InputService; } }
+
         protected void AssertClose(double expected, double actual, double error = MathHelper.Epsilon)
         {
             Assert.True(Math.Abs(expected - actual) < error, string.Format("Expected: {0}\nActual: {1}", expected, actual));
