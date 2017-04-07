@@ -9,7 +9,7 @@ using IxMilia.Pdf;
 namespace BCad.FilePlotters
 {
     [ExportFilePlotter(DisplayName, FileExtension)]
-    internal class PdfFilePlotter : IFilePlotter
+    public class PdfFilePlotter : IFilePlotter
     {
         public const string DisplayName = "PDF Files (" + FileExtension + ")";
         public const string FileExtension = ".pdf";

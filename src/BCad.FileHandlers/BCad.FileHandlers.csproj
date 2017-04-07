@@ -12,6 +12,7 @@
     <ProjectReference Include="..\BCad.Core\BCad.Core.csproj" />
     <ProjectReference Include="..\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj" />
     <ProjectReference Include="..\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj" />
+    <ProjectReference Include="..\IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj" />
     <ProjectReference Include="..\IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj" />
     <ProjectReference Include="..\IxMilia.Stl\src\IxMilia.Stl\IxMilia.Stl.csproj" />
   </ItemGroup>

@@ -96,9 +96,7 @@
     <Compile Include="UI\ExportControlAttribute.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\PointExtensions.cs" />
-    <Compile Include="FilePlotters\PdfFilePlotter.cs" />
     <Compile Include="FilePlotters\PngFilePlotter.cs" />
-    <Compile Include="FilePlotters\SvgFilePlotter.cs" />
     <Compile Include="UI\IControlMetadata.cs" />
     <Compile Include="IUserConsoleFactory.cs" />
     <Compile Include="KeyboardShortcut.cs" />
@@ -309,10 +307,6 @@
     <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj">
       <Project>{b1a59bd1-0661-4b55-9b36-f9b970829d12}</Project>
       <Name>IxMilia.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj">
-      <Project>{a1cfab83-7538-4a75-967f-fcc7e5499c6d}</Project>
-      <Name>IxMilia.Pdf</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

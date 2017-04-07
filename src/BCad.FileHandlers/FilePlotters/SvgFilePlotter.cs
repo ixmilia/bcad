@@ -12,8 +12,8 @@ using BCad.Helpers;
 
 namespace BCad.Commands.FilePlotters
 {
-    [ExportFilePlotter(SvgFilePlotter.DisplayName, SvgFilePlotter.FileExtension)]
-    internal class SvgFilePlotter : IFilePlotter
+    [ExportFilePlotter(DisplayName, FileExtension)]
+    public class SvgFilePlotter : IFilePlotter
     {
         public const string DisplayName = "SVG Files (" + FileExtension + ")";
         public const string FileExtension = ".svg";
@@ -51,13 +51,15 @@ namespace BCad.Commands.FilePlotters
                 Indent = true,
                 IndentChars = "  "
             };
-            var writer = XmlWriter.Create(stream, settings);
-            var doc = new XDocument(
-                new XDocumentType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null),
-                root);
-            doc.WriteTo(writer);
-            writer.Flush();
-            writer.Close();
+
+            using (var writer = XmlWriter.Create(stream, settings))
+            {
+                var doc = new XDocument(
+                    new XDocumentType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null),
+                    root);
+                doc.WriteTo(writer);
+                writer.Flush();
+            }
         }
 
         private static XElement ToXElement(ProjectedEntity entity)
