@@ -34,12 +34,6 @@ namespace BCad.UI.Controls
         ToFit
     }
 
-    public enum ColorMapType
-    {
-        DrawingDefault,
-        AllBlack
-    }
-
     public class PlotDialogViewModel : INotifyPropertyChanged
     {
         private const string ViewPortProperty = "ViewPort";
@@ -56,7 +50,7 @@ namespace BCad.UI.Controls
         private string fileName;
         private ViewportType viewportType;
         private ScalingType scalingType;
-        private ColorMapType colorMapType;
+        private CadColor? colorOverride;
         private Point bottomLeft;
         private Point topRight;
         private double scaleA;
@@ -163,14 +157,14 @@ namespace BCad.UI.Controls
             }
         }
 
-        public ColorMapType ColorMapType
+        public CadColor? ColorOverride
         {
-            get { return this.colorMapType; }
+            get { return this.colorOverride; }
             set
             {
-                if (this.colorMapType == value)
+                if (this.colorOverride == value)
                     return;
-                this.colorMapType = value;
+                this.colorOverride = value;
                 OnPropertyChanged();
             }
         }
@@ -441,7 +435,7 @@ namespace BCad.UI.Controls
             FileName = string.Empty;
             ViewportType = ViewportType.Extents;
             ScalingType = ScalingType.ToFit;
-            ColorMapType = ColorMapType.DrawingDefault;
+            ColorOverride = null;
             BottomLeft = Point.Origin;
             TopRight = Point.Origin;
             ScaleA = 1.0;

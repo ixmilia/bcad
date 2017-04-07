@@ -6,11 +6,15 @@
                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                    xmlns:local="clr-namespace:BCad.UI"
                    xmlns:controls="clr-namespace:BCad.UI.Controls"
+                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    xmlns:view="clr-namespace:BCad.UI.View"
                    mc:Ignorable="d" MinWidth="480" MinHeight="300" Background="White">
     <local:BCadControl.Resources>
         <controls:EnumMatchToBooleanConverter x:Key="enumConverter" />
         <controls:DoubleStringConverter x:Key="doubleStringConverter" />
+        <controls:NullToBlackConverter x:Key="nullToBlackConverter" />
+        <sys:Boolean x:Key="true">true</sys:Boolean>
+        <sys:Boolean x:Key="false">false</sys:Boolean>
     </local:BCadControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -96,16 +100,16 @@
             <StackPanel Orientation="Horizontal">
                 <RadioButton GroupName="colorMapType"
                              Content="Drawing default"
-                             IsChecked="{Binding Path=ColorMapType,
+                             IsChecked="{Binding Path=ColorOverride,
                                                  Mode=TwoWay,
-                                                 Converter={StaticResource enumConverter},
-                                                 ConverterParameter=DrawingDefault}" />
+                                                 Converter={StaticResource nullToBlackConverter},
+                                                 ConverterParameter={StaticResource false}}" />
                 <RadioButton GroupName="colorMapType"
                              Content="All black"
-                             IsChecked="{Binding Path=ColorMapType,
+                             IsChecked="{Binding Path=ColorOverride,
                                                  Mode=TwoWay,
-                                                 Converter={StaticResource enumConverter},
-                                                 ConverterParameter=AllBlack}" />
+                                                 Converter={StaticResource nullToBlackConverter},
+                                                 ConverterParameter={StaticResource true}}" />
             </StackPanel>
         </Grid>
         <StackPanel Grid.Row="4">
@@ -120,7 +124,8 @@
                                        Height="{Binding Path=PreviewHeight}"
                                        ViewPort="{Binding Path=ViewPort}"
                                        Drawing="{Binding Path=Drawing}"
-                                       DefaultColor="{Binding Path=DefaultColor}" />
+                                       DefaultColor="{Binding Path=DefaultColor}"
+                                       ColorOverride="{Binding Path=ColorOverride}" />
                 </Grid>
             </Border>
         </StackPanel>

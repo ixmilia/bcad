@@ -14,6 +14,7 @@ using BCad.Entities;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
+using BCad.UI.Extensions;
 using DisplayPoint = System.Windows.Point;
 using DisplaySize = System.Windows.Size;
 using P_Metadata = System.Windows.FrameworkPropertyMetadata;
@@ -42,6 +43,8 @@ namespace BCad.UI.View
             DependencyProperty.Register("CursorPoint", typeof(Point), typeof(RenderCanvas), new P_Metadata(new Point(), OnCursorPointPropertyChanged));
         public static readonly DependencyProperty RubberBandGeneratorProperty =
             DependencyProperty.Register("RubberBandGenerator", typeof(RubberBandGenerator), typeof(RenderCanvas), new P_Metadata(null, OnRubberBandGeneratorPropertyChanged));
+        public static readonly DependencyProperty ColorOverrideProperty =
+            DependencyProperty.Register("ColorOverride", typeof(CadColor?), typeof(RenderCanvas), new P_Metadata(null, OnColorOverridePropertyChanged));
 
         private static void OnViewPortPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -124,6 +127,16 @@ namespace BCad.UI.View
             }
         }
 
+        private static void OnColorOverridePropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = source as RenderCanvas;
+            if (canvas != null)
+            {
+                canvas.Redraw();
+                canvas.CheckAllSelection();
+            }
+        }
+
         private static DoubleCollection solidLineInstance = new DoubleCollection();
         private static DoubleCollection dashedLineInstance = new DoubleCollection() { 4.0, 4.0 };
         private Func<DoubleCollection> solidLineGenerator = () => solidLineInstance;
@@ -200,6 +213,12 @@ namespace BCad.UI.View
         {
             get { return (RubberBandGenerator)GetValue(RubberBandGeneratorProperty); }
             set { SetValue(RubberBandGeneratorProperty, value); }
+        }
+
+        public CadColor? ColorOverride
+        {
+            get { return (CadColor?)GetValue(ColorOverrideProperty); }
+            set { SetValue(ColorOverrideProperty, value); }
         }
 
         private void RecalcTransform()
@@ -547,7 +566,9 @@ namespace BCad.UI.View
             }
             else
             {
-                var uicolor = Color.FromArgb(color.Value.A, color.Value.R, color.Value.G, color.Value.B);
+                var uicolor = ColorOverride.HasValue
+                    ? ColorOverride.GetValueOrDefault().ToUIColor()
+                    : Color.FromArgb(color.Value.A, color.Value.R, color.Value.G, color.Value.B);
                 element.SetValue(property, new SolidColorBrush(uicolor));
             }
         }

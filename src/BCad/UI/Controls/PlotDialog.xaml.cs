@@ -115,6 +115,7 @@ namespace BCad.UI.Controls
                     Height = printHeight,
                     Margin = new Thickness(sideMargin, topMargin, sideMargin, topMargin),
                     ClipToBounds = true,
+                    ColorOverride = viewModel.ColorOverride
                 };
                 grid.Children.Add(canvas);
                 grid.Measure(pageSize);
@@ -252,6 +253,31 @@ namespace BCad.UI.Controls
             }
 
             return 0.0;
+        }
+    }
+
+    public class NullToBlackConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var result = value == null;
+            if ((bool)parameter)
+            {
+                result = !result;
+            }
+
+            return result;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var result = (bool)value;
+            if (!(bool)parameter)
+            {
+                result = !result;
+            }
+
+            return result ? (object)CadColor.Black : null;
         }
     }
 }
