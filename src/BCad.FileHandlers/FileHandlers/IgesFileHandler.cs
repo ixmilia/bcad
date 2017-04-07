@@ -93,24 +93,26 @@ namespace BCad.FileHandlers
 
         private static IgesLine ToIgesLine(Line line)
         {
-            return new IgesLine()
+            var result = new IgesLine()
             {
                 Bounding = IgesLineBounding.BoundOnBothSides,
-                Color = ToColor(line.Color),
                 P1 = ToIgesPoint(line.P1),
                 P2 = ToIgesPoint(line.P2)
             };
+            AssignColor(result, line.Color);
+            return result;
         }
 
         private static IgesLocation ToIgesLocation(Location location)
         {
-            return new IgesLocation()
+            var result = new IgesLocation()
             {
                 X = location.Point.X,
                 Y = location.Point.Y,
-                Z = location.Point.Z,
-                Color = ToColor(location.Color)
+                Z = location.Point.Z
             };
+            AssignColor(result, location.Color);
+            return result;
         }
 
         private static IgesCircularArc ToIgesCircle(Entity entity)
@@ -145,14 +147,25 @@ namespace BCad.FileHandlers
             var fromUnit = entity.GetUnitCircleProjection();
             var startPoint = fromUnit.Transform(new Point(Math.Cos(startAngle), Math.Sin(startAngle), 0.0));
             var endPoint = fromUnit.Transform(new Point(Math.Cos(endAngle), Math.Sin(endAngle), 0.0));
-            return new IgesCircularArc()
+            var result = new IgesCircularArc()
             {
                 PlaneDisplacement = center.Z,
                 Center = new IgesPoint(center.X, center.Y, 0),
                 StartPoint = new IgesPoint(startPoint.X, startPoint.Y, 0),
-                EndPoint = new IgesPoint(endPoint.X, endPoint.Y, 0),
-                Color = ToColor(color)
+                EndPoint = new IgesPoint(endPoint.X, endPoint.Y, 0)
             };
+            AssignColor(result, color);
+            return result;
+        }
+
+        private static void AssignColor(IgesEntity entity, CadColor? color)
+        {
+            entity.Color = ToColor(color);
+            if (entity.Color == IgesColorNumber.Custom)
+            {
+                Debug.Assert(color != null);
+                entity.CustomColor = new IgesColorDefinition(color.GetValueOrDefault().R / 255.0, color.GetValueOrDefault().G / 255.0, color.GetValueOrDefault().B / 255.0);
+            }
         }
 
         private static IgesPoint ToIgesPoint(Point point)
@@ -195,12 +208,12 @@ namespace BCad.FileHandlers
         private static Line ToLine(IgesLine line)
         {
             // TODO: handle different forms (segment, ray, continuous)
-            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), ToColor(line.Color), line);
+            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), GetColor(line), line);
         }
 
         private static Location ToLocation(IgesLocation point)
         {
-            return new Location(new Point(point.X, point.Y, point.Z), ToColor(point.Color), point);
+            return new Location(new Point(point.X, point.Y, point.Z), GetColor(point), point);
         }
 
         private static Entity ToArc(IgesCircularArc arc)
@@ -224,7 +237,7 @@ namespace BCad.FileHandlers
             // if start/end points are the same, it's a circle.  otherwise it's an arc
             if (startPoint.CloseTo(endPoint))
             {
-                return new Circle(center, radius, normal, ToColor(arc.Color), arc);
+                return new Circle(center, radius, normal, GetColor(arc), arc);
             }
             else
             {
@@ -238,7 +251,7 @@ namespace BCad.FileHandlers
                 var endUnit = toUnit.Transform(endPoint);
                 var startAngle = ((Vector)startUnit).ToAngle();
                 var endAngle = ((Vector)endUnit).ToAngle();
-                return new Arc(center, radius, startAngle, endAngle, normal, ToColor(arc.Color), arc);
+                return new Arc(center, radius, startAngle, endAngle, normal, GetColor(arc), arc);
             }
         }
 
@@ -262,9 +275,9 @@ namespace BCad.FileHandlers
                 && !double.IsNaN(matrix.M44);
         }
 
-        private static CadColor? ToColor(IgesColorNumber color)
+        private static CadColor? GetColor(IgesEntity entity)
         {
-            switch (color)
+            switch (entity.Color)
             {
                 case IgesColorNumber.Default:
                     return null;
@@ -285,8 +298,13 @@ namespace BCad.FileHandlers
                 case IgesColorNumber.White:
                     return CadColor.Cyan;
                 default:
-                    // TODO: handle custom colors
-                    return null;
+                    Debug.Assert(entity.CustomColor != null);
+                    var custom = entity.CustomColor;
+                    return CadColor.FromArgb(
+                        255,
+                        (byte)(custom.RedIntensity * 255),
+                        (byte)(custom.GreenIntensity * 255),
+                        (byte)(custom.BlueIntensity * 255));
             }
         }
 
@@ -298,7 +316,7 @@ namespace BCad.FileHandlers
             }
             else
             {
-                switch (color.Value.ToInt32())
+                switch (color.GetValueOrDefault().ToInt32() & 0xFFFFFF)
                 {
                     case 0x000000:
                         return IgesColorNumber.Black;
@@ -317,7 +335,7 @@ namespace BCad.FileHandlers
                     case 0xFFFFFF:
                         return IgesColorNumber.White;
                     default:
-                        return IgesColorNumber.Default;
+                        return IgesColorNumber.Custom;
                 }
             }
         }

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace BCad.FileHandlers.Test
 {
-    public class RoundTripFileHandlerTests
+    public class RoundTripFileHandlerTests : FileHandlerTestsBase
     {
         public static Drawing RoundTripDrawing(IFileHandler fileHandler, Drawing drawing)
         {
@@ -33,7 +33,7 @@ namespace BCad.FileHandlers.Test
         public static readonly IFileHandler[] FileHandlers = new IFileHandler[]
         {
             // TODO: add more handlers here
-            new DxfFileHandler()
+            DxfFileHandler
         };
 
         public static void RoundTripEntity<TEntity>(TEntity entity, Action<TEntity> validator) where TEntity : Entity
