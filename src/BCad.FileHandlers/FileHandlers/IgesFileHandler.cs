@@ -1,7 +1,6 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using BCad.Collections;
@@ -14,7 +13,7 @@ using BCad.Primitives;
 
 namespace BCad.FileHandlers
 {
-    [ExportFileHandler(IgesFileHandler.DisplayName, true, true, IgesFileHandler.FileExtension1, IgesFileHandler.FileExtension2)]
+    [ExportFileHandler(DisplayName, true, true, FileExtension1, FileExtension2)]
     public class IgesFileHandler: IFileHandler
     {
         public const string DisplayName = "IGES Files (" + FileExtension1 + ", " + FileExtension2 + ")";

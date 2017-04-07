@@ -7,7 +7,7 @@ using BCad.Entities;
 
 namespace BCad.FileHandlers
 {
-    [ExportFileHandler(AscFileHandler.DisplayName, true, false, AscFileHandler.FileExtension)]
+    [ExportFileHandler(DisplayName, true, false, FileExtension)]
     public class AscFileHandler : IFileHandler
     {
         public const string DisplayName = "Point Cloud Files (" + FileExtension + ")";

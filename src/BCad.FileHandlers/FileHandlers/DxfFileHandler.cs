@@ -1,7 +1,6 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,12 +9,11 @@ using IxMilia.Dxf;
 using IxMilia.Dxf.Blocks;
 using IxMilia.Dxf.Entities;
 using BCad.Entities;
-using System.Threading;
 using BCad.Helpers;
 
 namespace BCad.FileHandlers
 {
-    [ExportFileHandler(DxfFileHandler.DisplayName, true, true, DxfFileHandler.FileExtension)]
+    [ExportFileHandler(DisplayName, true, true, FileExtension)]
     public class DxfFileHandler : IFileHandler
     {
         public const string DisplayName = "DXF Files (" + FileExtension + ")";

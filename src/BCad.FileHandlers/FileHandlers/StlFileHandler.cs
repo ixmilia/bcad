@@ -8,7 +8,7 @@ using IxMilia.Stl;
 
 namespace BCad.FileHandlers
 {
-    [ExportFileHandler(StlFileHandler.DisplayName, true, false, StlFileHandler.FileExtension)]
+    [ExportFileHandler(DisplayName, true, false, FileExtension)]
     public class StlFileHandler: IFileHandler
     {
         public const string DisplayName = "STL Files (" + FileExtension + ")";
