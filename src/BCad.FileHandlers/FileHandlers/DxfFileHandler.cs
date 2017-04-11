@@ -247,7 +247,7 @@ namespace BCad.FileHandlers
                 //   The bulge is the tangent of one fourth the included angle for an arc segment, made negative
                 //   if the arc goes clockwise from the start point to the end point.  A bulge of 0 indicates a
                 //   straight segment, and a bulge of 1.0 is a semicircle.
-                var includedAngle = Math.Atan(Math.Abs(vertex.Bulge) * 4.0) * MathHelper.RadiansToDegrees;
+                var includedAngle = Math.Atan(Math.Abs(vertex.Bulge)) * 4.0 * MathHelper.RadiansToDegrees;
                 var direction = vertex.Bulge > 0.0 ? VertexDirection.CounterClockwise : VertexDirection.Clockwise;
                 return new Vertex(vertex.Location.ToPoint(), includedAngle, direction);
             }
@@ -255,7 +255,14 @@ namespace BCad.FileHandlers
 
         public static DxfVertex ToDxfVertex(this Vertex vertex)
         {
-            return new DxfVertex(vertex.Location.ToDxfPoint()) { Bulge = Math.Tan(vertex.IncludedAngle * MathHelper.DegreesToRadians) * 0.25 };
+            var bulge = vertex.IsLine
+                ? 0.0
+                : Math.Tan(vertex.IncludedAngle * MathHelper.DegreesToRadians * 0.25) *
+                    (vertex.Direction == VertexDirection.Clockwise ? -1.0 : 1.0);
+            return new DxfVertex(vertex.Location.ToDxfPoint())
+            {
+                Bulge = bulge
+            };
         }
 
         public static Line ToLine(this DxfLine line)
