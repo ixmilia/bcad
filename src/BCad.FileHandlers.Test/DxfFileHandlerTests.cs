@@ -2,7 +2,7 @@
 
 using System;
 using System.Linq;
-using BCad.Entities;
+using BCad.FileHandlers.Extensions;
 using BCad.Helpers;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Entities;
@@ -12,22 +12,9 @@ namespace BCad.FileHandlers.Test
 {
     public class DxfFileHandlerTests : FileHandlerTestsBase
     {
-        private static DxfEntity ToDxfEntity(Entity entity)
-        {
-            var dxfFile = WriteEntityToFile(entity, DxfFileHandler, DxfFile.Load);
-            return dxfFile.Entities.Last();
-        }
-
-        private static Entity ToEntity(DxfEntity entity)
-        {
-            var file = new DxfFile();
-            file.Entities.Add(entity);
-            return ReadEntityFromFile(DxfFileHandler, stream => file.Save(stream, asText: true));
-        }
-
         private static DxfEntity RoundTripEntity(DxfEntity entity)
         {
-            return ToDxfEntity(ToEntity(entity));
+            return entity.ToEntity().ToDxfEntity(new Layer("layer", null));
         }
 
         private void AssertVertex(DxfVertex expected, DxfVertex actual)
