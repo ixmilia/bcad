@@ -75,6 +75,11 @@ namespace BCad.UI.View
                 // draw entities
                 foreach (var layer in Workspace.Drawing.GetLayers())
                 {
+                    if (!layer.IsVisible)
+                    {
+                        continue;
+                    }
+
                     cancellationToken.ThrowIfCancellationRequested();
                     var layerColor = layer.Color.HasValue
                         ? layer.Color.GetValueOrDefault().ToSKColor()
