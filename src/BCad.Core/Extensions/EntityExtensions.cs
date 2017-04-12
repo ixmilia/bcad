@@ -13,8 +13,7 @@ namespace BCad.Extensions
     {
         public static bool EquivalentTo(this Arc arc, Entity entity)
         {
-            var other = entity as Arc;
-            if (other != null)
+            if (entity is Arc other)
             {
                 return arc.Center.CloseTo(other.Center)
                     && arc.Color == other.Color
@@ -30,8 +29,7 @@ namespace BCad.Extensions
 
         public static bool EquivalentTo(this Circle circle, Entity entity)
         {
-            var other = entity as Circle;
-            if (other != null)
+            if (entity is Circle other)
             {
                 return circle.Center.CloseTo(other.Center)
                     && circle.Color == other.Color
@@ -45,8 +43,7 @@ namespace BCad.Extensions
 
         public static bool EquivalentTo(this Ellipse el, Entity entity)
         {
-            var other = entity as Ellipse;
-            if (other != null)
+            if (entity is Ellipse other)
             {
                 return el.Center.CloseTo(other.Center)
                     && el.Color == other.Color
@@ -63,8 +60,7 @@ namespace BCad.Extensions
 
         public static bool EquivalentTo(this Line line, Entity entity)
         {
-            var other = entity as Line;
-            if (other != null)
+            if (entity is Line other)
             {
                 return line.Color == other.Color
                     && line.P1.CloseTo(other.P1)
@@ -75,18 +71,61 @@ namespace BCad.Extensions
             return false;
         }
 
+        public static bool EquivalentTo(this Polyline poly, Entity entity)
+        {
+            if (entity is Polyline other)
+            {
+                return poly.Color == other.Color
+                    && poly.Vertices.EquivalentTo(other.Vertices);
+            }
+
+            return false;
+        }
+
+        public static bool EquivalentTo(this IEnumerable<Vertex> a, IEnumerable<Vertex> b)
+        {
+            var expected = a.ToList();
+            var actual = b.ToList();
+            if (expected.Count != actual.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < expected.Count; i++)
+            {
+                if (!expected[i].EquivalentTo(actual[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool EquivalentTo(this Vertex a, Vertex b)
+        {
+            return a.Location == b.Location
+                && MathHelper.CloseTo(a.IncludedAngle, b.IncludedAngle)
+                && a.Direction == b.Direction;
+        }
+
         public static bool EquivalentTo(this Entity a, Entity b)
         {
-            if (a is Arc)
-                return ((Arc)a).EquivalentTo(b);
-            else if (a is Circle)
-                return ((Circle)a).EquivalentTo(b);
-            else if (a is Ellipse)
-                return ((Ellipse)a).EquivalentTo(b);
-            else if (a is Line)
-                return ((Line)a).EquivalentTo(b);
-            else
-                throw new NotSupportedException("Unsupported entity type");
+            switch (a)
+            {
+                case Arc arc:
+                    return arc.EquivalentTo(b);
+                case Circle circle:
+                    return circle.EquivalentTo(b);
+                case Ellipse el:
+                    return el.EquivalentTo(b);
+                case Line l:
+                    return l.EquivalentTo(b);
+                case Polyline p:
+                    return p.EquivalentTo(b);
+                default:
+                    throw new NotSupportedException("Unsupported entity type");
+            }
         }
 
         public static Matrix4 GetUnitCircleProjection(this Entity entity)

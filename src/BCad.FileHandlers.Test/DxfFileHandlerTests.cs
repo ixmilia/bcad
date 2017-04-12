@@ -1,54 +1,59 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
+using BCad.Entities;
+using BCad.Extensions;
 using BCad.FileHandlers.Extensions;
-using BCad.Helpers;
-using IxMilia.Dxf;
-using IxMilia.Dxf.Entities;
 using Xunit;
 
 namespace BCad.FileHandlers.Test
 {
-    public class DxfFileHandlerTests : FileHandlerTestsBase
+    public class DxfFileHandlerTests
     {
-        private static DxfEntity RoundTripEntity(DxfEntity entity)
+        protected void VerifyRoundTrip(Entity entity)
         {
-            return entity.ToEntity().ToDxfEntity(new Layer("layer", null));
+            var afterRoundTrip = RoundTripEntity(entity);
+            Assert.True(entity.EquivalentTo(afterRoundTrip));
         }
 
-        private void AssertVertex(DxfVertex expected, DxfVertex actual)
+        protected Entity RoundTripEntity(Entity entity)
         {
-            Assert.Equal(expected.Location, actual.Location);
-            Assert.True(MathHelper.CloseTo(expected.Bulge, actual.Bulge), $"Expected: {expected.Bulge}{Environment.NewLine}Actual: {actual.Bulge}");
+            return entity.ToDxfEntity(new Layer("layer", null)).ToEntity();
         }
 
-        private void AssertPolyline(DxfPolyline expected, DxfPolyline actual)
+        [Fact]
+        public void RoundTripArcTest()
         {
-            Assert.Equal(expected.Vertices.Count, actual.Vertices.Count);
-            for (int i = 0; i < expected.Vertices.Count; i++)
-            {
-                AssertVertex(expected.Vertices[i], actual.Vertices[i]);
-            }
+            VerifyRoundTrip(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, Vector.YAxis, CadColor.Yellow, thickness: 1.2345));
+        }
+
+        [Fact]
+        public void RoundTripCircleTest()
+        {
+            VerifyRoundTrip(new Circle(new Point(1.0, 2.0, 3.0), 4.0, Vector.XAxis, CadColor.Red, thickness: 1.2345));
+        }
+
+        [Fact]
+        public void RoundTripLineTest()
+        {
+            VerifyRoundTrip(new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), CadColor.Green, thickness: 1.2345));
         }
 
         [Fact]
         public void RoundTripPolylineTest()
         {
             // 90 degree arc from (0,0) to (1,1) representing the fourth quadrant
-            var bulge = Math.Sqrt(2.0) - 1.0;
-            var polyline1 = new DxfPolyline(new[]
+            VerifyRoundTrip(new Polyline(new[]
             {
-                new DxfVertex(new DxfPoint(0.0, 0.0, 0.0)),
-                new DxfVertex(new DxfPoint(1.0, 1.0, 0.0)) { Bulge = bulge }
-            });
-            var polyline2 = (DxfPolyline)RoundTripEntity(polyline1);
-            AssertPolyline(polyline1, polyline2);
+                new Vertex(Point.Origin),
+                new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.CounterClockwise)
+            }, null));
 
             // 90 degree arc from (0,0) to (1,1) representing the second quadrant
-            polyline1.Vertices.Last().Bulge = -bulge;
-            polyline2 = (DxfPolyline)RoundTripEntity(polyline1);
-            AssertPolyline(polyline1, polyline2);
+            VerifyRoundTrip(new Polyline(new[]
+            {
+                new Vertex(Point.Origin),
+                new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.Clockwise)
+            }, null));
         }
     }
 }
