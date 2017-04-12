@@ -8,8 +8,11 @@ namespace BCad.FileHandlers.Test
 {
     public class DxfFileHandlerTests : FileHandlerTestsBase
     {
+        public override IFileHandler FileHandler => new DxfFileHandler();
+
         protected override Entity RoundTripEntity(Entity entity)
         {
+            // shortcut to avoid file writing/reading
             return entity.ToDxfEntity(new Layer("layer")).ToEntity();
         }
 
@@ -47,6 +50,15 @@ namespace BCad.FileHandlers.Test
                 new Vertex(Point.Origin),
                 new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.Clockwise)
             }));
+        }
+
+        [Fact]
+        public void RoundTripLayerTest()
+        {
+            // don't try to round-trip a null layer color; DXF always resets it to white
+            VerifyRoundTrip(new Layer("name", color: CadColor.White));
+            VerifyRoundTrip(new Layer("name", color: CadColor.Red));
+            VerifyRoundTrip(new Layer("name", color: CadColor.White, isVisible: false));
         }
     }
 }

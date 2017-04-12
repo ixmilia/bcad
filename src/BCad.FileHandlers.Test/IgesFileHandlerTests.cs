@@ -8,8 +8,11 @@ namespace BCad.FileHandlers.Test
 {
     public class IgesFileHandlerTests : FileHandlerTestsBase
     {
+        public override IFileHandler FileHandler => new IgesFileHandler();
+
         protected override Entity RoundTripEntity(Entity entity)
         {
+            // shortcut to avoid file writing/reading
             return entity.ToIgesEntity().ToEntity();
         }
 

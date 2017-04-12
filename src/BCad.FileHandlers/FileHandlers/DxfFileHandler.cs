@@ -23,7 +23,7 @@ namespace BCad.FileHandlers
             var layers = new ReadOnlyTree<string, Layer>();
             foreach (var layer in file.Layers)
             {
-                layers = layers.Insert(layer.Name, new Layer(layer.Name, color: layer.Color.ToColor()));
+                layers = layers.Insert(layer.Name, new Layer(layer.Name, color: layer.Color.ToColor(), isVisible: layer.IsLayerOn));
             }
 
             foreach (var item in file.Entities)
@@ -108,7 +108,7 @@ namespace BCad.FileHandlers
             file.Header.UnitPrecision = (short)drawing.Settings.UnitPrecision;
             foreach (var layer in drawing.GetLayers().OrderBy(x => x.Name))
             {
-                file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()));
+                file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()) { IsLayerOn = layer.IsVisible });
                 foreach (var item in layer.GetEntities().OrderBy(e => e.Id))
                 {
                     if (item.Kind == EntityKind.Aggregate)
