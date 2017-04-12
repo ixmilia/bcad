@@ -42,5 +42,47 @@ namespace BCad.Core.Test
             AssertClose(270.0, rightArc.StartAngle, error: 1E-10);
             AssertClose(180.0, rightArc.EndAngle, error: 1E-10);
         }
+
+        [Fact]
+        public void PolylineArcDirectionTest1()
+        {
+            // points A and B are specified by vertices; expect point P to be on the primitive arc
+            //     __B
+            //   /
+            //  (
+            // P     .
+            //  (
+            //   \___A
+            var poly = new Polyline(new[]
+            {
+                new Vertex(Point.Origin),
+                new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.Clockwise)
+            }, null);
+            var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
+            AssertClose(90.0, arc.StartAngle);
+            AssertClose(270.0, arc.EndAngle);
+            AssertClose(new Point(-1.0, 1.0, 0.0), arc.MidPoint());
+        }
+
+        [Fact]
+        public void PolylineArcDirectionTest2()
+        {
+            // points A and B are specified by vertices; expect point P to be on the primitive arc
+            // B__
+            //     \
+            //      )
+            // .    P
+            //      )
+            // A___/
+            var poly = new Polyline(new[]
+            {
+                new Vertex(Point.Origin),
+                new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.CounterClockwise)
+            }, null);
+            var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
+            AssertClose(270.0, arc.StartAngle);
+            AssertClose(90.0, arc.EndAngle);
+            AssertClose(new Point(1.0, 1.0, 0.0), arc.MidPoint());
+        }
     }
 }
