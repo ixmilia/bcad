@@ -11,7 +11,7 @@ namespace BCad.Core.Test
 
         public static void AddLayer(this IWorkspace workspace, string layerName)
         {
-            workspace.Add(new Layer(layerName, null));
+            workspace.Add(new Layer(layerName));
         }
     }
 }

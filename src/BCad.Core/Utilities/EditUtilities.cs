@@ -306,7 +306,7 @@ namespace BCad.Utilities
                         * (x - secondEntity.SelectionPoint).LengthSquared;
                 }).First();
 
-                return new PrimitiveEllipse(center, radius, drawingPlane.Normal, null);
+                return new PrimitiveEllipse(center, radius, drawingPlane.Normal);
             }
 
             return null;

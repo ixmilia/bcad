@@ -26,27 +26,17 @@ namespace BCad
             get { return this.entities.Count; }
         }
 
-        public Layer(string name, CadColor? color)
-            : this(name, color, new ReadOnlyTree<uint, Entity>())
+        public Layer(string name, IEnumerable<Entity> entities, CadColor? color = null, bool isVisible = true)
+            : this(name, ReadOnlyTree<uint, Entity>.FromEnumerable(entities, (ent) => ent.Id), color, isVisible)
         {
         }
 
-        public Layer(string name, CadColor? color, ReadOnlyTree<uint, Entity> entities)
-            : this(name, color, true, entities)
-        {
-        }
-
-        public Layer(string name, CadColor? color, IEnumerable<Entity> entities)
-            : this(name, color, ReadOnlyTree<uint, Entity>.FromEnumerable(entities, (ent) => ent.Id))
-        {
-        }
-
-        public Layer(string name, CadColor? color, bool isVisible, ReadOnlyTree<uint, Entity> entities)
+        public Layer(string name, ReadOnlyTree<uint, Entity> entities = null, CadColor? color = null, bool isVisible = true)
         {
             this.name = name;
             this.color = color;
             this.isVisible = isVisible;
-            this.entities = entities;
+            this.entities = entities ?? new ReadOnlyTree<uint, Entity>();
         }
 
         public IEnumerable<Entity> GetEntities(CancellationToken cancellationToken = default(CancellationToken))
@@ -110,7 +100,7 @@ namespace BCad
                 return this;
             }
 
-            return new Layer(newName, newColor, newIsVisible, newEntities);
+            return new Layer(newName, newEntities, newColor, newIsVisible);
         }
 
         public override string ToString()

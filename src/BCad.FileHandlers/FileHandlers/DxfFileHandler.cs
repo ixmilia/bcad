@@ -23,7 +23,7 @@ namespace BCad.FileHandlers
             var layers = new ReadOnlyTree<string, Layer>();
             foreach (var layer in file.Layers)
             {
-                layers = layers.Insert(layer.Name, new Layer(layer.Name, layer.Color.ToColor()));
+                layers = layers.Insert(layer.Name, new Layer(layer.Name, color: layer.Color.ToColor()));
             }
 
             foreach (var item in file.Entities)
@@ -59,7 +59,7 @@ namespace BCad.FileHandlers
                 // add the entity to the appropriate layer
                 if (children.Count != 0)
                 {
-                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children, null));
+                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children));
                     layers = layers.Insert(layer.Name, layer);
                 }
             }
@@ -157,7 +157,7 @@ namespace BCad.FileHandlers
             else
             {
                 // add the layer if previously undefined
-                layer = new Layer(layerName, null);
+                layer = new Layer(layerName);
                 layers = layers.Insert(layer.Name, layer);
             }
 

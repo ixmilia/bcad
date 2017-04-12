@@ -28,8 +28,8 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Circle(Point center, double radius, Vector normal, CadColor? color, object tag = null, double thickness = default(double))
-            : this(new PrimitiveEllipse(center, radius, normal, thickness), tag)
+        public Circle(Point center, double radius, Vector normal, CadColor? color = null, object tag = null, double thickness = default(double))
+            : this(new PrimitiveEllipse(center, radius, normal, color, thickness), tag)
         {
         }
 

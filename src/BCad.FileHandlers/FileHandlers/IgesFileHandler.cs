@@ -19,7 +19,7 @@ namespace BCad.FileHandlers
         public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
             var file = IgesFile.Load(fileStream);
-            var layer = new Layer("igs", null);
+            var layer = new Layer("igs");
             foreach (var entity in file.Entities)
             {
                 var cadEntity = entity.ToEntity();

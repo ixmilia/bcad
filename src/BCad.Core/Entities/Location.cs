@@ -18,7 +18,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Location(Point location, CadColor? color, object tag = null)
+        public Location(Point location, CadColor? color = null, object tag = null)
             : this(new PrimitivePoint(location, color), tag)
         {
         }

@@ -21,12 +21,12 @@ namespace BCad.FileHandlers
             var index = 0;
             foreach (var triangle in file.Triangles)
             {
-                lines[index++] = new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2), null);
-                lines[index++] = new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3), null);
-                lines[index++] = new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1), null);
+                lines[index++] = new Line(ToPoint(triangle.Vertex1), ToPoint(triangle.Vertex2));
+                lines[index++] = new Line(ToPoint(triangle.Vertex2), ToPoint(triangle.Vertex3));
+                lines[index++] = new Line(ToPoint(triangle.Vertex3), ToPoint(triangle.Vertex1));
             }
 
-            var layer = new Layer(file.SolidName ?? "stl", null, lines);
+            var layer = new Layer(file.SolidName ?? "stl", lines);
             drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, -1),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));

@@ -83,7 +83,7 @@ namespace BCad.ViewModels
         {
             if (this.layer == null)
             {
-                return new Layer(this.Name, Color, IsVisible ?? false, new ReadOnlyTree<uint, Entity>());
+                return new Layer(this.Name, color: Color, isVisible: IsVisible ?? false);
             }
             else if (this.IsDirty)
             {

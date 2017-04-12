@@ -28,7 +28,7 @@ namespace BCad.FileHandlers.Test
 
         private static string PlotAsString(Entity entity, IFilePlotter plotter)
         {
-            var layer = new Layer("layer", null).Add(entity);
+            var layer = new Layer("layer").Add(entity);
             var drawing = new Drawing().Add(layer);
             return PlotAsString(drawing, plotter);
         }
@@ -42,7 +42,7 @@ namespace BCad.FileHandlers.Test
         public void PdfYAxisTest()
         {
             // ensure the y-axis is inverted when plotting PDFs
-            var actual = PlotAsString(new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0), null), new PdfFilePlotter());
+            var actual = PlotAsString(new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0)), new PdfFilePlotter());
             Assert.Contains(NormalizeToCrLf(@"
 0.00 0.00 m
 1.00 1.00 l

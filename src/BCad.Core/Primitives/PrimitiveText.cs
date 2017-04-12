@@ -14,7 +14,7 @@ namespace BCad.Primitives
         public double Rotation { get; private set; }
         public string Value { get; private set; }
 
-        public PrimitiveText(string value, Point location, double height, Vector normal, double rotation, CadColor? color)
+        public PrimitiveText(string value, Point location, double height, Vector normal, double rotation, CadColor? color = null)
         {
             this.Value = value;
             this.Location = location;

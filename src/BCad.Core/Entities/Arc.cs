@@ -37,7 +37,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, CadColor? color, object tag = null, double thickness = default(double))
+        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, CadColor? color = null, object tag = null, double thickness = default(double))
             : this(new PrimitiveEllipse(center, radius, startAngle, endAngle, normal, color, thickness), tag)
         {
         }

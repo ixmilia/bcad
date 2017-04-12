@@ -33,7 +33,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color, object tag = null, double thickness = default(double))
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color = null, object tag = null, double thickness = default(double))
             : this(new PrimitiveEllipse(center, majorAxis, normal, minorAxisRatio, startAngle, endAngle, color, thickness), tag)
         {
         }

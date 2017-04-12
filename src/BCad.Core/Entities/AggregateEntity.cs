@@ -25,11 +25,11 @@ namespace BCad.Entities
         public ReadOnlyList<Entity> Children { get { return children; } }
 
         public AggregateEntity()
-            : this(Point.Origin, ReadOnlyList<Entity>.Empty(), null, null)
+            : this(Point.Origin, ReadOnlyList<Entity>.Empty())
         {
         }
 
-        public AggregateEntity(Point location, ReadOnlyList<Entity> children, CadColor? color, object tag = null)
+        public AggregateEntity(Point location, ReadOnlyList<Entity> children, CadColor? color = null, object tag = null)
             : base(color, tag)
         {
             if (children == null)

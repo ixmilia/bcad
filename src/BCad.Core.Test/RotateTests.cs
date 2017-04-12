@@ -18,19 +18,19 @@ namespace BCad.Core.Test
         [Fact]
         public void OriginRotateTest()
         {
-            DoRotate(new Line(new Point(0, 0, 0), new Point(1, 0, 0), null),
+            DoRotate(new Line(new Point(0, 0, 0), new Point(1, 0, 0)),
                 Point.Origin,
                 90,
-                new Line(new Point(0, 0, 0), new Point(0, 1, 0), null));
+                new Line(new Point(0, 0, 0), new Point(0, 1, 0)));
         }
 
         [Fact]
         public void NonOriginRotateTest()
         {
-            DoRotate(new Line(new Point(2, 2, 0), new Point(3, 2, 0), null),
+            DoRotate(new Line(new Point(2, 2, 0), new Point(3, 2, 0)),
                 new Point(1, 1, 0),
                 90,
-                new Line(new Point(0, 2, 0), new Point(0, 3, 0), null));
+                new Line(new Point(0, 2, 0), new Point(0, 3, 0)));
         }
     }
 }

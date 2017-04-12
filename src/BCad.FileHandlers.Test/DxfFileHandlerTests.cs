@@ -10,7 +10,7 @@ namespace BCad.FileHandlers.Test
     {
         protected override Entity RoundTripEntity(Entity entity)
         {
-            return entity.ToDxfEntity(new Layer("layer", null)).ToEntity();
+            return entity.ToDxfEntity(new Layer("layer")).ToEntity();
         }
 
         [Fact]
@@ -39,14 +39,14 @@ namespace BCad.FileHandlers.Test
             {
                 new Vertex(Point.Origin),
                 new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.CounterClockwise)
-            }, null));
+            }));
 
             // 90 degree arc from (0,0) to (1,1) representing the second quadrant
             VerifyRoundTrip(new Polyline(new[]
             {
                 new Vertex(Point.Origin),
                 new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.Clockwise)
-            }, null));
+            }));
         }
     }
 }

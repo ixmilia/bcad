@@ -19,7 +19,7 @@ namespace BCad.FileHandlers
 
         public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
-            var layer = new Layer("step", null);
+            var layer = new Layer("step");
             var file = StepFile.Load(fileStream);
             foreach (var item in file.GetTopLevelItems())
             {
@@ -32,7 +32,7 @@ namespace BCad.FileHandlers
                             var normal = stepCircle.Position is StepAxis2Placement3D
                                 ? ToVector(((StepAxis2Placement3D)stepCircle.Position).Axis)
                                 : Vector.ZAxis;
-                            var circle = new Circle(center, stepCircle.Radius, normal, null);
+                            var circle = new Circle(center, stepCircle.Radius, normal);
                             layer = layer.Add(circle);
                             break;
                         }
@@ -74,7 +74,7 @@ namespace BCad.FileHandlers
             var dz = stepLine.Vector.Direction.Z * stepLine.Vector.Length;
             var p1 = ToPoint(stepLine.Point);
             var p2 = p1 + new Vector(dx, dy, dz);
-            return new Line(p1, p2, null);
+            return new Line(p1, p2);
         }
 
         private static Entity ToEntity(StepEdge edge)
@@ -96,7 +96,7 @@ namespace BCad.FileHandlers
                             var endPoint = toUnit.Transform(ToPoint((StepVertexPoint)edgeCurve.EdgeEnd));
                             var startAngle = Math.Atan2(startPoint.Y, startPoint.X).CorrectAngleRadians() * MathHelper.RadiansToDegrees;
                             var endAngle = Math.Atan2(endPoint.Y, endPoint.X).CorrectAngleRadians() * MathHelper.RadiansToDegrees;
-                            return new Arc(primitiveCircle.Center, circle.Radius, startAngle, endAngle, primitiveCircle.Normal, null);
+                            return new Arc(primitiveCircle.Center, circle.Radius, startAngle, endAngle, primitiveCircle.Normal);
                         }
                         else if (edgeCurve.EdgeGeometry is StepLine)
                         {
@@ -112,7 +112,7 @@ namespace BCad.FileHandlers
                                 // use explicit values
                                 var p1 = ToPoint((StepVertexPoint)edgeCurve.EdgeStart);
                                 var p2 = ToPoint((StepVertexPoint)edgeCurve.EdgeEnd);
-                                line = new Line(p1, p2, null);
+                                line = new Line(p1, p2);
                             }
 
                             return line;

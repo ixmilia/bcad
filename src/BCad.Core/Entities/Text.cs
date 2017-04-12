@@ -30,7 +30,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Text(string value, Point location, Vector normal, double height, double rotation, CadColor? color, object tag = null)
+        public Text(string value, Point location, Vector normal, double height, double rotation, CadColor? color = null, object tag = null)
             : this(new PrimitiveText(value, location, height, normal, rotation, color), tag)
         {
         }

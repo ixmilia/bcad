@@ -42,14 +42,14 @@ namespace BCad.Commands
                                 {
                                     return new IPrimitive[]
                                     {
-                                        new PrimitiveLine(cen.Value, p, null),
-                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, null)
+                                        new PrimitiveLine(cen.Value, p),
+                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal)
                                     };
                                 });
                                 if (rad.Cancel) return false;
                                 if (rad.HasValue)
                                 {
-                                    circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, null);
+                                    circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal);
                                 }
                                 else // switch modes
                                 {
@@ -77,14 +77,14 @@ namespace BCad.Commands
                                 {
                                     return new IPrimitive[]
                                     {
-                                        new PrimitiveLine(cen.Value, p, null),
-                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal, null)
+                                        new PrimitiveLine(cen.Value, p),
+                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal)
                                     };
                                 });
                                 if (dia.Cancel) return false;
                                 if (dia.HasValue)
                                 {
-                                    circle = new Circle(cen.Value, (dia.Value - cen.Value).Length * 0.5, drawingPlane.Normal, null);
+                                    circle = new Circle(cen.Value, (dia.Value - cen.Value).Length * 0.5, drawingPlane.Normal);
                                 }
                                 else // switch modes
                                 {
@@ -112,14 +112,13 @@ namespace BCad.Commands
                                 {
                                     return new IPrimitive[]
                                     {
-                                        new PrimitiveLine(cen.Value, p, null),
+                                        new PrimitiveLine(cen.Value, p),
                                         new PrimitiveEllipse(cen.Value,
                                             Vector.SixtyDegrees * (p - cen.Value).Length * MathHelper.SqrtThreeHalves,
                                             drawingPlane.Normal,
                                             IsoMinorRatio,
                                             0.0,
-                                            360.0,
-                                            null)
+                                            360.0)
                                     };
                                 });
                                 if (isoRad.Cancel) return false;
@@ -130,8 +129,7 @@ namespace BCad.Commands
                                         IsoMinorRatio,
                                         0.0,
                                         360.0,
-                                        drawingPlane.Normal,
-                                        null);
+                                        drawingPlane.Normal);
                                 }
                                 else // switch modes
                                 {
@@ -211,7 +209,7 @@ namespace BCad.Commands
                         var circ = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, third.Value);
                         if (circ != null)
                         {
-                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal, null);
+                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal);
                         }
                         break;
                 }

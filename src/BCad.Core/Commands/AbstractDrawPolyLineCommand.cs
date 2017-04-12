@@ -63,7 +63,7 @@ namespace BCad.Commands
                 points.Add(points.First());
             }
 
-            var polyline = new Polyline(points, null);
+            var polyline = new Polyline(points);
             workspace.AddToCurrentLayer(polyline);
             return true;
         }

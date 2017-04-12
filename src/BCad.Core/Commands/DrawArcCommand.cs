@@ -35,8 +35,8 @@ namespace BCad.Commands
                                 return new IPrimitive[]
                                 {
                                     a,
-                                    new PrimitivePoint(first.Value, null),
-                                    new PrimitivePoint(second.Value, null)
+                                    new PrimitivePoint(first.Value),
+                                    new PrimitivePoint(second.Value)
                                 };
                             }
                         });
@@ -50,8 +50,7 @@ namespace BCad.Commands
                                 primitiveArc.MajorAxis.Length,
                                 primitiveArc.StartAngle,
                                 primitiveArc.EndAngle,
-                                primitiveArc.Normal,
-                                null);
+                                primitiveArc.Normal);
                             workspace.AddToCurrentLayer(arc);
                             return true;
                         }

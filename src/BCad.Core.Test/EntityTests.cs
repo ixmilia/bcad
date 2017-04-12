@@ -22,7 +22,7 @@ namespace BCad.Core.Test
             // (     c1    )           (           )
             //  (         )             (         )
             //   \_______/               \_______/
-            var c1 = new Circle(Point.Origin, 1.0, Vector.ZAxis, null);
+            var c1 = new Circle(Point.Origin, 1.0, Vector.ZAxis);
             var c2 = c1.Update(center: new Point(1, 1, 0));
             var union = new[] { c1, c2 }.Union();
             var polyline = (Polyline)union.Single();
@@ -57,7 +57,7 @@ namespace BCad.Core.Test
             {
                 new Vertex(Point.Origin),
                 new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.Clockwise)
-            }, null);
+            });
             var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
             AssertClose(90.0, arc.StartAngle);
             AssertClose(270.0, arc.EndAngle);
@@ -78,7 +78,7 @@ namespace BCad.Core.Test
             {
                 new Vertex(Point.Origin),
                 new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.CounterClockwise)
-            }, null);
+            });
             var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
             AssertClose(270.0, arc.StartAngle);
             AssertClose(90.0, arc.EndAngle);

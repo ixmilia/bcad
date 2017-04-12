@@ -28,13 +28,13 @@ namespace BCad.FileHandlers
                             var x = double.Parse(parts[0]);
                             var y = double.Parse(parts[1]);
                             var z = double.Parse(parts[2]);
-                            points.Add(new Location(new Point(x, y, z), null));
+                            points.Add(new Location(new Point(x, y, z)));
                         }
                     }
                 }
             }
 
-            var layer = new Layer("ASC", null, points);
+            var layer = new Layer("ASC", points);
             drawing = new Drawing().Add(layer);
             viewPort = null;
 

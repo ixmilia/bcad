@@ -29,7 +29,7 @@ namespace BCad.Commands
             var text = textInput.Value;
 
             // add it
-            workspace.AddToCurrentLayer(new Text(text, location, workspace.DrawingPlane.Normal, height, 0.0, null));
+            workspace.AddToCurrentLayer(new Text(text, location, workspace.DrawingPlane.Normal, height, 0.0));
 
             return true;
         }

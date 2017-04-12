@@ -36,7 +36,7 @@ namespace BCad.Core.Test
         {
             var host = CreateHost();
             foreach (string layer in layerNames)
-                host.Workspace.Add(new Layer(layer, null));
+                host.Workspace.Add(new Layer(layer));
             return host;
         }
 

@@ -22,7 +22,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Polyline(IEnumerable<Vertex> vertices, CadColor? color, object tag = null)
+        public Polyline(IEnumerable<Vertex> vertices, CadColor? color = null, object tag = null)
             : base(color, tag)
         {
             var vertexList = new List<Vertex>(vertices); // to prevent backing changes

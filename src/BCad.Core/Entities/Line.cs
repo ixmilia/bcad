@@ -22,7 +22,7 @@ namespace BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Line(Point p1, Point p2, CadColor? color, object tag = null, double thickness = default(double))
+        public Line(Point p1, Point p2, CadColor? color = null, object tag = null, double thickness = default(double))
             : this(new PrimitiveLine(p1, p2, color, thickness), tag)
         {
         }

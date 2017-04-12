@@ -59,22 +59,22 @@ namespace BCad.Core.Test
 
         private static PrimitiveLine Line(Point p1, Point p2)
         {
-            return new PrimitiveLine(p1, p2, null);
+            return new PrimitiveLine(p1, p2);
         }
 
         private static PrimitiveEllipse Circle(Point center, double radius)
         {
-            return new PrimitiveEllipse(center, radius, Vector.ZAxis, null);
+            return new PrimitiveEllipse(center, radius, Vector.ZAxis);
         }
 
         private static PrimitiveEllipse Arc(Point center, double radius, double startAngle, double endAngle)
         {
-            return new PrimitiveEllipse(center, radius, startAngle, endAngle, Vector.ZAxis, null);
+            return new PrimitiveEllipse(center, radius, startAngle, endAngle, Vector.ZAxis);
         }
 
         private static PrimitiveEllipse Ellipse(Point center, double radiusX, double radiusY)
         {
-            return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360, null);
+            return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360);
         }
 
         private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null)
@@ -370,7 +370,7 @@ namespace BCad.Core.Test
             // rotates to x-axis alignment
             TestIntersection(
                 Circle(Point.Origin, 1),
-                new PrimitiveEllipse(new Point(-Math.Sqrt(2), Math.Sqrt(2), 0), new Vector(Math.Sqrt(2), Math.Sqrt(2), 0), Vector.ZAxis, 0.5, 0, 360, null),
+                new PrimitiveEllipse(new Point(-Math.Sqrt(2), Math.Sqrt(2), 0), new Vector(Math.Sqrt(2), Math.Sqrt(2), 0), Vector.ZAxis, 0.5, 0, 360),
                 true,
                 new Point(-0.707106781187, 0.707106781187, 0));
         }
@@ -400,25 +400,25 @@ namespace BCad.Core.Test
             // 1 intersection point, x-axis plane intersection
             TestIntersection(
                 Circle(Point.Origin, 1),
-                new PrimitiveEllipse(new Point(0, 1, 1), 1, Vector.YAxis, null),
+                new PrimitiveEllipse(new Point(0, 1, 1), 1, Vector.YAxis),
                 true,
                 new Point(0, 1, 0));
             // 1 intersection point, y-axis plane intersection
             TestIntersection(
                 Circle(Point.Origin, 1),
-                new PrimitiveEllipse(new Point(1, 0, 1), 1, Vector.XAxis, null),
+                new PrimitiveEllipse(new Point(1, 0, 1), 1, Vector.XAxis),
                 true,
                 new Point(1, 0, 0));
             // 1 intersection point, z-axis plane intersection
             TestIntersection(
-                new PrimitiveEllipse(Point.Origin, 1, Vector.XAxis, null),
-                new PrimitiveEllipse(new Point(1, 1, 0), 1, Vector.YAxis, null),
+                new PrimitiveEllipse(Point.Origin, 1, Vector.XAxis),
+                new PrimitiveEllipse(new Point(1, 1, 0), 1, Vector.YAxis),
                 true,
                 new Point(0, 1, 0));
             // 2 intersection points
             TestIntersection(
                 Circle(new Point(1, 0, 0), 1),
-                new PrimitiveEllipse(new Point(1, 0, 0), new Vector(0, 0, 2), Vector.XAxis, 0.5, 0, 360, null),
+                new PrimitiveEllipse(new Point(1, 0, 0), new Vector(0, 0, 2), Vector.XAxis, 0.5, 0, 360),
                 true,
                 new Point(1, -1, 0),
                 new Point(1, 1, 0));
@@ -487,7 +487,7 @@ namespace BCad.Core.Test
         public void PointInTextTest()
         {
             // text width = 9.23076923076923
-            TestPointContainment(new PrimitiveText(" ", new Point(0.0, 0.0, 0.0), 12.0, Vector.ZAxis, 0.0, null),
+            TestPointContainment(new PrimitiveText(" ", new Point(0.0, 0.0, 0.0), 12.0, Vector.ZAxis, 0.0),
                 contained: new[]
                 {
                     new Point(0.0, 0.0, 0.0),
@@ -497,7 +497,7 @@ namespace BCad.Core.Test
                 {
                     new Point(0.0, 12.1, 0.0)
                 });
-            TestPointContainment(new PrimitiveText(" ", new Point(5.0, 5.0, 5.0), 12.0, Vector.ZAxis, 0.0, null),
+            TestPointContainment(new PrimitiveText(" ", new Point(5.0, 5.0, 5.0), 12.0, Vector.ZAxis, 0.0),
                 contained: new[]
                 {
                     new Point(5.0, 5.0, 5.0),
@@ -512,7 +512,7 @@ namespace BCad.Core.Test
         [Fact]
         public void EllipseAngleContainmentTest()
         {
-            var el = new PrimitiveEllipse(Point.Origin, 1.0, 90.0, 360.0, Vector.ZAxis, null);
+            var el = new PrimitiveEllipse(Point.Origin, 1.0, 90.0, 360.0, Vector.ZAxis);
             Assert.True(el.IsAngleContained(90.0));
             Assert.True(el.IsAngleContained(180.0));
             Assert.True(el.IsAngleContained(270.0));
@@ -523,12 +523,12 @@ namespace BCad.Core.Test
         [Fact]
         public void EllipseGetPointTest()
         {
-            var el = new PrimitiveEllipse(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis, null);
+            var el = new PrimitiveEllipse(Point.Origin, 1.0, 0.0, 180.0, Vector.ZAxis);
             Assert.True(el.StartPoint().CloseTo(new Point(1.0, 0.0, 0.0)));
             Assert.True(el.EndPoint().CloseTo(new Point(-1.0, 0.0, 0.0)));
             Assert.True(el.GetPoint(90.0).CloseTo(new Point(0.0, 1.0, 0.0)));
 
-            el = new PrimitiveEllipse(new Point(1.0, 1.0, 0.0), 1.0, 0.0, 180.0, Vector.ZAxis, null);
+            el = new PrimitiveEllipse(new Point(1.0, 1.0, 0.0), 1.0, 0.0, 180.0, Vector.ZAxis);
             Assert.True(el.StartPoint().CloseTo(new Point(2.0, 1.0, 0.0)));
             Assert.True(el.EndPoint().CloseTo(new Point(0.0, 1.0, 0.0)));
             Assert.True(el.GetPoint(90.0).CloseTo(new Point(1.0, 2.0, 0.0)));

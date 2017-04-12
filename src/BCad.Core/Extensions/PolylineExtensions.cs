@@ -45,7 +45,7 @@ namespace BCad.Extensions
                     }
                 }
 
-                var poly = new Polyline(vertices, null);
+                var poly = new Polyline(vertices);
                 result.Add(poly);
             }
 
