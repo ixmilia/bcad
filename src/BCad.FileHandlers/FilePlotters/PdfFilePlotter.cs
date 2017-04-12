@@ -24,11 +24,22 @@ namespace BCad.FilePlotters
                 var layer = group.Key;
                 foreach (var entity in group)
                 {
+                    var scale = 1.0;
                     switch (entity.Kind)
                     {
+                        case EntityKind.Circle:
+                            var circle = (ProjectedCircle)entity;
+                            scale = circle.RadiusX / circle.OriginalCircle.Radius;
+                            builder.Add(new PdfCircle(
+                                circle.Center.ToPdfPoint(height),
+                                circle.RadiusX,
+                                state: new PdfStreamState(
+                                    color: (circle.OriginalCircle.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
+                                    strokeWidth: circle.OriginalCircle.Thickness * scale)));
+                            break;
                         case EntityKind.Line:
                             var line = (ProjectedLine)entity;
-                            var scale = (line.P2 - line.P1).Length / (line.OriginalLine.P2 - line.OriginalLine.P1).Length;
+                            scale = (line.P2 - line.P1).Length / (line.OriginalLine.P2 - line.OriginalLine.P1).Length;
                             builder.Add(new PdfLine(
                                 line.P1.ToPdfPoint(height),
                                 line.P2.ToPdfPoint(height),
