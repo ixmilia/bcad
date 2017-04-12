@@ -1,54 +1,42 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System.Linq;
 using BCad.Entities;
-using BCad.Helpers;
-using IxMilia.Iges;
-using IxMilia.Iges.Entities;
+using BCad.FileHandlers.Extensions;
 using Xunit;
 
 namespace BCad.FileHandlers.Test
 {
     public class IgesFileHandlerTests : FileHandlerTestsBase
     {
-        private static IgesEntity ToIgesEntity(Entity entity)
+        protected override Entity RoundTripEntity(Entity entity)
         {
-            var igesFile = WriteEntityToFile(entity, IgesFileHandler, IgesFile.Load);
-            return igesFile.Entities.Last();
-        }
-
-        private static Entity ToEntity(IgesEntity entity)
-        {
-            var file = new IgesFile();
-            file.Entities.Add(entity);
-            return ReadEntityFromFile(IgesFileHandler, file.Save);
-        }
-
-        private static void AssertColor(CadColor cadColor, IgesColorDefinition igesColor)
-        {
-            Assert.True(MathHelper.CloseTo(cadColor.R / 255.0, igesColor.RedIntensity));
-            Assert.True(MathHelper.CloseTo(cadColor.G / 255.0, igesColor.GreenIntensity));
-            Assert.True(MathHelper.CloseTo(cadColor.B / 255.0, igesColor.BlueIntensity));
+            return entity.ToIgesEntity().ToEntity();
         }
 
         [Fact]
-        public void WriteEntityColorTest()
+        public void RoundTripColorTest()
         {
-            Assert.Equal(IgesColorNumber.Default, ToIgesEntity(new Line(Point.Origin, Point.Origin, null)).Color);
-            Assert.Equal(IgesColorNumber.Red, ToIgesEntity(new Line(Point.Origin, Point.Origin, CadColor.Red)).Color);
-
-            var customColor = CadColor.FromArgb(255, 1, 2, 5);
-            var line = ToIgesEntity(new Line(Point.Origin, Point.Origin, customColor));
-            Assert.Equal(IgesColorNumber.Custom, line.Color);
-            AssertColor(customColor, line.CustomColor);
+            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, null));
+            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.Red));
+            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.FromArgb(255, 1, 2, 5)));
         }
 
         [Fact]
-        public void ReadEntityColorTest()
+        public void RoundTripArcTest()
         {
-            Assert.Null(ToEntity(new IgesLine() { Color = IgesColorNumber.Default }).Color);
-            Assert.Equal(CadColor.Red, ToEntity(new IgesLine() { Color = IgesColorNumber.Red }).Color);
-            Assert.Equal(CadColor.FromArgb(255, 1, 2, 5), ToEntity(new IgesLine() { CustomColor = new IgesColorDefinition(1.0 / 255.0, 2.0 / 255.0, 5.0 / 255.0) }).Color);
+            VerifyRoundTrip(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, Vector.ZAxis, null));
+        }
+
+        [Fact]
+        public void RoundTripCircleTest()
+        {
+            VerifyRoundTrip(new Circle(new Point(1.0, 2.0, 3.0), 4.0, Vector.ZAxis, null));
+        }
+
+        [Fact]
+        public void RoundTripLineTest()
+        {
+            VerifyRoundTrip(new Line(new Point(1.0, 2.0, 3.0), new Point(1.0, 2.0, 3.0), null));
         }
     }
 }
