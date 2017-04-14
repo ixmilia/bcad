@@ -9,7 +9,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var result = await workspace.DialogFactoryService.ShowDialog("Layer", workspace.SettingsManager.LayerDialogId);
+            var result = await workspace.DialogFactoryService.ShowDialog("Layer", workspace.SettingsService.GetValue<string>("UI.LayerDialogId"));
             return result == true;
         }
     }

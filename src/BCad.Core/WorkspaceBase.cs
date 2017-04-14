@@ -25,8 +25,6 @@ namespace BCad
             SelectedEntities = new ObservableHashSet<Entity>();
             ViewControl = null;
             RubberBandGenerator = null;
-
-            SettingsManager = LoadSettings();
         }
 
         #region Events
@@ -125,6 +123,9 @@ namespace BCad
         private IOutputService _outputServiceCache;
         public IOutputService OutputService => CacheService<IOutputService>(ref _outputServiceCache);
 
+        private ISettingsService _settingsService;
+        public ISettingsService SettingsService => CacheService<ISettingsService>(ref _settingsService);
+
         private IUndoRedoService _undoRedoServiceCache;
         public IUndoRedoService UndoRedoService => CacheService<IUndoRedoService>(ref _undoRedoServiceCache);
 
@@ -137,8 +138,6 @@ namespace BCad
 
             return backingStore;
         }
-
-        public ISettingsManager SettingsManager { get; private set; }
 
         public virtual void Update(
             Optional<Drawing> drawing = default(Optional<Drawing>),
@@ -184,9 +183,6 @@ namespace BCad
             if (handler != null)
                 handler(this, e);
         }
-
-        protected abstract ISettingsManager LoadSettings();
-        public abstract void SaveSettings();
 
         private async Task<bool> Execute(Tuple<ICadCommand, string> commandPair, object arg)
         {

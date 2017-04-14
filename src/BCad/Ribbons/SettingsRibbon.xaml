@@ -129,11 +129,11 @@
             <TextBlock Text="Renderer" Grid.Row="0" Grid.Column="0" />
             <ComboBox Grid.Row="0" Grid.Column="1" 
                       ItemsSource="{Binding Path=AvailableRenderers}"
-                      SelectedItem="{Binding Path=SettingsManager.RendererId}" />
+                      SelectedItem="{Binding Path=SelectedRenderer}" />
             <TextBlock Text="Selected Entities" Grid.Row="1" Grid.Column="0" />
             <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding Path=AvailableSelectedEntityDrawStyles}"
-                      SelectedItem="{Binding Path=SettingsManager.SelectedEntityDrawStyle}" />
+                      SelectedItem="{Binding Path=SelectedEntityDrawStyle}" />
         </Grid>
     </RibbonGroup>
 </local:CadRibbonTab>

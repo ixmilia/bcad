@@ -8,33 +8,37 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using IxMilia.Config;
 
 namespace BCad
 {
     [Export(typeof(IWorkspace)), Shared]
-    internal class Workspace : WorkspaceBase
+    internal class WpfWorkspace : WorkspaceBase
     {
         private const string SettingsFile = ".bcadconfig";
-        private Regex SettingsPattern = new Regex(@"^/p:([a-zA-Z]+)=(.*)$");
+        private Regex SettingsPattern = new Regex(@"^/p:([a-zA-Z\.]+)=(.*)$");
 
         private string FullSettingsFile
         {
             get { return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), SettingsFile); }
         }
 
-        public Workspace()
+        public WpfWorkspace()
         {
             Update(drawing: Drawing.Update(author: Environment.UserName));
         }
 
-        protected override ISettingsManager LoadSettings()
+        [OnImportsSatisfied]
+        public void OnImportsSatisfied()
         {
-            var manager = new SettingsManager();
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
             try
             {
                 var lines = File.ReadAllLines(FullSettingsFile);
-                manager.DeserializeConfig(lines);
+                SettingsService.LoadFromLines(lines);
             }
             catch
             {
@@ -50,27 +54,24 @@ namespace BCad
                 {
                     var settingName = match.Groups[1].Value;
                     var settingValue = match.Groups[2].Value;
-                    manager.DeserializeProperty(settingName, settingValue);
+                    SettingsService.SetValue(settingName, settingValue);
                 }
             }
-
-            return manager;
         }
 
-        public override void SaveSettings()
+        public void SaveSettings()
         {
-            string[] lines = new string[0];
+            string[] existingLines = new string[0];
             try
             {
-                lines = File.ReadAllLines(FullSettingsFile);
+                existingLines = File.ReadAllLines(FullSettingsFile);
             }
             catch
             {
                 // don't care if we can't read the existing file because it might not exist
             }
 
-            var newContent = ((SettingsManager)SettingsManager).SerializeConfig(lines);
-            File.WriteAllText(FullSettingsFile, newContent);
+            File.WriteAllText(FullSettingsFile, SettingsService.WriteWithLines(existingLines));
         }
 
         public override async Task<UnsavedChangesResult> PromptForUnsavedChanges()

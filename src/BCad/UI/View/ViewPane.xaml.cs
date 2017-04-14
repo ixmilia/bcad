@@ -35,6 +35,7 @@ using Shapes = System.Windows.Shapes;
 using SizeChangedEventArgs = System.Windows.SizeChangedEventArgs;
 using UIElement = System.Windows.UIElement;
 using Visibility = System.Windows.Visibility;
+using BCad.Settings;
 
 namespace BCad.UI.View
 {
@@ -126,13 +127,13 @@ namespace BCad.UI.View
             Workspace.Update(viewControl: this, isDirty: Workspace.IsDirty);
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             Workspace.CommandExecuted += Workspace_CommandExecuted;
-            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+            Workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
             Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             Workspace.InputService.ValueRequested += InputService_ValueRequested;
             Workspace.InputService.ValueReceived += InputService_ValueReceived;
             Workspace.InputService.InputCanceled += InputService_InputCanceled;
 
-            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
+            SettingsService_SettingChanged(this, new SettingChangedEventArgs(string.Empty, typeof(object), null, null));
             SetCursorVisibility();
 
             // prepare snap point icons
@@ -177,23 +178,23 @@ namespace BCad.UI.View
             return selectionDone.Task;
         }
 
-        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void SettingsService_SettingChanged(object sender, SettingChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.RendererId))
+            if (string.IsNullOrEmpty(e.SettingName) || e.SettingName == WpfSettingsProvider.RendererId)
             {
                 SetRenderer();
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.BackgroundColor))
+            if (string.IsNullOrEmpty(e.SettingName) || e.SettingName == WpfSettingsProvider.BackgroundColor)
             {
-                var autoColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor();
+                var autoColor = Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.BackgroundColor).GetAutoContrastingColor();
                 var selectionColor = autoColor.With(a: 25);
                 var autoColorUI = autoColor.ToUIColor();
                 BindObject.AutoBrush = new SolidColorBrush(autoColorUI);
                 BindObject.SelectionBrush = new SolidColorBrush(selectionColor.ToUIColor());
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.CursorSize))
+            if (string.IsNullOrEmpty(e.SettingName) || e.SettingName == WpfSettingsProvider.CursorSize)
             {
-                var cursorSize = Workspace.SettingsManager.CursorSize / 2.0 + 0.5;
+                var cursorSize = Workspace.SettingsService.GetValue<int>(WpfSettingsProvider.CursorSize) / 2.0 + 0.5;
                 BindObject.LeftCursorExtent = new Point(-cursorSize, 0, 0);
                 BindObject.RightCursorExtent = new Point(cursorSize, 0, 0);
                 BindObject.TopCursorExtent = new Point(0, -cursorSize, 0);
@@ -203,9 +204,9 @@ namespace BCad.UI.View
                 // to the UI
                 Invoke(UpdateCursorLocation);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.EntitySelectionRadius))
+            if (string.IsNullOrEmpty(e.SettingName) || e.SettingName == WpfSettingsProvider.EntitySelectionRadius)
             {
-                var entitySize = Workspace.SettingsManager.EntitySelectionRadius;
+                var entitySize = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.EntitySelectionRadius);
                 BindObject.EntitySelectionTopLeft = new Point(-entitySize, -entitySize, 0);
                 BindObject.EntitySelectionTopRight = new Point(entitySize, -entitySize, 0);
                 BindObject.EntitySelectionBottomLeft = new Point(-entitySize, entitySize, 0);
@@ -215,9 +216,9 @@ namespace BCad.UI.View
                 // to the UI
                 Invoke(UpdateCursorLocation);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.TextCursorSize))
+            if (string.IsNullOrEmpty(e.SettingName) || e.SettingName == WpfSettingsProvider.TextCursorSize)
             {
-                var textSize = Workspace.SettingsManager.TextCursorSize / 2.0 + 0.5;
+                var textSize = Workspace.SettingsService.GetValue<int>(WpfSettingsProvider.TextCursorSize) / 2.0 + 0.5;
                 BindObject.TextCursorStart = new Point(0, -textSize, 0);
                 BindObject.TextCursorStart = new Point(0, textSize, 0);
 
@@ -225,19 +226,20 @@ namespace BCad.UI.View
                 // to the UI
                 Invoke(UpdateCursorLocation);
             }
-            if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(Workspace.SettingsManager.HotPointColor))
+            if (string.IsNullOrEmpty(e.SettingName) || e.SettingName == WpfSettingsProvider.HotPointColor)
             {
-                BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsManager.HotPointColor.ToUIColor());
+                BindObject.HotPointBrush = new SolidColorBrush(Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.HotPointColor).ToUIColor());
             }
-            if (string.IsNullOrEmpty(e.PropertyName) ||
-                e.PropertyName == nameof(Workspace.SettingsManager.SnapPointColor) ||
-                e.PropertyName == nameof(Workspace.SettingsManager.SnapPointSize))
+            if (string.IsNullOrEmpty(e.SettingName) ||
+                e.SettingName == WpfSettingsProvider.SnapPointColor ||
+                e.SettingName == WpfSettingsProvider.SnapPointSize)
             {
-                BindObject.SnapPointTransform = new ScaleTransform() { ScaleX = Workspace.SettingsManager.SnapPointSize, ScaleY = Workspace.SettingsManager.SnapPointSize };
-                BindObject.SnapPointBrush = new SolidColorBrush(Workspace.SettingsManager.SnapPointColor.ToUIColor());
-                BindObject.SnapPointStrokeThickness = Workspace.SettingsManager.SnapPointSize == 0.0
+                var snapPointSize = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.SnapPointSize);
+                BindObject.SnapPointTransform = new ScaleTransform() { ScaleX = snapPointSize, ScaleY = snapPointSize };
+                BindObject.SnapPointBrush = new SolidColorBrush(Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.SnapPointColor).ToUIColor());
+                BindObject.SnapPointStrokeThickness = snapPointSize == 0.0
                     ? 1.0
-                    : 3.0 / Workspace.SettingsManager.SnapPointSize;
+                    : 3.0 / snapPointSize;
             }
         }
 
@@ -250,7 +252,7 @@ namespace BCad.UI.View
                 disposable.Dispose();
             }
 
-            var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsManager.RendererId);
+            var factory = RendererFactories.FirstOrDefault(f => f.Metadata.FactoryName == Workspace.SettingsService.GetValue<string>(WpfSettingsProvider.RendererId));
             if (factory != null)
             {
                 _renderer = factory.Value.CreateRenderer(this, Workspace);
@@ -747,11 +749,11 @@ namespace BCad.UI.View
 
         private TransformedSnapPoint GetActiveSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
-            if (Workspace.SettingsManager.PointSnap &&
+            if (Workspace.SettingsService.GetValue<bool>(WpfSettingsProvider.PointSnap) &&
                 ((Workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point) ||
                 selectingRectangle)
             {
-                var snapPointDistance = Workspace.SettingsManager.SnapPointDistance;
+                var snapPointDistance = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.SnapPointDistance);
                 var size = snapPointDistance * 2;
                 var nearPoints = snapPointsQuadTree
                     .GetContainedItems(new Rect(cursor.X - snapPointDistance, cursor.Y - snapPointDistance, size, size));
@@ -766,7 +768,7 @@ namespace BCad.UI.View
 
         private TransformedSnapPoint GetOrthoPoint(Point cursor)
         {
-            if (Workspace.IsDrawing && Workspace.SettingsManager.Ortho)
+            if (Workspace.IsDrawing && Workspace.SettingsService.GetValue<bool>(WpfSettingsProvider.Ortho))
             {
                 // if both are on the drawing plane
                 var last = Workspace.InputService.LastPoint;
@@ -816,7 +818,7 @@ namespace BCad.UI.View
 
         private TransformedSnapPoint GetAngleSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
-            if (Workspace.IsDrawing && Workspace.SettingsManager.AngleSnap)
+            if (Workspace.IsDrawing && Workspace.SettingsService.GetValue<bool>(WpfSettingsProvider.AngleSnap))
             {
                 // get distance to last point
                 var last = Workspace.InputService.LastPoint;
@@ -851,14 +853,15 @@ namespace BCad.UI.View
                 };
 
                 var points = new List<Tuple<double, TransformedSnapPoint>>();
-                foreach (var snapAngle in Workspace.SettingsManager.SnapAngles)
+                var snapAngleDistance = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.SnapAngleDistance);
+                foreach (var snapAngle in Workspace.SettingsService.GetValue<double[]>(WpfSettingsProvider.SnapAngles))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     var radians = snapAngle * MathHelper.DegreesToRadians;
                     var radVector = snapVector(radians);
                     var snapPoint = last + radVector;
                     var distance = (cursor - Project(snapPoint)).Length;
-                    if (distance < Workspace.SettingsManager.SnapAngleDistance)
+                    if (distance < snapAngleDistance)
                     {
                         points.Add(Tuple.Create(distance, new TransformedSnapPoint(snapPoint, Project(snapPoint), SnapPointKind.None)));
                     }
@@ -900,7 +903,7 @@ namespace BCad.UI.View
 
         private SelectedEntity GetHitEntity(Point screenPoint)
         {
-            var selectionRadius = Workspace.SettingsManager.EntitySelectionRadius;
+            var selectionRadius = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.EntitySelectionRadius);
             var selectionRadius2 = selectionRadius * selectionRadius;
             var entities = from layer in Workspace.Drawing.GetLayers().Where(l => l.IsVisible)
                            from entity in layer.GetEntities()
@@ -1027,7 +1030,7 @@ namespace BCad.UI.View
         private void AddHotPointIcon(Point location)
         {
             var screen = Project(location);
-            var size = Workspace.SettingsManager.EntitySelectionRadius;
+            var size = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.EntitySelectionRadius);
             var a = new Point(screen.X - size, screen.Y + size, 0.0); // top left
             var b = new Point(screen.X + size, screen.Y + size, 0.0); // top right
             var c = new Point(screen.X + size, screen.Y - size, 0.0); // bottom right
@@ -1063,10 +1066,10 @@ namespace BCad.UI.View
                     {
                         ClearSnapPoints();
                         var dist = (snapPoint.ControlPoint - lastPointerPosition).Length;
-                        if (dist <= Workspace.SettingsManager.SnapPointDistance && snapPoint.Kind != SnapPointKind.None)
+                        if (dist <= Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.SnapPointDistance) && snapPoint.Kind != SnapPointKind.None)
                         {
                             var geometry = snapPointGeometry[snapPoint.Kind];
-                            var scale = Workspace.SettingsManager.SnapPointSize;
+                            var scale = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.SnapPointSize);
                             Canvas.SetLeft(geometry, snapPoint.ControlPoint.X - geometry.ActualWidth * scale / 2.0);
                             Canvas.SetTop(geometry, snapPoint.ControlPoint.Y - geometry.ActualHeight * scale / 2.0);
                             geometry.Visibility = Visibility.Visible;

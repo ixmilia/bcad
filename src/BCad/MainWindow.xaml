@@ -72,17 +72,17 @@
             <TextBlock Name="pointSnapStatus"
                        Text="POINT SNAP"
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
-                       Tag="PointSnap" />
+                       Tag="UI.PointSnap" />
             <Separator />
             <TextBlock Name="angleSnapStatus"
                        Text="ANGLE SNAP"
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
-                       Tag="AngleSnap" />
+                       Tag="UI.AngleSnap" />
             <Separator />
             <TextBlock Name="orthoStatus"
                        Text="ORTHO"
                        MouseLeftButtonDown="StatusBar_MouseLeftButtonDown"
-                       Tag="Ortho" />
+                       Tag="UI.Ortho" />
             <Separator />
             <TextBlock Name="debugStatus"
                        Text="DEBUG"

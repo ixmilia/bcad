@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using BCad.Settings;
 
 namespace BCad.UI.Controls
 {
@@ -447,16 +448,21 @@ namespace BCad.UI.Controls
             MaxPreviewWidth = 300;
             MaxPreviewHeight = 300;
 
-            workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
-            SettingsManager_PropertyChanged(this, new PropertyChangedEventArgs(nameof(ISettingsManager.BackgroundColor)));
+            workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
+            SetDefaultColor();
         }
 
-        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void SettingsService_SettingChanged(object sender, SettingChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ISettingsManager.BackgroundColor))
+            if (e.SettingName == WpfSettingsProvider.BackgroundColor)
             {
-                DefaultColor = workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor();
+                SetDefaultColor();
             }
+        }
+
+        private void SetDefaultColor()
+        {
+            DefaultColor = workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.BackgroundColor).GetAutoContrastingColor();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

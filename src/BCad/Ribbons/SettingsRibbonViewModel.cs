@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using BCad.SnapPoints;
+using BCad.UI.View;
 
 namespace BCad.Ribbons
 {
@@ -36,10 +37,19 @@ namespace BCad.Ribbons
         public SettingsRibbonViewModel(IWorkspace workspace)
         {
             this.workspace = workspace;
-            workspace.SettingsManager.PropertyChanged += (_, args) => UpdateProperty(args.PropertyName);
+            workspace.SettingsService.SettingChanged += (_, args) => UpdateProperty(args.SettingName);
         }
 
-        public ISettingsManager SettingsManager { get { return workspace.SettingsManager; } }
+        private T GetValue<T>(string settingName)
+        {
+            return workspace.SettingsService.GetValue<T>(settingName);
+        }
+
+        private void SetValue<T>(string settingName, T value, [CallerMemberName] string propertyName = null)
+        {
+            workspace.SettingsService.SetValue(settingName, value);
+            OnPropertyChangedDirect(propertyName);
+        }
 
         public UnitFormat[] DrawingUnitValues
         {
@@ -99,50 +109,26 @@ namespace BCad.Ribbons
 
         public double SnapPointSize
         {
-            get { return SettingsManager.SnapPointSize; }
-            set
-            {
-                if (SettingsManager.SnapPointSize == value)
-                    return;
-                SettingsManager.SnapPointSize = value;
-                OnPropertyChanged();
-            }
+            get => GetValue<double>(WpfSettingsProvider.SnapPointSize);
+            set => SetValue(WpfSettingsProvider.SnapPointSize, value);
         }
 
         public double SnapPointDistance
         {
-            get { return SettingsManager.SnapPointDistance; }
-            set
-            {
-                if (SettingsManager.SnapPointDistance == value)
-                    return;
-                SettingsManager.SnapPointDistance = value;
-                OnPropertyChanged();
-            }
+            get => GetValue<double>(WpfSettingsProvider.SnapPointDistance);
+            set => SetValue(WpfSettingsProvider.SnapPointDistance, value);
         }
 
         public double EntitySelectionRadius
         {
-            get { return SettingsManager.EntitySelectionRadius; }
-            set
-            {
-                if (SettingsManager.EntitySelectionRadius == value)
-                    return;
-                SettingsManager.EntitySelectionRadius = value;
-                OnPropertyChanged();
-            }
+            get => GetValue<double>(WpfSettingsProvider.EntitySelectionRadius);
+            set => SetValue(WpfSettingsProvider.EntitySelectionRadius, value);
         }
 
         public int CursorSize
         {
-            get { return SettingsManager.CursorSize; }
-            set
-            {
-                if (SettingsManager.CursorSize == value)
-                    return;
-                SettingsManager.CursorSize = value;
-                OnPropertyChanged();
-            }
+            get => GetValue<int>(WpfSettingsProvider.CursorSize);
+            set => SetValue(WpfSettingsProvider.CursorSize, value);
         }
 
         public string[] AvailableRenderers
@@ -150,9 +136,21 @@ namespace BCad.Ribbons
             get { return new[] { "Software", "Skia" }; }
         }
 
+        public string SelectedRenderer
+        {
+            get => GetValue<string>(WpfSettingsProvider.RendererId);
+            set => SetValue(WpfSettingsProvider.RendererId, value);
+        }
+
         public SelectedEntityDrawStyle[] AvailableSelectedEntityDrawStyles
         {
             get { return (SelectedEntityDrawStyle[])Enum.GetValues(typeof(SelectedEntityDrawStyle)); }
+        }
+
+        public SelectedEntityDrawStyle SelectedEntityDrawStyle
+        {
+            get => GetValue<SelectedEntityDrawStyle>(SkiaSharpSettings.SelectedEntityDrawStyle);
+            set => SetValue(SkiaSharpSettings.SelectedEntityDrawStyle, value);
         }
 
         public CadColor[] BackgroundColors
@@ -171,15 +169,8 @@ namespace BCad.Ribbons
 
         public CadColor? BackgroundColor
         {
-            get { return SettingsManager.BackgroundColor; }
-            set
-            {
-                var newColor = value ?? CadColor.Black;
-                if (SettingsManager.BackgroundColor == newColor)
-                    return;
-                SettingsManager.BackgroundColor = newColor;
-                OnPropertyChanged();
-            }
+            get => GetValue<CadColor>(WpfSettingsProvider.BackgroundColor);
+            set => SetValue(WpfSettingsProvider.BackgroundColor, value ?? CadColor.Black);
         }
 
         public CadColor[] HotPointColors
@@ -197,15 +188,8 @@ namespace BCad.Ribbons
 
         public CadColor? HotPointColor
         {
-            get { return SettingsManager.HotPointColor; }
-            set
-            {
-                var newColor = value ?? CadColor.Black;
-                if (SettingsManager.HotPointColor == newColor)
-                    return;
-                SettingsManager.HotPointColor = newColor;
-                OnPropertyChanged();
-            }
+            get => GetValue<CadColor>(WpfSettingsProvider.HotPointColor);
+            set => SetValue(WpfSettingsProvider.HotPointColor, value ?? CadColor.Black);
         }
 
         public CadColor[] SnapPointColors
@@ -224,15 +208,8 @@ namespace BCad.Ribbons
 
         public CadColor? SnapPointColor
         {
-            get { return SettingsManager.SnapPointColor; }
-            set
-            {
-                var newColor = value ?? CadColor.Black;
-                if (SettingsManager.SnapPointColor == newColor)
-                    return;
-                SettingsManager.SnapPointColor = newColor;
-                OnPropertyChanged();
-            }
+            get => GetValue<CadColor>(WpfSettingsProvider.SnapPointColor);
+            set => SetValue(WpfSettingsProvider.SnapPointColor, value ?? CadColor.Black);
         }
 
         public bool IsEndPoint
@@ -302,17 +279,17 @@ namespace BCad.Ribbons
 
         private bool HasSnapPointFlag(SnapPointKind kind)
         {
-            return (SettingsManager.AllowedSnapPoints & kind) == kind;
+            return (GetValue<SnapPointKind>(WpfSettingsProvider.AllowedSnapPoints) & kind) == kind;
         }
 
         private void SetSnapPointFlag(SnapPointKind kind)
         {
-            SettingsManager.AllowedSnapPoints |= kind;
+            SetValue(WpfSettingsProvider.AllowedSnapPoints, GetValue<SnapPointKind>(WpfSettingsProvider.AllowedSnapPoints) | kind);
         }
 
         private void ClearSnapPointFlag(SnapPointKind kind)
         {
-            SettingsManager.AllowedSnapPoints &= ~kind;
+            SetValue(WpfSettingsProvider.AllowedSnapPoints, GetValue<SnapPointKind>(WpfSettingsProvider.AllowedSnapPoints) & ~kind);
         }
 
         #region Snap angles
@@ -323,36 +300,36 @@ namespace BCad.Ribbons
 
         public bool IsNinetyDegree
         {
-            get { return AreEqual(ninetyDegreeAngles, SettingsManager.SnapAngles); }
+            get { return AreEqual(ninetyDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)); }
             set
             {
-                if (value && !AreEqual(ninetyDegreeAngles, SettingsManager.SnapAngles))
+                if (value && !AreEqual(ninetyDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)))
                 {
-                    SettingsManager.SnapAngles = ninetyDegreeAngles;
+                    SetValue(WpfSettingsProvider.SnapAngles, ninetyDegreeAngles);
                 }
             }
         }
 
         public bool IsFortyFiveDegree
         {
-            get { return AreEqual(fortyFiveDegreeAngles, SettingsManager.SnapAngles); }
+            get { return AreEqual(fortyFiveDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)); }
             set
             {
-                if (value && !AreEqual(fortyFiveDegreeAngles, SettingsManager.SnapAngles))
+                if (value && !AreEqual(fortyFiveDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)))
                 {
-                    SettingsManager.SnapAngles = fortyFiveDegreeAngles;
+                    SetValue(WpfSettingsProvider.SnapAngles, fortyFiveDegreeAngles);
                 }
             }
         }
 
         public bool IsIsometric
         {
-            get { return AreEqual(isoAngles, SettingsManager.SnapAngles); }
+            get { return AreEqual(isoAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)); }
             set
             {
-                if (value && !AreEqual(isoAngles, SettingsManager.SnapAngles))
+                if (value && !AreEqual(isoAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)))
                 {
-                    SettingsManager.SnapAngles = isoAngles;
+                    SetValue(WpfSettingsProvider.SnapAngles, isoAngles);
                 }
             }
         }

@@ -7,11 +7,19 @@ using System.Windows.Media;
 using BCad.Extensions;
 using BCad.Helpers;
 using BCad.Primitives;
+using BCad.Settings;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 
 namespace BCad.UI.View
 {
+    [ExportSetting(SelectedEntityDrawStyle, typeof(SelectedEntityDrawStyle), View.SelectedEntityDrawStyle.Glow)]
+    internal class SkiaSharpSettings
+    {
+        public const string Prefix = "Skia.";
+        public const string SelectedEntityDrawStyle = Prefix + nameof(SelectedEntityDrawStyle);
+    }
+
     /// <summary>
     /// Interaction logic for SkiaSharpRenderer.xaml
     /// </summary>
@@ -34,7 +42,7 @@ namespace BCad.UI.View
             Workspace.CommandExecuting += (o, args) => Invalidate();
             Workspace.RubberBandGeneratorChanged += (o, args) => Invalidate();
             Workspace.SelectedEntities.CollectionChanged += (o, args) => Invalidate();
-            Workspace.SettingsManager.PropertyChanged += (o, args) => Invalidate();
+            Workspace.SettingsService.SettingChanged += (o, args) => Invalidate();
             Workspace.WorkspaceChanged += (o, args) => Invalidate();
         }
 
@@ -61,16 +69,17 @@ namespace BCad.UI.View
         private void PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var cancellationToken = renderCancellationTokenSource.Token;
-            var selectedDrawStyle = ((SettingsManager)Workspace.SettingsManager).SelectedEntityDrawStyle;
+            var selectedDrawStyle = Workspace.SettingsService.GetValue<SelectedEntityDrawStyle>(SkiaSharpSettings.SelectedEntityDrawStyle);
             var canvas = e.Surface.Canvas;
-            canvas.Clear(Workspace.SettingsManager.BackgroundColor.ToSKColor());
+            var backgroundColor = Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.BackgroundColor);
+            canvas.Clear(backgroundColor.ToSKColor());
             var transform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             // TODO: canvas.SetMatrix() instead of transforming everything?  might make text rotation difficult
             using (var paint = new SKPaint())
             {
                 paint.IsAntialias = true;
                 paint.StrokeCap = SKStrokeCap.Butt;
-                var defaultColor = Workspace.SettingsManager.BackgroundColor.GetAutoContrastingColor().ToSKColor();
+                var defaultColor = backgroundColor.GetAutoContrastingColor().ToSKColor();
 
                 // draw entities
                 foreach (var layer in Workspace.Drawing.GetLayers())
@@ -179,7 +188,7 @@ namespace BCad.UI.View
                         paint.IsStroke = true;
                         var point = (PrimitivePoint)primitive;
                         var loc = transform.Transform(point.Location);
-                        var pointSizeHalf = Workspace.SettingsManager.PointSize * 0.5;
+                        var pointSizeHalf = Workspace.SettingsService.GetValue<double>(WpfSettingsProvider.PointSize) * 0.5;
                         canvas.DrawLine((float)(loc.X - pointSizeHalf), (float)loc.Y, (float)(loc.X + pointSizeHalf), (float)loc.Y, paint);
                         canvas.DrawLine((float)loc.X, (float)(loc.Y - pointSizeHalf), (float)loc.X, (float)(loc.Y + pointSizeHalf), paint);
                         break;

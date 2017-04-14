@@ -2,25 +2,19 @@
 
 using System;
 using System.Windows.Input;
+using BCad.Services;
 
 namespace BCad
 {
     public class ToggleSettingsCommand : ICommand
     {
-        private ISettingsManager settingsManager = null;
-        private Action toggle = null;
+        private ISettingsService settingsService;
+        private string settingName;
 
-        public ToggleSettingsCommand(ISettingsManager settingsManager, string settingName)
+        public ToggleSettingsCommand(ISettingsService settingsService, string settingName)
         {
-            this.settingsManager = settingsManager;
-            var propInfo = typeof(ISettingsManager).GetProperty(settingName, typeof(bool));
-            if (propInfo == null)
-                throw new NotSupportedException("Unable to find appropriate setting");
-            this.toggle = () =>
-                {
-                    bool previous = (bool)propInfo.GetValue(this.settingsManager, null);
-                    propInfo.SetValue(this.settingsManager, !previous, null);
-                };
+            this.settingsService = settingsService;
+            this.settingName = settingName;
         }
 
         public event EventHandler CanExecuteChanged { add { } remove { } }
@@ -32,7 +26,8 @@ namespace BCad
 
         public void Execute(object parameter)
         {
-            toggle();
+            var previous = settingsService.GetValue<bool>(settingName);
+            settingsService.SetValue(settingName, !previous);
         }
     }
 }

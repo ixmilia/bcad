@@ -11,24 +11,28 @@
     <PackageId>BCad.Core</PackageId>
     <PackageTags>CAD</PackageTags>
     <PackageProjectUrl>https://github.com/IxMilia/BCad</PackageProjectUrl>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dotnet5.2;portable-net45</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Composition" Version="1.0.30" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
-    <PackageReference Include="System.Collections" Version="4.0.11" />
-    <PackageReference Include="System.Diagnostics.Debug" Version="4.0.11" />
-    <PackageReference Include="System.Globalization" Version="4.0.11" />
-    <PackageReference Include="System.IO" Version="4.1.0" />
-    <PackageReference Include="System.Linq" Version="4.1.0" />
-    <PackageReference Include="System.ObjectModel" Version="4.0.12" />
-    <PackageReference Include="System.Runtime" Version="4.1.0" />
-    <PackageReference Include="System.Runtime.Extensions" Version="4.1.0" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.1.0" />
-    <PackageReference Include="System.Threading" Version="4.0.11" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.0.11" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
+    <PackageReference Include="System.Globalization" Version="4.3.0" />
+    <PackageReference Include="System.IO" Version="4.3.0" />
+    <PackageReference Include="System.Linq" Version="4.3.0" />
+    <PackageReference Include="System.ObjectModel" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
+    <PackageReference Include="System.Threading" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj" />
   </ItemGroup>
 
 </Project>

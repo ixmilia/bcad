@@ -46,6 +46,7 @@ namespace BCad
         IFileSystemService FileSystemService { get; }
         IInputService InputService { get; }
         IOutputService OutputService { get; }
+        ISettingsService SettingsService { get; }
         IUndoRedoService UndoRedoService { get; }
 
         void Update(Optional<Drawing> drawing = default(Optional<Drawing>),
@@ -59,8 +60,6 @@ namespace BCad
 
         ObservableHashSet<Entity> SelectedEntities { get; }
 
-        ISettingsManager SettingsManager { get; }
-        void SaveSettings();
         Task<bool> ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
         bool CanExecute();

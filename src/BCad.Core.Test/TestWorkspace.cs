@@ -12,14 +12,5 @@ namespace BCad.Core.Test
         {
             return Task.FromResult(UnsavedChangesResult.Saved);
         }
-
-        public override void SaveSettings()
-        {
-        }
-
-        protected override ISettingsManager LoadSettings()
-        {
-            return new DefaultSettingsManager();
-        }
     }
 }

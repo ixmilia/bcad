@@ -109,7 +109,9 @@
     <Compile Include="Ribbons\ViewRibbon.xaml.cs">
       <DependentUpon>ViewRibbon.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SettingsManager.cs" />
+    <Compile Include="UI\View\SelectedEntityDrawStyle.cs" />
+    <Compile Include="ViewModels\StatusBarViewModel.cs" />
+    <Compile Include="WpfSettingsProvider.cs" />
     <Compile Include="UI\View\AbstractCadRenderer.cs" />
     <Compile Include="UI\View\EditPane.xaml.cs">
       <DependentUpon>EditPane.xaml</DependentUpon>
@@ -180,7 +182,7 @@
     <Compile Include="ViewModels\MutableLayerViewModel.cs" />
     <Compile Include="ViewModels\ReadOnlyLayerViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
-    <Compile Include="Workspace.cs" />
+    <Compile Include="WpfWorkspace.cs" />
     <Page Include="UI\BCadDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

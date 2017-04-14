@@ -110,7 +110,7 @@ namespace BCad.UI.Controls
                     Background = new SolidColorBrush(Colors.White),
                     ViewPort = viewModel.ViewPort.Update(viewHeight: printHeight / 100),
                     Drawing = workspace.Drawing,
-                    PointSize = workspace.SettingsManager.PointSize,
+                    PointSize = workspace.SettingsService.GetValue<double>(WpfSettingsProvider.PointSize),
                     Width = printWidth,
                     Height = printHeight,
                     Margin = new Thickness(sideMargin, topMargin, sideMargin, topMargin),

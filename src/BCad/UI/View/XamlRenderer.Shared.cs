@@ -1,9 +1,9 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using System.ComponentModel;
 using System.Threading;
 using BCad.EventArguments;
+using BCad.Settings;
 
 namespace BCad.UI.View
 {
@@ -20,14 +20,13 @@ namespace BCad.UI.View
             viewModel.SelectedEntities = workspace.SelectedEntities;
             DataContext = viewModel;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
-            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+            Workspace.SettingsService.SettingChanged += Workspace_SettingChanged;
             Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             Workspace.RubberBandGeneratorChanged += Workspace_RubberBandGeneratorChanged;
 
             this.Loaded += (_, __) =>
                 {
-                    foreach (var setting in new[] { nameof(Workspace.SettingsManager.BackgroundColor) })
-                        SettingsManager_PropertyChanged(Workspace.SettingsManager, new PropertyChangedEventArgs(setting));
+                    SetBackgroundColor();
                     Workspace_WorkspaceChanged(Workspace, WorkspaceChangeEventArgs.Reset());
                 };
         }
@@ -47,14 +46,19 @@ namespace BCad.UI.View
             viewModel.CursorPoint = ViewControl.GetCursorPoint(CancellationToken.None).Result;
         }
 
-        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Workspace_SettingChanged(object sender, SettingChangedEventArgs e)
         {
-            switch (e.PropertyName)
+            switch (e.SettingName)
             {
-                case nameof(Workspace.SettingsManager.BackgroundColor):
-                    viewModel.BackgroundColor = Workspace.SettingsManager.BackgroundColor;
+                case nameof(WpfSettingsProvider.BackgroundColor):
+                    SetBackgroundColor();
                     break;
             }
+        }
+
+        private void SetBackgroundColor()
+        {
+            viewModel.BackgroundColor = Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.BackgroundColor);
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)

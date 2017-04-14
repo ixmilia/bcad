@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Composition;
 using System.Diagnostics;
 using System.IO;
@@ -18,6 +17,7 @@ using BCad.Commands;
 using BCad.EventArguments;
 using BCad.Primitives;
 using BCad.Ribbons;
+using BCad.Settings;
 using BCad.ViewModels;
 
 namespace BCad
@@ -53,17 +53,19 @@ namespace BCad
 
             Workspace.CommandExecuted += Workspace_CommandExecuted;
             Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
-            Workspace.SettingsManager.PropertyChanged += SettingsManager_PropertyChanged;
+            Workspace.SettingsService.SettingChanged += SettingsManager_PropertyChanged;
 
             // prepare status bar bindings
-            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = nameof(Workspace.SettingsManager.Ortho) },
-                                      new { TextBlock = this.pointSnapStatus, Path = nameof(Workspace.SettingsManager.PointSnap) },
-                                      new { TextBlock = this.angleSnapStatus, Path = nameof(Workspace.SettingsManager.AngleSnap) },
-                                      new { TextBlock = this.debugStatus, Path = nameof(Workspace.SettingsManager.Debug) }})
+            var vm = new StatusBarViewModel(Workspace.SettingsService);
+            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = nameof(WpfSettingsProvider.Ortho) },
+                                      new { TextBlock = this.pointSnapStatus, Path = nameof(WpfSettingsProvider.PointSnap) },
+                                      new { TextBlock = this.angleSnapStatus, Path = nameof(WpfSettingsProvider.AngleSnap) },
+                                      new { TextBlock = this.debugStatus, Path = nameof(DefaultSettingsProvider.Debug) }})
             {
                 var binding = new Binding(x.Path);
-                binding.Source = Workspace.SettingsManager;
+                binding.Source = vm;
                 binding.Converter = new BoolToBrushConverter();
+                binding.Mode = BindingMode.TwoWay;
                 x.TextBlock.SetBinding(TextBlock.ForegroundProperty, binding);
             }
 
@@ -80,18 +82,16 @@ namespace BCad
             }
 
             // add keyboard shortcuts for toggled settings
-            var uiSettings = Workspace.SettingsManager as SettingsManager;
-            Debug.Assert(uiSettings != null);
             foreach (var setting in new[] {
-                new { Name = nameof(Workspace.SettingsManager.AngleSnap), Shortcut = uiSettings.AngleSnapShortcut },
-                new { Name = nameof(Workspace.SettingsManager.PointSnap), Shortcut = uiSettings.PointSnapShortcut },
-                new { Name = nameof(Workspace.SettingsManager.Ortho), Shortcut = uiSettings.OrthoShortcut },
-                new { Name = nameof(Workspace.SettingsManager.Debug), Shortcut = uiSettings.DebugShortcut } })
+                new { Name = nameof(WpfSettingsProvider.AngleSnap), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.AngleSnapShortcut) },
+                new { Name = nameof(WpfSettingsProvider.PointSnap), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.PointSnapShortcut) },
+                new { Name = nameof(WpfSettingsProvider.Ortho), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.OrthoShortcut) },
+                new { Name = nameof(DefaultSettingsProvider.Debug), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.DebugShortcut) } })
             {
                 if (setting.Shortcut.HasValue)
                 {
                     this.InputBindings.Add(new InputBinding(
-                        new ToggleSettingsCommand(Workspace.SettingsManager, setting.Name),
+                        new ToggleSettingsCommand(Workspace.SettingsService, setting.Name),
                         new KeyGesture(setting.Shortcut.Key, setting.Shortcut.Modifier)));
                 }
             }
@@ -99,12 +99,12 @@ namespace BCad
             Workspace_WorkspaceChanged(this, WorkspaceChangeEventArgs.Reset());
         }
 
-        private void SettingsManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void SettingsManager_PropertyChanged(object sender, SettingChangedEventArgs e)
         {
-            switch (e.PropertyName)
+            switch (e.SettingName)
             {
-                case nameof(Workspace.SettingsManager.Debug):
-                    if (Workspace.SettingsManager.Debug)
+                case nameof(DefaultSettingsProvider.Debug):
+                    if (Workspace.SettingsService.GetValue<bool>(DefaultSettingsProvider.Debug))
                         SetDebugText();
                     else
                         this.Dispatcher.BeginInvoke((Action)(() =>
@@ -122,7 +122,7 @@ namespace BCad
             if (e.IsDrawingChange)
             {
                 TakeFocus();
-                if (Workspace.SettingsManager.Debug)
+                if (Workspace.SettingsService.GetValue<bool>(DefaultSettingsProvider.Debug))
                     SetDebugText();
             }
         }
@@ -169,7 +169,7 @@ namespace BCad
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
             // prepare ribbon
-            foreach (var ribbonId in Workspace.SettingsManager.RibbonOrder)
+            foreach (var ribbonId in Workspace.SettingsService.GetValue<string[]>(WpfSettingsProvider.RibbonOrder))
             {
                 var rib = RibbonTabs.FirstOrDefault(t => t.Metadata.Id == ribbonId);
                 if (rib != null)
@@ -219,7 +219,7 @@ namespace BCad
                 return;
             }
 
-            Workspace.SaveSettings();
+            ((WpfWorkspace)Workspace).SaveSettings();
         }
 
         private void StatusBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -228,16 +228,12 @@ namespace BCad
             if (textBlock == null)
                 return;
 
-            var property = textBlock.Tag as string;
-            if (property == null)
+            var settingName = textBlock.Tag as string;
+            if (settingName == null)
                 return;
 
-            var propInfo = typeof(ISettingsManager).GetProperty(property);
-            if (propInfo == null)
-                return;
-
-            bool value = (bool)propInfo.GetValue(Workspace.SettingsManager, null);
-            propInfo.SetValue(Workspace.SettingsManager, !value, null);
+            var currentValue = Workspace.SettingsService.GetValue<bool>(settingName);
+            Workspace.SettingsService.SetValue(settingName, !currentValue);
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

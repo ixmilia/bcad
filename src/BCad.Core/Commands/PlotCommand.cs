@@ -9,7 +9,7 @@ namespace BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var result = await workspace.DialogFactoryService.ShowDialog("Plot", workspace.SettingsManager.PlotDialogId);
+            var result = await workspace.DialogFactoryService.ShowDialog("Plot", workspace.SettingsService.GetValue<string>("UI.PlotDialogId"));
             return result == true;
         }
     }
