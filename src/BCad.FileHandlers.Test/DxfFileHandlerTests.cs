@@ -17,6 +17,14 @@ namespace BCad.FileHandlers.Test
         }
 
         [Fact]
+        public void RoundTripColorTest()
+        {
+            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, color: null));
+            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.Red));
+            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.FromArgb(255, 1, 2, 5)));
+        }
+
+        [Fact]
         public void RoundTripArcTest()
         {
             VerifyRoundTrip(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, Vector.YAxis, CadColor.Yellow, thickness: 1.2345));

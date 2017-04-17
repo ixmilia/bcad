@@ -45,10 +45,38 @@ namespace BCad.FileHandlers.Extensions
                 }
                 else
                 {
-                    // TODO: find closest matching color
-                    Debug.Assert(false, "Unable to find color match, defaulting to BYLAYER");
+                    // TODO: find closest matching color?
                     return DxfColor.ByLayer;
                 }
+            }
+        }
+
+        public static void AssignDxfEntityColor(this DxfEntity dxfEntity, CadColor? color)
+        {
+            dxfEntity.Color = color.ToDxfColor();
+            if (dxfEntity.Color == DxfColor.ByLayer && color.HasValue)
+            {
+                // specified color not found in color table
+                dxfEntity.Color24Bit = color.GetValueOrDefault().ToInt32();
+                dxfEntity.ColorName = "Custom";
+            }
+            else
+            {
+                dxfEntity.Color24Bit = 0;
+                dxfEntity.ColorName = null;
+            }
+        }
+
+        public static CadColor? GetEntityColor(this DxfEntity dxfEntity)
+        {
+            if (dxfEntity.Color24Bit == 0)
+            {
+                return dxfEntity.Color.ToColor();
+            }
+            else
+            {
+                // custom-assigned color
+                return CadColor.FromInt32(dxfEntity.Color24Bit);
             }
         }
 
@@ -110,37 +138,37 @@ namespace BCad.FileHandlers.Extensions
 
         public static Line ToLine(this DxfLine line)
         {
-            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.Color.ToColor(), line, line.Thickness);
+            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.GetEntityColor(), line, line.Thickness);
         }
 
         public static Polyline ToPolyline(this DxfPolyline poly)
         {
-            return new Polyline(poly.Vertices.Select(v => v.ToVertex()), poly.Color.ToColor(), poly);
+            return new Polyline(poly.Vertices.Select(v => v.ToVertex()), poly.GetEntityColor(), poly);
         }
 
         public static Polyline ToPolyline(this DxfLeader leader)
         {
-            return new Polyline(leader.Vertices.Select(v => new Vertex(v.ToPoint())), leader.Color.ToColor(), leader);
+            return new Polyline(leader.Vertices.Select(v => new Vertex(v.ToPoint())), leader.GetEntityColor(), leader);
         }
 
         public static Circle ToCircle(this DxfCircle circle)
         {
-            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.Color.ToColor(), circle, circle.Thickness);
+            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.GetEntityColor(), circle, circle.Thickness);
         }
 
         public static Arc ToArc(this DxfArc arc)
         {
-            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.Color.ToColor(), arc, arc.Thickness);
+            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.GetEntityColor(), arc, arc.Thickness);
         }
 
         public static Ellipse ToEllipse(this DxfEllipse el)
         {
-            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.Color.ToColor(), el);
+            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.GetEntityColor(), el);
         }
 
         public static Text ToText(this DxfText text)
         {
-            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.Color.ToColor(), text);
+            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.GetEntityColor(), text);
         }
 
         public static Entity ToEntity(this DxfEntity item)
@@ -194,7 +222,6 @@ namespace BCad.FileHandlers.Extensions
         {
             return new DxfModelPoint(location.Point.ToDxfPoint())
             {
-                Color = location.Color.ToDxfColor(),
                 Layer = layer.Name
             };
         }
@@ -203,7 +230,6 @@ namespace BCad.FileHandlers.Extensions
         {
             return new DxfLine(line.P1.ToDxfPoint(), line.P2.ToDxfPoint())
             {
-                Color = line.Color.ToDxfColor(),
                 Layer = layer.Name,
                 Thickness = line.Thickness
             };
@@ -213,7 +239,6 @@ namespace BCad.FileHandlers.Extensions
         {
             var dp = new DxfPolyline(poly.Vertices.Select(v => v.ToDxfVertex()))
             {
-                Color = poly.Color.ToDxfColor(),
                 Elevation = poly.Vertices.Any() ? poly.Vertices.First().Location.Z : 0.0,
                 Layer = layer.Name,
                 Normal = DxfVector.ZAxis
@@ -226,7 +251,6 @@ namespace BCad.FileHandlers.Extensions
         {
             return new DxfCircle(circle.Center.ToDxfPoint(), circle.Radius)
             {
-                Color = circle.Color.ToDxfColor(),
                 Normal = circle.Normal.ToDxfVector(),
                 Layer = layer.Name,
                 Thickness = circle.Thickness
@@ -237,7 +261,6 @@ namespace BCad.FileHandlers.Extensions
         {
             return new DxfArc(arc.Center.ToDxfPoint(), arc.Radius, arc.StartAngle, arc.EndAngle)
             {
-                Color = arc.Color.ToDxfColor(),
                 Normal = arc.Normal.ToDxfVector(),
                 Layer = layer.Name,
                 Thickness = arc.Thickness
@@ -248,7 +271,6 @@ namespace BCad.FileHandlers.Extensions
         {
             return new DxfEllipse(el.Center.ToDxfPoint(), el.MajorAxis.ToDxfVector(), el.MinorAxisRatio)
             {
-                Color = el.Color.ToDxfColor(),
                 StartParameter = el.StartAngle * MathHelper.DegreesToRadians,
                 EndParameter = el.EndAngle * MathHelper.DegreesToRadians,
                 Normal = el.Normal.ToDxfVector(),
@@ -260,7 +282,6 @@ namespace BCad.FileHandlers.Extensions
         {
             return new DxfText(text.Location.ToDxfPoint(), text.Height, text.Value)
             {
-                Color = text.Color.ToDxfColor(),
                 Layer = layer.Name,
                 Normal = text.Normal.ToDxfVector(),
                 Rotation = text.Rotation
@@ -304,6 +325,11 @@ namespace BCad.FileHandlers.Extensions
                 default:
                     Debug.Assert(false, "Unsupported entity type: " + item.GetType().Name);
                     break;
+            }
+
+            if (entity != null)
+            {
+                entity.AssignDxfEntityColor(item.Color);
             }
 
             return entity;
