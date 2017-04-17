@@ -12,19 +12,18 @@ namespace BCad.Commands
             if (await workspace.PromptForUnsavedChanges() == UnsavedChangesResult.Cancel)
                 return false;
 
-            string filename = null;
+            string fileName = null;
             if (arg is string)
-                filename = (string)arg;
+                fileName = (string)arg;
 
-            if (filename == null)
-                filename = await workspace.FileSystemService.GetFileNameFromUserForOpen();
+            if (fileName == null)
+                fileName = await workspace.FileSystemService.GetFileNameFromUserForOpen();
 
-            if (filename == null)
+            if (fileName == null)
                 return false; // cancel
 
-            Drawing drawing;
-            ViewPort activeViewPort;
-            var result = await workspace.FileSystemService.TryReadDrawing(filename, out drawing, out activeViewPort);
+            var stream = await workspace.FileSystemService.GetStreamForReading(fileName);
+            var result = await workspace.ReaderWriterService.TryReadDrawing(fileName, stream, out var drawing, out var activeViewPort);
             if (!result)
             {
                 return false;

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using BCad.Entities;
 
@@ -12,6 +13,11 @@ namespace BCad.FileHandlers
     {
         public const string DisplayName = "Point Cloud Files (" + FileExtension + ")";
         public const string FileExtension = ".asc";
+
+        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        {
+            throw new NotImplementedException();
+        }
 
         public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
@@ -41,7 +47,7 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
         {
             throw new NotImplementedException();
         }

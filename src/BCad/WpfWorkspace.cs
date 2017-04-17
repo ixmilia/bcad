@@ -90,8 +90,10 @@ namespace BCad
                         if (fileName == null)
                             fileName = await FileSystemService.GetFileNameFromUserForSave();
                         if (fileName == null)
-                            result = UnsavedChangesResult.Cancel;
-                        else if (await FileSystemService.TryWriteDrawing(fileName, Drawing, ActiveViewPort))
+                            return UnsavedChangesResult.Cancel;
+
+                        var stream = await FileSystemService.GetStreamForWriting(fileName);
+                        if (await ReaderWriterService.TryWriteDrawing(fileName, Drawing, ActiveViewPort, stream))
                             result = UnsavedChangesResult.Saved;
                         else
                             result = UnsavedChangesResult.Cancel;

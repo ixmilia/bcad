@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace BCad
         [ImportMany]
         public IEnumerable<Lazy<BCadControl, ControlMetadata>> Controls { get; set; }
 
-        public async Task<bool?> ShowDialog(string type, string id)
+        public async Task<bool?> ShowDialog(string type, string id, INotifyPropertyChanged viewModel = null)
         {
             var lazyControl = Controls.FirstOrDefault(c => c.Metadata.ControlType == type && c.Metadata.ControlId == id);
             if (lazyControl == null)
@@ -32,6 +33,11 @@ namespace BCad
             {
                 window.Title = lazyControl.Metadata.Title;
                 window.Owner = Application.Current.MainWindow;
+                if (viewModel != null)
+                {
+                    window.DataContext = viewModel;
+                }
+
                 return await window.ShowHideableDialog();
             }
         }

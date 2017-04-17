@@ -2,13 +2,14 @@
 
 using System.IO;
 using System.Linq;
+using BCad.Core.Test;
 using BCad.Entities;
 using BCad.Extensions;
 using Xunit;
 
 namespace BCad.FileHandlers.Test
 {
-    public abstract class FileHandlerTestsBase
+    public abstract class FileHandlerTestsBase : TestBase
     {
         public abstract IFileHandler FileHandler { get; }
 
@@ -36,13 +37,25 @@ namespace BCad.FileHandlers.Test
 
         public Drawing RoundTripDrawing(Drawing drawing)
         {
-            using (var ms = new MemoryStream())
+            using (var stream = WriteToStream(drawing))
             {
-                Assert.True(FileHandler.WriteDrawing("filename", ms, drawing, ViewPort.CreateDefaultViewPort()));
-                ms.Seek(0, SeekOrigin.Begin);
-                Assert.True(FileHandler.ReadDrawing("filename", ms, out var result, out var viewPort));
-                return result;
+                return ReadFromStream(stream);
             }
+        }
+
+        public Stream WriteToStream(Drawing drawing)
+        {
+            var ms = new MemoryStream();
+            var fileSettings = FileHandler.GetFileSettingsFromDrawing(drawing);
+            Assert.True(FileHandler.WriteDrawing("filename", ms, drawing, ViewPort.CreateDefaultViewPort(), fileSettings));
+            ms.Seek(0, SeekOrigin.Begin);
+            return ms;
+        }
+
+        public Drawing ReadFromStream(Stream stream)
+        {
+            Assert.True(FileHandler.ReadDrawing("filename", stream, out var result, out var viewPort));
+            return result;
         }
 
         public Layer RoundTripLayer(Layer layer)

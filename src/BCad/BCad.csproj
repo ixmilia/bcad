@@ -89,6 +89,9 @@
     <Compile Include="UI\Controls\ColorPicker.xaml.cs">
       <DependentUpon>ColorPicker.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Controls\FileSettingsControl.xaml.cs">
+      <DependentUpon>FileSettingsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\DialogFactory.cs" />
     <Compile Include="UI\EditablePoint.xaml.cs">
       <DependentUpon>EditablePoint.xaml</DependentUpon>
@@ -188,6 +191,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\Controls\ColorPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Controls\FileSettingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

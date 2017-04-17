@@ -1,6 +1,7 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using BCad.Collections;
 using BCad.Extensions;
@@ -15,6 +16,11 @@ namespace BCad.FileHandlers
         public const string DisplayName = "IGES Files (" + FileExtension1 + ", " + FileExtension2 + ")";
         public const string FileExtension1 = ".igs";
         public const string FileExtension2 = ".iges";
+
+        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        {
+            return null;
+        }
 
         public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
@@ -41,7 +47,7 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
         {
             var file = new IgesFile();
             var oldFile = drawing.Tag as IgesFile;

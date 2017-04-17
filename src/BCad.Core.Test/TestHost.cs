@@ -4,6 +4,7 @@ using System;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Reflection;
+using BCad.FileHandlers;
 
 namespace BCad.Core.Test
 {
@@ -20,7 +21,8 @@ namespace BCad.Core.Test
                 .WithAssemblies(new[]
                 {
                     typeof(TestHost).GetTypeInfo().Assembly, // this assembly
-                    typeof(Drawing).GetTypeInfo().Assembly // BCad.Core.dll
+                    typeof(Drawing).GetTypeInfo().Assembly, // BCad.Core.dll
+                    typeof(DxfFileHandler).GetTypeInfo().Assembly, // BCad.FileHandlers.dll
                 });
             container = configuration.CreateContainer();
             container.SatisfyImports(this);

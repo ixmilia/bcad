@@ -1,6 +1,7 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using BCad.Entities;
 using BCad.Helpers;
@@ -16,6 +17,11 @@ namespace BCad.FileHandlers
         public const string DisplayName = "Step Files (" + FileExtension1 + ", " + FileExtension2 + ")";
         public const string FileExtension1 = ".stp";
         public const string FileExtension2 = ".step";
+
+        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        {
+            throw new NotImplementedException();
+        }
 
         public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
@@ -62,7 +68,7 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
         {
             throw new NotImplementedException();
         }

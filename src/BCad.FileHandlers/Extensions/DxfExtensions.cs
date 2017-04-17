@@ -12,6 +12,56 @@ namespace BCad.FileHandlers.Extensions
 {
     public static class DxfExtensions
     {
+        public static DxfFileVersion ToFileVersion(this DxfAcadVersion version)
+        {
+            switch (version)
+            {
+                case DxfAcadVersion.R12:
+                    return DxfFileVersion.R12;
+                case DxfAcadVersion.R13:
+                    return DxfFileVersion.R13;
+                case DxfAcadVersion.R14:
+                    return DxfFileVersion.R14;
+                case DxfAcadVersion.R2000:
+                    return DxfFileVersion.R2000;
+                case DxfAcadVersion.R2004:
+                    return DxfFileVersion.R2004;
+                case DxfAcadVersion.R2007:
+                    return DxfFileVersion.R2007;
+                case DxfAcadVersion.R2010:
+                    return DxfFileVersion.R2010;
+                case DxfAcadVersion.R2013:
+                    return DxfFileVersion.R2013;
+                default:
+                    return DxfFileVersion.R12;
+            }
+        }
+
+        public static DxfAcadVersion ToDxfFileVersion(this DxfFileVersion version)
+        {
+            switch (version)
+            {
+                case DxfFileVersion.R12:
+                    return DxfAcadVersion.R12;
+                case DxfFileVersion.R13:
+                    return DxfAcadVersion.R13;
+                case DxfFileVersion.R14:
+                    return DxfAcadVersion.R14;
+                case DxfFileVersion.R2000:
+                    return DxfAcadVersion.R2000;
+                case DxfFileVersion.R2004:
+                    return DxfAcadVersion.R2004;
+                case DxfFileVersion.R2007:
+                    return DxfAcadVersion.R2007;
+                case DxfFileVersion.R2010:
+                    return DxfAcadVersion.R2010;
+                case DxfFileVersion.R2013:
+                    return DxfAcadVersion.R2013;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         public static CadColor? ToColor(this DxfColor color)
         {
             // from a color index, get the real RGB values

@@ -18,7 +18,8 @@ namespace BCad.Commands
                     return false;
             }
 
-            if (!await workspace.FileSystemService.TryWriteDrawing(fileName, drawing, workspace.ActiveViewPort))
+            var stream = await workspace.FileSystemService.GetStreamForWriting(fileName);
+            if (!await workspace.ReaderWriterService.TryWriteDrawing(fileName, drawing, workspace.ActiveViewPort, stream, preserveSettings: true))
                 return false;
 
             SaveAsCommand.UpdateDrawingFileName(workspace, fileName);

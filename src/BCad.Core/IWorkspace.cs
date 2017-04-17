@@ -46,6 +46,7 @@ namespace BCad
         IFileSystemService FileSystemService { get; }
         IInputService InputService { get; }
         IOutputService OutputService { get; }
+        IReaderWriterService ReaderWriterService { get; }
         ISettingsService SettingsService { get; }
         IUndoRedoService UndoRedoService { get; }
 

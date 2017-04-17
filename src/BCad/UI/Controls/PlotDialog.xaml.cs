@@ -31,7 +31,6 @@ namespace BCad.UI.Controls
         public PlotDialog()
         {
             InitializeComponent();
-
         }
 
         [ImportingConstructor]

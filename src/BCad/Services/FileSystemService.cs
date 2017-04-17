@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using BCad.Extensions;
 using BCad.FileHandlers;
 using Microsoft.Win32;
 
@@ -68,59 +66,14 @@ namespace BCad.Services
             return Task.FromResult(dialog.FileName);
         }
 
-        public Task<bool> TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort)
+        public Task<Stream> GetStreamForWriting(string fileName)
         {
-            if (fileName == null)
-                throw new ArgumentNullException("fileName");
-
-            var extension = Path.GetExtension(fileName);
-            var writer = WriterFromExtension(extension);
-            if (writer == null)
-                throw new Exception("Unknown file extension " + extension);
-
-            using (var fileStream = new FileStream(fileName, FileMode.Create))
-            {
-                writer.WriteDrawing(fileName, fileStream, drawing, viewPort);
-            }
-
-            return Task.FromResult(true);
+            return Task.FromResult((Stream)new FileStream(fileName, FileMode.Create));
         }
 
-        public Task<bool> TryReadDrawing(string fileName, out Drawing drawing, out ViewPort viewPort)
+        public Task<Stream> GetStreamForReading(string fileName)
         {
-            if (fileName == null)
-                throw new ArgumentNullException("fileName");
-
-            drawing = default(Drawing);
-            viewPort = default(ViewPort);
-
-            var extension = Path.GetExtension(fileName);
-            var reader = ReaderFromExtension(extension);
-            if (reader == null)
-                throw new Exception("Unknown file extension " + extension);
-
-            using (var fileStream = new FileStream(fileName, FileMode.Open))
-            {
-                reader.ReadDrawing(fileName, fileStream, out drawing, out viewPort);
-            }
-
-            return Task.FromResult(true);
-        }
-
-        private IFileHandler ReaderFromExtension(string extension)
-        {
-            var reader = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanRead);
-            if (reader == null)
-                return null;
-            return reader.Value;
-        }
-
-        private IFileHandler WriterFromExtension(string extension)
-        {
-            var writer = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanWrite);
-            if (writer == null)
-                return null;
-            return writer.Value;
+            return Task.FromResult((Stream)new FileStream(fileName, FileMode.Open));
         }
     }
 }

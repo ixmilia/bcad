@@ -1,6 +1,7 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using BCad.Collections;
@@ -16,6 +17,18 @@ namespace BCad.FileHandlers
     {
         public const string DisplayName = "DXF Files (" + FileExtension + ")";
         public const string FileExtension = ".dxf";
+
+        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        {
+            var settings = new DxfFileSettings();
+            var dxfFile = drawing.Tag as DxfFile;
+            if (dxfFile != null)
+            {
+                settings.FileVersion = dxfFile.Header.Version.ToFileVersion();
+            }
+
+            return settings;
+        }
 
         public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
         {
@@ -91,15 +104,20 @@ namespace BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
         {
             var file = new DxfFile();
-            var oldFile = drawing.Tag as DxfFile;
-            if (oldFile != null)
+            if (drawing.Tag is DxfFile oldFile)
             {
                 // preserve settings from the original file
                 file.Header.CreationDate = oldFile.Header.CreationDate;
                 file.Header.CreationDateUniversal = oldFile.Header.CreationDateUniversal;
+                file.Header.Version = oldFile.Header.Version;
+            }
+
+            if (fileSettings is DxfFileSettings dxfSettings)
+            {
+                file.Header.Version = dxfSettings.FileVersion.ToDxfFileVersion();
             }
 
             // save layers and entities

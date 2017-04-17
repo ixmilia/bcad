@@ -1,7 +1,9 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System.IO;
 using BCad.Entities;
 using BCad.FileHandlers.Extensions;
+using IxMilia.Dxf;
 using Xunit;
 
 namespace BCad.FileHandlers.Test
@@ -14,6 +16,14 @@ namespace BCad.FileHandlers.Test
         {
             // shortcut to avoid file writing/reading
             return entity.ToDxfEntity(new Layer("layer")).ToEntity();
+        }
+
+        private DxfFile WriteToFile(Drawing drawing)
+        {
+            using (var stream = WriteToStream(drawing))
+            {
+                return DxfFile.Load(stream);
+            }
         }
 
         [Fact]
@@ -67,6 +77,78 @@ namespace BCad.FileHandlers.Test
             VerifyRoundTrip(new Layer("name", color: CadColor.White));
             VerifyRoundTrip(new Layer("name", color: CadColor.Red));
             VerifyRoundTrip(new Layer("name", color: CadColor.White, isVisible: false));
+        }
+
+        [Fact]
+        public void VerifyDefaultDxfVersionInDirectWriteTest()
+        {
+            var file = WriteToFile(new Drawing());
+            Assert.Equal(DxfAcadVersion.R12, file.Header.Version);
+        }
+
+        [Fact]
+        public void VerifyNonDefaultVersionIsPreservedInDirectWriteTest()
+        {
+            var file = new DxfFile();
+            file.Header.Version = DxfAcadVersion.R2007;
+            using (var ms = new MemoryStream())
+            {
+                file.Save(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                var drawing = ReadFromStream(ms);
+                var result = WriteToFile(drawing);
+
+                // file read from disk has preserved version
+                Assert.Equal(DxfAcadVersion.R2007, result.Header.Version);
+            }
+        }
+
+        [Fact]
+        public async void VerifyDefaultDxfVersionInWriteTest()
+        {
+            using (var ms = new MemoryStream())
+            {
+                var drawing = new Drawing();
+
+                // write file with defaults
+                Assert.True(await Workspace.ReaderWriterService.TryWriteDrawing("filename.dxf", drawing, ViewPort.CreateDefaultViewPort(), ms, preserveSettings: false));
+
+                // verify that the written default is correct
+                ms.Seek(0, SeekOrigin.Begin);
+                var file = DxfFile.Load(ms);
+                Assert.Equal(DxfAcadVersion.R12, file.Header.Version);
+            }
+        }
+
+        [Fact]
+        public async void VerifyNonDefaultVersionIsPreservedInWriteTest()
+        {
+            using (var ms1 = new MemoryStream())
+            {
+                var drawing = new Drawing();
+
+                // write file as R13
+                using (new DxfFileSettingsProvider(new DxfFileSettings() { FileVersion = DxfFileVersion.R13 }))
+                {
+                    Assert.True(await Workspace.ReaderWriterService.TryWriteDrawing("filename.dxf", drawing, ViewPort.CreateDefaultViewPort(), ms1, preserveSettings: false));
+                }
+
+                // verify that it was written as such
+                ms1.Seek(0, SeekOrigin.Begin);
+                var file = DxfFile.Load(ms1);
+                Assert.Equal(DxfAcadVersion.R13, file.Header.Version);
+
+                using (var ms2 = new MemoryStream())
+                {
+                    // write it again
+                    Assert.True(await Workspace.ReaderWriterService.TryWriteDrawing("filename.dxf", drawing, ViewPort.CreateDefaultViewPort(), ms2, preserveSettings: true));
+
+                    // verify again that it was written correctly without specifying drawing settings
+                    ms2.Seek(0, SeekOrigin.Begin);
+                    file = DxfFile.Load(ms2);
+                    Assert.Equal(DxfAcadVersion.R13, file.Header.Version);
+                }
+            }
         }
     }
 }

@@ -123,6 +123,9 @@ namespace BCad
         private IOutputService _outputServiceCache;
         public IOutputService OutputService => CacheService<IOutputService>(ref _outputServiceCache);
 
+        private IReaderWriterService _readerWriterServiceCache;
+        public IReaderWriterService ReaderWriterService => CacheService<IReaderWriterService>(ref _readerWriterServiceCache);
+
         private ISettingsService _settingsService;
         public ISettingsService SettingsService => CacheService<ISettingsService>(ref _settingsService);
 
