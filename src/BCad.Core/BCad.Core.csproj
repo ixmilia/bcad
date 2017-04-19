@@ -13,6 +13,7 @@
     <PackageProjectUrl>https://github.com/IxMilia/BCad</PackageProjectUrl>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dotnet5.2;portable-net45</PackageTargetFallback>
+    <RootNamespace>BCad</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
