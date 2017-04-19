@@ -5,17 +5,30 @@ using System.Collections.Generic;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
-using BCad.Helpers;
 using BCad.Primitives;
 
 namespace BCad.Helpers
 {
     public static class ProjectionHelper
     {
-        public static IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort, int width, int height)
+        public static IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort, double width, double height, ProjectionStyle projectionStyle)
         {
             // create transform
-            var transform = viewPort.GetTransformationMatrixWindowsStyle(width, height);
+            Matrix4 transform;
+            switch (projectionStyle)
+            {
+                case ProjectionStyle.OriginTopLeft:
+                    transform = viewPort.GetTransformationMatrixWindowsStyle(width, height);
+                    break;
+                case ProjectionStyle.OriginBottomLeft:
+                    transform = viewPort.GetTransformationMatrixCartesianStyle(width, height);
+                    break;
+                case ProjectionStyle.OriginCenter:
+                    transform = viewPort.GetTransformationMatrixDirect3DStyle(width, height);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
             
             // project all entities
             var entities = new List<ProjectedEntity>();

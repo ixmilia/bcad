@@ -8,11 +8,11 @@ namespace BCad.UI
 {
     public abstract class BCadControl : UserControl
     {
-        private Window windowParent;
+        protected Window WindowParent { get; private set; }
 
         public void SetWindowParent(Window window)
         {
-            this.windowParent = window;
+            WindowParent = window;
         }
 
         public abstract void OnShowing();
@@ -32,12 +32,12 @@ namespace BCad.UI
 
         protected void Hide()
         {
-            this.windowParent.Hide();
+            this.WindowParent.Hide();
         }
 
         protected void Show()
         {
-            this.windowParent.Show();
+            this.WindowParent.Show();
         }
     }
 }

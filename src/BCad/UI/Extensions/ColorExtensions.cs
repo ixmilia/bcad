@@ -10,5 +10,10 @@ namespace BCad.UI.Extensions
         {
             return Color.FromArgb(color.A, color.R, color.G, color.B);
         }
+
+        public static CadColor ToColor(this Color color)
+        {
+            return CadColor.FromArgb(color.A, color.R, color.G, color.B);
+        }
     }
 }

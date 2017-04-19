@@ -88,14 +88,10 @@ namespace BCad.UI.View
 
         private static void OnDefaultColorPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var control = source as RenderCanvas;
-            if (control != null)
+            var canvas = source as RenderCanvas;
+            if (canvas != null)
             {
-                if (e.NewValue is Color)
-                {
-                    var color = (Color)e.NewValue;
-                    control._defaultColor = CadColor.FromArgb(color.A, color.R, color.G, color.B);
-                }
+                canvas.Redraw();
             }
         }
 
@@ -145,7 +141,6 @@ namespace BCad.UI.View
         private Matrix4 PlaneProjection = Matrix4.Identity;
         private Dictionary<uint, IList<FrameworkElement>> entityMap = new Dictionary<uint, IList<FrameworkElement>>();
         private List<FrameworkElement> currentlySelected = new List<FrameworkElement>();
-        private CadColor _defaultColor;
 
         public RenderCanvas()
         {
@@ -191,9 +186,9 @@ namespace BCad.UI.View
             set { SetValue(SelectedEntitiesProperty, value); }
         }
 
-        public CadColor DefaultColor
+        public Color DefaultColor
         {
-            get { return (CadColor)GetValue(DefaultColorProperty); }
+            get { return (Color)GetValue(DefaultColorProperty); }
             set { SetValue(DefaultColorProperty, value); }
         }
 
@@ -326,9 +321,10 @@ namespace BCad.UI.View
             this.entityMap.Clear();
             this.currentlySelected.Clear();
             var supported = SupportedPrimitiveTypes;
+            var defaultColor = DefaultColor.ToColor();
             foreach (var layer in Drawing.GetLayers().Where(l => l.IsVisible))
             {
-                var layerColor = layer.Color ?? _defaultColor;
+                var layerColor = layer.Color ?? defaultColor;
                 foreach (var entity in layer.GetEntities())
                 {
                     var entityColor = entity.Color ?? layerColor;

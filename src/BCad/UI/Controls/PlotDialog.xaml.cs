@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using BCad.Entities;
 using BCad.FilePlotters;
 using BCad.Helpers;
 using BCad.Services;
@@ -77,7 +78,7 @@ namespace BCad.UI.Controls
 
             stream = new FileStream(viewModel.FileName, FileMode.Create);
 
-            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, viewModel.PixelWidth, viewModel.PixelHeight);
+            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, viewModel.PixelWidth, viewModel.PixelHeight, ProjectionStyle.OriginTopLeft);
             plotter.Plot(entities, viewModel.PixelWidth, viewModel.PixelHeight, stream);
 
 

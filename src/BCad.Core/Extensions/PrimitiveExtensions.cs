@@ -921,7 +921,7 @@ namespace BCad.Extensions
             return points;
         }
 
-        public static ViewPort ShowAllViewPort(this IEnumerable<IPrimitive> primitives, Vector sight, Vector up, int viewPortWidth, int viewPortHeight, int pixelBuffer = DefaultPixelBuffer)
+        public static ViewPort ShowAllViewPort(this IEnumerable<IPrimitive> primitives, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, int pixelBuffer = DefaultPixelBuffer)
         {
             var drawingPlane = new Plane(Point.Origin, sight);
             var planeProjection = drawingPlane.ToXYPlaneProjection();
@@ -960,7 +960,7 @@ namespace BCad.Extensions
             var drawingWidth = deltaX;
 
             double viewHeight, drawingToViewScale;
-            var viewRatio = (double)viewPortWidth / viewPortHeight;
+            var viewRatio = viewPortWidth / viewPortHeight;
             var drawingRatio = drawingWidth / drawingHeight;
             if (MathHelper.CloseTo(0.0, drawingHeight) || drawingRatio > viewRatio)
             {

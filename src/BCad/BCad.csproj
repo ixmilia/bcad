@@ -92,6 +92,14 @@
     <Compile Include="UI\Controls\FileSettingsControl.xaml.cs">
       <DependentUpon>FileSettingsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Controls\PdfPlotterControl.xaml.cs">
+      <DependentUpon>PdfPlotterControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\PlotDialog2.xaml.cs">
+      <DependentUpon>PlotDialog2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\PlotDialog2ViewModel.cs" />
+    <Compile Include="UI\Controls\PlotterControl.cs" />
     <Compile Include="UI\DialogFactory.cs" />
     <Compile Include="UI\EditablePoint.xaml.cs">
       <DependentUpon>EditablePoint.xaml</DependentUpon>
@@ -195,6 +203,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Controls\FileSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Controls\PdfPlotterControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Controls\PlotDialog2.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
