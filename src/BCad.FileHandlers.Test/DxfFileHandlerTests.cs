@@ -1,9 +1,11 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.IO;
+using System.Linq;
 using BCad.Entities;
 using BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
+using IxMilia.Dxf.Entities;
 using Xunit;
 
 namespace BCad.FileHandlers.Test
@@ -149,6 +151,23 @@ namespace BCad.FileHandlers.Test
                     Assert.Equal(DxfAcadVersion.R13, file.Header.Version);
                 }
             }
+        }
+
+        [Fact]
+        public void ReadLwPolylineTest()
+        {
+            var lwpoly = new DxfLwPolyline(new[]
+            {
+                new DxfLwPolylineVertex() { X = 1.0, Y = 2.0 },
+                new DxfLwPolylineVertex() { X = 3.0, Y = 4.0 }
+            })
+            {
+                Elevation = 12.0
+            };
+            var poly = (Polyline)lwpoly.ToEntity();
+            Assert.Equal(2, poly.Vertices.Count());
+            Assert.Equal(new Point(1.0, 2.0, 12.0), poly.Vertices.First().Location);
+            Assert.Equal(new Point(3.0, 4.0, 12.0), poly.Vertices.Last().Location);
         }
     }
 }

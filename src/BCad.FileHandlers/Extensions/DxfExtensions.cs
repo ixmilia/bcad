@@ -157,10 +157,20 @@ namespace BCad.FileHandlers.Extensions
 
         public static Vertex ToVertex(this DxfVertex vertex)
         {
-            if (vertex.Bulge == 0.0)
+            return VertexFromPointAndBulge(vertex.Location.ToPoint(), vertex.Bulge);
+        }
+
+        public static Vertex ToVertex(this DxfLwPolylineVertex vertex, double elevation)
+        {
+            return VertexFromPointAndBulge(new Point(vertex.X, vertex.Y, elevation), vertex.Bulge);
+        }
+
+        private static Vertex VertexFromPointAndBulge(Point point, double bulge)
+        {
+            if (bulge == 0.0)
             {
                 // it's a line
-                return new Vertex(vertex.Location.ToPoint());
+                return new Vertex(point);
             }
             else
             {
@@ -168,9 +178,9 @@ namespace BCad.FileHandlers.Extensions
                 //   The bulge is the tangent of one fourth the included angle for an arc segment, made negative
                 //   if the arc goes clockwise from the start point to the end point.  A bulge of 0 indicates a
                 //   straight segment, and a bulge of 1.0 is a semicircle.
-                var includedAngle = Math.Atan(Math.Abs(vertex.Bulge)) * 4.0 * MathHelper.RadiansToDegrees;
-                var direction = vertex.Bulge > 0.0 ? VertexDirection.CounterClockwise : VertexDirection.Clockwise;
-                return new Vertex(vertex.Location.ToPoint(), includedAngle, direction);
+                var includedAngle = Math.Atan(Math.Abs(bulge)) * 4.0 * MathHelper.RadiansToDegrees;
+                var direction = bulge > 0.0 ? VertexDirection.CounterClockwise : VertexDirection.Clockwise;
+                return new Vertex(point, includedAngle, direction);
             }
         }
 
@@ -189,6 +199,11 @@ namespace BCad.FileHandlers.Extensions
         public static Line ToLine(this DxfLine line)
         {
             return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.GetEntityColor(), line, line.Thickness);
+        }
+
+        public static Polyline ToPolyline(this DxfLwPolyline poly)
+        {
+            return new Polyline(poly.Vertices.Select(v => v.ToVertex(poly.Elevation)), poly.GetEntityColor(), poly);
         }
 
         public static Polyline ToPolyline(this DxfPolyline poly)
@@ -240,6 +255,9 @@ namespace BCad.FileHandlers.Extensions
                     break;
                 case DxfEntityType.Line:
                     entity = ((DxfLine)item).ToLine();
+                    break;
+                case DxfEntityType.LwPolyline:
+                    entity = ((DxfLwPolyline)item).ToPolyline();
                     break;
                 case DxfEntityType.Point:
                     entity = ((DxfModelPoint)item).ToPoint();
