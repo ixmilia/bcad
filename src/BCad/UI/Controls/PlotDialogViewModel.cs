@@ -27,7 +27,7 @@ namespace BCad.UI.Controls
 
         public PlotDialogViewModel(IEnumerable<PlotterFactoryMetadata> availableFactories)
         {
-            AvailableFactories = availableFactories;
+            AvailableFactories = availableFactories.OrderBy(f => f.DisplayName);
             SelectedFactory = AvailableFactories.First();
         }
 
