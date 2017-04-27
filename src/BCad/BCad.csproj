@@ -100,6 +100,9 @@
     </Compile>
     <Compile Include="UI\Controls\PlotDialog2ViewModel.cs" />
     <Compile Include="UI\Controls\PlotterControl.cs" />
+    <Compile Include="UI\Controls\SvgPlotterControl.xaml.cs">
+      <DependentUpon>SvgPlotterControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\DialogFactory.cs" />
     <Compile Include="UI\EditablePoint.xaml.cs">
       <DependentUpon>EditablePoint.xaml</DependentUpon>
@@ -211,6 +214,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Controls\PlotDialog2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Controls\SvgPlotterControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

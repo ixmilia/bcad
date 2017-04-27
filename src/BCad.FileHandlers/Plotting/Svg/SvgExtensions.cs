@@ -1,68 +1,17 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
 using BCad.Entities;
 using BCad.Extensions;
-using BCad.FilePlotters;
 using BCad.Helpers;
+using System;
 
-namespace BCad.Commands.FilePlotters
+namespace BCad.Plotting.Svg
 {
-    [ExportFilePlotter(DisplayName, FileExtension)]
-    public class SvgFilePlotter : IFilePlotter
+    internal static class SvgExtensions
     {
-        public const string DisplayName = "SVG Files (" + FileExtension + ")";
-        public const string FileExtension = ".svg";
-
-        private static XNamespace Xmlns = "http://www.w3.org/2000/svg";
-
-        public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
-        {
-            var autoColor = CadColor.Black;
-            var root = new XElement(Xmlns + "svg",
-                //new XAttribute("width", string.Format("{0}in", 6)),
-                //new XAttribute("height", string.Format("{0}in", 6)),
-                new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", 0, 0, width, height)),
-                new XAttribute("version", "1.1"));
-            foreach (var groupedEntity in entities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
-            {
-                var layer = groupedEntity.Key;
-                root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
-                var g = new XElement(Xmlns + "g",
-                    new XAttribute("stroke", (layer.Color ?? autoColor).ToRGBString()),
-                    new XAttribute("fill", (layer.Color ?? autoColor).ToRGBString()));
-                // TODO: stroke-width="0.5"
-                foreach (var entity in groupedEntity)
-                {
-                    var elem = ToXElement(entity);
-                    if (elem != null)
-                        g.Add(elem);
-                }
-
-                root.Add(g);
-            }
-
-            var settings = new XmlWriterSettings()
-            {
-                Indent = true,
-                IndentChars = "  "
-            };
-
-            using (var writer = XmlWriter.Create(stream, settings))
-            {
-                var doc = new XDocument(
-                    new XDocumentType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null),
-                    root);
-                doc.WriteTo(writer);
-                writer.Flush();
-            }
-        }
-
-        private static XElement ToXElement(ProjectedEntity entity)
+        public static XElement ToXElement(this ProjectedEntity entity)
         {
             switch (entity.Kind)
             {
@@ -83,18 +32,20 @@ namespace BCad.Commands.FilePlotters
 
         private static XElement ToXElement(ProjectedLine line)
         {
-            var xml = new XElement(Xmlns + "line",
+            var scale = (line.P2 - line.P1).Length / (line.OriginalLine.P2 - line.OriginalLine.P1).Length;
+            var xml = new XElement(SvgPlotter.Xmlns + "line",
                 new XAttribute("x1", line.P1.X),
                 new XAttribute("y1", line.P1.Y),
                 new XAttribute("x2", line.P2.X),
                 new XAttribute("y2", line.P2.Y));
             AddStrokeIfNotDefault(xml, line.OriginalLine.Color);
+            AddStrokeWidth(xml, scale * line.OriginalLine.Thickness);
             return xml;
         }
 
         private static XElement ToXElement(ProjectedText text)
         {
-            var xml = new XElement(Xmlns + "text",
+            var xml = new XElement(SvgPlotter.Xmlns + "text",
                 new XAttribute("x", text.Location.X),
                 new XAttribute("y", text.Location.Y),
                 new XAttribute("font-size", string.Format("{0}px", text.Height)),
@@ -107,7 +58,7 @@ namespace BCad.Commands.FilePlotters
 
         private static XElement ToXElement(ProjectedCircle circle)
         {
-            var xml = new XElement(Xmlns + "ellipse",
+            var xml = new XElement(SvgPlotter.Xmlns + "ellipse",
                 new XAttribute("cx", circle.Center.X),
                 new XAttribute("cy", circle.Center.Y),
                 new XAttribute("rx", circle.RadiusX),
@@ -120,8 +71,8 @@ namespace BCad.Commands.FilePlotters
 
         private static XElement ToXElement(ProjectedAggregate aggregate)
         {
-            var group = new XElement(Xmlns + "g",
-                aggregate.Children.Select(c =>ToXElement(c)));
+            var group = new XElement(SvgPlotter.Xmlns + "g",
+                aggregate.Children.Select(c => ToXElement(c)));
             AddTranslateTransform(group, (Vector)aggregate.Location);
             AddStrokeIfNotDefault(group, aggregate.Original.Color);
             return group;
@@ -144,7 +95,7 @@ namespace BCad.Commands.FilePlotters
                 arc.StartPoint.Y,
                 arc.EndPoint.X,
                 arc.EndPoint.Y);
-            var xml = new XElement(Xmlns + "path",
+            var xml = new XElement(SvgPlotter.Xmlns + "path",
                 new XAttribute("d", pathData),
                 new XAttribute("fill-opacity", 0));
             AddRotationTransform(xml, arc.Rotation, arc.Center);
@@ -199,6 +150,11 @@ namespace BCad.Commands.FilePlotters
                     stroke.Value = colorString;
                 }
             }
+        }
+
+        private static void AddStrokeWidth(XElement xml, double strokeWidth)
+        {
+            xml.Add(new XAttribute("stroke-width", $"{Math.Max(strokeWidth, 1.0)}px"));
         }
 
         private static void AddFillIfNotDefault(XElement xml, CadColor? color)
