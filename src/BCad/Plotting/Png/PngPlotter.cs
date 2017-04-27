@@ -3,42 +3,46 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using BCad.Entities;
 using BCad.Extensions;
-using BCad.FilePlotters;
+using BCad.Helpers;
 
-namespace BCad.Commands.FilePlotters
+namespace BCad.Plotting.Png
 {
-    [ExportFilePlotter(DisplayName, FileExtension)]
-    internal class PngFilePlotter : IFilePlotter
+    internal class PngPlotter : PlotterBase
     {
-        public const string DisplayName = "PNG Files (" + FileExtension + ")";
-        public const string FileExtension = ".png";
+        public PngPlotterViewModel ViewModel { get; }
 
         private Dictionary<CadColor, Brush> brushCache = new Dictionary<CadColor, Brush>();
         private Dictionary<CadColor, Pen> penCache = new Dictionary<CadColor, Pen>();
         private Color bgColor;
         private CadColor autoColor;
 
-        public PngFilePlotter()
+        public PngPlotter(PngPlotterViewModel viewModel)
         {
+            ViewModel = viewModel;
             bgColor = Color.White;
             autoColor = CadColor.Black;
         }
 
-        public void Plot(IEnumerable<ProjectedEntity> entities, double width, double height, Stream stream)
+        public override void Plot(IWorkspace workspace)
         {
-            using (var image = new Bitmap((int)width, (int)height))
+            var projectedEntities = ProjectionHelper.ProjectTo2D(
+                workspace.Drawing,
+                ViewModel.ViewPort,
+                ViewModel.Width,
+                ViewModel.Height,
+                ProjectionStyle.OriginTopLeft);
+            using (var image = new Bitmap((int)ViewModel.Width, (int)ViewModel.Height))
             {
                 using (var graphics = Graphics.FromImage(image))
                 {
                     graphics.FillRectangle(new SolidBrush(bgColor), new Rectangle(0, 0, image.Width, image.Height));
-                    PlotGraphics(entities, graphics);
+                    PlotGraphics(projectedEntities, graphics);
                 }
 
-                image.Save(stream, ImageFormat.Png);
+                image.Save(ViewModel.Stream, ImageFormat.Png);
             }
         }
 
@@ -54,24 +58,25 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedEntity entity, CadColor? layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedEntity entity, CadColor? layerColor, Vector offset = default(Vector))
         {
             switch (entity.Kind)
             {
                 case EntityKind.Line:
-                    DrawEntity(graphics, (ProjectedLine)entity, layerColor);
+                    DrawEntity(graphics, (ProjectedLine)entity, layerColor, offset);
                     break;
                 case EntityKind.Circle:
                 case EntityKind.Ellipse:
-                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor);
+                    DrawEntity(graphics, (ProjectedCircle)entity, layerColor, offset);
                     break;
                 case EntityKind.Text:
-                    DrawEntity(graphics, (ProjectedText)entity, layerColor);
+                    DrawEntity(graphics, (ProjectedText)entity, layerColor, offset);
                     break;
                 case EntityKind.Aggregate:
-                    foreach (var child in ((ProjectedAggregate)entity).Children)
+                    var ag = (ProjectedAggregate)entity;
+                    foreach (var child in ag.Children)
                     {
-                        DrawEntity(graphics, child, layerColor);
+                        DrawEntity(graphics, child, layerColor, offset + ag.Location);
                     }
                     break;
                 default:
@@ -93,25 +98,25 @@ namespace BCad.Commands.FilePlotters
             }
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedLine line, CadColor? layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedLine line, CadColor? layerColor, Vector offset)
         {
-            graphics.DrawLine(ColorToPen(layerColor ?? line.OriginalLine.Color ?? autoColor), line.P1.ToPointF(), line.P2.ToPointF());
+            graphics.DrawLine(ColorToPen(layerColor ?? line.OriginalLine.Color ?? autoColor), (line.P1 + offset).ToPointF(), (line.P2 + offset).ToPointF());
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedCircle circle, CadColor? layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedCircle circle, CadColor? layerColor, Vector offset)
         {
             // TODO: handle rotation
             var width = circle.RadiusX * 2.0;
             var height = circle.RadiusY * 2.0;
-            var topLeft = (Point)(circle.Center - new Point(circle.RadiusX, circle.RadiusX, 0.0));
+            var topLeft = (Point)(circle.Center - new Point(circle.RadiusX, circle.RadiusX, 0.0) + offset);
             graphics.DrawEllipse(ColorToPen(GetDisplayColor(layerColor, circle.OriginalCircle.Color)), (float)topLeft.X, (float)topLeft.Y, (float)width, (float)height);
         }
 
-        private void DrawEntity(Graphics graphics, ProjectedText text, CadColor? layerColor)
+        private void DrawEntity(Graphics graphics, ProjectedText text, CadColor? layerColor, Vector offset)
         {
             // TODO: handle rotation
-            var x = (float)text.Location.X;
-            var y = (float)(text.Location.Y - text.Height);
+            var x = (float)(text.Location.X + offset.X);
+            var y = (float)(text.Location.Y - text.Height + offset.Y);
             graphics.DrawString(text.OriginalText.Value, SystemFonts.DefaultFont, ColorToBrush(text.OriginalText.Color ?? layerColor ?? autoColor), x, y);
         }
 

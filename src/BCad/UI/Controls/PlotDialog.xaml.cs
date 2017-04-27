@@ -2,32 +2,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Composition;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
-using BCad.Entities;
-using BCad.FilePlotters;
-using BCad.Helpers;
-using BCad.Services;
-using BCad.UI.View;
+using BCad.Plotting;
 
 namespace BCad.UI.Controls
 {
-    /// <summary>
-    /// Interaction logic for PlotDialog.xaml
-    /// </summary>
     [ExportControl("Plot", "Default", "Plot")]
     public partial class PlotDialog : BCadControl
     {
-        private IWorkspace workspace = null;
-        private IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters = null;
-        private PlotDialogViewModel viewModel = null;
+        private IWorkspace _workspace;
+        private PlotDialogViewModel _viewModel;
+        private Dictionary<PlotterFactoryMetadata, INotifyPropertyChanged> viewModelCache = new Dictionary<PlotterFactoryMetadata, INotifyPropertyChanged>();
+        private IEnumerable<Lazy<IPlotterFactory, PlotterFactoryMetadata>> _plotters;
+        private PlotterControl _customControl;
 
         public PlotDialog()
         {
@@ -35,166 +27,76 @@ namespace BCad.UI.Controls
         }
 
         [ImportingConstructor]
-        public PlotDialog(IWorkspace workspace, [ImportMany] IEnumerable<Lazy<IFilePlotter, FilePlotterMetadata>> filePlotters)
+        public PlotDialog(IWorkspace workspace, [ImportMany] IEnumerable<Lazy<IPlotterFactory, PlotterFactoryMetadata>> plotters)
             : this()
         {
-            this.workspace = workspace;
-            this.filePlotters = filePlotters;
+            _workspace = workspace;
+            _viewModel = new PlotDialogViewModel(plotters.Select(p => p.Metadata));
+            _plotters = plotters;
 
-            viewModel = new PlotDialogViewModel(this.workspace);
-            DataContext = viewModel;
+            DataContext = _viewModel;
         }
 
         public override void OnShowing()
         {
-            viewModel.Drawing = workspace.Drawing;
-            viewModel.ActiveViewPort = workspace.ActiveViewPort;
+            UpdateViewControl();
         }
 
         public override void Commit()
         {
-            switch (this.viewModel.PlotType)
+            if (viewModelCache.TryGetValue(_viewModel.SelectedFactory, out var plotterViewModel))
             {
-                case PlotType.File:
-                    FilePlot();
-                    break;
-                case PlotType.Print:
-                    Print();
-                    break;
-                default:
-                    throw new InvalidOperationException();
+                var factory = _plotters.Single(p => p.Metadata == _viewModel.SelectedFactory).Value;
+                var plotter = factory.CreatePlotter(plotterViewModel);
+                _customControl?.BeforeCommit();
+                plotter.Plot(_workspace);
+                _customControl?.AfterCommit();
             }
         }
 
-        private void FilePlot()
+        private void PlotterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            IFilePlotter plotter;
-            Stream stream;
-            var viewPort = viewModel.ViewPort;
-            var extension = Path.GetExtension(viewModel.FileName);
-            plotter = PlotterFromExtension(extension);
-            if (plotter == null) // invalid file selected
-                throw new Exception("Unknown file extension " + extension);
-
-            stream = new FileStream(viewModel.FileName, FileMode.Create);
-
-            var entities = ProjectionHelper.ProjectTo2D(workspace.Drawing, viewPort, viewModel.PixelWidth, viewModel.PixelHeight, ProjectionStyle.OriginTopLeft);
-            plotter.Plot(entities, viewModel.PixelWidth, viewModel.PixelHeight, stream);
-
-
-            stream.Close();
-            stream.Dispose();
-            stream = null;
+            UpdateViewControl();
         }
 
-        private void Print()
+        private void UpdateViewControl()
         {
-            var pageWidth = GetWidth(viewModel.PageSize);
-            var pageHeight = GetHeight(viewModel.PageSize);
-
-            var dlg = new PrintDialog();
-            if (dlg.ShowDialog() == true)
+            if (!viewModelCache.ContainsKey(_viewModel.SelectedFactory))
             {
-                var pageSize = new Size(pageWidth * 100, pageHeight * 100);
-                var printWidth = dlg.PrintableAreaWidth;
-                var printHeight = dlg.PrintableAreaHeight;
-                var sideMargin = (pageSize.Width - printWidth) / 2;
-                var topMargin = (pageSize.Height - printHeight) / 2;
-                var grid = new Grid()
+                var factory = _plotters.Single(p => p.Metadata == _viewModel.SelectedFactory).Value;
+                viewModelCache[_viewModel.SelectedFactory] = factory.CreatePlotterViewModel();
+            }
+
+            var plotterViewModel = viewModelCache[_viewModel.SelectedFactory];
+            var plotterMetadata = _plotters.Single(p => ReferenceEquals(p.Metadata, _viewModel.SelectedFactory)).Metadata;
+            var customControlName = _customControl?.GetType().FullName;
+            if (plotterMetadata.ViewTypeName != customControlName)
+            {
+                _customControl = null;
+                plotterControl.Content = null;
+                if (!string.IsNullOrEmpty(plotterMetadata.ViewTypeName))
                 {
-                    Width = pageSize.Width,
-                    Height = pageSize.Height
-                };
-                var canvas = new RenderCanvas()
-                {
-                    Background = new SolidColorBrush(Colors.White),
-                    ViewPort = viewModel.ViewPort.Update(viewHeight: printHeight / 100),
-                    Drawing = workspace.Drawing,
-                    PointSize = workspace.SettingsService.GetValue<double>(WpfSettingsProvider.PointSize),
-                    Width = printWidth,
-                    Height = printHeight,
-                    Margin = new Thickness(sideMargin, topMargin, sideMargin, topMargin),
-                    ClipToBounds = true,
-                    ColorOverride = viewModel.ColorOverride
-                };
-                grid.Children.Add(canvas);
-                grid.Measure(pageSize);
-                grid.Arrange(new Rect(pageSize));
-                dlg.PrintVisual(grid, Path.GetFileName(workspace.Drawing.Settings.FileName));
+                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        var type = asm.GetType(plotterMetadata.ViewTypeName);
+                        if (type != null)
+                        {
+                            if (Activator.CreateInstance(type) is PlotterControl view)
+                            {
+                                view.SetWindowParent(WindowParent);
+                                view.DataContext = plotterViewModel;
+                                CompositionContainer.Container.SatisfyImports(view);
+                                _customControl = view;
+                                plotterControl.Content = _customControl;
+                            }
+
+                            break;
+                        }
+                    }
+                }
             }
-        }
 
-        public override void Cancel()
-        {
-            // clear values?
-        }
-
-        public override bool Validate()
-        {
-            return viewModel.FileName != null;
-        }
-
-        private IFilePlotter PlotterFromExtension(string extension)
-        {
-            var plotter = filePlotters.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension));
-            if (plotter == null)
-                return null;
-            return plotter.Value;
-        }
-
-        private async void BrowseClick(object sender, RoutedEventArgs e)
-        {
-            var filename = await workspace.FileSystemService.GetFileNameFromUserForWrite(filePlotters.Select(f => new FileSpecification(f.Metadata.DisplayName, f.Metadata.FileExtensions)));
-            if (filename != null)
-            {
-                viewModel.FileName = filename;
-            }
-        }
-
-        private async void SelectAreaClick(object sender, RoutedEventArgs e)
-        {
-            Hide();
-            await GetExportArea();
-            Show();
-        }
-
-        private async Task GetExportArea()
-        {
-            var selection = await workspace.ViewControl.GetSelectionRectangle();
-            if (selection == null)
-                return;
-
-            viewModel.BottomLeft = new Point(selection.TopLeftWorld.X, selection.BottomRightWorld.Y, selection.TopLeftWorld.Z);
-            viewModel.TopRight = new Point(selection.BottomRightWorld.X, selection.TopLeftWorld.Y, selection.BottomRightWorld.Z);
-        }
-
-        internal static double GetWidth(PageSize size)
-        {
-            switch (size)
-            {
-                case PageSize.Legal:
-                case PageSize.Letter:
-                    return 8.5;
-                case PageSize.Landscape:
-                    return 11.0;
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-
-        internal static double GetHeight(PageSize size)
-        {
-            switch (size)
-            {
-                case PageSize.Legal:
-                    return 14.0;
-                case PageSize.Letter:
-                    return 11.0;
-                case PageSize.Landscape:
-                    return 8.5;
-                default:
-                    throw new InvalidOperationException();
-            }
+            _customControl?.OnShowing();
         }
     }
 
@@ -253,31 +155,6 @@ namespace BCad.UI.Controls
             }
 
             return 0.0;
-        }
-    }
-
-    public class NullToBlackConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var result = value == null;
-            if ((bool)parameter)
-            {
-                result = !result;
-            }
-
-            return result;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var result = (bool)value;
-            if (!(bool)parameter)
-            {
-                result = !result;
-            }
-
-            return result ? (object)CadColor.Black : null;
         }
     }
 }
