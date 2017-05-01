@@ -21,6 +21,7 @@ namespace BCad.Plotting.Pdf
         public override void Plot(IWorkspace workspace)
         {
             var file = new PdfFile();
+            var font = new PdfFontType1(PdfFontType1Type.Helvetica);
             foreach (var pageViewModel in ViewModel.Pages)
             {
                 var projectedEntities = ProjectionHelper.ProjectTo2D(
@@ -29,7 +30,23 @@ namespace BCad.Plotting.Pdf
                     pageViewModel.PlotWidth,
                     pageViewModel.PlotHeight,
                     ProjectionStyle.OriginBottomLeft);
+                var page = new PdfPage(pageViewModel.PlotWidth, pageViewModel.PlotHeight);
+                file.Pages.Add(page);
                 var builder = new PdfPathBuilder();
+                void AddPathItemToPage(IPdfPathItem pathItem)
+                {
+                    builder.Add(pathItem);
+                }
+                void AddStreamItemToPage(PdfStreamItem streamItem)
+                {
+                    if (builder.Items.Count > 0)
+                    {
+                        page.Items.Add(builder.ToPath());
+                        builder = new PdfPathBuilder();
+                    }
+
+                    page.Items.Add(streamItem);
+                }
                 foreach (var group in projectedEntities.GroupBy(e => e.OriginalLayer).OrderBy(l => l.Key.Name))
                 {
                     var layer = group.Key;
@@ -41,22 +58,33 @@ namespace BCad.Plotting.Pdf
                             case EntityKind.Circle:
                                 var circle = (ProjectedCircle)entity;
                                 scale = circle.RadiusX / circle.OriginalCircle.Radius;
-                                builder.Add(new PdfCircle(
+                                AddPathItemToPage(new PdfCircle(
                                     circle.Center.ToPdfPoint(),
                                     circle.RadiusX,
                                     state: new PdfStreamState(
-                                        color: (circle.OriginalCircle.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
+                                        strokeColor: (circle.OriginalCircle.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
                                         strokeWidth: circle.OriginalCircle.Thickness * scale)));
                                 break;
                             case EntityKind.Line:
                                 var line = (ProjectedLine)entity;
                                 scale = (line.P2 - line.P1).Length / (line.OriginalLine.P2 - line.OriginalLine.P1).Length;
-                                builder.Add(new PdfLine(
+                                AddPathItemToPage(new PdfLine(
                                     line.P1.ToPdfPoint(),
                                     line.P2.ToPdfPoint(),
                                     state: new PdfStreamState(
-                                        color: (line.OriginalLine.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
+                                        strokeColor: (line.OriginalLine.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
                                         strokeWidth: line.OriginalLine.Thickness * scale)));
+                                break;
+                            case EntityKind.Text:
+                                var text = (ProjectedText)entity;
+                                AddStreamItemToPage(
+                                    new PdfText(
+                                        text.OriginalText.Value,
+                                        font,
+                                        text.Height,
+                                        text.Location.ToPdfPoint(),
+                                        state: new PdfStreamState(
+                                            nonStrokeColor: (text.OriginalText.Color ?? layer.Color ?? AutoColor).ToPdfColor())));
                                 break;
                             default:
                                 // TODO:
@@ -65,9 +93,10 @@ namespace BCad.Plotting.Pdf
                     }
                 }
 
-                var page = new PdfPage(pageViewModel.PlotWidth, pageViewModel.PlotHeight);
-                page.Items.Add(builder.ToPath());
-                file.Pages.Add(page);
+                if (builder.Items.Count > 0)
+                {
+                    page.Items.Add(builder.ToPath());
+                }
             }
 
             file.Save(ViewModel.Stream);
