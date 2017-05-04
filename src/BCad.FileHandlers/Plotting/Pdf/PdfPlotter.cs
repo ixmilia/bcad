@@ -55,6 +55,18 @@ namespace BCad.Plotting.Pdf
                         var scale = 1.0;
                         switch (entity.Kind)
                         {
+                            case EntityKind.Arc:
+                                var arc = (ProjectedArc)entity;
+                                scale = arc.RadiusX / arc.OriginalArc.Radius;
+                                AddPathItemToPage(new PdfArc(
+                                    arc.Center.ToPdfPoint(),
+                                    arc.RadiusX,
+                                    arc.StartAngle * MathHelper.DegreesToRadians,
+                                    arc.EndAngle * MathHelper.DegreesToRadians,
+                                    state: new PdfStreamState(
+                                        strokeColor: (arc.OriginalArc.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
+                                        strokeWidth: arc.OriginalArc.Thickness * scale)));
+                                break;
                             case EntityKind.Circle:
                                 var circle = (ProjectedCircle)entity;
                                 scale = circle.RadiusX / circle.OriginalCircle.Radius;
