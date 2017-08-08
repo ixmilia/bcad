@@ -13,4 +13,4 @@ set configuration=%2
 if [%configuration%]==[] set configuration=Debug
 
 if not exist "%deploydir%" mkdir "%deploydir%"
-for /F "tokens=*" %%f in (%~dp0\deployment-files-%deploytype%.txt) do copy "%~dp0Binaries\%configuration%\%%f" "%deploydir%"
+for /F "tokens=*" %%f in (%~dp0\deployment-files-%deploytype%.txt) do copy "%~dp0BCad\bin\%configuration%\%%f" "%deploydir%"
