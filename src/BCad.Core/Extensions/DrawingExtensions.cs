@@ -3,10 +3,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using BCad.Entities;
-using BCad.Extensions;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public static class DrawingExtensions
     {

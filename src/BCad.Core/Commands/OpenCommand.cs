@@ -2,7 +2,7 @@
 
 using System.Threading.Tasks;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("File.Open", "OPEN", ModifierKeys.Control, Key.O, "open", "o")]
     public class OpenCommand : ICadCommand

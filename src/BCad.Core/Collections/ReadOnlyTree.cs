@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace BCad.Collections
+namespace IxMilia.BCad.Collections
 {
     public class ReadOnlyTree<TKey, TValue> where TKey : IComparable
     {

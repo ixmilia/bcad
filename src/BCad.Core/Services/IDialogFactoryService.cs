@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     public interface IDialogFactoryService : IWorkspaceService
     {

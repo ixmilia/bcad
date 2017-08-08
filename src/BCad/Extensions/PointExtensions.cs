@@ -2,7 +2,7 @@
 
 using System.Drawing;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static class PointExtensions
     {

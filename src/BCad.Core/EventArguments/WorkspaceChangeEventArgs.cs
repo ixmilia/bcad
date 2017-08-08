@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.EventArguments
+namespace IxMilia.BCad.EventArguments
 {
     public class WorkspaceChangeEventArgs : EventArgs
     {

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     public class FileSpecification
     {

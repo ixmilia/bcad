@@ -3,7 +3,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace BCad.ViewModels
+namespace IxMilia.BCad.ViewModels
 {
     public class LayerManagerViewModel
     {

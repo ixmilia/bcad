@@ -1,9 +1,9 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using BCad.Entities;
+using IxMilia.BCad.Entities;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Draw.Point", "POINT", "point", "p")]
     public class DrawPointCommand : ICadCommand

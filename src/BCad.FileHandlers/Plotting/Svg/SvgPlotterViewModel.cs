@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-namespace BCad.Plotting.Svg
+namespace IxMilia.BCad.Plotting.Svg
 {
     public class SvgPlotterViewModel : ViewPortViewModel
     {

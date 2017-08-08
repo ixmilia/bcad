@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BCad.Plotting;
+using IxMilia.BCad.Plotting;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     internal class PlotDialogViewModel : INotifyPropertyChanged
     {

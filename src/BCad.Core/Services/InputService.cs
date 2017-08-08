@@ -8,12 +8,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using BCad.Entities;
-using BCad.EventArguments;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     internal class InputServiceLogEntry : LogEntry
     {

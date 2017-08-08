@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.1</TargetFramework>
     <AssemblyName>BCad.FileHandlers</AssemblyName>
     <PackageId>BCad.FileHandlers</PackageId>
-    <RootNamespace>BCad</RootNamespace>
+    <RootNamespace>IxMilia.BCad</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

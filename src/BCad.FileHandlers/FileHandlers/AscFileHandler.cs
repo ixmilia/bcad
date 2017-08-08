@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using BCad.Entities;
+using IxMilia.BCad.Entities;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     [ExportFileHandler(DisplayName, true, false, FileExtension)]
     public class AscFileHandler : IFileHandler

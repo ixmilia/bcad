@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BCad.Collections
+namespace IxMilia.BCad.Collections
 {
     public class ReadOnlyList<T> : IEnumerable<T>
     {

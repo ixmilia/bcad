@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

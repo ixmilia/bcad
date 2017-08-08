@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     /// <summary>
     /// Interaction logic for BCadDialog.xaml

@@ -2,10 +2,10 @@
 
 using System;
 using System.Linq;
-using BCad.Entities;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static class PlaneExtensions
     {

@@ -2,10 +2,10 @@
 
 using System;
 using System.Threading;
-using BCad.EventArguments;
-using BCad.Settings;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Settings;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public partial class XamlRenderer : AbstractCadRenderer
     {

@@ -3,10 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Collections;
+using IxMilia.BCad.Collections;
 using Xunit;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public class ReadOnlyTreeTests
     {

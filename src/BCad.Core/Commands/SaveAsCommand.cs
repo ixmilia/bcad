@@ -2,7 +2,7 @@
 
 using System.Threading.Tasks;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("File.SaveAs", "SAVEAS", "saveas", "sa")]
     public class SaveAsCommand : ICadCommand

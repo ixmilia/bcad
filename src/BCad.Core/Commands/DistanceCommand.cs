@@ -2,9 +2,9 @@
 
 using System;
 using System.Threading.Tasks;
-using BCad.Primitives;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("View.Distance", "DIST", "distance", "di", "dist")]
     public class DistanceCommand : ICadCommand

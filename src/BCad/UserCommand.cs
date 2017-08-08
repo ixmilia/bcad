@@ -3,7 +3,7 @@
 using System;
 using System.Windows.Input;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     internal class UserCommand : ICommand
     {

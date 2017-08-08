@@ -2,7 +2,7 @@
 
 using System.Composition;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     public class ExportWorkspaceServiceAttribute : ExportAttribute
     {

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using BCad.Entities;
-using BCad.EventArguments;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
 
-namespace BCad.ViewModels
+namespace IxMilia.BCad.ViewModels
 {
     public abstract class EditEntityViewModel : ViewModelBase, IDisposable
     {

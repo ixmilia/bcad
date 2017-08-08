@@ -1,13 +1,13 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Xml.Linq;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
-using System;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
 
-namespace BCad.Plotting.Svg
+namespace IxMilia.BCad.Plotting.Svg
 {
     internal static class SvgExtensions
     {

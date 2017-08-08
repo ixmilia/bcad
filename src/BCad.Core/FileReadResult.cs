@@ -2,7 +2,7 @@
 
 using System.IO;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class FileReadResult
     {

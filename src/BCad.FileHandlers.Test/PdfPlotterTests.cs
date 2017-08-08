@@ -1,13 +1,13 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.IO;
-using BCad.Core.Test;
-using BCad.Entities;
-using BCad.Plotting;
-using BCad.Plotting.Pdf;
+using IxMilia.BCad.Core.Test;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Plotting;
+using IxMilia.BCad.Plotting.Pdf;
 using Xunit;
 
-namespace BCad.FileHandlers.Test
+namespace IxMilia.BCad.FileHandlers.Test
 {
     public class PdfPlotterTests : TestBase
     {

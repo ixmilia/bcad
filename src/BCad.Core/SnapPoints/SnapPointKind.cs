@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.SnapPoints
+namespace IxMilia.BCad.SnapPoints
 {
     [Flags]
     public enum SnapPointKind

@@ -4,11 +4,11 @@ using System.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using BCad.Collections;
-using BCad.Utilities;
-using BCad.ViewModels;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Utilities;
+using IxMilia.BCad.ViewModels;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     /// <summary>
     /// Interaction logic for LayerManager.xaml

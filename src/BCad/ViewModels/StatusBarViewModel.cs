@@ -2,10 +2,10 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using BCad.Services;
-using BCad.Settings;
+using IxMilia.BCad.Services;
+using IxMilia.BCad.Settings;
 
-namespace BCad.ViewModels
+namespace IxMilia.BCad.ViewModels
 {
     internal class StatusBarViewModel : INotifyPropertyChanged
     {

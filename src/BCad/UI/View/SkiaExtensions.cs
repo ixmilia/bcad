@@ -2,7 +2,7 @@
 
 using SkiaSharp;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     internal static class SkiaExtensions
     {

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace BCad.Entities
+namespace IxMilia.BCad.Entities
 {
     public class ProjectedAggregate : ProjectedEntity
     {

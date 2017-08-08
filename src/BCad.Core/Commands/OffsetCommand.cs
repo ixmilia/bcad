@@ -1,10 +1,10 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using BCad.Extensions;
-using BCad.Utilities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Utilities;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Edit.Offset", "OFFSET", "offset", "off", "of")]
     public class OffsetCommand : ICadCommand

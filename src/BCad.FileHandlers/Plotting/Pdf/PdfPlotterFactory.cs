@@ -3,9 +3,9 @@
 using System.ComponentModel;
 using System.Composition;
 
-namespace BCad.Plotting.Pdf
+namespace IxMilia.BCad.Plotting.Pdf
 {
-    [ExportPlotterFactory("PDF", ViewTypeName = "BCad.UI.Controls.PdfPlotterControl")]
+    [ExportPlotterFactory("PDF", ViewTypeName = "IxMilia.BCad.UI.Controls.PdfPlotterControl")]
     public class PdfPlotterFactory : IPlotterFactory
     {
         [Import]

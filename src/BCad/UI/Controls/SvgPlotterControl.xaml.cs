@@ -4,10 +4,10 @@ using System.Composition;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using BCad.Plotting.Svg;
-using BCad.Services;
+using IxMilia.BCad.Plotting.Svg;
+using IxMilia.BCad.Services;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     public partial class SvgPlotterControl : PlotterControl
     {

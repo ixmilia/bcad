@@ -6,10 +6,10 @@ using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.FileHandlers;
+using IxMilia.BCad.FileHandlers;
 using Microsoft.Win32;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     [ExportWorkspaceService, Shared]
     internal class FileSystemService : IFileSystemService

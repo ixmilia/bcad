@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     public class BoolToVisibilityConverter : IValueConverter
     {

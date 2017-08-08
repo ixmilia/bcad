@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     public class BCadDialogResult<TResult>
     {

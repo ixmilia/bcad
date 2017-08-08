@@ -3,10 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BCad.Entities;
-using BCad.EventArguments;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     public enum InputType
     {

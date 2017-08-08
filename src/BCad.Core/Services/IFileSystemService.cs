@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     public interface IFileSystemService : IWorkspaceService
     {

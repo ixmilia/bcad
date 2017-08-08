@@ -3,12 +3,12 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using BCad.Collections;
-using BCad.Extensions;
-using BCad.FileHandlers.Extensions;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Iges;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     [ExportFileHandler(DisplayName, true, true, FileExtension1, FileExtension2)]
     public class IgesFileHandler: IFileHandler

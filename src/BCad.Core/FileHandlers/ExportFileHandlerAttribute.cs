@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

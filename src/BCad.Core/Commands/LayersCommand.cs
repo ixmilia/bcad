@@ -2,7 +2,7 @@
 
 using System.Threading.Tasks;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Edit.Layers", "LAYERS", ModifierKeys.Control, Key.L, "layers", "layer", "la")]
     public class LayersCommand : ICadCommand

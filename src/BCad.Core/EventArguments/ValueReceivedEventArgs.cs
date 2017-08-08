@@ -3,10 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Entities;
-using BCad.Services;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Services;
 
-namespace BCad.EventArguments
+namespace IxMilia.BCad.EventArguments
 {
     public class ValueReceivedEventArgs : EventArgs
     {

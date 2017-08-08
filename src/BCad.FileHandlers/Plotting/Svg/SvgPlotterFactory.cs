@@ -3,9 +3,9 @@
 using System.ComponentModel;
 using System.Composition;
 
-namespace BCad.Plotting.Svg
+namespace IxMilia.BCad.Plotting.Svg
 {
-    [ExportPlotterFactory("SVG", ViewTypeName = "BCad.UI.Controls.SvgPlotterControl")]
+    [ExportPlotterFactory("SVG", ViewTypeName = "IxMilia.BCad.UI.Controls.SvgPlotterControl")]
     public class SvgPlotterFactory : IPlotterFactory
     {
         [Import]

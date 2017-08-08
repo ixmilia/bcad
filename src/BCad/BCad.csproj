@@ -10,7 +10,7 @@
     <ProjectGuid>{A978C366-6CC2-4F82-908A-8C830F7E6113}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BCad</RootNamespace>
+    <RootNamespace>IxMilia.BCad</RootNamespace>
     <AssemblyName>BCad</AssemblyName>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

@@ -11,7 +11,7 @@
     <PackageId>BCad.Core</PackageId>
     <PackageTags>CAD</PackageTags>
     <PackageProjectUrl>https://github.com/IxMilia/BCad</PackageProjectUrl>
-    <RootNamespace>BCad</RootNamespace>
+    <RootNamespace>IxMilia.BCad</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

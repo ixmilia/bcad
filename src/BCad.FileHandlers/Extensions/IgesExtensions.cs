@@ -2,14 +2,14 @@
 
 using System;
 using System.Diagnostics;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 using IxMilia.Iges;
 using IxMilia.Iges.Entities;
 
-namespace BCad.FileHandlers.Extensions
+namespace IxMilia.BCad.FileHandlers.Extensions
 {
     public static class IgesExtensions
     {

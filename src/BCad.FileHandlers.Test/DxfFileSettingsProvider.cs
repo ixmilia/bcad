@@ -2,9 +2,9 @@
 
 using System;
 using System.ComponentModel;
-using BCad.Core.Test;
+using IxMilia.BCad.Core.Test;
 
-namespace BCad.FileHandlers.Test
+namespace IxMilia.BCad.FileHandlers.Test
 {
     internal class DxfFileSettingsProvider : IDisposable
     {

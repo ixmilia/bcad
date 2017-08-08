@@ -3,9 +3,9 @@
 using System;
 using System.Composition.Hosting;
 using System.Reflection;
-using BCad.FileHandlers;
+using IxMilia.BCad.FileHandlers;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class CompositionContainer : IDisposable
     {

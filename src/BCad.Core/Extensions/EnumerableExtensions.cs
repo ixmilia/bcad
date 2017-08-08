@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static class EnumerableExtensions
     {

@@ -3,7 +3,7 @@
 using System;
 using System.Composition;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

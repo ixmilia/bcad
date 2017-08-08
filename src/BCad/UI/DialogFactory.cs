@@ -7,10 +7,10 @@ using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using BCad.Services;
-using BCad.UI;
+using IxMilia.BCad.Services;
+using IxMilia.BCad.UI;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     [ExportWorkspaceService, Shared]
     internal class DialogFactory : IDialogFactoryService

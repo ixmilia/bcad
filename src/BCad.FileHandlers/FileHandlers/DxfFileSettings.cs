@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     public enum DxfFileVersion
     {

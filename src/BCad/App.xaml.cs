@@ -2,7 +2,7 @@
 
 using System.Windows;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     /// <summary>
     /// Interaction logic for App.xaml

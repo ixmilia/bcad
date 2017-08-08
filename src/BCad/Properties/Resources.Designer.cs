@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BCad.Properties {
+namespace IxMilia.BCad.Properties {
     using System;
     
     

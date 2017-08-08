@@ -4,9 +4,9 @@ using System;
 using System.ComponentModel;
 using System.Composition;
 using System.Threading.Tasks;
-using BCad.Services;
+using IxMilia.BCad.Services;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     [ExportWorkspaceService, Shared]
     public class TestDialogFactoryService : IDialogFactoryService

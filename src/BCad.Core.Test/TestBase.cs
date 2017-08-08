@@ -1,11 +1,11 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using BCad.Helpers;
-using BCad.Services;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Services;
 using Xunit;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public abstract class TestBase
     {

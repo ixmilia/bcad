@@ -2,12 +2,12 @@
 
 using System.IO;
 using System.Linq;
-using BCad.Core.Test;
-using BCad.Entities;
-using BCad.Extensions;
+using IxMilia.BCad.Core.Test;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 using Xunit;
 
-namespace BCad.FileHandlers.Test
+namespace IxMilia.BCad.FileHandlers.Test
 {
     public abstract class FileHandlerTestsBase : TestBase
     {

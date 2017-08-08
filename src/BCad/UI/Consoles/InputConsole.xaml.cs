@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using BCad.EventArguments;
-using BCad.Services;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Services;
 using Input = System.Windows.Input;
 
-namespace BCad.UI.Consoles
+namespace IxMilia.BCad.UI.Consoles
 {
     /// <summary>
     /// Interaction logic for InputConsole.xaml

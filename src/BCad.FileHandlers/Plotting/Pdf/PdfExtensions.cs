@@ -2,7 +2,7 @@
 
 using IxMilia.Pdf;
 
-namespace BCad.Plotting.Pdf
+namespace IxMilia.BCad.Plotting.Pdf
 {
     internal static class PdfExtensions
     {

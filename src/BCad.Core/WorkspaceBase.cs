@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.Collections;
-using BCad.Commands;
-using BCad.Entities;
-using BCad.EventArguments;
-using BCad.Services;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Commands;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Services;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public abstract class WorkspaceBase : IWorkspace
     {

@@ -2,11 +2,11 @@
 
 using System;
 using System.Diagnostics;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
 
-namespace BCad.Primitives
+namespace IxMilia.BCad.Primitives
 {
     public class PrimitiveEllipse : IPrimitive
     {

@@ -5,7 +5,7 @@ using System.Windows.Controls.Ribbon;
 using System.Windows.Input;
 using System.Windows.Markup;
 
-namespace BCad.Ribbons
+namespace IxMilia.BCad.Ribbons
 {
     [ContentProperty("Items")]
     public class CadRibbonTab : RibbonTab

@@ -2,13 +2,13 @@
 
 using System.IO;
 using System.Linq;
-using BCad.Entities;
-using BCad.FileHandlers.Extensions;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Entities;
 using Xunit;
 
-namespace BCad.FileHandlers.Test
+namespace IxMilia.BCad.FileHandlers.Test
 {
     public class DxfFileHandlerTests : FileHandlerTestsBase
     {

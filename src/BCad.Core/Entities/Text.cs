@@ -2,11 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using BCad.Helpers;
-using BCad.Primitives;
-using BCad.SnapPoints;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.SnapPoints;
 
-namespace BCad.Entities
+namespace IxMilia.BCad.Entities
 {
     public class Text : Entity
     {

@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using BCad.Plotting.Pdf;
-using BCad.Services;
+using IxMilia.BCad.Plotting.Pdf;
+using IxMilia.BCad.Services;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     public partial class PdfPlotterControl : PlotterControl
     {

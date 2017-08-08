@@ -1,10 +1,10 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using BCad.Entities;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Draw.Ellipse", "ELLIPSE", "ellipse", "el")]
     internal class DrawEllipseCommand : ICadCommand

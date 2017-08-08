@@ -8,19 +8,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BCad.Collections;
-using BCad.Entities;
-using BCad.EventArguments;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
-using BCad.Services;
-using BCad.SnapPoints;
-using BCad.UI.Extensions;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
+
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Services;
+using IxMilia.BCad.Settings;
+using IxMilia.BCad.SnapPoints;
+using IxMilia.BCad.UI.Extensions;
+
 using Cursors = System.Windows.Input.Cursors;
 using DependencyObject = System.Windows.DependencyObject;
 using DependencyProperty = System.Windows.DependencyProperty;
@@ -35,9 +38,8 @@ using Shapes = System.Windows.Shapes;
 using SizeChangedEventArgs = System.Windows.SizeChangedEventArgs;
 using UIElement = System.Windows.UIElement;
 using Visibility = System.Windows.Visibility;
-using BCad.Settings;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     /// <summary>
     /// Interaction logic for ViewPane.xaml

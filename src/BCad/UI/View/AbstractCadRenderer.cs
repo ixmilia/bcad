@@ -2,7 +2,7 @@
 
 using System.Windows.Controls;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public abstract class AbstractCadRenderer : UserControl
     {

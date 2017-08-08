@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public struct ValueOrDirective<T>
     {

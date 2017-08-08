@@ -7,10 +7,10 @@ using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.FileHandlers;
-using BCad.Services;
+using IxMilia.BCad.FileHandlers;
+using IxMilia.BCad.Services;
 
-namespace BCad.Core.Services
+namespace IxMilia.BCad.Core.Services
 {
     [ExportWorkspaceService, Shared]
     internal class ReaderWriterService : IReaderWriterService

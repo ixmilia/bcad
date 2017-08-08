@@ -3,11 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Helpers
+namespace IxMilia.BCad.Helpers
 {
     public static class ProjectionHelper
     {

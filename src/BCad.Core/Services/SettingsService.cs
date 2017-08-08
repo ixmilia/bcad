@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Reflection;
-using BCad.Settings;
+using IxMilia.BCad.Settings;
 using IxMilia.Config;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     [ExportWorkspaceService, Shared]
     internal class SettingsService : ISettingsService

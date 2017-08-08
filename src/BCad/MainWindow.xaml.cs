@@ -13,14 +13,14 @@ using System.Windows.Controls.Ribbon;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using BCad.Commands;
-using BCad.EventArguments;
-using BCad.Primitives;
-using BCad.Ribbons;
-using BCad.Settings;
-using BCad.ViewModels;
+using IxMilia.BCad.Commands;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Ribbons;
+using IxMilia.BCad.Settings;
+using IxMilia.BCad.ViewModels;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using BCad.Entities;
-using BCad.Utilities;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Utilities;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Edit.Move", "MOVE", "move", "mov", "m")]
     internal class MoveCommand : AbstractCopyMoveCommand

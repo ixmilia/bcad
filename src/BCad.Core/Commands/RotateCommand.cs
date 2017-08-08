@@ -2,9 +2,9 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.Utilities;
+using IxMilia.BCad.Utilities;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Edit.Rotate", "ROTATE", "rotate", "rot", "ro")]
     public class RotateCommand : ICadCommand

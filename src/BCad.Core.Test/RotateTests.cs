@@ -1,11 +1,11 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Utilities;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Utilities;
 using Xunit;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public class RotateTests
     {

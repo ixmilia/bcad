@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     public class BCadDialog<TResult> : Window where TResult : class
     {

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using BCad.Entities;
-using BCad.FileHandlers.Extensions;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.FileHandlers.Extensions;
 using Xunit;
 
-namespace BCad.FileHandlers.Test
+namespace IxMilia.BCad.FileHandlers.Test
 {
     public class IgesFileHandlerTests : FileHandlerTestsBase
     {

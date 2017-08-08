@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public partial class ViewPane
     {

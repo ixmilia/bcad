@@ -1,11 +1,11 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Linq;
-using BCad.Entities;
-using BCad.Helpers;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Helpers;
 using IxMilia.Pdf;
 
-namespace BCad.Plotting.Pdf
+namespace IxMilia.BCad.Plotting.Pdf
 {
     internal class PdfPlotter : PlotterBase
     {

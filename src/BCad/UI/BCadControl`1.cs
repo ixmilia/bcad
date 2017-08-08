@@ -2,7 +2,7 @@
 
 using System.Windows.Controls;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     public abstract class BCadControl<TResult> : UserControl where TResult : class
     {

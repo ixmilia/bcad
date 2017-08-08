@@ -2,7 +2,7 @@
 
 using System.Threading.Tasks;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Debug.Dump", "DUMP", "dump")]
     internal class DebugDumpCommand : ICadCommand

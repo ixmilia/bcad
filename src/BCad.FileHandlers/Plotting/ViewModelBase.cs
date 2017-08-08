@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace BCad.Plotting
+namespace IxMilia.BCad.Plotting
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {

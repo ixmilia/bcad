@@ -2,7 +2,7 @@
 
 using UIPoint = System.Windows.Point;
 
-namespace BCad.UI.Extensions
+namespace IxMilia.BCad.UI.Extensions
 {
     public static class PointExtensions
     {

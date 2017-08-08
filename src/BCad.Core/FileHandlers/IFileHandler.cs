@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.IO;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     public interface IFileHandler
     {

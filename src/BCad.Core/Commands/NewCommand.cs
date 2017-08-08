@@ -2,7 +2,7 @@
 
 using System.Threading.Tasks;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
     public class NewCommand : ICadCommand

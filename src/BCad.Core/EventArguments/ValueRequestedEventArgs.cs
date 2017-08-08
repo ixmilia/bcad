@@ -1,9 +1,9 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using BCad.Services;
+using IxMilia.BCad.Services;
 
-namespace BCad.EventArguments
+namespace IxMilia.BCad.EventArguments
 {
     public class ValueRequestedEventArgs : EventArgs
     {

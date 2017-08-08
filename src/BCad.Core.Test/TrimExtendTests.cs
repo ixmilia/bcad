@@ -3,12 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Utilities;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Utilities;
 using Xunit;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public class TrimExtendTests : TestBase
     {

@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Utilities
+namespace IxMilia.BCad.Utilities
 {
     public static class EditUtilities
     {

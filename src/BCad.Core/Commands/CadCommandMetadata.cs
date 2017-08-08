@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     public class CadCommandMetadata
     {

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BCad.SnapPoints;
-using BCad.UI.View;
+using IxMilia.BCad.SnapPoints;
+using IxMilia.BCad.UI.View;
 
-namespace BCad.Ribbons
+namespace IxMilia.BCad.Ribbons
 {
     public class SettingsRibbonViewModel : INotifyPropertyChanged
     {

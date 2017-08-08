@@ -4,7 +4,7 @@ using System;
 using System.Windows;
 using System.Windows.Data;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public class NullVisibilityConverter : IValueConverter
     {

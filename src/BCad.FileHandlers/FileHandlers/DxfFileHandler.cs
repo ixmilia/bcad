@@ -4,13 +4,13 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using BCad.Collections;
-using BCad.Entities;
-using BCad.FileHandlers.Extensions;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Blocks;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     [ExportFileHandler(DisplayName, true, true, FileExtension)]
     public class DxfFileHandler : IFileHandler

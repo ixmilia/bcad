@@ -3,13 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 using Xunit;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public class PrimitiveTests
     {

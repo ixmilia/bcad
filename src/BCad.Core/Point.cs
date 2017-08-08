@@ -2,7 +2,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public struct Point
     {

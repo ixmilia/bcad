@@ -4,7 +4,7 @@ using System;
 using System.Composition;
 using System.Windows.Controls.Ribbon;
 
-namespace BCad.Ribbons
+namespace IxMilia.BCad.Ribbons
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

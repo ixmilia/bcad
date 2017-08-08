@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace BCad.ViewModels
+namespace IxMilia.BCad.ViewModels
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {

@@ -2,7 +2,7 @@
 
 using System.Windows.Controls;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     /// <summary>
     /// Interaction logic for EditPane.xaml

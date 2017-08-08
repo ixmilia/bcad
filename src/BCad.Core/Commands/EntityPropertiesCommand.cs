@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.Entities;
+using IxMilia.BCad.Entities;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("View.Properties", "PROPERTIES", "properties", "prop", "p")]
     internal class EntityPropertiesCommand : ICadCommand

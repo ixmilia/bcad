@@ -3,7 +3,7 @@
 using System.Windows.Input;
 using IxMilia.Config;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class KeyboardShortcut
     {

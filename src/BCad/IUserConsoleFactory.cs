@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public interface IUserConsoleFactory
     {

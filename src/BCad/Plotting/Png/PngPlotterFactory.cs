@@ -3,9 +3,9 @@
 using System.ComponentModel;
 using System.Composition;
 
-namespace BCad.Plotting.Png
+namespace IxMilia.BCad.Plotting.Png
 {
-    [ExportPlotterFactory("PNG", ViewTypeName = "BCad.UI.Controls.PngPlotterControl")]
+    [ExportPlotterFactory("PNG", ViewTypeName = "IxMilia.BCad.UI.Controls.PngPlotterControl")]
     public class PngPlotterFactory : IPlotterFactory
     {
         [Import]

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     public interface IFileHandlerMetadata
     {

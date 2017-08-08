@@ -3,10 +3,10 @@
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using BCad.Extensions;
-using BCad.Helpers;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
 
-namespace BCad.Plotting.Svg
+namespace IxMilia.BCad.Plotting.Svg
 {
     internal class SvgPlotter : PlotterBase
     {

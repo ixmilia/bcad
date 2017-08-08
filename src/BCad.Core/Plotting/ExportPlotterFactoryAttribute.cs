@@ -3,7 +3,7 @@
 using System;
 using System.Composition;
 
-namespace BCad.Plotting
+namespace IxMilia.BCad.Plotting
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     /// <summary>
     /// Interaction logic for EditablePoint.xaml

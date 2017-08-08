@@ -3,7 +3,7 @@
 using System.Composition;
 using System.Windows.Controls.Ribbon;
 
-namespace BCad.Ribbons
+namespace IxMilia.BCad.Ribbons
 {
     /// <summary>
     /// Interaction logic for DebugRibbon.xaml

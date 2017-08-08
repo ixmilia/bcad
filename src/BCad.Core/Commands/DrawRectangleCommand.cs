@@ -3,10 +3,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BCad.Extensions;
-using BCad.Primitives;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Commands
+namespace IxMilia.BCad.Commands
 {
     [ExportCadCommand("Draw.Rectangle", "RECTANGLE", "rectangle", "rect")]
     public class DrawRectangleCommand : ICadCommand

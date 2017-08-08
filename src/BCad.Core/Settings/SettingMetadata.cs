@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.Settings
+namespace IxMilia.BCad.Settings
 {
     public class SettingMetadata : ISettingMetadata
     {

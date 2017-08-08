@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public class VectorTests
     {

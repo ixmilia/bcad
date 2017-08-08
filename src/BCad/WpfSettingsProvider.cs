@@ -1,9 +1,9 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using BCad.Settings;
-using BCad.SnapPoints;
+using IxMilia.BCad.Settings;
+using IxMilia.BCad.SnapPoints;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     [ExportSetting(AllowedSnapPoints, typeof(SnapPointKind), SnapPointKind.All)]
     [ExportSetting(AngleSnapShortcut, typeof(KeyboardShortcut), "None+F7")]

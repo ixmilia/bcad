@@ -2,9 +2,9 @@
 
 using System;
 using System.Windows.Input;
-using BCad.Services;
+using IxMilia.BCad.Services;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class ToggleSettingsCommand : ICommand
     {

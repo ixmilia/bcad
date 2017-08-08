@@ -2,7 +2,7 @@
 
 using System.Windows.Input;
 
-namespace BCad.RibbonCommands
+namespace IxMilia.BCad.RibbonCommands
 {
     public class RibbonCommands
     {

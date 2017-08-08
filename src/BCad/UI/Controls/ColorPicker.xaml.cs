@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     /// <summary>
     /// Interaction logic for ColorPicker.xaml

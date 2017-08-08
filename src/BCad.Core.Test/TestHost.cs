@@ -4,9 +4,9 @@ using System;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Reflection;
-using BCad.FileHandlers;
+using IxMilia.BCad.FileHandlers;
 
-namespace BCad.Core.Test
+namespace IxMilia.BCad.Core.Test
 {
     public class TestHost : IDisposable
     {

@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Composition;
 
-namespace BCad.Services
+namespace IxMilia.BCad.Services
 {
     [ExportWorkspaceService, Shared]
     internal class DebugService : IDebugService

@@ -3,13 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BCad.Collections;
-using BCad.Entities;
-using BCad.EventArguments;
-using BCad.Primitives;
-using BCad.Services;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Services;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public delegate void CommandExecutingEventHandler(object sender, CadCommandExecutingEventArgs e);
 

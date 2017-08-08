@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BCad.Plotting.Pdf
+namespace IxMilia.BCad.Plotting.Pdf
 {
     public class PdfPageViewModel : ViewPortViewModel
     {

@@ -3,7 +3,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     public abstract class PlotterControl : UserControl
     {

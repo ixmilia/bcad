@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
 
-namespace BCad.Plotting.Png
+namespace IxMilia.BCad.Plotting.Png
 {
     internal class PngPlotter : PlotterBase
     {

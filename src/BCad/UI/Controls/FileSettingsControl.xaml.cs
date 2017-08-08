@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     /// <summary>
     /// Interaction logic for FileSettingsControl.xaml

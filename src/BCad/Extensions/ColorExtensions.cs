@@ -2,7 +2,7 @@
 
 using System.Windows.Media;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static class ColorExtensions
     {

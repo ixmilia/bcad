@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.Helpers
+namespace IxMilia.BCad.Helpers
 {
     public static class MathHelper
     {

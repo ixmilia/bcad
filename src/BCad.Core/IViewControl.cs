@@ -3,7 +3,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public interface IViewControl
     {

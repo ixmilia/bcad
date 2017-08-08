@@ -2,9 +2,9 @@
 
 using System;
 using System.Composition;
-using BCad.UI.View;
+using IxMilia.BCad.UI.View;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

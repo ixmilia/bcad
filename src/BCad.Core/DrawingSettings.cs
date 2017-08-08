@@ -6,9 +6,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using BCad.Helpers;
+using IxMilia.BCad.Helpers;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class DrawingSettings
     {

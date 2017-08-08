@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public partial class ViewPane
     {

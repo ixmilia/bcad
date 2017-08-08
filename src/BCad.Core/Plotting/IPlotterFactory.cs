@@ -2,7 +2,7 @@
 
 using System.ComponentModel;
 
-namespace BCad.Plotting
+namespace IxMilia.BCad.Plotting
 {
     public interface IPlotterFactory
     {

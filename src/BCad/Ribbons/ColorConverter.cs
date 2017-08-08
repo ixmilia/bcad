@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using BCad.Extensions;
+using IxMilia.BCad.Extensions;
 
-namespace BCad.Ribbons
+namespace IxMilia.BCad.Ribbons
 {
     public class ColorConverter : IValueConverter
     {

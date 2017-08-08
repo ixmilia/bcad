@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using BCad.Collections;
+using IxMilia.BCad.Collections;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class Drawing
     {

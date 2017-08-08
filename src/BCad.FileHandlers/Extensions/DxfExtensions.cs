@@ -3,12 +3,12 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using BCad.Entities;
-using BCad.Helpers;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Helpers;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Entities;
 
-namespace BCad.FileHandlers.Extensions
+namespace IxMilia.BCad.FileHandlers.Extensions
 {
     public static class DxfExtensions
     {

@@ -2,7 +2,7 @@
 
 using System.Composition;
 
-namespace BCad.Ribbons
+namespace IxMilia.BCad.Ribbons
 {
     /// <summary>
     /// Interaction logic for ViewRibbon.xaml

@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
-using BCad.Extensions;
+using IxMilia.BCad.Extensions;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public partial class RenderCanvas
     {

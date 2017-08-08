@@ -1,14 +1,14 @@
 ﻿<!-- Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information. -->
-<local:BCadControl x:Class="BCad.UI.Controls.LayerManager"
+<local:BCadControl x:Class="IxMilia.BCad.UI.Controls.LayerManager"
                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                   xmlns:bcad="clr-namespace:BCad;assembly=BCad.Core"
-                   xmlns:local="clr-namespace:BCad.UI"
-                   xmlns:controls="clr-namespace:BCad.UI.Controls"
-                   xmlns:rib="clr-namespace:BCad.Ribbons"
-                   xmlns:view="clr-namespace:BCad.UI.View"
+                   xmlns:bcad="clr-namespace:IxMilia.BCad;assembly=BCad.Core"
+                   xmlns:local="clr-namespace:IxMilia.BCad.UI"
+                   xmlns:controls="clr-namespace:IxMilia.BCad.UI.Controls"
+                   xmlns:rib="clr-namespace:IxMilia.BCad.Ribbons"
+                   xmlns:view="clr-namespace:IxMilia.BCad.UI.View"
                    mc:Ignorable="d" Width="480" Height="300">
     <local:BCadControl.Resources>
         <local:BoolToVisibilityConverter x:Key="boolToVis" />

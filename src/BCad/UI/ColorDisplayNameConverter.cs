@@ -4,9 +4,9 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Data;
-using BCad.Extensions;
+using IxMilia.BCad.Extensions;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     public class ColorDisplayNameConverter : IValueConverter
     {

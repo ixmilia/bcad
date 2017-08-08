@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Globalization;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static class ColorExtensions
     {

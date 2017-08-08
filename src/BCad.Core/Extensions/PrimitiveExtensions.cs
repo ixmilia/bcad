@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using BCad.Entities;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static partial class PrimitiveExtensions
     {

@@ -4,14 +4,14 @@ using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
-using BCad.Settings;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Settings;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     [ExportSetting(SelectedEntityDrawStyle, typeof(SelectedEntityDrawStyle), View.SelectedEntityDrawStyle.Glow)]
     internal class SkiaSharpSettings

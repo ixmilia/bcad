@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-namespace BCad.Plotting.Png
+namespace IxMilia.BCad.Plotting.Png
 {
     public class PngPlotterViewModel : ViewPortViewModel
     {

@@ -8,9 +8,9 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
-using BCad.Plotting;
+using IxMilia.BCad.Plotting;
 
-namespace BCad.UI.Controls
+namespace IxMilia.BCad.UI.Controls
 {
     [ExportControl("Plot", "Default", "Plot")]
     public partial class PlotDialog : BCadControl

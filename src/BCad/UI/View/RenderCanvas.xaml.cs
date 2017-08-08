@@ -9,18 +9,18 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using BCad.Collections;
-using BCad.Entities;
-using BCad.Extensions;
-using BCad.Helpers;
-using BCad.Primitives;
-using BCad.UI.Extensions;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.UI.Extensions;
 using DisplayPoint = System.Windows.Point;
 using DisplaySize = System.Windows.Size;
 using P_Metadata = System.Windows.FrameworkPropertyMetadata;
 using Shapes = System.Windows.Shapes;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     /// <summary>
     /// Interaction logic for RenderCanvas.xaml

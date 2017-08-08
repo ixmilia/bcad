@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.Plotting
+namespace IxMilia.BCad.Plotting
 {
     public abstract class ViewPortViewModel : ViewModelBase
     {

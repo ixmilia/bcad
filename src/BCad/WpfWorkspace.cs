@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     [Export(typeof(IWorkspace)), Shared]
     internal class WpfWorkspace : WorkspaceBase

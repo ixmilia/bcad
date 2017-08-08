@@ -2,10 +2,10 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using BCad.Collections;
-using BCad.Entities;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
 
-namespace BCad.UI.View
+namespace IxMilia.BCad.UI.View
 {
     public class RenderCanvasViewModel : INotifyPropertyChanged
     {

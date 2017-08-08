@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace BCad.Collections
+namespace IxMilia.BCad.Collections
 {
     public partial class QuadTree<T>
     {

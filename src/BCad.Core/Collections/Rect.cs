@@ -2,7 +2,7 @@
 
 using System;
 
-namespace BCad.Collections
+namespace IxMilia.BCad.Collections
 {
     public struct Rect
     {

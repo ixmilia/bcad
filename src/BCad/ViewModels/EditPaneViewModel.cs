@@ -3,11 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Entities;
-using BCad.EventArguments;
-using BCad.UI;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.UI;
 
-namespace BCad.ViewModels
+namespace IxMilia.BCad.ViewModels
 {
     public class EditPaneViewModel : ViewModelBase
     {

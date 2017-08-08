@@ -4,7 +4,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace BCad.UI
+namespace IxMilia.BCad.UI
 {
     public abstract class BCadControl : UserControl
     {

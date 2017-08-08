@@ -3,11 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Collections;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 
-namespace BCad.Extensions
+namespace IxMilia.BCad.Extensions
 {
     public static class PointExtensions
     {

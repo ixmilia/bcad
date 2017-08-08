@@ -3,12 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BCad.Collections;
-using BCad.Extensions;
-using BCad.Primitives;
-using BCad.SnapPoints;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Primitives;
+using IxMilia.BCad.SnapPoints;
 
-namespace BCad.Entities
+namespace IxMilia.BCad.Entities
 {
     public class AggregateEntity : Entity
     {

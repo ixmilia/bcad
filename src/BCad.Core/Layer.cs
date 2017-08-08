@@ -3,10 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using BCad.Collections;
-using BCad.Entities;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
 
-namespace BCad
+namespace IxMilia.BCad
 {
     public class Layer
     {

@@ -3,13 +3,13 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using BCad.Entities;
-using BCad.Helpers;
-using BCad.Primitives;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 using IxMilia.Step;
 using IxMilia.Step.Items;
 
-namespace BCad.FileHandlers
+namespace IxMilia.BCad.FileHandlers
 {
     [ExportFileHandler(DisplayName, true, false, FileExtension1, FileExtension2)]
     public class StepFileHandler : IFileHandler
