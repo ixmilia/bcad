@@ -32,10 +32,10 @@
     <MakeDir Directories="$(NuGetDir)" />
     <DownloadFile Url="https://dist.nuget.org/win-x86-commandline/v3.5.0/NuGet.exe" Destination="$(NuGetExe)" Condition="!Exists('$(NuGetExe)')" />
     <Exec Command='"$(NuGetExe)" restore "$(SolutionDir)\BCad\packages.config" -SolutionDir "$(SolutionDir)"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.Core\BCad.Core.csproj"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.Core.Test\BCad.Core.Test.csproj"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers\BCad.FileHandlers.csproj"' />
-    <Exec Command='dotnet restore "$(SolutionDir)\BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj"' />
+    <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj"' />
     <Exec Command='dotnet restore "$(SolutionDir)\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj"' />
@@ -65,8 +65,8 @@
   </Target>
 
   <Target Name="Test">
-    <Exec Command='dotnet test "$(SolutionDir)\BCad.Core.Test\BCad.Core.Test.csproj"' />
-    <Exec Command='dotnet test "$(SolutionDir)\BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj"' />
+    <Exec Command='dotnet test "$(SolutionDir)\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj"' />
+    <Exec Command='dotnet test "$(SolutionDir)\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj"' />
   </Target>
 
   <Target Name="BuildAndTest"

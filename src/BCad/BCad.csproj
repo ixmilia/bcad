@@ -329,13 +329,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BCad.Core\BCad.Core.csproj">
+    <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj">
       <Project>{ae1e5dc5-64db-4fba-847c-5b84a865eec1}</Project>
-      <Name>BCad.Core</Name>
+      <Name>IxMilia.BCad.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BCad.FileHandlers\BCad.FileHandlers.csproj">
+    <ProjectReference Include="..\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj">
       <Project>{0b2dc042-30b6-4d2b-ac56-5f12d1eb5a55}</Project>
-      <Name>BCad.FileHandlers</Name>
+      <Name>IxMilia.BCad.FileHandlers</Name>
     </ProjectReference>
     <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj">
       <Project>{b1a59bd1-0661-4b55-9b36-f9b970829d12}</Project>

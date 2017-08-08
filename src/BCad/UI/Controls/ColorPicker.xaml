@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:IxMilia.BCad.UI.Controls"
              xmlns:ribbons="clr-namespace:IxMilia.BCad.Ribbons"
-             xmlns:bcad="clr-namespace:IxMilia.BCad;assembly=BCad.Core"
+             xmlns:bcad="clr-namespace:IxMilia.BCad;assembly=IxMilia.BCad.Core"
              xmlns:ui="clr-namespace:IxMilia.BCad.UI"
              mc:Ignorable="d"
              x:Name="picker"

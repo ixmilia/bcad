@@ -4,7 +4,7 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                   xmlns:bcad="clr-namespace:IxMilia.BCad;assembly=BCad.Core"
+                   xmlns:bcad="clr-namespace:IxMilia.BCad;assembly=IxMilia.BCad.Core"
                    xmlns:local="clr-namespace:IxMilia.BCad.UI"
                    xmlns:controls="clr-namespace:IxMilia.BCad.UI.Controls"
                    xmlns:rib="clr-namespace:IxMilia.BCad.Ribbons"

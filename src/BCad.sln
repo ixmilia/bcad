@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad", "BCad\BCad.csproj", 
 		{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55} = {0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.Core", "BCad.Core\BCad.Core.csproj", "{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.BCad.Core", "IxMilia.BCad.Core\IxMilia.BCad.Core.csproj", "{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCad.FileHandlers", "BCad.FileHandlers\BCad.FileHandlers.csproj", "{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.BCad.FileHandlers", "IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj", "{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxMilia.Iges", "IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj", "{EDB8FB15-5411-47F8-804A-EC0F696CD4E4}"
 EndProject
@@ -25,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Pdf", "IxMilia.Pdf\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Stl", "IxMilia.Stl\src\IxMilia.Stl\IxMilia.Stl.csproj", "{E55B1680-A787-49EC-AF25-45F14B08848D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCad.FileHandlers.Test", "BCad.FileHandlers.Test\BCad.FileHandlers.Test.csproj", "{CE371DD1-3780-4D9A-A440-FB2D58311552}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.FileHandlers.Test", "IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj", "{CE371DD1-3780-4D9A-A440-FB2D58311552}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCad.Core.Test", "BCad.Core.Test\BCad.Core.Test.csproj", "{363631FC-D656-463A-A3C0-7D8EE17CB342}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Core.Test", "IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj", "{363631FC-D656-463A-A3C0-7D8EE17CB342}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BCad.Core.Test\BCad.Core.Test.csproj" />
-    <ProjectReference Include="..\BCad.FileHandlers\BCad.FileHandlers.csproj" />
+    <ProjectReference Include="..\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj" />
+    <ProjectReference Include="..\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
