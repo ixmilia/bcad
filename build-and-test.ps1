@@ -13,6 +13,7 @@ $CoreTestProject = "$SolutionDir\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.c
 
 # restore packages
 If (-Not (Test-Path $NuGetExe)) {
+    New-Item -ItemType Directory -Force -Path $NuGetDir
     Invoke-WebRequest $NuGetUrl -OutFile $NuGetExe
 }
 & $NuGetExe restore "$SolutionDir\BCad\packages.config" -SolutionDir "$SolutionDir"
