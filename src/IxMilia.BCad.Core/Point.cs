@@ -26,7 +26,10 @@ namespace IxMilia.BCad
         public static Point Parse(string text)
         {
             var parts = text.Split(",".ToCharArray(), 3);
-            return new Point(double.Parse(parts[0]), double.Parse(parts[1]), double.Parse(parts[2]));
+            var z = parts.Length == 3
+                ? double.Parse(parts[2])
+                : 0.0;
+            return new Point(double.Parse(parts[0]), double.Parse(parts[1]), z);
         }
 
         public static readonly string NumberPattern = @"-?(\d+(\.\d*)?|\.\d+)";
