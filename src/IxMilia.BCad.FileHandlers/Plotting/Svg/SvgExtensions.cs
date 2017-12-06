@@ -39,7 +39,7 @@ namespace IxMilia.BCad.Plotting.Svg
                 new XAttribute("x2", line.P2.X),
                 new XAttribute("y2", line.P2.Y));
             AddStrokeIfNotDefault(xml, line.OriginalLine.Color);
-            AddStrokeWidth(xml, scale * line.OriginalLine.Thickness);
+            AddStrokeWidth(xml, PlotterBase.ApplyScaleToThickness(line.OriginalLine.Thickness, scale));
             return xml;
         }
 

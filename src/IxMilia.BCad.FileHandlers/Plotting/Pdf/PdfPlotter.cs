@@ -65,7 +65,7 @@ namespace IxMilia.BCad.Plotting.Pdf
                                     arc.EndAngle * MathHelper.DegreesToRadians,
                                     state: new PdfStreamState(
                                         strokeColor: (arc.OriginalArc.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
-                                        strokeWidth: arc.OriginalArc.Thickness * scale)));
+                                        strokeWidth: ApplyScaleToThickness(arc.OriginalArc.Thickness, scale))));
                                 break;
                             case EntityKind.Circle:
                                 var circle = (ProjectedCircle)entity;
@@ -75,7 +75,7 @@ namespace IxMilia.BCad.Plotting.Pdf
                                     circle.RadiusX,
                                     state: new PdfStreamState(
                                         strokeColor: (circle.OriginalCircle.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
-                                        strokeWidth: circle.OriginalCircle.Thickness * scale)));
+                                        strokeWidth: ApplyScaleToThickness(circle.OriginalCircle.Thickness, scale))));
                                 break;
                             case EntityKind.Line:
                                 var line = (ProjectedLine)entity;
@@ -85,7 +85,7 @@ namespace IxMilia.BCad.Plotting.Pdf
                                     line.P2.ToPdfPoint(),
                                     state: new PdfStreamState(
                                         strokeColor: (line.OriginalLine.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
-                                        strokeWidth: line.OriginalLine.Thickness * scale)));
+                                        strokeWidth: ApplyScaleToThickness(line.OriginalLine.Thickness, scale))));
                                 break;
                             case EntityKind.Text:
                                 var text = (ProjectedText)entity;
