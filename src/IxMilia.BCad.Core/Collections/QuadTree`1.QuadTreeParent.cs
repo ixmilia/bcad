@@ -19,7 +19,7 @@ namespace IxMilia.BCad.Collections
 
             private GetBoundingRectangle _getBounding;
 
-            public QuadTreeParent(Rect rect, GetBoundingRectangle getBoundingRectangle, IEnumerable<T> items)
+            public QuadTreeParent(Rect rect, GetBoundingRectangle getBoundingRectangle, IEnumerable<T> items, int maxItems)
             {
                 Rect = rect;
 
@@ -30,10 +30,10 @@ namespace IxMilia.BCad.Collections
                 var halfWidth = rect.Width / 2.0;
                 var halfHeight = rect.Height / 2.0;
 
-                NodeTopLeft = new QuadTreeLeaf(new Rect(left, top, halfWidth, halfHeight), _getBounding);
-                NodeTopRight = new QuadTreeLeaf(new Rect(left + halfWidth, top, halfWidth, halfHeight), _getBounding);
-                NodeBottomLeft = new QuadTreeLeaf(new Rect(left, top + halfHeight, halfWidth, halfHeight), _getBounding);
-                NodeBottomRight = new QuadTreeLeaf(new Rect(left + halfWidth, top + halfHeight, halfWidth, halfHeight), _getBounding);
+                NodeTopLeft = new QuadTreeLeaf(new Rect(left, top, halfWidth, halfHeight), _getBounding, maxItems);
+                NodeTopRight = new QuadTreeLeaf(new Rect(left + halfWidth, top, halfWidth, halfHeight), _getBounding, maxItems);
+                NodeBottomLeft = new QuadTreeLeaf(new Rect(left, top + halfHeight, halfWidth, halfHeight), _getBounding, maxItems);
+                NodeBottomRight = new QuadTreeLeaf(new Rect(left + halfWidth, top + halfHeight, halfWidth, halfHeight), _getBounding, maxItems);
 
                 foreach (var item in items)
                 {

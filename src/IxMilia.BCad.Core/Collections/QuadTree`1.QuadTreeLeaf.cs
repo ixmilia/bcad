@@ -8,7 +8,7 @@ namespace IxMilia.BCad.Collections
     {
         private class QuadTreeLeaf : IQuadTreeNode
         {
-            private const int MAX_ITEMS = 50;
+            private int _maxItems;
             private List<T> _items;
             private GetBoundingRectangle _getBounding;
 
@@ -16,9 +16,10 @@ namespace IxMilia.BCad.Collections
 
             public int Count => _items.Count;
 
-            public QuadTreeLeaf(Rect rect, GetBoundingRectangle getBoundingRectangle)
+            public QuadTreeLeaf(Rect rect, GetBoundingRectangle getBoundingRectangle, int maxItems)
             {
                 Rect = rect;
+                _maxItems = maxItems;
                 _items = new List<T>();
                 _getBounding = getBoundingRectangle;
             }
@@ -28,9 +29,9 @@ namespace IxMilia.BCad.Collections
                 if (Rect.Contains(_getBounding(item)))
                 {
                     _items.Add(item);
-                    if (_items.Count > MAX_ITEMS)
+                    if (_items.Count > _maxItems)
                     {
-                        return new QuadTreeParent(Rect, _getBounding, _items);
+                        return new QuadTreeParent(Rect, _getBounding, _items, _maxItems);
                     }
                 }
 
