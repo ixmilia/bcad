@@ -10,13 +10,12 @@ namespace IxMilia.BCad.Collections
         {
             public Rect Rect { get; }
 
-            public int Count => NodeTopLeft.Count + NodeTopRight.Count + NodeBottomLeft.Count + NodeBottomRight.Count;
+            public int Count => _topLeft.Count + _topRight.Count + _bottomLeft.Count + _bottomRight.Count;
 
-            public IQuadTreeNode NodeTopLeft { get; private set; }
-            public IQuadTreeNode NodeTopRight{ get; private set; }
-            public IQuadTreeNode NodeBottomLeft { get; private set; }
-            public IQuadTreeNode NodeBottomRight { get; private set; }
-
+            private IQuadTreeNode _topLeft;
+            private IQuadTreeNode _topRight;
+            private IQuadTreeNode _bottomLeft;
+            private IQuadTreeNode _bottomRight;
             private GetBoundingRectangle _getBounding;
 
             public QuadTreeParent(Rect rect, GetBoundingRectangle getBoundingRectangle, IEnumerable<T> items, int maxItems)
@@ -30,10 +29,10 @@ namespace IxMilia.BCad.Collections
                 var halfWidth = rect.Width / 2.0;
                 var halfHeight = rect.Height / 2.0;
 
-                NodeTopLeft = new QuadTreeLeaf(new Rect(left, top, halfWidth, halfHeight), _getBounding, maxItems);
-                NodeTopRight = new QuadTreeLeaf(new Rect(left + halfWidth, top, halfWidth, halfHeight), _getBounding, maxItems);
-                NodeBottomLeft = new QuadTreeLeaf(new Rect(left, top + halfHeight, halfWidth, halfHeight), _getBounding, maxItems);
-                NodeBottomRight = new QuadTreeLeaf(new Rect(left + halfWidth, top + halfHeight, halfWidth, halfHeight), _getBounding, maxItems);
+                _topLeft = new QuadTreeLeaf(new Rect(left, top, halfWidth, halfHeight), _getBounding, maxItems);
+                _topRight = new QuadTreeLeaf(new Rect(left + halfWidth, top, halfWidth, halfHeight), _getBounding, maxItems);
+                _bottomLeft = new QuadTreeLeaf(new Rect(left, top + halfHeight, halfWidth, halfHeight), _getBounding, maxItems);
+                _bottomRight = new QuadTreeLeaf(new Rect(left + halfWidth, top + halfHeight, halfWidth, halfHeight), _getBounding, maxItems);
 
                 foreach (var item in items)
                 {
@@ -44,24 +43,24 @@ namespace IxMilia.BCad.Collections
             public IQuadTreeNode AddItem(T item)
             {
                 var bounding = _getBounding(item);
-                if (NodeTopLeft.Rect.Intersects(bounding))
+                if (_topLeft.Rect.Intersects(bounding))
                 {
-                    NodeTopLeft = NodeTopLeft.AddItem(item);
+                    _topLeft = _topLeft.AddItem(item);
                 }
 
-                if (NodeTopRight.Rect.Intersects(bounding))
+                if (_topRight.Rect.Intersects(bounding))
                 {
-                    NodeTopRight = NodeTopRight.AddItem(item);
+                    _topRight = _topRight.AddItem(item);
                 }
 
-                if (NodeBottomLeft.Rect.Intersects(bounding))
+                if (_bottomLeft.Rect.Intersects(bounding))
                 {
-                    NodeBottomLeft = NodeBottomLeft.AddItem(item);
+                    _bottomLeft = _bottomLeft.AddItem(item);
                 }
 
-                if (NodeBottomRight.Rect.Intersects(bounding))
+                if (_bottomRight.Rect.Intersects(bounding))
                 {
-                    NodeBottomRight = NodeBottomRight.AddItem(item);
+                    _bottomRight = _bottomRight.AddItem(item);
                 }
 
                 return this;
@@ -69,18 +68,18 @@ namespace IxMilia.BCad.Collections
 
             public void AddContainedItems(HashSet<T> set, Rect rect)
             {
-                NodeTopLeft.AddContainedItems(set, rect);
-                NodeTopRight.AddContainedItems(set, rect);
-                NodeBottomLeft.AddContainedItems(set, rect);
-                NodeBottomRight.AddContainedItems(set, rect);
+                _topLeft.AddContainedItems(set, rect);
+                _topRight.AddContainedItems(set, rect);
+                _bottomLeft.AddContainedItems(set, rect);
+                _bottomRight.AddContainedItems(set, rect);
             }
 
             public void AddIntersectingItems(HashSet<T> set, Rect rect)
             {
-                NodeTopLeft.AddIntersectingItems(set, rect);
-                NodeTopRight.AddIntersectingItems(set, rect);
-                NodeBottomLeft.AddIntersectingItems(set, rect);
-                NodeBottomRight.AddIntersectingItems(set, rect);
+                _topLeft.AddIntersectingItems(set, rect);
+                _topRight.AddIntersectingItems(set, rect);
+                _bottomLeft.AddIntersectingItems(set, rect);
+                _bottomRight.AddIntersectingItems(set, rect);
             }
         }
     }
