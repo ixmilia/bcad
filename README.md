@@ -7,7 +7,7 @@ A .NET WPF application for simple CAD-like work.
 
 0. Clone.
 1. Run `Init.cmd` in the root of the project to populate the submodules.
-2. `build-and-test.ps1`.
+2. `build-and-test.cmd`.
 
 ## Running
 
