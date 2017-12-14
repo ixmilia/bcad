@@ -1,13 +1,7 @@
 BCad.exe
-IxMilia.BCad.Core.dll
-IxMilia.BCad.FileHandlers.dll
-IxMilia.Config.dll
-IxMilia.Dxf.dll
-IxMilia.Iges.dll
-IxMilia.Pdf.dll
-IxMilia.Step.dll
-IxMilia.Stl.dll
+IxMilia.*.dll
 libSkiaSharp.dll
+Newtonsoft.Json.dll
 SkiaSharp.dll
 SkiaSharp.Views.Desktop.dll
 SkiaSharp.Views.WPF.dll
