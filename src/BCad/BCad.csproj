@@ -1,329 +1,45 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup>
-    <Import Project="..\packages\SkiaSharp.1.56.2\build\net45\SkiaSharp.targets" Condition="Exists('..\packages\SkiaSharp.1.56.2\build\net45\SkiaSharp.targets')" />
-  </ImportGroup>
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A978C366-6CC2-4F82-908A-8C830F7E6113}</ProjectGuid>
+    <TargetFramework>net45</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IxMilia.BCad</RootNamespace>
-    <AssemblyName>BCad</AssemblyName>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <StartupObject>IxMilia.BCad.App</StartupObject>
+
     <ApplicationIcon>BCad.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+
   <ItemGroup>
-    <Reference Include="Accessibility" />
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="SkiaSharp, Version=1.56.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\SkiaSharp.1.56.2\lib\net45\SkiaSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="SkiaSharp.Views.Desktop, Version=1.56.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\SkiaSharp.Views.1.56.2\lib\net45\SkiaSharp.Views.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="SkiaSharp.Views.WPF, Version=1.56.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\SkiaSharp.Views.1.56.2\lib\net45\SkiaSharp.Views.WPF.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Composition.AttributedModel">
-      <HintPath>..\packages\System.Composition.AttributedModel.1.0.31\lib\netstandard1.0\System.Composition.AttributedModel.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.Convention">
-      <HintPath>..\packages\System.Composition.Convention.1.0.31\lib\netstandard1.0\System.Composition.Convention.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.Hosting">
-      <HintPath>..\packages\System.Composition.Hosting.1.0.31\lib\netstandard1.0\System.Composition.Hosting.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.Runtime">
-      <HintPath>..\packages\System.Composition.Runtime.1.0.31\lib\netstandard1.0\System.Composition.Runtime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.TypedParts">
-      <HintPath>..\packages\System.Composition.TypedParts.1.0.31\lib\netstandard1.0\System.Composition.TypedParts.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Controls.Ribbon" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="System.Windows.Controls.Ribbon">
+      <HintPath>$(FrameworkDir)\v4.0.30319\WPF\System.Windows.Controls.Ribbon.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
+
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="CompositionContainer.cs" />
-    <Compile Include="Plotting\Png\PngPlotter.cs" />
-    <Compile Include="Plotting\Png\PngPlotterFactory.cs" />
-    <Compile Include="Plotting\Png\PngPlotterViewModel.cs" />
-    <Compile Include="UI\BCadControl.cs" />
-    <Compile Include="UI\BCadControl`1.cs" />
-    <Compile Include="UI\BCadDialog.xaml.cs">
-      <DependentUpon>BCadDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\BCadDialogResult.cs" />
-    <Compile Include="UI\BCadDialog`1.cs" />
-    <Compile Include="UI\ColorDisplayNameConverter.cs" />
-    <Compile Include="UI\ControlMetadata.cs" />
-    <Compile Include="UI\Controls\ColorPicker.xaml.cs">
-      <DependentUpon>ColorPicker.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Controls\FileSettingsControl.xaml.cs">
-      <DependentUpon>FileSettingsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Controls\PdfPlotterControl.xaml.cs">
-      <DependentUpon>PdfPlotterControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Controls\PlotDialog.xaml.cs">
-      <DependentUpon>PlotDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Controls\PlotDialogViewModel.cs" />
-    <Compile Include="UI\Controls\PlotterControl.cs" />
-    <Compile Include="UI\Controls\PngPlotterControl.xaml.cs">
-      <DependentUpon>PngPlotterControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Controls\SvgPlotterControl.xaml.cs">
-      <DependentUpon>SvgPlotterControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\DialogFactory.cs" />
-    <Compile Include="UI\EditablePoint.xaml.cs">
-      <DependentUpon>EditablePoint.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\ExportControlAttribute.cs" />
-    <Compile Include="Extensions\ColorExtensions.cs" />
-    <Compile Include="Extensions\PointExtensions.cs" />
-    <Compile Include="UI\IControlMetadata.cs" />
-    <Compile Include="IUserConsoleFactory.cs" />
-    <Compile Include="KeyboardShortcut.cs" />
-    <Compile Include="RibbonCommands\RibbonCommands.cs" />
-    <Compile Include="Ribbons\CadRibbonTab.cs" />
-    <Compile Include="Ribbons\ColorConverter.cs" />
-    <Compile Include="Ribbons\DebugRibbon.xaml.cs">
-      <DependentUpon>DebugRibbon.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Ribbons\ViewRibbon.xaml.cs">
-      <DependentUpon>ViewRibbon.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\View\SelectedEntityDrawStyle.cs" />
-    <Compile Include="ViewModels\StatusBarViewModel.cs" />
-    <Compile Include="WpfSettingsProvider.cs" />
-    <Compile Include="UI\View\AbstractCadRenderer.cs" />
-    <Compile Include="UI\View\EditPane.xaml.cs">
-      <DependentUpon>EditPane.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\View\NullVisibilityConverter.cs" />
-    <Compile Include="UI\View\PointVectorConverter.cs" />
-    <Compile Include="UI\View\RenderCanvasViewModel.cs" />
-    <Compile Include="UI\View\SkiaExtensions.cs" />
-    <Compile Include="UI\View\SkiaSharpRenderer.xaml.cs">
-      <DependentUpon>SkiaSharpRenderer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\View\SkiaSharpRendererFactory.cs" />
-    <Compile Include="UI\View\ViewPane.BindingClass.cs" />
-    <Compile Include="UI\View\ViewPane.CancellableComparer.cs" />
-    <Compile Include="UI\View\ViewPane.TransformedSnapPoint.cs" />
-    <Compile Include="UI\View\ViewPane.xaml.cs">
-      <DependentUpon>ViewPane.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModels\EditAggregateViewModel.cs" />
-    <Compile Include="ViewModels\EditArcViewModel.cs" />
-    <Compile Include="ViewModels\EditCircleViewModel.cs" />
-    <Compile Include="ViewModels\EditEllipseViewModel.cs" />
-    <Compile Include="ViewModels\EditEntityViewModel.cs" />
-    <Compile Include="ViewModels\EditLineViewModel.cs" />
-    <Compile Include="ViewModels\EditLocationViewModel.cs" />
-    <Compile Include="ViewModels\EditPaneViewModel.cs" />
-    <Compile Include="ViewModels\EditTextViewModel.cs" />
-    <Compile Include="ViewModels\HomeRibbonViewModel.cs" />
-    <Compile Include="Ribbons\SettingsRibbon.xaml.cs">
-      <DependentUpon>SettingsRibbon.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Ribbons\ExportRibbonTabAttribute.cs" />
-    <Compile Include="Ribbons\HomeRibbon.xaml.cs">
-      <DependentUpon>HomeRibbon.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Ribbons\IRibbonTabMetadata.cs" />
-    <Compile Include="Ribbons\RibbonTabMetadata.cs" />
-    <Compile Include="Ribbons\SettingsRibbonViewModel.cs" />
-    <Compile Include="Services\FileSystemService.cs" />
-    <Compile Include="ToggleSettingsCommand.cs" />
-    <Compile Include="UI\BoolToVisibilityConverter.cs" />
-    <Compile Include="UI\Consoles\InputConsole.xaml.cs">
-      <DependentUpon>InputConsole.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Controls\LayerManager.xaml.cs">
-      <DependentUpon>LayerManager.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Extensions\ColorExtensions.cs" />
-    <Compile Include="UI\Extensions\PointExtensions.cs" />
-    <Compile Include="UI\View\ExportRendererFactoryAttribute.cs" />
-    <Compile Include="UI\View\IRendererFactory.cs" />
-    <Compile Include="UI\View\RenderCanvas.BindingClass.cs" />
-    <Compile Include="UI\View\RenderCanvas.xaml.cs">
-      <DependentUpon>RenderCanvas.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\View\RenderFactoryMetadata.cs" />
-    <Compile Include="UI\View\XamlRenderer.Shared.cs" />
-    <Compile Include="UI\View\XamlRenderer.xaml.cs">
-      <DependentUpon>XamlRenderer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\View\XamlRendererFactory.cs" />
-    <Compile Include="UserCommand.cs" />
-    <Compile Include="ViewModels\LayerManagerViewModel.cs" />
-    <Compile Include="ViewModels\MutableLayerViewModel.cs" />
-    <Compile Include="ViewModels\ReadOnlyLayerViewModel.cs" />
-    <Compile Include="ViewModels\ViewModelBase.cs" />
-    <Compile Include="WpfWorkspace.cs" />
-    <Page Include="UI\BCadDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\Controls\ColorPicker.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Controls\FileSettingsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Controls\PdfPlotterControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Controls\PlotDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Controls\PngPlotterControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Controls\SvgPlotterControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\EditablePoint.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ribbons\DebugRibbon.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ribbons\SettingsRibbon.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ribbons\HomeRibbonIcons.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="Ribbons\HomeRibbon.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ribbons\ViewRibbon.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ribbons\ViewRibbonIcons.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Consoles\InputConsole.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\Controls\LayerManager.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\SnapPointIcons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\View\EditPane.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\View\RenderCanvas.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\View\SkiaSharpRenderer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\View\ViewPane.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\View\XamlRenderer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="SkiaSharp.Views" Version="1.56.2" />
+    <PackageReference Include="System.Composition" Version="1.0.31" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj" />
+    <ProjectReference Include="..\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj" />
+    <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="BCad.ico" />
+    <Resource Include="Icons\*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <AppDesigner Include="Properties\" />
     <None Include="test.dxf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -331,35 +47,26 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- The following are hacks to allow WPF to build. -->
   <ItemGroup>
-    <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj">
-      <Project>{ae1e5dc5-64db-4fba-847c-5b84a865eec1}</Project>
-      <Name>IxMilia.BCad.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj">
-      <Project>{0b2dc042-30b6-4d2b-ac56-5f12d1eb5a55}</Project>
-      <Name>IxMilia.BCad.FileHandlers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj">
-      <Project>{b1a59bd1-0661-4b55-9b36-f9b970829d12}</Project>
-      <Name>IxMilia.Config</Name>
-    </ProjectReference>
+    <ApplicationDefinition Include="App.xaml" SubType="Designer" Generator="MSBuild:Compile" />
+    <Page Include="**\*.xaml" SubType="Designer" Generator="MSBuild:Compile" Exclude="App.xaml" />
+    <None Include="@(Page)" />
+    <None Include="@(Resource)" />
+    <Compile Update="**\*.xaml.cs" SubType="Designer" DependentUpon="%(Filename)" />
+    <Compile Update="$(IntermediateOutputPath)**\*.g.cs" Visible="false" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="BCad.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\NewSmall.png" />
-    <Resource Include="Icons\OpenSmall.png" />
-    <Resource Include="Icons\RedoSmall.png" />
-    <Resource Include="Icons\SaveSmall.png" />
-    <Resource Include="Icons\UndoSmall.png" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+
+  <PropertyGroup>
+    <VSMSBuildBinDir>$(VS150COMNTOOLS)\..\..\MSBuild\$(VisualStudioVersion)\Bin</VSMSBuildBinDir>
+    <LanguageTargets Condition="Exists('$(VSMSBuildBinDir)')">$(VSMSBuildBinDir)\Microsoft.CSharp.targets</LanguageTargets>
+  </PropertyGroup>
+
+  <Target Name="WorkaroundForXAMLIntellisenseBuildIssue" AfterTargets="_CheckCompileDesignTimePrerequisite">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <BuildingProject>false</BuildingProject>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SkiaSharp.1.56.2\build\net45\SkiaSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.1.56.2\build\net45\SkiaSharp.targets'))" />
   </Target>
+
 </Project>

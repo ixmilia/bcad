@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <AssemblySearchPaths>{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName}</AssemblySearchPaths>
+  </PropertyGroup>
+</Project>
