@@ -27,10 +27,12 @@ namespace IxMilia.BCad.Plotting.Pdf
                 var projectedEntities = ProjectionHelper.ProjectTo2D(
                     workspace.Drawing,
                     pageViewModel.ViewPort,
-                    pageViewModel.PlotWidth,
-                    pageViewModel.PlotHeight,
+                    pageViewModel.ViewWidth,
+                    pageViewModel.ViewHeight,
                     ProjectionStyle.OriginBottomLeft);
-                var page = new PdfPage(pageViewModel.PlotWidth, pageViewModel.PlotHeight);
+                var page = new PdfPage(
+                    new PdfMeasurement(pageViewModel.ViewWidth, PdfMeasurementType.Inch),
+                    new PdfMeasurement(pageViewModel.ViewHeight, PdfMeasurementType.Inch));
                 file.Pages.Add(page);
                 var builder = new PdfPathBuilder();
                 void AddPathItemToPage(IPdfPathItem pathItem)
@@ -59,33 +61,33 @@ namespace IxMilia.BCad.Plotting.Pdf
                                 var arc = (ProjectedArc)entity;
                                 scale = arc.RadiusX / arc.OriginalArc.Radius;
                                 AddPathItemToPage(new PdfArc(
-                                    arc.Center.ToPdfPoint(),
-                                    arc.RadiusX,
+                                    arc.Center.ToPdfPoint(PdfMeasurementType.Inch),
+                                    new PdfMeasurement(arc.RadiusX, PdfMeasurementType.Inch),
                                     arc.StartAngle * MathHelper.DegreesToRadians,
                                     arc.EndAngle * MathHelper.DegreesToRadians,
                                     state: new PdfStreamState(
                                         strokeColor: (arc.OriginalArc.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
-                                        strokeWidth: ApplyScaleToThickness(arc.OriginalArc.Thickness, scale))));
+                                        strokeWidth: new PdfMeasurement(ApplyScaleToThickness(arc.OriginalArc.Thickness, scale), PdfMeasurementType.Inch))));
                                 break;
                             case EntityKind.Circle:
                                 var circle = (ProjectedCircle)entity;
                                 scale = circle.RadiusX / circle.OriginalCircle.Radius;
                                 AddPathItemToPage(new PdfCircle(
-                                    circle.Center.ToPdfPoint(),
-                                    circle.RadiusX,
+                                    circle.Center.ToPdfPoint(PdfMeasurementType.Inch),
+                                    new PdfMeasurement(circle.RadiusX, PdfMeasurementType.Inch),
                                     state: new PdfStreamState(
                                         strokeColor: (circle.OriginalCircle.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
-                                        strokeWidth: ApplyScaleToThickness(circle.OriginalCircle.Thickness, scale))));
+                                        strokeWidth: new PdfMeasurement(ApplyScaleToThickness(circle.OriginalCircle.Thickness, scale), PdfMeasurementType.Inch))));
                                 break;
                             case EntityKind.Line:
                                 var line = (ProjectedLine)entity;
                                 scale = (line.P2 - line.P1).Length / (line.OriginalLine.P2 - line.OriginalLine.P1).Length;
                                 AddPathItemToPage(new PdfLine(
-                                    line.P1.ToPdfPoint(),
-                                    line.P2.ToPdfPoint(),
+                                    line.P1.ToPdfPoint(PdfMeasurementType.Inch),
+                                    line.P2.ToPdfPoint(PdfMeasurementType.Inch),
                                     state: new PdfStreamState(
                                         strokeColor: (line.OriginalLine.Color ?? layer.Color ?? AutoColor).ToPdfColor(),
-                                        strokeWidth: ApplyScaleToThickness(line.OriginalLine.Thickness, scale))));
+                                        strokeWidth: new PdfMeasurement(ApplyScaleToThickness(line.OriginalLine.Thickness, scale), PdfMeasurementType.Inch))));
                                 break;
                             case EntityKind.Text:
                                 var text = (ProjectedText)entity;
@@ -93,8 +95,8 @@ namespace IxMilia.BCad.Plotting.Pdf
                                     new PdfText(
                                         text.OriginalText.Value,
                                         font,
-                                        text.Height,
-                                        text.Location.ToPdfPoint(),
+                                        new PdfMeasurement(text.Height, PdfMeasurementType.Inch),
+                                        text.Location.ToPdfPoint(PdfMeasurementType.Inch),
                                         state: new PdfStreamState(
                                             nonStrokeColor: (text.OriginalText.Color ?? layer.Color ?? AutoColor).ToPdfColor())));
                                 break;

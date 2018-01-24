@@ -6,9 +6,9 @@ namespace IxMilia.BCad.Plotting.Pdf
 {
     internal static class PdfExtensions
     {
-        public static PdfPoint ToPdfPoint(this Point point)
+        public static PdfPoint ToPdfPoint(this Point point, PdfMeasurementType measurementType)
         {
-            return new PdfPoint(point.X, point.Y);
+            return new PdfPoint(new PdfMeasurement(point.X, measurementType), new PdfMeasurement(point.Y, measurementType));
         }
 
         public static PdfColor ToPdfColor(this CadColor color)
