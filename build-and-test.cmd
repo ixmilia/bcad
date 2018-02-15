@@ -10,12 +10,16 @@ set toplevelproject=%filehandlerstestproject%
 
 :: restore packages
 dotnet restore "%srcdir%\BCad\BCad.csproj"
-dotnet restore "%toplevelproject"
+if errorlevel 1 echo Error restoring packages && exit /b 1
+dotnet restore "%toplevelproject%"
+if errorlevel 1 echo Error restoring packages && exit /b 1
 
 :: build
-dotnet build "%toplevelproject%"
 msbuild "%slnfile%"
+if errorlevel 1 echo Error building solution && exit /b 1
 
 :: test
 dotnet test "%coretestproject%"
+if errorlevel 1 echo Error running tests && exit /b 1
 dotnet test "%filehandlerstestproject%"
+if errorlevel 1 echo Error running tests && exit /b 1
