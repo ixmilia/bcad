@@ -58,6 +58,7 @@ namespace IxMilia.BCad.UI.View
             var oldTokenSource = renderCancellationTokenSource;
             renderCancellationTokenSource = new CancellationTokenSource();
             oldTokenSource.Cancel();
+            // TODO: what if PaintSurface() re-enters before the previous one has cancelled?
             Dispatcher.BeginInvoke((Action)(() => element.InvalidateVisual()));
         }
 
@@ -77,67 +78,74 @@ namespace IxMilia.BCad.UI.View
             // TODO: canvas.SetMatrix() instead of transforming everything?  might make text rotation difficult
             using (var paint = new SKPaint())
             {
-                paint.IsAntialias = true;
-                paint.StrokeCap = SKStrokeCap.Butt;
-                var defaultColor = backgroundColor.GetAutoContrastingColor().ToSKColor();
-
-                // draw entities
-                foreach (var layer in Workspace.Drawing.GetLayers())
+                try
                 {
-                    if (!layer.IsVisible)
-                    {
-                        continue;
-                    }
+                    paint.IsAntialias = true;
+                    paint.StrokeCap = SKStrokeCap.Butt;
+                    var defaultColor = backgroundColor.GetAutoContrastingColor().ToSKColor();
 
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var layerColor = layer.Color.HasValue
-                        ? layer.Color.GetValueOrDefault().ToSKColor()
-                        : defaultColor;
-                    foreach (var entity in layer.GetEntities())
+                    // draw entities
+                    foreach (var layer in Workspace.Drawing.GetLayers())
                     {
+                        if (!layer.IsVisible)
+                        {
+                            continue;
+                        }
+
                         cancellationToken.ThrowIfCancellationRequested();
-                        var entityColor = entity.Color.HasValue
-                            ? entity.Color.GetValueOrDefault().ToSKColor()
-                            : layerColor;
-                        var isEntitySelected = Workspace.SelectedEntities.Contains(entity);
-                        paint.PathEffect = isEntitySelected && selectedDrawStyle == SelectedEntityDrawStyle.Dashed
-                            ? DashedLines
-                            : null;
-                        foreach (var primitive in entity.GetPrimitives())
+                        var layerColor = layer.Color.HasValue
+                            ? layer.Color.GetValueOrDefault().ToSKColor()
+                            : defaultColor;
+                        foreach (var entity in layer.GetEntities())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            var primitiveColor = primitive.Color.HasValue
-                                ? primitive.Color.GetValueOrDefault().ToSKColor()
-                                : entityColor;
-                            paint.Color = primitiveColor;
-                            if (isEntitySelected && selectedDrawStyle == SelectedEntityDrawStyle.Glow)
+                            var entityColor = entity.Color.HasValue
+                                ? entity.Color.GetValueOrDefault().ToSKColor()
+                                : layerColor;
+                            var isEntitySelected = Workspace.SelectedEntities.Contains(entity);
+                            paint.PathEffect = isEntitySelected && selectedDrawStyle == SelectedEntityDrawStyle.Dashed
+                                ? DashedLines
+                                : null;
+                            foreach (var primitive in entity.GetPrimitives())
                             {
-                                var oldColor = paint.Color;
-                                var oldWidth = paint.StrokeWidth;
-                                paint.Color = paint.Color.WithAlpha(64);
-                                paint.StrokeWidth = 8.0f;
-                                DrawPrimitive(canvas, transform, paint, primitive);
-                                paint.Color = oldColor;
-                                paint.StrokeWidth = oldWidth;
-                            }
+                                cancellationToken.ThrowIfCancellationRequested();
+                                var primitiveColor = primitive.Color.HasValue
+                                    ? primitive.Color.GetValueOrDefault().ToSKColor()
+                                    : entityColor;
+                                paint.Color = primitiveColor;
+                                if (isEntitySelected && selectedDrawStyle == SelectedEntityDrawStyle.Glow)
+                                {
+                                    var oldColor = paint.Color;
+                                    var oldWidth = paint.StrokeWidth;
+                                    paint.Color = paint.Color.WithAlpha(64);
+                                    paint.StrokeWidth = 8.0f;
+                                    DrawPrimitive(canvas, transform, paint, primitive);
+                                    paint.Color = oldColor;
+                                    paint.StrokeWidth = oldWidth;
+                                }
 
+                                DrawPrimitive(canvas, transform, paint, primitive);
+                            }
+                        }
+                    }
+
+                    // draw rubber band lines
+                    var generator = Workspace.RubberBandGenerator;
+                    if (generator != null)
+                    {
+                        paint.Color = defaultColor;
+                        paint.PathEffect = null;
+                        var cursorPoint = ViewControl.GetCursorPoint(cancellationToken).Result;
+                        foreach (var primitive in generator(cursorPoint))
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
                             DrawPrimitive(canvas, transform, paint, primitive);
                         }
                     }
                 }
-
-                // draw rubber band lines
-                var generator = Workspace.RubberBandGenerator;
-                if (generator != null)
+                catch (OperationCanceledException)
                 {
-                    paint.Color = defaultColor;
-                    paint.PathEffect = null;
-                    var cursorPoint = ViewControl.GetCursorPoint(cancellationToken).Result;
-                    foreach (var primitive in generator(cursorPoint))
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        DrawPrimitive(canvas, transform, paint, primitive);
-                    }
+                    // don't allow this exception to escape; drawing should end gracefully
                 }
             }
         }
