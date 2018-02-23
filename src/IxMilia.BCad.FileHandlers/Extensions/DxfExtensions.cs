@@ -203,12 +203,24 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static Polyline ToPolyline(this DxfLwPolyline poly)
         {
-            return new Polyline(poly.Vertices.Select(v => v.ToVertex(poly.Elevation)), poly.GetEntityColor(), poly);
+            var vertices = poly.Vertices.Select(v => v.ToVertex(poly.Elevation)).ToList();
+            if (poly.IsClosed && vertices.Count > 0)
+            {
+                vertices.Add(vertices[0]);
+            }
+
+            return new Polyline(vertices, poly.GetEntityColor(), poly);
         }
 
         public static Polyline ToPolyline(this DxfPolyline poly)
         {
-            return new Polyline(poly.Vertices.Select(v => v.ToVertex()), poly.GetEntityColor(), poly);
+            var vertices = poly.Vertices.Select(v => v.ToVertex()).ToList();
+            if (poly.IsClosed && vertices.Count > 0)
+            {
+                vertices.Add(vertices[0]);
+            }
+
+            return new Polyline(vertices, poly.GetEntityColor(), poly);
         }
 
         public static Polyline ToPolyline(this DxfLeader leader)
