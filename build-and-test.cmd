@@ -2,6 +2,10 @@
 set srcdir=%~dp0src
 set slnfile=%srcdir%\BCad.sln
 
+:: ensure msbuild is on the path
+where msbuild > NUL 2>&1
+if errorlevel 1 set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin;%PATH%
+
 set filehandlerstestproject=%srcdir%\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj
 set coretestproject=%srcdir%\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj
 
