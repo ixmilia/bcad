@@ -3,6 +3,8 @@ BCad
 
 A .NET WPF application for simple CAD-like work.
 
+[![Build Status](https://dev.azure.com/ixmilia/public/_apis/build/status/BCad?branchName=master)](https://dev.azure.com/ixmilia/public/_build/latest?definitionId=26)
+
 ## Building
 
 0. Clone.
