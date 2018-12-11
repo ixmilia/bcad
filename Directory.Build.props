@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
     <AssemblySearchPaths>{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName}</AssemblySearchPaths>
+    <ArtifactsDir>$(MSBuildThisFileDirectory)artifacts</ArtifactsDir>
+    <BaseOutputPath>$(ArtifactsDir)\bin\$(MSBuildProjectName)</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(ArtifactsDir)\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
   </PropertyGroup>
 </Project>

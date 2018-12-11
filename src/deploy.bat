@@ -15,4 +15,4 @@ set targetframework=%3
 if [%targetframework%]==[] set targetframework=net45
 
 if not exist "%deploydir%" mkdir "%deploydir%"
-for /F "tokens=*" %%f in (%~dp0\deployment-files-%deploytype%.txt) do copy "%~dp0BCad\bin\%configuration%\%targetframework%\%%f" "%deploydir%"
+for /F "tokens=*" %%f in (%~dp0\deployment-files-%deploytype%.txt) do copy "%~dp0..\artifacts\bin\BCad\%configuration%\%targetframework%\%%f" "%deploydir%"
