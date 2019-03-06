@@ -12,6 +12,9 @@ set coretestproject=%srcdir%\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.cspro
 :: every dotnet core project is eventually referenced off of this one
 set toplevelproject=%filehandlerstestproject%
 
+:: IxMilia.Dxf needs a custom invocation
+call %~dp0src\IxMilia.Dxf\build-and-test.cmd
+
 :: restore packages
 dotnet restore "%srcdir%\BCad\BCad.csproj"
 if errorlevel 1 echo Error restoring packages && exit /b 1
