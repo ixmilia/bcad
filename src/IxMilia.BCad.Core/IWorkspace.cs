@@ -61,6 +61,7 @@ namespace IxMilia.BCad
 
         ObservableHashSet<Entity> SelectedEntities { get; }
 
+        Task Initialize(params string[] args);
         Task<bool> ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
         bool CanExecute();

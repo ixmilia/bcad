@@ -6,6 +6,7 @@ using System.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,7 +28,11 @@ namespace IxMilia.BCad
     /// </summary>
     public partial class MainWindow
     {
+        private const string SettingsFile = ".bcadconfig";
+
         private EditPaneViewModel editViewModel;
+
+        private string FullSettingsFile => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), SettingsFile);
 
         public MainWindow()
         {
@@ -48,6 +53,8 @@ namespace IxMilia.BCad
         [OnImportsSatisfied]
         public void OnImportsSatisfied()
         {
+            LoadSettings();
+
             editViewModel = new EditPaneViewModel(Workspace);
             editPane.DataContext = editViewModel;
 
@@ -97,6 +104,21 @@ namespace IxMilia.BCad
             }
 
             Workspace_WorkspaceChanged(this, WorkspaceChangeEventArgs.Reset());
+            var args = Environment.GetCommandLineArgs().Skip(1).ToArray(); // trim off executable
+            Workspace.Initialize(args);
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                var lines = File.ReadAllLines(FullSettingsFile);
+                Workspace.SettingsService.LoadFromLines(lines);
+            }
+            catch
+            {
+                // don't care if we can't read the existing file because it might not exist
+            }
         }
 
         private void SettingsManager_PropertyChanged(object sender, SettingChangedEventArgs e)
@@ -180,28 +202,6 @@ namespace IxMilia.BCad
             CompositionContainer.Container.SatisfyImports(inputPanel);
             TakeFocus();
             Workspace.InputService.Reset();
-
-            Workspace.Update(isDirty: false);
-
-            var args = Environment.GetCommandLineArgs().Skip(1); // trim off executable
-            args = args.Where(a => !a.StartsWith("/")); // remove options
-            if (args.Count() == 1)
-            {
-                var fileName = args.First();
-                if (File.Exists(fileName))
-                {
-                    Workspace.Update(isDirty: false);
-                    Workspace.ExecuteCommand("File.Open", fileName);
-                }
-                else
-                {
-                    Workspace.OutputService.WriteLine("Unable to open file: ", fileName);
-                }
-            }
-            else
-            {
-                SetTitle(Workspace.Drawing);
-            }
         }
 
         private void SetTitle(Drawing drawing)
@@ -219,7 +219,22 @@ namespace IxMilia.BCad
                 return;
             }
 
-            ((WpfWorkspace)Workspace).SaveSettings();
+            SaveSettings();
+        }
+
+        private void SaveSettings()
+        {
+            var existingLines = new string[0];
+            try
+            {
+                existingLines = File.ReadAllLines(FullSettingsFile);
+            }
+            catch
+            {
+                // don't care if we can't read the existing file because it might not exist
+            }
+
+            File.WriteAllText(FullSettingsFile, Workspace.SettingsService.WriteWithLines(existingLines));
         }
 
         private void StatusBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Commands;
@@ -16,6 +17,7 @@ namespace IxMilia.BCad
     public abstract class WorkspaceBase : IWorkspace
     {
         private RubberBandGenerator rubberBandGenerator;
+        private readonly Regex settingsPattern = new Regex(@"^/p:([a-zA-Z\.]+)=(.*)$");
 
         public WorkspaceBase()
         {
@@ -140,6 +142,39 @@ namespace IxMilia.BCad
             }
 
             return backingStore;
+        }
+
+        public async Task Initialize(params string[] args)
+        {
+            string fileName = null;
+            foreach (var arg in args)
+            {
+                var match = settingsPattern.Match(arg);
+                if (match.Success)
+                {
+                    var settingName = match.Groups[1].Value;
+                    var settingValue = match.Groups[2].Value;
+                    SettingsService.SetValue(settingName, settingValue);
+                }
+                else
+                {
+                    // try to match a file to open
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        throw new NotSupportedException("More than one file specified on the command line.");
+                    }
+                    else
+                    {
+                        fileName = arg;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                Update(isDirty: false); // don't let the following command prompt for unsaved changes
+                await ExecuteCommand("File.Open", fileName);
+            }
         }
 
         public virtual void Update(

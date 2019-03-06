@@ -352,6 +352,12 @@ namespace IxMilia.BCad.UI.View
 
         private Task UpdateSnapPoints(bool allowCancellation = true)
         {
+            if (ActualWidth == 0.0 || ActualHeight == 0.0)
+            {
+                // if there's no viewport, there's nothing to do
+                return Task.FromResult<object>(null);
+            }
+
             var oldTokenSource = updateSnapPointsCancellationTokenSource;
             updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
             oldTokenSource.Cancel();
@@ -371,7 +377,8 @@ namespace IxMilia.BCad.UI.View
                         token.ThrowIfCancellationRequested();
                         foreach (var snapPoint in entity.GetSnapPoints())
                         {
-                            transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, Project(snapPoint.Point), snapPoint.Kind));
+                            var projected = Project(snapPoint.Point);
+                            transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, projected, snapPoint.Kind));
                         }
                     }
                 }
