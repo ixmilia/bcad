@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="SkiaSharp.Views" Version="1.56.2" />
-    <PackageReference Include="System.Composition" Version="1.0.31" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+    <PackageReference Include="SkiaSharp.Views" Version="$(SkiaSharpViewsPackageVersion)" />
+    <PackageReference Include="System.Composition" Version="$(SystemCompositionPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

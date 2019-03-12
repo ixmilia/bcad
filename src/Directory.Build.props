@@ -1,9 +1,12 @@
 <Project>
 
+  <Import Project="Packages.props" />
+
   <PropertyGroup>
     <AssemblySearchPaths>{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName}</AssemblySearchPaths>
-    <VersionPrefix>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)version.txt').Trim())</VersionPrefix>
-    <ArtifactsDir>$(MSBuildThisFileDirectory)artifacts</ArtifactsDir>
+    <RepoRoot>$(MSBuildThisFileDirectory)..</RepoRoot>
+    <VersionPrefix>$([System.IO.File]::ReadAllText('$(RepoRoot)\version.txt').Trim())</VersionPrefix>
+    <ArtifactsDir>$(RepoRoot)\artifacts</ArtifactsDir>
     <ArtifactsPackagesDir>$(ArtifactsDir)\packages</ArtifactsPackagesDir>
     <BaseOutputPath>$(ArtifactsDir)\bin\$(MSBuildProjectName)</BaseOutputPath>
     <BaseIntermediateOutputPath>$(ArtifactsDir)\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
