@@ -4,7 +4,7 @@ CORE_TEST=./src/IxMilia.BCad.Core.Test/IxMilia.BCad.Core.Test.csproj
 FILE_HANDLER_TEST=./src/IxMilia.BCad.FileHandlers.Test/IxMilia.BCad.FileHandlers.Test.csproj
 
 # IxMilia.Dxf needs a custom invocation
-./src/IxMilia.Dxf/build-and-test.sh
+./src/IxMilia.Dxf/build-and-test.sh --notest
 
 # only need to restore/build this project since everything else cascades off of it
 dotnet restore $FILE_HANDLER_TEST
