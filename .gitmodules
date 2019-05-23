@@ -1,18 +1,18 @@
 [submodule "IxMilia.Config"]
 	path = src/IxMilia.Config
-	url = https://github.com/IxMilia/Config
+	url = https://github.com/ixmilia/config
 [submodule "src/IxMilia.Dxf"]
 	path = src/IxMilia.Dxf
-	url = https://github.com/IxMilia/Dxf
+	url = https://github.com/ixmilia/dxf
 [submodule "IxMilia.Iges"]
 	path = src/IxMilia.Iges
-	url = https://github.com/IxMilia/Iges
+	url = https://github.com/ixmilia/iges
 [submodule "IxMilia.Step"]
 	path = src/IxMilia.Step
-	url = https://github.com/IxMilia/Step
+	url = https://github.com/ixmilia/step
 [submodule "src/IxMilia.Stl"]
 	path = src/IxMilia.Stl
-	url = https://github.com/IxMilia/Stl
+	url = https://github.com/ixmilia/stl
 [submodule "src/IxMilia.Pdf"]
 	path = src/IxMilia.Pdf
-	url = https://github.com/IxMilia/Pdf
+	url = https://github.com/ixmilia/pdf

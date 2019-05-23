@@ -10,7 +10,7 @@
     <AssemblyName>IxMilia.BCad.Core</AssemblyName>
     <PackageId>IxMilia.BCad.Core</PackageId>
     <PackageTags>CAD</PackageTags>
-    <PackageProjectUrl>https://github.com/IxMilia/BCad</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/ixmilia/bcad</PackageProjectUrl>
     <RootNamespace>IxMilia.BCad</RootNamespace>
   </PropertyGroup>
 
