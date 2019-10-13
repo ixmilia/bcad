@@ -1,11 +1,13 @@
 {
-  "name": "electron-quick-start-typescript",
+  "name": "bcad",
   "version": "1.0.0",
   "description": "A minimal Electron application written with Typescript",
+  "main": "./dist/main.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
+    "pack": "electron-packager . --platform=win32 --arch=x64 --out=pack --overwrite",
     "start": "npm run build && electron ./dist/main.js"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
@@ -21,6 +23,7 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^6.0.8",
+    "electron-packager": "^14.0.6",
     "tslint": "^5.19.0",
     "typescript": "^3.6.0"
   }
