@@ -5,12 +5,16 @@
     <title>Hello World!</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
-
-    <!-- You can also require other files to run in this process -->
-    <script src="./dist/renderer.js"></script>
+    <div id="output-pane">
+      <canvas id="canvas" width="1280" height="720"></canvas>
+    </div>
+    <br />
+    <button id="panLeftButton">&lt;</button>
+    <button id="panRightButton">&gt;</button>
+    <button id="panUpButton">^</button>
+    <button id="panDownButton">v</button>
   </body>
+  <script>
+    require('./dist/renderer.js');
+  </script>
 </html>
