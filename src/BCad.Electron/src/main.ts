@@ -11,7 +11,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
     },
-    width: 800,
+    width: 1600,
   });
 
   // and load the index.html of the app.

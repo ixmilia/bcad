@@ -144,7 +144,7 @@ namespace IxMilia.BCad.Server
                 foreach (var line in layer.GetEntities().OfType<Line>())
                 {
                     var lineColor = line.Color ?? layerColor;
-                    lines.Add(new ClientLine(ClientPoint.FromPoint(line.P1), ClientPoint.FromPoint(line.P2)));
+                    lines.Add(new ClientLine(ClientPoint.FromPoint(line.P1), ClientPoint.FromPoint(line.P2), lineColor));
                 }
             }
             return new ClientDrawing()

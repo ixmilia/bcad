@@ -25,11 +25,13 @@ namespace IxMilia.BCad.Server
     {
         public ClientPoint P1 { get; }
         public ClientPoint P2 { get; }
+        public CadColor Color { get; }
 
-        public ClientLine(ClientPoint p1, ClientPoint p2)
+        public ClientLine(ClientPoint p1, ClientPoint p2, CadColor color)
         {
             P1 = p1;
             P2 = p2;
+            Color = color;
         }
     }
 

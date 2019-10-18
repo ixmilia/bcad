@@ -8,9 +8,17 @@ interface Point3 {
     Z: number;
 }
 
+interface Color {
+    A: number;
+    R: number;
+    G: number;
+    B: number;
+}
+
 interface Line {
     P1: Point3;
     P2: Point3;
+    Color: Color;
 }
 
 interface Drawing {
@@ -36,9 +44,11 @@ export class Client {
     private drawing: Drawing;
     private transform: number[];
     private coordinatesLocation: number;
+    private colorLocation: number;
     private transformLocation: WebGLUniformLocation;
+    private bufferSize: number;
     private vertexBuffer: WebGLBuffer;
-    private vertexBufferSize: number;
+    private colorBuffer: WebGLBuffer;
 
     // client notifications
     private ClientUpdateNotification: rpc.NotificationType<ClientUpdate[], void>;
@@ -64,7 +74,6 @@ export class Client {
     }
 
     start() {
-        this.drawing = {Lines: []};
         this.drawing = {
             Lines: []
         };
@@ -238,10 +247,15 @@ export class Client {
         var gl = this.gl;
 
         var vertCode =
-            "attribute vec3 coordinates;\n" +
+            "attribute vec3 vCoords;\n" +
+            "attribute vec3 vColor;\n" +
+            "" +
             "uniform mat4 transform;\n" +
+            "varying vec4 fColor;\n" +
+            "" +
             "void main(void) {\n" +
-            "    gl_Position = transform * vec4(coordinates, 1.0);\n" +
+            "    gl_Position = transform * vec4(vCoords, 1.0);\n" +
+            "    fColor = vec4(vColor, 255.0);\n" +
             "}\n";
 
         var vertShader = gl.createShader(gl.VERTEX_SHADER);
@@ -249,8 +263,10 @@ export class Client {
         gl.compileShader(vertShader);
 
         var fragCode =
+            "precision mediump float;\n" +
+            "varying vec4 fColor;\n" +
             "void main(void) {\n" +
-            "    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);\n" +
+            "    gl_FragColor = fColor / 255.0;\n" +
             "}\n";
         var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(fragShader, fragCode);
@@ -262,7 +278,8 @@ export class Client {
         gl.linkProgram(program);
         gl.useProgram(program);
 
-        this.coordinatesLocation = gl.getAttribLocation(program, "coordinates");
+        this.coordinatesLocation = gl.getAttribLocation(program, "vCoords");
+        this.colorLocation = gl.getAttribLocation(program, "vColor");
         this.transformLocation = gl.getUniformLocation(program, "transform");
 
         // copypasta end
@@ -270,20 +287,34 @@ export class Client {
 
     private populateVertices() {
         var verts = [];
+        var cols = [];
         for (var i = 0; i < this.drawing.Lines.length; i++) {
             verts.push(this.drawing.Lines[i].P1.X);
             verts.push(this.drawing.Lines[i].P1.Y);
             verts.push(this.drawing.Lines[i].P1.Z);
+            cols.push(this.drawing.Lines[i].Color.R);
+            cols.push(this.drawing.Lines[i].Color.G);
+            cols.push(this.drawing.Lines[i].Color.B);
             verts.push(this.drawing.Lines[i].P2.X);
             verts.push(this.drawing.Lines[i].P2.Y);
             verts.push(this.drawing.Lines[i].P2.Z);
+            cols.push(this.drawing.Lines[i].Color.R);
+            cols.push(this.drawing.Lines[i].Color.G);
+            cols.push(this.drawing.Lines[i].Color.B);
         }
         var vertices = new Float32Array(verts);
+        var colors = new Uint8Array(cols);
+
+        this.bufferSize = vertices.length;
 
         this.vertexBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
-        this.vertexBufferSize = vertices.length;
+
+        this.colorBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, colors, this.gl.STATIC_DRAW);
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
@@ -293,11 +324,16 @@ export class Client {
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // black
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.gl.uniformMatrix4fv(this.transformLocation, false, this.transform);
-        if (this.vertexBufferSize > 0) {
+        if (this.bufferSize > 0) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
             this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.coordinatesLocation);
-            this.gl.drawArrays(this.gl.LINES, 0, this.vertexBufferSize / 3);
+
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
+            this.gl.vertexAttribPointer(this.colorLocation, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
+            this.gl.enableVertexAttribArray(this.colorLocation);
+
+            this.gl.drawArrays(this.gl.LINES, 0, this.bufferSize / 3);
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         }
     }
