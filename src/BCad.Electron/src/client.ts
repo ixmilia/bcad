@@ -39,8 +39,10 @@ enum MouseButton {
 export class Client {
     private connection: rpc.MessageConnection;
     private outputPane: HTMLDivElement;
-    private canvas: HTMLCanvasElement;
+    private drawingCanvas: HTMLCanvasElement;
+    private cursorCanvas: HTMLCanvasElement;
     private gl: WebGLRenderingContext;
+    private twod: CanvasRenderingContext2D;
     private drawing: Drawing;
     private transform: number[];
     private coordinatesLocation: number;
@@ -61,7 +63,8 @@ export class Client {
     private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
 
     constructor() {
-        this.canvas = <HTMLCanvasElement> document.getElementById('canvas');
+        this.drawingCanvas = <HTMLCanvasElement> document.getElementById('drawingCanvas');
+        this.cursorCanvas = <HTMLCanvasElement> document.getElementById('cursorCanvas');
         this.outputPane = <HTMLDivElement> document.getElementById('output-pane');
         this.ClientUpdateNotification = new rpc.NotificationType<ClientUpdate[], void>('ClientUpdate');
         this.MouseDownNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseDown');
@@ -83,14 +86,14 @@ export class Client {
             0, 0, 1, 0,
             0, 0, 0, 1
         ];
-        this.prepareWebGl();
+        this.prepareCanvas();
         this.populateVertices();
         this.redraw();
         this.prepareConnection();
         this.prepareEvents();
         this.prepareListeners();
         this.connection.listen();
-        this.connection.sendNotification(this.ReadyNotification, {width: this.canvas.width, height: this.canvas.height});
+        this.connection.sendNotification(this.ReadyNotification, {width: this.drawingCanvas.width, height: this.drawingCanvas.height});
     }
 
     private prepareConnection() {
@@ -115,8 +118,8 @@ export class Client {
     }
 
     private zoom(cursorX: Number, cursorY: Number, delta: Number) {
-        let width = this.canvas.clientWidth;
-        let height = this.canvas.clientHeight;
+        let width = this.drawingCanvas.clientWidth;
+        let height = this.drawingCanvas.clientHeight;
         this.connection.sendNotification(this.ZoomNotification, {cursorX: cursorX, cursorY: cursorY, width: width, height: height, delta: delta});
     }
 
@@ -141,13 +144,14 @@ export class Client {
 
     private prepareEvents() {
         this.outputPane.addEventListener('mousedown', async (ev) => {
-            this.connection.sendNotification(this.MouseDownNotification, {button: this.getMouseButton(ev.button), cursorX: ev.clientX, cursorY: ev.clientY});
+            this.connection.sendNotification(this.MouseDownNotification, {button: this.getMouseButton(ev.button), cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
         this.outputPane.addEventListener('mouseup', (ev) => {
-            this.connection.sendNotification(this.MouseUpNotification, {button: this.getMouseButton(ev.button), cursorX: ev.clientX, cursorY: ev.clientY});
+            this.connection.sendNotification(this.MouseUpNotification, {button: this.getMouseButton(ev.button), cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
         this.outputPane.addEventListener('mousemove', async (ev) => {
-            this.connection.sendNotification(this.MouseMoveNotification, {cursorX: ev.clientX, cursorY: ev.clientY});
+            this.drawCursor(ev.offsetX, ev.offsetY);
+            this.connection.sendNotification(this.MouseMoveNotification, {cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
         this.outputPane.addEventListener('resize', () => {
             // TODO:
@@ -161,10 +165,10 @@ export class Client {
         for (var i = 0; i < elements.length; i++) {
             let element = elements[i];
             (<HTMLButtonElement>document.getElementById(element.id)).addEventListener('click', () => {
-                let delta = this.canvas.width / 8;
+                let delta = this.drawingCanvas.width / 8;
                 this.connection.sendNotification(this.PanNotification, {
-                    width: this.canvas.width,
-                    height: this.canvas.height,
+                    width: this.drawingCanvas.width,
+                    height: this.drawingCanvas.height,
                     dx: delta * element.dxm,
                     dy: delta * element.dym
                 });
@@ -176,14 +180,14 @@ export class Client {
         });
 
         (<HTMLButtonElement>document.getElementById("zoomInButton")).addEventListener('click', () => {
-            let width = this.canvas.clientWidth;
-            let height = this.canvas.clientHeight;
+            let width = this.drawingCanvas.clientWidth;
+            let height = this.drawingCanvas.clientHeight;
             this.zoomIn(width / 2, height / 2);
         });
 
         (<HTMLButtonElement>document.getElementById("zoomOutButton")).addEventListener('click', () => {
-            let width = this.canvas.clientWidth;
-            let height = this.canvas.clientHeight;
+            let width = this.drawingCanvas.clientWidth;
+            let height = this.drawingCanvas.clientHeight;
             this.zoomOut(width / 2, height / 2);
         });
 
@@ -191,7 +195,7 @@ export class Client {
             var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: "File.Open"});
         });
 
-        this.canvas.addEventListener('wheel', (ev) => {
+        this.cursorCanvas.addEventListener('wheel', (ev) => {
             this.zoom(ev.offsetX, ev.offsetY, -ev.deltaY);
         });
     }
@@ -241,33 +245,33 @@ export class Client {
         this.connection.onClose(() => alert('rpc closing'));
     }
 
-    private prepareWebGl() {
-        // copypasta begin
-        this.gl = this.canvas.getContext("webgl");
+    private prepareCanvas() {
+        this.twod = this.cursorCanvas.getContext("2d");
+        this.gl = this.drawingCanvas.getContext("webgl");
         var gl = this.gl;
 
-        var vertCode =
-            "attribute vec3 vCoords;\n" +
-            "attribute vec3 vColor;\n" +
-            "" +
-            "uniform mat4 transform;\n" +
-            "varying vec4 fColor;\n" +
-            "" +
-            "void main(void) {\n" +
-            "    gl_Position = transform * vec4(vCoords, 1.0);\n" +
-            "    fColor = vec4(vColor, 255.0);\n" +
-            "}\n";
+        var vertCode = `
+            attribute vec3 vCoords;
+            attribute vec3 vColor;
+
+            uniform mat4 transform;
+            varying vec3 fColor;
+
+            void main(void) {
+                gl_Position = transform * vec4(vCoords, 1.0);
+                fColor = vColor;
+            }`;
 
         var vertShader = gl.createShader(gl.VERTEX_SHADER);
         gl.shaderSource(vertShader, vertCode);
         gl.compileShader(vertShader);
 
-        var fragCode =
-            "precision mediump float;\n" +
-            "varying vec4 fColor;\n" +
-            "void main(void) {\n" +
-            "    gl_FragColor = fColor / 255.0;\n" +
-            "}\n";
+        var fragCode = `
+            precision mediump float;
+            varying vec3 fColor;
+            void main(void) {
+                gl_FragColor = vec4(fColor, 255.0) / 255.0;
+            }`;
         var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(fragShader, fragCode);
         gl.compileShader(fragShader);
@@ -281,8 +285,6 @@ export class Client {
         this.coordinatesLocation = gl.getAttribLocation(program, "vCoords");
         this.colorLocation = gl.getAttribLocation(program, "vColor");
         this.transformLocation = gl.getUniformLocation(program, "transform");
-
-        // copypasta end
     }
 
     private populateVertices() {
@@ -336,5 +338,28 @@ export class Client {
             this.gl.drawArrays(this.gl.LINES, 0, this.bufferSize / 3);
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         }
+    }
+
+    private drawCursor(x: number, y: number) {
+        var boxSize = 8; // TODO: from options
+        var cursorSize = 60; // TODO: from options
+        this.twod.clearRect(0, 0, this.twod.canvas.width, this.twod.canvas.height);
+        this.twod.beginPath();
+        this.twod.strokeStyle = "white"; // TODO: auto color or from options?
+
+        // point cursor
+        this.twod.moveTo(x - cursorSize / 2, y);
+        this.twod.lineTo(x + cursorSize / 2, y);
+        this.twod.moveTo(x, y - cursorSize / 2);
+        this.twod.lineTo(x, y + cursorSize / 2);
+
+        // object cursor
+        this.twod.moveTo(x - boxSize / 2, y - boxSize / 2);
+        this.twod.lineTo(x + boxSize / 2, y - boxSize / 2);
+        this.twod.lineTo(x + boxSize / 2, y + boxSize / 2);
+        this.twod.lineTo(x - boxSize / 2, y + boxSize / 2);
+        this.twod.lineTo(x - boxSize / 2, y - boxSize / 2);
+
+        this.twod.stroke();
     }
 }

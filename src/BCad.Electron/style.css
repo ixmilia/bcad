@@ -1,0 +1,15 @@
+.displayCanvas {
+    cursor: none;
+    left: 0px;
+    top: 0px;
+}
+
+#displayCanvas {
+    position: relative;
+    z-index: 0;
+}
+
+#cursorCanvas {
+    position: absolute;
+    z-index: 1;
+}

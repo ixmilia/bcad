@@ -3,10 +3,12 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-    <div id="output-pane">
-      <canvas id="canvas" width="640" height="360"></canvas>
+    <div id="output-pane" width="640" height="360" style="position: relative">
+      <canvas id="drawingCanvas" class="displayCanvas" width="640" height="360"></canvas>
+      <canvas id="cursorCanvas" class="displayCanvas" width="640" height="360"></canvas>
     </div>
     <br />
     <button id="zoomInButton">+</button>
