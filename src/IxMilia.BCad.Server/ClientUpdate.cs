@@ -35,7 +35,7 @@ namespace IxMilia.BCad.Server
 
     public class ClientDrawing
     {
-        public IEnumerable<ClientLine> Lines { get; set; }
+        public List<ClientLine> Lines { get; set; }
     }
 
     public class ClientUpdate

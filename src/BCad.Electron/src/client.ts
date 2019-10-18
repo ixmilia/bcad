@@ -22,18 +22,10 @@ interface ClientUpdate {
     Drawing?: Drawing;
 }
 
-enum DisplayUpdate {
-    ZoomIn,
-    ZoomOut,
-    PanLeft,
-    PanRight,
-    PanUp,
-    PanDown,
-}
-
-interface ServerUpdate {
-    DisplayUpdate?: DisplayUpdate;
-    CursorLocation?: {X: number, Y: number};
+enum MouseButton {
+    Left,
+    Middle,
+    Right,
 }
 
 export class Client {
@@ -41,44 +33,66 @@ export class Client {
     private outputPane: HTMLDivElement;
     private canvas: HTMLCanvasElement;
     private gl: WebGLRenderingContext;
-    private vertices: Float32Array;
     private drawing: Drawing;
     private transform: number[];
+    private coordinatesLocation: number;
     private transformLocation: WebGLUniformLocation;
+    private vertexBuffer: WebGLBuffer;
+    private vertexBufferSize: number;
 
     // client notifications
-    private ServerUpdateRequest: rpc.NotificationType1<ServerUpdate, void>;
+    private ClientUpdateNotification: rpc.NotificationType<ClientUpdate[], void>;
+    private MouseDownNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
+    private MouseUpNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
+    private MouseMoveNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>;
+    private PanNotification: rpc.NotificationType<{width: Number, height: Number, dx: Number, dy: Number}, void>;
+    private ReadyNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
+    private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, width: Number, height: Number, delta: Number}, void>;
+    private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
 
     constructor() {
         this.canvas = <HTMLCanvasElement> document.getElementById('canvas');
         this.outputPane = <HTMLDivElement> document.getElementById('output-pane');
-        this.ServerUpdateRequest = new rpc.NotificationType1<ServerUpdate, void>('ServerUpdate');
-        this.prepareConnection();
-        this.prepareEvents();
-        this.prepareListeners();
+        this.ClientUpdateNotification = new rpc.NotificationType<ClientUpdate[], void>('ClientUpdate');
+        this.MouseDownNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseDown');
+        this.MouseUpNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseUp');
+        this.MouseMoveNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>('MouseMove');
+        this.PanNotification = new rpc.NotificationType<{width: Number, height: Number, dx: Number, dy: Number}, void>('Pan');
+        this.ReadyNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Ready');
+        this.ZoomNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number, width: Number, height: Number, delta: Number}, void>('Zoom');
+        this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
     }
 
     start() {
         this.drawing = {Lines: []};
+        this.drawing = {
+            Lines: []
+        };
         this.transform = [
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1
         ];
+        this.prepareWebGl();
         this.populateVertices();
-        this.predraw();
         this.redraw();
+        this.prepareConnection();
+        this.prepareEvents();
+        this.prepareListeners();
         this.connection.listen();
-        this.connection.sendNotification(new rpc.NotificationType0('Ready'));
+        this.connection.sendNotification(this.ReadyNotification, {width: this.canvas.width, height: this.canvas.height});
     }
 
     private prepareConnection() {
-        let childProcess = cp.spawn('dotnet.exe', [__dirname + '/../bin/IxMilia.BCad.Server.dll']);
+        let serverAssembly = "IxMilia.BCad.Server.dll";
+        var serverPath = __dirname + '/../bin/' + serverAssembly;
+        serverPath = __dirname + '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.0/' + serverAssembly;
+        let childProcess = cp.spawn('dotnet.exe', [serverPath]);
         childProcess.on('exit', (code: number, _signal: string) => {
             alert('process exited with ' + code);
         });
-        console.log('server process ' + childProcess.pid);
+        console.log('server pid ' + childProcess.pid);
         let logger: rpc.Logger = {
             error: console.log,
             warn: console.log,
@@ -91,48 +105,93 @@ export class Client {
             logger);
     }
 
+    private zoom(cursorX: Number, cursorY: Number, delta: Number) {
+        let width = this.canvas.clientWidth;
+        let height = this.canvas.clientHeight;
+        this.connection.sendNotification(this.ZoomNotification, {cursorX: cursorX, cursorY: cursorY, width: width, height: height, delta: delta});
+    }
+
+    private zoomIn(cursorX: Number, cursorY: Number) {
+        this.zoom(cursorX, cursorY, 1);
+    }
+
+    private zoomOut(cursorX: Number, cursorY: Number) {
+        this.zoom(cursorX, cursorY, -1);
+    }
+
+    private getMouseButton(button: number) {
+        switch (button) {
+            case 0:
+                return MouseButton.Left;
+            case 1:
+                return MouseButton.Middle;
+            case 2:
+                return MouseButton.Right;
+        }
+    }
+
     private prepareEvents() {
         this.outputPane.addEventListener('mousedown', async (ev) => {
-            //
+            this.connection.sendNotification(this.MouseDownNotification, {button: this.getMouseButton(ev.button), cursorX: ev.clientX, cursorY: ev.clientY});
         });
         this.outputPane.addEventListener('mouseup', (ev) => {
-            //
+            this.connection.sendNotification(this.MouseUpNotification, {button: this.getMouseButton(ev.button), cursorX: ev.clientX, cursorY: ev.clientY});
         });
         this.outputPane.addEventListener('mousemove', async (ev) => {
-            //
+            this.connection.sendNotification(this.MouseMoveNotification, {cursorX: ev.clientX, cursorY: ev.clientY});
         });
         this.outputPane.addEventListener('resize', () => {
             // TODO:
         });
         var elements = [
-            {id: "panLeftButton", action: DisplayUpdate.PanLeft},
-            {id: "panRightButton", action: DisplayUpdate.PanRight},
-            {id: "panUpButton", action: DisplayUpdate.PanUp},
-            {id: "panDownButton", action: DisplayUpdate.PanDown}
+            {id: "panLeftButton", dxm: -1, dym: 0},
+            {id: "panRightButton", dxm: 1, dym: 0},
+            {id: "panUpButton", dxm: 0, dym: -1},
+            {id: "panDownButton", dxm: 0, dym: 1}
         ];
         for (var i = 0; i < elements.length; i++) {
-            var element = elements[i];
+            let element = elements[i];
             (<HTMLButtonElement>document.getElementById(element.id)).addEventListener('click', () => {
-                this.connection.sendNotification(this.ServerUpdateRequest, {
-                    DisplayUpdate: element.action,
+                let delta = this.canvas.width / 8;
+                this.connection.sendNotification(this.PanNotification, {
+                    width: this.canvas.width,
+                    height: this.canvas.height,
+                    dx: delta * element.dxm,
+                    dy: delta * element.dym
                 });
             });
         }
 
+        (<HTMLButtonElement>document.getElementById("openButton")).addEventListener('click', async () => {
+            var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: "File.Open"});
+        });
+
+        (<HTMLButtonElement>document.getElementById("zoomInButton")).addEventListener('click', () => {
+            let width = this.canvas.clientWidth;
+            let height = this.canvas.clientHeight;
+            this.zoomIn(width / 2, height / 2);
+        });
+
+        (<HTMLButtonElement>document.getElementById("zoomOutButton")).addEventListener('click', () => {
+            let width = this.canvas.clientWidth;
+            let height = this.canvas.clientHeight;
+            this.zoomOut(width / 2, height / 2);
+        });
+
+        (<HTMLButtonElement>document.getElementById("openButton")).addEventListener('click', async () => {
+            var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: "File.Open"});
+        });
+
         this.canvas.addEventListener('wheel', (ev) => {
-            var zoomType = ev.deltaY < 0 ? DisplayUpdate.ZoomIn : DisplayUpdate.ZoomOut;
-            this.connection.sendNotification(this.ServerUpdateRequest, {
-                DisplayUpdate: zoomType,
-                CursorLocation: {X: ev.offsetX, Y: ev.offsetY}
-            });
+            this.zoom(ev.offsetX, ev.offsetY, -ev.deltaY);
         });
     }
 
     private prepareListeners() {
         // notifications
-        this.connection.onNotification(new rpc.NotificationType1<ClientUpdate, void>('ClientUpdate'), (clientUpdate) => {
+        this.connection.onNotification(this.ClientUpdateNotification, (params) => {
+            let clientUpdate = params[0];
             let redraw = false;
-            alert('got client update');
             if (clientUpdate.Drawing !== undefined) {
                 this.drawing = clientUpdate.Drawing;
                 this.populateVertices();
@@ -164,30 +223,19 @@ export class Client {
                 return null;
             }
         });
+
+        this.connection.onUnhandledNotification((msg) => {
+            alert('got unhandled notification ' + msg);
+        });
+
+        this.connection.onError((e) => console.log('rpc error: ' + e));
+        this.connection.onClose(() => alert('rpc closing'));
     }
 
-    private populateVertices() {
-        var verts = [];
-        for (var i = 0; i < this.drawing.Lines.length; i++) {
-            verts.push(this.drawing.Lines[i].P1.X);
-            verts.push(this.drawing.Lines[i].P1.Y);
-            verts.push(this.drawing.Lines[i].P1.Z);
-            verts.push(this.drawing.Lines[i].P2.X);
-            verts.push(this.drawing.Lines[i].P2.Y);
-            verts.push(this.drawing.Lines[i].P2.Z);
-        }
-        this.vertices = new Float32Array(verts);
-    }
-
-    private predraw() {
+    private prepareWebGl() {
         // copypasta begin
         this.gl = this.canvas.getContext("webgl");
         var gl = this.gl;
-
-        var vertex_buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         var vertCode =
             "attribute vec3 coordinates;\n" +
@@ -214,14 +262,29 @@ export class Client {
         gl.linkProgram(program);
         gl.useProgram(program);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-
-        var coordLocation = gl.getAttribLocation(program, "coordinates");
+        this.coordinatesLocation = gl.getAttribLocation(program, "coordinates");
         this.transformLocation = gl.getUniformLocation(program, "transform");
-        gl.vertexAttribPointer(coordLocation, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(coordLocation);
 
         // copypasta end
+    }
+
+    private populateVertices() {
+        var verts = [];
+        for (var i = 0; i < this.drawing.Lines.length; i++) {
+            verts.push(this.drawing.Lines[i].P1.X);
+            verts.push(this.drawing.Lines[i].P1.Y);
+            verts.push(this.drawing.Lines[i].P1.Z);
+            verts.push(this.drawing.Lines[i].P2.X);
+            verts.push(this.drawing.Lines[i].P2.Y);
+            verts.push(this.drawing.Lines[i].P2.Z);
+        }
+        var vertices = new Float32Array(verts);
+
+        this.vertexBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
+        this.vertexBufferSize = vertices.length;
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
     private redraw() {
@@ -230,6 +293,12 @@ export class Client {
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // black
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.gl.uniformMatrix4fv(this.transformLocation, false, this.transform);
-        this.gl.drawArrays(this.gl.LINES, 0, this.vertices.length / 3);
+        if (this.vertexBufferSize > 0) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+            this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
+            this.gl.enableVertexAttribArray(this.coordinatesLocation);
+            this.gl.drawArrays(this.gl.LINES, 0, this.vertexBufferSize / 3);
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        }
     }
 }

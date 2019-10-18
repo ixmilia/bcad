@@ -21,10 +21,11 @@ namespace IxMilia.BCad.Server
             var workspace = new RpcServerWorkspace();
             CompositionContainer.Container.SatisfyImports(workspace);
 
-            var server = new ServerAgent(workspace);
-            var serverRpc = new JsonRpc(Console.OpenStandardOutput(), Console.OpenStandardInput(), server);
+            var serverRpc = new JsonRpc(Console.OpenStandardOutput(), Console.OpenStandardInput());
+            var server = new ServerAgent(workspace, serverRpc);
+            //System.Diagnostics.Debugger.Launch();
+            serverRpc.AddLocalRpcTarget(server);
             ((FileSystemService)workspace.FileSystemService).Rpc = serverRpc;
-            server.Rpc = serverRpc;
             serverRpc.TraceSource.Listeners.Add(new Listener());
             serverRpc.StartListening();
             Console.Error.WriteLine("server listening");

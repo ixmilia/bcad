@@ -6,13 +6,16 @@
   </head>
   <body>
     <div id="output-pane">
-      <canvas id="canvas" width="1280" height="720"></canvas>
+      <canvas id="canvas" width="640" height="360"></canvas>
     </div>
     <br />
+    <button id="zoomInButton">+</button>
+    <button id="zoomOutButton">-</button>
     <button id="panLeftButton">&lt;</button>
     <button id="panRightButton">&gt;</button>
     <button id="panUpButton">^</button>
     <button id="panDownButton">v</button>
+    <button id="openButton">open</button>
   </body>
   <script>
     require('./dist/renderer.js');

@@ -1,23 +1,61 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using IxMilia.BCad.Entities;
 using System.Threading.Tasks;
+using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
 using StreamJsonRpc;
 
 namespace IxMilia.BCad.Server
 {
+    public enum MouseButton
+    {
+        Left = 0,
+        Middle = 1,
+        Right = 2,
+    }
+
     public class ServerAgent
     {
         private IWorkspace _workspace;
-        internal JsonRpc Rpc { get; set; }
+        private JsonRpc _rpc;
+        private double _lastCursorX = 0.0;
+        private double _lastCursorY = 0.0;
+        private bool _isPanning = false;
+        private double _lastWidth = 0.0;
+        private double _lastHeight = 0.0;
         public bool IsRunning { get; private set; }
 
-        public ServerAgent(IWorkspace workspace)
+        public ServerAgent(IWorkspace workspace, JsonRpc rpc)
         {
             _workspace = workspace;
+            _rpc = rpc;
             IsRunning = true;
+
+            _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+        }
+
+        private void _workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
+        {
+            var doUpdate = false;
+            var clientUpdate = new ClientUpdate();
+            if (e.IsActiveViewPortChange)
+            {
+                doUpdate = true;
+                clientUpdate.Transform = GetTransform();
+            }
+
+            if (e.IsDrawingChange)
+            {
+                doUpdate = true;
+                clientUpdate.Drawing = GetDrawing();
+            }
+
+            if (doUpdate)
+            {
+                _rpc.NotifyAsync("ClientUpdate", clientUpdate);
+            }
         }
 
         public void ServerUpdate(ServerUpdate serverUpdate)
@@ -35,42 +73,83 @@ namespace IxMilia.BCad.Server
 
             var clientUpdate = new ClientUpdate();
             clientUpdate.Transform = transform;
-            Rpc.InvokeAsync<ClientUpdate>("ClientUpdate", clientUpdate);
+            _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
-        public void Ready()
+        public void Ready(double width, double height)
         {
-            System.Diagnostics.Debugger.Launch();
+            _lastWidth = width;
+            _lastHeight = height;
             var clientUpdate = new ClientUpdate()
             {
                 Drawing = GetDrawing(),
                 Transform = GetTransform(),
             };
-            Rpc.InvokeAsync<ClientUpdate>("ClientUpdate", clientUpdate);
+            _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
-        public Task<bool> ExecuteCommand(string command, int x)
+        public void MouseDown(MouseButton button, double cursorX, double cursorY)
+        {
+            if (button == MouseButton.Middle)
+            {
+                _isPanning = true;
+            }
+        }
+
+        public void MouseUp(MouseButton button, double cursorX, double cursorY)
+        {
+            if (button == MouseButton.Middle)
+            {
+                _isPanning = false;
+            }
+        }
+
+        public void MouseMove(double cursorX, double cursorY)
+        {
+            var dx = cursorX - _lastCursorX;
+            var dy = cursorY - _lastCursorY;
+            _lastCursorX = cursorX;
+            _lastCursorY = cursorY;
+            if (_isPanning)
+            {
+                Pan(_lastWidth, _lastHeight, -dx, -dy);
+            }
+        }
+
+        public Task<bool> ExecuteCommand(string command)
         {
             return _workspace.ExecuteCommand(command);
         }
 
         private double[] GetTransform()
         {
-            var t = _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(1280, 720);
+            var t = _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(_lastWidth, _lastHeight);
+            // transpose
             return new[]
             {
-                t.M11, t.M12, t.M13, t.M14,
-                t.M21, t.M22, t.M23, t.M24,
-                t.M31, t.M32, t.M33, t.M34,
-                t.M41, t.M42, t.M43, t.M44,
+                t.M11, t.M21, t.M31, t.M41,
+                t.M12, t.M22, t.M32, t.M42,
+                t.M13, t.M23, t.M33, t.M43,
+                t.M14, t.M24, t.M34, t.M44,
             };
         }
 
         private ClientDrawing GetDrawing()
         {
+            var lines = new List<ClientLine>();
+            var autoColor = CadColor.White;
+            foreach (var layer in _workspace.Drawing.GetLayers())
+            {
+                var layerColor = layer.Color ?? autoColor;
+                foreach (var line in layer.GetEntities().OfType<Line>())
+                {
+                    var lineColor = line.Color ?? layerColor;
+                    lines.Add(new ClientLine(ClientPoint.FromPoint(line.P1), ClientPoint.FromPoint(line.P2)));
+                }
+            }
             return new ClientDrawing()
             {
-                Lines = _workspace.Drawing.GetEntities().OfType<Line>().Select(line => new ClientLine(ClientPoint.FromPoint(line.P1), ClientPoint.FromPoint(line.P2))),
+                Lines = lines,
             };
         }
 
