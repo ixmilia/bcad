@@ -29,11 +29,13 @@ interface Ellipse {
 }
 
 interface Drawing {
+    FileName: string;
     Lines: Line[];
     Ellipses: Ellipse[];
 }
 
 interface ClientUpdate {
+    IsDirty: boolean;
     Transform?: number[];
     Drawing?: Drawing;
 }
@@ -88,6 +90,7 @@ export class Client {
 
     start() {
         this.drawing = {
+            FileName: null,
             Lines: [],
             Ellipses: [],
         };
@@ -220,6 +223,10 @@ export class Client {
             let redraw = false;
             if (clientUpdate.Drawing !== undefined) {
                 this.drawing = clientUpdate.Drawing;
+                var fileName = this.drawing.FileName || "(Untitled)";
+                var dirtyText = clientUpdate.IsDirty ? " *" : "";
+                var title = `BCad [${fileName}]${dirtyText}`;
+                remote.getCurrentWindow().setTitle(title);
                 this.populateVertices();
                 redraw = true;
             }

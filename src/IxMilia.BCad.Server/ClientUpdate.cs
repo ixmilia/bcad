@@ -53,12 +53,19 @@ namespace IxMilia.BCad.Server
 
     public class ClientDrawing
     {
+        public string FileName { get; }
         public List<ClientLine> Lines { get; } = new List<ClientLine>();
         public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();
+
+        public ClientDrawing(string fileName)
+        {
+            FileName = fileName;
+        }
     }
 
     public class ClientUpdate
     {
+        public bool IsDirty { get; set; }
         public double[] Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
     }

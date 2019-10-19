@@ -1,8 +1,6 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Threading.Tasks;
-using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
@@ -51,6 +49,12 @@ namespace IxMilia.BCad.Server
             {
                 doUpdate = true;
                 clientUpdate.Drawing = GetDrawing();
+            }
+
+            if (e.IsDirtyChange)
+            {
+                doUpdate = true;
+                clientUpdate.IsDirty = true;
             }
 
             if (doUpdate)
@@ -130,9 +134,10 @@ namespace IxMilia.BCad.Server
 
         private ClientDrawing GetDrawing()
         {
-            var clientDrawing = new ClientDrawing();
+            var drawing = _workspace.Drawing;
+            var clientDrawing = new ClientDrawing(drawing.Settings.FileName);
             var autoColor = CadColor.White;
-            foreach (var layer in _workspace.Drawing.GetLayers())
+            foreach (var layer in drawing.GetLayers())
             {
                 var layerColor = layer.Color ?? autoColor;
                 foreach (var entity in layer.GetEntities())
