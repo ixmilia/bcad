@@ -15,7 +15,7 @@ namespace IxMilia.BCad.Server
             Z = z;
         }
 
-        public static ClientPoint FromPoint(Point p)
+        public static implicit operator ClientPoint(Point p)
         {
             return new ClientPoint(p.X, p.Y, p.Z);
         }
@@ -35,9 +35,26 @@ namespace IxMilia.BCad.Server
         }
     }
 
+    public struct ClientEllipse
+    {
+        public double StartAngle { get; }
+        public double EndAngle { get; }
+        public double[] Transform { get; }
+        public CadColor Color { get; }
+
+        public ClientEllipse(double startAngle, double endAngle, double[] transform, CadColor color)
+        {
+            StartAngle = startAngle;
+            EndAngle = endAngle;
+            Transform = transform;
+            Color = color;
+        }
+    }
+
     public class ClientDrawing
     {
-        public List<ClientLine> Lines { get; set; }
+        public List<ClientLine> Lines { get; } = new List<ClientLine>();
+        public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();
     }
 
     public class ClientUpdate

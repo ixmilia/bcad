@@ -120,6 +120,28 @@ namespace IxMilia.BCad
             M44 = m44;
         }
 
+        public double[] ToArray()
+        {
+            return new[]
+            {
+                M11, M12, M13, M14,
+                M21, M22, M23, M24,
+                M31, M32, M33, M34,
+                M41, M42, M43, M44,
+            };
+        }
+
+        public double[] ToTransposeArray()
+        {
+            return new[]
+            {
+                M11, M21, M31, M41,
+                M12, M22, M32, M42,
+                M13, M23, M33, M43,
+                M14, M24, M34, M44,
+            };
+        }
+
         public static Matrix4 operator *(Matrix4 matrix1, Matrix4 matrix2)
         {
             return new Matrix4(

@@ -1,10 +1,11 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 using StreamJsonRpc;
 
 namespace IxMilia.BCad.Server
@@ -124,33 +125,42 @@ namespace IxMilia.BCad.Server
         private double[] GetTransform()
         {
             var t = _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(_lastWidth, _lastHeight);
-            // transpose
-            return new[]
-            {
-                t.M11, t.M21, t.M31, t.M41,
-                t.M12, t.M22, t.M32, t.M42,
-                t.M13, t.M23, t.M33, t.M43,
-                t.M14, t.M24, t.M34, t.M44,
-            };
+            return t.ToTransposeArray();
         }
 
         private ClientDrawing GetDrawing()
         {
-            var lines = new List<ClientLine>();
+            var clientDrawing = new ClientDrawing();
             var autoColor = CadColor.White;
             foreach (var layer in _workspace.Drawing.GetLayers())
             {
                 var layerColor = layer.Color ?? autoColor;
-                foreach (var line in layer.GetEntities().OfType<Line>())
+                foreach (var entity in layer.GetEntities())
                 {
-                    var lineColor = line.Color ?? layerColor;
-                    lines.Add(new ClientLine(ClientPoint.FromPoint(line.P1), ClientPoint.FromPoint(line.P2), lineColor));
+                    var entityColor = entity.Color ?? layerColor;
+                    foreach (var primitive in entity.GetPrimitives())
+                    {
+                        var primitiveColor = primitive.Color ?? entityColor;
+                        switch (primitive)
+                        {
+                            case PrimitiveEllipse ellipse:
+                                var startAngle = ellipse.StartAngle.CorrectAngleDegrees();
+                                var endAngle = ellipse.EndAngle.CorrectAngleDegrees();
+                                if (endAngle < startAngle)
+                                {
+                                    endAngle += 360.0;
+                                }
+                                clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, ellipse.FromUnitCircle.ToTransposeArray(), primitiveColor));
+                                break;
+                            case PrimitiveLine line:
+                                clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
+                                break;
+                        }
+                    }
                 }
             }
-            return new ClientDrawing()
-            {
-                Lines = lines,
-            };
+
+            return clientDrawing;
         }
 
         public ViewPort GetViewPort()

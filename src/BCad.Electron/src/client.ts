@@ -21,8 +21,16 @@ interface Line {
     Color: Color;
 }
 
+interface Ellipse {
+    StartAngle: number;
+    EndAngle: number;
+    Transform: number[];
+    Color: Color;
+}
+
 interface Drawing {
     Lines: Line[];
+    Ellipses: Ellipse[];
 }
 
 interface ClientUpdate {
@@ -44,12 +52,14 @@ export class Client {
     private gl: WebGLRenderingContext;
     private twod: CanvasRenderingContext2D;
     private drawing: Drawing;
+    private identity: number[];
     private transform: number[];
     private coordinatesLocation: number;
     private colorLocation: number;
-    private transformLocation: WebGLUniformLocation;
-    private bufferSize: number;
+    private worldTransformLocation: WebGLUniformLocation;
+    private objectTransformLocation: WebGLUniformLocation;
     private vertexBuffer: WebGLBuffer;
+    private ellipseBuffer: WebGLBuffer;
     private colorBuffer: WebGLBuffer;
 
     // client notifications
@@ -78,15 +88,18 @@ export class Client {
 
     start() {
         this.drawing = {
-            Lines: []
+            Lines: [],
+            Ellipses: [],
         };
-        this.transform = [
+        this.identity = [
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1
         ];
+        this.transform = this.identity;
         this.prepareCanvas();
+        this.populateStaticVertices();
         this.populateVertices();
         this.redraw();
         this.prepareConnection();
@@ -254,11 +267,12 @@ export class Client {
             attribute vec3 vCoords;
             attribute vec3 vColor;
 
-            uniform mat4 transform;
+            uniform mat4 objectTransform;
+            uniform mat4 worldTransform;
             varying vec3 fColor;
 
             void main(void) {
-                gl_Position = transform * vec4(vCoords, 1.0);
+                gl_Position = worldTransform * objectTransform * vec4(vCoords, 1.0);
                 fColor = vColor;
             }`;
 
@@ -284,7 +298,24 @@ export class Client {
 
         this.coordinatesLocation = gl.getAttribLocation(program, "vCoords");
         this.colorLocation = gl.getAttribLocation(program, "vColor");
-        this.transformLocation = gl.getUniformLocation(program, "transform");
+        this.objectTransformLocation = gl.getUniformLocation(program, "objectTransform");
+        this.worldTransformLocation = gl.getUniformLocation(program, "worldTransform");
+    }
+
+    private populateStaticVertices() {
+        var verts = [];
+        for (var n = 0; n <= 720; n++) {
+            var x = Math.cos(n * Math.PI / 180.0);
+            var y = Math.sin(n * Math.PI / 180.0);
+            verts.push(x, y, 0.0);
+        }
+        var vertices = new Float32Array(verts);
+
+        this.ellipseBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
     private populateVertices() {
@@ -307,8 +338,6 @@ export class Client {
         var vertices = new Float32Array(verts);
         var colors = new Uint8Array(cols);
 
-        this.bufferSize = vertices.length;
-
         this.vertexBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
@@ -325,8 +354,11 @@ export class Client {
         //gl.clearColor(0.3921, 0.5843, 0.9294, 1.0); // cornflower blue
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // black
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-        this.gl.uniformMatrix4fv(this.transformLocation, false, this.transform);
-        if (this.bufferSize > 0) {
+        this.gl.uniformMatrix4fv(this.worldTransformLocation, false, this.transform);
+        this.gl.uniformMatrix4fv(this.objectTransformLocation, false, this.identity);
+
+        // lines
+        if (this.drawing.Lines.length > 0) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
             this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.coordinatesLocation);
@@ -335,8 +367,23 @@ export class Client {
             this.gl.vertexAttribPointer(this.colorLocation, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
             this.gl.enableVertexAttribArray(this.colorLocation);
 
-            this.gl.drawArrays(this.gl.LINES, 0, this.bufferSize / 3);
+            this.gl.drawArrays(this.gl.LINES, 0, this.drawing.Lines.length * 2); // 2 points per line
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        }
+
+        // ellipses
+        this.gl.disableVertexAttribArray(this.colorLocation);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
+        this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(this.coordinatesLocation);
+        for (var i = 0; i < this.drawing.Ellipses.length; i++) {
+            var el = this.drawing.Ellipses[i];
+            this.gl.uniformMatrix4fv(this.objectTransformLocation, false, el.Transform);
+            var startAngle = Math.trunc(el.StartAngle);
+            var endAngle = Math.trunc(el.EndAngle);
+
+            this.gl.vertexAttrib3f(this.colorLocation, el.Color.R, el.Color.G, el.Color.B);
+            this.gl.drawArrays(this.gl.LINE_STRIP, startAngle, endAngle - startAngle + 1); // + 1 to account for end angle
         }
     }
 
