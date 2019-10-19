@@ -13,3 +13,12 @@
     position: absolute;
     z-index: 1;
 }
+
+#ribbon {
+    height: 100px;
+}
+
+.ribbon {
+    display: none;
+    height: 100%;
+}

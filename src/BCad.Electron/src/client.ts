@@ -191,10 +191,6 @@ export class Client {
             });
         }
 
-        (<HTMLButtonElement>document.getElementById("openButton")).addEventListener('click', async () => {
-            var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: "File.Open"});
-        });
-
         (<HTMLButtonElement>document.getElementById("zoomInButton")).addEventListener('click', () => {
             let width = this.drawingCanvas.clientWidth;
             let height = this.drawingCanvas.clientHeight;
@@ -205,10 +201,6 @@ export class Client {
             let width = this.drawingCanvas.clientWidth;
             let height = this.drawingCanvas.clientHeight;
             this.zoomOut(width / 2, height / 2);
-        });
-
-        (<HTMLButtonElement>document.getElementById("openButton")).addEventListener('click', async () => {
-            var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: "File.Open"});
         });
 
         this.cursorCanvas.addEventListener('wheel', (ev) => {
@@ -415,5 +407,9 @@ export class Client {
         this.twod.lineTo(x - boxSize / 2, y - boxSize / 2);
 
         this.twod.stroke();
+    }
+
+    async executeCommand(commandName: string) {
+        var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: commandName});
     }
 }

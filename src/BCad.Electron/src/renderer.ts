@@ -3,6 +3,8 @@
 // All of the Node.js APIs are available in this process.
 
 import { Client } from './client'
+import { Ribbon } from './ribbon';
 
 let client = new Client();
 client.start();
+new Ribbon(client);
