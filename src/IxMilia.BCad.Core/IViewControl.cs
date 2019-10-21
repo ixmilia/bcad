@@ -10,6 +10,6 @@ namespace IxMilia.BCad
         Task<Point> GetCursorPoint(CancellationToken cancellationToken);
         int DisplayHeight { get; }
         int DisplayWidth { get; }
-        Task<SelectionRectangle> GetSelectionRectangle();
+        Task<SelectionRectangle?> GetSelectionRectangle();
     }
 }

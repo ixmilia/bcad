@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using IxMilia.BCad.Display;
 
 namespace IxMilia.BCad.Server
 {
@@ -68,5 +69,6 @@ namespace IxMilia.BCad.Server
         public bool IsDirty { get; set; }
         public double[] Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
+        public CursorState? CursorState { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Settings;
 
@@ -50,7 +51,7 @@ namespace IxMilia.BCad.UI.View
         {
             switch (e.SettingName)
             {
-                case nameof(WpfSettingsProvider.BackgroundColor):
+                case nameof(DisplaySettingsProvider.BackgroundColor):
                     SetBackgroundColor();
                     break;
             }
@@ -58,7 +59,7 @@ namespace IxMilia.BCad.UI.View
 
         private void SetBackgroundColor()
         {
-            viewModel.BackgroundColor = Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.BackgroundColor);
+            viewModel.BackgroundColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor);
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)

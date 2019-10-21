@@ -1,6 +1,7 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
@@ -8,22 +9,12 @@ using StreamJsonRpc;
 
 namespace IxMilia.BCad.Server
 {
-    public enum MouseButton
-    {
-        Left = 0,
-        Middle = 1,
-        Right = 2,
-    }
-
     public class ServerAgent
     {
         private IWorkspace _workspace;
+        private DisplayInteractionManager _dim;
         private JsonRpc _rpc;
-        private double _lastCursorX = 0.0;
-        private double _lastCursorY = 0.0;
-        private bool _isPanning = false;
-        private double _lastWidth = 0.0;
-        private double _lastHeight = 0.0;
+
         public bool IsRunning { get; private set; }
 
         public ServerAgent(IWorkspace workspace, JsonRpc rpc)
@@ -31,18 +22,34 @@ namespace IxMilia.BCad.Server
             _workspace = workspace;
             _rpc = rpc;
             IsRunning = true;
+            _dim = new DisplayInteractionManager(workspace, ProjectionStyle.OriginTopLeft);
+            _dim.CursorStateUpdated += _dim_CursorStateUpdated;
 
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+        }
+
+        private void _dim_CursorStateUpdated(object sender, CursorState e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.CursorState = e;
+            PushUpdate(clientUpdate);
         }
 
         private void _workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
             var doUpdate = false;
             var clientUpdate = new ClientUpdate();
+
+            if (e.IsDirtyChange)
+            {
+                doUpdate = true;
+                clientUpdate.IsDirty = true;
+            }
+
             if (e.IsActiveViewPortChange)
             {
                 doUpdate = true;
-                clientUpdate.Transform = GetTransform();
+                clientUpdate.Transform = GetTransformMatrix();
             }
 
             if (e.IsDrawingChange)
@@ -51,16 +58,15 @@ namespace IxMilia.BCad.Server
                 clientUpdate.Drawing = GetDrawing();
             }
 
-            if (e.IsDirtyChange)
-            {
-                doUpdate = true;
-                clientUpdate.IsDirty = true;
-            }
-
             if (doUpdate)
             {
-                _rpc.NotifyAsync("ClientUpdate", clientUpdate);
+                PushUpdate(clientUpdate);
             }
+        }
+
+        private void PushUpdate(ClientUpdate clientUpdate)
+        {
+            _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
         public void ServerUpdate(ServerUpdate serverUpdate)
@@ -83,53 +89,38 @@ namespace IxMilia.BCad.Server
 
         public void Ready(double width, double height)
         {
-            _lastWidth = width;
-            _lastHeight = height;
+            _dim.Resize(width, height);
             var clientUpdate = new ClientUpdate()
             {
                 Drawing = GetDrawing(),
-                Transform = GetTransform(),
+                Transform = GetTransformMatrix(),
             };
             _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
+        private double[] GetTransformMatrix()
+        {
+            return _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(_dim.Width, _dim.Height).ToTransposeArray();
+        }
+
         public void MouseDown(MouseButton button, double cursorX, double cursorY)
         {
-            if (button == MouseButton.Middle)
-            {
-                _isPanning = true;
-            }
+            var _ = _dim.MouseDown(new Point(cursorX, cursorY, 0.0), button);
         }
 
         public void MouseUp(MouseButton button, double cursorX, double cursorY)
         {
-            if (button == MouseButton.Middle)
-            {
-                _isPanning = false;
-            }
+            _dim.MouseUp(new Point(cursorX, cursorY, 0.0), button);
         }
 
         public void MouseMove(double cursorX, double cursorY)
         {
-            var dx = cursorX - _lastCursorX;
-            var dy = cursorY - _lastCursorY;
-            _lastCursorX = cursorX;
-            _lastCursorY = cursorY;
-            if (_isPanning)
-            {
-                Pan(_lastWidth, _lastHeight, -dx, -dy);
-            }
+            _dim.MouseMove(new Point(cursorX, cursorY, 0.0));
         }
 
         public Task<bool> ExecuteCommand(string command)
         {
             return _workspace.ExecuteCommand(command);
-        }
-
-        private double[] GetTransform()
-        {
-            var t = _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(_lastWidth, _lastHeight);
-            return t.ToTransposeArray();
         }
 
         private ClientDrawing GetDrawing()
@@ -168,61 +159,15 @@ namespace IxMilia.BCad.Server
             return clientDrawing;
         }
 
-        public ViewPort GetViewPort()
+        public void Pan(double dx, double dy)
         {
-            return _workspace.ActiveViewPort;
+            _dim.Pan(dx, dy);
         }
 
-        public void Pan(double width, double height, double dx, double dy)
+        public void Zoom(int cursorX, int cursorY, double delta)
         {
-            var vp = _workspace.ActiveViewPort;
-            var scale = vp.ViewHeight / height;
-            dx = vp.BottomLeft.X + dx * scale;
-            dy = vp.BottomLeft.Y - dy * scale;
-            _workspace.Update(activeViewPort: vp.Update(bottomLeft: new Point(dx, dy, vp.BottomLeft.Z)));
+            var direction = delta < 0.0 ? ZoomDirection.Out : ZoomDirection.In;
+            _dim.Zoom(direction, new Point(cursorX, cursorY, 0.0));
         }
-
-        public void Zoom(int cursorX, int cursorY, double width, double height, double delta)
-        {
-            // scale everything
-            var scale = 1.25;
-            if (delta > 0) scale = 0.8; // 1.0 / 1.25
-
-            // center zoom operation on mouse
-            var cursorPoint = new Point(cursorX, cursorY, 0.0);
-            var vp = _workspace.ActiveViewPort;
-            var oldHeight = vp.ViewHeight;
-            var oldWidth = width * oldHeight / height;
-            var newHeight = oldHeight * scale;
-            var newWidth = oldWidth * scale;
-            var heightDelta = newHeight - oldHeight;
-            var widthDelta = newWidth - oldWidth;
-
-            var relHoriz = cursorPoint.X / width;
-            var relVert = (height - cursorPoint.Y) / height;
-            var botLeftDelta = new Vector(relHoriz * widthDelta, relVert * heightDelta, 0.0);
-            var newVp = vp.Update(
-                bottomLeft: (Point)(vp.BottomLeft - botLeftDelta),
-                viewHeight: vp.ViewHeight * scale);
-            _workspace.Update(activeViewPort: newVp);
-        }
-
-        //public void MouseDown(MouseDownArgs args, int garbage)
-        //{
-        //    switch (args.Button)
-        //    {
-        //        case MouseButton.Left:
-        //            var matrix = _workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(args.Width, args.Height);
-        //            var inv = matrix.Inverse();
-        //            var modelPoint = inv.Transform(args.Cursor);
-        //            _workspace.InputService.PushPoint(modelPoint);
-        //            break;
-        //        case MouseButton.Middle:
-        //            break;
-        //        case MouseButton.Right:
-        //            _workspace.InputService.PushNone();
-        //            break;
-        //    }
-        //}
     }
 }

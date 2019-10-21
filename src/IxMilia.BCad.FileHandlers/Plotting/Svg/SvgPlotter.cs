@@ -32,7 +32,7 @@ namespace IxMilia.BCad.Plotting.Svg
                 ViewModel.ViewPort,
                 ViewModel.Width,
                 ViewModel.Height,
-                Entities.ProjectionStyle.OriginTopLeft);
+                Display.ProjectionStyle.OriginTopLeft);
             foreach (var groupedEntity in projectedEntities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
             {
                 var layer = groupedEntity.Key;

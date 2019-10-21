@@ -15,6 +15,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using IxMilia.BCad.Commands;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Primitives;
 using IxMilia.BCad.Ribbons;
@@ -64,9 +65,9 @@ namespace IxMilia.BCad
 
             // prepare status bar bindings
             var vm = new StatusBarViewModel(Workspace.SettingsService);
-            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = nameof(WpfSettingsProvider.Ortho) },
-                                      new { TextBlock = this.pointSnapStatus, Path = nameof(WpfSettingsProvider.PointSnap) },
-                                      new { TextBlock = this.angleSnapStatus, Path = nameof(WpfSettingsProvider.AngleSnap) },
+            foreach (var x in new[] { new { TextBlock = this.orthoStatus, Path = nameof(DisplaySettingsProvider.Ortho) },
+                                      new { TextBlock = this.pointSnapStatus, Path = nameof(DisplaySettingsProvider.PointSnap) },
+                                      new { TextBlock = this.angleSnapStatus, Path = nameof(DisplaySettingsProvider.AngleSnap) },
                                       new { TextBlock = this.debugStatus, Path = nameof(DefaultSettingsProvider.Debug) }})
             {
                 var binding = new Binding(x.Path);
@@ -90,9 +91,9 @@ namespace IxMilia.BCad
 
             // add keyboard shortcuts for toggled settings
             foreach (var setting in new[] {
-                new { Name = nameof(WpfSettingsProvider.AngleSnap), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.AngleSnapShortcut) },
-                new { Name = nameof(WpfSettingsProvider.PointSnap), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.PointSnapShortcut) },
-                new { Name = nameof(WpfSettingsProvider.Ortho), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.OrthoShortcut) },
+                new { Name = nameof(DisplaySettingsProvider.AngleSnap), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.AngleSnapShortcut) },
+                new { Name = nameof(DisplaySettingsProvider.PointSnap), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.PointSnapShortcut) },
+                new { Name = nameof(DisplaySettingsProvider.Ortho), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.OrthoShortcut) },
                 new { Name = nameof(DefaultSettingsProvider.Debug), Shortcut = Workspace.SettingsService.GetValue<KeyboardShortcut>(WpfSettingsProvider.DebugShortcut) } })
             {
                 if (setting.Shortcut.HasValue)

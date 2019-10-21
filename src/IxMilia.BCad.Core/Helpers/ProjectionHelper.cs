@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Primitives;
@@ -14,21 +15,7 @@ namespace IxMilia.BCad.Helpers
         public static IEnumerable<ProjectedEntity> ProjectTo2D(Drawing drawing, ViewPort viewPort, double width, double height, ProjectionStyle projectionStyle)
         {
             // create transform
-            Matrix4 transform;
-            switch (projectionStyle)
-            {
-                case ProjectionStyle.OriginTopLeft:
-                    transform = viewPort.GetTransformationMatrixWindowsStyle(width, height);
-                    break;
-                case ProjectionStyle.OriginBottomLeft:
-                    transform = viewPort.GetTransformationMatrixCartesianStyle(width, height);
-                    break;
-                case ProjectionStyle.OriginCenter:
-                    transform = viewPort.GetTransformationMatrixDirect3DStyle(width, height);
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
+            var transform = viewPort.GetProjectionMatrix(width, height, projectionStyle);
             
             // project all entities
             var entities = new List<ProjectedEntity>();

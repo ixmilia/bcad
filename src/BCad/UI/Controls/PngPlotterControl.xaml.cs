@@ -61,10 +61,11 @@ namespace IxMilia.BCad.UI.Controls
         private async Task GetExportArea()
         {
             Hide();
-            var selection = await Workspace.ViewControl.GetSelectionRectangle();
-            if (selection == null)
+            var selectionOpt = await Workspace.ViewControl.GetSelectionRectangle();
+            if (!selectionOpt.HasValue)
                 return;
 
+            var selection = selectionOpt.GetValueOrDefault();
             var bottomLeft = new Point(selection.TopLeftWorld.X, selection.BottomRightWorld.Y, selection.TopLeftWorld.Z);
             var topRight = new Point(selection.BottomRightWorld.X, selection.TopLeftWorld.Y, selection.BottomRightWorld.Z);
             if (topRight.Y - bottomLeft.Y == 0.0)

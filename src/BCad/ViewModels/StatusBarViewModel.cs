@@ -2,6 +2,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
 
@@ -13,20 +14,20 @@ namespace IxMilia.BCad.ViewModels
 
         public bool Ortho
         {
-            get => GetValue(WpfSettingsProvider.Ortho);
-            set => SetValue(WpfSettingsProvider.Ortho, value);
+            get => GetValue(DisplaySettingsProvider.Ortho);
+            set => SetValue(DisplaySettingsProvider.Ortho, value);
         }
 
         public bool PointSnap
         {
-            get => GetValue(WpfSettingsProvider.PointSnap);
-            set => SetValue(WpfSettingsProvider.PointSnap, value);
+            get => GetValue(DisplaySettingsProvider.PointSnap);
+            set => SetValue(DisplaySettingsProvider.PointSnap, value);
         }
 
         public bool AngleSnap
         {
-            get => GetValue(WpfSettingsProvider.AngleSnap);
-            set => SetValue(WpfSettingsProvider.AngleSnap, value);
+            get => GetValue(DisplaySettingsProvider.AngleSnap);
+            set => SetValue(DisplaySettingsProvider.AngleSnap, value);
         }
 
         public bool Debug
@@ -47,16 +48,16 @@ namespace IxMilia.BCad.ViewModels
         {
             switch (e.SettingName)
             {
-                case WpfSettingsProvider.AngleSnap:
+                case DisplaySettingsProvider.AngleSnap:
                     OnPropertyChanged(nameof(AngleSnap));
                     break;
                 case DefaultSettingsProvider.Debug:
                     OnPropertyChanged(nameof(Debug));
                     break;
-                case WpfSettingsProvider.Ortho:
+                case DisplaySettingsProvider.Ortho:
                     OnPropertyChanged(nameof(Ortho));
                     break;
-                case WpfSettingsProvider.PointSnap:
+                case DisplaySettingsProvider.PointSnap:
                     OnPropertyChanged(nameof(PointSnap));
                     break;
                 default:

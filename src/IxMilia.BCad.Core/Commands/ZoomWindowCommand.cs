@@ -11,11 +11,11 @@ namespace IxMilia.BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
-            var selection = await workspace.ViewControl.GetSelectionRectangle();
-            if (selection == null)
+            var selectionOpt = await workspace.ViewControl.GetSelectionRectangle();
+            if (!selectionOpt.HasValue)
                 return false;
 
-            var transform = workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(workspace.ViewControl.DisplayWidth, workspace.ViewControl.DisplayHeight);
+            var selection = selectionOpt.GetValueOrDefault();
             var newVp = GetBoundingPrimitives(selection.TopLeftWorld, selection.BottomRightWorld).ShowAllViewPort(
                 workspace.ActiveViewPort.Sight,
                 workspace.ActiveViewPort.Up,

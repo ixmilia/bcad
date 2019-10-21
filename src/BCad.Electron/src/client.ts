@@ -34,10 +34,18 @@ interface Drawing {
     Ellipses: Ellipse[];
 }
 
+enum CursorState {
+    None = 0,
+    Point = 1,
+    Object = 2,
+    Text = 4,
+}
+
 interface ClientUpdate {
     IsDirty: boolean;
     Transform?: number[];
     Drawing?: Drawing;
+    CursorState?: CursorState;
 }
 
 enum MouseButton {
@@ -63,15 +71,17 @@ export class Client {
     private vertexBuffer: WebGLBuffer;
     private ellipseBuffer: WebGLBuffer;
     private colorBuffer: WebGLBuffer;
+    private cursorPosition: {x: number, y: number};
+    private cursorState: CursorState;
 
     // client notifications
     private ClientUpdateNotification: rpc.NotificationType<ClientUpdate[], void>;
     private MouseDownNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseUpNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseMoveNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>;
-    private PanNotification: rpc.NotificationType<{width: Number, height: Number, dx: Number, dy: Number}, void>;
+    private PanNotification: rpc.NotificationType<{dx: Number, dy: Number}, void>;
     private ReadyNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
-    private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, width: Number, height: Number, delta: Number}, void>;
+    private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>;
     private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
 
     constructor() {
@@ -82,10 +92,12 @@ export class Client {
         this.MouseDownNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseDown');
         this.MouseUpNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseUp');
         this.MouseMoveNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>('MouseMove');
-        this.PanNotification = new rpc.NotificationType<{width: Number, height: Number, dx: Number, dy: Number}, void>('Pan');
+        this.PanNotification = new rpc.NotificationType<{dx: Number, dy: Number}, void>('Pan');
         this.ReadyNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Ready');
-        this.ZoomNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number, width: Number, height: Number, delta: Number}, void>('Zoom');
+        this.ZoomNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>('Zoom');
         this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
+        this.cursorPosition = {x: 0, y: 0};
+        this.cursorState = CursorState.Object | CursorState.Point;
     }
 
     start() {
@@ -134,9 +146,7 @@ export class Client {
     }
 
     private zoom(cursorX: Number, cursorY: Number, delta: Number) {
-        let width = this.drawingCanvas.clientWidth;
-        let height = this.drawingCanvas.clientHeight;
-        this.connection.sendNotification(this.ZoomNotification, {cursorX: cursorX, cursorY: cursorY, width: width, height: height, delta: delta});
+        this.connection.sendNotification(this.ZoomNotification, {cursorX: cursorX, cursorY: cursorY, delta: delta});
     }
 
     private zoomIn(cursorX: Number, cursorY: Number) {
@@ -166,7 +176,8 @@ export class Client {
             this.connection.sendNotification(this.MouseUpNotification, {button: this.getMouseButton(ev.button), cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
         this.outputPane.addEventListener('mousemove', async (ev) => {
-            this.drawCursor(ev.offsetX, ev.offsetY);
+            this.cursorPosition = {x: ev.offsetX, y: ev.offsetY};
+            this.drawCursor();
             this.connection.sendNotification(this.MouseMoveNotification, {cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
         this.outputPane.addEventListener('resize', () => {
@@ -183,8 +194,6 @@ export class Client {
             (<HTMLButtonElement>document.getElementById(element.id)).addEventListener('click', () => {
                 let delta = this.drawingCanvas.width / 8;
                 this.connection.sendNotification(this.PanNotification, {
-                    width: this.drawingCanvas.width,
-                    height: this.drawingCanvas.height,
                     dx: delta * element.dxm,
                     dy: delta * element.dym
                 });
@@ -225,6 +234,10 @@ export class Client {
             if (clientUpdate.Transform !== undefined) {
                 this.transform = clientUpdate.Transform;
                 redraw = true;
+            }
+            if (clientUpdate.CursorState !== undefined) {
+                this.cursorState = clientUpdate.CursorState;
+                this.drawCursor();
             }
 
             if (redraw) {
@@ -386,7 +399,9 @@ export class Client {
         }
     }
 
-    private drawCursor(x: number, y: number) {
+    private drawCursor() {
+        var x = this.cursorPosition.x;
+        var y = this.cursorPosition.y;
         var boxSize = 8; // TODO: from options
         var cursorSize = 60; // TODO: from options
         this.twod.clearRect(0, 0, this.twod.canvas.width, this.twod.canvas.height);
@@ -394,17 +409,21 @@ export class Client {
         this.twod.strokeStyle = "white"; // TODO: auto color or from options?
 
         // point cursor
-        this.twod.moveTo(x - cursorSize / 2, y);
-        this.twod.lineTo(x + cursorSize / 2, y);
-        this.twod.moveTo(x, y - cursorSize / 2);
-        this.twod.lineTo(x, y + cursorSize / 2);
+        if (this.cursorState & CursorState.Point) {
+            this.twod.moveTo(x - cursorSize / 2, y);
+            this.twod.lineTo(x + cursorSize / 2, y);
+            this.twod.moveTo(x, y - cursorSize / 2);
+            this.twod.lineTo(x, y + cursorSize / 2);
+        }
 
         // object cursor
-        this.twod.moveTo(x - boxSize / 2, y - boxSize / 2);
-        this.twod.lineTo(x + boxSize / 2, y - boxSize / 2);
-        this.twod.lineTo(x + boxSize / 2, y + boxSize / 2);
-        this.twod.lineTo(x - boxSize / 2, y + boxSize / 2);
-        this.twod.lineTo(x - boxSize / 2, y - boxSize / 2);
+        if (this.cursorState & CursorState.Object) {
+            this.twod.moveTo(x - boxSize / 2, y - boxSize / 2);
+            this.twod.lineTo(x + boxSize / 2, y - boxSize / 2);
+            this.twod.lineTo(x + boxSize / 2, y + boxSize / 2);
+            this.twod.lineTo(x - boxSize / 2, y + boxSize / 2);
+            this.twod.lineTo(x - boxSize / 2, y - boxSize / 2);
+        }
 
         this.twod.stroke();
     }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.SnapPoints;
 using IxMilia.BCad.UI.View;
 
@@ -109,26 +110,26 @@ namespace IxMilia.BCad.Ribbons
 
         public double SnapPointSize
         {
-            get => GetValue<double>(WpfSettingsProvider.SnapPointSize);
-            set => SetValue(WpfSettingsProvider.SnapPointSize, value);
+            get => GetValue<double>(DisplaySettingsProvider.SnapPointSize);
+            set => SetValue(DisplaySettingsProvider.SnapPointSize, value);
         }
 
         public double SnapPointDistance
         {
-            get => GetValue<double>(WpfSettingsProvider.SnapPointDistance);
-            set => SetValue(WpfSettingsProvider.SnapPointDistance, value);
+            get => GetValue<double>(DisplaySettingsProvider.SnapPointDistance);
+            set => SetValue(DisplaySettingsProvider.SnapPointDistance, value);
         }
 
         public double EntitySelectionRadius
         {
-            get => GetValue<double>(WpfSettingsProvider.EntitySelectionRadius);
-            set => SetValue(WpfSettingsProvider.EntitySelectionRadius, value);
+            get => GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius);
+            set => SetValue(DisplaySettingsProvider.EntitySelectionRadius, value);
         }
 
         public int CursorSize
         {
-            get => GetValue<int>(WpfSettingsProvider.CursorSize);
-            set => SetValue(WpfSettingsProvider.CursorSize, value);
+            get => GetValue<int>(DisplaySettingsProvider.CursorSize);
+            set => SetValue(DisplaySettingsProvider.CursorSize, value);
         }
 
         public string[] AvailableRenderers
@@ -169,8 +170,8 @@ namespace IxMilia.BCad.Ribbons
 
         public CadColor? BackgroundColor
         {
-            get => GetValue<CadColor>(WpfSettingsProvider.BackgroundColor);
-            set => SetValue(WpfSettingsProvider.BackgroundColor, value ?? CadColor.Black);
+            get => GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor);
+            set => SetValue(DisplaySettingsProvider.BackgroundColor, value ?? CadColor.Black);
         }
 
         public CadColor[] HotPointColors
@@ -188,8 +189,8 @@ namespace IxMilia.BCad.Ribbons
 
         public CadColor? HotPointColor
         {
-            get => GetValue<CadColor>(WpfSettingsProvider.HotPointColor);
-            set => SetValue(WpfSettingsProvider.HotPointColor, value ?? CadColor.Black);
+            get => GetValue<CadColor>(DisplaySettingsProvider.HotPointColor);
+            set => SetValue(DisplaySettingsProvider.HotPointColor, value ?? CadColor.Black);
         }
 
         public CadColor[] SnapPointColors
@@ -208,8 +209,8 @@ namespace IxMilia.BCad.Ribbons
 
         public CadColor? SnapPointColor
         {
-            get => GetValue<CadColor>(WpfSettingsProvider.SnapPointColor);
-            set => SetValue(WpfSettingsProvider.SnapPointColor, value ?? CadColor.Black);
+            get => GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor);
+            set => SetValue(DisplaySettingsProvider.SnapPointColor, value ?? CadColor.Black);
         }
 
         public bool IsEndPoint
@@ -300,36 +301,36 @@ namespace IxMilia.BCad.Ribbons
 
         public bool IsNinetyDegree
         {
-            get { return AreEqual(ninetyDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)); }
+            get { return AreEqual(ninetyDegreeAngles, GetValue<double[]>(DisplaySettingsProvider.SnapAngles)); }
             set
             {
-                if (value && !AreEqual(ninetyDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)))
+                if (value && !AreEqual(ninetyDegreeAngles, GetValue<double[]>(DisplaySettingsProvider.SnapAngles)))
                 {
-                    SetValue(WpfSettingsProvider.SnapAngles, ninetyDegreeAngles);
+                    SetValue(DisplaySettingsProvider.SnapAngles, ninetyDegreeAngles);
                 }
             }
         }
 
         public bool IsFortyFiveDegree
         {
-            get { return AreEqual(fortyFiveDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)); }
+            get { return AreEqual(fortyFiveDegreeAngles, GetValue<double[]>(DisplaySettingsProvider.SnapAngles)); }
             set
             {
-                if (value && !AreEqual(fortyFiveDegreeAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)))
+                if (value && !AreEqual(fortyFiveDegreeAngles, GetValue<double[]>(DisplaySettingsProvider.SnapAngles)))
                 {
-                    SetValue(WpfSettingsProvider.SnapAngles, fortyFiveDegreeAngles);
+                    SetValue(DisplaySettingsProvider.SnapAngles, fortyFiveDegreeAngles);
                 }
             }
         }
 
         public bool IsIsometric
         {
-            get { return AreEqual(isoAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)); }
+            get { return AreEqual(isoAngles, GetValue<double[]>(DisplaySettingsProvider.SnapAngles)); }
             set
             {
-                if (value && !AreEqual(isoAngles, GetValue<double[]>(WpfSettingsProvider.SnapAngles)))
+                if (value && !AreEqual(isoAngles, GetValue<double[]>(DisplaySettingsProvider.SnapAngles)))
                 {
-                    SetValue(WpfSettingsProvider.SnapAngles, isoAngles);
+                    SetValue(DisplaySettingsProvider.SnapAngles, isoAngles);
                 }
             }
         }

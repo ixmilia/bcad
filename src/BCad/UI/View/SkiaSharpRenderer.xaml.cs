@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
@@ -72,7 +73,7 @@ namespace IxMilia.BCad.UI.View
             var cancellationToken = renderCancellationTokenSource.Token;
             var selectedDrawStyle = Workspace.SettingsService.GetValue<SelectedEntityDrawStyle>(SkiaSharpSettings.SelectedEntityDrawStyle);
             var canvas = e.Surface.Canvas;
-            var backgroundColor = Workspace.SettingsService.GetValue<CadColor>(WpfSettingsProvider.BackgroundColor);
+            var backgroundColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor);
             canvas.Clear(backgroundColor.ToSKColor());
             var transform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(ActualWidth, ActualHeight);
             // TODO: canvas.SetMatrix() instead of transforming everything?  might make text rotation difficult

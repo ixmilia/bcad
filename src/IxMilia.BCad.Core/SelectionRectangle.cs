@@ -2,7 +2,7 @@
 
 namespace IxMilia.BCad
 {
-    public class SelectionRectangle
+    public struct SelectionRectangle
     {
         public Point TopLeftScreen { get; private set; }
         public Point BottomRightScreen { get; private set; }

@@ -14,7 +14,7 @@ namespace IxMilia.BCad.Server
         PanDown,
     }
 
-    public class CursorLocation
+    public struct CursorLocation
     {
         public double X { get; set; }
         public double Y { get; set; }

@@ -33,7 +33,7 @@ namespace IxMilia.BCad.Plotting.Png
                 ViewModel.ViewPort,
                 ViewModel.Width,
                 ViewModel.Height,
-                ProjectionStyle.OriginTopLeft);
+                Display.ProjectionStyle.OriginTopLeft);
             using (var image = new Bitmap((int)ViewModel.Width, (int)ViewModel.Height))
             {
                 using (var graphics = Graphics.FromImage(image))
