@@ -392,6 +392,42 @@ namespace IxMilia.BCad.Display
             }).ConfigureAwait(false);
         }
 
+        public void SubmitInput(string text)
+        {
+            if (_workspace.InputService.AllowedInputTypes.HasFlag(InputType.Directive) &&
+                _workspace.InputService.AllowedDirectives.Contains(text))
+            {
+                _workspace.InputService.PushDirective(text);
+            }
+            else if (_workspace.InputService.AllowedInputTypes.HasFlag(InputType.Distance))
+            {
+                if (string.IsNullOrEmpty(text))
+                {
+                    _workspace.InputService.PushNone();
+                }
+                else if (DrawingSettings.TryParseUnits(text, out var dist))
+                {
+                    _workspace.InputService.PushDistance(dist);
+                }
+            }
+            else if (_workspace.InputService.AllowedInputTypes.HasFlag(InputType.Point))
+            {
+                var cursorPoint = _workspace.ViewControl.GetCursorPoint(CancellationToken.None).Result;
+                if (_workspace.InputService.TryParsePoint(text, cursorPoint, _workspace.InputService.LastPoint, out var point))
+                {
+                    _workspace.InputService.PushPoint(point);
+                }
+            }
+            else if (_workspace.InputService.AllowedInputTypes.HasFlag(InputType.Command))
+            {
+                _workspace.InputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
+            }
+            else if (_workspace.InputService.AllowedInputTypes.HasFlag(InputType.Text))
+            {
+                _workspace.InputService.PushText(text ?? string.Empty);
+            }
+        }
+
         private long GetNextDrawSnapPointId()
         {
             lock (drawSnapPointIdGate)

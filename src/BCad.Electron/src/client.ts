@@ -52,6 +52,8 @@ interface ClientUpdate {
     Drawing?: ClientDrawing;
     RubberBandDrawing?: ClientDrawing;
     CursorState?: CursorState;
+    Prompt?: string;
+    OutputLines?: string[];
 }
 
 enum MouseButton {
@@ -86,6 +88,7 @@ export class Client {
     private MouseMoveNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>;
     private PanNotification: rpc.NotificationType<{dx: Number, dy: Number}, void>;
     private ReadyNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
+    private SubmitIntputNotification: rpc.NotificationType<{value: string}, void>;
     private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>;
     private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
 
@@ -99,6 +102,7 @@ export class Client {
         this.MouseMoveNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>('MouseMove');
         this.PanNotification = new rpc.NotificationType<{dx: Number, dy: Number}, void>('Pan');
         this.ReadyNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Ready');
+        this.SubmitIntputNotification = new rpc.NotificationType<{value: string}, void>('SubmitInput');
         this.ZoomNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>('Zoom');
         this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
         this.cursorPosition = {x: 0, y: 0};
@@ -230,6 +234,12 @@ export class Client {
         this.cursorCanvas.addEventListener('wheel', (ev) => {
             this.zoom(ev.offsetX, ev.offsetY, -ev.deltaY);
         });
+
+        (<HTMLInputElement>document.getElementById("input")).addEventListener('keydown', (ev) => {
+            if (ev.key == "Enter") {
+                this.submitInput();
+            }
+        });
     }
 
     private prepareListeners() {
@@ -261,6 +271,21 @@ export class Client {
             if (clientUpdate.CursorState !== undefined) {
                 this.cursorState = clientUpdate.CursorState;
                 this.drawCursor();
+            }
+            if (clientUpdate.Prompt !== undefined) {
+                document.getElementById("prompt").innerText = clientUpdate.Prompt;
+            }
+            if (clientUpdate.OutputLines !== undefined) {
+                var output = <HTMLTextAreaElement>document.getElementById("outputConsole");
+                var content = output.value;
+                for (var i = 0; i < clientUpdate.OutputLines.length; i++) {
+                    if (content.length > 0) {
+                        content += "\n";
+                    }
+                    content = content + clientUpdate.OutputLines[i];
+                }
+                output.value = content;
+                output.scrollTop = output.scrollHeight;
             }
 
             if (redraw) {
@@ -382,6 +407,13 @@ export class Client {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, colors, this.gl.STATIC_DRAW);
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    }
+
+    private submitInput() {
+        var input = <HTMLInputElement>document.getElementById("input");
+        var text = input.value;
+        input.value = "";
+        this.connection.sendNotification(this.SubmitIntputNotification, {value: text});
     }
 
     private redraw() {

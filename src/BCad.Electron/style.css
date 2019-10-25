@@ -14,6 +14,10 @@
     z-index: 1;
 }
 
+#prompt {
+    display: inline;
+}
+
 #ribbon {
     height: 100px;
 }

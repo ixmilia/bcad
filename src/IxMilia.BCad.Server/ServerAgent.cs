@@ -27,7 +27,23 @@ namespace IxMilia.BCad.Server
             _dim.CursorStateUpdated += _dim_CursorStateUpdated;
             _dim.RubberBandPrimitivesChanged += _dim_RubberBandPrimitivesChanged;
 
+            _workspace.InputService.PromptChanged += InputService_PromptChanged;
+            _workspace.OutputService.LineWritten += OutputService_LineWritten;
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+        }
+
+        private void InputService_PromptChanged(object sender, PromptChangedEventArgs e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.Prompt = e.Prompt;
+            PushUpdate(clientUpdate);
+        }
+
+        private void OutputService_LineWritten(object sender, WriteLineEventArgs e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.OutputLines = new[] { e.Line };
+            PushUpdate(clientUpdate);
         }
 
         private void _dim_CursorStateUpdated(object sender, CursorState e)
@@ -136,6 +152,11 @@ namespace IxMilia.BCad.Server
         public Task<bool> ExecuteCommand(string command)
         {
             return _workspace.ExecuteCommand(command);
+        }
+
+        public void SubmitInput(string value)
+        {
+            _dim.SubmitInput(value);
         }
 
         private ClientDrawing GetDrawing()

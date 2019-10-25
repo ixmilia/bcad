@@ -71,5 +71,7 @@ namespace IxMilia.BCad.Server
         public ClientDrawing Drawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
         public CursorState? CursorState { get; set; }
+        public string Prompt { get; set; }
+        public string[] OutputLines { get; set; }
     }
 }
