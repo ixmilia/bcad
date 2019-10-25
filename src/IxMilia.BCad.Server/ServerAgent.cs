@@ -166,11 +166,12 @@ namespace IxMilia.BCad.Server
                 case PrimitiveEllipse ellipse:
                     var startAngle = ellipse.StartAngle.CorrectAngleDegrees();
                     var endAngle = ellipse.EndAngle.CorrectAngleDegrees();
-                    if (endAngle < startAngle)
+                    if (endAngle <= startAngle)
                     {
                         endAngle += 360.0;
                     }
-                    clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, ellipse.FromUnitCircle.ToTransposeArray(), primitiveColor));
+                    var transform = Matrix4.CreateScale(1.0, 1.0, 0.0) * ellipse.FromUnitCircle; // flatten display in z-plane
+                    clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, transform.ToTransposeArray(), primitiveColor));
                     break;
                 case PrimitiveLine line:
                     clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
