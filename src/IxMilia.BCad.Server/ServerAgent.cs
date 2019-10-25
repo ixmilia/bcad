@@ -41,9 +41,10 @@ namespace IxMilia.BCad.Server
         {
             var clientUpdate = new ClientUpdate();
             clientUpdate.RubberBandDrawing = new ClientDrawing(null);
+            var fallBackColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor).GetAutoContrastingColor();
             foreach (var primitive in primitives)
             {
-                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor: CadColor.White);
+                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor);
             }
 
             PushUpdate(clientUpdate);
@@ -141,7 +142,7 @@ namespace IxMilia.BCad.Server
         {
             var drawing = _workspace.Drawing;
             var clientDrawing = new ClientDrawing(drawing.Settings.FileName);
-            var autoColor = CadColor.White;
+            var autoColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor).GetAutoContrastingColor();
             foreach (var layer in drawing.GetLayers())
             {
                 var layerColor = layer.Color ?? autoColor;
