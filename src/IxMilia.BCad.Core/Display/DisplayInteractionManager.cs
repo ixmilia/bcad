@@ -39,6 +39,7 @@ namespace IxMilia.BCad.Display
         private long drawSnapPointId = 1;
         private object drawSnapPointIdGate = new object();
         private object lastDrawnSnapPointIdGate = new object();
+        private RubberBandGenerator rubberBandGenerator;
 
         public ProjectionStyle UIProjectionStyle { get; set; }
         public double Width { get; private set; }
@@ -48,6 +49,7 @@ namespace IxMilia.BCad.Display
         public event EventHandler<Point> CursorDisplayLocationUpdated;
         public event EventHandler<Point> CursorWorldLocationUpdated;
         public event EventHandler<IEnumerable<Point>> HotPointsUpdated;
+        public event EventHandler<IEnumerable<IPrimitive>> RubberBandPrimitivesChanged;
         public event EventHandler<SelectionState?> SelectionRectangleUpdated;
         public event EventHandler<CursorState> CursorStateUpdated;
         public event EventHandler<TransformedSnapPoint?> CurrentSnapPointUpdated;
@@ -56,9 +58,11 @@ namespace IxMilia.BCad.Display
         {
             _workspace = workspace;
             UIProjectionStyle = uiProjectionStyle;
+            rubberBandGenerator = _workspace.RubberBandGenerator;
 
             _workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             _workspace.CommandExecuted += Workspace_CommandExecuted;
+            _workspace.RubberBandGeneratorChanged += Workspace_RubberBandGeneratorChanged;
             _workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             _workspace.InputService.ValueRequested += InputService_ValueRequested;
             _workspace.InputService.ValueReceived += InputService_ValueReceived;
@@ -130,6 +134,12 @@ namespace IxMilia.BCad.Display
             SelectionRectangleUpdated?.Invoke(this, null);
         }
 
+        private void Workspace_RubberBandGeneratorChanged(object sender, EventArgs e)
+        {
+            rubberBandGenerator = _workspace.RubberBandGenerator;
+            UpdateRubberBandLines();
+        }
+
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {
             if (e.IsActiveViewPortChange)
@@ -149,6 +159,15 @@ namespace IxMilia.BCad.Display
             transformationMatrix = Matrix4.CreateScale(1, 1, 0) * transformationMatrix;
             UpdateHotPoints();
             UpdateSnapPoints();
+        }
+
+        private void UpdateRubberBandLines()
+        {
+            var generator = rubberBandGenerator;
+            var primitives = generator == null
+                ? new IPrimitive[0]
+                : generator.Invoke(unprojectMatrix.Transform(lastPointerPosition));
+            RubberBandPrimitivesChanged?.Invoke(this, primitives);
         }
 
         private void DrawingChanged()
@@ -357,6 +376,10 @@ namespace IxMilia.BCad.Display
             }
 
             CursorDisplayLocationUpdated?.Invoke(this, position);
+            if (rubberBandGenerator != null)
+            {
+                UpdateRubberBandLines();
+            }
 
             updateSnapPointsTask.ContinueWith(_ =>
             {

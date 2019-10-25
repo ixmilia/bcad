@@ -69,6 +69,7 @@ namespace IxMilia.BCad.Server
         public bool IsDirty { get; set; }
         public double[] Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
+        public ClientDrawing RubberBandDrawing { get; set; }
         public CursorState? CursorState { get; set; }
     }
 }

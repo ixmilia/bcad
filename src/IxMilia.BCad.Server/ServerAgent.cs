@@ -1,5 +1,6 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
@@ -24,6 +25,7 @@ namespace IxMilia.BCad.Server
             IsRunning = true;
             _dim = new DisplayInteractionManager(workspace, ProjectionStyle.OriginTopLeft);
             _dim.CursorStateUpdated += _dim_CursorStateUpdated;
+            _dim.RubberBandPrimitivesChanged += _dim_RubberBandPrimitivesChanged;
 
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
         }
@@ -32,6 +34,18 @@ namespace IxMilia.BCad.Server
         {
             var clientUpdate = new ClientUpdate();
             clientUpdate.CursorState = e;
+            PushUpdate(clientUpdate);
+        }
+
+        private void _dim_RubberBandPrimitivesChanged(object sender, IEnumerable<IPrimitive> primitives)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.RubberBandDrawing = new ClientDrawing(null);
+            foreach (var primitive in primitives)
+            {
+                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor: CadColor.White);
+            }
+
             PushUpdate(clientUpdate);
         }
 
@@ -136,27 +150,32 @@ namespace IxMilia.BCad.Server
                     var entityColor = entity.Color ?? layerColor;
                     foreach (var primitive in entity.GetPrimitives())
                     {
-                        var primitiveColor = primitive.Color ?? entityColor;
-                        switch (primitive)
-                        {
-                            case PrimitiveEllipse ellipse:
-                                var startAngle = ellipse.StartAngle.CorrectAngleDegrees();
-                                var endAngle = ellipse.EndAngle.CorrectAngleDegrees();
-                                if (endAngle < startAngle)
-                                {
-                                    endAngle += 360.0;
-                                }
-                                clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, ellipse.FromUnitCircle.ToTransposeArray(), primitiveColor));
-                                break;
-                            case PrimitiveLine line:
-                                clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
-                                break;
-                        }
+                        AddPrimitiveToDrawing(clientDrawing, primitive, fallBackColor: entityColor);
                     }
                 }
             }
 
             return clientDrawing;
+        }
+
+        private void AddPrimitiveToDrawing(ClientDrawing clientDrawing, IPrimitive primitive, CadColor fallBackColor)
+        {
+            var primitiveColor = primitive.Color ?? fallBackColor;
+            switch (primitive)
+            {
+                case PrimitiveEllipse ellipse:
+                    var startAngle = ellipse.StartAngle.CorrectAngleDegrees();
+                    var endAngle = ellipse.EndAngle.CorrectAngleDegrees();
+                    if (endAngle < startAngle)
+                    {
+                        endAngle += 360.0;
+                    }
+                    clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, ellipse.FromUnitCircle.ToTransposeArray(), primitiveColor));
+                    break;
+                case PrimitiveLine line:
+                    clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
+                    break;
+            }
         }
 
         public void Pan(double dx, double dy)

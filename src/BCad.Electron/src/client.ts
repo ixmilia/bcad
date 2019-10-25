@@ -50,6 +50,7 @@ interface ClientUpdate {
     IsDirty: boolean;
     Transform?: number[];
     Drawing?: ClientDrawing;
+    RubberBandDrawing?: ClientDrawing;
     CursorState?: CursorState;
 }
 
@@ -66,7 +67,8 @@ export class Client {
     private cursorCanvas: HTMLCanvasElement;
     private gl: WebGLRenderingContext;
     private twod: CanvasRenderingContext2D;
-    private drawing: Drawing;
+    private entityDrawing: Drawing;
+    private rubberBandDrawing: Drawing;
     private identity: number[];
     private transform: number[];
     private coordinatesLocation: number;
@@ -104,7 +106,14 @@ export class Client {
     }
 
     start() {
-        this.drawing = {
+        this.entityDrawing = {
+            FileName: null,
+            Lines: [],
+            Ellipses: [],
+            Vertices: null,
+            Colors: null,
+        };
+        this.rubberBandDrawing = {
             FileName: null,
             Lines: [],
             Ellipses: [],
@@ -120,7 +129,8 @@ export class Client {
         this.transform = this.identity;
         this.prepareCanvas();
         this.populateStaticVertices();
-        this.populateVertices(this.drawing);
+        this.populateVertices(this.entityDrawing);
+        this.populateVertices(this.rubberBandDrawing);
         this.redraw();
         this.prepareConnection();
         this.prepareEvents();
@@ -228,14 +238,20 @@ export class Client {
             let clientUpdate = params[0];
             let redraw = false;
             if (clientUpdate.Drawing !== undefined) {
-                this.drawing.FileName = clientUpdate.Drawing.FileName;
-                this.drawing.Lines = clientUpdate.Drawing.Lines;
-                this.drawing.Ellipses = clientUpdate.Drawing.Ellipses;
-                var fileName = this.drawing.FileName || "(Untitled)";
+                this.entityDrawing.FileName = clientUpdate.Drawing.FileName;
+                this.entityDrawing.Lines = clientUpdate.Drawing.Lines;
+                this.entityDrawing.Ellipses = clientUpdate.Drawing.Ellipses;
+                var fileName = this.entityDrawing.FileName || "(Untitled)";
                 var dirtyText = clientUpdate.IsDirty ? " *" : "";
                 var title = `BCad [${fileName}]${dirtyText}`;
                 remote.getCurrentWindow().setTitle(title);
-                this.populateVertices(this.drawing);
+                this.populateVertices(this.entityDrawing);
+                redraw = true;
+            }
+            if (clientUpdate.RubberBandDrawing !== undefined) {
+                this.rubberBandDrawing.Lines = clientUpdate.RubberBandDrawing.Lines;
+                this.rubberBandDrawing.Ellipses = clientUpdate.RubberBandDrawing.Ellipses;
+                this.populateVertices(this.rubberBandDrawing);
                 redraw = true;
             }
             if (clientUpdate.Transform !== undefined) {
@@ -373,7 +389,8 @@ export class Client {
         //gl.clearColor(0.3921, 0.5843, 0.9294, 1.0); // cornflower blue
         this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // black
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-        this.redrawSpecific(this.drawing);
+        this.redrawSpecific(this.entityDrawing);
+        this.redrawSpecific(this.rubberBandDrawing);
     }
 
     private redrawSpecific(drawing: Drawing) {

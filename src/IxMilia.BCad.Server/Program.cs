@@ -10,6 +10,9 @@ namespace IxMilia.BCad.Server
 {
     class Program
     {
+        [Import]
+        public IWorkspace Workspace { get; set; }
+
         static void Main(string[] args)
         {
             new Program().RunAsync().GetAwaiter().GetResult(); ;
@@ -18,14 +21,13 @@ namespace IxMilia.BCad.Server
         private async Task RunAsync()
         {
             Console.Error.WriteLine("starting run");
-            var workspace = new RpcServerWorkspace();
-            CompositionContainer.Container.SatisfyImports(workspace);
+            CompositionContainer.Container.SatisfyImports(this);
 
             var serverRpc = new JsonRpc(Console.OpenStandardOutput(), Console.OpenStandardInput());
-            var server = new ServerAgent(workspace, serverRpc);
+            var server = new ServerAgent(Workspace, serverRpc);
             //System.Diagnostics.Debugger.Launch();
             serverRpc.AddLocalRpcTarget(server);
-            ((FileSystemService)workspace.FileSystemService).Rpc = serverRpc;
+            ((FileSystemService)Workspace.FileSystemService).Rpc = serverRpc;
             serverRpc.TraceSource.Listeners.Add(new Listener());
             serverRpc.StartListening();
             Console.Error.WriteLine("server listening");
