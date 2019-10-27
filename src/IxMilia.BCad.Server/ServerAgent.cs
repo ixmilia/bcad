@@ -6,6 +6,7 @@ using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Settings;
 using StreamJsonRpc;
 
 namespace IxMilia.BCad.Server
@@ -29,7 +30,15 @@ namespace IxMilia.BCad.Server
 
             _workspace.InputService.PromptChanged += InputService_PromptChanged;
             _workspace.OutputService.LineWritten += OutputService_LineWritten;
+            _workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+        }
+
+        private void SettingsService_SettingChanged(object sender, SettingChangedEventArgs e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.Settings = GetSettings();
+            PushUpdate(clientUpdate);
         }
 
         private void InputService_PromptChanged(object sender, PromptChangedEventArgs e)
@@ -115,7 +124,7 @@ namespace IxMilia.BCad.Server
 
             var clientUpdate = new ClientUpdate();
             clientUpdate.Transform = transform;
-            _rpc.NotifyAsync("ClientUpdate", clientUpdate);
+            PushUpdate(clientUpdate);
         }
 
         public void Ready(double width, double height)
@@ -124,9 +133,25 @@ namespace IxMilia.BCad.Server
             var clientUpdate = new ClientUpdate()
             {
                 Drawing = GetDrawing(),
+                Settings = GetSettings(),
                 Transform = GetTransformMatrix(),
             };
-            _rpc.NotifyAsync("ClientUpdate", clientUpdate);
+            PushUpdate(clientUpdate);
+        }
+
+        private ClientSettings GetSettings()
+        {
+            return new ClientSettings()
+            {
+                BackgroundColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor),
+                CursorSize = _workspace.SettingsService.GetValue<int>(DisplaySettingsProvider.CursorSize),
+                Debug = _workspace.SettingsService.GetValue<bool>(DefaultSettingsProvider.Debug),
+                EntitySelectionRadius = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius),
+                HotPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.HotPointColor),
+                SnapPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor),
+                SnapPointSize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapPointSize),
+                TextCursorSize = _workspace.SettingsService.GetValue<int>(DisplaySettingsProvider.TextCursorSize),
+            };
         }
 
         private double[] GetTransformMatrix()

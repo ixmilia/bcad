@@ -46,12 +46,25 @@ enum CursorState {
     Text = 4,
 }
 
+interface ClientSettings {
+    AutoColor: Color;
+    BackgroundColor: Color;
+    CursorSize: number;
+    Debug: boolean;
+    EntitySelectionRadius: number;
+    HotPointColor: Color;
+    SnapPointColor: Color;
+    SnapPointSize: number;
+    TextCursorSize: number;
+}
+
 interface ClientUpdate {
     IsDirty: boolean;
     Transform?: number[];
     Drawing?: ClientDrawing;
     RubberBandDrawing?: ClientDrawing;
     CursorState?: CursorState;
+    Settings?: ClientSettings;
     Prompt?: string;
     OutputLines?: string[];
 }
@@ -80,6 +93,7 @@ export class Client {
     private ellipseBuffer: WebGLBuffer;
     private cursorPosition: {x: number, y: number};
     private cursorState: CursorState;
+    private settings: ClientSettings;
 
     // client notifications
     private ClientUpdateNotification: rpc.NotificationType<ClientUpdate[], void>;
@@ -107,6 +121,17 @@ export class Client {
         this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
         this.cursorPosition = {x: 0, y: 0};
         this.cursorState = CursorState.Object | CursorState.Point;
+        this.settings = {
+            AutoColor: {A: 255, R: 255, G: 255, B: 255},
+            BackgroundColor: {A: 255, R: 255, G: 255, B: 255},
+            CursorSize: 60,
+            Debug: false,
+            EntitySelectionRadius: 3,
+            HotPointColor: {A: 255, R: 0, G: 0, B: 255},
+            SnapPointColor: {A: 255, R: 255, G: 255, B: 0},
+            SnapPointSize: 15,
+            TextCursorSize: 18,
+        };
     }
 
     start() {
@@ -247,6 +272,7 @@ export class Client {
         this.connection.onNotification(this.ClientUpdateNotification, (params) => {
             let clientUpdate = params[0];
             let redraw = false;
+            let redrawCursor = false;
             if (clientUpdate.Drawing !== undefined) {
                 this.entityDrawing.FileName = clientUpdate.Drawing.FileName;
                 this.entityDrawing.Lines = clientUpdate.Drawing.Lines;
@@ -270,7 +296,12 @@ export class Client {
             }
             if (clientUpdate.CursorState !== undefined) {
                 this.cursorState = clientUpdate.CursorState;
-                this.drawCursor();
+                redrawCursor = true;
+            }
+            if (clientUpdate.Settings !== undefined) {
+                this.settings = clientUpdate.Settings;
+                redraw = true;
+                redrawCursor = true;
             }
             if (clientUpdate.Prompt !== undefined) {
                 document.getElementById("prompt").innerText = clientUpdate.Prompt;
@@ -290,6 +321,9 @@ export class Client {
 
             if (redraw) {
                 this.redraw();
+            }
+            if (redrawCursor) {
+                this.drawCursor();
             }
         });
 
@@ -418,8 +452,7 @@ export class Client {
 
     private redraw() {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-        //gl.clearColor(0.3921, 0.5843, 0.9294, 1.0); // cornflower blue
-        this.gl.clearColor(0.0, 0.0, 0.0, 1.0); // black
+        this.gl.clearColor(this.settings.BackgroundColor.R / 255.0, this.settings.BackgroundColor.G / 255.0, this.settings.BackgroundColor.B / 255.0, 1.0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.redrawSpecific(this.entityDrawing);
         this.redrawSpecific(this.rubberBandDrawing);
@@ -462,27 +495,25 @@ export class Client {
     private drawCursor() {
         var x = this.cursorPosition.x;
         var y = this.cursorPosition.y;
-        var boxSize = 8; // TODO: from options
-        var cursorSize = 60; // TODO: from options
         this.twod.clearRect(0, 0, this.twod.canvas.width, this.twod.canvas.height);
         this.twod.beginPath();
-        this.twod.strokeStyle = "white"; // TODO: auto color or from options?
+        this.twod.strokeStyle = `#${this.settings.AutoColor.R.toString(16)}${this.settings.AutoColor.G.toString(16)}${this.settings.AutoColor.B.toString(16)}`;
 
         // point cursor
         if (this.cursorState & CursorState.Point) {
-            this.twod.moveTo(x - cursorSize / 2, y);
-            this.twod.lineTo(x + cursorSize / 2, y);
-            this.twod.moveTo(x, y - cursorSize / 2);
-            this.twod.lineTo(x, y + cursorSize / 2);
+            this.twod.moveTo(x - this.settings.CursorSize / 2, y);
+            this.twod.lineTo(x + this.settings.CursorSize / 2, y);
+            this.twod.moveTo(x, y - this.settings.CursorSize / 2);
+            this.twod.lineTo(x, y + this.settings.CursorSize / 2);
         }
 
         // object cursor
         if (this.cursorState & CursorState.Object) {
-            this.twod.moveTo(x - boxSize / 2, y - boxSize / 2);
-            this.twod.lineTo(x + boxSize / 2, y - boxSize / 2);
-            this.twod.lineTo(x + boxSize / 2, y + boxSize / 2);
-            this.twod.lineTo(x - boxSize / 2, y + boxSize / 2);
-            this.twod.lineTo(x - boxSize / 2, y - boxSize / 2);
+            this.twod.moveTo(x - this.settings.EntitySelectionRadius, y - this.settings.EntitySelectionRadius);
+            this.twod.lineTo(x + this.settings.EntitySelectionRadius, y - this.settings.EntitySelectionRadius);
+            this.twod.lineTo(x + this.settings.EntitySelectionRadius, y + this.settings.EntitySelectionRadius);
+            this.twod.lineTo(x - this.settings.EntitySelectionRadius, y + this.settings.EntitySelectionRadius);
+            this.twod.lineTo(x - this.settings.EntitySelectionRadius, y - this.settings.EntitySelectionRadius);
         }
 
         this.twod.stroke();

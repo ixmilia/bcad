@@ -64,6 +64,19 @@ namespace IxMilia.BCad.Server
         }
     }
 
+    public class ClientSettings
+    {
+        public CadColor AutoColor => BackgroundColor.GetAutoContrastingColor();
+        public CadColor BackgroundColor { get; set; }
+        public int CursorSize { get; set; }
+        public bool Debug { get; set; }
+        public double EntitySelectionRadius { get; set; }
+        public CadColor HotPointColor { get; set; }
+        public CadColor SnapPointColor { get; set; }
+        public double SnapPointSize { get; set; }
+        public int TextCursorSize { get; set; }
+    }
+
     public class ClientUpdate
     {
         public bool IsDirty { get; set; }
@@ -71,6 +84,7 @@ namespace IxMilia.BCad.Server
         public ClientDrawing Drawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
         public CursorState? CursorState { get; set; }
+        public ClientSettings Settings { get; set; }
         public string Prompt { get; set; }
         public string[] OutputLines { get; set; }
     }
