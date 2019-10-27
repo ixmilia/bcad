@@ -137,7 +137,7 @@ namespace IxMilia.BCad.Display
         private void Workspace_RubberBandGeneratorChanged(object sender, EventArgs e)
         {
             rubberBandGenerator = _workspace.RubberBandGenerator;
-            UpdateRubberBandLines();
+            UpdateRubberBandLines(unprojectMatrix.Transform(lastPointerPosition));
         }
 
         private void Workspace_WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
@@ -161,12 +161,12 @@ namespace IxMilia.BCad.Display
             UpdateSnapPoints();
         }
 
-        private void UpdateRubberBandLines()
+        private void UpdateRubberBandLines(Point cursorWorldPoint)
         {
             var generator = rubberBandGenerator;
             var primitives = generator == null
                 ? new IPrimitive[0]
-                : generator.Invoke(unprojectMatrix.Transform(lastPointerPosition));
+                : generator.Invoke(cursorWorldPoint);
             RubberBandPrimitivesChanged?.Invoke(this, primitives);
         }
 
@@ -375,17 +375,17 @@ namespace IxMilia.BCad.Display
                 UpdateSelectionLines();
             }
 
-            CursorDisplayLocationUpdated?.Invoke(this, position);
-            if (rubberBandGenerator != null)
-            {
-                UpdateRubberBandLines();
-            }
-
             updateSnapPointsTask.ContinueWith(_ =>
             {
                 var snapPoint = GetActiveModelPoint(position, updateSnapPointsCancellationTokenSource.Token);
+                if (snapPoint.Kind != SnapPointKind.None)
+                {
+                    CursorDisplayLocationUpdated?.Invoke(this, snapPoint.ControlPoint);
+                }
+
                 CursorWorldLocationUpdated?.Invoke(this, snapPoint.WorldPoint);
                 CurrentSnapPointUpdated?.Invoke(this, null);
+                UpdateRubberBandLines(snapPoint.WorldPoint);
                 if ((_workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point ||
                     selectingRectangle)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());

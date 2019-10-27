@@ -25,6 +25,7 @@ namespace IxMilia.BCad.Server
             _rpc = rpc;
             IsRunning = true;
             _dim = new DisplayInteractionManager(workspace, ProjectionStyle.OriginTopLeft);
+            _dim.CursorDisplayLocationUpdated += _dim_CursorDisplayLocationUpdated;
             _dim.CursorStateUpdated += _dim_CursorStateUpdated;
             _dim.RubberBandPrimitivesChanged += _dim_RubberBandPrimitivesChanged;
 
@@ -32,6 +33,13 @@ namespace IxMilia.BCad.Server
             _workspace.OutputService.LineWritten += OutputService_LineWritten;
             _workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+        }
+
+        private void _dim_CursorDisplayLocationUpdated(object sender, Point e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.CursorLocation = e;
+            PushUpdate(clientUpdate);
         }
 
         private void SettingsService_SettingChanged(object sender, SettingChangedEventArgs e)

@@ -63,6 +63,7 @@ interface ClientUpdate {
     Transform?: number[];
     Drawing?: ClientDrawing;
     RubberBandDrawing?: ClientDrawing;
+    CursorLocation?: Point3;
     CursorState?: CursorState;
     Settings?: ClientSettings;
     Prompt?: string;
@@ -289,6 +290,10 @@ export class Client {
                 this.rubberBandDrawing.Ellipses = clientUpdate.RubberBandDrawing.Ellipses;
                 this.populateVertices(this.rubberBandDrawing);
                 redraw = true;
+            }
+            if (clientUpdate.CursorLocation !== undefined) {
+                this.cursorPosition = {x: clientUpdate.CursorLocation.X, y: clientUpdate.CursorLocation.Y };
+                redrawCursor = true;
             }
             if (clientUpdate.Transform !== undefined) {
                 this.transform = clientUpdate.Transform;
