@@ -59,12 +59,12 @@ interface ClientSettings {
 }
 
 enum SnapPointKind {
-    None = 0,
-    Center = 1,
-    EndPoint = 2,
-    MidPoint = 4,
-    Quadrand = 8,
-    Focus = 10,
+    None = 0x00,
+    Center = 0x01,
+    EndPoint = 0x02,
+    MidPoint = 0x04,
+    Quadrant = 0x08,
+    Focus = 0x10,
 }
 
 interface ClientUpdate {
@@ -304,6 +304,7 @@ export class Client {
             }
             if (clientUpdate.TransformedSnapPoint !== undefined) {
                 this.cursorPosition = {x: clientUpdate.TransformedSnapPoint.ControlPoint.X, y: clientUpdate.TransformedSnapPoint.ControlPoint.Y };
+                this.snapPointKind = clientUpdate.TransformedSnapPoint.Kind;
                 redrawCursor = true;
             }
             if (clientUpdate.Transform !== undefined) {
@@ -513,7 +514,8 @@ export class Client {
         var y = this.cursorPosition.y;
         this.twod.clearRect(0, 0, this.twod.canvas.width, this.twod.canvas.height);
         this.twod.beginPath();
-        this.twod.strokeStyle = `#${this.settings.AutoColor.R.toString(16)}${this.settings.AutoColor.G.toString(16)}${this.settings.AutoColor.B.toString(16)}`;
+        this.twod.lineWidth = 1;
+        this.twod.strokeStyle = Client.colorToHex(this.settings.AutoColor);
 
         // point cursor
         if (this.cursorState & CursorState.Point) {
@@ -533,9 +535,66 @@ export class Client {
         }
 
         this.twod.stroke();
+
+        // snap points
+        if (this.snapPointKind != SnapPointKind.None) {
+            this.twod.beginPath();
+            this.twod.lineWidth = 3;
+            this.twod.strokeStyle = Client.colorToHex(this.settings.SnapPointColor);
+
+            // snap point always at cursor location?
+            switch (this.snapPointKind) {
+                case SnapPointKind.Center:
+                    this.twod.ellipse(x, y, this.settings.SnapPointSize / 2, this.settings.SnapPointSize / 2, 0.0, 0.0, 360.0);
+                    break;
+                case SnapPointKind.EndPoint:
+                    this.twod.moveTo(x - this.settings.SnapPointSize / 2, y - this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x + this.settings.SnapPointSize / 2, y - this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x + this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x - this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x - this.settings.SnapPointSize / 2, y - this.settings.SnapPointSize / 2);
+                    break;
+                case SnapPointKind.MidPoint:
+                    this.twod.moveTo(x - this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x + this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x, y - this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x - this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    break;
+                case SnapPointKind.Quadrant:
+                    this.twod.moveTo(x - this.settings.SnapPointSize / 2, y);
+                    this.twod.lineTo(x, y + this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x + this.settings.SnapPointSize / 2, y);
+                    this.twod.lineTo(x, y - this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x - this.settings.SnapPointSize / 2, y);
+                    break;
+                case SnapPointKind.Focus:
+                    this.twod.moveTo(x, y - this.settings.SnapPointSize / 2);
+                    this.twod.lineTo(x, y + this.settings.SnapPointSize / 2);
+                    this.twod.moveTo(x - this.settings.SnapPointSize * 0.4, y - this.settings.SnapPointSize * 0.25);
+                    this.twod.lineTo(x + this.settings.SnapPointSize * 0.4, y + this.settings.SnapPointSize * 0.25);
+                    this.twod.moveTo(x - this.settings.SnapPointSize * 0.4, y + this.settings.SnapPointSize * 0.25);
+                    this.twod.lineTo(x + this.settings.SnapPointSize * 0.4, y - this.settings.SnapPointSize * 0.25);
+                    break;
+            }
+
+            this.twod.stroke();
+        }
     }
 
     async executeCommand(commandName: string) {
         var result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: commandName});
+    }
+
+    private static numberToHex(n: number): string {
+        var result = n.toString(16);
+        while (result.length < 2) {
+            result = '0' + result;
+        }
+
+        return result;
+    }
+
+    private static colorToHex(c: Color): string {
+        return `#${this.numberToHex(c.R)}${this.numberToHex(c.G)}${this.numberToHex(c.B)}`;
     }
 }
