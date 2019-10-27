@@ -58,12 +58,21 @@ interface ClientSettings {
     TextCursorSize: number;
 }
 
+enum SnapPointKind {
+    None = 0,
+    Center = 1,
+    EndPoint = 2,
+    MidPoint = 4,
+    Quadrand = 8,
+    Focus = 10,
+}
+
 interface ClientUpdate {
     IsDirty: boolean;
     Transform?: number[];
     Drawing?: ClientDrawing;
     RubberBandDrawing?: ClientDrawing;
-    CursorLocation?: Point3;
+    TransformedSnapPoint?: {WorldPoint: Point3, ControlPoint: Point3, Kind: SnapPointKind};
     CursorState?: CursorState;
     Settings?: ClientSettings;
     Prompt?: string;
@@ -94,6 +103,7 @@ export class Client {
     private ellipseBuffer: WebGLBuffer;
     private cursorPosition: {x: number, y: number};
     private cursorState: CursorState;
+    private snapPointKind: SnapPointKind;
     private settings: ClientSettings;
 
     // client notifications
@@ -122,6 +132,7 @@ export class Client {
         this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
         this.cursorPosition = {x: 0, y: 0};
         this.cursorState = CursorState.Object | CursorState.Point;
+        this.snapPointKind = SnapPointKind.None;
         this.settings = {
             AutoColor: {A: 255, R: 255, G: 255, B: 255},
             BackgroundColor: {A: 255, R: 255, G: 255, B: 255},
@@ -291,8 +302,8 @@ export class Client {
                 this.populateVertices(this.rubberBandDrawing);
                 redraw = true;
             }
-            if (clientUpdate.CursorLocation !== undefined) {
-                this.cursorPosition = {x: clientUpdate.CursorLocation.X, y: clientUpdate.CursorLocation.Y };
+            if (clientUpdate.TransformedSnapPoint !== undefined) {
+                this.cursorPosition = {x: clientUpdate.TransformedSnapPoint.ControlPoint.X, y: clientUpdate.TransformedSnapPoint.ControlPoint.Y };
                 redrawCursor = true;
             }
             if (clientUpdate.Transform !== undefined) {

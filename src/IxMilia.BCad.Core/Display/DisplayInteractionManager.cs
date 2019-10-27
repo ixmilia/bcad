@@ -46,7 +46,6 @@ namespace IxMilia.BCad.Display
         public double Height { get; private set; }
         public double ZoomScale { get; set; } = 1.25;
 
-        public event EventHandler<Point> CursorDisplayLocationUpdated;
         public event EventHandler<Point> CursorWorldLocationUpdated;
         public event EventHandler<IEnumerable<Point>> HotPointsUpdated;
         public event EventHandler<IEnumerable<IPrimitive>> RubberBandPrimitivesChanged;
@@ -378,13 +377,8 @@ namespace IxMilia.BCad.Display
             updateSnapPointsTask.ContinueWith(_ =>
             {
                 var snapPoint = GetActiveModelPoint(position, updateSnapPointsCancellationTokenSource.Token);
-                if (snapPoint.Kind != SnapPointKind.None)
-                {
-                    CursorDisplayLocationUpdated?.Invoke(this, snapPoint.ControlPoint);
-                }
-
                 CursorWorldLocationUpdated?.Invoke(this, snapPoint.WorldPoint);
-                CurrentSnapPointUpdated?.Invoke(this, null);
+                CurrentSnapPointUpdated?.Invoke(this, snapPoint);
                 UpdateRubberBandLines(snapPoint.WorldPoint);
                 if ((_workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point ||
                     selectingRectangle)

@@ -83,7 +83,7 @@ namespace IxMilia.BCad.Server
         public double[] Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
-        public Point? CursorLocation { get; set; }
+        public TransformedSnapPoint? TransformedSnapPoint { get; set; }
         public CursorState? CursorState { get; set; }
         public ClientSettings Settings { get; set; }
         public string Prompt { get; set; }

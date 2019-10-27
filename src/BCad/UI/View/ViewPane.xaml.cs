@@ -99,7 +99,6 @@ namespace IxMilia.BCad.UI.View
             dim = new DisplayInteractionManager(Workspace, ProjectionStyle.OriginTopLeft);
             dim.CursorStateUpdated += (sender, args) => Invoke(() => CursorStateUpdated(sender, args));
             dim.CurrentSnapPointUpdated += (sender, args) => Invoke(() => CurrentSnapPointUpdated(sender, args));
-            dim.CursorDisplayLocationUpdated += (_, args) => { BindObject.CursorScreen = args; Invoke(UpdateCursorLocation); };
             dim.CursorWorldLocationUpdated += (_, args) => { BindObject.CursorWorld = args; _renderer.UpdateRubberBandLines(); };
             dim.HotPointsUpdated += (sender, args) => Invoke(() => UpdateHotPoints(sender, args));
             dim.SelectionRectangleUpdated += (sender, args) => Invoke(() => UpdateSelectionLines(sender, args));
@@ -166,6 +165,7 @@ namespace IxMilia.BCad.UI.View
                 Canvas.SetLeft(geometry, snapPoint.ControlPoint.X - geometry.ActualWidth * scale / 2.0);
                 Canvas.SetTop(geometry, snapPoint.ControlPoint.Y - geometry.ActualHeight * scale / 2.0);
                 geometry.Visibility = Visibility.Visible;
+                BindObject.CursorScreen = snapPoint.ControlPoint;
             }
             else
             {
