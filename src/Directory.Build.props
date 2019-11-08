@@ -11,6 +11,7 @@
     <BaseOutputPath>$(ArtifactsDir)\bin\$(MSBuildProjectName)</BaseOutputPath>
     <BaseIntermediateOutputPath>$(ArtifactsDir)\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <PackageOutputPath>$(ArtifactsPackagesDir)\$(Configuration)</PackageOutputPath>
+    <DebugType>embedded</DebugType>
 
     <!-- SourceLink settings -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
