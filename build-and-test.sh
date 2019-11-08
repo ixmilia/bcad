@@ -21,10 +21,11 @@ done
 $SCRIPT_DIR/src/IxMilia.Dxf/build-and-test.sh --notest --configuration $CONFIGURATION
 
 # build
-# all buildable projects in Linux can be reached from this
-FILE_HANDLER_TEST=$SCRIPT_DIR/src/IxMilia.BCad.FileHandlers.Test/IxMilia.BCad.FileHandlers.Test.csproj
+SOLUTION=$SCRIPT_DIR/src/BCad.sln
 CORE_TEST=$SCRIPT_DIR/src/IxMilia.BCad.Core.Test/IxMilia.BCad.Core.Test.csproj
-dotnet restore $FILE_HANDLER_TEST
+FILE_HANDLER_TEST=$SCRIPT_DIR/src/IxMilia.BCad.FileHandlers.Test/IxMilia.BCad.FileHandlers.Test.csproj
+dotnet restore $SOLUTION
+# can't build BCad.sln because of WPF dependency, but this project has references to everything necessary
 dotnet build $FILE_HANDLER_TEST -c $CONFIGURATION
 
 # test
