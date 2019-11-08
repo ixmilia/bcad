@@ -1,33 +1,33 @@
 @echo off
-set srcdir=%~dp0src
-set slnfile=%srcdir%\BCad.sln
+setlocal
 
-:: ensure msbuild is on the path
-where msbuild > NUL 2>&1
-if errorlevel 1 set PATH=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin;%PATH%
+set configuration=Debug
 
-set filehandlerstestproject=%srcdir%\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj
-set coretestproject=%srcdir%\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj
+:parseargs
+if "%1" == "" goto argsdone
+if /i "%1" == "-c" (
+    set configuration=%2
+    shift
+    shift
+    goto parseargs
+)
 
-:: every dotnet core project is eventually referenced off of this one
-set toplevelproject=%filehandlerstestproject%
+echo Unsupported argument: %1
+goto error
 
-:: IxMilia.Dxf needs a custom invocation
-call %~dp0src\IxMilia.Dxf\build-and-test.cmd -notest
+:argsdone
+
+:: IxMilia.Dxf needs a custom invocation to generate code
+call %~dp0src\IxMilia.Dxf\build-and-test.cmd -notest -c %configuration%
 if errorlevel 1 echo Error pre-building IxMilia.Dxf && exit /b 1
 
-:: restore packages
-dotnet restore "%srcdir%\BCad\BCad.csproj"
-if errorlevel 1 echo Error restoring packages && exit /b 1
-dotnet restore "%toplevelproject%"
-if errorlevel 1 echo Error restoring packages && exit /b 1
-
 :: build
-msbuild "%slnfile%"
-if errorlevel 1 echo Error building solution && exit /b 1
+set SOLUTION=%~dp0src\BCad.sln
+msbuild "%SOLUTION%" /t:Restore
+if errorlevel 1 exit /b 1
+msbuild "%SOLUTION%" /t:Build /p:Configuration=%configuration%
+if errorlevel 1 exit /b 1
 
 :: test
-dotnet test "%coretestproject%"
-if errorlevel 1 echo Error running tests && exit /b 1
-dotnet test "%filehandlerstestproject%"
-if errorlevel 1 echo Error running tests && exit /b 1
+dotnet test "%SOLUTION%" -c %configuration% --no-restore --no-build
+if errorlevel 1 exit /b 1
