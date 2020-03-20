@@ -187,12 +187,12 @@ export class Client {
     }
 
     private prepareConnection() {
-        let serverAssembly = "IxMilia.BCad.Server.dll";
+        let serverAssembly = "IxMilia.BCad.Server.exe";
         let serverSubPath = this.arguments.isLocal
             ? '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1/'
             : '/../bin/';
         let serverPath = __dirname + serverSubPath + serverAssembly;
-        let childProcess = cp.spawn('dotnet.exe', [serverPath]);
+        let childProcess = cp.spawn(serverPath);
         childProcess.on('exit', (code: number, _signal: string) => {
             alert('process exited with ' + code);
         });

@@ -11,7 +11,10 @@
     "build-server": "build-server.cmd --configuration Release",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "pack": "npm run build-all && electron-packager . --platform=win32 --arch=x64 --icon=./dist/bcad.ico --out=../../artifacts/pack --overwrite",
+    "pack-all": "npm run pack-linux && npm run pack-win",
+    "pack-linux": "electron-packager . --platform=linux --arch=x64 --icon=./dist/bcad.ico --out=../../artifacts/pack --overwrite",
+    "pack-win": "electron-packager . --platform=win32 --arch=x64 --icon=./dist/bcad.ico --out=../../artifacts/pack --overwrite",
+    "pack": "npm run build-all && npm run pack-all",
     "start": "npm run build && electron ./dist/main.js -- debug local"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
