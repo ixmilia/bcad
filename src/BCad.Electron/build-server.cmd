@@ -27,5 +27,5 @@ dotnet restore %src%
 dotnet build %src% -c %configuration%
 dotnet publish %src% -c %configuration%
 
-robocopy %~dp0..\..\artifacts\bin\IxMilia.BCad.Server\%configuration%\netcoreapp3.0\publish %dest% /s /mir
+robocopy %~dp0..\..\artifacts\bin\IxMilia.BCad.Server\%configuration%\netcoreapp3.1\publish %dest% /s /mir
 exit /b 0

@@ -189,7 +189,7 @@ export class Client {
     private prepareConnection() {
         let serverAssembly = "IxMilia.BCad.Server.dll";
         let serverSubPath = this.arguments.isLocal
-            ? '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.0/'
+            ? '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1/'
             : '/../bin/';
         let serverPath = __dirname + serverSubPath + serverAssembly;
         let childProcess = cp.spawn('dotnet.exe', [serverPath]);
