@@ -13,12 +13,13 @@ function createWindow() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    icon: path.join(__dirname, "bcad.ico"),
+    width: width,
     height: height,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
     },
-    width: width,
   });
 
   // and load the index.html of the app.
