@@ -150,6 +150,16 @@ namespace IxMilia.BCad.Server
             PushUpdate(clientUpdate);
         }
 
+        public void Resize(double width, double height)
+        {
+            _dim.Resize(width, height);
+            var clientUpdate = new ClientUpdate()
+            {
+                Transform = GetTransformMatrix(),
+            };
+            PushUpdate(clientUpdate);
+        }
+
         private ClientSettings GetSettings()
         {
             return new ClientSettings()

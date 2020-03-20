@@ -6,9 +6,9 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-    <div>
+    <div id="ribbon-pane">
       <div>
-          <button class="commandButton" data-command-name="File.Open">Open</button>
+        <button class="commandButton" data-command-name="File.Open">Open</button>
       </div>
       <div style="display: inline">
         <button id="homeButton" class="tabButton">Home</button>
@@ -46,23 +46,24 @@
         </div>
       </div>
     </div>
-    <div id="output-pane" width="640" height="360" style="position: relative">
-      <canvas id="drawingCanvas" class="displayCanvas" width="640" height="360"></canvas>
-      <canvas id="cursorCanvas" class="displayCanvas" width="640" height="360"></canvas>
+    <div id="output-pane">
+      <canvas id="drawingCanvas" class="displayCanvas"></canvas>
+      <canvas id="cursorCanvas" class="displayCanvas"></canvas>
     </div>
-    <br />
-    <button id="zoomInButton">+</button>
-    <button id="zoomOutButton">-</button>
-    <button id="panLeftButton">&lt;</button>
-    <button id="panRightButton">&gt;</button>
-    <button id="panUpButton">^</button>
-    <button id="panDownButton">v</button>
-    <br />
-    <div id="console">
-      <textarea id="outputConsole" rows="4" cols="80"></textarea>
+    <div id="bottom-pane">
+      <button id="zoomInButton">+</button>
+      <button id="zoomOutButton">-</button>
+      <button id="panLeftButton">&lt;</button>
+      <button id="panRightButton">&gt;</button>
+      <button id="panUpButton">^</button>
+      <button id="panDownButton">v</button>
       <br />
-      <div id="prompt">Command</div>
-      <input id="input" size="80" />
+      <div id="console">
+        <textarea id="outputConsole" rows="4" cols="80"></textarea>
+        <br />
+        <div id="prompt">Command</div>
+        <input id="input" size="80" />
+      </div>
     </div>
   </body>
   <script>

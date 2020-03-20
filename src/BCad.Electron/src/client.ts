@@ -1,6 +1,7 @@
 import * as cp from 'child_process';
 import * as rpc from 'vscode-jsonrpc';
 import { remote } from 'electron';
+import { ResizeObserver } from 'resize-observer';
 
 interface Point3 {
     X: number;
@@ -113,6 +114,7 @@ export class Client {
     private MouseMoveNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>;
     private PanNotification: rpc.NotificationType<{dx: Number, dy: Number}, void>;
     private ReadyNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
+    private ResizeNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
     private SubmitIntputNotification: rpc.NotificationType<{value: string}, void>;
     private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>;
     private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
@@ -127,6 +129,7 @@ export class Client {
         this.MouseMoveNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>('MouseMove');
         this.PanNotification = new rpc.NotificationType<{dx: Number, dy: Number}, void>('Pan');
         this.ReadyNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Ready');
+        this.ResizeNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Resize');
         this.SubmitIntputNotification = new rpc.NotificationType<{value: string}, void>('SubmitInput');
         this.ZoomNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>('Zoom');
         this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
@@ -236,9 +239,13 @@ export class Client {
             this.drawCursor();
             this.connection.sendNotification(this.MouseMoveNotification, {cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
-        this.outputPane.addEventListener('resize', () => {
-            // TODO:
-        });
+        (new ResizeObserver(_entries => {
+            this.drawingCanvas.width = this.outputPane.clientWidth;
+            this.drawingCanvas.height = this.outputPane.clientHeight;
+            this.cursorCanvas.width = this.outputPane.clientWidth;
+            this.cursorCanvas.height = this.outputPane.clientHeight;
+            this.connection.sendNotification(this.ResizeNotification, {width: this.drawingCanvas.width, height: this.drawingCanvas.height});
+        })).observe(this.outputPane);
         var elements = [
             {id: "panLeftButton", dxm: -1, dym: 0},
             {id: "panRightButton", dxm: 1, dym: 0},
