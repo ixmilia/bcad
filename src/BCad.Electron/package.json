@@ -5,10 +5,13 @@
   "main": "./dist/main.js",
   "scripts": {
     "build": "tsc",
+    "build-all": "npm run build && npm run build-assets",
+    "build-assets": "npm run build-icons && npm run build-server",
     "build-icons": "icon-gen -i ./bcad.svg -o ./dist --ico name=bcad sizes=32",
+    "build-server": "build-server.cmd --configuration Release",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "pack": "build-server.cmd --configuration Release && npm run build-icons && electron-packager . --platform=win32 --arch=x64 --icon=./dist/bcad.ico --out=pack --overwrite",
+    "pack": "npm run build-all && electron-packager . --platform=win32 --arch=x64 --icon=./dist/bcad.ico --out=pack --overwrite",
     "start": "npm run build && electron ./dist/main.js -- debug local"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
