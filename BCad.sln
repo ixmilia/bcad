@@ -3,33 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCad", "BCad\BCad.csproj", "{A978C366-6CC2-4F82-908A-8C830F7E6113}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EDB8FB15-5411-47F8-804A-EC0F696CD4E4} = {EDB8FB15-5411-47F8-804A-EC0F696CD4E4}
-		{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55} = {0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Core", "src\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj", "{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Core", "IxMilia.BCad.Core\IxMilia.BCad.Core.csproj", "{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.FileHandlers", "src\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj", "{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.FileHandlers", "IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj", "{0B2DC042-30B6-4D2B-AC56-5F12D1EB5A55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Iges", "src\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj", "{EDB8FB15-5411-47F8-804A-EC0F696CD4E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Iges", "IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj", "{EDB8FB15-5411-47F8-804A-EC0F696CD4E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Step", "src\IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj", "{7BEB4FB6-8A3E-4690-B06C-357130AB4226}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Step", "IxMilia.Step\src\IxMilia.Step\IxMilia.Step.csproj", "{7BEB4FB6-8A3E-4690-B06C-357130AB4226}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Config", "src\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj", "{B1A59BD1-0661-4B55-9B36-F9B970829D12}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Config", "IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj", "{B1A59BD1-0661-4B55-9B36-F9B970829D12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Dxf", "src\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj", "{7BA117F4-3307-46A6-B4E7-09C72B5B97BF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Dxf", "IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj", "{7BA117F4-3307-46A6-B4E7-09C72B5B97BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Pdf", "src\IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj", "{A1CFAB83-7538-4A75-967F-FCC7E5499C6D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Pdf", "IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj", "{A1CFAB83-7538-4A75-967F-FCC7E5499C6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Stl", "src\IxMilia.Stl\src\IxMilia.Stl\IxMilia.Stl.csproj", "{E55B1680-A787-49EC-AF25-45F14B08848D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.Stl", "IxMilia.Stl\src\IxMilia.Stl\IxMilia.Stl.csproj", "{E55B1680-A787-49EC-AF25-45F14B08848D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.FileHandlers.Test", "src\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj", "{CE371DD1-3780-4D9A-A440-FB2D58311552}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.FileHandlers.Test", "IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj", "{CE371DD1-3780-4D9A-A440-FB2D58311552}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Core.Test", "src\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj", "{363631FC-D656-463A-A3C0-7D8EE17CB342}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Core.Test", "IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj", "{363631FC-D656-463A-A3C0-7D8EE17CB342}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Server", "IxMilia.BCad.Server\IxMilia.BCad.Server.csproj", "{CDCB4508-6E38-41C1-8A28-A88C0A012DC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxMilia.BCad.Server", "src\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj", "{CDCB4508-6E38-41C1-8A28-A88C0A012DC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,21 +39,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Debug|x86.Build.0 = Debug|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|ARM.ActiveCfg = Release|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|x64.ActiveCfg = Release|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|x86.ActiveCfg = Release|Any CPU
-		{A978C366-6CC2-4F82-908A-8C830F7E6113}.Release|x86.Build.0 = Release|Any CPU
 		{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE1E5DC5-64DB-4FBA-847C-5B84A865EEC1}.Debug|ARM.ActiveCfg = Debug|Any CPU
