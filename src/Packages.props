@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <MicrosoftNETTestSdkPackageVersion>15.0.0</MicrosoftNETTestSdkPackageVersion>
-    <MicrosoftSourceLinkGitHubPackageVersion>1.0.0-beta-63127-02</MicrosoftSourceLinkGitHubPackageVersion>
+    <MicrosoftSourceLinkGitHubPackageVersion>1.0.0-beta2-19367-01</MicrosoftSourceLinkGitHubPackageVersion>
     <NewtonsoftJsonPackageVersion>10.0.3</NewtonsoftJsonPackageVersion>
     <SkiaSharpViewsPackageVersion>1.56.2</SkiaSharpViewsPackageVersion>
     <SystemCompositionPackageVersion>1.0.31</SystemCompositionPackageVersion>

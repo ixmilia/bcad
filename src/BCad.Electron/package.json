@@ -7,8 +7,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "pack": "electron-packager . --platform=win32 --arch=x64 --out=pack --overwrite",
-    "start": "npm run build && electron ./dist/main.js"
+    "pack": "build-server.cmd --configuration Release && electron-packager . --platform=win32 --arch=x64 --out=pack --overwrite",
+    "start": "npm run build && electron ./dist/main.js -- debug local"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
   "keywords": [
@@ -25,10 +25,10 @@
     "electron": "^6.0.8",
     "electron-packager": "^14.0.6",
     "tslint": "^5.19.0",
-    "resize-observer": "1.0.0",
     "typescript": "^3.6.0"
   },
   "dependencies": {
+    "resize-observer": "1.0.0",
     "vscode-jsonrpc": "^4.0.0"
   }
 }

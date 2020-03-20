@@ -2,6 +2,7 @@ import * as cp from 'child_process';
 import * as rpc from 'vscode-jsonrpc';
 import { remote } from 'electron';
 import { ResizeObserver } from 'resize-observer';
+import { Arguments } from './args';
 
 interface Point3 {
     X: number;
@@ -87,6 +88,7 @@ enum MouseButton {
 }
 
 export class Client {
+    private arguments: Arguments;
     private connection: rpc.MessageConnection;
     private outputPane: HTMLDivElement;
     private drawingCanvas: HTMLCanvasElement;
@@ -119,7 +121,8 @@ export class Client {
     private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>;
     private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
 
-    constructor() {
+    constructor(args: Arguments) {
+        this.arguments = args;
         this.drawingCanvas = <HTMLCanvasElement> document.getElementById('drawingCanvas');
         this.cursorCanvas = <HTMLCanvasElement> document.getElementById('cursorCanvas');
         this.outputPane = <HTMLDivElement> document.getElementById('output-pane');
@@ -185,8 +188,10 @@ export class Client {
 
     private prepareConnection() {
         let serverAssembly = "IxMilia.BCad.Server.dll";
-        var serverPath = __dirname + '/../bin/' + serverAssembly;
-        serverPath = __dirname + '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.0/' + serverAssembly;
+        let serverSubPath = this.arguments.isLocal
+            ? '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.0/'
+            : '/../bin/';
+        let serverPath = __dirname + serverSubPath + serverAssembly;
         let childProcess = cp.spawn('dotnet.exe', [serverPath]);
         childProcess.on('exit', (code: number, _signal: string) => {
             alert('process exited with ' + code);

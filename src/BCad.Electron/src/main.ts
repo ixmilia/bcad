@@ -1,24 +1,33 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
+import { Arguments } from './args';
 
 let mainWindow: Electron.BrowserWindow;
 
 function createWindow() {
+  var args = new Arguments(process.argv);
+
+  var [width, height] = args.isDebug
+    ? [1600, 800]
+    : [1280, 720];
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 800,
+    height: height,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
     },
-    width: 1600,
+    width: width,
   });
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "../index.html"));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (args.isDebug) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {
