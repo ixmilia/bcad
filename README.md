@@ -1,17 +1,30 @@
 BCad
 ====
 
-A .NET WPF application for simple CAD-like work.
+An Electron-based application for simple CAD-like work.
 
-[![Build Status](https://dev.azure.com/ixmilia/public/_apis/build/status/BCad?branchName=master)](https://dev.azure.com/ixmilia/public/_build/latest?definitionId=26)
+## Build dependencies
+
+1. [.NET Core SDK 3.1](https://dotnet.microsoft.com/download) configured so that the `dotnet` tool is on the path.
+2. [Node.js/NPM](https://nodejs.org) LTS.
 
 ## Building
 
 0. Clone.
-1. Run `Init.cmd` in the root of the project to populate the submodules.
-2. `build-and-test.cmd`.
+1. Run `init.cmd`/`init.sh` in the root of the project to populate the submodules.
+2. `build-and-test.cmd`/`build-and-test.sh`.
+
+## Debugging
+
+To run locally after building:
+
+``` bash
+cd src/bcad
+npm start
+```
 
 ## Running
 
-Run `src\BCad\bin\Debug\BCad.exe` directly or use `src\deploy.bat <location>` to copy all relevant files
-to `<location>` where `BCad.exe` can then be run.
+Final app is placed in `artifacts/pack/bcad-win32-x64`/`artifacts/pack/bcad-linux-x64`.
+
+See [README.md](bcad/src/README.md) in `src/bcad` for details on building/running via WSL that I needed on my local box.
