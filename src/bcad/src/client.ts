@@ -1,4 +1,6 @@
 import * as cp from 'child_process';
+import * as os from 'os';
+import * as path from 'path';
 import * as rpc from 'vscode-jsonrpc';
 import { remote } from 'electron';
 import { ResizeObserver } from 'resize-observer';
@@ -187,11 +189,13 @@ export class Client {
     }
 
     private prepareConnection() {
-        let serverAssembly = "IxMilia.BCad.Server.exe";
+        let serverAssembly = os.platform() == "win32"
+            ? "IxMilia.BCad.Server.exe"
+            : "IxMilia.BCad.Server";
         let serverSubPath = this.arguments.isLocal
-            ? '/../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1/'
-            : '/../bin/';
-        let serverPath = __dirname + serverSubPath + serverAssembly;
+            ? '../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1'
+            : '../../publish';
+        let serverPath = path.join(__dirname, serverSubPath, serverAssembly);
         let childProcess = cp.spawn(serverPath);
         childProcess.on('exit', (code: number, _signal: string) => {
             alert('process exited with ' + code);

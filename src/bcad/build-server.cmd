@@ -3,6 +3,8 @@ setlocal
 
 set thisdir=%~dp0
 set configuration=Debug
+set tfm=netcoreapp3.1
+set rid=win-x64
 
 :parseargs
 if "%1" == "" goto argsdone
@@ -21,11 +23,7 @@ goto parseargs
 :argsdone
 
 set src=%~dp0..\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj
-set dest=%~dp0bin
 
-dotnet restore %src%
-dotnet build %src% -c %configuration%
-dotnet publish %src% -c %configuration%
-
-robocopy %~dp0..\..\artifacts\bin\IxMilia.BCad.Server\%configuration%\netcoreapp3.1\publish %dest% /s /mir
-exit /b 0
+dotnet restore "%src%"
+dotnet build "%src%" -c %configuration%
+dotnet publish "%src%" -c %configuration% -f %tfm% -r %rid%
