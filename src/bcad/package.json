@@ -8,7 +8,9 @@
     "build-all": "npm run build && npm run build-assets",
     "build-assets": "npm run build-icons && npm run build-server",
     "build-icons": "icon-gen -i ./bcad.svg -o ./dist --ico name=bcad sizes=32",
-    "build-server": "build-server.cmd --configuration Release",
+    "build-server": "run-script-os",
+    "build-server:linux": "./build-server.sh --configuration Release",
+    "build-server:win32": "build-server.cmd --configuration Release",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "pack-all": "npm run pack-linux && npm run pack-win",
@@ -32,6 +34,7 @@
     "electron": "^6.0.8",
     "electron-packager": "^14.0.6",
     "icon-gen": "2.0.0",
+    "run-script-os": "1.1.1",
     "tslint": "^5.19.0",
     "typescript": "^3.6.0"
   },

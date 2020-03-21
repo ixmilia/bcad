@@ -1,14 +1,21 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
-CORE_TEST=./src/IxMilia.BCad.Core.Test/IxMilia.BCad.Core.Test.csproj
-FILE_HANDLER_TEST=./src/IxMilia.BCad.FileHandlers.Test/IxMilia.BCad.FileHandlers.Test.csproj
+_SCRIPT_DIR="$( cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P )"
 
 # IxMilia.Dxf needs a custom invocation
-./src/IxMilia.Dxf/build-and-test.sh --notest
+"$_SCRIPT_DIR/src/IxMilia.Dxf/build-and-test.sh" --notest
 
-# only need to restore/build this project since everything else cascades off of it
-dotnet restore $FILE_HANDLER_TEST
-dotnet build $FILE_HANDLER_TEST
+# restore packages
+dotnet restore
 
-dotnet test $CORE_TEST
-dotnet test $FILE_HANDLER_TEST
+# build .NET
+dotnet build
+
+# test
+dotnet test --no-restore --no-build
+
+# build electron
+pushd "$_SCRIPT_DIR/src/bcad"
+npm i
+npm run pack
+popd
