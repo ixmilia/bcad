@@ -1,9 +1,7 @@
 @echo off
-set srcdir=%~dp0src
-set slnfile=%srcdir%\BCad.sln
 
-set filehandlerstestproject=%srcdir%\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj
-set coretestproject=%srcdir%\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj
+set coretestproject=%~dp0src\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj
+set filehandlerstestproject=%~dp0src\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj
 
 :: IxMilia.Dxf needs a custom invocation
 call %~dp0src\IxMilia.Dxf\build-and-test.cmd -notest
@@ -24,7 +22,7 @@ dotnet test --no-restore --no-build "%filehandlerstestproject%"
 if errorlevel 1 echo Error running tests && goto error
 
 :: build electron
-pushd %srcdir%\bcad
+pushd %~dp0src\bcad
 call npm i
 if errorlevel 1 echo Error restoring npm packages && goto error
 call npm run pack
