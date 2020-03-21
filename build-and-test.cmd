@@ -1,8 +1,5 @@
 @echo off
 
-set coretestproject=%~dp0src\IxMilia.BCad.Core.Test\IxMilia.BCad.Core.Test.csproj
-set filehandlerstestproject=%~dp0src\IxMilia.BCad.FileHandlers.Test\IxMilia.BCad.FileHandlers.Test.csproj
-
 :: IxMilia.Dxf needs a custom invocation
 call %~dp0src\IxMilia.Dxf\build-and-test.cmd -notest
 if errorlevel 1 echo Error pre-building IxMilia.Dxf && goto error
@@ -16,9 +13,7 @@ dotnet build
 if errorlevel 1 echo Error building solution && goto error
 
 :: test
-dotnet test --no-restore --no-build "%coretestproject%"
-if errorlevel 1 echo Error running tests && goto error
-dotnet test --no-restore --no-build "%filehandlerstestproject%"
+dotnet test --no-restore --no-build
 if errorlevel 1 echo Error running tests && goto error
 
 :: build electron
