@@ -27,4 +27,4 @@ npm start
 
 Final app is placed in `artifacts/pack/bcad-win32-x64`/`artifacts/pack/bcad-linux-x64`.
 
-See [README.md](bcad/src/README.md) in `src/bcad` for details on building/running via WSL that I needed on my local box.
+See [README.md](src/bcad/README.md) in `src/bcad` for details on building/running via WSL that I needed on my local box.
