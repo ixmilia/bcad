@@ -261,6 +261,28 @@ namespace IxMilia.BCad
             }
         }
 
+        public bool IsNaN
+        {
+            get
+            {
+                return double.IsNaN(M11) && double.IsNaN(M12) && double.IsNaN(M13) && double.IsNaN(M14)
+                    && double.IsNaN(M21) && double.IsNaN(M22) && double.IsNaN(M23) && double.IsNaN(M24)
+                    && double.IsNaN(M31) && double.IsNaN(M32) && double.IsNaN(M33) && double.IsNaN(M34)
+                    && double.IsNaN(M41) && double.IsNaN(M42) && double.IsNaN(M43) && double.IsNaN(M44);
+            }
+        }
+
+        public bool IsZero
+        {
+            get
+            {
+                return M11 == 0.0 && M12 == 0.0 && M13 == 0.0 && M14 == 0.0
+                    && M21 == 0.0 && M22 == 0.0 && M23 == 0.0 && M24 == 0.0
+                    && M31 == 0.0 && M32 == 0.0 && M33 == 0.0 && M34 == 0.0
+                    && M41 == 0.0 && M42 == 0.0 && M43 == 0.0 && M44 == 0.0;
+            }
+        }
+
         public static Matrix4 CreateTranslate(Vector vector)
         {
             return CreateTranslate(vector.X, vector.Y, vector.Z);

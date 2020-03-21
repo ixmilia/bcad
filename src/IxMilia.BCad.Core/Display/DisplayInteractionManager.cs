@@ -154,11 +154,13 @@ namespace IxMilia.BCad.Display
 
         private void ViewPortChanged()
         {
-            transformationMatrix = _workspace.ActiveViewPort.GetProjectionMatrix(Width, Height, UIProjectionStyle);
-            unprojectMatrix = transformationMatrix.Inverse();
-            transformationMatrix = Matrix4.CreateScale(1, 1, 0) * transformationMatrix;
+            var transform = _workspace.ActiveViewPort.GetProjectionMatrix(Width, Height, UIProjectionStyle);
+            var inverse = transform.Inverse();
+            transform = Matrix4.CreateScale(1.0, 1.0, 0.0) * transform;
             UpdateHotPoints();
-            UpdateSnapPoints();
+            UpdateSnapPoints(transform);
+            unprojectMatrix = inverse;
+            transformationMatrix = transform;
         }
 
         private void UpdateRubberBandLines(Point cursorWorldPoint)
@@ -177,10 +179,10 @@ namespace IxMilia.BCad.Display
 
         private void DrawingChanged()
         {
-            UpdateSnapPoints();
+            UpdateSnapPoints(transformationMatrix);
         }
 
-        private Task UpdateSnapPoints(bool allowCancellation = true)
+        private Task UpdateSnapPoints(Matrix4 transform)
         {
             if (Width == 0.0 || Height == 0.0)
             {
@@ -207,12 +209,13 @@ namespace IxMilia.BCad.Display
                         token.ThrowIfCancellationRequested();
                         foreach (var snapPoint in entity.GetSnapPoints())
                         {
-                            var projected = Project(snapPoint.Point);
+                            var projected = transform.Transform(snapPoint.Point);
                             transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, projected, snapPoint.Kind));
                         }
                     }
                 }
 
+                token.ThrowIfCancellationRequested();
                 snapPointsQuadTree = transformedQuadTree;
             });
 
@@ -389,7 +392,7 @@ namespace IxMilia.BCad.Display
                 if ((_workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point ||
                     selectingRectangle)
                     DrawSnapPoint(snapPoint, GetNextDrawSnapPointId());
-            }).ConfigureAwait(false);
+            }, updateSnapPointsCancellationTokenSource.Token).ConfigureAwait(false);
         }
 
         public void SubmitInput(string text)
@@ -553,7 +556,7 @@ namespace IxMilia.BCad.Display
 
         private async Task<TransformedSnapPoint> GetActiveModelPointNowAsync(Point cursor, CancellationToken cancellationToken)
         {
-            return await UpdateSnapPoints().ContinueWith(_ => GetActiveModelPoint(cursor, cancellationToken)).ConfigureAwait(false);
+            return await UpdateSnapPoints(transformationMatrix).ContinueWith(_ => GetActiveModelPoint(cursor, cancellationToken)).ConfigureAwait(false);
         }
 
         private TransformedSnapPoint GetActiveModelPoint(Point cursor, CancellationToken cancellationToken)
