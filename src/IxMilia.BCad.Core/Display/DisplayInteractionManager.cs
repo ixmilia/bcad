@@ -39,6 +39,7 @@ namespace IxMilia.BCad.Display
         private long drawSnapPointId = 1;
         private object drawSnapPointIdGate = new object();
         private object lastDrawnSnapPointIdGate = new object();
+        private bool lastRubberBandUpdateHadContent;
         private RubberBandGenerator rubberBandGenerator;
 
         public ProjectionStyle UIProjectionStyle { get; set; }
@@ -166,7 +167,12 @@ namespace IxMilia.BCad.Display
             var primitives = generator == null
                 ? new IPrimitive[0]
                 : generator.Invoke(cursorWorldPoint);
-            RubberBandPrimitivesChanged?.Invoke(this, primitives);
+            if (generator != null || lastRubberBandUpdateHadContent)
+            {
+                RubberBandPrimitivesChanged?.Invoke(this, primitives);
+            }
+
+            lastRubberBandUpdateHadContent = generator != null;
         }
 
         private void DrawingChanged()
