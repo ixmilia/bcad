@@ -185,7 +185,8 @@ export class Client {
         this.prepareEvents();
         this.prepareListeners();
         this.connection.listen();
-        this.connection.sendNotification(this.ReadyNotification, {width: this.drawingCanvas.width, height: this.drawingCanvas.height});
+        console.log(`sending ready with size (${this.outputPane.clientWidth}, ${this.outputPane.clientHeight})`);
+        this.connection.sendNotification(this.ReadyNotification, {width: this.outputPane.clientWidth, height: this.outputPane.clientHeight});
     }
 
     private prepareConnection() {
@@ -238,6 +239,7 @@ export class Client {
 
     private prepareEvents() {
         this.outputPane.addEventListener('mousedown', async (ev) => {
+            console.log(`mousedown ${ev.button} @ (${ev.offsetX}, ${ev.offsetY})`);
             this.connection.sendNotification(this.MouseDownNotification, {button: this.getMouseButton(ev.button), cursorX: ev.offsetX, cursorY: ev.offsetY});
         });
         this.outputPane.addEventListener('mouseup', (ev) => {
@@ -253,6 +255,7 @@ export class Client {
             this.drawingCanvas.height = this.outputPane.clientHeight;
             this.cursorCanvas.width = this.outputPane.clientWidth;
             this.cursorCanvas.height = this.outputPane.clientHeight;
+            console.log(`sending resize with size (${this.drawingCanvas.width}, ${this.drawingCanvas.height})`);
             this.connection.sendNotification(this.ResizeNotification, {width: this.drawingCanvas.width, height: this.drawingCanvas.height});
         })).observe(this.outputPane);
         var elements = [
