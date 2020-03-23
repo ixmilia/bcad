@@ -43,3 +43,19 @@ body {
     display: none;
     height: 100%;
 }
+
+.ribbon-button-group {
+    border: solid 1px lightgray;
+    display: inline-block;
+    height: 100%;
+    margin: 2px;
+    padding: 2px;
+}
+
+.ribbon-button-group-buttons {
+}
+
+.ribbon-button-group-name {
+    margin: 2px;
+    text-align: center;
+}
