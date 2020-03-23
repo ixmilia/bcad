@@ -6,8 +6,10 @@ import { Arguments } from './args';
 import { Client } from './client';
 import { Ribbon } from './ribbon';
 import { remote } from 'electron';
+import { ViewControl } from './viewControl';
 
 let args = new Arguments(remote.process.argv);
 let client = new Client(args);
 client.start();
 new Ribbon(client);
+new ViewControl(client);
