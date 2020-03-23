@@ -198,19 +198,6 @@ export class Client {
         // notifications
         this.connection.onNotification(this.ClientUpdateNotification, (params) => {
             let clientUpdate = params[0];
-            if (clientUpdate.OutputLines !== undefined) {
-                let output = <HTMLTextAreaElement>document.getElementById("outputConsole");
-                let content = output.value;
-                for (let i = 0; i < clientUpdate.OutputLines.length; i++) {
-                    if (content.length > 0) {
-                        content += "\n";
-                    }
-                    content = content + clientUpdate.OutputLines[i];
-                }
-                output.value = content;
-                output.scrollTop = output.scrollHeight;
-            }
-
             for (let clientUpdateNotification of this.clientUpdateNotifications) {
                 clientUpdateNotification(clientUpdate);
             }
