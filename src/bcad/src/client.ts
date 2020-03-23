@@ -116,7 +116,6 @@ export class Client {
 
     start() {
         this.prepareConnection();
-        this.prepareEvents();
         this.prepareListeners();
         this.connection.listen();
     }
@@ -186,12 +185,13 @@ export class Client {
         this.zoom(cursorX, cursorY, -1);
     }
 
-    private prepareEvents() {
-        (<HTMLInputElement>document.getElementById("input")).addEventListener('keydown', (ev) => {
-            if (ev.key == "Enter") {
-                this.submitInput();
-            }
-        });
+    submitInput(value: string) {
+        this.connection.sendNotification(this.SubmitIntputNotification, {value: value});
+    }
+
+    async executeCommand(commandName: string): Promise<boolean> {
+        let result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: commandName});
+        return result;
     }
 
     private prepareListeners() {
@@ -226,17 +226,5 @@ export class Client {
 
         this.connection.onError((e) => console.log('rpc error: ' + e));
         this.connection.onClose(() => alert('rpc closing'));
-    }
-
-    private submitInput() {
-        let input = <HTMLInputElement>document.getElementById("input");
-        let text = input.value;
-        input.value = "";
-        this.connection.sendNotification(this.SubmitIntputNotification, {value: text});
-    }
-
-    async executeCommand(commandName: string): Promise<boolean> {
-        let result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: commandName});
-        return result;
     }
 }
