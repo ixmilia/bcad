@@ -54,6 +54,8 @@ namespace IxMilia.BCad.Server
 
     public class ClientDrawing
     {
+        public string CurrentLayer { get; set; }
+        public List<string> Layers { get; } = new List<string>();
         public string FileName { get; }
         public List<ClientLine> Lines { get; } = new List<ClientLine>();
         public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();

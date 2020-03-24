@@ -46,6 +46,8 @@ export class ViewControl {
         this.cursorState = CursorState.Object | CursorState.Point;
         this.snapPointKind = SnapPointKind.None;
         this.entityDrawing = {
+            CurrentLayer: "0",
+            Layers: ["0"],
             FileName: null,
             Lines: [],
             Ellipses: [],
@@ -53,6 +55,8 @@ export class ViewControl {
             Colors: null,
         };
         this.rubberBandDrawing = {
+            CurrentLayer: null,
+            Layers: [],
             FileName: null,
             Lines: [],
             Ellipses: [],

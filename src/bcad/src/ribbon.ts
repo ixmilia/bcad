@@ -15,17 +15,14 @@ export class Ribbon {
             "settings",
         ];
         tabs.forEach(t => {
-            var button = <HTMLButtonElement> document.getElementById(t + "Button");
-            var ribbon = <HTMLButtonElement> document.getElementById(t + "Ribbon");
+            var button = <HTMLButtonElement>document.getElementById(t + "Button");
+            var ribbon = <HTMLButtonElement>document.getElementById(t + "Ribbon");
             button.addEventListener('click', () => {
-                document.querySelectorAll(".ribbon").forEach(node => (<HTMLElement>node).style.display = "none");
-                document.querySelectorAll(".tabButton").forEach(node => (<HTMLButtonElement>node).style.background = "lightGray");
-                button.style.background = "white";
-                ribbon.style.height = document.getElementById("ribbon").style.height;
-                ribbon.style.display = "block";
+                document.querySelectorAll(".ribbon-selector").forEach(node => node.classList.remove('ribbon-selector-active'));
+                document.querySelectorAll(".ribbon").forEach(node => node.classList.remove('ribbon-active'));
+                button.classList.add('ribbon-selector-active');
+                ribbon.classList.add('ribbon-active');
             });
         });
-
-        (<HTMLButtonElement>document.getElementById("homeButton")).click();
     }
 }

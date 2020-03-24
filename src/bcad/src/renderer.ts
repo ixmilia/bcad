@@ -9,10 +9,12 @@ import { OutputConsole } from './outputConsole';
 import { Ribbon } from './ribbon';
 import { remote } from 'electron';
 import { ViewControl } from './viewControl';
+import { LayerSelector } from './layerSelector';
 
 let args = new Arguments(remote.process.argv);
 let client = new Client(args);
 client.start();
+new LayerSelector(client);
 new InputConsole(client);
 new OutputConsole(client);
 new Ribbon(client);

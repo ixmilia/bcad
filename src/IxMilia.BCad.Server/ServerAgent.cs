@@ -180,6 +180,11 @@ namespace IxMilia.BCad.Server
             return _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(_dim.Width, _dim.Height).ToTransposeArray();
         }
 
+        public void ChangeCurrentLayer(string currentLayer)
+        {
+            _workspace.Update(drawing: _workspace.Drawing.Update(currentLayerName: currentLayer));
+        }
+
         public void MouseDown(MouseButton button, double cursorX, double cursorY)
         {
             var _ = _dim.MouseDown(new Point(cursorX, cursorY, 0.0), button);
@@ -209,9 +214,11 @@ namespace IxMilia.BCad.Server
         {
             var drawing = _workspace.Drawing;
             var clientDrawing = new ClientDrawing(drawing.Settings.FileName);
+            clientDrawing.CurrentLayer = drawing.CurrentLayerName;
             var autoColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor).GetAutoContrastingColor();
             foreach (var layer in drawing.GetLayers())
             {
+                clientDrawing.Layers.Add(layer.Name);
                 var layerColor = layer.Color ?? autoColor;
                 foreach (var entity in layer.GetEntities())
                 {
@@ -223,6 +230,7 @@ namespace IxMilia.BCad.Server
                 }
             }
 
+            clientDrawing.Layers.Sort();
             return clientDrawing;
         }
 

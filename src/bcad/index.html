@@ -11,14 +11,14 @@
         <button class="commandButton" data-command-name="File.Open">Open</button>
       </div>
       <div style="display: inline">
-        <button id="homeButton" class="tabButton">Home</button>
-        <button id="viewButton" class="tabButton">View</button>
-        <button id="settingsButton" class="tabButton">Settings</button>
+        <button id="homeButton" class="ribbon-selector ribbon-selector-active">Home</button>
+        <button id="viewButton" class="ribbon-selector">View</button>
+        <button id="settingsButton" class="ribbon-selector">Settings</button>
       </div>
       <div id="ribbon">
-        <div id="homeRibbon" class="ribbon">
+        <div id="homeRibbon" class="ribbon ribbon-active">
           <div class="ribbon-button-group">
-            <div class="ribbon-button-group-buttons">
+            <div class="ribbon-button-group-content">
               <button class="commandButton" data-command-name="Draw.Line">
                 <svg viewBox="-1 -1 33 33" width="48" height="48">
                   <rect width="100%" height="100%" fill="white" />
@@ -61,21 +61,23 @@
             <div class="ribbon-button-group-name">Draw</div>
           </div>
           <!-- <div class="ribbon-button-group">
-            <div class="ribbon-button-group-buttons"></div>
+            <div class="ribbon-button-group-content"></div>
             <div class="ribbon-button-group-name">Modify</div>
           </div> -->
           <!-- <div class="ribbon-button-group">
-            <div class="ribbon-button-group-buttons"></div>
+            <div class="ribbon-button-group-content"></div>
             <div class="ribbon-button-group-name">Shapes</div>
           </div> -->
-          <!-- <div class="ribbon-button-group">
-            <div class="ribbon-button-group-buttons"></div>
+          <div class="ribbon-button-group">
+            <div class="ribbon-button-group-content">
+              <select id="current-layer-selector"></select>
+            </div>
             <div class="ribbon-button-group-name">Layers</div>
-          </div> -->
+          </div>
         </div>
         <div id="viewRibbon" class="ribbon">
           <div class="ribbon-button-group">
-            <div class="ribbon-button-group-buttons">
+            <div class="ribbon-button-group-content">
               <button class="commandButton" data-command-name="Zoom.Extents">
                 <svg viewBox="-1 -1 33 33" width="48" height="48">
                 </svg>
@@ -92,7 +94,7 @@
             <div class="ribbon-button-group-name">Zoom</div>
           </div>
           <div class="ribbon-button-group">
-            <div class="ribbon-button-group-buttons">
+            <div class="ribbon-button-group-content">
               <button class="commandButton" data-command-name="View.Distance">
                 <svg viewBox="-1 -1 33 33" width="48" height="48">
                 </svg>
@@ -129,6 +131,8 @@
     </div>
   </body>
   <script>
-    require('./dist/renderer.js');
+    if (typeof require === typeof Function) {
+        require('./dist/renderer.js');
+    }
   </script>
 </html>

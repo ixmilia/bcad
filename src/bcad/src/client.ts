@@ -32,6 +32,8 @@ interface Ellipse {
 }
 
 export interface ClientDrawing {
+    CurrentLayer: string;
+    Layers: string[];
     FileName: string;
     Lines: Line[];
     Ellipses: Ellipse[];
@@ -90,6 +92,7 @@ export class Client {
 
     // client notifications
     private ClientUpdateNotification: rpc.NotificationType<ClientUpdate[], void>;
+    private ChangeCurrentLayerNotification: rpc.NotificationType<{currentLayer: string}, void>;
     private MouseDownNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseUpNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseMoveNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>;
@@ -103,6 +106,7 @@ export class Client {
     constructor(args: Arguments) {
         this.arguments = args;
         this.ClientUpdateNotification = new rpc.NotificationType<ClientUpdate[], void>('ClientUpdate');
+        this.ChangeCurrentLayerNotification = new rpc.NotificationType<{currentLayer: string}, void>('ChangeCurrentLayer');
         this.MouseDownNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseDown');
         this.MouseUpNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseUp');
         this.MouseMoveNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>('MouseMove');
@@ -122,6 +126,10 @@ export class Client {
 
     subscribeToClientUpdates(clientUpdateNotification: {(clientUpdate: ClientUpdate): void}) {
         this.clientUpdateNotifications.push(clientUpdateNotification);
+    }
+
+    changeCurrentLayer(currentLayer: string) {
+        this.connection.sendNotification(this.ChangeCurrentLayerNotification, {currentLayer: currentLayer});
     }
 
     mouseDown(button: MouseButton, cursorX: number, cursorY: number) {
