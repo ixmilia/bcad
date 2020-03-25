@@ -71,6 +71,33 @@ body {
     text-align: center;
 }
 
+.command-button {
+    height: 72px;
+    width: 72px;
+}
+
+.command-button-small {
+    height: 24px;
+    text-align: left;
+    width: 84px;
+}
+
+.command-button-center {
+    text-align: center;
+}
+
+.icon-large {
+    display: inline-block;
+    height: 48px;
+    width: 48px;
+}
+
+.icon-small {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+}
+
 #current-layer-selector {
     vertical-align: top;
     width: 150px;

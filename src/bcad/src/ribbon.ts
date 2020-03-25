@@ -2,7 +2,7 @@ import { Client } from './client';
 
 export class Ribbon {
     constructor(client: Client) {
-        document.querySelectorAll(".commandButton").forEach(node => {
+        document.querySelectorAll(".command-button").forEach(node => {
             let button = <HTMLButtonElement>node;
             button.addEventListener('click', () => {
                 client.executeCommand(button.getAttribute("data-command-name"));
