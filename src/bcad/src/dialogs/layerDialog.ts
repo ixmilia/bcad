@@ -1,4 +1,5 @@
-import { DialogHandler } from "./dialogHandler";
+import { DialogBase } from './dialogBase';
+import { DialogHandler } from './dialogHandler';
 
 interface LayerInfo {
     Name: string,
@@ -21,10 +22,11 @@ interface LayerDialogResult {
     ChangedLayers: ChangedLayer[],
 }
 
-export class LayerDialog {
+export class LayerDialog extends DialogBase {
     private tableBody: HTMLTableSectionElement;
 
     constructor(dialogHandler: DialogHandler) {
+        super(dialogHandler, "layer");
         this.tableBody = <HTMLTableSectionElement>document.getElementById('dialog-layer-list-body');
         document.getElementById('dialog-layer-add').addEventListener('click', () => {
             this.addLayerRow({
@@ -33,24 +35,40 @@ export class LayerDialog {
                 IsVisible: true,
             });
         });
-        dialogHandler.registerDialogHandler("layer", (dialogOptions) => {
-            let layerDialogOptions = <LayerDialogOptions>dialogOptions;
-            this.bindDialog(layerDialogOptions);
-            let promise = new Promise<LayerDialogResult>(
-                (resolve, reject) => {
-                    var okButton = <HTMLButtonElement>document.getElementById('dialog-layer-ok');
-                    okButton.addEventListener('click', () => {
-                        let result = this.gatherResults();
-                        resolve(result);
-                    });
+    }
 
-                    var cancelButton = <HTMLButtonElement>document.getElementById('dialog-layer-cancel');
-                    cancelButton.addEventListener('click', () => {
-                        reject();
-                    });
-                });
-            return promise;
-        });
+    dialogShowing(dialogOptions: object) {
+        let layerDialogOptions = <LayerDialogOptions>dialogOptions;
+        this.tableBody.innerHTML = '';
+        for (let layer of layerDialogOptions.Layers) {
+            this.addLayerRow(layer);
+        }
+    }
+
+    dialogOk(): object {
+        let changedLayers: ChangedLayer[] = [];
+        for (let element of this.tableBody.children) {
+            let row = <HTMLTableRowElement>element;
+            let nameInput = <HTMLInputElement>row.children[0].children[0];
+            let colorInput = <HTMLInputElement>row.children[1].children[0];
+            let colorAutoInput = <HTMLInputElement>row.children[2].children[0];
+            let visibleInput = <HTMLInputElement>row.children[3].children[0];
+            let changed = {
+                OldLayerName: nameInput.getAttribute('data-original-value'),
+                NewLayerName: nameInput.value,
+                Color: colorAutoInput.checked ? "" : colorInput.value,
+                IsVisible: visibleInput.checked,
+            };
+            changedLayers.push(changed);
+        }
+        let result: LayerDialogResult = {
+            ChangedLayers: changedLayers,
+        };
+        return result;
+    }
+
+    dialogCancel() {
+        // noop
     }
 
     private addLayerRow(layer: LayerInfo) {
@@ -114,33 +132,5 @@ export class LayerDialog {
         row.appendChild(tdDelete);
 
         this.tableBody.appendChild(row);
-    }
-
-    private bindDialog(options: LayerDialogOptions) {
-        this.tableBody.innerHTML = '';
-        for (let layer of options.Layers) {
-            this.addLayerRow(layer);
-        }
-    }
-
-    private gatherResults(): LayerDialogResult {
-        let changedLayers: ChangedLayer[] = [];
-        for (let element of this.tableBody.children) {
-            let row = <HTMLTableRowElement>element;
-            let nameInput = <HTMLInputElement>row.children[0].children[0];
-            let colorInput = <HTMLInputElement>row.children[1].children[0];
-            let colorAutoInput = <HTMLInputElement>row.children[2].children[0];
-            let visibleInput = <HTMLInputElement>row.children[3].children[0];
-            let changed = {
-                OldLayerName: nameInput.getAttribute('data-original-value'),
-                NewLayerName: nameInput.value,
-                Color: colorAutoInput.checked ? "" : colorInput.value,
-                IsVisible: visibleInput.checked,
-            };
-            changedLayers.push(changed);
-        }
-        return {
-            ChangedLayers: changedLayers,
-        };
     }
 }

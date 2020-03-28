@@ -109,7 +109,7 @@ body {
 }
 
 /* blocks out the entire application */
-#modal-dialog-container {
+#modal-dialog-mask {
     background-color: rgba(128, 128, 128, 0.5);
     display: none;
     position: fixed;
@@ -120,21 +120,23 @@ body {
     z-index: 5;
 }
 
-/* individual dialog */
-.modal-dialog {
+/* parent container for all dialogs; contains OK/Cancel buttons */
+#modal-dialog-container {
     background-color: rgba(255, 255, 255, 1.0);
     display: none;
     position: absolute;
-    width: var(--width);
-    height: var(--height);
-    margin-left: calc(50vw - (var(--width) / 2));
-    margin-top: calc(50vh - (var(--height) / 2));
+}
+
+/* individual dialog parent */
+.modal-dialog {
+    display: none;
+    position: relative;
 }
 
 /* layer dialog */
 .layer-dialog {
-    --width: 400px;
-    --height: 400px;
+    width: 400px;
+    height: 400px;
 }
 table.dialog-layer-table {
     width: 100%;
