@@ -22,3 +22,8 @@ jobs:
       run: |
         $shellExt = if ($IsWindows) { "cmd" } else { "sh" }
         & ./build-and-test.$shellExt --configuration ${{ matrix.configuration }}
+    # using preview single file artifact upload from https://github.com/actions/upload-artifact/issues/62
+    - uses: actions/upload-artifact@v2-preview
+      with:
+        name: ${{ env.artifact_file_name }}
+        path: artifacts/publish/${{ env.artifact_file_name }}
