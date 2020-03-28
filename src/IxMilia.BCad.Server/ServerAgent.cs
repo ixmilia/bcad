@@ -7,6 +7,7 @@ using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
 using IxMilia.BCad.Settings;
+using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
 namespace IxMilia.BCad.Server
@@ -219,13 +220,16 @@ namespace IxMilia.BCad.Server
             foreach (var layer in drawing.GetLayers())
             {
                 clientDrawing.Layers.Add(layer.Name);
-                var layerColor = layer.Color ?? autoColor;
-                foreach (var entity in layer.GetEntities())
+                if (layer.IsVisible)
                 {
-                    var entityColor = entity.Color ?? layerColor;
-                    foreach (var primitive in entity.GetPrimitives())
+                    var layerColor = layer.Color ?? autoColor;
+                    foreach (var entity in layer.GetEntities())
                     {
-                        AddPrimitiveToDrawing(clientDrawing, primitive, fallBackColor: entityColor);
+                        var entityColor = entity.Color ?? layerColor;
+                        foreach (var primitive in entity.GetPrimitives())
+                        {
+                            AddPrimitiveToDrawing(clientDrawing, primitive, fallBackColor: entityColor);
+                        }
                     }
                 }
             }
@@ -264,6 +268,12 @@ namespace IxMilia.BCad.Server
         {
             var direction = delta < 0.0 ? ZoomDirection.Out : ZoomDirection.In;
             _dim.Zoom(direction, new Point(cursorX, cursorY, 0.0));
+        }
+
+        public async Task<JObject> ShowDialog(string id, object parameter)
+        {
+            var result = await _rpc.InvokeAsync<JObject>("ShowDialog", new { id, parameter });
+            return result;
         }
     }
 }

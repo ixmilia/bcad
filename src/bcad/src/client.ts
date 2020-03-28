@@ -89,9 +89,12 @@ export class Client {
     private arguments: Arguments;
     private connection: rpc.MessageConnection;
     private clientUpdateNotifications: {(clientUpdate: ClientUpdate): void}[] = [];
+    private currentDialogHandler: {(dialogId: string, dialogOptions: object): Promise<any>} = async (_dialogId, _dialogOptions) => {};
 
     // client notifications
     private ClientUpdateNotification: rpc.NotificationType<ClientUpdate[], void>;
+    private ShowDialogRequest: rpc.RequestType1<{id: string, parameter: object}[], object, void, void>;
+
     private ChangeCurrentLayerNotification: rpc.NotificationType<{currentLayer: string}, void>;
     private MouseDownNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseUpNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
@@ -106,6 +109,8 @@ export class Client {
     constructor(args: Arguments) {
         this.arguments = args;
         this.ClientUpdateNotification = new rpc.NotificationType<ClientUpdate[], void>('ClientUpdate');
+        this.ShowDialogRequest = new rpc.RequestType1<{id: string, parameter: object}[], object, void, void>('ShowDialog');
+
         this.ChangeCurrentLayerNotification = new rpc.NotificationType<{currentLayer: string}, void>('ChangeCurrentLayer');
         this.MouseDownNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseDown');
         this.MouseUpNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseUp');
@@ -122,6 +127,10 @@ export class Client {
         this.prepareConnection();
         this.prepareListeners();
         this.connection.listen();
+    }
+
+    registerDialogHandler(dialogHandler: {(dialogId: string, dialogOptions: object): Promise<object>}) {
+        this.currentDialogHandler = dialogHandler;
     }
 
     subscribeToClientUpdates(clientUpdateNotification: {(clientUpdate: ClientUpdate): void}) {
@@ -209,6 +218,20 @@ export class Client {
             for (let clientUpdateNotification of this.clientUpdateNotifications) {
                 clientUpdateNotification(clientUpdate);
             }
+        });
+
+        // dialog service
+        this.connection.onRequest(this.ShowDialogRequest, (params) => {
+            let parameter = params[0];
+            return this.currentDialogHandler(parameter.id, parameter.parameter).then(
+                result => {
+                    // dialog was completed
+                    return result;
+                },
+                _reason => {
+                    // dialog was cancelled
+                }
+            );
         });
 
         // file system service

@@ -15,7 +15,7 @@ namespace IxMilia.BCad.Server
 
         static void Main(string[] args)
         {
-            new Program().RunAsync().GetAwaiter().GetResult(); ;
+            new Program().RunAsync().GetAwaiter().GetResult();
         }
 
         private async Task RunAsync()
@@ -28,6 +28,7 @@ namespace IxMilia.BCad.Server
             //System.Diagnostics.Debugger.Launch();
             serverRpc.AddLocalRpcTarget(server);
             ((FileSystemService)Workspace.FileSystemService).Rpc = serverRpc;
+            ((HtmlDialogService)Workspace.DialogService).Agent = server;
             serverRpc.TraceSource.Listeners.Add(new Listener());
             serverRpc.StartListening();
             Console.Error.WriteLine("server listening");

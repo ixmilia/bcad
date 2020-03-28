@@ -82,6 +82,11 @@ body {
     width: 84px;
 }
 
+.command-button-tiny {
+    height: 24px;
+    width: 36px;
+}
+
 .command-button-center {
     text-align: center;
 }
@@ -101,4 +106,58 @@ body {
 #current-layer-selector {
     vertical-align: top;
     width: 150px;
+}
+
+/* blocks out the entire application */
+#modal-dialog-container {
+    background-color: rgba(128, 128, 128, 0.5);
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+
+/* individual dialog */
+.modal-dialog {
+    background-color: rgba(255, 255, 255, 1.0);
+    display: none;
+    position: absolute;
+    width: var(--width);
+    height: var(--height);
+    margin-left: calc(50vw - (var(--width) / 2));
+    margin-top: calc(50vh - (var(--height) / 2));
+}
+
+/* layer dialog */
+.layer-dialog {
+    --width: 400px;
+    --height: 400px;
+}
+table.dialog-layer-table {
+    width: 100%;
+    height: 300px;
+}
+table.dialog-layer-table tbody, table.dialog-layer-table thead {
+    display: block;
+}
+table.dialog-layer-table tbody {
+    overflow: hidden;
+    overflow-y: scroll;
+}
+.dialog-layer-list-layer-name {
+    display: inline-block;
+    width: 200px;
+}
+.dialog-layer-list-layer-color {
+    border: 1px solid black;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+.dialog-layer-list-layer-visible {
+    display: inline-block;
+    width: 20px;
 }

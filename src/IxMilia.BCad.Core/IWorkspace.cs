@@ -42,7 +42,7 @@ namespace IxMilia.BCad
         TService GetService<TService>() where TService : class, IWorkspaceService;
 
         IDebugService DebugService { get; }
-        IDialogFactoryService DialogFactoryService { get; }
+        IDialogService DialogService { get; }
         IFileSystemService FileSystemService { get; }
         IInputService InputService { get; }
         IOutputService OutputService { get; }

@@ -10,6 +10,8 @@ import { Ribbon } from './ribbon';
 import { remote } from 'electron';
 import { ViewControl } from './viewControl';
 import { LayerSelector } from './layerSelector';
+import { DialogHandler } from './dialogHandler';
+import { LayerDialog } from './layerDialog';
 
 let args = new Arguments(remote.process.argv);
 let client = new Client(args);
@@ -19,3 +21,6 @@ new InputConsole(client);
 new OutputConsole(client);
 new Ribbon(client);
 new ViewControl(client);
+
+let dialogHandler = new DialogHandler(client);
+new LayerDialog(dialogHandler);

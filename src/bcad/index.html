@@ -77,6 +77,13 @@
           </div> -->
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
+              <button class="command-button command-button-tiny" data-command-name="Edit.Layers">
+                <svg class="icon-small">
+                  <polygon points="3,0 15,0 12,5 0,5 3,0" style="fill: lavenderblush; stroke: black" />
+                  <polygon points="3,5 15,5 12,10 0,10 3,5" style="fill: lightyellow; stroke: black" />
+                  <polygon points="3,10 15,10 12,15 0,15 3,10" style="fill: lightblue; stroke: black" />
+                </svg>
+              </button>
               <select id="current-layer-selector"></select>
             </div>
             <div class="ribbon-button-group-name">Layers</div>
@@ -134,6 +141,27 @@
         <br />
         <div id="prompt">Command</div>
         <input id="input" size="80" />
+      </div>
+    </div>
+    <div id="modal-dialog-container">
+      <div id="modal-dialog-layer" class="modal-dialog layer-dialog">
+        Layers<br />
+        <table class="dialog-layer-table">
+          <thead>
+            <tr>
+              <th><div class="dialog-layer-list-layer-name">Name</div></th>
+              <th><div style="width: 50px">Color</div></th>
+              <th>Is Visible</th>
+              <th>Delete?</th>>
+            </tr>
+          </thead>
+          <tbody id="dialog-layer-list-body">
+          </tbody>
+        </table>
+        <button id="dialog-layer-add">Add</button>
+        <br />
+        <button id="dialog-layer-ok">OK</button>
+        <button id="dialog-layer-cancel">Cancel</button>
       </div>
     </div>
   </body>

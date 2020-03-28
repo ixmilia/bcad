@@ -113,8 +113,8 @@ namespace IxMilia.BCad
         private IDebugService _debugServiceCache;
         public IDebugService DebugService => CacheService<IDebugService>(ref _debugServiceCache);
 
-        private IDialogFactoryService _dialogFactoryServiceCache;
-        public IDialogFactoryService DialogFactoryService => CacheService<IDialogFactoryService>(ref _dialogFactoryServiceCache);
+        private IDialogService _dialogServiceCache;
+        public IDialogService DialogService => CacheService<IDialogService>(ref _dialogServiceCache);
 
         private IFileSystemService _fileSystemServiceCache;
         public IFileSystemService FileSystemService => CacheService<IFileSystemService>(ref _fileSystemServiceCache);

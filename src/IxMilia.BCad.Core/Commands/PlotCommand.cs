@@ -9,7 +9,7 @@ namespace IxMilia.BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var result = await workspace.DialogFactoryService.ShowDialog("Plot", workspace.SettingsService.GetValue<string>("UI.PlotDialogId"));
+            var result = (bool)(await workspace.DialogService.ShowDialog("plot", null));
             return result == true;
         }
     }

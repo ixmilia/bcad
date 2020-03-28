@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
+using IxMilia.BCad.Extensions;
 
 namespace IxMilia.BCad.Server
 {
@@ -90,5 +92,66 @@ namespace IxMilia.BCad.Server
         public ClientSettings Settings { get; set; }
         public string Prompt { get; set; }
         public string[] OutputLines { get; set; }
+    }
+
+    public class ClientLayer
+    {
+        public string Name { get; }
+        public string Color { get; }
+        public bool IsVisible { get; }
+
+        public ClientLayer(Layer layer)
+        {
+            Name = layer.Name;
+            Color = layer.Color.HasValue
+                ? layer.Color.GetValueOrDefault().ToRGBString()
+                : string.Empty;
+            IsVisible = layer.IsVisible;
+        }
+    }
+
+    public class ClientLayerParameters
+    {
+        public List<ClientLayer> Layers { get; } = new List<ClientLayer>();
+
+        public ClientLayerParameters(LayerDialogParameters layerDialogParameters)
+        {
+            foreach (var layer in layerDialogParameters.Layers)
+            {
+                Layers.Add(new ClientLayer(layer));
+            }
+        }
+    }
+
+    public class ClientChangedLayer
+    {
+        public string OldLayerName { get; set; }
+        public string NewLayerName { get; set; }
+        public string Color { get; set; }
+        public bool IsVisible { get; set; }
+    }
+
+    public class ClientLayerResult
+    {
+        public List<ClientChangedLayer> ChangedLayers { get; } = new List<ClientChangedLayer>();
+
+        public LayerDialogResult ToDialogResult()
+        {
+            var result = new LayerDialogResult();
+            foreach (var changedLayer in ChangedLayers)
+            {
+                result.Layers.Add(new LayerDialogResult.LayerResult()
+                {
+                    OldLayerName = changedLayer.OldLayerName,
+                    NewLayerName = changedLayer.NewLayerName,
+                    Color = string.IsNullOrEmpty(changedLayer.Color)
+                        ? new CadColor?()
+                        : CadColor.Parse(changedLayer.Color),
+                    IsVisible = changedLayer.IsVisible,
+                });
+            }
+
+            return result;
+        }
     }
 }

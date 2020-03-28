@@ -1,19 +1,18 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
-using System.ComponentModel;
 using IxMilia.BCad.Core.Test;
 
 namespace IxMilia.BCad.FileHandlers.Test
 {
     internal class DxfFileSettingsProvider : IDisposable
     {
-        Action<INotifyPropertyChanged> _lastSettingsProvider;
+        Action<object> _lastSettingsProvider;
 
         public DxfFileSettingsProvider(DxfFileSettings fileSettings)
         {
-            _lastSettingsProvider = TestDialogFactoryService.ModifyTestFileSettingsTransform;
-            TestDialogFactoryService.ModifyTestFileSettingsTransform = (existingFileSettings) =>
+            _lastSettingsProvider = TestDialogService.ModifyTestFileSettingsTransform;
+            TestDialogService.ModifyTestFileSettingsTransform = (existingFileSettings) =>
             {
                 var dxf = (DxfFileSettings)existingFileSettings;
                 dxf.FileVersion = fileSettings.FileVersion;
@@ -22,7 +21,7 @@ namespace IxMilia.BCad.FileHandlers.Test
 
         public void Dispose()
         {
-            TestDialogFactoryService.ModifyTestFileSettingsTransform = _lastSettingsProvider;
+            TestDialogService.ModifyTestFileSettingsTransform = _lastSettingsProvider;
         }
     }
 }

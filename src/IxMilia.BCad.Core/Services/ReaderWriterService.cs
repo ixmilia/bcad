@@ -67,7 +67,7 @@ namespace IxMilia.BCad.Core.Services
 
             if (fileSettings != null)
             {
-                var result = await Workspace.DialogFactoryService.ShowDialog("FileSettings", "Default", fileSettings);
+                var result = (bool)(await Workspace.DialogService.ShowDialog("FileSettings", fileSettings));
                 if (result != true)
                 {
                     return false;
