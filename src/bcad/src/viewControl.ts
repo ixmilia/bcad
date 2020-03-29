@@ -1,4 +1,4 @@
-import { Client, ClientDrawing, ClientSettings, ClientUpdate, Color, CursorState, MouseButton, SnapPointKind } from './client';
+import { Client, ClientDrawing, ClientSettings, ClientUpdate, Color, CursorState, MouseButton, SnapPointKind, SelectionState, SelectionMode } from './client';
 import { remote } from 'electron';
 import { ResizeObserver } from 'resize-observer';
 
@@ -30,6 +30,7 @@ export class ViewControl {
     private rubberBandDrawing: Drawing;
     private cursorPosition: {x: number, y: number};
     private cursorState: CursorState;
+    private selectionState?: SelectionState;
     private snapPointKind: SnapPointKind;
     private settings: ClientSettings;
 
@@ -44,6 +45,7 @@ export class ViewControl {
         // CAD
         this.cursorPosition = {x: 0, y: 0};
         this.cursorState = CursorState.Object | CursorState.Point;
+        this.selectionState = null;
         this.snapPointKind = SnapPointKind.None;
         this.entityDrawing = {
             CurrentLayer: "0",
@@ -127,6 +129,10 @@ export class ViewControl {
             this.cursorState = clientUpdate.CursorState;
             redrawCursor = true;
         }
+        if (clientUpdate.HasSelectionStateUpdate) {
+            this.selectionState = clientUpdate.SelectionState;
+            redrawCursor = true;
+        }
         if (clientUpdate.Settings !== undefined) {
             this.settings = clientUpdate.Settings;
             redraw = true;
@@ -148,9 +154,35 @@ export class ViewControl {
         let x = this.cursorPosition.x;
         let y = this.cursorPosition.y;
         this.twod.clearRect(0, 0, this.twod.canvas.width, this.twod.canvas.height);
-        this.twod.beginPath();
         this.twod.lineWidth = 1;
+        this.twod.fillStyle = `${ViewControl.colorToHex(this.settings.AutoColor)}11`; // default color, partial alpha
         this.twod.strokeStyle = ViewControl.colorToHex(this.settings.AutoColor);
+
+        if (this.selectionState) {
+            // dashed lines if partial entity
+            this.twod.beginPath();
+            this.twod.setLineDash(this.selectionState.Mode === SelectionMode.PartialEntity ? [5, 5] : []);
+
+            // selection box
+            this.twod.fillRect(
+                this.selectionState.Rectangle.Left,
+                this.selectionState.Rectangle.Top,
+                this.selectionState.Rectangle.Width,
+                this.selectionState.Rectangle.Height);
+
+            // selection border
+            this.twod.rect(
+                this.selectionState.Rectangle.Left,
+                this.selectionState.Rectangle.Top,
+                this.selectionState.Rectangle.Width,
+                this.selectionState.Rectangle.Height);
+
+            this.twod.stroke();
+        }
+
+        // solid lines from here on out
+        this.twod.beginPath();
+        this.twod.setLineDash([]);
 
         // point cursor
         if (this.cursorState & CursorState.Point) {

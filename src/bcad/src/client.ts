@@ -46,6 +46,23 @@ export enum CursorState {
     Text = 4,
 }
 
+export interface Rect {
+    Left: number,
+    Top: number,
+    Width: number,
+    Height: number,
+}
+
+export enum SelectionMode {
+    WholeEntity = 0,
+    PartialEntity = 1,
+}
+
+export interface SelectionState {
+    Rectangle: Rect,
+    Mode: SelectionMode,
+}
+
 export interface ClientSettings {
     AutoColor: Color;
     BackgroundColor: Color;
@@ -74,6 +91,8 @@ export interface ClientUpdate {
     RubberBandDrawing?: ClientDrawing;
     TransformedSnapPoint?: {WorldPoint: Point3, ControlPoint: Point3, Kind: SnapPointKind};
     CursorState?: CursorState;
+    HasSelectionStateUpdate: boolean;
+    SelectionState?: SelectionState;
     Settings?: ClientSettings;
     Prompt?: string;
     OutputLines?: string[];

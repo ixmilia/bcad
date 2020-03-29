@@ -83,12 +83,25 @@ namespace IxMilia.BCad.Server
 
     public class ClientUpdate
     {
+        private bool hasSelectionStateUpdate;
+        private SelectionState? selectionState;
+
         public bool IsDirty { get; set; }
         public double[] Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
         public TransformedSnapPoint? TransformedSnapPoint { get; set; }
         public CursorState? CursorState { get; set; }
+        public bool HasSelectionStateUpdate => hasSelectionStateUpdate;
+        public SelectionState? SelectionState
+        {
+            get => selectionState;
+            set
+            {
+                selectionState = value;
+                hasSelectionStateUpdate = true;
+            }
+        }
         public ClientSettings Settings { get; set; }
         public string Prompt { get; set; }
         public string[] OutputLines { get; set; }

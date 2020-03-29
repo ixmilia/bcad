@@ -103,14 +103,14 @@ namespace IxMilia.BCad.Display
         {
             selecting = false;
             SetCursorVisibility();
-            SelectionRectangleUpdated?.Invoke(this, null);
+            UpdateSelectionRectangle(null);
         }
 
         private void InputService_ValueRequested(object sender, ValueRequestedEventArgs e)
         {
             selecting = false;
             SetCursorVisibility();
-            SelectionRectangleUpdated?.Invoke(this, null);
+            UpdateSelectionRectangle(null);
         }
 
         void InputService_InputCanceled(object sender, EventArgs e)
@@ -119,7 +119,7 @@ namespace IxMilia.BCad.Display
             {
                 selecting = false;
                 SetCursorVisibility();
-                SelectionRectangleUpdated?.Invoke(this, null);
+                UpdateSelectionRectangle(null);
             }
             else
             {
@@ -131,7 +131,7 @@ namespace IxMilia.BCad.Display
         {
             selecting = false;
             SetCursorVisibility();
-            SelectionRectangleUpdated?.Invoke(this, null);
+            UpdateSelectionRectangle(null);
         }
 
         private void Workspace_RubberBandGeneratorChanged(object sender, EventArgs e)
@@ -287,6 +287,7 @@ namespace IxMilia.BCad.Display
                         }
 
                         selecting = false;
+                        UpdateSelectionRectangle(null);
                         if (entities != null)
                         {
                             if (!_workspace.IsCommandExecuting)
@@ -379,8 +380,16 @@ namespace IxMilia.BCad.Display
 
             if (selecting)
             {
+                var left = Math.Min(position.X, firstSelectionPoint.X);
+                var top = Math.Min(position.Y, firstSelectionPoint.Y);
+                var width = Math.Abs(position.X - firstSelectionPoint.X);
+                var height = Math.Abs(position.Y - firstSelectionPoint.Y);
+                var rect = new Rect(left, top, width, height);
+                var mode = position.X < firstSelectionPoint.X
+                    ? SelectionMode.PartialEntity
+                    : SelectionMode.WholeEntity;
                 currentSelectionPoint = position;
-                UpdateSelectionLines();
+                UpdateSelectionRectangle(new SelectionState(rect, mode));
             }
 
             updateSnapPointsTask.ContinueWith(_ =>
@@ -440,17 +449,9 @@ namespace IxMilia.BCad.Display
             }
         }
 
-        private void UpdateSelectionLines()
+        private void UpdateSelectionRectangle(SelectionState? selectionState)
         {
-            var left = Math.Min(currentSelectionPoint.X, firstSelectionPoint.X);
-            var top = Math.Min(currentSelectionPoint.Y, firstSelectionPoint.Y);
-            var width = Math.Abs(currentSelectionPoint.X - firstSelectionPoint.X);
-            var height = Math.Abs(currentSelectionPoint.Y - firstSelectionPoint.Y);
-            var rect = new Rect(left, top, width, height);
-            var mode = currentSelectionPoint.X < firstSelectionPoint.X
-                ? SelectionMode.PartialEntity
-                : SelectionMode.WholeEntity;
-            SelectionRectangleUpdated?.Invoke(this, new SelectionState(rect, mode));
+            SelectionRectangleUpdated?.Invoke(this, selectionState);
         }
 
         private void SetCursorVisibility()

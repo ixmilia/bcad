@@ -2,7 +2,7 @@
 {
     public enum SelectionMode
     {
-        WholeEntity,
-        PartialEntity,
+        WholeEntity = 0,
+        PartialEntity = 1,
     }
 }

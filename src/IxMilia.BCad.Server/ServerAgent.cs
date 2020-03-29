@@ -29,6 +29,7 @@ namespace IxMilia.BCad.Server
             _dim.CurrentSnapPointUpdated += _dim_CurrentSnapPointUpdated;
             _dim.CursorStateUpdated += _dim_CursorStateUpdated;
             _dim.RubberBandPrimitivesChanged += _dim_RubberBandPrimitivesChanged;
+            _dim.SelectionRectangleUpdated += _dim_SelectionRectangleUpdated;
 
             _workspace.InputService.PromptChanged += InputService_PromptChanged;
             _workspace.OutputService.LineWritten += OutputService_LineWritten;
@@ -84,6 +85,13 @@ namespace IxMilia.BCad.Server
                 AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor);
             }
 
+            PushUpdate(clientUpdate);
+        }
+
+        private void _dim_SelectionRectangleUpdated(object sender, SelectionState? e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.SelectionState = e;
             PushUpdate(clientUpdate);
         }
 
