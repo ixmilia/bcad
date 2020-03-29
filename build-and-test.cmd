@@ -48,7 +48,7 @@ if /i "%runtests%" == "true" (
 pushd %~dp0src\bcad
 call npm i
 if errorlevel 1 echo Error restoring npm packages && goto error
-call npm run pack
+call npm config set bcad:configuration %configuration% && call npm run pack
 if errorlevel 1 echo Error packing electron && goto error
 popd
 

@@ -39,7 +39,7 @@ fi
 # build electron
 pushd "$_SCRIPT_DIR/src/bcad"
 npm i
-npm run pack
+npm config set bcad:configuration $CONFIGURATION && npm run pack
 popd
 
 # create deployment file
