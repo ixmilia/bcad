@@ -18,6 +18,11 @@ export interface Color {
     B: number;
 }
 
+interface PointLocation {
+    Location: Point3;
+    Color: Color;
+}
+
 interface Line {
     P1: Point3;
     P2: Point3;
@@ -35,6 +40,7 @@ export interface ClientDrawing {
     CurrentLayer: string;
     Layers: string[];
     FileName: string;
+    Points: PointLocation[];
     Lines: Line[];
     Ellipses: Ellipse[];
 }
@@ -72,6 +78,7 @@ export interface ClientSettings {
     HotPointColor: Color;
     SnapPointColor: Color;
     SnapPointSize: number;
+    PointDisplaySize: number;
     TextCursorSize: number;
 }
 
@@ -84,9 +91,15 @@ export enum SnapPointKind {
     Focus = 0x10,
 }
 
+export interface ClientTransform {
+    Transform?: number[],
+    DisplayXTransform: number,
+    DisplayYTransform: number,
+}
+
 export interface ClientUpdate {
     IsDirty: boolean;
-    Transform?: number[];
+    Transform?: ClientTransform;
     Drawing?: ClientDrawing;
     RubberBandDrawing?: ClientDrawing;
     TransformedSnapPoint?: {WorldPoint: Point3, ControlPoint: Point3, Kind: SnapPointKind};

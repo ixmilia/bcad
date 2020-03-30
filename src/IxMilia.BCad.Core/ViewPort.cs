@@ -83,14 +83,26 @@ namespace IxMilia.BCad
         /// <summary>
         /// Origin is in the center of the view port with x increasing to the right and y increasing to the top.  x = [-1, 1], y = [-1, 1].
         /// </summary>
-        public Matrix4 GetTransformationMatrixDirect3DStyle(double viewPortWidth, double viewPortHeight)
+        public DisplayTransform GetDisplayTransformDirect3DStyle(double viewPortWidth, double viewPortHeight)
         {
             var viewWidth = ViewHeight * viewPortWidth / viewPortHeight;
+            var xs = 2.0 / viewWidth;
+            var ys = 2.0 / ViewHeight;
             var projectionMatrix = Matrix4.Identity
-                * Matrix4.CreateScale(2.0f / viewWidth, 2.0f / ViewHeight, 1.0f)
+                * Matrix4.CreateScale(xs, ys, 1.0)
                 * Matrix4.CreateTranslate(-BottomLeft.X, -BottomLeft.Y, 0)
-                * Matrix4.CreateTranslate(-viewWidth / 2.0f, -ViewHeight / 2.0f, 0);
-            return projectionMatrix;
+                * Matrix4.CreateTranslate(-viewWidth / 2.0, -ViewHeight / 2.0, 0);
+
+            return new DisplayTransform(projectionMatrix, 1.0 / xs, 1.0 / ys);
+        }
+
+        /// <summary>
+        /// Origin is in the center of the view port with x increasing to the right and y increasing to the top.  x = [-1, 1], y = [-1, 1].
+        /// </summary>
+        public Matrix4 GetTransformationMatrixDirect3DStyle(double viewPortWidth, double viewPortHeight)
+        {
+            var transform = GetDisplayTransformDirect3DStyle(viewPortWidth, viewPortHeight);
+            return transform.Transform;
         }
 
         public static ViewPort CreateDefaultViewPort()

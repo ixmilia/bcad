@@ -109,7 +109,7 @@ namespace IxMilia.BCad.Server
             if (e.IsActiveViewPortChange)
             {
                 doUpdate = true;
-                clientUpdate.Transform = GetTransformMatrix();
+                clientUpdate.Transform = GetDisplayTransform();
             }
 
             if (e.IsDrawingChange)
@@ -129,24 +129,6 @@ namespace IxMilia.BCad.Server
             _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
-        public void ServerUpdate(ServerUpdate serverUpdate)
-        {
-            double[] transform = null;
-            if (serverUpdate.DisplayUpdate.HasValue)
-            {
-                switch (serverUpdate.DisplayUpdate.GetValueOrDefault())
-                {
-                    case DisplayUpdate.ZoomIn:
-                    case DisplayUpdate.ZoomOut:
-                        break;
-                }
-            }
-
-            var clientUpdate = new ClientUpdate();
-            clientUpdate.Transform = transform;
-            PushUpdate(clientUpdate);
-        }
-
         public void Ready(double width, double height)
         {
             _dim.Resize(width, height);
@@ -154,7 +136,7 @@ namespace IxMilia.BCad.Server
             {
                 Drawing = GetDrawing(),
                 Settings = GetSettings(),
-                Transform = GetTransformMatrix(),
+                Transform = GetDisplayTransform(),
             };
             PushUpdate(clientUpdate);
         }
@@ -164,7 +146,7 @@ namespace IxMilia.BCad.Server
             _dim.Resize(width, height);
             var clientUpdate = new ClientUpdate()
             {
-                Transform = GetTransformMatrix(),
+                Transform = GetDisplayTransform(),
             };
             PushUpdate(clientUpdate);
         }
@@ -180,13 +162,15 @@ namespace IxMilia.BCad.Server
                 HotPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.HotPointColor),
                 SnapPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor),
                 SnapPointSize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapPointSize),
+                PointDisplaySize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.PointDisplaySize),
                 TextCursorSize = _workspace.SettingsService.GetValue<int>(DisplaySettingsProvider.TextCursorSize),
             };
         }
 
-        private double[] GetTransformMatrix()
+        private ClientTransform GetDisplayTransform()
         {
-            return _workspace.ActiveViewPort.GetTransformationMatrixDirect3DStyle(_dim.Width, _dim.Height).ToTransposeArray();
+            var transform = _workspace.ActiveViewPort.GetDisplayTransformDirect3DStyle(_dim.Width, _dim.Height);
+            return new ClientTransform(transform.Transform.ToTransposeArray(), transform.DisplayXScale, transform.DisplayYScale);
         }
 
         public void ChangeCurrentLayer(string currentLayer)
@@ -263,6 +247,9 @@ namespace IxMilia.BCad.Server
                     break;
                 case PrimitiveLine line:
                     clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
+                    break;
+                case PrimitivePoint point:
+                    clientDrawing.Points.Add(new ClientPointLocation(point.Location, primitiveColor));
                     break;
             }
         }

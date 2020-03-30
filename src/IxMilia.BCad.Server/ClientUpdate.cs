@@ -24,6 +24,18 @@ namespace IxMilia.BCad.Server
         }
     }
 
+    public struct ClientPointLocation
+    {
+        public ClientPoint Location { get; }
+        public CadColor Color { get; }
+
+        public ClientPointLocation(ClientPoint location, CadColor color)
+        {
+            Location = location;
+            Color = color;
+        }
+    }
+
     public struct ClientLine
     {
         public ClientPoint P1 { get; }
@@ -59,6 +71,7 @@ namespace IxMilia.BCad.Server
         public string CurrentLayer { get; set; }
         public List<string> Layers { get; } = new List<string>();
         public string FileName { get; }
+        public List<ClientPointLocation> Points { get; } = new List<ClientPointLocation>();
         public List<ClientLine> Lines { get; } = new List<ClientLine>();
         public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();
 
@@ -78,7 +91,22 @@ namespace IxMilia.BCad.Server
         public CadColor HotPointColor { get; set; }
         public CadColor SnapPointColor { get; set; }
         public double SnapPointSize { get; set; }
+        public double PointDisplaySize { get; set; }
         public int TextCursorSize { get; set; }
+    }
+
+    public class ClientTransform
+    {
+        public double[] Transform { get; }
+        public double DisplayXTransform { get; }
+        public double DisplayYTransform { get; }
+
+        public ClientTransform(double[] transform, double displayXTransform, double displayYTransform)
+        {
+            Transform = transform;
+            DisplayXTransform = displayXTransform;
+            DisplayYTransform = displayYTransform;
+        }
     }
 
     public class ClientUpdate
@@ -87,7 +115,7 @@ namespace IxMilia.BCad.Server
         private SelectionState? selectionState;
 
         public bool IsDirty { get; set; }
-        public double[] Transform { get; set; }
+        public ClientTransform Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
         public TransformedSnapPoint? TransformedSnapPoint { get; set; }

@@ -17,6 +17,7 @@ namespace IxMilia.BCad.Display
     [ExportSetting(SnapPointDistance, typeof(double), 15.0)]
     [ExportSetting(SnapPointSize, typeof(double), 15.0)]
     [ExportSetting(TextCursorSize, typeof(int), 18)]
+    [ExportSetting(PointDisplaySize, typeof(double), 48.0)]
     public class DisplaySettingsProvider
     {
         public const string Prefix = "Display.";
@@ -33,5 +34,6 @@ namespace IxMilia.BCad.Display
         public const string SnapPointDistance = Prefix + nameof(SnapPointDistance);
         public const string SnapPointSize = Prefix + nameof(SnapPointSize);
         public const string TextCursorSize = Prefix + nameof(TextCursorSize);
+        public const string PointDisplaySize = Prefix + nameof(PointDisplaySize);
     }
 }
