@@ -86,14 +86,13 @@ namespace IxMilia.BCad
         public DisplayTransform GetDisplayTransformDirect3DStyle(double viewPortWidth, double viewPortHeight)
         {
             var viewWidth = ViewHeight * viewPortWidth / viewPortHeight;
-            var xs = 2.0 / viewWidth;
-            var ys = 2.0 / ViewHeight;
             var projectionMatrix = Matrix4.Identity
-                * Matrix4.CreateScale(xs, ys, 1.0)
+                * Matrix4.CreateScale(2.0 / viewWidth, 2.0 / ViewHeight, 1.0)
                 * Matrix4.CreateTranslate(-BottomLeft.X, -BottomLeft.Y, 0)
                 * Matrix4.CreateTranslate(-viewWidth / 2.0, -ViewHeight / 2.0, 0);
 
-            return new DisplayTransform(projectionMatrix, 1.0 / xs, 1.0 / ys);
+            var constantScale = ViewHeight / (viewPortHeight * 2.0);
+            return new DisplayTransform(projectionMatrix, constantScale, constantScale);
         }
 
         /// <summary>

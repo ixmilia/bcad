@@ -471,8 +471,8 @@ export class ViewControl {
         this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(this.coordinatesLocation);
         let constantScale = [
-            this.transform.DisplayXTransform * this.settings.PointDisplaySize / this.gl.canvas.width, 0.0, 0.0, 0.0,
-            0.0, this.transform.DisplayYTransform * this.settings.PointDisplaySize / this.gl.canvas.height, 0.0, 0.0,
+            this.transform.DisplayXTransform * this.settings.PointDisplaySize, 0.0, 0.0, 0.0,
+            0.0, this.transform.DisplayYTransform * this.settings.PointDisplaySize, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0,
         ];
