@@ -3,8 +3,10 @@ import { remote } from 'electron';
 import { ResizeObserver } from 'resize-observer';
 
 interface Drawing extends ClientDrawing {
-    Vertices: WebGLBuffer;
-    Colors: WebGLBuffer;
+    LineVertices: WebGLBuffer;
+    LineColors: WebGLBuffer;
+    PointLocations: WebGLBuffer;
+    PointColors: WebGLBuffer;
 }
 
 export class ViewControl {
@@ -14,14 +16,15 @@ export class ViewControl {
     private outputPane: HTMLDivElement;
 
     // webgl
-    private gl: WebGLRenderingContext;
+    private gl: WebGL2RenderingContext;
     private twod: CanvasRenderingContext2D;
-    private worldTransformLocation: WebGLUniformLocation;
-    private objectTransformLocation: WebGLUniformLocation;
-    private constantScaleTransformLocation: WebGLUniformLocation;
+    private viewTransformLocation: WebGLUniformLocation;
+    private objectWorldTransformLocation: WebGLUniformLocation;
+    private objectScaleTransformLocation: WebGLUniformLocation;
     private pointMarkBuffer: WebGLBuffer;
     private ellipseBuffer: WebGLBuffer;
     private coordinatesLocation: number;
+    private translationLocation: number;
     private colorLocation: number;
     private identity: number[];
     private transform: ClientTransform;
@@ -56,8 +59,10 @@ export class ViewControl {
             Points: [],
             Lines: [],
             Ellipses: [],
-            Vertices: null,
-            Colors: null,
+            LineVertices: null,
+            LineColors: null,
+            PointLocations: null,
+            PointColors: null,
         };
         this.rubberBandDrawing = {
             CurrentLayer: null,
@@ -66,8 +71,10 @@ export class ViewControl {
             Points: [],
             Lines: [],
             Ellipses: [],
-            Vertices: null,
-            Colors: null,
+            LineVertices: null,
+            LineColors: null,
+            PointLocations: null,
+            PointColors: null,
         };
         this.identity = [
             1, 0, 0, 0,
@@ -262,20 +269,23 @@ export class ViewControl {
 
     private prepareCanvas() {
         this.twod = this.cursorCanvas.getContext("2d");
-        this.gl = this.drawingCanvas.getContext("webgl");
+        this.gl = this.drawingCanvas.getContext("webgl2");
         let gl = this.gl;
 
         let vertCode = `
             attribute vec3 vCoords;
+            attribute vec3 vTrans;
             attribute vec3 vColor;
 
-            uniform mat4 constantScaleTransform;
-            uniform mat4 objectTransform;
-            uniform mat4 worldTransform;
+            uniform mat4 objectScaleTransform;
+            uniform mat4 objectWorldTransform;
+            uniform mat4 viewTransform;
             varying vec3 fColor;
 
             void main(void) {
-                gl_Position = worldTransform * objectTransform * constantScaleTransform * vec4(vCoords, 1.0);
+                vec4 scaled = objectScaleTransform * vec4(vCoords, 1.0);
+                vec4 moved = scaled + vec4(vTrans, 0.0);
+                gl_Position = viewTransform * objectWorldTransform * moved;
                 fColor = vColor;
             }`;
 
@@ -300,10 +310,11 @@ export class ViewControl {
         gl.useProgram(program);
 
         this.coordinatesLocation = gl.getAttribLocation(program, "vCoords");
+        this.translationLocation = gl.getAttribLocation(program, "vTrans");
         this.colorLocation = gl.getAttribLocation(program, "vColor");
-        this.constantScaleTransformLocation = gl.getUniformLocation(program, "constantScaleTransform");
-        this.objectTransformLocation = gl.getUniformLocation(program, "objectTransform");
-        this.worldTransformLocation = gl.getUniformLocation(program, "worldTransform");
+        this.objectScaleTransformLocation = gl.getUniformLocation(program, "objectScaleTransform");
+        this.objectWorldTransformLocation = gl.getUniformLocation(program, "objectWorldTransform");
+        this.viewTransformLocation = gl.getUniformLocation(program, "viewTransform");
     }
 
     private prepareEvents() {
@@ -411,13 +422,37 @@ export class ViewControl {
         let vertices = new Float32Array(verts);
         let colors = new Uint8Array(cols);
 
-        drawing.Vertices = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.Vertices);
+        drawing.LineVertices = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
 
-        drawing.Colors = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.Colors);
+        drawing.LineColors = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineColors);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, colors, this.gl.STATIC_DRAW);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+
+        // points
+        verts = [];
+        cols = [];
+        for (let p of drawing.Points) {
+            verts.push(p.Location.X);
+            verts.push(p.Location.Y);
+            verts.push(p.Location.Z);
+            cols.push(p.Color.R);
+            cols.push(p.Color.G);
+            cols.push(p.Color.B);
+        }
+        let pointVertices = new Float32Array(verts);
+        let pointColors = new Uint8Array(cols);
+
+        drawing.PointLocations = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocations);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointVertices, this.gl.STATIC_DRAW);
+
+        drawing.PointColors = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointColors);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointColors, this.gl.STATIC_DRAW);
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
@@ -431,17 +466,24 @@ export class ViewControl {
     }
 
     private redrawSpecific(drawing: Drawing) {
-        this.gl.uniformMatrix4fv(this.worldTransformLocation, false, this.transform.Transform);
-        this.gl.uniformMatrix4fv(this.objectTransformLocation, false, this.identity);
-        this.gl.uniformMatrix4fv(this.constantScaleTransformLocation, false, this.identity);
+        this.gl.disableVertexAttribArray(this.colorLocation);
+        this.gl.disableVertexAttribArray(this.translationLocation);
+        this.gl.vertexAttrib3f(this.translationLocation, 0.0, 0.0, 0.0);
+        this.gl.uniformMatrix4fv(this.viewTransformLocation, false, this.transform.Transform);
+        this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
+        this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, this.identity);
+        this.gl.vertexAttribDivisor(this.colorLocation, 0);
+        this.gl.vertexAttribDivisor(this.translationLocation, 0);
 
+        //
         // lines
+        //
         if (drawing.Lines.length > 0) {
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.Vertices);
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
             this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.coordinatesLocation);
 
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.Colors);
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineColors);
             this.gl.vertexAttribPointer(this.colorLocation, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
             this.gl.enableVertexAttribArray(this.colorLocation);
 
@@ -449,13 +491,15 @@ export class ViewControl {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         }
 
+        //
         // ellipses
+        //
         this.gl.disableVertexAttribArray(this.colorLocation);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
         this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(this.coordinatesLocation);
         for (let el of drawing.Ellipses) {
-            this.gl.uniformMatrix4fv(this.objectTransformLocation, false, el.Transform);
+            this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, el.Transform);
             let startAngle = Math.trunc(el.StartAngle);
             let endAngle = Math.trunc(el.EndAngle);
 
@@ -465,30 +509,39 @@ export class ViewControl {
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
+        //
         // points
-        this.gl.disableVertexAttribArray(this.colorLocation);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.pointMarkBuffer);
-        this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.coordinatesLocation);
-        let constantScale = [
-            this.transform.DisplayXTransform * this.settings.PointDisplaySize, 0.0, 0.0, 0.0,
-            0.0, this.transform.DisplayYTransform * this.settings.PointDisplaySize, 0.0, 0.0,
+        //
+        let sfx = this.transform.DisplayXTransform * this.settings.PointDisplaySize;
+        let sfy = this.transform.DisplayYTransform * this.settings.PointDisplaySize;
+        let pointMarkerScale = [
+            sfx, 0.0, 0.0, 0.0,
+            0.0, sfy, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0,
         ];
-        this.gl.uniformMatrix4fv(this.constantScaleTransformLocation, false, constantScale);
-        for (let p of drawing.Points) {
-            let objectTransform = [
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                p.Location.X, p.Location.Y, p.Location.Z, 1.0,
-            ];
-            this.gl.uniformMatrix4fv(this.objectTransformLocation, false, objectTransform);
-            this.gl.vertexAttrib3f(this.colorLocation, p.Color.R, p.Color.G, p.Color.B);
-            this.gl.drawArrays(this.gl.LINES, 0, 2 * 2); // 2 segments * 2 points
-        }
+        this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, pointMarkerScale);
+        this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
 
+        // draw point mark repeatedly...
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.pointMarkBuffer);
+        this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(this.coordinatesLocation);
+
+        // ...for each point location
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocations);
+        this.gl.vertexAttribPointer(this.translationLocation, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.vertexAttribDivisor(this.translationLocation, 1);
+        this.gl.enableVertexAttribArray(this.translationLocation);
+
+        // ...and each color
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointColors);
+        this.gl.vertexAttribPointer(this.colorLocation, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
+        this.gl.vertexAttribDivisor(this.colorLocation, 1);
+        this.gl.enableVertexAttribArray(this.colorLocation);
+
+        let vertsPerPoint = 2 * 2; // 2 segments, 2 verts per segment
+        this.gl.drawArraysInstanced(this.gl.LINES, 0, vertsPerPoint, drawing.Points.length);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
