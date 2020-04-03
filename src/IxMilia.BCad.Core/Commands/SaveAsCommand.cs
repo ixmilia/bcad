@@ -17,7 +17,7 @@ namespace IxMilia.BCad.Commands
             if (fileName == null)
                 fileName = await workspace.FileSystemService.GetFileNameFromUserForSave();
 
-            if (fileName == null)
+            if (string.IsNullOrEmpty(fileName))
                 return false;
 
             var stream = await workspace.FileSystemService.GetStreamForWriting(fileName);

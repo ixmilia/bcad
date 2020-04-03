@@ -288,6 +288,16 @@ export class Client {
                 return null;
             }
         });
+        this.connection.onRequest(new rpc.RequestType<void, string, void, void>('GetFileNameFromUserForSave'), async () => {
+            let result = await remote.dialog.showSaveDialog({
+                filters: [
+                    { name: 'DXF Files', extensions: ['dxf', 'dxb'] },
+                    { name: 'IGES Files', extensions: ['igs', 'iges'] }
+                ]
+            });
+
+            return result.filePath;
+        })
 
         this.connection.onUnhandledNotification((msg) => {
             alert('got unhandled notification ' + msg);

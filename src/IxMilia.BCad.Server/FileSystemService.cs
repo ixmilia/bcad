@@ -21,9 +21,10 @@ namespace IxMilia.BCad.Server
             return fileName;
         }
 
-        public Task<string> GetFileNameFromUserForSave()
+        public async Task<string> GetFileNameFromUserForSave()
         {
-            throw new NotImplementedException();
+            var fileName = await Rpc.InvokeAsync<string>("GetFileNameFromUserForSave", null);
+            return fileName;
         }
 
         public Task<string> GetFileNameFromUserForWrite(IEnumerable<FileSpecification> fileSpecifications)
