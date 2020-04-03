@@ -128,6 +128,7 @@ export class Client {
     private ShowDialogRequest: rpc.RequestType1<{id: string, parameter: object}[], object, void, void>;
 
     private ChangeCurrentLayerNotification: rpc.NotificationType<{currentLayer: string}, void>;
+    private CancelNotification: rpc.NotificationType<void, void>;
     private MouseDownNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseUpNotification: rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>;
     private MouseMoveNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>;
@@ -144,6 +145,7 @@ export class Client {
         this.ShowDialogRequest = new rpc.RequestType1<{id: string, parameter: object}[], object, void, void>('ShowDialog');
 
         this.ChangeCurrentLayerNotification = new rpc.NotificationType<{currentLayer: string}, void>('ChangeCurrentLayer');
+        this.CancelNotification = new rpc.NotificationType<void, void>('Cancel');
         this.MouseDownNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseDown');
         this.MouseUpNotification = new rpc.NotificationType<{button: MouseButton, cursorX: Number, cursorY: Number}, void>('MouseUp');
         this.MouseMoveNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number}, void>('MouseMove');
@@ -171,6 +173,10 @@ export class Client {
 
     changeCurrentLayer(currentLayer: string) {
         this.connection.sendNotification(this.ChangeCurrentLayerNotification, {currentLayer: currentLayer});
+    }
+
+    cancel() {
+        this.connection.sendNotification(this.CancelNotification);
     }
 
     mouseDown(button: MouseButton, cursorX: number, cursorY: number) {

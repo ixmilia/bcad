@@ -178,6 +178,11 @@ namespace IxMilia.BCad.Server
             _workspace.Update(drawing: _workspace.Drawing.Update(currentLayerName: currentLayer));
         }
 
+        public void Cancel()
+        {
+            _workspace.InputService.Cancel();
+        }
+
         public void MouseDown(MouseButton button, double cursorX, double cursorY)
         {
             var _ = _dim.MouseDown(new Point(cursorX, cursorY, 0.0), button);
