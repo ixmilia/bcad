@@ -45,6 +45,7 @@ export class InputConsole {
     private submit() {
         let value = this.input.value;
         this.clearInput();
+        this.input.focus();
         this.client.submitInput(value);
     }
 }
