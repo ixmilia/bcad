@@ -6,11 +6,11 @@ export class InputConsole {
     constructor(client: Client) {
         this.client = client;
         this.input = <HTMLInputElement>document.getElementById("input");
-        this.input.addEventListener('keydown', (ev) => {
+        this.input.addEventListener('keyup', (ev) => {
             this.handleLocalKeystroke(ev);
         });
 
-        document.addEventListener('keydown', (ev) => {
+        document.addEventListener('keyup', (ev) => {
             this.handleKeystroke(ev, true);
         });
     }
@@ -19,7 +19,7 @@ export class InputConsole {
         switch (ev.key) {
             case "Enter":
             case " ":
-                this.submit();
+                this.submit(ev.key === " ");
                 break;
             case "Escape":
                 this.clearInput();
@@ -42,9 +42,14 @@ export class InputConsole {
         this.input.value = "";
     }
 
-    private submit() {
+    private submit(trimLastSpace: boolean) {
         let value = this.input.value;
         this.clearInput();
+        if (trimLastSpace && value.length > 0 && value.charAt(value.length - 1) == " ") {
+            // if submitted with SPACE, last character needs to be removed
+            value = value.substr(0, value.length - 1);
+        }
+
         this.input.focus();
         this.client.submitInput(value);
     }
