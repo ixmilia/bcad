@@ -6,6 +6,10 @@ export class DialogHandler {
 
     constructor(client: Client) {
         this.dialogContainer = <HTMLDivElement>document.getElementById('modal-dialog-container');
+        this.dialogContainer.addEventListener('keydown', (ev) => {
+            ev.stopImmediatePropagation();
+            return false;
+        });
         window.addEventListener('resize', () => {
             this.resizeDialog();
         });
