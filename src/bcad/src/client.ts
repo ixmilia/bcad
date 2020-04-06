@@ -135,6 +135,7 @@ export class Client {
     private PanNotification: rpc.NotificationType<{dx: Number, dy: Number}, void>;
     private ReadyNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
     private ResizeNotification: rpc.NotificationType<{width: Number, height: Number}, void>;
+    private SetSettingNotification: rpc.NotificationType<{name: string, value: string}, void>;
     private SubmitIntputNotification: rpc.NotificationType<{value: string}, void>;
     private ZoomNotification: rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>;
     private ExecuteCommandRequest: rpc.RequestType1<{command: String}, boolean, void, void>;
@@ -152,6 +153,7 @@ export class Client {
         this.PanNotification = new rpc.NotificationType<{dx: Number, dy: Number}, void>('Pan');
         this.ReadyNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Ready');
         this.ResizeNotification = new rpc.NotificationType<{width: Number, height: Number}, void>('Resize');
+        this.SetSettingNotification = new rpc.NotificationType<{name: string, value: string}, void>('SetSetting');
         this.SubmitIntputNotification = new rpc.NotificationType<{value: string}, void>('SubmitInput');
         this.ZoomNotification = new rpc.NotificationType<{cursorX: Number, cursorY: Number, delta: Number}, void>('Zoom');
         this.ExecuteCommandRequest = new rpc.RequestType1<{command: String}, boolean, void, void>('ExecuteCommand');
@@ -247,6 +249,10 @@ export class Client {
     async executeCommand(commandName: string): Promise<boolean> {
         let result = await this.connection.sendRequest(this.ExecuteCommandRequest, {command: commandName});
         return result;
+    }
+
+    setSetting(name: string, value: string) {
+        this.connection.sendNotification(this.SetSettingNotification, {name: name, value: value});
     }
 
     private prepareListeners() {

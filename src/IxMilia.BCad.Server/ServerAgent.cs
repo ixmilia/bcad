@@ -275,5 +275,10 @@ namespace IxMilia.BCad.Server
             var result = await _rpc.InvokeAsync<JObject>("ShowDialog", new { id, parameter });
             return result;
         }
+
+        public void SetSetting(string name, string value)
+        {
+            _workspace.SettingsService.SetValue(name, value);
+        }
     }
 }

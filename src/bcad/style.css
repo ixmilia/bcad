@@ -103,6 +103,10 @@ body {
     width: 20px;
 }
 
+.settings-button {
+    display: inline-block;
+}
+
 #current-layer-selector {
     vertical-align: top;
     width: 150px;

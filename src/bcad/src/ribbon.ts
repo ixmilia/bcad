@@ -1,12 +1,16 @@
 import { Client } from './client';
+import { SettingsRibbon } from './settingsRibbon';
 
 export class Ribbon {
     constructor(client: Client) {
         document.querySelectorAll(".command-button").forEach(node => {
             let button = <HTMLButtonElement>node;
-            button.addEventListener('click', () => {
-                client.executeCommand(button.getAttribute("data-command-name"));
-            });
+            let commandName = button.getAttribute("data-command-name");
+            if (commandName) {
+                button.addEventListener('click', () => {
+                    client.executeCommand(commandName);
+                });
+            }
         });
 
         var tabs = [
@@ -24,5 +28,7 @@ export class Ribbon {
                 ribbon.classList.add('ribbon-active');
             });
         });
+
+        new SettingsRibbon(client);
     }
 }
