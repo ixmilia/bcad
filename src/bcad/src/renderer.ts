@@ -6,7 +6,7 @@ import { Arguments } from './args';
 import { Client } from './client';
 import { InputConsole } from './inputConsole';
 import { OutputConsole } from './outputConsole';
-import { Ribbon } from './ribbon';
+import { Ribbon } from './ribbons/ribbon';
 import { remote } from 'electron';
 import { ViewControl } from './viewControl';
 import { LayerSelector } from './layerSelector';

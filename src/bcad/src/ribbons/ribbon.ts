@@ -1,4 +1,4 @@
-import { Client } from './client';
+import { Client } from '../client';
 import { SettingsRibbon } from './settingsRibbon';
 import { DebugRibbon } from './debugRibbon';
 
