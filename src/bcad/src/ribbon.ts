@@ -1,5 +1,6 @@
 import { Client } from './client';
 import { SettingsRibbon } from './settingsRibbon';
+import { DebugRibbon } from './debugRibbon';
 
 export class Ribbon {
     constructor(client: Client) {
@@ -17,6 +18,7 @@ export class Ribbon {
             "home",
             "view",
             "settings",
+            "debug",
         ];
         tabs.forEach(t => {
             var button = <HTMLButtonElement>document.getElementById(t + "Button");
@@ -30,5 +32,6 @@ export class Ribbon {
         });
 
         new SettingsRibbon(client);
+        new DebugRibbon(client);
     }
 }

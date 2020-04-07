@@ -112,6 +112,13 @@ body {
     width: 150px;
 }
 
+.debug-transform-value {
+    border: 1px solid black;
+    line-height: 12px;
+    overflow: hidden;
+    width: 40px;
+}
+
 /* blocks out the entire application */
 #modal-dialog-mask {
     background-color: rgba(128, 128, 128, 0.5);
