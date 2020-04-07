@@ -38,8 +38,8 @@
     "electron-packager": "14.2.1",
     "icon-gen": "2.0.0",
     "run-script-os": "1.1.1",
-    "tslint": "^5.19.0",
-    "typescript": "^3.6.0"
+    "tslint": "6.1.1",
+    "typescript": "3.8.3"
   },
   "dependencies": {
     "resize-observer": "1.0.0",
