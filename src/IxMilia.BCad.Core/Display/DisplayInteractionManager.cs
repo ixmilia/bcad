@@ -157,7 +157,6 @@ namespace IxMilia.BCad.Display
             var transform = _workspace.ActiveViewPort.GetProjectionMatrix(Width, Height, UIProjectionStyle);
             var inverse = transform.Inverse();
             transform = Matrix4.CreateScale(1.0, 1.0, 0.0) * transform;
-            UpdateHotPoints();
             UpdateSnapPoints(transform);
             unprojectMatrix = inverse;
             transformationMatrix = transform;

@@ -18,6 +18,11 @@ namespace IxMilia.BCad.Server
             Z = z;
         }
 
+        public ClientPoint(Point p)
+            : this(p.X, p.Y, p.Z)
+        {
+        }
+
         public static implicit operator ClientPoint(Point p)
         {
             return new ClientPoint(p.X, p.Y, p.Z);
@@ -89,6 +94,7 @@ namespace IxMilia.BCad.Server
         public bool Debug { get; set; }
         public double EntitySelectionRadius { get; set; }
         public CadColor HotPointColor { get; set; }
+        public double HotPointSize { get; set; }
         public CadColor SnapPointColor { get; set; }
         public double SnapPointSize { get; set; }
         public double PointDisplaySize { get; set; }
@@ -120,6 +126,7 @@ namespace IxMilia.BCad.Server
         public ClientDrawing RubberBandDrawing { get; set; }
         public TransformedSnapPoint? TransformedSnapPoint { get; set; }
         public CursorState? CursorState { get; set; }
+        public ClientPoint[] HotPoints { get; set; }
         public bool HasSelectionStateUpdate => hasSelectionStateUpdate;
         public SelectionState? SelectionState
         {

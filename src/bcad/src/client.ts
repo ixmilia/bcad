@@ -5,7 +5,7 @@ import * as rpc from 'vscode-jsonrpc';
 import { remote } from 'electron';
 import { Arguments } from './args';
 
-interface Point3 {
+export interface Point3 {
     X: number;
     Y: number;
     Z: number;
@@ -76,6 +76,7 @@ export interface ClientSettings {
     Debug: boolean;
     EntitySelectionRadius: number;
     HotPointColor: Color;
+    HotPointSize: number;
     SnapPointColor: Color;
     SnapPointSize: number;
     PointDisplaySize: number;
@@ -104,6 +105,7 @@ export interface ClientUpdate {
     RubberBandDrawing?: ClientDrawing;
     TransformedSnapPoint?: {WorldPoint: Point3, ControlPoint: Point3, Kind: SnapPointKind};
     CursorState?: CursorState;
+    HotPoints?: Point3[];
     HasSelectionStateUpdate: boolean;
     SelectionState?: SelectionState;
     Settings?: ClientSettings;

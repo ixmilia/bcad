@@ -1,4 +1,4 @@
-import { Client, ClientDrawing, ClientSettings, ClientTransform, ClientUpdate, Color, CursorState, MouseButton, SnapPointKind, SelectionState, SelectionMode } from './client';
+import { Client, ClientDrawing, ClientSettings, ClientTransform, ClientUpdate, Color, CursorState, MouseButton, Point3, SnapPointKind, SelectionState, SelectionMode } from './client';
 import { remote } from 'electron';
 import { ResizeObserver } from 'resize-observer';
 
@@ -23,6 +23,9 @@ export class ViewControl {
     private objectScaleTransformLocation: WebGLUniformLocation;
     private pointMarkBuffer: WebGLBuffer;
     private ellipseBuffer: WebGLBuffer;
+    private hotPointMarkBuffer: WebGLBuffer;
+    private hotPointLocations: WebGLBuffer;
+    private hotPointCount: number;
     private coordinatesLocation: number;
     private translationLocation: number;
     private colorLocation: number;
@@ -52,6 +55,7 @@ export class ViewControl {
         this.cursorState = CursorState.Object | CursorState.Point;
         this.selectionState = null;
         this.snapPointKind = SnapPointKind.None;
+        this.hotPointCount = 0;
         this.entityDrawing = {
             CurrentLayer: "0",
             Layers: ["0"],
@@ -94,6 +98,7 @@ export class ViewControl {
             Debug: false,
             EntitySelectionRadius: 3,
             HotPointColor: {A: 255, R: 0, G: 0, B: 255},
+            HotPointSize: 10,
             SnapPointColor: {A: 255, R: 255, G: 255, B: 0},
             SnapPointSize: 15,
             PointDisplaySize: 48,
@@ -105,6 +110,7 @@ export class ViewControl {
         this.populateStaticVertices();
         this.populateVertices(this.entityDrawing);
         this.populateVertices(this.rubberBandDrawing);
+        this.populateHotPoints([]);
         this.prepareEvents();
         this.redraw();
 
@@ -140,6 +146,10 @@ export class ViewControl {
         if (clientUpdate.CursorState !== undefined) {
             this.cursorState = clientUpdate.CursorState;
             redrawCursor = true;
+        }
+        if (clientUpdate.HotPoints !== undefined) {
+            this.populateHotPoints(clientUpdate.HotPoints);
+            redraw = true;
         }
         if (clientUpdate.HasSelectionStateUpdate) {
             this.selectionState = clientUpdate.SelectionState;
@@ -399,6 +409,24 @@ export class ViewControl {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, pointMarkVertices, this.gl.STATIC_DRAW);
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+
+        // hot points
+        verts = [];
+        verts.push(-0.5, -0.5, 0.0);
+        verts.push(0.5, -0.5, 0.0);
+        verts.push(0.5, -0.5, 0.0);
+        verts.push(0.5, 0.5, 0.0);
+        verts.push(0.5, 0.5, 0.0);
+        verts.push(-0.5, 0.5, 0.0);
+        verts.push(-0.5, 0.5, 0.0);
+        verts.push(-0.5, -0.5, 0.0);
+        let hotPointVertices = new Float32Array(verts);
+
+        this.hotPointMarkBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointMarkBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, hotPointVertices, this.gl.STATIC_DRAW);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
     private populateVertices(drawing: Drawing) {
@@ -457,15 +485,30 @@ export class ViewControl {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
+    private populateHotPoints(points: Point3[]) {
+        this.hotPointCount = points.length;
+        let verts = [];
+        for (let p of points) {
+            verts.push(p.X, p.Y, p.Z);
+        }
+        let vertices = new Float32Array(verts);
+        this.hotPointLocations = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointLocations);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    }
+
     private redraw() {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         this.gl.clearColor(this.settings.BackgroundColor.R / 255.0, this.settings.BackgroundColor.G / 255.0, this.settings.BackgroundColor.B / 255.0, 1.0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.redrawSpecific(this.entityDrawing);
         this.redrawSpecific(this.rubberBandDrawing);
+        this.redrawHotPoints();
     }
 
-    private redrawSpecific(drawing: Drawing) {
+    private resetRenderer() {
         this.gl.disableVertexAttribArray(this.colorLocation);
         this.gl.disableVertexAttribArray(this.translationLocation);
         this.gl.vertexAttrib3f(this.translationLocation, 0.0, 0.0, 0.0);
@@ -474,6 +517,10 @@ export class ViewControl {
         this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, this.identity);
         this.gl.vertexAttribDivisor(this.colorLocation, 0);
         this.gl.vertexAttribDivisor(this.translationLocation, 0);
+    }
+
+    private redrawSpecific(drawing: Drawing) {
+        this.resetRenderer();
 
         //
         // lines
@@ -512,14 +559,7 @@ export class ViewControl {
         //
         // points
         //
-        let sfx = this.transform.DisplayXTransform * this.settings.PointDisplaySize;
-        let sfy = this.transform.DisplayYTransform * this.settings.PointDisplaySize;
-        let pointMarkerScale = [
-            sfx, 0.0, 0.0, 0.0,
-            0.0, sfy, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 1.0,
-        ];
+        let pointMarkerScale = this.createConstantScaleTransform(this.settings.PointDisplaySize, this.settings.PointDisplaySize);
         this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, pointMarkerScale);
         this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
 
@@ -543,6 +583,48 @@ export class ViewControl {
         let vertsPerPoint = 2 * 2; // 2 segments, 2 verts per segment
         this.gl.drawArraysInstanced(this.gl.LINES, 0, vertsPerPoint, drawing.Points.length);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    }
+
+    private redrawHotPoints() {
+        if (this.hotPointCount == 0) {
+            return;
+        }
+
+        this.resetRenderer();
+
+        let hotPointScale = this.createConstantScaleTransform(this.settings.HotPointSize, this.settings.HotPointSize);
+        this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, hotPointScale);
+        this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
+
+        // draw hot point repeatedly...
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointMarkBuffer);
+        this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(this.coordinatesLocation);
+
+        // ...with a constant color
+        this.gl.vertexAttrib3f(this.colorLocation, this.settings.HotPointColor.R, this.settings.HotPointColor.G, this.settings.HotPointColor.B);
+
+        // ...for each hot point location
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointLocations);
+        this.gl.vertexAttribPointer(this.translationLocation, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.vertexAttribDivisor(this.translationLocation, 1);
+        this.gl.enableVertexAttribArray(this.translationLocation);
+
+        let vertsPerPoint = 4 * 2; // 4 segments, 2 verts per segment
+        this.gl.drawArraysInstanced(this.gl.LINES, 0, vertsPerPoint, this.hotPointCount);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    }
+
+    private createConstantScaleTransform(x: number, y: number): number[] {
+        let sfx = this.transform.DisplayXTransform * x;
+        let sfy = this.transform.DisplayYTransform * y;
+        let scale = [
+            sfx, 0.0, 0.0, 0.0,
+            0.0, sfy, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+        ];
+        return scale;
     }
 
     private static getMouseButton(button: number) {

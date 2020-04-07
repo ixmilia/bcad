@@ -9,6 +9,7 @@ namespace IxMilia.BCad.Display
     [ExportSetting(CursorSize, typeof(int), 60)]
     [ExportSetting(EntitySelectionRadius, typeof(double), 3.0)]
     [ExportSetting(HotPointColor, typeof(CadColor), "#FF0000FF")]
+    [ExportSetting(HotPointSize, typeof(double), 10.0)]
     [ExportSetting(Ortho, typeof(bool), false)]
     [ExportSetting(PointSnap, typeof(bool), true)]
     [ExportSetting(SnapAngleDistance, typeof(double), 30.0)]
@@ -26,6 +27,7 @@ namespace IxMilia.BCad.Display
         public const string CursorSize = Prefix + nameof(CursorSize);
         public const string EntitySelectionRadius = Prefix + nameof(EntitySelectionRadius);
         public const string HotPointColor = Prefix + nameof(HotPointColor);
+        public const string HotPointSize = Prefix + nameof(HotPointSize);
         public const string Ortho = Prefix + nameof(Ortho);
         public const string PointSnap = Prefix + nameof(PointSnap);
         public const string SnapAngleDistance = Prefix + nameof(SnapAngleDistance);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
@@ -28,6 +29,7 @@ namespace IxMilia.BCad.Server
             _dim = new DisplayInteractionManager(workspace, ProjectionStyle.OriginTopLeft);
             _dim.CurrentSnapPointUpdated += _dim_CurrentSnapPointUpdated;
             _dim.CursorStateUpdated += _dim_CursorStateUpdated;
+            _dim.HotPointsUpdated += _dim_HotPointsUpdated;
             _dim.RubberBandPrimitivesChanged += _dim_RubberBandPrimitivesChanged;
             _dim.SelectionRectangleUpdated += _dim_SelectionRectangleUpdated;
 
@@ -72,6 +74,13 @@ namespace IxMilia.BCad.Server
         {
             var clientUpdate = new ClientUpdate();
             clientUpdate.CursorState = e;
+            PushUpdate(clientUpdate);
+        }
+
+        private void _dim_HotPointsUpdated(object sender, IEnumerable<Point> e)
+        {
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.HotPoints = e.Select(p => new ClientPoint(p)).ToArray();
             PushUpdate(clientUpdate);
         }
 
@@ -160,6 +169,7 @@ namespace IxMilia.BCad.Server
                 Debug = _workspace.SettingsService.GetValue<bool>(DefaultSettingsProvider.Debug),
                 EntitySelectionRadius = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius),
                 HotPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.HotPointColor),
+                HotPointSize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.HotPointSize),
                 SnapPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor),
                 SnapPointSize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapPointSize),
                 PointDisplaySize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.PointDisplaySize),
