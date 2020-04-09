@@ -4,7 +4,7 @@ export class DebugRibbon {
     constructor(client: Client) {
         client.subscribeToClientUpdates((clientUpdate) => {
             if (clientUpdate.Transform !== undefined) {
-                let digits = 4;
+                let digits = 6;
                 for (let i = 0; i < 16; i++) {
                     let r = Math.trunc(i / 4) + 1;
                     let c = (i % 4) + 1;
