@@ -3,10 +3,19 @@ import { remote } from 'electron';
 import { ResizeObserver } from 'resize-observer';
 
 interface Drawing extends ClientDrawing {
+    LineCount: number;
     LineVertices: WebGLBuffer;
     LineColors: WebGLBuffer;
+
+    LineCountWithDefaultColor: number;
+    LineVerticesWithDefaultColor: WebGLBuffer;
+
+    PointCount: number;
     PointLocations: WebGLBuffer;
     PointColors: WebGLBuffer;
+
+    PointCountWithDefaultColor: number;
+    PointLocationsWithDefaultColor: WebGLBuffer;
 }
 
 export class ViewControl {
@@ -63,10 +72,16 @@ export class ViewControl {
             Points: [],
             Lines: [],
             Ellipses: [],
+            LineCount: 0,
             LineVertices: null,
             LineColors: null,
+            LineCountWithDefaultColor: 0,
+            LineVerticesWithDefaultColor: null,
+            PointCount: 0,
             PointLocations: null,
             PointColors: null,
+            PointCountWithDefaultColor: 0,
+            PointLocationsWithDefaultColor: null,
         };
         this.rubberBandDrawing = {
             CurrentLayer: null,
@@ -75,10 +90,16 @@ export class ViewControl {
             Points: [],
             Lines: [],
             Ellipses: [],
+            LineCount: 0,
             LineVertices: null,
             LineColors: null,
+            LineCountWithDefaultColor: 0,
+            LineVerticesWithDefaultColor: null,
+            PointCount: 0,
             PointLocations: null,
             PointColors: null,
+            PointCountWithDefaultColor: 0,
+            PointLocationsWithDefaultColor: null,
         };
         this.identity = [
             1, 0, 0, 0,
@@ -432,48 +453,64 @@ export class ViewControl {
 
     private populateVertices(drawing: Drawing) {
         // lines
-        let verts = [];
-        let cols = [];
-        for (let i = 0; i < drawing.Lines.length; i++) {
-            verts.push(drawing.Lines[i].P1.X);
-            verts.push(drawing.Lines[i].P1.Y);
-            verts.push(drawing.Lines[i].P1.Z);
-            cols.push(drawing.Lines[i].Color.R);
-            cols.push(drawing.Lines[i].Color.G);
-            cols.push(drawing.Lines[i].Color.B);
-            verts.push(drawing.Lines[i].P2.X);
-            verts.push(drawing.Lines[i].P2.Y);
-            verts.push(drawing.Lines[i].P2.Z);
-            cols.push(drawing.Lines[i].Color.R);
-            cols.push(drawing.Lines[i].Color.G);
-            cols.push(drawing.Lines[i].Color.B);
+        let lineVerts = [];
+        let lineCols = [];
+        let lineVertsWithDefaultColor = [];
+        let lineCount = 0;
+        let lineCountWithDefaultColor = 0;
+        for (let l of drawing.Lines) {
+            if (l.Color) {
+                lineVerts.push(l.P1.X, l.P1.Y, l.P1.Z);
+                lineVerts.push(l.P2.X, l.P2.Y, l.P2.Z);
+                lineCols.push(l.Color.R, l.Color.G, l.Color.B);
+                lineCols.push(l.Color.R, l.Color.G, l.Color.B);
+                lineCount++;
+            } else {
+                lineVertsWithDefaultColor.push(l.P1.X, l.P1.Y, l.P1.Z);
+                lineVertsWithDefaultColor.push(l.P2.X, l.P2.Y, l.P2.Z);
+                lineCountWithDefaultColor++;
+            }
         }
-        let vertices = new Float32Array(verts);
-        let colors = new Uint8Array(cols);
+
+        let lineVertices = new Float32Array(lineVerts);
+        let lineColors = new Uint8Array(lineCols);
+        let lineVerticesWithDefaultColor = new Float32Array(lineVertsWithDefaultColor);
 
         drawing.LineVertices = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, lineVertices, this.gl.STATIC_DRAW);
 
         drawing.LineColors = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineColors);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, colors, this.gl.STATIC_DRAW);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, lineColors, this.gl.STATIC_DRAW);
 
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        drawing.LineVerticesWithDefaultColor = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVerticesWithDefaultColor);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, lineVerticesWithDefaultColor, this.gl.STATIC_DRAW);
+
+        drawing.LineCount = lineCount;
+        drawing.LineCountWithDefaultColor = lineCountWithDefaultColor;
 
         // points
-        verts = [];
-        cols = [];
+        let pointVerts = [];
+        let pointCols = [];
+        let pointVertsWithDefaultColor = [];
+        let pointCount = 0;
+        let pointCountWithDefaultColor = 0;
         for (let p of drawing.Points) {
-            verts.push(p.Location.X);
-            verts.push(p.Location.Y);
-            verts.push(p.Location.Z);
-            cols.push(p.Color.R);
-            cols.push(p.Color.G);
-            cols.push(p.Color.B);
+            if (p.Color) {
+                pointVerts.push(p.Location.X, p.Location.Y, p.Location.Z);
+                pointCols.push(p.Color.R, p.Color.G, p.Color.B);
+                pointCount++;
+            } else {
+                pointVertsWithDefaultColor.push(p.Location.X, p.Location.Y, p.Location.Z);
+                pointCountWithDefaultColor++;
+            }
         }
-        let pointVertices = new Float32Array(verts);
-        let pointColors = new Uint8Array(cols);
+
+        let pointVertices = new Float32Array(pointVerts);
+        let pointColors = new Uint8Array(pointCols);
+        let pointVerticesWithDefaultColor = new Float32Array(pointVertsWithDefaultColor);
 
         drawing.PointLocations = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocations);
@@ -483,7 +520,12 @@ export class ViewControl {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointColors);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, pointColors, this.gl.STATIC_DRAW);
 
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        drawing.PointLocationsWithDefaultColor = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocationsWithDefaultColor);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointVerticesWithDefaultColor, this.gl.STATIC_DRAW);
+
+        drawing.PointCount = pointCount;
+        drawing.PointCountWithDefaultColor = pointCountWithDefaultColor;
     }
 
     private populateHotPoints(points: Point3[]) {
@@ -526,7 +568,7 @@ export class ViewControl {
         //
         // lines
         //
-        if (drawing.Lines.length > 0) {
+        if (drawing.LineCount > 0) {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
             this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
             this.gl.enableVertexAttribArray(this.coordinatesLocation);
@@ -535,12 +577,27 @@ export class ViewControl {
             this.gl.vertexAttribPointer(this.colorLocation, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
             this.gl.enableVertexAttribArray(this.colorLocation);
 
-            this.gl.drawArrays(this.gl.LINES, 0, drawing.Lines.length * 2); // 2 points per line
+            this.gl.drawArrays(this.gl.LINES, 0, drawing.LineCount * 2); // 2 points per line
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         }
 
         //
-        // ellipses
+        // default color lines
+        //
+        if (drawing.LineCountWithDefaultColor > 0) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVerticesWithDefaultColor);
+            this.gl.vertexAttribPointer(this.coordinatesLocation, 3, this.gl.FLOAT, false, 0, 0);
+            this.gl.enableVertexAttribArray(this.coordinatesLocation);
+
+            this.gl.disableVertexAttribArray(this.colorLocation);
+            this.gl.vertexAttrib3f(this.colorLocation, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
+
+            this.gl.drawArrays(this.gl.LINES, 0, drawing.LineCountWithDefaultColor * 2); // 2 points per line
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        }
+
+        //
+        // ellipses (with specified and default colors)
         //
         this.gl.disableVertexAttribArray(this.colorLocation);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
@@ -551,7 +608,8 @@ export class ViewControl {
             let startAngle = Math.trunc(el.StartAngle);
             let endAngle = Math.trunc(el.EndAngle);
 
-            this.gl.vertexAttrib3f(this.colorLocation, el.Color.R, el.Color.G, el.Color.B);
+            let ellipseColor = el.Color || this.settings.AutoColor;
+            this.gl.vertexAttrib3f(this.colorLocation, ellipseColor.R, ellipseColor.G, ellipseColor.B);
             this.gl.drawArrays(this.gl.LINE_STRIP, startAngle, endAngle - startAngle + 1); // + 1 to account for end angle
         }
 
@@ -582,7 +640,23 @@ export class ViewControl {
         this.gl.enableVertexAttribArray(this.colorLocation);
 
         let vertsPerPoint = 2 * 2; // 2 segments, 2 verts per segment
-        this.gl.drawArraysInstanced(this.gl.LINES, 0, vertsPerPoint, drawing.Points.length);
+        this.gl.drawArraysInstanced(this.gl.LINES, 0, vertsPerPoint, drawing.PointCount);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+
+        //
+        // default color points
+        //
+        // ...for each point location
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocationsWithDefaultColor);
+        this.gl.vertexAttribPointer(this.translationLocation, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.vertexAttribDivisor(this.translationLocation, 1);
+        this.gl.enableVertexAttribArray(this.translationLocation);
+
+        // ...with a static color
+        this.gl.disableVertexAttribArray(this.colorLocation);
+        this.gl.vertexAttrib3f(this.colorLocation, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
+
+        this.gl.drawArraysInstanced(this.gl.LINES, 0, vertsPerPoint, drawing.PointCountWithDefaultColor);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 

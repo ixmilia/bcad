@@ -211,16 +211,14 @@ namespace IxMilia.BCad.Server
             var drawing = _workspace.Drawing;
             var clientDrawing = new ClientDrawing(drawing.Settings.FileName);
             clientDrawing.CurrentLayer = drawing.CurrentLayerName;
-            var autoColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor).GetAutoContrastingColor();
             foreach (var layer in drawing.GetLayers())
             {
                 clientDrawing.Layers.Add(layer.Name);
                 if (layer.IsVisible)
                 {
-                    var layerColor = layer.Color ?? autoColor;
                     foreach (var entity in layer.GetEntities())
                     {
-                        var entityColor = entity.Color ?? layerColor;
+                        var entityColor = entity.Color ?? layer.Color;
                         foreach (var primitive in entity.GetPrimitives())
                         {
                             AddPrimitiveToDrawing(clientDrawing, primitive, fallBackColor: entityColor);
@@ -233,7 +231,7 @@ namespace IxMilia.BCad.Server
             return clientDrawing;
         }
 
-        private void AddPrimitiveToDrawing(ClientDrawing clientDrawing, IPrimitive primitive, CadColor fallBackColor)
+        private void AddPrimitiveToDrawing(ClientDrawing clientDrawing, IPrimitive primitive, CadColor? fallBackColor)
         {
             var primitiveColor = primitive.Color ?? fallBackColor;
             switch (primitive)
