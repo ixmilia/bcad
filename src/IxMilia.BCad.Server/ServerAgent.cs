@@ -162,19 +162,7 @@ namespace IxMilia.BCad.Server
 
         private ClientSettings GetSettings()
         {
-            return new ClientSettings()
-            {
-                BackgroundColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor),
-                CursorSize = _workspace.SettingsService.GetValue<int>(DisplaySettingsProvider.CursorSize),
-                Debug = _workspace.SettingsService.GetValue<bool>(DefaultSettingsProvider.Debug),
-                EntitySelectionRadius = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius),
-                HotPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.HotPointColor),
-                HotPointSize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.HotPointSize),
-                SnapPointColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor),
-                SnapPointSize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapPointSize),
-                PointDisplaySize = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.PointDisplaySize),
-                TextCursorSize = _workspace.SettingsService.GetValue<int>(DisplaySettingsProvider.TextCursorSize),
-            };
+            return new ClientSettings(_workspace.SettingsService);
         }
 
         private ClientTransform GetDisplayTransform()

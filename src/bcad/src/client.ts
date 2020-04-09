@@ -77,6 +77,7 @@ export interface ClientSettings {
     EntitySelectionRadius: number;
     HotPointColor: Color;
     HotPointSize: number;
+    SnapAngles: number[];
     SnapPointColor: Color;
     SnapPointSize: number;
     PointDisplaySize: number;

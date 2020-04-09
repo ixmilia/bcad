@@ -12,5 +12,33 @@ export class SettingsRibbon {
                 });
             }
         });
+
+        this.getSnapAngleSelectors().forEach(input => {
+            input.addEventListener('change', () => {
+                client.setSetting("Display.SnapAngles", input.value);
+            });
+        });
+
+        client.subscribeToClientUpdates((clientUpdate) => {
+            if (clientUpdate.Settings !== undefined) {
+                let snapAnglesString = clientUpdate.Settings.SnapAngles.join(";");
+                for (let sna of this.getSnapAngleSelectors()) {
+                    if (sna.value === snapAnglesString) {
+                        sna.checked = true;
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    private getSnapAngleSelectors(): HTMLInputElement[] {
+        let inputs: HTMLInputElement[] = [];
+        document.querySelectorAll(".snap-angle-selector").forEach(node => {
+            let input = <HTMLInputElement>node;
+            inputs.push(input);
+        });
+
+        return inputs;
     }
 }

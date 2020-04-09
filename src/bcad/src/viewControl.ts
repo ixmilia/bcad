@@ -99,6 +99,7 @@ export class ViewControl {
             EntitySelectionRadius: 3,
             HotPointColor: {A: 255, R: 0, G: 0, B: 255},
             HotPointSize: 10,
+            SnapAngles: [0, 90, 180, 270],
             SnapPointColor: {A: 255, R: 255, G: 255, B: 0},
             SnapPointSize: 15,
             PointDisplaySize: 48,

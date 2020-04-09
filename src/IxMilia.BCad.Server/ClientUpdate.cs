@@ -2,6 +2,8 @@
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Services;
+using IxMilia.BCad.Settings;
 
 namespace IxMilia.BCad.Server
 {
@@ -89,16 +91,32 @@ namespace IxMilia.BCad.Server
     public class ClientSettings
     {
         public CadColor AutoColor => BackgroundColor.GetAutoContrastingColor();
-        public CadColor BackgroundColor { get; set; }
-        public int CursorSize { get; set; }
-        public bool Debug { get; set; }
-        public double EntitySelectionRadius { get; set; }
-        public CadColor HotPointColor { get; set; }
-        public double HotPointSize { get; set; }
-        public CadColor SnapPointColor { get; set; }
-        public double SnapPointSize { get; set; }
-        public double PointDisplaySize { get; set; }
-        public int TextCursorSize { get; set; }
+        public CadColor BackgroundColor { get; }
+        public int CursorSize { get; }
+        public bool Debug { get; }
+        public double EntitySelectionRadius { get; }
+        public CadColor HotPointColor { get; }
+        public double HotPointSize { get; }
+        public double[] SnapAngles { get; }
+        public CadColor SnapPointColor { get; }
+        public double SnapPointSize { get; }
+        public double PointDisplaySize { get; }
+        public int TextCursorSize { get; }
+
+        public ClientSettings(ISettingsService settingsService)
+        {
+            BackgroundColor = settingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor);
+            CursorSize = settingsService.GetValue<int>(DisplaySettingsProvider.CursorSize);
+            Debug = settingsService.GetValue<bool>(DefaultSettingsProvider.Debug);
+            EntitySelectionRadius = settingsService.GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius);
+            HotPointColor = settingsService.GetValue<CadColor>(DisplaySettingsProvider.HotPointColor);
+            HotPointSize = settingsService.GetValue<double>(DisplaySettingsProvider.HotPointSize);
+            SnapAngles = settingsService.GetValue<double[]>(DisplaySettingsProvider.SnapAngles);
+            SnapPointColor = settingsService.GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor);
+            SnapPointSize = settingsService.GetValue<double>(DisplaySettingsProvider.SnapPointSize);
+            PointDisplaySize = settingsService.GetValue<double>(DisplaySettingsProvider.PointDisplaySize);
+            TextCursorSize = settingsService.GetValue<int>(DisplaySettingsProvider.TextCursorSize);
+        }
     }
 
     public class ClientTransform
