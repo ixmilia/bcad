@@ -1,4 +1,4 @@
-﻿namespace IxMilia.BCad
+namespace IxMilia.BCad
 {
     public struct DisplayTransform
     {

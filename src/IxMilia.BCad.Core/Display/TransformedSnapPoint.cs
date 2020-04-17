@@ -1,4 +1,4 @@
-﻿using IxMilia.BCad.SnapPoints;
+using IxMilia.BCad.SnapPoints;
 
 namespace IxMilia.BCad.Display
 {

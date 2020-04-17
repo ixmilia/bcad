@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using IxMilia.BCad.Display;
 
 namespace IxMilia.BCad.Helpers

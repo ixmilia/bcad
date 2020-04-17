@@ -1,4 +1,4 @@
-﻿using IxMilia.BCad.Collections;
+using IxMilia.BCad.Collections;
 
 namespace IxMilia.BCad.Display
 {

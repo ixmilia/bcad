@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Extensions;

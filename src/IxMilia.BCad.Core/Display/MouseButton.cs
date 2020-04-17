@@ -1,4 +1,4 @@
-﻿namespace IxMilia.BCad.Display
+namespace IxMilia.BCad.Display
 {
     public enum MouseButton
     {

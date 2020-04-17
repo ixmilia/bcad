@@ -1,4 +1,4 @@
-﻿namespace IxMilia.BCad.Dialogs
+namespace IxMilia.BCad.Dialogs
 {
     public partial class LayerDialogResult
     {
