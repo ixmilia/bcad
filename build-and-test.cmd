@@ -27,7 +27,7 @@ goto parseargs
 :argsdone
 
 :: IxMilia.Dxf needs a custom invocation
-call %~dp0src\IxMilia.Dxf\build-and-test.cmd -c %configuration% -notest
+call %~dp0src\IxMilia.Dxf\build-and-test.cmd -c %configuration% -notest -portable
 if errorlevel 1 echo Error pre-building IxMilia.Dxf && goto error
 
 :: restore packages
