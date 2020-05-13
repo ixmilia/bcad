@@ -15,32 +15,31 @@ namespace IxMilia.BCad.Extensions
             foreach (var primitiveCollection in primitiveCollections)
             {
                 var vertices = new List<Vertex>();
-                vertices.Add(new Vertex(primitiveCollection.First().StartPoint()));
+                var nextVertex = default(Vertex); // candidate final vertex
                 foreach (var primitive in primitiveCollection)
                 {
-                    switch (primitive.Kind)
+                    switch (primitive)
                     {
-                        case PrimitiveKind.Line:
-                            var line = (PrimitiveLine)primitive;
-                            vertices.Add(new Vertex(line.P2));
+                        case PrimitiveLine line:
+                            vertices.Add(new Vertex(line.P1));
+                            nextVertex = new Vertex(line.P2);
                             break;
-                        case PrimitiveKind.Ellipse:
-                            var el = (PrimitiveEllipse)primitive;
-                            var startPoint = el.StartPoint().CloseTo(vertices.Last().Location)
-                                ? el.StartPoint()
-                                : el.EndPoint();
-                            var otherPoint = el.StartPoint().CloseTo(vertices.Last().Location)
-                                ? el.EndPoint()
-                                : el.StartPoint();
+                        case PrimitiveEllipse el:
+                            var startPoint = el.StartPoint();
+                            var endPoint = el.EndPoint();
                             var includedAngle = (el.EndAngle - el.StartAngle).CorrectAngleDegrees();
-                            var direction = startPoint.CloseTo(vertices.Last().Location)
-                                ? VertexDirection.CounterClockwise
-                                : VertexDirection.Clockwise;
-                            vertices.Add(new Vertex(otherPoint, includedAngle, direction));
+                            var direction = VertexDirection.CounterClockwise;
+                            vertices.Add(new Vertex(startPoint, includedAngle, direction));
+                            nextVertex = new Vertex(endPoint, includedAngle, direction);
                             break;
                         default:
                             throw new InvalidOperationException("Can only operate on lines and arcs");
                     }
+                }
+
+                if (nextVertex != null)
+                {
+                    vertices.Add(nextVertex);
                 }
 
                 var poly = new Polyline(vertices);

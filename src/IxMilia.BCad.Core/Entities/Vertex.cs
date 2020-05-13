@@ -22,15 +22,15 @@ namespace IxMilia.BCad.Entities
             Direction = direction;
         }
 
-        public static IPrimitive PrimitiveFromPointAndVertex(Point lastPoint, Vertex nextVertex)
+        public static IPrimitive PrimitiveFromVertices(Vertex last, Vertex next)
         {
-            if (nextVertex.IsLine)
+            if (last.IsLine)
             {
-                return new PrimitiveLine(lastPoint, nextVertex.Location);
+                return new PrimitiveLine(last.Location, next.Location);
             }
             else
             {
-                return PrimitiveEllipse.ArcFromPointsAndIncludedAngle(lastPoint, nextVertex.Location, nextVertex.IncludedAngle, nextVertex.Direction);
+                return PrimitiveEllipse.ArcFromPointsAndIncludedAngle(last.Location, next.Location, last.IncludedAngle, last.Direction);
             }
         }
     }

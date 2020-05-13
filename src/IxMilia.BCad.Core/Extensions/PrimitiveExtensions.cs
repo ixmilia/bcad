@@ -1104,10 +1104,9 @@ namespace IxMilia.BCad.Extensions
                     }
 
                     remainingPrimitives.Remove(nextPrimitive);
-                    if (!nextPrimitive.StartPoint().CloseTo(shapePrimitives.Last().EndPoint()) && nextPrimitive.Kind == PrimitiveKind.Line)
+                    if (!nextPrimitive.StartPoint().CloseTo(shapePrimitives.Last().EndPoint()) && nextPrimitive is PrimitiveLine line)
                     {
-                        // need to flip the line; arcs are handled elsewhere
-                        var line = (PrimitiveLine)nextPrimitive;
+                        // need to flip the line; arcs can't be backwards
                         nextPrimitive = new PrimitiveLine(line.P2, line.P1, line.Color);
                     }
 

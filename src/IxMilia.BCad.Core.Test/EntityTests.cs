@@ -24,7 +24,7 @@ namespace IxMilia.BCad.Core.Test
             var c2 = c1.Update(center: new Point(1, 1, 0));
             var union = new[] { c1, c2 }.Union();
             var polyline = (Polyline)union.Single();
-            var arcs = polyline.GetPrimitives().Cast<PrimitiveEllipse>().OrderBy(e => e.Center.X);
+            var arcs = polyline.GetPrimitives().Cast<PrimitiveEllipse>().OrderBy(e => e.Center.X).ToList();
 
             Assert.Equal(2, arcs.Count());
             var leftArc = arcs.First();
@@ -53,7 +53,7 @@ namespace IxMilia.BCad.Core.Test
             //   \___A
             var poly = new Polyline(new[]
             {
-                new Vertex(Point.Origin),
+                new Vertex(new Point(0.0, 0.0, 0.0), 180.0, VertexDirection.Clockwise),
                 new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.Clockwise)
             });
             var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
@@ -74,13 +74,37 @@ namespace IxMilia.BCad.Core.Test
             // A___/
             var poly = new Polyline(new[]
             {
-                new Vertex(Point.Origin),
+                new Vertex(new Point(0.0, 0.0, 0.0), 180.0, VertexDirection.CounterClockwise),
                 new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.CounterClockwise)
             });
             var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
             AssertClose(270.0, arc.StartAngle);
             AssertClose(90.0, arc.EndAngle);
             AssertClose(new Point(1.0, 1.0, 0.0), arc.MidPoint());
+        }
+
+        [Fact]
+        public void BulgeAffectsLeadingVertexTest()
+        {
+            var vertices = new[]
+            {
+                new Vertex(new Point(0.0, 0.0, 0.0)),
+                new Vertex(new Point(1.0, 0.0, 0.0), 90.0, VertexDirection.CounterClockwise),
+                new Vertex(new Point(2.0, 1.0, 0.0), 90.0, VertexDirection.CounterClockwise),
+            };
+            var poly = new Polyline(vertices);
+            var primitives = poly.GetPrimitives().ToList();
+            Assert.Equal(2, primitives.Count);
+            
+            var line = (PrimitiveLine)primitives[0];
+            Assert.Equal(new Point(0.0, 0.0, 0.0), line.P1);
+            Assert.Equal(new Point(1.0, 0.0, 0.0), line.P2);
+
+            var arc = (PrimitiveEllipse)primitives[1];
+            AssertClose(270.0, arc.StartAngle);
+            AssertClose(0.0, arc.EndAngle);
+            AssertClose(new Vector(1.0, 0.0, 0.0), arc.MajorAxis);
+            AssertClose(1.0, arc.MinorAxisRatio);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace IxMilia.BCad.Entities
             for (int i = 1; i < vertexList.Count; i++)
             {
                 var current = vertexList[i];
-                var primitive = Vertex.PrimitiveFromPointAndVertex(last.Location, current);
+                var primitive = Vertex.PrimitiveFromVertices(last, current);
                 _primitives.Add(primitive);
                 _snapPoints.Add(new MidPoint(primitive.MidPoint()));
                 _snapPoints.Add(new EndPoint(current.Location));
