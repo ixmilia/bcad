@@ -25,6 +25,11 @@ namespace IxMilia.BCad.Core.Test
             }
         }
 
+        private static bool AreClose(double expected, double actual)
+        {
+            return Math.Abs(expected - actual) < MathHelper.Epsilon;
+        }
+
         private static void AssertClose(double expected, double actual)
         {
             Assert.True(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
@@ -32,16 +37,20 @@ namespace IxMilia.BCad.Core.Test
 
         private static void AssertClose(Point expected, Point actual)
         {
-            AssertClose(expected.X, actual.X);
-            AssertClose(expected.Y, actual.Y);
-            AssertClose(expected.Z, actual.Z);
+            Assert.True(AreClose(expected.X, actual.X) && AreClose(expected.Y, actual.Y) && AreClose(expected.Z, actual.Z),
+                $"Expected: {expected}\nActual: {actual}");
         }
 
         private static void AssertClose(Vector expected, Vector actual)
         {
-            AssertClose(expected.X, actual.X);
-            AssertClose(expected.Y, actual.Y);
-            AssertClose(expected.Z, actual.Z);
+            AssertClose((Point)expected, (Point)actual);
+        }
+
+        private static void AssertClose(Vertex expected, Vertex actual)
+        {
+            AssertClose(expected.Location, actual.Location);
+            AssertClose(expected.IncludedAngle, actual.IncludedAngle);
+            Assert.Equal(expected.Direction, actual.Direction);
         }
 
         private static void TestThreePointArcNormal(Point a, Point b, Point c, Vector idealNormal, Point expectedCenter, double expectedRadius, double expectedStartAngle, double expectedEndAngle)
@@ -567,6 +576,60 @@ namespace IxMilia.BCad.Core.Test
             AssertClose(sqrt2, arc2.MajorAxis.Length);
             AssertClose(135.0, arc2.StartAngle);
             AssertClose(225.0, arc2.EndAngle);
+        }
+
+        [Fact]
+        public void LineStripsWithOutOfOrderArcsTest()
+        {
+            // In the following, the arc has start/end angles of 0/90, but the order of the lines
+            // indicates that the end point should be processed first.
+            // start
+            // ----------              // line 1
+            //            - \          // arc
+            //  origin> X    |         // line 2
+            //               |
+            //               | end
+            var primitives = new IPrimitive[]
+            {
+                new PrimitiveLine(new Point(-1.0, 1.0, 0.0), new Point(0.0, 1.0, 0.0)),
+                new PrimitiveEllipse(new Point(0.0, 0.0, 0.0), 1.0, 0.0, 90.0, Vector.ZAxis),
+                new PrimitiveLine(new Point(1.0, 0.0, 0.0), new Point(1.0, -1.0, 0.0)),
+            };
+            var lineStrips = primitives.GetLineStripsFromPrimitives();
+            var polys = lineStrips.GetPolylinesFromPrimitives();
+            var poly = polys.Single();
+            var vertices = poly.Vertices.ToList();
+            Assert.Equal(4, vertices.Count);
+            AssertClose(new Vertex(new Point(-1.0, 1.0, 0.0)), vertices[0]); // start point
+            AssertClose(new Vertex(new Point(0.0, 1.0, 0.0), 90.0, VertexDirection.Clockwise), vertices[1]); // end of line 1, start of arc
+            AssertClose(new Vertex(new Point(1.0, 0.0, 0.0)), vertices[2]); // end of arc, start of line 1
+            AssertClose(new Vertex(new Point(1.0, -1.0, 0.0)), vertices[3]); // end
+        }
+
+        [Fact]
+        public void LineStripStartingWithAnArcTest()
+        {
+            // In the following, the arc has start/end angles of 0/90, but the order of the lines
+            // indicates that the end point should be processed first.  Since the strip starts with
+            // an arc, we have to proceed to the next line to determine the start order
+            //     start -- \          // arc
+            //               \
+            //  origin> X    |         // line
+            //               |
+            //               | end
+            var primitives = new IPrimitive[]
+            {
+                new PrimitiveEllipse(new Point(0.0, 0.0, 0.0), 1.0, 0.0, 90.0, Vector.ZAxis),
+                new PrimitiveLine(new Point(1.0, 0.0, 0.0), new Point(1.0, -1.0, 0.0)),
+            };
+            var lineStrips = primitives.GetLineStripsFromPrimitives();
+            var polys = lineStrips.GetPolylinesFromPrimitives();
+            var poly = polys.Single();
+            var vertices = poly.Vertices.ToList();
+            Assert.Equal(3, vertices.Count);
+            AssertClose(new Vertex(new Point(0.0, 1.0, 0.0), 90.0, VertexDirection.Clockwise), vertices[0]); // start of arc
+            AssertClose(new Vertex(new Point(1.0, 0.0, 0.0)), vertices[1]); // end of arc, start of line
+            AssertClose(new Vertex(new Point(1.0, -1.0, 0.0)), vertices[2]); // end
         }
     }
 }

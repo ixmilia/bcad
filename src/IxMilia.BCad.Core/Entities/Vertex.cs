@@ -22,6 +22,52 @@ namespace IxMilia.BCad.Entities
             Direction = direction;
         }
 
+        public override int GetHashCode()
+        {
+            return Location.GetHashCode() ^ IncludedAngle.GetHashCode() ^ Direction.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Vertex v)
+            {
+                return this == v;
+            }
+
+            return false;
+        }
+
+        public static bool operator==(Vertex a, Vertex b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                // same item
+                return true;
+            }
+
+            var aIsNull = !(a is object);
+            var bIsNull = !(b is object);
+            if (aIsNull && bIsNull)
+            {
+                return true;
+            }
+
+            if (aIsNull || bIsNull)
+            {
+                return false;
+            }
+
+            // neither are null at this point
+            return a.Location == b.Location
+                && a.IncludedAngle == b.IncludedAngle
+                && a.Direction == b.Direction;
+        }
+
+        public static bool operator!=(Vertex a, Vertex b)
+        {
+            return !(a == b);
+        }
+
         public static IPrimitive PrimitiveFromVertices(Vertex last, Vertex next)
         {
             if (last.IsLine)

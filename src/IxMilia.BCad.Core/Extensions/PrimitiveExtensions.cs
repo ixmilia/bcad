@@ -1096,7 +1096,14 @@ namespace IxMilia.BCad.Extensions
 
                 while (remainingPrimitives.Count > 0)
                 {
-                    var nextPrimitive = remainingPrimitives.FirstOrDefault(l => l.StartPoint().CloseTo(shapePrimitives.Last().EndPoint()) || l.EndPoint().CloseTo(shapePrimitives.Last().EndPoint()));
+                    var lastPrimitive = shapePrimitives.Last();
+                    var lastStartPoint = lastPrimitive.StartPoint();
+                    var lastEndPoint = lastPrimitive.EndPoint();
+                    var nextPrimitive = remainingPrimitives.FirstOrDefault(l =>
+                        l.StartPoint().CloseTo(lastStartPoint) ||
+                        l.EndPoint().CloseTo(lastStartPoint) ||
+                        l.StartPoint().CloseTo(lastEndPoint) ||
+                        l.EndPoint().CloseTo(lastEndPoint));
                     if (nextPrimitive == null)
                     {
                         // no more segments
@@ -1104,12 +1111,6 @@ namespace IxMilia.BCad.Extensions
                     }
 
                     remainingPrimitives.Remove(nextPrimitive);
-                    if (!nextPrimitive.StartPoint().CloseTo(shapePrimitives.Last().EndPoint()) && nextPrimitive is PrimitiveLine line)
-                    {
-                        // need to flip the line; arcs can't be backwards
-                        nextPrimitive = new PrimitiveLine(line.P2, line.P1, line.Color);
-                    }
-
                     shapePrimitives.Add(nextPrimitive);
                 }
 
