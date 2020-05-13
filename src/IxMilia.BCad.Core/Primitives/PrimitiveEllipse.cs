@@ -221,10 +221,6 @@ namespace IxMilia.BCad.Primitives
                 arc = ThreePointArc(p1, possibleMidpoint2, p2, idealNormal: Vector.ZAxis);
             }
 
-            var actualIncludedAngle = (arc.EndAngle - arc.StartAngle).CorrectAngleDegrees();
-            Debug.Assert(MathHelper.CloseTo(arc.MajorAxis.Length, radius));
-            Debug.Assert(MathHelper.CloseTo(includedAngle, actualIncludedAngle));
-
             return arc;
         }
 
