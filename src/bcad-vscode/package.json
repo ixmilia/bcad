@@ -1,0 +1,68 @@
+{
+  "name": "bcad",
+  "publisher": "ixmilia",
+  "displayName": "BCad",
+  "description": "BCad editor for VS Code",
+  "version": "42.42.42",
+  "engines": {
+    "vscode": "^1.46.0"
+  },
+  "enableProposedApi": true,
+  "preview": true,
+  "repository": {
+    "url": "https://github.com/ixmilia/bcad"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCustomEditor:ixmilia-bcad"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "ixmilia-bcad",
+        "displayName": "BCad",
+        "selector": [
+          {
+            "filenamePattern": "*.dxf"
+          }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile:extension": "tsc --build",
+    "compile:webpack": "npx webpack-cli out/src/client/main.js -o out/client.js --mode development",
+    "compile": "npm run compile:extension && npm run compile:webpack",
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "test": "node ./out/test/runTest.js",
+    "package": "npx vsce package"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.11.0",
+    "@types/vscode": "^1.45.0",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "eslint": "^6.8.0",
+    "glob": "^7.1.6",
+    "mocha": "^7.1.1",
+    "typescript": "^3.8.3",
+    "vsce": "^1.75.0",
+    "vscode-test": "^1.3.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "resize-observer": "^1.0.0",
+    "vscode-jsonrpc": "^5.0.1",
+    "webgl-strict-types": "^1.0.3"
+  }
+}

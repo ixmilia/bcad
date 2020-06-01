@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.FileHandlers;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
 using IxMilia.BCad.Settings;
@@ -197,6 +200,29 @@ namespace IxMilia.BCad.Server
         public Task<bool> ExecuteCommand(string command)
         {
             return _workspace.ExecuteCommand(command);
+        }
+
+        public void ParseFile(string filePath, string data)
+        {
+            var bytes = Convert.FromBase64String(data);
+            using var stream = new MemoryStream(bytes);
+
+            // TODO: check file extension
+            var handler = new DxfFileHandler();
+            handler.ReadDrawing(filePath, stream, out var drawing, out var viewPort);
+            _workspace.Update(drawing: drawing, activeViewPort: viewPort);
+        }
+
+        public string GetDrawingContents(string filePath)
+        {
+            // TODO: check file extension
+            var handler = new DxfFileHandler();
+            using var stream = new MemoryStream();
+            handler.WriteDrawing(filePath, stream, _workspace.Drawing, _workspace.ActiveViewPort, null); // TODO: use drawing settings
+            stream.Seek(0, SeekOrigin.Begin);
+            var bytes = stream.ToArray();
+            var contents = Convert.ToBase64String(bytes);
+            return contents;
         }
 
         public void SubmitInput(string value)
