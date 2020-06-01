@@ -11,16 +11,10 @@ export class StdioCadServerTransport {
     private postMessage: {(message: any): void } = _ => {};
     private replyHandlers: Map<number, {(payload: any): void}> = new Map<number, {(payload: any): void}>();
 
-    constructor(readonly uri: vscode.Uri, isLocal: boolean) {
-        let serverAssembly = os.platform() == "win32"
-            ? "IxMilia.BCad.Server.exe"
-            : "IxMilia.BCad.Server";
-        let serverSubPath = isLocal
-            ? '../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1'
-            : '../../publish';
-        let serverPath = path.join(__dirname, serverSubPath, serverAssembly);
-        this.childProcess = cp.spawn(serverPath);
-        this.childProcess.on('exit', (code: number, _signal: string) => {
+    constructor(readonly uri: vscode.Uri, dotnetPath: string, serverPath: string) {
+        const serverAssembly = path.join(serverPath, 'IxMilia.BCad.Server.dll');
+        this.childProcess = cp.spawn(dotnetPath, [serverAssembly]);
+        this.childProcess.on('exit', (code: number, signal: string) => {
         });
         console.log('server pid ' + this.childProcess.pid);
         let logger: rpc.Logger = {

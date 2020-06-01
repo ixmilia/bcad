@@ -19,7 +19,20 @@
     "onCustomEditor:ixmilia-bcad"
   ],
   "main": "./out/extension.js",
+  "extensionDependencies": [
+    "ms-dotnettools.vscode-dotnet-runtime"
+  ],
   "contributes": {
+    "configuration": {
+      "title": "BCad Drawing Editor",
+      "properties": {
+        "ixmilia-bcad.minimumRuntimeVersion": {
+          "type": "string",
+          "default": "3.1",
+          "description": "The minimum required version of the .NET runtime."
+        }
+      }
+    },
     "customEditors": [
       {
         "viewType": "ixmilia-bcad",

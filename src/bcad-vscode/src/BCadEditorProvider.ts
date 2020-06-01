@@ -6,14 +6,13 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
     private static viewType = 'ixmilia-bcad';
     private readonly onDidChangeCustomDocumentEventEmitter = new vscode.EventEmitter<vscode.CustomDocumentEditEvent<vscode.CustomDocument>>();
 
-    public static register(context: vscode.ExtensionContext): vscode.Disposable {
-        let provider = new BCadEditorProvider(context);
+    public static register(context: vscode.ExtensionContext, dotnetPath: string, serverPath: string): vscode.Disposable {
+        let provider = new BCadEditorProvider(context, dotnetPath, serverPath);
         let registration = vscode.window.registerCustomEditorProvider2(BCadEditorProvider.viewType, provider);
         return registration;
     }
 
-    private constructor(private context: vscode.ExtensionContext) {
-
+    private constructor(private context: vscode.ExtensionContext, private dotnetPath: string, private serverPath: string) {
     }
 
     onDidChangeCustomDocument: vscode.Event<vscode.CustomDocumentEditEvent<vscode.CustomDocument>> = this.onDidChangeCustomDocumentEventEmitter.event;
@@ -42,7 +41,7 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
     }
 
     async openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): Promise<vscode.CustomDocument> {
-        let document = new StdioCadServerTransport(uri, true);
+        let document = new StdioCadServerTransport(uri, this.dotnetPath, this.serverPath);
         return document;
     }
 
