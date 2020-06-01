@@ -35,21 +35,3 @@ dotnet build -c $CONFIGURATION
 if [ "$RUNTESTS" = "true" ]; then
   dotnet test --no-restore --no-build -c $CONFIGURATION
 fi
-
-# build electron
-pushd "$_SCRIPT_DIR/src/bcad"
-npm i
-npm config set bcad:configuration $CONFIGURATION && npm run pack
-popd
-
-# create deployment file
-mkdir -p "$_SCRIPT_DIR/artifacts/publish"
-SUFFIX=
-if [ "${CONFIGURATION,,}" = "debug" ]; then
-  SUFFIX=-debug
-fi
-FILENAME=bcad-linux-x64$SUFFIX.tar.gz
-tar -C "$_SCRIPT_DIR/artifacts/pack" -zcf "$_SCRIPT_DIR/artifacts/publish/$FILENAME" "bcad-linux-x64"
-
-# report final artifact name for GitHub Actions
-echo "::set-env name=artifact_file_name::$FILENAME"

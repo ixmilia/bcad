@@ -44,25 +44,6 @@ if /i "%runtests%" == "true" (
     if errorlevel 1 echo Error running tests && goto error
 )
 
-:: build electron
-pushd %~dp0src\bcad
-call npm i
-if errorlevel 1 echo Error restoring npm packages && goto error
-call npm config set bcad:configuration %configuration% && call npm run pack
-if errorlevel 1 echo Error packing electron && goto error
-popd
-
-:: create deployment file
-mkdir "%~dp0artifacts\publish"
-set suffix=
-if /i "%configuration%" == "debug" set suffix=-debug
-set filename=bcad-win32-x64%suffix%.zip
-powershell -Command "Compress-Archive -Path '%~dp0artifacts\pack\bcad-win32-x64\' -DestinationPath '%~dp0artifacts\publish\%filename%' -Force"
-if errorlevel 1 echo Error creating deployment file && goto error
-
-:: report final artifact name for GitHub Actions
-echo ::set-env name=artifact_file_name::%filename%
-
 exit /b 0
 
 :error
