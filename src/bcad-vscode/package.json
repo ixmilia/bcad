@@ -40,7 +40,7 @@
         "displayName": "BCad",
         "selector": [
           {
-            "filenamePattern": "*.dxf"
+            "filenamePattern": "*.{dxb,dxf,ige,igs,iges}"
           }
         ],
         "priority": "default"

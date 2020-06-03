@@ -40,6 +40,15 @@ namespace IxMilia.BCad.Core.Services
 
             reader.ReadDrawing(fileName, stream, out drawing, out viewPort);
 
+            if (viewPort == null)
+            {
+                viewPort = drawing.ShowAllViewPort(
+                    Workspace.ActiveViewPort.Sight,
+                    Workspace.ActiveViewPort.Up,
+                    Workspace.ViewControl.DisplayWidth,
+                    Workspace.ViewControl.DisplayHeight);
+            }
+
             return Task.FromResult(true);
         }
 

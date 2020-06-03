@@ -202,27 +202,31 @@ namespace IxMilia.BCad.Server
             return _workspace.ExecuteCommand(command);
         }
 
-        public void ParseFile(string filePath, string data)
+        public async Task ParseFile(string filePath, string data)
         {
             var bytes = Convert.FromBase64String(data);
             using var stream = new MemoryStream(bytes);
 
-            // TODO: check file extension
-            var handler = new DxfFileHandler();
-            handler.ReadDrawing(filePath, stream, out var drawing, out var viewPort);
-            _workspace.Update(drawing: drawing, activeViewPort: viewPort);
+            var success = await _workspace.ReaderWriterService.TryReadDrawing(filePath, stream, out var drawing, out var viewPort);
+            if (success)
+            {
+                _workspace.Update(drawing: drawing, activeViewPort: viewPort);
+            }
         }
 
-        public string GetDrawingContents(string filePath)
+        public async Task<string> GetDrawingContents(string filePath)
         {
-            // TODO: check file extension
-            var handler = new DxfFileHandler();
             using var stream = new MemoryStream();
-            handler.WriteDrawing(filePath, stream, _workspace.Drawing, _workspace.ActiveViewPort, null); // TODO: use drawing settings
-            stream.Seek(0, SeekOrigin.Begin);
-            var bytes = stream.ToArray();
-            var contents = Convert.ToBase64String(bytes);
-            return contents;
+            var success = await _workspace.ReaderWriterService.TryWriteDrawing(filePath, _workspace.Drawing, _workspace.ActiveViewPort, stream);
+            if (success)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                var bytes = stream.ToArray();
+                var contents = Convert.ToBase64String(bytes);
+                return contents;
+            }
+
+            return null;
         }
 
         public void SubmitInput(string value)

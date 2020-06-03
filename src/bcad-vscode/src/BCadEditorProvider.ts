@@ -28,8 +28,10 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
     private async saveDrawing(document: vscode.CustomDocument, uri: vscode.Uri): Promise<void> {
         const drawing = <StdioCadServerTransport>document;
         const contents = await drawing.getDrawingContents(uri);
-        const buffer = Buffer.from(contents, 'base64');
-        await vscode.workspace.fs.writeFile(uri, buffer);
+        if (contents !== null) {
+            const buffer = Buffer.from(contents, 'base64');
+            await vscode.workspace.fs.writeFile(uri, buffer);
+        }
     }
 
     revertCustomDocument(document: vscode.CustomDocument, cancellation: vscode.CancellationToken): Promise<void> {
@@ -54,8 +56,10 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
         const buffer = Buffer.from(await vscode.workspace.fs.readFile(document.uri));
         const fileContents = buffer.toString('base64');
         const cadDocument = <StdioCadServerTransport>document;
+        cadDocument.registerReadyCallback(() => {
+            cadDocument.parseFile(fileContents);
+        })
         this.context.subscriptions.push(cadDocument.prepareHandlers(webviewPanel));
-        cadDocument.parseFile(fileContents);
     }
 
     private async getHtml(webview: vscode.Webview): Promise<string> {

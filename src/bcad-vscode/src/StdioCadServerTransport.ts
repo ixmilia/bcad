@@ -9,6 +9,7 @@ export class StdioCadServerTransport {
     private connection: rpc.MessageConnection;
     private nextId: number = 1;
     private postMessage: {(message: any): void } = _ => {};
+    private onReadyCallbacks: Array<{ (): void }> = [];
     private replyHandlers: Map<number, {(payload: any): void}> = new Map<number, {(payload: any): void}>();
 
     constructor(readonly uri: vscode.Uri, dotnetPath: string, serverPath: string) {
@@ -53,9 +54,20 @@ export class StdioCadServerTransport {
         const disposable = webviewPanel.webview.onDidReceiveMessage(async message => {
             // message from the client, forward to the server
             this.handleMessageFromClient(message);
+            if (message?.method === 'Ready') {
+                for (let onReady of this.onReadyCallbacks) {
+                    onReady();
+                }
+
+                this.onReadyCallbacks = [];
+            }
         });
         this.postMessage = message => webviewPanel.webview.postMessage(message);
         return disposable;
+    }
+
+    registerReadyCallback(onReady: { (): void }) {
+        this.onReadyCallbacks.push(onReady);
     }
 
     private async handleMessageFromClient(message: any) {
@@ -103,8 +115,8 @@ export class StdioCadServerTransport {
         this.connection.sendNotification('ParseFile', { filePath: this.uri.fsPath, data: fileContents });
     }
 
-    async getDrawingContents(uri: vscode.Uri): Promise<string> {
-        const fileContents = await this.connection.sendRequest<string>('GetDrawingContents', { filePath: uri.fsPath });
+    async getDrawingContents(uri: vscode.Uri): Promise<string | null> {
+        const fileContents = await this.connection.sendRequest<string | null>('GetDrawingContents', { filePath: uri.fsPath });
         return fileContents;
     }
 
