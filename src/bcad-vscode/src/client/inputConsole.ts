@@ -26,7 +26,10 @@ export class InputConsole {
                 this.client.cancel();
                 break;
             default:
-                if (manualAppend && ev.key.length == 1) {
+                if (manualAppend &&
+                    ev.key.length == 1 &&
+                    !ev.altKey &&
+                    !ev.ctrlKey) {
                     this.input.value += ev.key;
                 }
                 break;
