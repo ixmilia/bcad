@@ -114,9 +114,6 @@ namespace IxMilia.BCad
         private IDialogService _dialogServiceCache;
         public IDialogService DialogService => CacheService<IDialogService>(ref _dialogServiceCache);
 
-        private IFileSystemService _fileSystemServiceCache;
-        public IFileSystemService FileSystemService => CacheService<IFileSystemService>(ref _fileSystemServiceCache);
-
         private IInputService _inputServiceCache;
         public IInputService InputService => CacheService<IInputService>(ref _inputServiceCache);
 

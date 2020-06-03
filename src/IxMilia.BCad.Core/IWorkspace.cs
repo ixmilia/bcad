@@ -41,7 +41,6 @@ namespace IxMilia.BCad
 
         IDebugService DebugService { get; }
         IDialogService DialogService { get; }
-        IFileSystemService FileSystemService { get; }
         IInputService InputService { get; }
         IOutputService OutputService { get; }
         IReaderWriterService ReaderWriterService { get; }

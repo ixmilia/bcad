@@ -25,7 +25,6 @@ namespace IxMilia.BCad.Server
             var server = new ServerAgent(Workspace, serverRpc);
             //System.Diagnostics.Debugger.Launch();
             serverRpc.AddLocalRpcTarget(server);
-            ((FileSystemService)Workspace.FileSystemService).Rpc = serverRpc;
             ((HtmlDialogService)Workspace.DialogService).Agent = server;
             serverRpc.TraceSource.Listeners.Add(new Listener());
             serverRpc.StartListening();
