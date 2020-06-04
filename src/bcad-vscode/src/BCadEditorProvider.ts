@@ -8,7 +8,7 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
 
     public static register(context: vscode.ExtensionContext, dotnetPath: string, serverPath: string): vscode.Disposable {
         let provider = new BCadEditorProvider(context, dotnetPath, serverPath);
-        let registration = vscode.window.registerCustomEditorProvider2(BCadEditorProvider.viewType, provider);
+        let registration = vscode.window.registerCustomEditorProvider(BCadEditorProvider.viewType, provider);
         return registration;
     }
 
