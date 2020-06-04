@@ -229,6 +229,16 @@ namespace IxMilia.BCad.Server
             return null;
         }
 
+        public void Undo()
+        {
+            _workspace.UndoRedoService.Undo();
+        }
+
+        public void Redo()
+        {
+            _workspace.UndoRedoService.Redo();
+        }
+
         public void SubmitInput(string value)
         {
             _dim.SubmitInput(value);

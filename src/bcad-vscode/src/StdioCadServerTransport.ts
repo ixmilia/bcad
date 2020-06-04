@@ -3,9 +3,11 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as path from 'path';
 import * as rpc from 'vscode-jsonrpc';
+import { ClientUpdate } from './client/contracts';
 
 export class StdioCadServerTransport {
     private childProcess: cp.ChildProcessWithoutNullStreams;
+    private clientUpdateSubscriptions: Array<{(clientUpdate: ClientUpdate): void}> = [];
     private connection: rpc.MessageConnection;
     private nextId: number = 1;
     private postMessage: {(message: any): void } = _ => {};
@@ -41,6 +43,12 @@ export class StdioCadServerTransport {
             });
         });
         this.connection.onNotification((method, params) => {
+            if (method === 'ClientUpdate') {
+                const clientUpdate = <ClientUpdate>params;
+                for (let sub of this.clientUpdateSubscriptions) {
+                    sub(clientUpdate);
+                }
+            }
             // all client notifications are forwarded with no changes
             this.postMessage({
                 method,
@@ -68,6 +76,18 @@ export class StdioCadServerTransport {
 
     registerReadyCallback(onReady: { (): void }) {
         this.onReadyCallbacks.push(onReady);
+    }
+
+    subscribeToClientUpdates(subscription: {(clientUpdate: ClientUpdate): void}) {
+        this.clientUpdateSubscriptions.push(subscription);
+    }
+
+    undo() {
+        this.connection.sendNotification('Undo', {});
+    }
+
+    redo() {
+        this.connection.sendNotification('Redo', {});
     }
 
     private async handleMessageFromClient(message: any) {

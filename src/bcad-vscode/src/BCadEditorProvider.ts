@@ -44,6 +44,28 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
 
     async openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): Promise<vscode.CustomDocument> {
         let document = new StdioCadServerTransport(uri, this.dotnetPath, this.serverPath);
+        let ignoreNextUpdate = false;
+        document.subscribeToClientUpdates(clientUpdate => {
+            const shouldIgnoreThisUpdate = ignoreNextUpdate;
+            ignoreNextUpdate = false;
+            if (shouldIgnoreThisUpdate) {
+                return;
+            }
+
+            if (clientUpdate.Drawing) {
+                this.onDidChangeCustomDocumentEventEmitter.fire({
+                    document,
+                    undo: () => {
+                        ignoreNextUpdate = true;
+                        document.undo();
+                    },
+                    redo: () => {
+                        ignoreNextUpdate = true;
+                        document.redo();
+                    }
+                });
+            }
+        });
         return document;
     }
 

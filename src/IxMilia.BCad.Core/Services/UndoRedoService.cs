@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Composition;
 using IxMilia.BCad.EventArguments;
@@ -34,7 +33,10 @@ namespace IxMilia.BCad.Services
         public void Undo()
         {
             if (UndoHistorySize == 0)
-                throw new NotSupportedException("There are no items to undo");
+            {
+                // nothing to undo
+                return;
+            }
 
             ignoreDrawingChange = true;
             redoHistory.Push(Workspace.Drawing);
@@ -45,7 +47,10 @@ namespace IxMilia.BCad.Services
         public void Redo()
         {
             if (RedoHistorySize == 0)
-                throw new NotSupportedException("There are no items to redo");
+            {
+                // nothing to redo
+                return;
+            }
 
             ignoreDrawingChange = true;
             undoHistory.Push(Workspace.Drawing);
