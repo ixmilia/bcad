@@ -94,7 +94,7 @@ export class StdioCadServerTransport {
         if (message?.method !== 'MouseMove') {
             console.log(JSON.stringify(message));
         }
-        if (message.result && message.id) {
+        if (message.result !== undefined && message.id) {
             // response to a server-side request, find the appropriate reply channel and send it back
             const handler = this.replyHandlers.get(message.id);
             if (handler) {

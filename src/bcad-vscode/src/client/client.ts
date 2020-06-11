@@ -13,13 +13,27 @@ export class Client {
     private prepareEventHandlers() {
         window.addEventListener('message', (messageWrapper: any) => {
             const message = messageWrapper.data;
-            console.log(message);
             switch (message.method) {
                 case 'ClientUpdate':
                     const clientUpdate = <ClientUpdate>message.params;
                     for (let sub of this.clientUpdateSubscriptions) {
                         sub(clientUpdate);
                     }
+                    break;
+                case 'ShowDialog':
+                    const id: string = message.params.id;
+                    const parameter: object = message.params.parameter;
+                    this.currentDialogHandler(id, parameter).then(result => {
+                        this.vscode.postMessage({
+                            id: message.id,
+                            result
+                        });
+                    }).catch(reason => {
+                        this.vscode.postMessage({
+                            id: message.id,
+                            result: null
+                        });
+                    });
                     break;
             }
         });
