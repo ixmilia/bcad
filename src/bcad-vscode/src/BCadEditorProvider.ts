@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { StdioCadServerTransport } from './StdioCadServerTransport';
+import { fstat } from 'fs';
 
 export class BCadEditorProvider implements vscode.CustomEditorProvider {
     private static viewType = 'ixmilia-bcad';
@@ -35,16 +36,43 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
     }
 
     revertCustomDocument(document: vscode.CustomDocument, cancellation: vscode.CancellationToken): Promise<void> {
-        throw new Error("Method not implemented.");
+        // nothing to do
+        return Promise.resolve();
     }
 
-    backupCustomDocument(document: vscode.CustomDocument, context: vscode.CustomDocumentBackupContext, cancellation: vscode.CancellationToken): Promise<vscode.CustomDocumentBackup> {
-        throw new Error("Method not implemented.");
+    async backupCustomDocument(document: vscode.CustomDocument, context: vscode.CustomDocumentBackupContext, cancellation: vscode.CancellationToken): Promise<vscode.CustomDocumentBackup> {
+        // ensure backup directory exists
+        const parsedPath = path.parse(context.destination.fsPath);
+        const dir = vscode.Uri.file(parsedPath.dir);
+        await vscode.workspace.fs.createDirectory(dir);
+
+        // save file to location with appropriate extension
+        const drawingPath = path.parse(document.uri.fsPath);
+        const finalBackupLocation = vscode.Uri.file(`${context.destination.fsPath}${drawingPath.ext}`);
+        await this.saveDrawing(document, finalBackupLocation);
+        return {
+            id: finalBackupLocation.fsPath,
+            delete: () => {
+                vscode.workspace.fs.delete(finalBackupLocation);
+            }
+        };
     }
 
     async openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): Promise<vscode.CustomDocument> {
+        const filePath = openContext.backupId ?? uri.fsPath;
+        const drawingUri = vscode.Uri.file(filePath);
+        const buffer = Buffer.from(await vscode.workspace.fs.readFile(drawingUri));
+        const fileContents = buffer.toString('base64');
         let document = new StdioCadServerTransport(uri, this.dotnetPath, this.serverPath);
+        let isEditorReady = false;
         let ignoreNextUpdate = false;
+        let isFirstUpdate = true;
+        document.registerReadyCallback(() => {
+            ignoreNextUpdate = true;
+            isEditorReady = true;
+            document.parseFile(fileContents);
+        });
+
         document.subscribeToClientUpdates(clientUpdate => {
             const shouldIgnoreThisUpdate = ignoreNextUpdate;
             ignoreNextUpdate = false;
@@ -52,7 +80,13 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
                 return;
             }
 
-            if (clientUpdate.Drawing) {
+            if (clientUpdate.Drawing && isEditorReady) {
+                // skip the first update that's just populating the drawing
+                if (isFirstUpdate) {
+                    isFirstUpdate = false;
+                    return;
+                }
+
                 this.onDidChangeCustomDocumentEventEmitter.fire({
                     document,
                     undo: () => {
@@ -74,13 +108,7 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
             enableScripts: true
         };
         webviewPanel.webview.html = await this.getHtml(webviewPanel.webview);
-
-        const buffer = Buffer.from(await vscode.workspace.fs.readFile(document.uri));
-        const fileContents = buffer.toString('base64');
         const cadDocument = <StdioCadServerTransport>document;
-        cadDocument.registerReadyCallback(() => {
-            cadDocument.parseFile(fileContents);
-        })
         this.context.subscriptions.push(cadDocument.prepareHandlers(webviewPanel));
     }
 
