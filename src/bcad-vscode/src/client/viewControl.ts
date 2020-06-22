@@ -1,6 +1,6 @@
 import { Client } from './client';
 import { ResizeObserver } from 'resize-observer';
-import { CursorState, SelectionState, SnapPointKind, ClientSettings, ClientTransform, ClientUpdate, ClientDrawing, SelectionMode, Point3, MouseButton, Color } from './contracts';
+import { CursorState, SelectionState, SnapPointKind, ClientSettings, ClientTransform, ClientUpdate, ClientDrawing, SelectionMode, Point, MouseButton, CadColor } from './contracts.generated';
 
 interface Drawing extends ClientDrawing {
     LineCount: number;
@@ -68,7 +68,7 @@ export class ViewControl {
         this.entityDrawing = {
             CurrentLayer: "0",
             Layers: ["0"],
-            FileName: undefined,
+            FileName: "",
             Points: [],
             Lines: [],
             Ellipses: [],
@@ -84,9 +84,9 @@ export class ViewControl {
             PointLocationsWithDefaultColor: null,
         };
         this.rubberBandDrawing = {
-            CurrentLayer: undefined,
+            CurrentLayer: "",
             Layers: [],
-            FileName: undefined,
+            FileName: "",
             Points: [],
             Lines: [],
             Ellipses: [],
@@ -524,7 +524,7 @@ export class ViewControl {
         drawing.PointCountWithDefaultColor = pointCountWithDefaultColor;
     }
 
-    private populateHotPoints(points: Point3[]) {
+    private populateHotPoints(points: Point[]) {
         this.hotPointCount = points.length;
         let verts = [];
         for (let p of points) {
@@ -718,7 +718,7 @@ export class ViewControl {
         return result;
     }
 
-    private static colorToHex(c: Color): string {
+    private static colorToHex(c: CadColor): string {
         return `#${ViewControl.numberToHex(c.R)}${ViewControl.numberToHex(c.G)}${ViewControl.numberToHex(c.B)}`;
     }
 }

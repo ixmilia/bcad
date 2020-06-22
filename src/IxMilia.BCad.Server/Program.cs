@@ -13,7 +13,16 @@ namespace IxMilia.BCad.Server
 
         static void Main(string[] args)
         {
-            new Program().RunAsync().GetAwaiter().GetResult();
+            if (args.Length == 2 &&
+                args[0] == "--generate")
+            {
+                var generator = new ContractGenerator(args[1]);
+                generator.Run();
+            }
+            else
+            {
+                new Program().RunAsync().GetAwaiter().GetResult();
+            }
         }
 
         private async Task RunAsync()

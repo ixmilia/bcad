@@ -134,7 +134,7 @@ namespace IxMilia.BCad.Server
             }
         }
 
-        private void PushUpdate(ClientUpdate clientUpdate)
+        public void PushUpdate(ClientUpdate clientUpdate)
         {
             _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }

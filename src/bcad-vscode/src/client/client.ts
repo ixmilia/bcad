@@ -1,12 +1,13 @@
 import { VSCode } from "./vscodeInterface";
-import { ClientUpdate, DialogOptions, MouseButton } from "./contracts";
+import { ClientAgent, ClientUpdate } from "./contracts.generated";
 
-export class Client {
+export class Client extends ClientAgent {
     private clientUpdateSubscriptions: Array<{(clientUpdate: ClientUpdate): void}> = [];
     private currentDialogHandler: {(dialogId: string, dialogOptions: object): Promise<any>} = async (_dialogId, _dialogOptions) => {};
     private nextId: number = 1;
 
     constructor(private vscode: VSCode) {
+        super();
         this.prepareEventHandlers();
     }
 
@@ -39,7 +40,7 @@ export class Client {
         });
     }
 
-    private postNotification(method: string, params: any) {
+    postNotification(method: string, params: any) {
         this.vscode.postMessage({
             method,
             params
@@ -61,50 +62,6 @@ export class Client {
 
     subscribeToClientUpdates(subscription: {(clientUpdate: ClientUpdate): void}) {
         this.clientUpdateSubscriptions.push(subscription);
-    }
-
-    cancel() {
-        this.postNotification('Cancel', {});
-    }
-
-    changeCurrentLayer(layerName: string) {
-        this.postNotification('ChangeCurrentLayer', { layerName });
-    }
-
-    mouseDown(button: MouseButton, cursorX: number, cursorY: number) {
-        this.postNotification('MouseDown', { button, cursorX, cursorY });
-    }
-
-    mouseUp(button: MouseButton, cursorX: number, cursorY: number) {
-        this.postNotification('MouseUp', { button, cursorX, cursorY });
-    }
-
-    mouseMove(cursorX: number, cursorY: number) {
-        this.postNotification('MouseMove', { cursorX, cursorY });
-    }
-
-    pan(dx: number, dy: number) {
-        this.postNotification('Pan', { dx, dy });
-    }
-
-    parseFile() {
-        this.postNotification('ParseFile', {});
-    }
-
-    ready(width: number, height: number) {
-        this.postNotification('Ready', { width, height });
-    }
-
-    resize(width: number, height: number) {
-        this.postNotification('Resize', { width, height });
-    }
-
-    submitInput(value: string) {
-        this.postNotification('SubmitInput', { value });
-    }
-
-    zoom(cursorX: number, cursorY: number, delta: number) {
-        this.postNotification('Zoom', { cursorX, cursorY, delta });
     }
 
     zoomIn(cursorX: number, cursorY: number) {

@@ -1,5 +1,5 @@
 import { Client } from './client';
-import { ClientUpdate } from './contracts';
+import { ClientUpdate } from './contracts.generated';
 
 export class LayerSelector {
     private listenToEvents: boolean = true;

@@ -4,10 +4,10 @@ namespace IxMilia.BCad.Collections
 {
     public struct Rect
     {
-        public double Left;
-        public double Top;
-        public double Width;
-        public double Height;
+        public double Left { get; }
+        public double Top { get; }
+        public double Width { get; }
+        public double Height { get; }
 
         public Point TopLeft => new Point(Left, Top, 0.0);
         public Point TopRight => new Point(Left + Width, Top, 0.0);

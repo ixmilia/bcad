@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "IxMilia.BCad.Server": {
+      "commandName": "Project",
+      "commandLineArgs": "--generate \"E:\\ixmilia\\bcad\\src\\bcad-vscode\\src\\client\\contracts.generated.ts\""
+    }
+  }
+}

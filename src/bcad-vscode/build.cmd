@@ -17,6 +17,8 @@ goto parseargs
 
 :argsdone
 
+dotnet run -p "%~dp0..\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj" -- --generate "%~dp0src\client\contracts.generated.ts"
+
 call npm i
 if errorlevel 1 echo Error restoring npm packages && goto error
 
