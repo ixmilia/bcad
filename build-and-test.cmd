@@ -44,6 +44,11 @@ if /i "%runtests%" == "true" (
     if errorlevel 1 echo Error running tests && goto error
 )
 
+:: build VS Code
+pushd src\bcad-vscode
+call build.cmd
+popd
+
 exit /b 0
 
 :error
