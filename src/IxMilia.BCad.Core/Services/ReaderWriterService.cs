@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Composition;
 using System.IO;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace IxMilia.BCad.Core.Services
         [Import]
         public IWorkspace Workspace { get; set; }
 
-        private Dictionary<Drawing, INotifyPropertyChanged> _drawingSettingsCache = new Dictionary<Drawing, INotifyPropertyChanged>();
+        private Dictionary<Drawing, object> _drawingSettingsCache = new Dictionary<Drawing, object>();
 
         public Task<bool> TryReadDrawing(string fileName, Stream stream, out Drawing drawing, out ViewPort viewPort)
         {
@@ -66,7 +65,7 @@ namespace IxMilia.BCad.Core.Services
                 throw new Exception("Unknown file extension " + extension);
             }
 
-            INotifyPropertyChanged fileSettings = null;
+            object fileSettings = null;
             if (!preserveSettings)
             {
                 fileSettings = writer.GetFileSettingsFromDrawing(drawing);
@@ -74,8 +73,13 @@ namespace IxMilia.BCad.Core.Services
 
             if (fileSettings != null)
             {
-                var result = (bool)(await Workspace.DialogService.ShowDialog("FileSettings", fileSettings));
-                if (result != true)
+                var parameter = new
+                {
+                    Extension = extension.ToLower(),
+                    Settings = fileSettings,
+                };
+                fileSettings = await Workspace.DialogService.ShowDialog("FileSettings", parameter);
+                if (fileSettings is null)
                 {
                     return false;
                 }

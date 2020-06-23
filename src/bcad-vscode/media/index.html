@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-    <link rel="stylesheet" type="text/css" href="$STYLE-URI$" />
+    <style>
+/*STYLE-CONTENT*/
+    </style>
   </head>
   <body>
     <div id="ribbon-pane">
@@ -326,10 +328,24 @@
           </table>
           <button id="dialog-layer-add">Add</button>
         </div>
+        <div id="modal-dialog-FileSettings" class="modal-dialog file-settings-dialog">
+          <table>
+            <tr>
+              <td>Version</td>
+              <td>
+                <select id="dialog-FileSettings-version">
+                  <option value="R14">R14</option>
+                </select>
+              </td>
+            </tr>
+          </table>
+        </div>
         <button id="dialog-ok">OK</button>
         <button id="dialog-cancel">Cancel</button>
       </div>
     </div>
   </body>
-  <script src="$JS-URI$"></script>
+  <script type="text/javascript">
+/*JS-CONTENT*/
+  </script>
 </html>

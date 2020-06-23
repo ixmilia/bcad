@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.IO;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
@@ -13,7 +12,7 @@ namespace IxMilia.BCad.FileHandlers
         public const string DisplayName = "STL Files (" + FileExtension + ")";
         public const string FileExtension = ".stl";
 
-        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             throw new NotImplementedException();
         }
@@ -41,7 +40,7 @@ namespace IxMilia.BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             throw new NotImplementedException();
         }

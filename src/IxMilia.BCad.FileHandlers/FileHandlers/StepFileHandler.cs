@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.IO;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
@@ -16,7 +15,7 @@ namespace IxMilia.BCad.FileHandlers
         public const string FileExtension1 = ".stp";
         public const string FileExtension2 = ".step";
 
-        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             throw new NotImplementedException();
         }
@@ -66,7 +65,7 @@ namespace IxMilia.BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             throw new NotImplementedException();
         }

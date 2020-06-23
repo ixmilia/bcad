@@ -19,16 +19,16 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
     onDidChangeCustomDocument: vscode.Event<vscode.CustomDocumentEditEvent<vscode.CustomDocument>> = this.onDidChangeCustomDocumentEventEmitter.event;
 
     saveCustomDocument(document: vscode.CustomDocument, cancellation: vscode.CancellationToken): Promise<void> {
-        return this.saveDrawing(document, document.uri);
+        return this.saveDrawing(document, document.uri, true);
     }
 
     saveCustomDocumentAs(document: vscode.CustomDocument, destination: vscode.Uri, cancellation: vscode.CancellationToken): Promise<void> {
-        return this.saveDrawing(document, destination);
+        return this.saveDrawing(document, destination, false);
     }
 
-    private async saveDrawing(document: vscode.CustomDocument, uri: vscode.Uri): Promise<void> {
+    private async saveDrawing(document: vscode.CustomDocument, uri: vscode.Uri, preserveSettings: boolean): Promise<void> {
         const drawing = <StdioCadServerTransport>document;
-        const contents = await drawing.getDrawingContents(uri);
+        const contents = await drawing.getDrawingContents(uri, preserveSettings);
         if (contents !== null) {
             const buffer = Buffer.from(contents, 'base64');
             await vscode.workspace.fs.writeFile(uri, buffer);
@@ -49,7 +49,7 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
         // save file to location with appropriate extension
         const drawingPath = path.parse(document.uri.fsPath);
         const finalBackupLocation = vscode.Uri.file(`${context.destination.fsPath}${drawingPath.ext}`);
-        await this.saveDrawing(document, finalBackupLocation);
+        await this.saveDrawing(document, finalBackupLocation, true);
         return {
             id: finalBackupLocation.fsPath,
             delete: () => {
@@ -107,20 +107,17 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
         webviewPanel.webview.options = {
             enableScripts: true
         };
-        webviewPanel.webview.html = await this.getHtml(webviewPanel.webview);
+        webviewPanel.webview.html = await this.getHtml();
         const cadDocument = <StdioCadServerTransport>document;
         this.context.subscriptions.push(cadDocument.prepareHandlers(webviewPanel));
     }
 
-    private async getHtml(webview: vscode.Webview): Promise<string> {
-        const buffer = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(path.join(this.context.extensionPath, 'media', 'index.html'))));
-        let html = buffer.toString('utf-8');
-
-        const styleUri = webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, 'media', 'style.css')));
-        html = html.replace('$STYLE-URI$', styleUri.toString());
-
-        const jsUri = webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, 'out', 'client.js')));
-        html = html.replace('$JS-URI$', jsUri.toString());
-        return html;
+    private async getHtml(): Promise<string> {
+        const styleContent = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(path.join(this.context.extensionPath, 'media', 'style.css')))).toString('utf-8');
+        const jsContent = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(path.join(this.context.extensionPath, 'out', 'client.js')))).toString('utf-8');
+        const htmlContent = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(path.join(this.context.extensionPath, 'media', 'index.html')))).toString('utf-8')
+            .replace('/*STYLE-CONTENT*/', styleContent)
+            .replace('/*JS-CONTENT*/', jsContent);
+        return htmlContent;
     }
 }

@@ -135,8 +135,9 @@ export class StdioCadServerTransport {
         this.connection.sendNotification('ParseFile', { filePath: this.uri.fsPath, data: fileContents });
     }
 
-    async getDrawingContents(uri: vscode.Uri): Promise<string | null> {
-        const fileContents = await this.connection.sendRequest<string | null>('GetDrawingContents', { filePath: uri.fsPath });
+    async getDrawingContents(uri: vscode.Uri, preserveSettings: boolean): Promise<string | null> {
+        const filePath = uri.fsPath;
+        const fileContents = await this.connection.sendRequest<string | null>('GetDrawingContents', { filePath, preserveSettings });
         return fileContents;
     }
 

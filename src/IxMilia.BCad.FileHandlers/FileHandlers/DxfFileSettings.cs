@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
 namespace IxMilia.BCad.FileHandlers
 {
     public enum DxfFileVersion
@@ -16,29 +13,8 @@ namespace IxMilia.BCad.FileHandlers
         R2013
     }
 
-    public class DxfFileSettings : INotifyPropertyChanged
+    public class DxfFileSettings
     {
-        private DxfFileVersion _fileVersion;
-        public DxfFileVersion FileVersion
-        {
-            get => _fileVersion;
-            set
-            {
-                if (_fileVersion == value)
-                {
-                    return;
-                }
-
-                _fileVersion = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public DxfFileVersion FileVersion { get; set; }
     }
 }

@@ -7,6 +7,7 @@ import { Ribbon } from "./ribbons/ribbon";
 import { ViewControl } from "./viewControl";
 import { DialogHandler } from "./dialogs/dialogHandler";
 import { LayerDialog } from "./dialogs/layerDialog";
+import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
 
 // @ts-ignore
 const rawVsCode = acquireVsCodeApi();
@@ -21,5 +22,6 @@ new Ribbon(client);
 new ViewControl(client);
 
 let dialogHandler = new DialogHandler(client);
+new FileSettingsDialog(dialogHandler);
 new LayerDialog(dialogHandler);
 console.log('finished main');

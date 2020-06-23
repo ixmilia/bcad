@@ -169,7 +169,13 @@ namespace IxMilia.BCad.Server
         private ClientTransform GetDisplayTransform()
         {
             var transform = _workspace.ActiveViewPort.GetDisplayTransformDirect3DStyle(_dim.Width, _dim.Height);
-            return new ClientTransform(transform.Transform.ToTransposeArray(), transform.DisplayXScale, transform.DisplayYScale);
+            var transformArray = transform.Transform.ToTransposeArray();
+            if (transformArray.Any(double.IsNaN))
+            {
+                return null;
+            }
+
+            return new ClientTransform(transformArray, transform.DisplayXScale, transform.DisplayYScale);
         }
 
         public void ChangeCurrentLayer(string currentLayer)
@@ -214,10 +220,10 @@ namespace IxMilia.BCad.Server
             }
         }
 
-        public async Task<string> GetDrawingContents(string filePath)
+        public async Task<string> GetDrawingContents(string filePath, bool preserveSettings)
         {
             using var stream = new MemoryStream();
-            var success = await _workspace.ReaderWriterService.TryWriteDrawing(filePath, _workspace.Drawing, _workspace.ActiveViewPort, stream);
+            var success = await _workspace.ReaderWriterService.TryWriteDrawing(filePath, _workspace.Drawing, _workspace.ActiveViewPort, stream, preserveSettings);
             if (success)
             {
                 stream.Seek(0, SeekOrigin.Begin);

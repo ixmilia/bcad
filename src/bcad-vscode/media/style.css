@@ -174,3 +174,9 @@ table.dialog-layer-table tbody {
     display: inline-block;
     width: 20px;
 }
+
+/* file settings dialog */
+.file-settings-dialog {
+    width: 200px;
+    height: 100px;
+}

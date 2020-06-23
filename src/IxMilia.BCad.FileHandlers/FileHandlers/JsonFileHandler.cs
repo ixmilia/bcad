@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,7 @@ namespace IxMilia.BCad.FileHandlers
 
         private JsonSerializerSettings Settings = new JsonSerializerSettings() { Converters = { new JsonEntityConverter() } };
 
-        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             return null;
         }
@@ -87,7 +86,7 @@ namespace IxMilia.BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             var jsonDrawing = new JsonDrawing();
             var modelSpace = new JsonBlock() { Name = "*Model_Space" };

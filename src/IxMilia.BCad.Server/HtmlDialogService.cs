@@ -1,6 +1,7 @@
 using System.Composition;
 using System.Threading.Tasks;
 using IxMilia.BCad.Dialogs;
+using IxMilia.BCad.FileHandlers;
 using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Server
@@ -24,6 +25,13 @@ namespace IxMilia.BCad.Server
                         var clientLayerResult = resultObject.ToObject<ClientLayerResult>();
                         var layerDialogResult = clientLayerResult.ToDialogResult();
                         result = layerDialogResult;
+                    }
+                    break;
+                default:
+                    var settingsResult = await Agent.ShowDialog(id, parameter);
+                    if (settingsResult != null)
+                    {
+                        result = settingsResult.ToObject<DxfFileSettings>();
                     }
                     break;
             }

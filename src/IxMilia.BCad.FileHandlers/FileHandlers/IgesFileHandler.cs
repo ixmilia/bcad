@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.IO;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Extensions;
@@ -15,7 +14,7 @@ namespace IxMilia.BCad.FileHandlers
         public const string FileExtension1 = ".igs";
         public const string FileExtension2 = ".iges";
 
-        public INotifyPropertyChanged GetFileSettingsFromDrawing(Drawing drawing)
+        public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             return null;
         }
@@ -45,7 +44,7 @@ namespace IxMilia.BCad.FileHandlers
             return true;
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, INotifyPropertyChanged fileSettings)
+        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             var file = new IgesFile();
             var oldFile = drawing.Tag as IgesFile;
