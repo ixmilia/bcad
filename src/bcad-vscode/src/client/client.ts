@@ -1,4 +1,3 @@
-import { VSCode } from "./vscodeInterface";
 import { ClientAgent, ClientUpdate } from "./contracts.generated";
 
 export class Client extends ClientAgent {
@@ -6,7 +5,7 @@ export class Client extends ClientAgent {
     private currentDialogHandler: {(dialogId: string, dialogOptions: object): Promise<any>} = async (_dialogId, _dialogOptions) => {};
     private nextId: number = 1;
 
-    constructor(private vscode: VSCode) {
+    constructor(private postMessage: (message: any) => void) {
         super();
         this.prepareEventHandlers();
     }
@@ -25,12 +24,12 @@ export class Client extends ClientAgent {
                     const id: string = message.params.id;
                     const parameter: object = message.params.parameter;
                     this.currentDialogHandler(id, parameter).then(result => {
-                        this.vscode.postMessage({
+                        this.postMessage({
                             id: message.id,
                             result
                         });
                     }).catch(reason => {
-                        this.vscode.postMessage({
+                        this.postMessage({
                             id: message.id,
                             result: null
                         });
@@ -41,7 +40,7 @@ export class Client extends ClientAgent {
     }
 
     postNotification(method: string, params: any) {
-        this.vscode.postMessage({
+        this.postMessage({
             method,
             params
         });
