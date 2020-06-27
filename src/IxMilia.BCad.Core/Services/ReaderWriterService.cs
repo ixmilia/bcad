@@ -73,11 +73,7 @@ namespace IxMilia.BCad.Core.Services
 
             if (fileSettings != null)
             {
-                var parameter = new
-                {
-                    Extension = extension.ToLower(),
-                    Settings = fileSettings,
-                };
+                var parameter = new FileSettings(extension.ToLower(), fileSettings);
                 fileSettings = await Workspace.DialogService.ShowDialog("FileSettings", parameter);
                 if (fileSettings is null)
                 {

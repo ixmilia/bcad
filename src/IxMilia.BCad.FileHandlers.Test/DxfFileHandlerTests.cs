@@ -104,23 +104,6 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public async void VerifyDefaultDxfVersionInWriteTest()
-        {
-            using (var ms = new MemoryStream())
-            {
-                var drawing = new Drawing();
-
-                // write file with defaults
-                Assert.True(await Workspace.ReaderWriterService.TryWriteDrawing("filename.dxf", drawing, ViewPort.CreateDefaultViewPort(), ms, preserveSettings: false));
-
-                // verify that the written default is correct
-                ms.Seek(0, SeekOrigin.Begin);
-                var file = DxfFile.Load(ms);
-                Assert.Equal(DxfAcadVersion.R12, file.Header.Version);
-            }
-        }
-
-        [Fact]
         public async void VerifyNonDefaultVersionIsPreservedInWriteTest()
         {
             using (var ms1 = new MemoryStream())
