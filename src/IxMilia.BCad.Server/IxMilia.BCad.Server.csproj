@@ -3,6 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>IxMilia.BCad.Server</PackageId>
+    <ToolCommandName>ixmilia-bcad-server</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Description>A STDIO JSON-RPC CAD server.</Description>
+    <Copyright>Copyright 2020</Copyright>
+    <Authors>IxMilia</Authors>
+    <PackageTags>CAD</PackageTags>
+    <PackageProjectUrl>https://github.com/ixmilia/bcad</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

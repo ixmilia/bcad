@@ -38,6 +38,10 @@ if errorlevel 1 echo Error restoring packages && goto error
 dotnet build -c %configuration%
 if errorlevel 1 echo Error building solution && goto error
 
+:: pack server
+dotnet pack -c %configuration%
+if errorlevel 1 echo Error packing tools && goto error
+
 :: test
 if /i "%runtests%" == "true" (
     dotnet test --no-restore --no-build -c %configuration%
