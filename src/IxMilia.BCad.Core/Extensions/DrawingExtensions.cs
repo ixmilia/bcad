@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using IxMilia.BCad.Collections;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.SnapPoints;
 
 namespace IxMilia.BCad
 {
@@ -141,6 +145,51 @@ namespace IxMilia.BCad
         {
             var newSettings = drawing.Settings.Update(fileName: fileName);
             return drawing.Update(settings: newSettings);
+        }
+
+        /// <summary>
+        /// Get all transformed snap points for the drawing with the given display transform.
+        /// </summary>
+        public static QuadTree<TransformedSnapPoint> GetSnapPoints(this Drawing drawing, Matrix4 displayTransform, double width, double height, CancellationToken cancellationToken = default)
+        {
+            // populate the snap points
+            var transformedQuadTree = new QuadTree<TransformedSnapPoint>(new Rect(0, 0, width, height), t => new Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
+            foreach (var layer in drawing.GetLayers(cancellationToken))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                foreach (var entity in layer.GetEntities(cancellationToken))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    foreach (var snapPoint in entity.GetSnapPoints())
+                    {
+                        var projected = displayTransform.Transform(snapPoint.Point);
+                        transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, projected, snapPoint.Kind));
+                    }
+                }
+            }
+
+            // calculate intersections
+            // TODO: can this be done in a meanintful way in a separate task?
+            var primitives = drawing.GetEntities().SelectMany(e => e.GetPrimitives()).ToList();
+            for (int startIndex = 0; startIndex < primitives.Count; startIndex++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var first = primitives[startIndex];
+                for (int i = startIndex + 1; i < primitives.Count; i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var current = primitives[i];
+                    foreach (var intersection in first.IntersectionPoints(current))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        var projected = displayTransform.Transform(intersection);
+                        transformedQuadTree.AddItem(new TransformedSnapPoint(intersection, projected, SnapPointKind.Intersection));
+                    }
+                }
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return transformedQuadTree;
         }
 
         public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, int pixelBuffer = PrimitiveExtensions.DefaultPixelBuffer)

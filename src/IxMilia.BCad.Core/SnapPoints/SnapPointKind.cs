@@ -11,6 +11,7 @@ namespace IxMilia.BCad.SnapPoints
         MidPoint = 0x04,
         Quadrant = 0x08,
         Focus = 0x10,
-        All = Center | EndPoint | MidPoint | Quadrant | Focus
+        Intersection = 0x20,
+        All = Center | EndPoint | MidPoint | Quadrant | Focus | Intersection
     }
 }

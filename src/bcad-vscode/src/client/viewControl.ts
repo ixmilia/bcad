@@ -289,6 +289,12 @@ export class ViewControl {
                     this.twod!.moveTo(x - this.settings.SnapPointSize * 0.4, y + this.settings.SnapPointSize * 0.25);
                     this.twod!.lineTo(x + this.settings.SnapPointSize * 0.4, y - this.settings.SnapPointSize * 0.25);
                     break;
+                case SnapPointKind.Intersection:
+                    this.twod!.moveTo(x - this.settings.SnapPointSize / 2, y - this.settings.SnapPointSize / 2);
+                    this.twod!.lineTo(x + this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    this.twod!.moveTo(x - this.settings.SnapPointSize / 2, y + this.settings.SnapPointSize / 2);
+                    this.twod!.lineTo(x + this.settings.SnapPointSize / 2, y - this.settings.SnapPointSize / 2);
+                    break;
             }
 
             this.twod!.stroke();

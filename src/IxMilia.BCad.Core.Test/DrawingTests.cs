@@ -1,6 +1,9 @@
 using System;
+using System.Linq;
+using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.SnapPoints;
 using IxMilia.BCad.Utilities;
 using Xunit;
 
@@ -93,6 +96,17 @@ namespace IxMilia.BCad.Core.Test
             TestMidpoint(135, new Arc(Point.Origin, 1, 45, 225, Vector.ZAxis));
             TestMidpoint(315, new Arc(Point.Origin, 1, 225, 45, Vector.ZAxis));
             TestMidpoint(225, new Arc(Point.Origin, 1, 135, 315, Vector.ZAxis));
+        }
+
+        [Fact]
+        public void IntersectionSnapPointsAreCalculatedTest()
+        {
+            var drawing = new Drawing()
+                .AddToCurrentLayer(new Line(new Point(-1.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)))
+                .AddToCurrentLayer(new Line(new Point(0.0, -1.0, 0.0), new Point(0.0, 1.0, 0.0)));
+            var snapPoints = drawing.GetSnapPoints(Matrix4.Identity, 1.0, 1.0);
+            var intersection = snapPoints.GetContainedItems(new Rect(-1.0, -1.0, 1.0, 1.0)).Single(t => t.Kind == SnapPointKind.Intersection);
+            Assert.Equal(Point.Origin, intersection.WorldPoint);
         }
     }
 }

@@ -192,28 +192,9 @@ namespace IxMilia.BCad.Display
             oldTokenSource.Cancel();
             var token = updateSnapPointsCancellationTokenSource.Token;
 
-            var width = Width;
-            var height = Height;
             updateSnapPointsTask = Task.Run(() =>
             {
-                // populate the snap points
-                var transformedQuadTree = new QuadTree<TransformedSnapPoint>(new Rect(0, 0, width, height), t => new Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
-                foreach (var layer in _workspace.Drawing.GetLayers(token))
-                {
-                    token.ThrowIfCancellationRequested();
-                    foreach (var entity in layer.GetEntities(token))
-                    {
-                        token.ThrowIfCancellationRequested();
-                        foreach (var snapPoint in entity.GetSnapPoints())
-                        {
-                            var projected = transform.Transform(snapPoint.Point);
-                            transformedQuadTree.AddItem(new TransformedSnapPoint(snapPoint.Point, projected, snapPoint.Kind));
-                        }
-                    }
-                }
-
-                token.ThrowIfCancellationRequested();
-                snapPointsQuadTree = transformedQuadTree;
+                snapPointsQuadTree = _workspace.Drawing.GetSnapPoints(transform, Width, Height, token);
             });
 
             return updateSnapPointsTask;
