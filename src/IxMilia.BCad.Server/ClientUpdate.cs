@@ -73,6 +73,24 @@ namespace IxMilia.BCad.Server
         }
     }
 
+    public struct ClientText
+    {
+        public string Text { get; }
+        public ClientPoint Location { get; }
+        public double Height { get; }
+        public double RotationAngle { get; }
+        public CadColor? Color { get; }
+
+        public ClientText(string text, ClientPoint location, double height, double rotationAngle, CadColor? color)
+        {
+            Text = text;
+            Location = location;
+            Height = height;
+            RotationAngle = rotationAngle;
+            Color = color;
+        }
+    }
+
     public class ClientDrawing
     {
         public string CurrentLayer { get; set; }
@@ -81,6 +99,7 @@ namespace IxMilia.BCad.Server
         public List<ClientPointLocation> Points { get; } = new List<ClientPointLocation>();
         public List<ClientLine> Lines { get; } = new List<ClientLine>();
         public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();
+        public List<ClientText> Text { get; } = new List<ClientText>();
 
         public ClientDrawing(string fileName)
         {
@@ -122,12 +141,14 @@ namespace IxMilia.BCad.Server
     public class ClientTransform
     {
         public double[] Transform { get; }
+        public double[] CanvasTransform { get; }
         public double DisplayXTransform { get; }
         public double DisplayYTransform { get; }
 
-        public ClientTransform(double[] transform, double displayXTransform, double displayYTransform)
+        public ClientTransform(double[] transform, double[] canvasTransform, double displayXTransform, double displayYTransform)
         {
             Transform = transform;
+            CanvasTransform = canvasTransform;
             DisplayXTransform = displayXTransform;
             DisplayYTransform = displayYTransform;
         }

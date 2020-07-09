@@ -22,11 +22,15 @@ export class ViewControl {
     // DOM
     private cursorCanvas: HTMLCanvasElement;
     private drawingCanvas: HTMLCanvasElement;
+    private textCanvas: HTMLCanvasElement;
+    private rubberBandTextCanvas: HTMLCanvasElement;
     private outputPane: HTMLDivElement;
 
     // webgl
     private gl: WebGL2RenderingContext | null = null;
     private twod: CanvasRenderingContext2D | null = null;
+    private textCtx: CanvasRenderingContext2D | null = null;
+    private rubberTextCtx: CanvasRenderingContext2D | null = null;
     private viewTransformLocation: WebGLUniformLocation | null = null;
     private objectWorldTransformLocation: WebGLUniformLocation | null = null;
     private objectScaleTransformLocation: WebGLUniformLocation | null = null;
@@ -57,6 +61,8 @@ export class ViewControl {
         // DOM
         this.cursorCanvas = <HTMLCanvasElement>document.getElementById('cursorCanvas');
         this.drawingCanvas = <HTMLCanvasElement>document.getElementById('drawingCanvas');
+        this.textCanvas = <HTMLCanvasElement>document.getElementById('textCanvas');
+        this.rubberBandTextCanvas = <HTMLCanvasElement>document.getElementById('rubberBandTextCanvas');
         this.outputPane = <HTMLDivElement>document.getElementById('output-pane');
 
         // CAD
@@ -72,6 +78,7 @@ export class ViewControl {
             Points: [],
             Lines: [],
             Ellipses: [],
+            Text: [],
             LineCount: 0,
             LineVertices: null,
             LineColors: null,
@@ -90,6 +97,7 @@ export class ViewControl {
             Points: [],
             Lines: [],
             Ellipses: [],
+            Text: [],
             LineCount: 0,
             LineVertices: null,
             LineColors: null,
@@ -109,6 +117,7 @@ export class ViewControl {
         ];
         this.transform = {
             Transform: this.identity,
+            CanvasTransform: this.identity,
             DisplayXTransform: 1.0,
             DisplayYTransform: 1.0,
         };
@@ -194,6 +203,7 @@ export class ViewControl {
         drawing.Points = clientDrawing.Points;
         drawing.Lines = clientDrawing.Lines;
         drawing.Ellipses = clientDrawing.Ellipses;
+        drawing.Text = clientDrawing.Text;
         this.populateVertices(drawing);
     }
 
@@ -303,6 +313,8 @@ export class ViewControl {
 
     private prepareCanvas() {
         this.twod = this.cursorCanvas.getContext("2d");
+        this.textCtx = this.textCanvas.getContext("2d");
+        this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d");
         this.gl = this.drawingCanvas.getContext("webgl2");
         let gl = this.gl;
 
@@ -372,6 +384,10 @@ export class ViewControl {
             this.drawingCanvas.height = this.outputPane.clientHeight;
             this.cursorCanvas.width = this.outputPane.clientWidth;
             this.cursorCanvas.height = this.outputPane.clientHeight;
+            this.textCanvas.width = this.outputPane.clientWidth;
+            this.textCanvas.height = this.outputPane.clientHeight;
+            this.rubberBandTextCanvas.width = this.outputPane.clientWidth;
+            this.rubberBandTextCanvas.height = this.outputPane.clientHeight;
             console.log(`sending resize with size (${this.drawingCanvas.width}, ${this.drawingCanvas.height})`);
             this.client.resize(this.drawingCanvas.width, this.drawingCanvas.height);
         })).observe(this.outputPane);
@@ -550,6 +566,8 @@ export class ViewControl {
         this.gl!.clear(this.gl!.COLOR_BUFFER_BIT | this.gl!.DEPTH_BUFFER_BIT);
         this.redrawSpecific(this.entityDrawing);
         this.redrawSpecific(this.rubberBandDrawing);
+        this.redrawText(this.textCtx!, this.entityDrawing);
+        this.redrawText(this.rubberTextCtx!, this.rubberBandDrawing);
         this.redrawHotPoints();
     }
 
@@ -662,6 +680,27 @@ export class ViewControl {
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, null);
     }
 
+    private redrawText(textContext: CanvasRenderingContext2D, drawing: ClientDrawing) {
+        textContext.resetTransform();
+        textContext.clearRect(0, 0, textContext.canvas.width, textContext.canvas.height);
+        const yscale = this.transform.CanvasTransform[5];
+
+        for (let text of drawing.Text) {
+            // this is only correct in very simple cases, but should be >90% of the time
+            const location = transform(this.transform.CanvasTransform, [text.Location.X, text.Location.Y, text.Location.Z, 1]);
+            const x = location[0];
+            const y = location[1];
+            const textHeight = text.Height * Math.abs(yscale);
+
+            textContext.resetTransform();
+            textContext.translate(x, y);
+            textContext.rotate(-text.RotationAngle * Math.PI / 180.0);
+            textContext.fillStyle = ViewControl.colorToHex(text.Color || this.settings.AutoColor);
+            textContext.font = `${textHeight}px monospace`;
+            textContext.fillText(text.Text, 0, 0);
+        }
+    }
+
     private redrawHotPoints() {
         if (this.hotPointCount == 0) {
             return;
@@ -727,4 +766,13 @@ export class ViewControl {
     private static colorToHex(c: CadColor): string {
         return `#${ViewControl.numberToHex(c.R)}${ViewControl.numberToHex(c.G)}${ViewControl.numberToHex(c.B)}`;
     }
+}
+
+function transform(matrix: number[], point: number[]): number[] {
+    return [
+        matrix[0] * point[0] + matrix[4] * point[1] + matrix[8] * point[2] + matrix[12] * point[3],
+        matrix[1] * point[0] + matrix[5] * point[1] + matrix[9] * point[2] + matrix[13] * point[3],
+        matrix[2] * point[0] + matrix[6] * point[1] + matrix[10] * point[2] + matrix[14] * point[3],
+        matrix[3] * point[0] + matrix[7] * point[1] + matrix[11] * point[2] + matrix[15] * point[3]
+    ];
 }

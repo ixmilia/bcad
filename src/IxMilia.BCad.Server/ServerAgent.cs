@@ -175,7 +175,14 @@ namespace IxMilia.BCad.Server
                 return null;
             }
 
-            return new ClientTransform(transformArray, transform.DisplayXScale, transform.DisplayYScale);
+            var canvasTransform = _workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(_dim.Width, _dim.Height);
+            var canvasTransformArray = canvasTransform.ToTransposeArray();
+            if (canvasTransformArray.Any(double.IsNaN))
+            {
+                return null;
+            }
+
+            return new ClientTransform(transformArray, canvasTransformArray, transform.DisplayXScale, transform.DisplayYScale);
         }
 
         public void ChangeCurrentLayer(string currentLayer)
@@ -295,6 +302,9 @@ namespace IxMilia.BCad.Server
                     break;
                 case PrimitivePoint point:
                     clientDrawing.Points.Add(new ClientPointLocation(point.Location, primitiveColor));
+                    break;
+                case PrimitiveText text:
+                    clientDrawing.Text.Add(new ClientText(text.Value, text.Location, text.Height, text.Rotation, primitiveColor));
                     break;
             }
         }
