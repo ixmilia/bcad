@@ -108,5 +108,33 @@ namespace IxMilia.BCad.Core.Test
             var intersection = snapPoints.GetContainedItems(new Rect(-1.0, -1.0, 1.0, 1.0)).Single(t => t.Kind == SnapPointKind.Intersection);
             Assert.Equal(Point.Origin, intersection.WorldPoint);
         }
+
+        [Fact]
+        public void CreatePolylinesTest()
+        {
+            var entities = new[]
+            {
+                new Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
+                new Line(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0))
+            };
+            var drawing = new Drawing()
+                .Add(new Layer("some-layer"))
+                .Add(new Layer("some-other-layer"))
+                .Update(currentLayerName: "some-layer");
+            foreach (var entity in entities)
+            {
+                drawing = drawing.AddToCurrentLayer(entity);
+            }
+
+            var finalDrawing = drawing.CombineEntitiesIntoPolyline(entities, "some-other-layer");
+            Assert.Empty(finalDrawing.Layers.GetValue("some-layer").GetEntities());
+
+            var polyline = (Polyline)finalDrawing.Layers.GetValue("some-other-layer").GetEntities().Single();
+            var vertices = polyline.Vertices.ToList();
+            Assert.Equal(3, vertices.Count);
+            Assert.Equal(new Point(0.0, 0.0, 0.0), vertices[0].Location);
+            Assert.Equal(new Point(1.0, 0.0, 0.0), vertices[1].Location);
+            Assert.Equal(new Point(1.0, 1.0, 0.0), vertices[2].Location);
+        }
     }
 }

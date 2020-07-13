@@ -1087,7 +1087,7 @@ namespace IxMilia.BCad.Extensions
         {
             var remainingPrimitives = new HashSet<IPrimitive>(primitives);
             var result = new List<List<IPrimitive>>();
-            while (remainingPrimitives.Count > 1)
+            while (remainingPrimitives.Count > 0)
             {
                 var shapePrimitives = new List<IPrimitive>();
                 var first = remainingPrimitives.First();

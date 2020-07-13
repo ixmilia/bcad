@@ -192,6 +192,32 @@ namespace IxMilia.BCad
             return transformedQuadTree;
         }
 
+        /// <summary>
+        /// Combine the specified entities into a Polyline entities and add to the drawing.  The original entities will be removed.
+        /// </summary>
+        /// <param name="drawing">The drawing.</param>
+        /// <param name="entities">The entities to combine.</param>
+        /// <param name="layerName">The name of the layer to which the final Polylines will be added.</param>
+        public static Drawing CombineEntitiesIntoPolyline(this Drawing drawing, IEnumerable<Entity> entities, string layerName)
+        {
+            foreach (var entity in entities)
+            {
+                drawing = drawing.Remove(entity);
+            }
+
+            var primitives = entities.SelectMany(e => e.GetPrimitives());
+            var polylines = primitives.GetPolylinesFromSegments();
+
+            var polyLayer = drawing.Layers.GetValue(layerName);
+            drawing = drawing.Remove(polyLayer);
+            foreach (var poly in polylines)
+            {
+                polyLayer = polyLayer.Add(poly);
+            }
+
+            return drawing.Add(polyLayer);
+        }
+
         public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, int pixelBuffer = PrimitiveExtensions.DefaultPixelBuffer)
         {
             return drawing.GetEntities().SelectMany(e => e.GetPrimitives()).ShowAllViewPort(sight, up, viewPortWidth, viewPortHeight, pixelBuffer);

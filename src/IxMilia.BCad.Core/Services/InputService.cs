@@ -199,7 +199,8 @@ namespace IxMilia.BCad.Services
                             entities.Add(pushedEntity.Entity);
                             Workspace.SelectedEntities.Add(pushedEntity.Entity);
                         }
-                        // TODO: print status
+
+                        Workspace.OutputService.WriteLine($"Selected 1 entity.  Total {entities.Count} selected.");
                         break;
                     case PushedValueType.Entities:
                         foreach (var e in pushedEntities)
@@ -210,7 +211,8 @@ namespace IxMilia.BCad.Services
                                 Workspace.SelectedEntities.Add(e);
                             }
                         }
-                        // TODO: print status
+
+                        Workspace.OutputService.WriteLine($"Selected {pushedEntities.Count()} entities.  Total {entities.Count} selected.");
                         break;
                     default:
                         throw new Exception("Unexpected pushed value");

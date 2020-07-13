@@ -16,6 +16,25 @@ namespace IxMilia.BCad.Extensions
             {
                 var primitiveList = primitiveCollection.ToList();
                 var vertices = new List<Vertex>();
+
+                void AddVertex(Vertex v)
+                {
+                    if (vertices.Count > 0 && vertices[vertices.Count - 1].Location == v.Location)
+                    {
+                        // if trying to add a duplicate vertex, it means there was a rogue line segment that doesn't
+                        // connect on both sides
+                    }
+                    else
+                    {
+                        vertices.Add(v);
+                    }
+                }
+
+                IPrimitive NextPrimitive(int currentIndex) =>
+                    currentIndex < primitiveList.Count - 1
+                        ? primitiveList[currentIndex + 1]
+                        : null;
+
                 var nextVertex = default(Vertex); // candidate final vertex
                 for (int i = 0; i < primitiveList.Count; i++)
                 {
@@ -29,21 +48,41 @@ namespace IxMilia.BCad.Extensions
                                 if (nextVertex.Location.CloseTo(line.P1))
                                 {
                                     // already in order
-                                    vertices.Add(new Vertex(line.P1));
+                                    AddVertex(new Vertex(line.P1));
                                     nextVertex = new Vertex(line.P2);
                                 }
                                 else
                                 {
                                     // need to process 'backwards'
-                                    vertices.Add(new Vertex(line.P2));
+                                    AddVertex(new Vertex(line.P2));
                                     nextVertex = new Vertex(line.P1);
                                 }
                             }
                             else
                             {
-                                // order is arbitrary
-                                vertices.Add(new Vertex(line.P1));
-                                nextVertex = new Vertex(line.P2);
+                                // align line with next primitive
+                                var nextPrimitive = NextPrimitive(i);
+                                if (nextPrimitive != null)
+                                {
+                                    var nextStart = nextPrimitive.StartPoint();
+                                    var nextEnd = nextPrimitive.EndPoint();
+                                    if (line.P2.CloseTo(nextStart) || line.P2.CloseTo(nextEnd))
+                                    {
+                                        AddVertex(new Vertex(line.P1));
+                                        nextVertex = new Vertex(line.P2);
+                                    }
+                                    else
+                                    {
+                                        AddVertex(new Vertex(line.P2));
+                                        nextVertex = new Vertex(line.P1);
+                                    }
+                                }
+                                else
+                                {
+                                    // order is arbitrary
+                                    AddVertex(new Vertex(line.P1));
+                                    nextVertex = new Vertex(line.P2);
+                                }
                             }
                             break;
                         case PrimitiveEllipse el:
@@ -69,11 +108,13 @@ namespace IxMilia.BCad.Extensions
                             }
                             else
                             {
-                                // align arc with next line primitive
-                                var nextLine = primitiveList.Skip(i + 1).OfType<PrimitiveLine>().FirstOrDefault();
-                                if (nextLine != null)
+                                // align arc with next primitive
+                                var nextPrimitive = NextPrimitive(i);
+                                if (nextPrimitive != null)
                                 {
-                                    if (endPoint.CloseTo(nextLine.P1) || endPoint.CloseTo(nextLine.P2))
+                                    var nextStart = nextPrimitive.StartPoint();
+                                    var nextEnd = nextPrimitive.EndPoint();
+                                    if (endPoint.CloseTo(nextStart) || endPoint.CloseTo(nextEnd))
                                     {
                                         nearPoint = startPoint;
                                         farPoint = endPoint;
@@ -95,7 +136,7 @@ namespace IxMilia.BCad.Extensions
                             var direction = nearPoint == startPoint
                                 ? VertexDirection.CounterClockwise
                                 : VertexDirection.Clockwise;
-                            vertices.Add(new Vertex(nearPoint, includedAngle, direction));
+                            AddVertex(new Vertex(nearPoint, includedAngle, direction));
                             nextVertex = new Vertex(farPoint, includedAngle, direction);
                             break;
                         default:
@@ -105,7 +146,7 @@ namespace IxMilia.BCad.Extensions
 
                 if (nextVertex != null)
                 {
-                    vertices.Add(nextVertex);
+                    AddVertex(nextVertex);
                 }
 
                 var poly = new Polyline(vertices);

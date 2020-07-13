@@ -631,5 +631,36 @@ namespace IxMilia.BCad.Core.Test
             AssertClose(new Vertex(new Point(1.0, 0.0, 0.0)), vertices[1]); // end of arc, start of line
             AssertClose(new Vertex(new Point(1.0, -1.0, 0.0)), vertices[2]); // end
         }
+
+        [Fact]
+        public void LineStripsFromOutOfOrderLinesTest()
+        {
+            // In the following, the starting line's P1 is what aligns with the next primitive
+            // line's start point, so the first line will have to look ahead to determine the
+            // order in which to process the line.  The end result is that the first line is added
+            // 'backwards' to the list.
+            var primitives = new IPrimitive[]
+            {
+                new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(2.0, 2.0, 0.0)),
+                new PrimitiveLine(new Point(1.0, 3.0, 0.0), new Point(0.0, 0.0, 0.0))
+            };
+            var polyline = primitives.GetPolylinesFromSegments().Single();
+            var vertices = polyline.Vertices.ToList();
+            Assert.Equal(3, vertices.Count);
+            Assert.Equal(new Point(2.0, 2.0, 0.0), vertices[0].Location);
+            Assert.Equal(new Point(0.0, 0.0, 0.0), vertices[1].Location);
+            Assert.Equal(new Point(1.0, 3.0, 0.0), vertices[2].Location);
+        }
+
+        [Fact]
+        public void LineStripsFromSinglePrimitiveTest()
+        {
+            var line = new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0));
+            var polylines = new[] { line }.GetPolylinesFromSegments();
+            var poly = polylines.Single();
+            var primitive = (PrimitiveLine)poly.GetPrimitives().Single();
+            Assert.Equal(line.P1, primitive.P1);
+            Assert.Equal(line.P2, primitive.P2);
+        }
     }
 }
