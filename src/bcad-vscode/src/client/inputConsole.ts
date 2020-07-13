@@ -15,7 +15,7 @@ export class InputConsole {
         });
     }
 
-    private handleKeystroke(ev: KeyboardEvent, manualAppend: boolean) {
+    private handleKeystroke(ev: KeyboardEvent, manualEdit: boolean) {
         switch (ev.key) {
             case "Enter":
             case " ":
@@ -25,8 +25,13 @@ export class InputConsole {
                 this.clearInput();
                 this.client.cancel();
                 break;
+            case "Backspace":
+                if (manualEdit && this.input.value.length > 0) {
+                    this.input.value = this.input.value.substr(0, this.input.value.length - 1);
+                }
+                break;
             default:
-                if (manualAppend &&
+                if (manualEdit &&
                     ev.key.length == 1 &&
                     !ev.altKey &&
                     !ev.ctrlKey) {
