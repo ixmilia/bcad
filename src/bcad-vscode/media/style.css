@@ -36,7 +36,20 @@ body {
 }
 
 #ribbon {
+    background-color: black;
+    border-bottom: 1px gray;
     height: 100px;
+}
+
+.ribbon-unpinned-show {
+    position: absolute;
+    top: 24px;
+    left: 20px;
+    z-index: 10;
+}
+
+.ribbon-unpinned-hide {
+    display: none;
 }
 
 .ribbon {

@@ -10,13 +10,14 @@
   <body>
     <div id="ribbon-pane">
       <div style="display: inline">
-        <button id="homeButton" class="ribbon-selector ribbon-selector-active">Home</button>
+        <button id="drawButton" class="ribbon-selector ribbon-selector-active">Draw</button>
         <button id="viewButton" class="ribbon-selector">View</button>
         <button id="settingsButton" class="ribbon-selector">Settings</button>
         <button id="debugButton" class="ribbon-selector">Debug</button>
+        <input id="ribbon-is-pinned" type="checkbox">Pin?</input>
       </div>
-      <div id="ribbon">
-        <div id="homeRibbon" class="ribbon ribbon-active">
+      <div id="ribbon" class="ribbon-unpinned-show ribbon-unpinned-hide">
+        <div id="drawRibbon" class="ribbon ribbon-active">
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
               <button class="command-button" data-command-name="Draw.Line">
