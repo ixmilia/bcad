@@ -27,7 +27,8 @@ export class ViewControl {
     private outputPane: HTMLDivElement;
 
     // webgl
-    private gl: WebGL2RenderingContext | null = null;
+    private gl: WebGLRenderingContext | null = null;
+    private glAngle: ANGLE_instanced_arrays | null = null;
     private twod: CanvasRenderingContext2D | null = null;
     private textCtx: CanvasRenderingContext2D | null = null;
     private rubberTextCtx: CanvasRenderingContext2D | null = null;
@@ -315,12 +316,15 @@ export class ViewControl {
         this.twod = this.cursorCanvas.getContext("2d");
         this.textCtx = this.textCanvas.getContext("2d");
         this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d");
-        this.gl = this.drawingCanvas.getContext("webgl2");
+        this.gl = this.drawingCanvas.getContext("webgl");
         if (!this.gl) {
-            throw new Error('Unable to get webgl2 context');
+            throw new Error('Unable to get webgl context');
         }
 
-        let gl = this.gl;
+        this.glAngle = this.gl!.getExtension('ANGLE_instanced_arrays');
+        if (!this.glAngle) {
+            throw new Error("Unable to get extension 'ANGLE_instanced_arrays'");
+        }
 
         let vertCode = `
             attribute vec3 vCoords;
@@ -339,9 +343,9 @@ export class ViewControl {
                 fColor = vColor;
             }`;
 
-        let vertShader = gl!.createShader(gl!.VERTEX_SHADER)!;
-        gl!.shaderSource(vertShader, vertCode);
-        gl!.compileShader(vertShader);
+        let vertShader = this.gl!.createShader(this.gl!.VERTEX_SHADER)!;
+        this.gl!.shaderSource(vertShader, vertCode);
+        this.gl!.compileShader(vertShader);
 
         let fragCode = `
             precision mediump float;
@@ -349,22 +353,22 @@ export class ViewControl {
             void main(void) {
                 gl_FragColor = vec4(fColor, 255.0) / 255.0;
             }`;
-        let fragShader = gl!.createShader(gl!.FRAGMENT_SHADER)!;
-        gl!.shaderSource(fragShader, fragCode);
-        gl!.compileShader(fragShader);
+        let fragShader = this.gl!.createShader(this.gl!.FRAGMENT_SHADER)!;
+        this.gl!.shaderSource(fragShader, fragCode);
+        this.gl!.compileShader(fragShader);
 
-        let program = gl!.createProgram()!;
-        gl!.attachShader(program, vertShader);
-        gl!.attachShader(program, fragShader);
-        gl!.linkProgram(program);
-        gl!.useProgram(program);
+        let program = this.gl!.createProgram()!;
+        this.gl!.attachShader(program, vertShader);
+        this.gl!.attachShader(program, fragShader);
+        this.gl!.linkProgram(program);
+        this.gl!.useProgram(program);
 
-        this.coordinatesLocation = gl!.getAttribLocation(program, "vCoords");
-        this.translationLocation = gl!.getAttribLocation(program, "vTrans");
-        this.colorLocation = gl!.getAttribLocation(program, "vColor");
-        this.objectScaleTransformLocation = gl!.getUniformLocation(program, "objectScaleTransform");
-        this.objectWorldTransformLocation = gl!.getUniformLocation(program, "objectWorldTransform");
-        this.viewTransformLocation = gl!.getUniformLocation(program, "viewTransform");
+        this.coordinatesLocation = this.gl!.getAttribLocation(program, "vCoords");
+        this.translationLocation = this.gl!.getAttribLocation(program, "vTrans");
+        this.colorLocation = this.gl!.getAttribLocation(program, "vColor");
+        this.objectScaleTransformLocation = this.gl!.getUniformLocation(program, "objectScaleTransform");
+        this.objectWorldTransformLocation = this.gl!.getUniformLocation(program, "objectWorldTransform");
+        this.viewTransformLocation = this.gl!.getUniformLocation(program, "viewTransform");
     }
 
     private prepareEvents() {
@@ -582,8 +586,8 @@ export class ViewControl {
         this.gl!.uniformMatrix4fv(this.viewTransformLocation, false, this.transform.Transform!);
         this.gl!.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
         this.gl!.uniformMatrix4fv(this.objectScaleTransformLocation, false, this.identity);
-        this.gl!.vertexAttribDivisor(this.colorLocation!, 0);
-        this.gl!.vertexAttribDivisor(this.translationLocation!, 0);
+        this.glAngle!.vertexAttribDivisorANGLE(this.colorLocation!, 0);
+        this.glAngle!.vertexAttribDivisorANGLE(this.translationLocation!, 0);
     }
 
     private redrawSpecific(drawing: Drawing) {
@@ -654,17 +658,17 @@ export class ViewControl {
         // ...for each point location
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, drawing.PointLocations);
         this.gl!.vertexAttribPointer(this.translationLocation!, 3, this.gl!.FLOAT, false, 0, 0);
-        this.gl!.vertexAttribDivisor(this.translationLocation!, 1);
+        this.glAngle!.vertexAttribDivisorANGLE(this.translationLocation!, 1);
         this.gl!.enableVertexAttribArray(this.translationLocation!);
 
         // ...and each color
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, drawing.PointColors);
         this.gl!.vertexAttribPointer(this.colorLocation!, 3, this.gl!.UNSIGNED_BYTE, false, 0, 0);
-        this.gl!.vertexAttribDivisor(this.colorLocation!, 1);
+        this.glAngle!.vertexAttribDivisorANGLE(this.colorLocation!, 1);
         this.gl!.enableVertexAttribArray(this.colorLocation!);
 
         let vertsPerPoint = 2 * 2; // 2 segments, 2 verts per segment
-        this.gl!.drawArraysInstanced(this.gl!.LINES, 0, vertsPerPoint, drawing.PointCount);
+        this.glAngle!.drawArraysInstancedANGLE(this.gl!.LINES, 0, vertsPerPoint, drawing.PointCount);
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, null);
 
         //
@@ -673,19 +677,19 @@ export class ViewControl {
         // ...for each point location
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, drawing.PointLocationsWithDefaultColor);
         this.gl!.vertexAttribPointer(this.translationLocation!, 3, this.gl!.FLOAT, false, 0, 0);
-        this.gl!.vertexAttribDivisor(this.translationLocation!, 1);
+        this.glAngle!.vertexAttribDivisorANGLE(this.translationLocation!, 1);
         this.gl!.enableVertexAttribArray(this.translationLocation!);
 
         // ...with a static color
         this.gl!.disableVertexAttribArray(this.colorLocation!);
         this.gl!.vertexAttrib3f(this.colorLocation!, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
 
-        this.gl!.drawArraysInstanced(this.gl!.LINES, 0, vertsPerPoint, drawing.PointCountWithDefaultColor);
+        this.glAngle!.drawArraysInstancedANGLE(this.gl!.LINES, 0, vertsPerPoint, drawing.PointCountWithDefaultColor);
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, null);
     }
 
     private redrawText(textContext: CanvasRenderingContext2D, drawing: ClientDrawing) {
-        textContext.resetTransform();
+        textContext.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
         textContext.clearRect(0, 0, textContext.canvas.width, textContext.canvas.height);
         const yscale = this.transform.CanvasTransform[5];
 
@@ -696,7 +700,7 @@ export class ViewControl {
             const y = location[1];
             const textHeight = text.Height * Math.abs(yscale);
 
-            textContext.resetTransform();
+            textContext.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
             textContext.translate(x, y);
             textContext.rotate(-text.RotationAngle * Math.PI / 180.0);
             textContext.fillStyle = ViewControl.colorToHex(text.Color || this.settings.AutoColor);
@@ -727,11 +731,11 @@ export class ViewControl {
         // ...for each hot point location
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, this.hotPointLocations);
         this.gl!.vertexAttribPointer(this.translationLocation!, 3, this.gl!.FLOAT, false, 0, 0);
-        this.gl!.vertexAttribDivisor(this.translationLocation!, 1);
+        this.glAngle!.vertexAttribDivisorANGLE(this.translationLocation!, 1);
         this.gl!.enableVertexAttribArray(this.translationLocation!);
 
         let vertsPerPoint = 4 * 2; // 4 segments, 2 verts per segment
-        this.gl!.drawArraysInstanced(this.gl!.LINES, 0, vertsPerPoint, this.hotPointCount);
+        this.glAngle!.drawArraysInstancedANGLE(this.gl!.LINES, 0, vertsPerPoint, this.hotPointCount);
         this.gl!.bindBuffer(this.gl!.ARRAY_BUFFER, null);
     }
 
