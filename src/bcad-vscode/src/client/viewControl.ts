@@ -316,6 +316,10 @@ export class ViewControl {
         this.textCtx = this.textCanvas.getContext("2d");
         this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d");
         this.gl = this.drawingCanvas.getContext("webgl2");
+        if (!this.gl) {
+            throw new Error('Unable to get webgl2 context');
+        }
+
         let gl = this.gl;
 
         let vertCode = `

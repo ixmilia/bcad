@@ -44,5 +44,11 @@ try {
     new FileSettingsDialog(dialogHandler);
     new LayerDialog(dialogHandler);
 } catch (err) {
-    console.error(`error: [${err}]: ${JSON.stringify(err)}`);
+    const errorMessage = `error: ${err}`;
+    console.error(errorMessage);
+    let output = <HTMLTextAreaElement>document.getElementById("outputConsole");
+    if (output.value.length > 0) {
+        output.value += '\n';
+    }
+    output.value += errorMessage;
 }
