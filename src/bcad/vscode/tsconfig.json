@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2019",
+        "outDir": "out",
+        "sourceMap": true,
+        "rootDir": "src",
+        "strict": true
+    },
+    "exclude": [
+        "src/test/**/*",
+        ".vscode-test"
+    ],
+    "references": [
+        {
+            "path": "../client/tsconfig.json"
+        }
+    ]
+}

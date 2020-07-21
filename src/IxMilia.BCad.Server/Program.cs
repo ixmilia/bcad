@@ -3,6 +3,7 @@ using System.Composition;
 using StreamJsonRpc;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace IxMilia.BCad.Server
 {
@@ -13,10 +14,23 @@ namespace IxMilia.BCad.Server
 
         static void Main(string[] args)
         {
-            if (args.Length == 2 &&
-                args[0] == "--generate")
+            var outFiles = new List<string>();
+            for (int i = 0; i < args.Length; i += 2)
             {
-                var generator = new ContractGenerator(args[1]);
+                if (args[i] == "--out-file" && args.Length > i + 1)
+                {
+                    outFiles.Add(args[i + 1]);
+                }
+                else
+                {
+                    Console.WriteLine("Arguments must be one or more of `--out-file <path/to/file.ts>`");
+                    Environment.Exit(1);
+                }
+            }
+
+            if (outFiles.Count > 0)
+            {
+                var generator = new ContractGenerator(outFiles);
                 generator.Run();
             }
             else

@@ -48,8 +48,16 @@ if /i "%runtests%" == "true" (
     if errorlevel 1 echo Error running tests && goto error
 )
 
-:: build VS Code
-pushd src\bcad-vscode
+:: build client contracts file
+dotnet run -p "%~dp0src\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj" -- --out-file "%~dp0src\bcad\client\src\contracts.generated.ts" --out-file "%~dp0src\bcad\vscode\src\contracts.generated.ts"
+
+:: build client js
+pushd src\bcad\client
+call build.cmd
+popd
+
+:: build VS Code extension
+pushd src\bcad\vscode
 call build.cmd
 popd
 

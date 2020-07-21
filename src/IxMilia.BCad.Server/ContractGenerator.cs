@@ -12,7 +12,7 @@ namespace IxMilia.BCad.Server
 {
     public class ContractGenerator
     {
-        public string OutFile { get; }
+        public IEnumerable<string> OutFiles { get; }
 
         private IReadOnlyDictionary<Type, string> _wellKnownTypes = new Dictionary<Type, string>()
         {
@@ -26,9 +26,9 @@ namespace IxMilia.BCad.Server
             { typeof(JObject), "object" },
         };
 
-        public ContractGenerator(string outFile)
+        public ContractGenerator(IEnumerable<string> outFiles)
         {
-            OutFile = outFile;
+            OutFiles = outFiles;
         }
 
         public void Run()
@@ -170,7 +170,11 @@ namespace IxMilia.BCad.Server
                 }
             }
 
-            File.WriteAllText(OutFile, sb.ToString());
+            var content = sb.ToString();
+            foreach (var outFile in OutFiles)
+            {
+                File.WriteAllText(outFile, content);
+            }
         }
 
         private static string CamelCase(string name)

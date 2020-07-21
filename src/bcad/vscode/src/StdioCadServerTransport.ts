@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as path from 'path';
 import * as rpc from 'vscode-jsonrpc';
-import { ClientUpdate } from './client/contracts.generated';
+import { ClientUpdate } from './contracts.generated';
 
 export class StdioCadServerTransport {
     private childProcess: cp.ChildProcessWithoutNullStreams;
