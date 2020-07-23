@@ -20,7 +20,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-SRC=$_SCRIPT_DIR/../IxMilia.BCad.Server/IxMilia.BCad.Server.csproj
+SRC=$_SCRIPT_DIR/../../IxMilia.BCad.Server/IxMilia.BCad.Server.csproj
 
 dotnet restore "$SRC"
 dotnet build "$SRC" -c $CONFIGURATION

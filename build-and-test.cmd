@@ -49,17 +49,38 @@ if /i "%runtests%" == "true" (
 )
 
 :: build client contracts file
-dotnet run -p "%~dp0src\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj" -- --out-file "%~dp0src\bcad\client\src\contracts.generated.ts" --out-file "%~dp0src\bcad\vscode\src\contracts.generated.ts"
+dotnet run -p "%~dp0src\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj" -- --out-file "%~dp0src\bcad\client\src\contracts.generated.ts" --out-file "%~dp0src\bcad\electron\src\contracts.generated.ts" --out-file "%~dp0src\bcad\vscode\src\contracts.generated.ts"
 
 :: build client js
-pushd src\bcad\client
+pushd %~dp0src\bcad\client
 call build.cmd
+if errorlevel 1 echo Error building client && got error
+popd
+
+:: build electron extension
+pushd %~dp0src\bcad\electron
+call npm i
+if errorlevel 1 echo Error restoring Electron packages && goto error
+call npm config set bcad:configuration %configuration% && call npm run pack
+if errorlevel 1 echo Error packing Electron && goto error
 popd
 
 :: build VS Code extension
-pushd src\bcad\vscode
+pushd %~dp0src\bcad\vscode
 call build.cmd
+if errorlevel 1 echo Error building VS Code
 popd
+
+:: create deployment file
+mkdir "%~dp0artifacts\publish"
+set suffix=
+if /i "%configuration%" == "debug" set suffix=-debug
+set filename=bcad-win32-x64%suffix%.zip
+powershell -Command "Compress-Archive -Path '%~dp0artifacts\pack\bcad-win32-x64\' -DestinationPath '%~dp0artifacts\publish\%filename%' -Force"
+if errorlevel 1 echo Error creating deployment file && goto error
+
+:: report final artifact name for GitHub Actions
+echo ::set-env name=artifact_file_name::%filename%
 
 exit /b 0
 

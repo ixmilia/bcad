@@ -2,25 +2,27 @@
   "name": "bcad",
   "version": "1.0.0",
   "description": "A minimal Electron application written with Typescript",
-  "main": "./dist/main.js",
+  "main": "./out/main.js",
   "config": {
     "configuration": "Debug"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build-client && npm run build-copy-client",
     "build-all": "npm run build && npm run build-assets",
     "build-assets": "npm run build-icons && npm run build-server",
-    "build-icons": "icon-gen -i ./bcad.svg -o ./dist --ico name=bcad sizes=32",
+    "build-client": "pwsh ../client/build.ps1",
+    "build-copy-client": "npx copyfiles --error --verbose --flat ../client/out/index.html out",
+    "build-icons": "icon-gen -i ./bcad.svg -o ./out --ico name=bcad sizes=32",
     "build-server": "run-script-os",
     "build-server:linux": "./build-server.sh --configuration $npm_package_config_configuration",
     "build-server:win32": "build-server.cmd --configuration %npm_package_config_configuration%",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "pack-all": "run-script-os",
-    "pack-all:linux": "electron-packager . --platform=linux --arch=x64 --icon=./dist/bcad.ico --extra-resource=../../artifacts/bin/IxMilia.BCad.Server/$npm_package_config_configuration/netcoreapp3.1/linux-x64/publish/ --out=../../artifacts/pack --overwrite",
-    "pack-all:win32": "electron-packager . --platform=win32 --arch=x64 --icon=./dist/bcad.ico --extra-resource=../../artifacts/bin/IxMilia.BCad.Server/%npm_package_config_configuration%/netcoreapp3.1/win-x64/publish/ --out=../../artifacts/pack --overwrite",
+    "pack-all:linux": "electron-packager . --platform=linux --arch=x64 --icon=./out/bcad.ico --extra-resource=../../../artifacts/bin/IxMilia.BCad.Server/$npm_package_config_configuration/netcoreapp3.1/linux-x64/publish/ --out=../../../artifacts/pack --overwrite",
+    "pack-all:win32": "electron-packager . --platform=win32 --arch=x64 --icon=./out/bcad.ico --extra-resource=../../../artifacts/bin/IxMilia.BCad.Server/%npm_package_config_configuration%/netcoreapp3.1/win-x64/publish/ --out=../../../artifacts/pack --overwrite",
     "pack": "npm run build-all && npm run pack-all",
-    "start": "npm run build && electron ./dist/main.js -- debug local"
+    "start": "npm run build && electron ./out/main.js -- debug local"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
   "keywords": [
@@ -34,6 +36,7 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
+    "copyfiles": "^2.3.0",
     "electron": "8.2.4",
     "electron-packager": "14.2.1",
     "icon-gen": "2.0.0",
@@ -42,7 +45,7 @@
     "typescript": "3.8.3"
   },
   "dependencies": {
-    "resize-observer": "1.0.0",
+    "resize-observer": "^1.0.0",
     "vscode-jsonrpc": "5.0.1"
   }
 }

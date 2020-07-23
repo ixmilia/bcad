@@ -22,7 +22,7 @@ goto parseargs
 
 :argsdone
 
-set src=%~dp0..\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj
+set src=%~dp0..\..\IxMilia.BCad.Server\IxMilia.BCad.Server.csproj
 
 dotnet restore "%src%"
 dotnet build "%src%" -c %configuration%

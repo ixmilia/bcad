@@ -48,9 +48,10 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile:extension": "tsc --build",
-    "compile:copy-client": "npx copyfiles --error --verbose --flat ../client/out/bcad-client.js out",
-    "compile": "npm run compile:extension && npm run compile:copy-client",
+    "compile:extension": "tsc",
+    "compile:build-client": "pwsh ../client/build.ps1",
+    "compile:copy-client": "npx copyfiles --error --verbose --flat ../client/out/index.html media",
+    "compile": "npm run compile:extension && npm run compile:build-client && npm run compile:copy-client",
     "lint": "eslint src --ext ts",
     "pretest": "npm run compile && npm run lint",
     "test": "node ./out/test/runTest.js",

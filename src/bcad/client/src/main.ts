@@ -1,5 +1,4 @@
 import { Client } from "./client";
-import { VSCode } from "./vscodeInterface";
 import { LayerSelector } from "./layerSelector";
 import { InputConsole } from "./inputConsole";
 import { OutputConsole } from "./outputConsole";
@@ -9,31 +8,73 @@ import { DialogHandler } from "./dialogs/dialogHandler";
 import { LayerDialog } from "./dialogs/layerDialog";
 import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
 
-function getPostMessage(): ((message: any) => void) | undefined {
+enum HostType {
+    Electron = 1,
+    WebView = 2,
+    VSCode = 3,
+}
+
+function getHostType(): HostType | undefined {
     // @ts-ignore
-    let externalInvoke = window.external?.invoke;
-    if (typeof externalInvoke === 'function') {
-        return message => externalInvoke(JSON.stringify(message));
+    if (typeof window.external?.invoke === 'function') {
+        return HostType.WebView;
     }
 
     // @ts-ignore
     if (typeof acquireVsCodeApi === 'function') {
-        // @ts-ignore
-        const rawVsCode = acquireVsCodeApi();
-        const vscode = <VSCode>rawVsCode;
-        return vscode.postMessage;
+        return HostType.VSCode;
+    }
+
+    // @ts-ignore
+    if (typeof ipcRenderer === 'object') {
+        return HostType.Electron;
     }
 
     return undefined;
 }
 
+function getPostMessage(hostType: HostType): ((message: any) => void) {
+    switch (hostType) {
+        case HostType.Electron:
+            // @ts-ignore
+            return message => ipcRenderer.send('post-message', message);
+        case HostType.VSCode:
+            // @ts-ignore
+            return acquireVsCodeApi().postMessage;
+        case HostType.WebView:
+            // @ts-ignore
+            return message => window.external.invoke(JSON.stringify(message));
+    }
+}
+
+function bindServerMessage(hostType: HostType, callback: (message: any) => void) {
+    switch (hostType) {
+        case HostType.Electron:
+            // @ts-ignore
+            ipcRenderer.on('post-message', (_event, arg) => callback(arg));
+            break;
+        case HostType.VSCode:
+            window.addEventListener('message', (messageWrapper: any) => {
+                const message = messageWrapper.data;
+                callback(message);
+            });
+            break;
+        case HostType.WebView:
+            // TODO:
+            break;
+    }
+}
+
 try {
-    let postMessage = getPostMessage();
-    if (!postMessage) {
+    const hostType = getHostType();
+    if (!hostType) {
         throw new Error('Unable to determine client communication');
     }
 
+    let postMessage = getPostMessage(hostType);
     const client = new Client(postMessage);
+    bindServerMessage(hostType, message => client.handleMessage(message));
+
     new LayerSelector(client);
     new InputConsole(client);
     new OutputConsole(client);

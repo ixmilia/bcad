@@ -3,40 +3,35 @@ import { ClientAgent, ClientUpdate } from "./contracts.generated";
 export class Client extends ClientAgent {
     private clientUpdateSubscriptions: Array<{(clientUpdate: ClientUpdate): void}> = [];
     private currentDialogHandler: {(dialogId: string, dialogOptions: object): Promise<any>} = async (_dialogId, _dialogOptions) => {};
-    private nextId: number = 1;
 
     constructor(private postMessage: (message: any) => void) {
         super();
-        this.prepareEventHandlers();
     }
 
-    private prepareEventHandlers() {
-        window.addEventListener('message', (messageWrapper: any) => {
-            const message = messageWrapper.data;
-            switch (message.method) {
-                case 'ClientUpdate':
-                    const clientUpdate = <ClientUpdate>message.params;
-                    for (let sub of this.clientUpdateSubscriptions) {
-                        sub(clientUpdate);
-                    }
-                    break;
-                case 'ShowDialog':
-                    const id: string = message.params.id;
-                    const parameter: object = message.params.parameter;
-                    this.currentDialogHandler(id, parameter).then(result => {
-                        this.postMessage({
-                            id: message.id,
-                            result
-                        });
-                    }).catch(reason => {
-                        this.postMessage({
-                            id: message.id,
-                            result: null
-                        });
+    handleMessage(message: any) {
+        switch (message.method) {
+            case 'ClientUpdate':
+                const clientUpdate = <ClientUpdate>message.params;
+                for (let sub of this.clientUpdateSubscriptions) {
+                    sub(clientUpdate);
+                }
+                break;
+            case 'ShowDialog':
+                const id: string = message.params.id;
+                const parameter: object = message.params.parameter;
+                this.currentDialogHandler(id, parameter).then(result => {
+                    this.postMessage({
+                        id: message.id,
+                        result
                     });
-                    break;
-            }
-        });
+                }).catch(reason => {
+                    this.postMessage({
+                        id: message.id,
+                        result: null
+                    });
+                });
+                break;
+        }
     }
 
     postNotification(method: string, params: any) {

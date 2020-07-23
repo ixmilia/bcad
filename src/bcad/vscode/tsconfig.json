@@ -10,10 +10,5 @@
     "exclude": [
         "src/test/**/*",
         ".vscode-test"
-    ],
-    "references": [
-        {
-            "path": "../client/tsconfig.json"
-        }
     ]
 }
