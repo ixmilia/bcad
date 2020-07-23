@@ -149,9 +149,8 @@ namespace IxMilia.BCad.FileHandlers
             // save viewport
             // TODO: use `DxfFile.ActiveViewPort` when available
             file.ViewPorts.Clear();
-            file.ViewPorts.Add(new DxfViewPort()
+            file.ViewPorts.Add(new DxfViewPort(DxfViewPort.ActiveViewPortName)
             {
-                Name = DxfViewPort.ActiveViewPortName,
                 LowerLeft = viewPort.BottomLeft.ToDxfPoint(),
                 ViewDirection = viewPort.Sight.ToDxfVector(),
                 ViewHeight = viewPort.ViewHeight

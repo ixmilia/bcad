@@ -16,30 +16,27 @@ jobs:
         submodules: true
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1.200'
+        dotnet-version: '3.1.302'
     - name: Build and test
       shell: pwsh
-      run: |
-        $shellExt = if ($IsWindows) { "cmd" } else { "sh" }
-        & ./build-and-test.$shellExt --configuration ${{ matrix.configuration }}
+      run: ./build-and-test.ps1 -configuration ${{ matrix.configuration }}
 
-  pack:
-    needs: [build]
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-    - uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.200'
-    - run: .\build-and-test.cmd -c Release -notest
-    - run: .\pack.cmd -c Release
+    # save electron app
     - uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.extension_artifact_name }}
-        path: artifacts/publish/${{ env.extension_artifact_name }}
+        name: ${{ env.electron_artifact_file_name }}
+        path: artifacts/publish/${{ env.electron_artifact_file_name }}
+
+    # save server global tool on windows-latest Release
     - uses: actions/upload-artifact@v2
+      if: matrix.os == 'windows-latest' && matrix.configuration == 'Release'
       with:
-        name: ${{ env.server_artifact_name }}
-        path: artifacts/publish/${{ env.server_artifact_name }}
+        name: ${{ env.global_tool_artifact_file_name }}
+        path: artifacts/packages/${{ matrix.configuration }}/${{ env.global_tool_artifact_file_name }}
+
+    # save VS Code extension on windows-latest Release
+    - uses: actions/upload-artifact@v2
+      if: matrix.os == 'windows-latest' && matrix.configuration == 'Release'
+      with:
+        name: ${{ env.vscode_artifact_file_name }}
+        path: src/bcad/vscode/${{ env.vscode_artifact_file_name }}

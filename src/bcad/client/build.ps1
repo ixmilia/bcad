@@ -1,7 +1,4 @@
-[CmdletBinding(PositionalBinding=$false)]
-param (
-    [string]$version = "42.42.42"
-)
+#!/usr/bin/pwsh
 
 Set-StrictMode -version 2.0
 $ErrorActionPreference = "Stop"
@@ -10,12 +7,10 @@ try {
     Push-Location $PSScriptRoot
 
     npm i
-
-    npm version $version --allow-same-version
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     npm run compile
-
-    npm version 42.42.42 --allow-same-version
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     $htmlContent = Get-Content -Path "index.html" -Raw
     $cssContent = Get-Content -Path "style.css" -Raw
@@ -24,7 +19,7 @@ try {
     $htmlContent = $htmlContent.Replace("/*STYLE-CONTENT*/", $cssContent)
     $htmlContent = $htmlContent.Replace("/*JS-CONTENT*/", $jsContent)
 
-    $htmlContent | Out-File -FilePath "out\index.html"
+    $htmlContent | Out-File -FilePath "out/index.html"
 }
 catch {
     Write-Host $_

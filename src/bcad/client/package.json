@@ -1,7 +1,8 @@
 {
   "name": "bcad-client",
   "version": "42.42.42",
-  "description": "",
+  "description": "Self-contained HTML client for BCad.",
+  "repository": "https://github.com/ixmilia/bcad",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -9,7 +10,7 @@
     "compile": "npm run build && npm run compile:webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "IxMilia",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^3.9.7",

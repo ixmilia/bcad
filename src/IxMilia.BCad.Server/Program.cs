@@ -24,6 +24,7 @@ namespace IxMilia.BCad.Server
                 else
                 {
                     Console.WriteLine("Arguments must be one or more of `--out-file <path/to/file.ts>`");
+                    Console.WriteLine($"    found args: [{string.Join("] [", args)}]");
                     Environment.Exit(1);
                 }
             }
