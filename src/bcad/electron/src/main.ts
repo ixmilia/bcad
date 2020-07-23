@@ -3,6 +3,7 @@ import * as path from 'path';
 import { app, BrowserWindow } from "electron";
 import { Arguments } from './args';
 import { StdioCadServerTransport } from "./StdioCadServerTransport";
+import { CadMenu } from './CadMenu';
 
 let mainWindow: Electron.BrowserWindow;
 
@@ -28,6 +29,8 @@ function createWindow() {
     const stdioTransport = new StdioCadServerTransport(args);
     stdioTransport.prepareHandlers(mainWindow);
     stdioTransport.registerReadyCallback(() => console.log('got ready notification from client'));
+
+    new CadMenu(mainWindow, stdioTransport);
 
     // and load the index.html of the app.
     const htmlPath = path.join(__dirname, "index.html");

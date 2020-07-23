@@ -117,37 +117,18 @@ export class StdioCadServerTransport {
                 id: message.id
             });
         } else {
-            // notification from client, just forward to the server
-            if (message.method === 'ExecuteCommand') {
-                // currently the UI doesn't send these commands; they're all handled server-side
-                switch (message.params.command) {
-                    case 'File.Open':
-                        // swallow because we don't allow this?
-                        return;
-                    case 'File.Save':
-                        // TODO: intercept this and reinterpret
-                        return;
-                    case 'File.SaveAs':
-                        // TODO: how to properly switch files?
-                        return;
-                    default:
-                        break;
-                }
-            }
-
             this.connection.sendNotification(message.method, message.params);
         }
     }
 
-    // parseFile(fileContents: string) {
-    //     this.connection.sendNotification('ParseFile', { filePath: this.uri.fsPath, data: fileContents });
-    // }
+    parseFile(filePath: string, data: string) {
+        this.connection.sendNotification('ParseFile', { filePath, data });
+    }
 
-    // async getDrawingContents(uri: vscode.Uri, preserveSettings: boolean): Promise<string | null> {
-    //     const filePath = uri.fsPath;
-    //     const fileContents = await this.connection.sendRequest<string | null>('GetDrawingContents', { filePath, preserveSettings });
-    //     return fileContents;
-    // }
+    async getDrawingContents(filePath: string, preserveSettings: boolean): Promise<string | null> {
+        const fileContents = await this.connection.sendRequest<string | null>('GetDrawingContents', { filePath, preserveSettings });
+        return fileContents;
+    }
 
     dispose() {
         this.childProcess.kill();
