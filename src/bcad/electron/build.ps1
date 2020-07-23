@@ -28,7 +28,7 @@ try {
     New-Item -ItemType Directory -Path "$repoRoot/artifacts/publish" -Force
     $suffix = ""
     if ($configuration -eq "Debug") { $suffix = "-debug" }
-    $os = if ($IsWindows) { "win32" } else { "linux" }
+    $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "darwin" } elseif ($IsWindows) { "win32" }
     $filename = "bcad-$os-x64$suffix-$version.zip"
 
     # report final artifact names for GitHub Actions

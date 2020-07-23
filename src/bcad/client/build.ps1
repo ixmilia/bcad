@@ -14,7 +14,7 @@ try {
 
     $htmlContent = Get-Content -Path "index.html" -Raw
     $cssContent = Get-Content -Path "style.css" -Raw
-    $jsContent = Get-Content -Path "out\bcad-client.js" -Raw
+    $jsContent = Get-Content -Path "out/bcad-client.js" -Raw
 
     $htmlContent = $htmlContent.Replace("/*STYLE-CONTENT*/", $cssContent)
     $htmlContent = $htmlContent.Replace("/*JS-CONTENT*/", $jsContent)
