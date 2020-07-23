@@ -16,7 +16,7 @@ enum HostType {
 
 function getHostType(): HostType | undefined {
     // @ts-ignore
-    if (typeof window.external?.invoke === 'function') {
+    if (typeof invoke === 'function') {
         return HostType.WebView;
     }
 
@@ -43,7 +43,7 @@ function getPostMessage(hostType: HostType): ((message: any) => void) {
             return acquireVsCodeApi().postMessage;
         case HostType.WebView:
             // @ts-ignore
-            return message => window.external.invoke(JSON.stringify(message));
+            return message => invoke(message);
     }
 }
 
@@ -60,7 +60,9 @@ function bindServerMessage(hostType: HostType, callback: (message: any) => void)
             });
             break;
         case HostType.WebView:
-            // TODO:
+            window.addEventListener('message', function (message: any) {
+                callback(message.detail);
+            });
             break;
     }
 }
