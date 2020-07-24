@@ -28,4 +28,4 @@ npm start
 
 Final app is placed in `artifacts/pack/bcad-[(linux|darwin|win32)]-x64`.
 
-See [README.md](src/bcad/README.md) in `src/bcad/electron` for details on building/running via WSL that I needed on my local box.
+See [README.md](src/bcad/electron/README.md) in `src/bcad/electron` for details on building/running via WSL that I needed on my local box.
