@@ -29,13 +29,18 @@ try {
     $suffix = ""
     if ($configuration -eq "Debug") { $suffix = "-debug" }
     $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "darwin" } elseif ($IsWindows) { "win32" }
-    $filename = "bcad-$os-x64$suffix-$version.zip"
+    $extension = if ($IsWindows) { "zip" } else { "tar.gz" }
+    $filename = "bcad-$os-x64$suffix-$version.$extension"
 
     # report final artifact names for GitHub Actions
     Write-Host "::set-env name=electron_artifact_file_name::$filename"
 
     # and finally compress
-    Compress-Archive -Path "$repoRoot/artifacts/pack/bcad-$os-x64/" -DestinationPath "$repoRoot/artifacts/publish/$filename" -Force
+    if ($IsWindows) {
+        Compress-Archive -Path "$repoRoot/artifacts/pack/bcad-$os-x64/" -DestinationPath "$repoRoot/artifacts/publish/$filename" -Force
+    } else {
+        tar -zcf "$repoRoot/artifacts/publish/$filename" -C "$repoRoot/artifacts/pack/" bcad-$os-x64
+    }
 }
 catch {
     Write-Host $_
