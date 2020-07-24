@@ -21,8 +21,9 @@ jobs:
       shell: pwsh
       run: ./build-and-test.ps1 -configuration ${{ matrix.configuration }}
 
-    # save electron app
+    # save electron app on Release
     - uses: actions/upload-artifact@v2
+      if: matrix.configuration == 'Release'
       with:
         name: ${{ env.electron_artifact_file_name }}
         path: artifacts/publish/${{ env.electron_artifact_file_name }}
