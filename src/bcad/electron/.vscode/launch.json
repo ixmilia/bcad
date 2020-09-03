@@ -5,16 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Main",
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}\\out\\main.js",
-            "preLaunchTask": "tsc: build - tsconfig.json",
+            "preLaunchTask": "npm: build",
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
+            "program": "${workspaceFolder}/src/main.ts",
+            "protocol": "inspector",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
+            ],
+            "runtimeArgs": [
+                "./out/main.js",
+                "--",
+                "debug",
+                "local"
             ]
         }
     ]
