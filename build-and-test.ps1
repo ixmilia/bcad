@@ -14,7 +14,7 @@ try {
 
     # IxMilia.Dxf needs a custom invocation
     $shellExt = if ($IsWindows) { "cmd" } else { "sh" }
-    & "$PSScriptRoot/src/IxMilia.Dxf/build-and-test.$shellExt" --configuration $configuration --notest --portable
+    & "$PSScriptRoot/src/IxMilia.Dxf/build-and-test.$shellExt" --configuration $configuration --notest
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # restore and build this repo
