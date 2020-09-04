@@ -7,43 +7,47 @@ export class CadMenu {
 
     constructor (private mainWindow: BrowserWindow, private transport: StdioCadServerTransport) {
         this.buildMenu();
-        this.registerKeyboardShortcuts();
         this.transport.subscribeToClientUpdates(clientUpdate => this.updateTitle(clientUpdate.IsDirty));
-
         this.updateTitle(false);
     }
 
     private buildMenu() {
         const template: MenuItemConstructorOptions[] = [
             {
-                label: 'File',
                 role: 'fileMenu',
                 submenu: [
                     {
                         label: 'Open',
+                        accelerator: 'CommandOrControl+O',
                         click: () => this.openClick()
                     },
                     {
                         label: 'Save',
+                        accelerator: 'CommandOrControl+S',
                         click: () => this.saveClick()
                     },
                     {
                         label: 'Save As',
+                        accelerator: 'CommandOrControl+Shift+S',
                         click: () => this.saveAsClick()
                     },
-                    { role: 'quit' }
+                    {
+                        role: 'quit',
+                        accelerator: 'Alt+F4'
+                    }
                 ]
             },
             {
-                label: 'Edit',
                 role: 'editMenu',
                 submenu: [
                     {
-                        role: 'undo',
+                        label: 'Undo',
+                        accelerator: 'CommandOrControl+Z',
                         click: () => this.transport.undo()
                     },
                     {
-                        role: 'redo',
+                        label: 'Redo',
+                        accelerator: 'CommandOrControl+Y',
                         click: () => this.transport.redo()
                     }
                 ]
@@ -51,12 +55,6 @@ export class CadMenu {
         ];
         const menu = Menu.buildFromTemplate(template);
         this.mainWindow.setMenu(menu);
-    }
-
-    private registerKeyboardShortcuts() {
-        globalShortcut.register('CommandOrControl+O', () => this.openClick());
-        globalShortcut.register('CommandOrControl+S', () => this.saveClick());
-        globalShortcut.register('CommandOrControl+Shift+S', () => this.saveAsClick());
     }
 
     private async openClick() {
