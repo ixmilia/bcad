@@ -37,7 +37,7 @@
   "license": "MIT",
   "devDependencies": {
     "copyfiles": "^2.3.0",
-    "electron": "8.2.4",
+    "electron": "8.5.1",
     "electron-packager": "^15.1.0",
     "icon-gen": "2.0.0",
     "run-script-os": "1.1.1",
