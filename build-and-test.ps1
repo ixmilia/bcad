@@ -9,6 +9,13 @@ param (
 Set-StrictMode -version 2.0
 $ErrorActionPreference = "Stop"
 
+function Set-EnvironmentVariable([string]$name, [string]$value) {
+    Write-Host "setting $name=$value"
+    if (Test-Path env:GITHUB_ENV) {
+        Write-Output "$name=$value" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    }
+}
+
 try {
     $version = Get-Content -Path "$PSScriptRoot/version.txt"
 
@@ -60,8 +67,8 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # report final artifact names for GitHub Actions
-    Write-Host "::set-env name=global_tool_artifact_file_name::IxMilia.BCad.Server.$version.nupkg"
-    Write-Host "::set-env name=vscode_artifact_file_name::bcad-$version.vsix"
+    Set-EnvironmentVariable "global_tool_artifact_file_name" "IxMilia.BCad.Server.$version.nupkg"
+    Set-EnvironmentVariable "vscode_artifact_file_name" "bcad-$version.vsix"
 }
 catch {
     Write-Host $_

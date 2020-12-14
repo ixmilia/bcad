@@ -9,6 +9,13 @@ param (
 Set-StrictMode -version 2.0
 $ErrorActionPreference = "Stop"
 
+function Set-EnvironmentVariable([string]$name, [string]$value) {
+    Write-Host "setting $name=$value"
+    if (Test-Path env:GITHUB_ENV) {
+        Write-Output "$name=$value" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    }
+}
+
 try {
     Push-Location $PSScriptRoot
 
@@ -33,7 +40,7 @@ try {
     $filename = "bcad-$os-x64$suffix-$version.$extension"
 
     # report final artifact names for GitHub Actions
-    Write-Host "::set-env name=electron_artifact_file_name::$filename"
+    Set-EnvironmentVariable "electron_artifact_file_name" $filename
 
     # and finally compress
     if ($IsWindows) {
