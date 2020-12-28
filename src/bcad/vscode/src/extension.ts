@@ -7,7 +7,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // get .NET runtime
     const config = vscode.workspace.getConfiguration('ixmilia-bcad');
     const minimumRuntimeVersion = config.get<string>('minimumRuntimeVersion');
-    const commandResult = await vscode.commands.executeCommand<{ dotnetPath: string }>('dotnet.acquire', { version: minimumRuntimeVersion });
+    const commandResult = await vscode.commands.executeCommand<{ dotnetPath: string }>('dotnet.acquire', { version: minimumRuntimeVersion, requestingExtensionId: 'ixmilia.bcad' });
     const dotnetPath = commandResult!.dotnetPath;
 
     // get server
