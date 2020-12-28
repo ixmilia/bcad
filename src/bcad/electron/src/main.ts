@@ -33,7 +33,7 @@ function createWindow() {
     new CadMenu(mainWindow, stdioTransport);
 
     // and load the index.html of the app.
-    const htmlPath = path.join(__dirname, "index.html");
+    const htmlPath = path.join(__dirname, "client", "index.html");
     // const htmlContent = fs.readFileSync(htmlPath).toString('utf-8');
     // const uriContent = `data:text/html;base64,${Buffer.from(htmlContent).toString('base64')}`;
     // mainWindow.loadURL(uriContent);

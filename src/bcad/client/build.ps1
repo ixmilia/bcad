@@ -16,10 +16,21 @@ try {
     $cssContent = Get-Content -Path "style.css" -Raw
     $jsContent = Get-Content -Path "out/bcad-client.js" -Raw
 
-    $htmlContent = $htmlContent.Replace("/*STYLE-CONTENT*/", $cssContent)
-    $htmlContent = $htmlContent.Replace("/*JS-CONTENT*/", $jsContent)
+    # create packed file
+    $packedContent = $htmlContent
+    $packedContent = $packedContent.Replace("<!--STYLE-CONTENT-->", "<style>$cssContent</style>")
+    $packedContent = $packedContent.Replace("<!--JS-CONTENT-->", "<script type=""text/javascript"">$jsContent</script>")
 
-    $htmlContent | Out-File -FilePath "out/index.html"
+    if (!(Test-Path "out/pack" -PathType Container)) {
+        New-Item -ItemType Directory -Force -Path "out/pack"
+    }
+    $packedContent | Out-File -FilePath "out/pack/index.html"
+
+    # create relative file
+    $relativeContent = $htmlContent
+    $relativeContent = $relativeContent.Replace("<!--STYLE-CONTENT-->", "<link rel=""stylesheet"" href=""style.css"" />")
+    $relativeContent = $relativeContent.Replace("<!--JS-CONTENT-->", "<script type=""text/javascript"">var exports = {};</script><script type=""text/javascript"" src=""main.js""></script>")
+    $relativeContent | Out-File -FilePath "out/index.html"
 }
 catch {
     Write-Host $_

@@ -11,7 +11,7 @@
     "build-all": "npm run build && npm run build-assets",
     "build-assets": "npm run build-icons && npm run build-server",
     "build-client": "pwsh ../client/build.ps1",
-    "build-copy-client": "npx copyfiles --error --verbose --flat ../client/out/index.html out",
+    "build-copy-client": "pwsh ./copy-client.ps1",
     "build-icons": "icon-gen -i ./bcad.svg -o ./out --ico name=bcad sizes=32",
     "build-server": "run-script-os",
     "build-server:darwin:linux": "pwsh ./build-server.ps1 -configuration $npm_package_config_configuration",
@@ -36,7 +36,6 @@
   "author": "IxMilia",
   "license": "MIT",
   "devDependencies": {
-    "copyfiles": "^2.3.0",
     "electron": "8.5.2",
     "electron-packager": "^15.1.0",
     "icon-gen": "2.0.0",
