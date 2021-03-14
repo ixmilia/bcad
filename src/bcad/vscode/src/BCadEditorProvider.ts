@@ -113,7 +113,7 @@ export class BCadEditorProvider implements vscode.CustomEditorProvider {
     }
 
     private async getHtml(): Promise<string> {
-        const htmlContent = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(path.join(this.context.extensionPath, 'media', 'index.html')))).toString('utf-8');
+        const htmlContent = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(path.join(this.context.extensionPath, 'media', 'index-full.html')))).toString('utf-8');
         return htmlContent;
     }
 }

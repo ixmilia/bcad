@@ -7,6 +7,7 @@ import { ViewControl } from "./viewControl";
 import { DialogHandler } from "./dialogs/dialogHandler";
 import { LayerDialog } from "./dialogs/layerDialog";
 import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
+import { Arguments } from "./args";
 
 enum HostType {
     Electron = 1,
@@ -67,10 +68,16 @@ function bindServerMessage(hostType: HostType, callback: (message: any) => void)
     }
 }
 
-try {
+export async function start(argArray: string[]): Promise<void> {
+    const args = new Arguments(argArray);
+
     const hostType = getHostType();
     if (!hostType) {
         throw new Error('Unable to determine client communication');
+    }
+
+    if (args.isDebug) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
     }
 
     let postMessage = getPostMessage(hostType);
@@ -86,12 +93,4 @@ try {
     let dialogHandler = new DialogHandler(client);
     new FileSettingsDialog(dialogHandler);
     new LayerDialog(dialogHandler);
-} catch (err) {
-    const errorMessage = `error: ${err}`;
-    console.error(errorMessage);
-    let output = <HTMLTextAreaElement>document.getElementById("outputConsole");
-    if (output.value.length > 0) {
-        output.value += '\n';
-    }
-    output.value += errorMessage;
 }

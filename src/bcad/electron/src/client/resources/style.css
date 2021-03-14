@@ -3,6 +3,7 @@ html {
 }
 
 body {
+    background-color: white;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -36,7 +37,7 @@ body {
 }
 
 #ribbon {
-    background-color: black;
+    background-color: white;
     border-bottom: 1px gray;
     height: 100px;
 }

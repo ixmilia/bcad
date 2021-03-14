@@ -7,22 +7,20 @@
     "configuration": "Debug"
   },
   "scripts": {
-    "build": "tsc && npm run build-client && npm run build-copy-client",
-    "build-all": "npm run build && npm run build-assets",
+    "compile": "tsc -p ./",
+    "build-all": "npm run compile && npm run build-assets",
     "build-assets": "npm run build-icons && npm run build-server",
-    "build-client": "pwsh ../client/build.ps1",
-    "build-copy-client": "pwsh ./copy-client.ps1",
     "build-icons": "icon-gen -i ./bcad.svg -o ./out --ico name=bcad sizes=32",
     "build-server": "run-script-os",
     "build-server:darwin:linux": "pwsh ./build-server.ps1 -configuration $npm_package_config_configuration",
     "build-server:win32": "pwsh ./build-server.ps1 -configuration %npm_package_config_configuration%",
-    "watch": "tsc -w",
+    "watch": "tsc -watch -p ./",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "pack-all": "run-script-os",
     "pack-all:darwin:linux": "pwsh ./pack-all.ps1 -configuration $npm_package_config_configuration",
     "pack-all:win32": "pwsh ./pack-all.ps1 -configuration %npm_package_config_configuration%",
     "pack": "npm run build-all && npm run pack-all",
-    "start": "npm run build && electron ./out/main.js -- debug local"
+    "start": "npm run compile && electron ./out/main.js -- debug local"
   },
   "repository": "https://github.com/ixmilia/bcad",
   "keywords": [
@@ -36,14 +34,15 @@
   "author": "IxMilia",
   "license": "MIT",
   "devDependencies": {
-    "electron": "9.4.0",
-    "electron-packager": "^15.1.0",
+    "electron": "12.0.1",
+    "electron-packager": "^15.2.0",
     "icon-gen": "2.0.0",
     "run-script-os": "1.1.1",
     "tslint": "6.1.1",
-    "typescript": "3.8.3"
+    "typescript": "4.2.3"
   },
   "dependencies": {
+    "electron-is-dev": "^2.0.0",
     "resize-observer": "^1.0.0",
     "vscode-jsonrpc": "5.0.1"
   }

@@ -3,16 +3,16 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as path from 'path';
 import * as rpc from 'vscode-jsonrpc';
-import { ClientUpdate } from './contracts.generated';
+import { ClientUpdate } from './client/contracts.generated';
 
 export class StdioCadServerTransport {
     private childProcess: cp.ChildProcessWithoutNullStreams;
-    private clientUpdateSubscriptions: Array<{(clientUpdate: ClientUpdate): void}> = [];
+    private clientUpdateSubscriptions: Array<{ (clientUpdate: ClientUpdate): void }> = [];
     private connection: rpc.MessageConnection;
     private nextId: number = 1;
-    private postMessage: {(message: any): void } = _ => {};
+    private postMessage: { (message: any): void } = _ => { };
     private onReadyCallbacks: Array<{ (): void }> = [];
-    private replyHandlers: Map<number, {(payload: any): void}> = new Map<number, {(payload: any): void}>();
+    private replyHandlers: Map<number, { (payload: any): void }> = new Map<number, { (payload: any): void }>();
 
     constructor(readonly uri: vscode.Uri, dotnetPath: string, serverPath: string) {
         const serverAssembly = path.join(serverPath, 'IxMilia.BCad.Server.dll');
@@ -78,7 +78,7 @@ export class StdioCadServerTransport {
         this.onReadyCallbacks.push(onReady);
     }
 
-    subscribeToClientUpdates(subscription: {(clientUpdate: ClientUpdate): void}) {
+    subscribeToClientUpdates(subscription: { (clientUpdate: ClientUpdate): void }) {
         this.clientUpdateSubscriptions.push(subscription);
     }
 

@@ -3,17 +3,17 @@ import * as os from 'os';
 import * as path from 'path';
 import * as rpc from 'vscode-jsonrpc';
 import { BrowserWindow, ipcMain } from 'electron';
-import { Arguments } from './args';
-import { ClientUpdate } from './contracts.generated';
+import { Arguments } from './client/args';
+import { ClientUpdate } from './client/contracts.generated';
 
 export class StdioCadServerTransport {
     private childProcess: cp.ChildProcessWithoutNullStreams;
-    private clientUpdateSubscriptions: Array<{(clientUpdate: ClientUpdate): void}> = [];
+    private clientUpdateSubscriptions: Array<{ (clientUpdate: ClientUpdate): void }> = [];
     private connection: rpc.MessageConnection;
     private nextId: number = 1;
-    private postMessage: {(message: any): void } = _ => {};
+    private postMessage: { (message: any): void } = _ => { };
     private onReadyCallbacks: Array<{ (): void }> = [];
-    private replyHandlers: Map<number, {(payload: any): void}> = new Map<number, {(payload: any): void}>();
+    private replyHandlers: Map<number, { (payload: any): void }> = new Map<number, { (payload: any): void }>();
 
     constructor(args: Arguments) {
         const serverAssembly = os.platform() == "win32"
@@ -86,7 +86,7 @@ export class StdioCadServerTransport {
         this.onReadyCallbacks.push(onReady);
     }
 
-    subscribeToClientUpdates(subscription: {(clientUpdate: ClientUpdate): void}) {
+    subscribeToClientUpdates(subscription: { (clientUpdate: ClientUpdate): void }) {
         this.clientUpdateSubscriptions.push(subscription);
     }
 

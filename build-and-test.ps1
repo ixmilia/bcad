@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh
 
-[CmdletBinding(PositionalBinding=$false)]
+[CmdletBinding(PositionalBinding = $false)]
 param (
     [string]$configuration = "Debug",
     [switch]$noTest
@@ -35,16 +35,14 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # tests
-    if ($noTest) {
+    if (-Not $noTest) {
         dotnet test --no-restore --no-build -c $configuration
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
 
     # build client contracts file
     $contractsFiles = @(
-        "$PSScriptRoot/src/bcad/client/src/contracts.generated.ts",
-        "$PSScriptRoot/src/bcad/electron/src/contracts.generated.ts",
-        "$PSScriptRoot/src/bcad/vscode/src/contracts.generated.ts"
+        "$PSScriptRoot/src/bcad/electron/src/client/contracts.generated.ts"
     )
     $runArgs = @()
     foreach ($contractFile in $contractsFiles) {
@@ -52,10 +50,6 @@ try {
         $runArgs += $contractFile
     }
     dotnet run -p "$PSScriptRoot/src/IxMilia.BCad.Server/IxMilia.BCad.Server.csproj" -- $runArgs
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-    # build client
-    . $PSScriptRoot/src/bcad/client/build.ps1
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build electron

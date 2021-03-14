@@ -5,15 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Main",
+            "name": "Electron: Main",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "npm: build",
+            "preLaunchTask": "npm: compile",
             "cwd": "${workspaceRoot}",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
+            "args": [
+                "."
+            ],
+            "outputCapture": "std",
             "program": "${workspaceFolder}/src/main.ts",
             "protocol": "inspector",
             "outFiles": [
@@ -21,9 +25,27 @@
             ],
             "runtimeArgs": [
                 "./out/main.js",
+                "--remote-debugging-port=9223",
                 "--",
                 "debug",
                 "local"
+            ]
+        },
+        {
+            "name": "Electron: Renderer",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9223,
+            "webRoot": "${workspaceFolder}",
+            "timeout": 30000
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Electron: All",
+            "configurations": [
+                "Electron: Main",
+                "Electron: Renderer"
             ]
         }
     ]

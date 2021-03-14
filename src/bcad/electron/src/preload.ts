@@ -11,6 +11,17 @@ window.addEventListener("DOMContentLoaded", () => {
     for (const type of ["chrome", "node", "electron"]) {
         replaceText(`${type}-version`, (process.versions as any)[type]);
     }
+
+    const client = require('./client/main.js');
+    client.start(process.argv).catch((err: any) => {
+        const errorMessage = `error: ${err}`;
+        console.error(errorMessage);
+        let output = <HTMLTextAreaElement>document.getElementById("outputConsole");
+        if (output.value.length > 0) {
+            output.value += '\n';
+        }
+        output.value += errorMessage;
+    });;
 });
 
 // @ts-ignore

@@ -1,7 +1,7 @@
 import * as path from 'path';
 
 import { app, BrowserWindow } from "electron";
-import { Arguments } from './args';
+import { Arguments } from './client/args';
 import { StdioCadServerTransport } from "./StdioCadServerTransport";
 import { CadMenu } from './CadMenu';
 
@@ -21,7 +21,7 @@ function createWindow() {
         height: height,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
-            nodeIntegration: true,
+            additionalArguments: args.getArgList(),
         },
     });
 
@@ -33,14 +33,14 @@ function createWindow() {
     new CadMenu(mainWindow, stdioTransport);
 
     // and load the index.html of the app.
-    const htmlPath = path.join(__dirname, "client", "index.html");
+    const htmlPath = path.join(__dirname, "..", "src", "client", "resources", "index.html");
     // const htmlContent = fs.readFileSync(htmlPath).toString('utf-8');
     // const uriContent = `data:text/html;base64,${Buffer.from(htmlContent).toString('base64')}`;
     // mainWindow.loadURL(uriContent);
     mainWindow.loadFile(htmlPath);
 
     // Open the DevTools.
-    if (args.isDebug) {
+    if (args.isDevTools) {
         mainWindow.webContents.openDevTools();
     }
 

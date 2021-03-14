@@ -3,7 +3,7 @@
         "module": "commonjs",
         "target": "ES2019",
         "outDir": "out",
-        "sourceMap": true,
+        "inlineSourceMap": true,
         "rootDir": "src",
         "strict": true
     },
