@@ -248,6 +248,14 @@ namespace IxMilia.BCad.Services
             return result;
         }
 
+        public async Task<ValueOrDirective<bool>> GetNone()
+        {
+            OnValueRequested(new ValueRequestedEventArgs(InputType.None));
+            await WaitFor(InputType.None, new UserDirective("Pan"), null);
+            ResetWaiters();
+            return ValueOrDirective<bool>.GetValue(false);
+        }
+
         private Task WaitFor(InputType type, UserDirective directive, RubberBandGenerator onCursorMove)
         {
             pushValueDone = new TaskCompletionSource<bool>();

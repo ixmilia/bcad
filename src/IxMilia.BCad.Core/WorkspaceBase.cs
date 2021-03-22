@@ -297,7 +297,7 @@ namespace IxMilia.BCad
         private string lastCommand = null;
         private object executeGate = new object();
 
-        protected virtual Tuple<ICadCommand, string> GetCommand(string commandName)
+        public virtual Tuple<ICadCommand, string> GetCommand(string commandName)
         {
             var candidateCommands =
                 from c in Commands

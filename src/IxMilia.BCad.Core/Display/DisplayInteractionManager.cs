@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using IxMilia.BCad.Collections;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Extensions;
@@ -39,6 +40,7 @@ namespace IxMilia.BCad.Display
         private object lastDrawnSnapPointIdGate = new object();
         private bool lastRubberBandUpdateHadContent;
         private RubberBandGenerator rubberBandGenerator;
+        private PanCommand panCommand;
 
         public ProjectionStyle UIProjectionStyle { get; set; }
         public double Width { get; private set; }
@@ -57,6 +59,7 @@ namespace IxMilia.BCad.Display
             _workspace = workspace;
             UIProjectionStyle = uiProjectionStyle;
             rubberBandGenerator = _workspace.RubberBandGenerator;
+            panCommand = (PanCommand)_workspace.GetCommand("View.Pan").Item1;
 
             _workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
             _workspace.CommandExecuted += Workspace_CommandExecuted;
@@ -223,7 +226,12 @@ namespace IxMilia.BCad.Display
 
             if (button == MouseButton.Left)
             {
-                if ((_workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
+                if (panCommand.IsPanning == true)
+                {
+                    panning = true;
+                    lastPanPoint = position;
+                }
+                else if ((_workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point)
                 {
                     _workspace.InputService.PushPoint(sp.WorldPoint);
                 }
@@ -332,7 +340,8 @@ namespace IxMilia.BCad.Display
 
         public void MouseUp(Point position, MouseButton button)
         {
-            if (button == MouseButton.Middle)
+            if ((button == MouseButton.Left && panCommand.IsPanning) ||
+                button == MouseButton.Middle)
             {
                 panning = false;
             }
@@ -465,6 +474,10 @@ namespace IxMilia.BCad.Display
                 if ((_workspace.InputService.AllowedInputTypes & InputType.Text) == InputType.Text)
                 {
                     state |= CursorState.Text;
+                }
+                if (panCommand.IsPanning)
+                {
+                    state |= CursorState.Pan;
                 }
             }
 

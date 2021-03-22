@@ -30,6 +30,7 @@ namespace IxMilia.BCad.Services
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, EntityKind entityKinds = EntityKind.All, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<string>> GetText(string prompt = null);
+        Task<ValueOrDirective<bool>> GetNone();
 
         void Cancel();
         void PushNone();

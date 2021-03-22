@@ -50,7 +50,7 @@ export class ViewControl {
     private client: Client;
     private entityDrawing: Drawing;
     private rubberBandDrawing: Drawing;
-    private cursorPosition: {x: number, y: number};
+    private cursorPosition: { x: number, y: number };
     private cursorState: CursorState;
     private selectionState?: SelectionState;
     private snapPointKind: SnapPointKind;
@@ -67,7 +67,7 @@ export class ViewControl {
         this.outputPane = <HTMLDivElement>document.getElementById('output-pane');
 
         // CAD
-        this.cursorPosition = {x: 0, y: 0};
+        this.cursorPosition = { x: 0, y: 0 };
         this.cursorState = CursorState.Object | CursorState.Point;
         this.selectionState = undefined;
         this.snapPointKind = SnapPointKind.None;
@@ -123,15 +123,15 @@ export class ViewControl {
             DisplayYTransform: 1.0,
         };
         this.settings = {
-            AutoColor: {A: 255, R: 255, G: 255, B: 255},
-            BackgroundColor: {A: 255, R: 255, G: 255, B: 255},
+            AutoColor: { A: 255, R: 255, G: 255, B: 255 },
+            BackgroundColor: { A: 255, R: 255, G: 255, B: 255 },
             CursorSize: 60,
             Debug: false,
             EntitySelectionRadius: 3,
-            HotPointColor: {A: 255, R: 0, G: 0, B: 255},
+            HotPointColor: { A: 255, R: 0, G: 0, B: 255 },
             HotPointSize: 10,
             SnapAngles: [0, 90, 180, 270],
-            SnapPointColor: {A: 255, R: 255, G: 255, B: 0},
+            SnapPointColor: { A: 255, R: 255, G: 255, B: 0 },
             SnapPointSize: 15,
             PointDisplaySize: 48,
             TextCursorSize: 18,
@@ -290,6 +290,34 @@ export class ViewControl {
             this.twod.lineTo(x - this.settings.EntitySelectionRadius, y - this.settings.EntitySelectionRadius);
         }
 
+        // pan cursor
+        if (this.cursorState & CursorState.Pan) {
+            // slightly smaller point cursor
+            const armLength = this.settings.CursorSize / 4;
+            this.twod.moveTo(x - armLength, y);
+            this.twod.lineTo(x + armLength, y);
+            this.twod.moveTo(x, y - armLength);
+            this.twod.lineTo(x, y + armLength);
+
+            // arrowheads
+            const arrowHeadSize = this.settings.CursorSize / 16;
+            this.twod.moveTo(x - armLength + arrowHeadSize, y + arrowHeadSize);
+            this.twod.lineTo(x - armLength, y);
+            this.twod.lineTo(x - armLength + arrowHeadSize, y - arrowHeadSize);
+
+            this.twod.moveTo(x + armLength - arrowHeadSize, y + arrowHeadSize);
+            this.twod.lineTo(x + armLength, y);
+            this.twod.lineTo(x + armLength - arrowHeadSize, y - arrowHeadSize);
+
+            this.twod.moveTo(x - arrowHeadSize, y + armLength - arrowHeadSize);
+            this.twod.lineTo(x, y + armLength);
+            this.twod.lineTo(x + arrowHeadSize, y + armLength - arrowHeadSize);
+
+            this.twod.moveTo(x - arrowHeadSize, y - armLength + arrowHeadSize);
+            this.twod.lineTo(x, y - armLength);
+            this.twod.lineTo(x + arrowHeadSize, y - armLength + arrowHeadSize);
+        }
+
         this.twod.stroke();
 
         // snap points
@@ -401,7 +429,7 @@ export class ViewControl {
             this.client.mouseUp(ViewControl.getMouseButton(ev.button)!, ev.offsetX, ev.offsetY);
         });
         this.outputPane.addEventListener('mousemove', async (ev) => {
-            this.cursorPosition = {x: ev.offsetX, y: ev.offsetY};
+            this.cursorPosition = { x: ev.offsetX, y: ev.offsetY };
             this.drawCursor();
             this.client.mouseMove(ev.offsetX, ev.offsetY);
         });
@@ -420,10 +448,10 @@ export class ViewControl {
 
         // pan/zoom
         let elements = [
-            {id: "panLeftButton", dxm: -1, dym: 0},
-            {id: "panRightButton", dxm: 1, dym: 0},
-            {id: "panUpButton", dxm: 0, dym: -1},
-            {id: "panDownButton", dxm: 0, dym: 1}
+            { id: "panLeftButton", dxm: -1, dym: 0 },
+            { id: "panRightButton", dxm: 1, dym: 0 },
+            { id: "panUpButton", dxm: 0, dym: -1 },
+            { id: "panDownButton", dxm: 0, dym: 1 }
         ];
         for (let i = 0; i < elements.length; i++) {
             let element = elements[i];

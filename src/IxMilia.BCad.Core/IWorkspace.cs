@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Primitives;
@@ -61,6 +62,7 @@ namespace IxMilia.BCad
         Task Initialize(params string[] args);
         Task<bool> ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
+        Tuple<ICadCommand, string> GetCommand(string commandName);
         bool CanExecute();
         event CommandExecutingEventHandler CommandExecuting;
         event CommandExecutedEventHandler CommandExecuted;
