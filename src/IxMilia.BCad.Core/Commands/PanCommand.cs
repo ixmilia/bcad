@@ -2,7 +2,6 @@
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("View.Pan", "PAN")]
     public class PanCommand : ICadCommand
     {
         public bool IsPanning { get; private set; }

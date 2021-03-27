@@ -4,7 +4,6 @@ using IxMilia.BCad.Utilities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.Trim", "TRIM", "trim", "tr")]
     public class TrimCommand : AbstractTrimExtendCommand
     {
         protected override string GetBoundsText()

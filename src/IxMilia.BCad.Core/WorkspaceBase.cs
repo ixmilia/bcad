@@ -25,6 +25,42 @@ namespace IxMilia.BCad
             SelectedEntities = new ObservableHashSet<Entity>();
             ViewControl = null;
             RubberBandGenerator = null;
+
+            RegisterDefaultCommands();
+        }
+
+        private void RegisterDefaultCommands()
+        {
+            RegisterCommand(new CadCommandInfo("Edit.Copy", "COPY", new CopyCommand(), ModifierKeys.Control, Key.C, "copy", "co"));
+            RegisterCommand(new CadCommandInfo("Debug.Dump", "DUMP", new DebugDumpCommand(), "dump"));
+            RegisterCommand(new CadCommandInfo("Debug.Attach", "ATTACH", new DebuggerAttachCommand(), "attach"));
+            RegisterCommand(new CadCommandInfo("Edit.Delete", "DELETE", new DeleteCommand(), ModifierKeys.None, Key.Delete, "delete", "d", "del"));
+            RegisterCommand(new CadCommandInfo("View.Distance", "DIST", new DistanceCommand(), "distance", "di", "dist"));
+            RegisterCommand(new CadCommandInfo("Draw.Arc", "ARC", new DrawArcCommand(), "arc", "a"));
+            RegisterCommand(new CadCommandInfo("Draw.Circle", "CIRCLE", new DrawCircleCommand(), "circle", "c", "cir"));
+            RegisterCommand(new CadCommandInfo("Draw.Ellipse", "ELLIPSE", new DrawEllipseCommand(), "ellipse", "el"));
+            RegisterCommand(new CadCommandInfo("Draw.Line", "LINE", new DrawLineCommand(), "line", "l"));
+            RegisterCommand(new CadCommandInfo("Draw.Point", "POINT", new DrawPointCommand(), "point", "p"));
+            RegisterCommand(new CadCommandInfo("Draw.Polygon", "POLYGON", new DrawPolygonCommand(), "polygon", "pg"));
+            RegisterCommand(new CadCommandInfo("Draw.PolyLine", "POLYLINE", new DrawPolyLineCommand(), "polyline", "pl"));
+            RegisterCommand(new CadCommandInfo("Draw.Rectangle", "RECTANGLE", new DrawRectangleCommand(), "rectangle", "rect"));
+            RegisterCommand(new CadCommandInfo("Draw.Text", "TEXT", new DrawTextCommand(), "text", "t"));
+            RegisterCommand(new CadCommandInfo("View.Properties", "PROPERTIES", new EntityPropertiesCommand(), "properties", "prop", "p"));
+            RegisterCommand(new CadCommandInfo("Edit.Extend", "EXTEND", new ExtendCommand(), "extend", "ex"));
+            RegisterCommand(new CadCommandInfo("Edit.Intersection", "INTERSECTION", new IntersectionCommand(), "intersection", "int"));
+            RegisterCommand(new CadCommandInfo("Edit.JoinPolyline", "PJOIN", new JoinPolylineCommand(), "pjoin"));
+            RegisterCommand(new CadCommandInfo("Edit.Layers", "LAYERS", new LayersCommand(), ModifierKeys.Control, Key.L, "layers", "layer", "la"));
+            RegisterCommand(new CadCommandInfo("Edit.Move", "MOVE", new MoveCommand(), "move", "mov", "m"));
+            RegisterCommand(new CadCommandInfo("File.New", "NEW", new NewCommand(), ModifierKeys.Control, Key.N, "new", "n"));
+            RegisterCommand(new CadCommandInfo("Edit.Offset", "OFFSET", new OffsetCommand(), "offset", "off", "of"));
+            RegisterCommand(new CadCommandInfo("View.Pan", "PAN", new PanCommand(), "pan", "p"));
+            RegisterCommand(new CadCommandInfo("File.Plot", "PLOT", new PlotCommand(), ModifierKeys.Control, Key.P, "plot"));
+            RegisterCommand(new CadCommandInfo("Edit.Rotate", "ROTATE", new RotateCommand(), "rotate", "rot", "ro"));
+            RegisterCommand(new CadCommandInfo("Edit.Subtract", "SUBTRACT", new SubtractCommand(), "subtract", "sub"));
+            RegisterCommand(new CadCommandInfo("Edit.Trim", "TRIM", new TrimCommand(), "trim", "tr"));
+            RegisterCommand(new CadCommandInfo("Edit.Union", "UNION", new UnionCommand(), "union", "un"));
+            RegisterCommand(new CadCommandInfo("Zoom.Extents", "ZOOMEXTENTS",new ZoomExtentsCommand(), "zoomextents", "ze"));
+            RegisterCommand(new CadCommandInfo("Zoom.Window", "ZOOMWINDOW", new ZoomWindowCommand(), "zoomwindow", "zw"));
         }
 
         #region Events
@@ -95,8 +131,7 @@ namespace IxMilia.BCad
         [ImportMany]
         public IEnumerable<IWorkspaceService> Services { get; set; }
 
-        [ImportMany]
-        public IEnumerable<Lazy<ICadCommand, CadCommandMetadata>> Commands { get; set; }
+        private List<CadCommandInfo> _commands = new List<CadCommandInfo>();
 
         #endregion
 
@@ -240,6 +275,11 @@ namespace IxMilia.BCad
             return result;
         }
 
+        public void RegisterCommand(CadCommandInfo commandInfo)
+        {
+            _commands.Add(commandInfo);
+        }
+
         public async Task<bool> ExecuteCommand(string commandName, object arg)
         {
             if (commandName == null && lastCommand == null)
@@ -300,18 +340,17 @@ namespace IxMilia.BCad
         public virtual Tuple<ICadCommand, string> GetCommand(string commandName)
         {
             var candidateCommands =
-                from c in Commands
-                let data = c.Metadata
-                where string.Compare(data.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
-                   || data.CommandAliases.Any(alias => string.Compare(alias, commandName, StringComparison.OrdinalIgnoreCase) == 0)
-                select c;
+                from commandInfo in _commands
+                where string.Compare(commandInfo.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0
+                   || commandInfo.Aliases.Any(alias => string.Compare(alias, commandName, StringComparison.OrdinalIgnoreCase) == 0)
+                select commandInfo;
             var command = candidateCommands.FirstOrDefault();
             if (candidateCommands.Count() > 1)
             {
-                throw new InvalidOperationException($"Ambiguous command name '{commandName}'.  Possibilities: {string.Join(", ", candidateCommands.Select(c => c.Metadata.Name))}");
+                throw new InvalidOperationException($"Ambiguous command name '{commandName}'.  Possibilities: {string.Join(", ", candidateCommands.Select(c => c.Name))}");
             }
 
-            return command == null ? null : Tuple.Create(command.Value, command.Metadata.DisplayName);
+            return command == null ? null : Tuple.Create(command.Command, command.DisplayName);
         }
 
         #endregion

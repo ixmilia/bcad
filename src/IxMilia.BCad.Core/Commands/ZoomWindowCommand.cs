@@ -4,7 +4,6 @@ using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Zoom.Window", "ZOOMWINDOW", "zoomwindow", "zw")]
     internal class ZoomWindowCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)

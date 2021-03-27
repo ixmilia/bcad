@@ -4,7 +4,6 @@ using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Draw.Line", "LINE", "line", "l")]
     public class DrawLineCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

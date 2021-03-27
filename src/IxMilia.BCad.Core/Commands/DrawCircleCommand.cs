@@ -8,7 +8,6 @@ using IxMilia.BCad.Helpers;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Draw.Circle", "CIRCLE", "circle", "c", "cir")]
     public class DrawCircleCommand : ICadCommand
     {
         private static readonly double IsoMinorRatio = Math.Sqrt(1.5) / Math.Sqrt(2.0) * 2.0 / 3.0;

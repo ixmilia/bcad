@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.Delete", "DELETE", ModifierKeys.None, Key.Delete, "delete", "d", "del")]
     public class DeleteCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

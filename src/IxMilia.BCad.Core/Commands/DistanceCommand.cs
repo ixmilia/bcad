@@ -4,7 +4,6 @@ using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("View.Distance", "DIST", "distance", "di", "dist")]
     public class DistanceCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

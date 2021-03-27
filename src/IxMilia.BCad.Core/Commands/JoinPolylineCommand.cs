@@ -4,7 +4,6 @@ using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.JoinPolyline", "PJOIN", "pjoin")]
     public class JoinPolylineCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

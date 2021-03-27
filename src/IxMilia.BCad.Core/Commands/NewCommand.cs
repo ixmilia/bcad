@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("File.New", "NEW", ModifierKeys.Control, Key.N, "new", "n")]
     public class NewCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

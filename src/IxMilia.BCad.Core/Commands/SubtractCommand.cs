@@ -4,7 +4,6 @@ using IxMilia.BCad.Extensions;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.Subtract", "SUBTRACT", "subtract", "sub")]
     public class SubtractCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)

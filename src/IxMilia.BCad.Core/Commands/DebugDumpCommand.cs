@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Debug.Dump", "DUMP", "dump")]
     internal class DebugDumpCommand : ICadCommand
     {
         public Task<bool> Execute(IWorkspace workspace, object arg = null)

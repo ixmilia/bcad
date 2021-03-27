@@ -3,7 +3,6 @@ using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Draw.Text", "TEXT", "text", "t")]
     public class DrawTextCommand : ICadCommand
     {
         private static double lastHeight = 1.0;

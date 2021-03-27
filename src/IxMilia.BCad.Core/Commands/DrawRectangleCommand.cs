@@ -6,7 +6,6 @@ using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Draw.Rectangle", "RECTANGLE", "rectangle", "rect")]
     public class DrawRectangleCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)

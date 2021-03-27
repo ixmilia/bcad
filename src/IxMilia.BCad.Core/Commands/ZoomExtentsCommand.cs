@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Zoom.Extents", "ZOOMEXTENTS", "zoomextents", "ze")]
     internal class ZoomExtentsCommand : ICadCommand
     {
         public Task<bool> Execute(IWorkspace workspace, object arg = null)

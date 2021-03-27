@@ -6,7 +6,6 @@ using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("View.Properties", "PROPERTIES", "properties", "prop", "p")]
     internal class EntityPropertiesCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)

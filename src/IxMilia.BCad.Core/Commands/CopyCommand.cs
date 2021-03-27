@@ -4,7 +4,6 @@ using IxMilia.BCad.Utilities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.Copy", "COPY", ModifierKeys.Control, Key.C, "copy", "co")]
     internal class CopyCommand : AbstractCopyMoveCommand
     {
         protected override Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta)

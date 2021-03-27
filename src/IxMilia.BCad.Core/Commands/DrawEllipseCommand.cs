@@ -4,7 +4,6 @@ using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Draw.Ellipse", "ELLIPSE", "ellipse", "el")]
     internal class DrawEllipseCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

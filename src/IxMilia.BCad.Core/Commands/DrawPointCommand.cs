@@ -3,7 +3,6 @@ using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Draw.Point", "POINT", "point", "p")]
     public class DrawPointCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)

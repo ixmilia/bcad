@@ -4,7 +4,6 @@ using IxMilia.BCad.Utilities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.Offset", "OFFSET", "offset", "off", "of")]
     public class OffsetCommand : ICadCommand
     {
         private static double lastOffsetDistance = 0.0;

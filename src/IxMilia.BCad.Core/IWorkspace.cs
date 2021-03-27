@@ -60,6 +60,7 @@ namespace IxMilia.BCad
         ObservableHashSet<Entity> SelectedEntities { get; }
 
         Task Initialize(params string[] args);
+        void RegisterCommand(CadCommandInfo commandInfo);
         Task<bool> ExecuteCommand(string commandName, object arg = null);
         bool CommandExists(string commandName);
         Tuple<ICadCommand, string> GetCommand(string commandName);

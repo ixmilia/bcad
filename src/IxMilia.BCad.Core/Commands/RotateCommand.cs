@@ -4,7 +4,6 @@ using IxMilia.BCad.Utilities;
 
 namespace IxMilia.BCad.Commands
 {
-    [ExportCadCommand("Edit.Rotate", "ROTATE", "rotate", "rot", "ro")]
     public class RotateCommand : ICadCommand
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
