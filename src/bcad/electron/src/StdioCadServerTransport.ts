@@ -20,7 +20,7 @@ export class StdioCadServerTransport {
             ? "IxMilia.BCad.Server.exe"
             : "IxMilia.BCad.Server";
         const serverSubPath = args.isLocal
-            ? '../../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1'
+            ? '../../../../artifacts/bin/IxMilia.BCad.Server/Debug/net5.0'
             : '../../publish';
         const serverPath = path.join(__dirname, serverSubPath, serverAssembly);
         this.childProcess = cp.spawn(serverPath);

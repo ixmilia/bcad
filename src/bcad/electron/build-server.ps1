@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh
 
-[CmdletBinding(PositionalBinding=$false)]
+[CmdletBinding(PositionalBinding = $false)]
 param (
     [string]$configuration = "Debug"
 )
@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 
 try {
     $projectPath = "$PSScriptRoot/../../IxMilia.BCad.Server/IxMilia.BCad.Server.csproj"
-    $tfm = "netcoreapp3.1"
+    $tfm = "net5.0"
     $rid = if ($IsLinux) { "linux-x64" } elseif ($IsMacOS) { "osx-x64" } elseif ($IsWindows) { "win-x64" }
 
     dotnet restore "$projectPath"

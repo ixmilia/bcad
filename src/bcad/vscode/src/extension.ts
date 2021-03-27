@@ -14,7 +14,7 @@ export async function activate(context: vscode.ExtensionContext) {
     let serverPath: string;
     if (fs.existsSync(path.join(context.extensionPath, 'local-sentinel.txt'))) {
         // running locally
-        serverPath = path.join(context.extensionPath, '../../../artifacts/bin/IxMilia.BCad.Server/Debug/netcoreapp3.1');
+        serverPath = path.join(context.extensionPath, '../../../artifacts/bin/IxMilia.BCad.Server/Debug/net5.0');
     } else {
         // running as installed, download and extract to global storage
         // TODO: check for existing version

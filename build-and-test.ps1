@@ -19,11 +19,6 @@ function Set-EnvironmentVariable([string]$name, [string]$value) {
 try {
     $version = Get-Content -Path "$PSScriptRoot/version.txt"
 
-    # IxMilia.Dxf needs a custom invocation
-    $shellExt = if ($IsWindows) { "cmd" } else { "sh" }
-    & "$PSScriptRoot/src/IxMilia.Dxf/build-and-test.$shellExt" --configuration $configuration --notest
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
     # restore and build this repo
     dotnet restore
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
