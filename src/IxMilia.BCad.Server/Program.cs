@@ -63,13 +63,12 @@ namespace IxMilia.BCad.Server
         {
             workspace.RegisterService(new HtmlDialogService());
 
-            var readerWriter = workspace.GetService<IReaderWriterService>();
-            readerWriter.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
-            readerWriter.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
-            readerWriter.RegisterFileHandler(new IgesFileHandler(), true, true, ".igs", "iges");
-            readerWriter.RegisterFileHandler(new JsonFileHandler(), true, true, ".json");
-            readerWriter.RegisterFileHandler(new StepFileHandler(), true, false, ".stp", ".step");
-            readerWriter.RegisterFileHandler(new StlFileHandler(), true, false, ".stl");
+            workspace.ReaderWriterService.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
+            workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
+            workspace.ReaderWriterService.RegisterFileHandler(new IgesFileHandler(), true, true, ".igs", "iges");
+            workspace.ReaderWriterService.RegisterFileHandler(new JsonFileHandler(), true, true, ".json");
+            workspace.ReaderWriterService.RegisterFileHandler(new StepFileHandler(), true, false, ".stp", ".step");
+            workspace.ReaderWriterService.RegisterFileHandler(new StlFileHandler(), true, false, ".stl");
         }
     }
 

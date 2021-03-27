@@ -15,7 +15,13 @@ try {
 
     dotnet restore "$projectPath"
     dotnet build "$projectPath" -c $configuration
-    dotnet publish "$projectPath" -c $configuration -f $tfm -r $rid
+    dotnet publish "$projectPath" -c $configuration -f $tfm -r $rid -p:PublishSingleFile=true
+
+    # enable debugging by copying this file to the output directory
+    $ridDir = "$PSScriptRoot/../../../artifacts/bin/IxMilia.BCad.Server/$configuration/$tfm/$rid"
+    if (Test-Path "$ridDir/mscordbi.dll") {
+        Copy-Item "$ridDir/mscordbi.dll" "$ridDir/publish/"
+    }
 }
 catch {
     Write-Host $_
