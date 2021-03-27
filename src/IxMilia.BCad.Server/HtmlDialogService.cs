@@ -1,4 +1,3 @@
-using System.Composition;
 using System.Threading.Tasks;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.FileHandlers;
@@ -6,7 +5,6 @@ using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Server
 {
-    [ExportWorkspaceService, Shared]
     public class HtmlDialogService : IDialogService
     {
         internal ServerAgent Agent { get; set; }

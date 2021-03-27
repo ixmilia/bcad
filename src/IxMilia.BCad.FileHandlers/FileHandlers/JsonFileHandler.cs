@@ -11,12 +11,8 @@ using Newtonsoft.Json.Linq;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    [ExportFileHandler(DisplayName, true, true, FileExtension)]
     public partial class JsonFileHandler : IFileHandler
     {
-        public const string DisplayName = "Json";
-        public const string FileExtension = ".json";
-
         private JsonSerializerSettings Settings = new JsonSerializerSettings() { Converters = { new JsonEntityConverter() } };
 
         public object GetFileSettingsFromDrawing(Drawing drawing)

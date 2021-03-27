@@ -1,29 +1,17 @@
-using System;
-using System.Composition;
-using System.Composition.Hosting;
-using System.Reflection;
 using IxMilia.BCad.FileHandlers;
+using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Core.Test
 {
-    public class TestHost : IDisposable
+    public class TestHost
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        private CompositionHost container;
+        public IWorkspace Workspace { get; }
 
         private TestHost()
         {
-            var configuration = new ContainerConfiguration()
-                .WithAssemblies(new[]
-                {
-                    typeof(TestHost).GetTypeInfo().Assembly, // this assembly
-                    typeof(Drawing).GetTypeInfo().Assembly, // BCad.Core.dll
-                    typeof(DxfFileHandler).GetTypeInfo().Assembly, // BCad.FileHandlers.dll
-                });
-            container = configuration.CreateContainer();
-            container.SatisfyImports(this);
+            Workspace = new TestWorkspace();
+            Workspace.RegisterService<IDialogService>(new TestDialogService());
+            Workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
             Workspace.Update(drawing: new Drawing());
         }
 
@@ -38,15 +26,6 @@ namespace IxMilia.BCad.Core.Test
             foreach (string layer in layerNames)
                 host.Workspace.Add(new Layer(layer));
             return host;
-        }
-
-        public void Dispose()
-        {
-            if (container != null)
-            {
-                container.Dispose();
-                container = null;
-            }
         }
     }
 }

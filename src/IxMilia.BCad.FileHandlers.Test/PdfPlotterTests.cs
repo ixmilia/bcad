@@ -13,10 +13,7 @@ namespace IxMilia.BCad.FileHandlers.Test
 
         public PdfPlotterTests()
         {
-            PlotterFactory = new PdfPlotterFactory()
-            {
-                Workspace = Workspace // faking the import
-            };
+            PlotterFactory = new PdfPlotterFactory(Workspace);
         }
 
         private string PlotToString(PdfPlotterViewModel viewModel)

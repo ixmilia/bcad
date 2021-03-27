@@ -1,13 +1,15 @@
 using System.ComponentModel;
-using System.Composition;
 
 namespace IxMilia.BCad.Plotting.Pdf
 {
-    [ExportPlotterFactory("PDF", ViewTypeName = "IxMilia.BCad.UI.Controls.PdfPlotterControl")]
     public class PdfPlotterFactory : IPlotterFactory
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace _workspace;
+
+        public PdfPlotterFactory(IWorkspace workspace)
+        {
+            _workspace = workspace;
+        }
 
         public PlotterBase CreatePlotter(INotifyPropertyChanged viewModel)
         {
@@ -16,7 +18,7 @@ namespace IxMilia.BCad.Plotting.Pdf
 
         public INotifyPropertyChanged CreatePlotterViewModel()
         {
-            return new PdfPlotterViewModel(Workspace);
+            return new PdfPlotterViewModel(_workspace);
         }
     }
 }

@@ -124,17 +124,17 @@ namespace IxMilia.BCad.Server
 
         public ClientSettings(ISettingsService settingsService)
         {
-            BackgroundColor = settingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor);
-            CursorSize = settingsService.GetValue<int>(DisplaySettingsProvider.CursorSize);
-            Debug = settingsService.GetValue<bool>(DefaultSettingsProvider.Debug);
-            EntitySelectionRadius = settingsService.GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius);
-            HotPointColor = settingsService.GetValue<CadColor>(DisplaySettingsProvider.HotPointColor);
-            HotPointSize = settingsService.GetValue<double>(DisplaySettingsProvider.HotPointSize);
-            SnapAngles = settingsService.GetValue<double[]>(DisplaySettingsProvider.SnapAngles);
-            SnapPointColor = settingsService.GetValue<CadColor>(DisplaySettingsProvider.SnapPointColor);
-            SnapPointSize = settingsService.GetValue<double>(DisplaySettingsProvider.SnapPointSize);
-            PointDisplaySize = settingsService.GetValue<double>(DisplaySettingsProvider.PointDisplaySize);
-            TextCursorSize = settingsService.GetValue<int>(DisplaySettingsProvider.TextCursorSize);
+            BackgroundColor = settingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor);
+            CursorSize = settingsService.GetValue<int>(DisplaySettingsNames.CursorSize);
+            Debug = settingsService.GetValue<bool>(DefaultSettingsNames.Debug);
+            EntitySelectionRadius = settingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
+            HotPointColor = settingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);
+            HotPointSize = settingsService.GetValue<double>(DisplaySettingsNames.HotPointSize);
+            SnapAngles = settingsService.GetValue<double[]>(DisplaySettingsNames.SnapAngles);
+            SnapPointColor = settingsService.GetValue<CadColor>(DisplaySettingsNames.SnapPointColor);
+            SnapPointSize = settingsService.GetValue<double>(DisplaySettingsNames.SnapPointSize);
+            PointDisplaySize = settingsService.GetValue<double>(DisplaySettingsNames.PointDisplaySize);
+            TextCursorSize = settingsService.GetValue<int>(DisplaySettingsNames.TextCursorSize);
         }
     }
 

@@ -1,17 +1,15 @@
 using System;
-using System.Composition;
 using StreamJsonRpc;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Collections.Generic;
+using IxMilia.BCad.Services;
+using IxMilia.BCad.FileHandlers;
 
 namespace IxMilia.BCad.Server
 {
     class Program
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
         static void Main(string[] args)
         {
             var outFiles = new List<string>();
@@ -43,13 +41,14 @@ namespace IxMilia.BCad.Server
         private async Task RunAsync()
         {
             Console.Error.WriteLine("starting run");
-            CompositionContainer.Container.SatisfyImports(this);
+            var workspace = new RpcServerWorkspace();
+            RegisterWithWorkspace(workspace);
 
             var serverRpc = new JsonRpc(Console.OpenStandardOutput(), Console.OpenStandardInput());
-            var server = new ServerAgent(Workspace, serverRpc);
+            var server = new ServerAgent(workspace, serverRpc);
             //System.Diagnostics.Debugger.Launch();
             serverRpc.AddLocalRpcTarget(server);
-            ((HtmlDialogService)Workspace.DialogService).Agent = server;
+            ((HtmlDialogService)workspace.DialogService).Agent = server;
             serverRpc.TraceSource.Listeners.Add(new Listener());
             serverRpc.StartListening();
             Console.Error.WriteLine("server listening");
@@ -58,6 +57,19 @@ namespace IxMilia.BCad.Server
             {
                 await Task.Delay(50);
             }
+        }
+
+        private static void RegisterWithWorkspace(IWorkspace workspace)
+        {
+            workspace.RegisterService(new HtmlDialogService());
+
+            var readerWriter = workspace.GetService<IReaderWriterService>();
+            readerWriter.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
+            readerWriter.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
+            readerWriter.RegisterFileHandler(new IgesFileHandler(), true, true, ".igs", "iges");
+            readerWriter.RegisterFileHandler(new JsonFileHandler(), true, true, ".json");
+            readerWriter.RegisterFileHandler(new StepFileHandler(), true, false, ".stp", ".step");
+            readerWriter.RegisterFileHandler(new StlFileHandler(), true, false, ".stl");
         }
     }
 

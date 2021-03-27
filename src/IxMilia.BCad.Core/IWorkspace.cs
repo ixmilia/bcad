@@ -38,6 +38,8 @@ namespace IxMilia.BCad
         bool IsDrawing { get; }
         bool IsCommandExecuting { get; }
 
+        void RegisterService<TService>(TService service) where TService : class, IWorkspaceService;
+
         TService GetService<TService>() where TService : class, IWorkspaceService;
 
         IDebugService DebugService { get; }

@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Commands;
+using IxMilia.BCad.Core.Services;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Services;
+using IxMilia.BCad.Settings;
 
 namespace IxMilia.BCad
 {
@@ -16,6 +18,9 @@ namespace IxMilia.BCad
     {
         private RubberBandGenerator rubberBandGenerator;
         private readonly Regex settingsPattern = new Regex(@"^/p:([a-zA-Z\.]+)=(.*)$");
+
+        private List<CadCommandInfo> _commands = new List<CadCommandInfo>();
+        private List<IWorkspaceService> _services = new List<IWorkspaceService>();
 
         public WorkspaceBase()
         {
@@ -27,6 +32,8 @@ namespace IxMilia.BCad
             RubberBandGenerator = null;
 
             RegisterDefaultCommands();
+            RegisterDefaultServices();
+            RegisterDefaultSettings();
         }
 
         private void RegisterDefaultCommands()
@@ -61,6 +68,36 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Union", "UNION", new UnionCommand(), "union", "un"));
             RegisterCommand(new CadCommandInfo("Zoom.Extents", "ZOOMEXTENTS",new ZoomExtentsCommand(), "zoomextents", "ze"));
             RegisterCommand(new CadCommandInfo("Zoom.Window", "ZOOMWINDOW", new ZoomWindowCommand(), "zoomwindow", "zw"));
+        }
+
+        private void RegisterDefaultServices()
+        {
+            RegisterService<IDebugService>(new DebugService());
+            RegisterService<IReaderWriterService>(new ReaderWriterService(this));
+            RegisterService<IInputService>(new InputService(this));
+            RegisterService<IOutputService>(new OutputService());
+            RegisterService<ISettingsService>(new SettingsService(this));
+            RegisterService<IUndoRedoService>(new UndoRedoService(this));
+        }
+
+        private void RegisterDefaultSettings()
+        {
+            SettingsService.RegisterSetting(DefaultSettingsNames.Debug, typeof(bool), false);
+            SettingsService.RegisterSetting(DisplaySettingsNames.AngleSnap, typeof(bool), true);
+            SettingsService.RegisterSetting(DisplaySettingsNames.BackgroundColor, typeof(CadColor), "#FF2F2F2F");
+            SettingsService.RegisterSetting(DisplaySettingsNames.CursorSize, typeof(int), 60);
+            SettingsService.RegisterSetting(DisplaySettingsNames.EntitySelectionRadius, typeof(double), 3.0);
+            SettingsService.RegisterSetting(DisplaySettingsNames.HotPointColor, typeof(CadColor), "#FF0000FF");
+            SettingsService.RegisterSetting(DisplaySettingsNames.HotPointSize, typeof(double), 10.0);
+            SettingsService.RegisterSetting(DisplaySettingsNames.Ortho, typeof(bool), false);
+            SettingsService.RegisterSetting(DisplaySettingsNames.PointSnap, typeof(bool), true);
+            SettingsService.RegisterSetting(DisplaySettingsNames.SnapAngleDistance, typeof(double), 30.0);
+            SettingsService.RegisterSetting(DisplaySettingsNames.SnapAngles, typeof(double[]), new[] { 0.0, 90.0, 180.0, 270.0 });
+            SettingsService.RegisterSetting(DisplaySettingsNames.SnapPointColor, typeof(CadColor), "#FFFFFF00");
+            SettingsService.RegisterSetting(DisplaySettingsNames.SnapPointDistance, typeof(double), 15.0);
+            SettingsService.RegisterSetting(DisplaySettingsNames.SnapPointSize, typeof(double), 15.0);
+            SettingsService.RegisterSetting(DisplaySettingsNames.TextCursorSize, typeof(int), 18);
+            SettingsService.RegisterSetting(DisplaySettingsNames.PointDisplaySize, typeof(double), 48.0);
         }
 
         #region Events
@@ -126,20 +163,16 @@ namespace IxMilia.BCad
 
         #endregion
 
-        #region Imports
-
-        [ImportMany]
-        public IEnumerable<IWorkspaceService> Services { get; set; }
-
-        private List<CadCommandInfo> _commands = new List<CadCommandInfo>();
-
-        #endregion
-
         #region IWorkspace implementation
+
+        public void RegisterService<TService>(TService service) where TService : class, IWorkspaceService
+        {
+            _services.Add(service);
+        }
 
         public TService GetService<TService>() where TService : class, IWorkspaceService
         {
-            return Services.OfType<TService>().SingleOrDefault();
+            return _services.OfType<TService>().SingleOrDefault();
         }
 
         // well-known services

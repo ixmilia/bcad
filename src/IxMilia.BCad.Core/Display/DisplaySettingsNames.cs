@@ -1,23 +1,6 @@
-using IxMilia.BCad.Settings;
-
 namespace IxMilia.BCad.Display
 {
-    [ExportSetting(AngleSnap, typeof(bool), true)]
-    [ExportSetting(BackgroundColor, typeof(CadColor), "#FF2F2F2F")]
-    [ExportSetting(CursorSize, typeof(int), 60)]
-    [ExportSetting(EntitySelectionRadius, typeof(double), 3.0)]
-    [ExportSetting(HotPointColor, typeof(CadColor), "#FF0000FF")]
-    [ExportSetting(HotPointSize, typeof(double), 10.0)]
-    [ExportSetting(Ortho, typeof(bool), false)]
-    [ExportSetting(PointSnap, typeof(bool), true)]
-    [ExportSetting(SnapAngleDistance, typeof(double), 30.0)]
-    [ExportSetting(SnapAngles, typeof(double[]), new[] { 0.0, 90.0, 180.0, 270.0 })]
-    [ExportSetting(SnapPointColor, typeof(CadColor), "#FFFFFF00")]
-    [ExportSetting(SnapPointDistance, typeof(double), 15.0)]
-    [ExportSetting(SnapPointSize, typeof(double), 15.0)]
-    [ExportSetting(TextCursorSize, typeof(int), 18)]
-    [ExportSetting(PointDisplaySize, typeof(double), 48.0)]
-    public class DisplaySettingsProvider
+    public static class DisplaySettingsNames
     {
         public const string Prefix = "Display.";
         public const string AngleSnap = Prefix + nameof(AngleSnap);

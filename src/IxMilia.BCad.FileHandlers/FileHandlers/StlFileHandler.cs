@@ -6,12 +6,8 @@ using IxMilia.Stl;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    [ExportFileHandler(DisplayName, true, false, FileExtension)]
     public class StlFileHandler: IFileHandler
     {
-        public const string DisplayName = "STL Files (" + FileExtension + ")";
-        public const string FileExtension = ".stl";
-
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             throw new NotImplementedException();

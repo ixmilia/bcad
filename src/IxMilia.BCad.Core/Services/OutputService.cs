@@ -1,9 +1,7 @@
-using System.Composition;
 using IxMilia.BCad.EventArguments;
 
 namespace IxMilia.BCad.Services
 {
-    [ExportWorkspaceService, Shared]
     internal class OutputService : IOutputService
     {
         public event WriteLineEventHandler LineWritten;

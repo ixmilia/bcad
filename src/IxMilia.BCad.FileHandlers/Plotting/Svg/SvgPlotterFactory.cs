@@ -1,13 +1,15 @@
 using System.ComponentModel;
-using System.Composition;
 
 namespace IxMilia.BCad.Plotting.Svg
 {
-    [ExportPlotterFactory("SVG", ViewTypeName = "IxMilia.BCad.UI.Controls.SvgPlotterControl")]
     public class SvgPlotterFactory : IPlotterFactory
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace _workspace;
+
+        public SvgPlotterFactory(IWorkspace workspace)
+        {
+            _workspace = workspace;
+        }
 
         public PlotterBase CreatePlotter(INotifyPropertyChanged viewModel)
         {
@@ -16,7 +18,7 @@ namespace IxMilia.BCad.Plotting.Svg
 
         public INotifyPropertyChanged CreatePlotterViewModel()
         {
-            return new SvgPlotterViewModel(Workspace);
+            return new SvgPlotterViewModel(_workspace);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using System.Reflection;
 using IxMilia.BCad.Settings;
@@ -8,35 +7,28 @@ using IxMilia.Config;
 
 namespace IxMilia.BCad.Services
 {
-    [ExportWorkspaceService, Shared]
     internal class SettingsService : ISettingsService
     {
+        private IWorkspace _workspace;
         private Dictionary<string, Tuple<Type, object>> _settings = new Dictionary<string, Tuple<Type, object>>();
 
         public event SettingChangedEventHandler SettingChanged;
 
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
-        [ImportMany]
-        public IEnumerable<Lazy<object, SettingMetadata>> Settings { get; set; }
-
-        [OnImportsSatisfied]
-        public void OnImportsSatisfied()
+        public SettingsService(IWorkspace workspace)
         {
-            foreach (var setting in Settings)
+            _workspace = workspace;
+        }
+
+        public void RegisterSetting(string name, Type type, object value)
+        {
+            if (_settings.ContainsKey(name))
             {
-                var settingName = setting.Metadata.Name;
-                var value = setting.Metadata.Value;
-                if (_settings.ContainsKey(settingName))
-                {
-                    Workspace.OutputService.WriteLine($"The setting '{settingName}' has already been exported by another component and will not be used again.");
-                }
-                else
-                {
-                    _settings[settingName] = Tuple.Create(setting.Metadata.Type, (object)null);
-                    SetValue(settingName, value, ignoreTypeCheck: true);
-                }
+                _workspace.OutputService.WriteLine($"The setting '{name}' has already been exported by another component and will not be used again.");
+            }
+            else
+            {
+                _settings[name] = Tuple.Create(type, (object)null);
+                SetValue(name, value, ignoreTypeCheck: true);
             }
         }
 
@@ -119,6 +111,20 @@ namespace IxMilia.BCad.Services
 
             var newContent = values.WriteConfig(existingLines);
             return newContent;
+        }
+
+        private class SettingData
+        {
+            public string Name { get; }
+            public Type Type { get; }
+            public object Value { get; }
+
+            public SettingData(string name, Type type, object value)
+            {
+                Name = name;
+                Type = type;
+                Value = value;
+            }
         }
     }
 }

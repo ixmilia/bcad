@@ -5,12 +5,8 @@ using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    [ExportFileHandler(DisplayName, true, false, FileExtension)]
     public class AscFileHandler : IFileHandler
     {
-        public const string DisplayName = "Point Cloud Files (" + FileExtension + ")";
-        public const string FileExtension = ".asc";
-
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             throw new NotImplementedException();

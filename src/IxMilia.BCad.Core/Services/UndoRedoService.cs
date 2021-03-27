@@ -1,23 +1,19 @@
 using System.Collections.Generic;
-using System.Composition;
 using IxMilia.BCad.EventArguments;
 
 namespace IxMilia.BCad.Services
 {
-    [ExportWorkspaceService, Shared]
     internal class UndoRedoService : IUndoRedoService
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
+        private IWorkspace _workspace;
         private Stack<Drawing> undoHistory = new Stack<Drawing>();
         private Stack<Drawing> redoHistory = new Stack<Drawing>();
         private bool ignoreDrawingChange = false;
 
-        [OnImportsSatisfied]
-        public void OnImportsSatisfied()
+        public UndoRedoService(IWorkspace workspace)
         {
-            Workspace.WorkspaceChanging += WorkspaceChanging;
+            _workspace = workspace;
+            _workspace.WorkspaceChanging += WorkspaceChanging;
         }
 
         private void WorkspaceChanging(object sender, WorkspaceChangeEventArgs e)
@@ -25,7 +21,7 @@ namespace IxMilia.BCad.Services
             if (e.IsDrawingChange && ! ignoreDrawingChange && !e.IsOnlyDirtyChange())
             {
                 // save the last snapshot
-                undoHistory.Push(Workspace.Drawing);
+                undoHistory.Push(_workspace.Drawing);
                 redoHistory.Clear();
             }
         }
@@ -39,8 +35,8 @@ namespace IxMilia.BCad.Services
             }
 
             ignoreDrawingChange = true;
-            redoHistory.Push(Workspace.Drawing);
-            Workspace.Update(drawing: undoHistory.Pop());
+            redoHistory.Push(_workspace.Drawing);
+            _workspace.Update(drawing: undoHistory.Pop());
             ignoreDrawingChange = false;
         }
 
@@ -53,8 +49,8 @@ namespace IxMilia.BCad.Services
             }
 
             ignoreDrawingChange = true;
-            undoHistory.Push(Workspace.Drawing);
-            Workspace.Update(drawing: redoHistory.Pop());
+            undoHistory.Push(_workspace.Drawing);
+            _workspace.Update(drawing: redoHistory.Pop());
             ignoreDrawingChange = false;
         }
 

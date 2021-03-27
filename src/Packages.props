@@ -4,8 +4,6 @@
     <MicrosoftNETTestSdkPackageVersion>15.0.0</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0-beta2-19367-01</MicrosoftSourceLinkGitHubPackageVersion>
     <NewtonsoftJsonPackageVersion>10.0.3</NewtonsoftJsonPackageVersion>
-    <SkiaSharpViewsPackageVersion>1.56.2</SkiaSharpViewsPackageVersion>
-    <SystemCompositionPackageVersion>1.0.31</SystemCompositionPackageVersion>
     <xunitPackageVersion>2.2.0</xunitPackageVersion>
     <xunitrunnervisualstudioPackageVersion>2.2.0</xunitrunnervisualstudioPackageVersion>
   </PropertyGroup>

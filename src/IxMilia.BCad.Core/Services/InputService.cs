@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -31,27 +30,21 @@ namespace IxMilia.BCad.Services
         }
     }
 
-    [ExportWorkspaceService, Shared]
     internal class InputService : IInputService
     {
-        [Import]
-        public IWorkspace Workspace { get; set; }
+        private IWorkspace _workspace;
 
-        public InputService()
+        public InputService(IWorkspace workspace)
         {
+            _workspace = workspace;
             LastPoint = Point.Origin;
             Reset();
-        }
-
-        [OnImportsSatisfied]
-        public void OnImportsSatisfied()
-        {
-            Workspace.CommandExecuted += Workspace_CommandExecuted;
+            _workspace.CommandExecuted += Workspace_CommandExecuted;
         }
 
         void Workspace_CommandExecuted(object sender, CadCommandExecutedEventArgs e)
         {
-            Workspace.SelectedEntities.Clear();
+            _workspace.SelectedEntities.Clear();
             SetPrompt("Command");
         }
 
@@ -197,10 +190,10 @@ namespace IxMilia.BCad.Services
                         if ((entityKinds & pushedEntity.Entity.Kind) == pushedEntity.Entity.Kind)
                         {
                             entities.Add(pushedEntity.Entity);
-                            Workspace.SelectedEntities.Add(pushedEntity.Entity);
+                            _workspace.SelectedEntities.Add(pushedEntity.Entity);
                         }
 
-                        Workspace.OutputService.WriteLine($"Selected 1 entity.  Total {entities.Count} selected.");
+                        _workspace.OutputService.WriteLine($"Selected 1 entity.  Total {entities.Count} selected.");
                         break;
                     case PushedValueType.Entities:
                         foreach (var e in pushedEntities)
@@ -208,11 +201,11 @@ namespace IxMilia.BCad.Services
                             if ((entityKinds & e.Kind) == e.Kind)
                             {
                                 entities.Add(e);
-                                Workspace.SelectedEntities.Add(e);
+                                _workspace.SelectedEntities.Add(e);
                             }
                         }
 
-                        Workspace.OutputService.WriteLine($"Selected {pushedEntities.Count()} entities.  Total {entities.Count} selected.");
+                        _workspace.OutputService.WriteLine($"Selected {pushedEntities.Count()} entities.  Total {entities.Count} selected.");
                         break;
                     default:
                         throw new Exception("Unexpected pushed value");
@@ -267,7 +260,7 @@ namespace IxMilia.BCad.Services
             pushedEntity = null;
             pushedDirective = null;
             pushedString = null;
-            Workspace.RubberBandGenerator = onCursorMove;
+            _workspace.RubberBandGenerator = onCursorMove;
             return pushValueDone.Task;
         }
 
@@ -280,7 +273,7 @@ namespace IxMilia.BCad.Services
             pushedDirective = null;
             pushedString = null;
             currentDirective = null;
-            Workspace.RubberBandGenerator = null;
+            _workspace.RubberBandGenerator = null;
             pushValueDone = null;
         }
 
@@ -343,7 +336,7 @@ namespace IxMilia.BCad.Services
             lock (inputGate)
             {
                 OnValueReceived(new ValueReceivedEventArgs(commandName, InputType.Command));
-                Workspace.ExecuteCommand(commandName);
+                _workspace.ExecuteCommand(commandName);
             }
         }
 
@@ -366,7 +359,7 @@ namespace IxMilia.BCad.Services
                     }
                     else
                     {
-                        Workspace.OutputService.WriteLine("Bad value or directive '{0}'", directive);
+                        _workspace.OutputService.WriteLine("Bad value or directive '{0}'", directive);
                     }
                 }
             }
@@ -497,16 +490,16 @@ namespace IxMilia.BCad.Services
 
         protected virtual void OnValueReceived(ValueReceivedEventArgs e)
         {
-            Workspace.DebugService.Add(new InputServiceLogEntry(e.InputType, e.Value));
+            _workspace.DebugService.Add(new InputServiceLogEntry(e.InputType, e.Value));
 
             // write out received value
             switch (e.InputType)
             {
                 case InputType.Point:
-                    Workspace.OutputService.WriteLine(Workspace.Format(e.Point));
+                    _workspace.OutputService.WriteLine(_workspace.Format(e.Point));
                     break;
                 case InputType.Text:
-                    Workspace.OutputService.WriteLine(e.Text);
+                    _workspace.OutputService.WriteLine(e.Text);
                     break;
             }
 

@@ -7,13 +7,8 @@ using IxMilia.Iges;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    [ExportFileHandler(DisplayName, true, true, FileExtension1, FileExtension2)]
     public class IgesFileHandler: IFileHandler
     {
-        public const string DisplayName = "IGES Files (" + FileExtension1 + ", " + FileExtension2 + ")";
-        public const string FileExtension1 = ".igs";
-        public const string FileExtension2 = ".iges";
-
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             return null;

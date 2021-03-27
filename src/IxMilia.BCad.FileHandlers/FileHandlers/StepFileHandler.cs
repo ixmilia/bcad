@@ -8,13 +8,8 @@ using IxMilia.Step.Items;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    [ExportFileHandler(DisplayName, true, false, FileExtension1, FileExtension2)]
     public class StepFileHandler : IFileHandler
     {
-        public const string DisplayName = "Step Files (" + FileExtension1 + ", " + FileExtension2 + ")";
-        public const string FileExtension1 = ".stp";
-        public const string FileExtension2 = ".step";
-
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             throw new NotImplementedException();

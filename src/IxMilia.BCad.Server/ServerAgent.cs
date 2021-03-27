@@ -89,7 +89,7 @@ namespace IxMilia.BCad.Server
         {
             var clientUpdate = new ClientUpdate();
             clientUpdate.RubberBandDrawing = new ClientDrawing(null);
-            var fallBackColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsProvider.BackgroundColor).GetAutoContrastingColor();
+            var fallBackColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
             foreach (var primitive in primitives)
             {
                 AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor);

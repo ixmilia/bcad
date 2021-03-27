@@ -1,14 +1,11 @@
 using System.Collections.Generic;
-using System.Composition;
 
 namespace IxMilia.BCad.Services
 {
-    [ExportWorkspaceService, Shared]
     internal class DebugService : IDebugService
     {
         private List<LogEntry> entries;
 
-        [ImportingConstructor]
         public DebugService()
         {
             entries = new List<LogEntry>();

@@ -561,11 +561,11 @@ namespace IxMilia.BCad.Display
 
         private TransformedSnapPoint? GetActiveSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
-            if (_workspace.SettingsService.GetValue<bool>(DisplaySettingsProvider.PointSnap) &&
+            if (_workspace.SettingsService.GetValue<bool>(DisplaySettingsNames.PointSnap) &&
                 ((_workspace.InputService.AllowedInputTypes & InputType.Point) == InputType.Point) ||
                 selectingRectangle)
             {
-                var snapPointDistance = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapPointDistance);
+                var snapPointDistance = _workspace.SettingsService.GetValue<double>(DisplaySettingsNames.SnapPointDistance);
                 var size = snapPointDistance * 2;
                 var nearPoints = snapPointsQuadTree
                     .GetContainedItems(new Rect(cursor.X - snapPointDistance, cursor.Y - snapPointDistance, size, size));
@@ -584,7 +584,7 @@ namespace IxMilia.BCad.Display
 
         private TransformedSnapPoint? GetOrthoPoint(Point cursor)
         {
-            if (_workspace.IsDrawing && _workspace.SettingsService.GetValue<bool>(DisplaySettingsProvider.Ortho))
+            if (_workspace.IsDrawing && _workspace.SettingsService.GetValue<bool>(DisplaySettingsNames.Ortho))
             {
                 // if both are on the drawing plane
                 var last = _workspace.InputService.LastPoint;
@@ -634,7 +634,7 @@ namespace IxMilia.BCad.Display
 
         private TransformedSnapPoint? GetAngleSnapPoint(Point cursor, CancellationToken cancellationToken)
         {
-            if (_workspace.IsDrawing && _workspace.SettingsService.GetValue<bool>(DisplaySettingsProvider.AngleSnap))
+            if (_workspace.IsDrawing && _workspace.SettingsService.GetValue<bool>(DisplaySettingsNames.AngleSnap))
             {
                 // get distance to last point
                 var last = _workspace.InputService.LastPoint;
@@ -669,8 +669,8 @@ namespace IxMilia.BCad.Display
                 };
 
                 var points = new List<Tuple<double, TransformedSnapPoint>>();
-                var snapAngleDistance = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapAngleDistance);
-                foreach (var snapAngle in _workspace.SettingsService.GetValue<double[]>(DisplaySettingsProvider.SnapAngles))
+                var snapAngleDistance = _workspace.SettingsService.GetValue<double>(DisplaySettingsNames.SnapAngleDistance);
+                foreach (var snapAngle in _workspace.SettingsService.GetValue<double[]>(DisplaySettingsNames.SnapAngles))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     var radians = snapAngle * MathHelper.DegreesToRadians;
@@ -712,7 +712,7 @@ namespace IxMilia.BCad.Display
 
         private SelectedEntity GetHitEntity(Point screenPoint)
         {
-            var selectionRadius = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.EntitySelectionRadius);
+            var selectionRadius = _workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
             var selectionRadius2 = selectionRadius * selectionRadius;
             var entities = from layer in _workspace.Drawing.GetLayers().Where(l => l.IsVisible)
                            from entity in layer.GetEntities()
@@ -848,7 +848,7 @@ namespace IxMilia.BCad.Display
                 if (drawId > lastDrawnSnapPointId)
                 {
                     lastDrawnSnapPointId = drawId;
-                    var snapDistance = _workspace.SettingsService.GetValue<double>(DisplaySettingsProvider.SnapPointDistance);
+                    var snapDistance = _workspace.SettingsService.GetValue<double>(DisplaySettingsNames.SnapPointDistance);
                     snapDistance *= snapDistance;
                     var distSquared = (snapPoint.ControlPoint - lastPointerPosition).LengthSquared;
                     if (distSquared <= snapDistance && snapPoint.Kind != SnapPointKind.None)

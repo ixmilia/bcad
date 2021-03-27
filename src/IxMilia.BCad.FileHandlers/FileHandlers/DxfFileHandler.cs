@@ -9,12 +9,8 @@ using IxMilia.Dxf.Blocks;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    [ExportFileHandler(DisplayName, true, true, FileExtension)]
     public class DxfFileHandler : IFileHandler
     {
-        public const string DisplayName = "DXF Files (" + FileExtension + ")";
-        public const string FileExtension = ".dxf";
-
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             var settings = new DxfFileSettings();

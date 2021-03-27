@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,16 +8,21 @@ using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Core.Services
 {
-    [ExportWorkspaceService, Shared]
     internal class ReaderWriterService : IReaderWriterService
     {
-        [ImportMany]
-        public IEnumerable<Lazy<IFileHandler, FileHandlerMetadata>> FileHandlers { get; set; }
-
-        [Import]
-        public IWorkspace Workspace { get; set; }
-
+        private IWorkspace _workspace;
         private Dictionary<Drawing, object> _drawingSettingsCache = new Dictionary<Drawing, object>();
+        private List<FileHandlerData> _fileHandlers = new List<FileHandlerData>();
+
+        public ReaderWriterService(IWorkspace workspace)
+        {
+            _workspace = workspace;
+        }
+
+        public void RegisterFileHandler(IFileHandler fileHandler, bool canRead, bool canWrite, params string[] fileExtensions)
+        {
+            _fileHandlers.Add(new FileHandlerData(fileHandler, canRead, canWrite, fileExtensions));
+        }
 
         public Task<bool> TryReadDrawing(string fileName, Stream stream, out Drawing drawing, out ViewPort viewPort)
         {
@@ -42,10 +46,10 @@ namespace IxMilia.BCad.Core.Services
             if (viewPort == null)
             {
                 viewPort = drawing.ShowAllViewPort(
-                    Workspace.ActiveViewPort.Sight,
-                    Workspace.ActiveViewPort.Up,
-                    Workspace.ViewControl.DisplayWidth,
-                    Workspace.ViewControl.DisplayHeight);
+                    _workspace.ActiveViewPort.Sight,
+                    _workspace.ActiveViewPort.Up,
+                    _workspace.ViewControl.DisplayWidth,
+                    _workspace.ViewControl.DisplayHeight);
             }
 
             return Task.FromResult(true);
@@ -74,7 +78,7 @@ namespace IxMilia.BCad.Core.Services
             if (fileSettings != null)
             {
                 var parameter = new FileSettings(extension.ToLower(), fileSettings);
-                fileSettings = await Workspace.DialogService.ShowDialog("FileSettings", parameter);
+                fileSettings = await _workspace.DialogService.ShowDialog("FileSettings", parameter);
                 if (fileSettings is null)
                 {
                     return false;
@@ -94,18 +98,34 @@ namespace IxMilia.BCad.Core.Services
 
         private IFileHandler ReaderFromExtension(string extension)
         {
-            var reader = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanRead);
+            var reader = _fileHandlers.FirstOrDefault(r => r.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.CanRead);
             if (reader == null)
                 return null;
-            return reader.Value;
+            return reader.FileHandler;
         }
 
         private IFileHandler WriterFromExtension(string extension)
         {
-            var writer = FileHandlers.FirstOrDefault(r => r.Metadata.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.Metadata.CanWrite);
+            var writer = _fileHandlers.FirstOrDefault(r => r.FileExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && r.CanWrite);
             if (writer == null)
                 return null;
-            return writer.Value;
+            return writer.FileHandler;
+        }
+
+        private class FileHandlerData
+        {
+            public IFileHandler FileHandler { get; }
+            public bool CanRead { get; }
+            public bool CanWrite { get; }
+            public IReadOnlyList<string> FileExtensions { get; }
+
+            public FileHandlerData(IFileHandler fileHandler, bool canRead, bool canWrite, params string[] fileExtensions)
+            {
+                FileHandler = fileHandler;
+                CanRead = canRead;
+                CanWrite = canWrite;
+                FileExtensions = fileExtensions.ToList();
+            }
         }
     }
 }
