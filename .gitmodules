@@ -1,24 +1,20 @@
-[submodule "IxMilia.Config"]
+[submodule "src/IxMilia.Config"]
 	path = src/IxMilia.Config
 	url = https://github.com/ixmilia/config
 	branch = main
-[submodule "src/IxMilia.Dxf"]
-	path = src/IxMilia.Dxf
-	url = https://github.com/ixmilia/dxf
-	branch = main
-[submodule "IxMilia.Iges"]
+[submodule "src/IxMilia.Converters"]
+	path = src/IxMilia.Converters
+	url = https://github.com/ixmilia/converters
+	brach = main
+[submodule "src/IxMilia.Iges"]
 	path = src/IxMilia.Iges
 	url = https://github.com/ixmilia/iges
 	branch = main
-[submodule "IxMilia.Step"]
+[submodule "src/IxMilia.Step"]
 	path = src/IxMilia.Step
 	url = https://github.com/ixmilia/step
 	branch = main
 [submodule "src/IxMilia.Stl"]
 	path = src/IxMilia.Stl
 	url = https://github.com/ixmilia/stl
-	branch = main
-[submodule "src/IxMilia.Pdf"]
-	path = src/IxMilia.Pdf
-	url = https://github.com/ixmilia/pdf
 	branch = main
