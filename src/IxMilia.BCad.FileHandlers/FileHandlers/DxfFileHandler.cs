@@ -99,6 +99,13 @@ namespace IxMilia.BCad.FileHandlers
 
         public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
+            var file = ToDxfFile(drawing, viewPort, fileSettings as DxfFileSettings);
+            file.Save(fileStream);
+            return true;
+        }
+
+        public static DxfFile ToDxfFile(Drawing drawing, ViewPort viewPort, DxfFileSettings settings)
+        {
             var file = new DxfFile();
             if (drawing.Tag is DxfFile oldFile)
             {
@@ -108,9 +115,9 @@ namespace IxMilia.BCad.FileHandlers
                 file.Header.Version = oldFile.Header.Version;
             }
 
-            if (fileSettings is DxfFileSettings dxfSettings)
+            if (settings is object)
             {
-                file.Header.Version = dxfSettings.FileVersion.ToDxfFileVersion();
+                file.Header.Version = settings.FileVersion.ToDxfFileVersion();
             }
 
             // save layers and entities
@@ -152,8 +159,7 @@ namespace IxMilia.BCad.FileHandlers
                 ViewHeight = viewPort.ViewHeight
             });
 
-            file.Save(fileStream);
-            return true;
+            return file;
         }
 
         private static Layer GetOrCreateLayer(ref ReadOnlyTree<string, Layer> layers, string layerName)

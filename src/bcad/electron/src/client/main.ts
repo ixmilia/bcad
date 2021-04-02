@@ -7,6 +7,7 @@ import { ViewControl } from "./viewControl";
 import { DialogHandler } from "./dialogs/dialogHandler";
 import { LayerDialog } from "./dialogs/layerDialog";
 import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
+import { PlotDialog } from "./dialogs/plotDialog";
 import { Arguments } from "./args";
 
 enum HostType {
@@ -93,4 +94,5 @@ export async function start(argArray: string[]): Promise<void> {
     let dialogHandler = new DialogHandler(client);
     new FileSettingsDialog(dialogHandler);
     new LayerDialog(dialogHandler);
+    new PlotDialog(client, dialogHandler);
 }

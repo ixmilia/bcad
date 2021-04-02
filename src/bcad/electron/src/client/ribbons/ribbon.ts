@@ -9,7 +9,7 @@ export class Ribbon {
             let commandName = button.getAttribute("data-command-name");
             if (commandName) {
                 button.addEventListener('click', () => {
-                    client.executeCommand(commandName!);
+                    client.executeCommand(commandName!).then(() => { });
                 });
             }
         });

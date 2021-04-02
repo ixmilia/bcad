@@ -88,7 +88,7 @@ namespace IxMilia.BCad.Plotting
                             Workspace.ActiveViewPort.Up,
                             ViewWidth,
                             ViewHeight,
-                            pixelBuffer: 0);
+                            viewportBuffer: 0.0);
                         break;
                     case PlotViewPortType.Window:
                         vp = new ViewPort(BottomLeft, Workspace.ActiveViewPort.Sight, Workspace.ActiveViewPort.Up, TopRight.Y - BottomLeft.Y);

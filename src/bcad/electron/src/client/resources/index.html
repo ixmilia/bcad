@@ -369,6 +369,32 @@
           </tr>
         </table>
       </div>
+      <div id="modal-dialog-plot" class="modal-dialog plot-dialog">
+        <p>Scaling type</p>
+        <input id="dialog-plot-scaling-type-fit" type="radio" name="scaling-type" value="fit" checked="checked" />
+        <label for="dialog-plot-scaling-type-fit">Fit</label><br />
+        <input id="dialog-plot-scaling-type-absolute" type="radio" name="scaling-type" value="absolute" />
+        <label for="dialog-plot-scaling-type-absolute">Absolute</label><br />
+        <input id="dialog-plot-scale-a" class="dialog-plot-scale-value" value="1" />
+        <span>:</span>
+        <input id="dialog-plot-scale-b" class="dialog-plot-scale-value" value="1" />
+
+        <p>Viewport type</p>
+        <input id="dialog-plot-viewport-type-extents" type="radio" name="viewport-type" value="extents"
+          checked="checked" />
+        <label for="dialog-plot-viewport-type-extents">Extents</label><br />
+        <input id="dialog-plot-viewport-type-window" type="radio" name="viewport-type" value="window" />
+        <label for="dialog-plot-viewport-type-window">Window</label><br />
+
+        <span>Size</span>
+        <input id="dialog-plot-size-width" type="number" value="640" />
+        <span>x</span>
+        <input id="dialog-plot-size-height" type="number" value="480" />
+
+        <div id="dialog-plot-background">
+          <div id="dialog-plot-display"></div>
+        </div>
+      </div>
       <button id="dialog-ok">OK</button>
       <button id="dialog-cancel">Cancel</button>
     </div>

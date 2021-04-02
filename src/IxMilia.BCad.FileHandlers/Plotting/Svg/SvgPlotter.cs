@@ -1,15 +1,12 @@
-using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using IxMilia.BCad.Extensions;
-using IxMilia.BCad.Helpers;
+using IxMilia.BCad.FileHandlers;
+using IxMilia.Converters;
 
 namespace IxMilia.BCad.Plotting.Svg
 {
     internal class SvgPlotter : PlotterBase
     {
-        internal static XNamespace Xmlns = "http://www.w3.org/2000/svg";
-
         public SvgPlotterViewModel ViewModel { get; }
 
         public SvgPlotter(SvgPlotterViewModel viewModel)
@@ -19,47 +16,40 @@ namespace IxMilia.BCad.Plotting.Svg
 
         public override void Plot(IWorkspace workspace)
         {
-            var autoColor = CadColor.Black;
-            var root = new XElement(Xmlns + "svg",
-                //new XAttribute("width", string.Format("{0}in", 6)),
-                //new XAttribute("height", string.Format("{0}in", 6)),
-                new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", 0, 0, ViewModel.Width, ViewModel.Height)),
-                new XAttribute("version", "1.1"));
-            var projectedEntities = ProjectionHelper.ProjectTo2D(
-                workspace.Drawing,
-                ViewModel.ViewPort,
-                ViewModel.Width,
-                ViewModel.Height,
-                Display.ProjectionStyle.OriginTopLeft);
-            foreach (var groupedEntity in projectedEntities.GroupBy(p => p.OriginalLayer).OrderBy(x => x.Key.Name))
+            var converter = new DxfToSvgConverter();
+            var fileSettings = new DxfFileSettings()
             {
-                var layer = groupedEntity.Key;
-                root.Add(new XComment(string.Format(" layer '{0}' ", layer.Name)));
-                var g = new XElement(Xmlns + "g",
-                    new XAttribute("stroke", (layer.Color ?? autoColor).ToRGBString()),
-                    new XAttribute("fill", (layer.Color ?? autoColor).ToRGBString()));
-                foreach (var entity in groupedEntity)
-                {
-                    var elem = entity.ToXElement();
-                    if (elem != null)
-                        g.Add(elem);
-                }
+                FileVersion = DxfFileVersion.R2004,
+            };
+            var dxfFile = DxfFileHandler.ToDxfFile(workspace.Drawing, workspace.ActiveViewPort, fileSettings);
+            var viewPort = ViewModel.ViewPort;
+            var viewPortWidth = ViewModel.ViewWidth / ViewModel.ViewHeight * viewPort.ViewHeight;
+            var dxfRect = new ConverterDxfRect(viewPort.BottomLeft.X, viewPort.BottomLeft.X + viewPortWidth, viewPort.BottomLeft.Y, viewPort.BottomLeft.Y + viewPort.ViewHeight);
+            var svgRect = new ConverterSvgRect(ViewModel.ViewWidth, ViewModel.ViewHeight);
+            var options = new DxfToSvgConverterOptions(dxfRect, svgRect);
+            var xml = converter.Convert(dxfFile, options);
+            xml.Attribute("width").Value = $"{ViewModel.OutputWidth}";
+            xml.Attribute("height").Value = $"{ViewModel.OutputHeight}";
 
-                root.Add(g);
-            }
-
-            var settings = new XmlWriterSettings()
+            var writerSettings = new XmlWriterSettings()
             {
                 Indent = true,
                 IndentChars = "  "
             };
-
-            using (var writer = XmlWriter.Create(ViewModel.Stream, settings))
+            using (var writer = XmlWriter.Create(ViewModel.Stream, writerSettings))
             {
-                var doc = new XDocument(
-                    new XDocumentType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null),
-                    root);
-                doc.WriteTo(writer);
+                if (ViewModel.PlotAsDocument)
+                {
+                    var doc = new XDocument(
+                        new XDocumentType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null),
+                        xml);
+                    doc.WriteTo(writer);
+                }
+                else
+                {
+                    xml.WriteTo(writer);
+                }
+
                 writer.Flush();
             }
         }

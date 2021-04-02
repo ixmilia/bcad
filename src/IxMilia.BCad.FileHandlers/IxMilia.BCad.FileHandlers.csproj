@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj" />
+    <ProjectReference Include="..\IxMilia.Converters\src\IxMilia.Converters\IxMilia.Converters.csproj" />
     <ProjectReference Include="..\IxMilia.Converters\src\IxMilia.Dxf\src\IxMilia.Dxf\IxMilia.Dxf.csproj" />
     <ProjectReference Include="..\IxMilia.Iges\src\IxMilia.Iges\IxMilia.Iges.csproj" />
     <ProjectReference Include="..\IxMilia.Converters\src\IxMilia.Pdf\src\IxMilia.Pdf\IxMilia.Pdf.csproj" />

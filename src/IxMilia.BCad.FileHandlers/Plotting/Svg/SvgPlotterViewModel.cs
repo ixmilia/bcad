@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 
 namespace IxMilia.BCad.Plotting.Svg
@@ -12,13 +11,6 @@ namespace IxMilia.BCad.Plotting.Svg
             set => SetValue(ref _stream, value);
         }
 
-        private string _fileName;
-        public string FileName
-        {
-            get => _fileName;
-            set => SetValue(ref _fileName, value);
-        }
-
         private double _width;
         public double Width
         {
@@ -28,8 +20,6 @@ namespace IxMilia.BCad.Plotting.Svg
                 SetValue(ref _width, value);
                 OnPropertyChanged(nameof(ViewWidth));
                 OnPropertyChanged(nameof(ViewHeight));
-                OnPropertyChanged(nameof(PreviewWidth));
-                OnPropertyChanged(nameof(PreviewHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
@@ -43,8 +33,6 @@ namespace IxMilia.BCad.Plotting.Svg
                 SetValue(ref _height, value);
                 OnPropertyChanged(nameof(ViewWidth));
                 OnPropertyChanged(nameof(ViewHeight));
-                OnPropertyChanged(nameof(PreviewWidth));
-                OnPropertyChanged(nameof(PreviewHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
@@ -53,17 +41,35 @@ namespace IxMilia.BCad.Plotting.Svg
 
         public override double ViewHeight => Height;
 
-        public double MaxPreviewSize => 400.0;
+        private double _outputWidth;
+        public double OutputWidth
+        {
+            get => _outputWidth;
+            set => SetValue(ref _outputWidth, value);
+        }
 
-        public double PreviewWidth => (ViewWidth / Math.Max(ViewWidth, ViewHeight)) * MaxPreviewSize;
+        private double _outputHeight;
+        public double OutputHeight
+        {
+            get => _outputHeight;
+            set => SetValue(ref _outputHeight, value);
+        }
 
-        public double PreviewHeight => (ViewHeight / Math.Max(ViewWidth, ViewHeight)) * MaxPreviewSize;
+        private bool _plotAsDocument;
+        public bool PlotAsDocument
+        {
+            get => _plotAsDocument;
+            set => SetValue(ref _plotAsDocument, value);
+        }
 
         public SvgPlotterViewModel(IWorkspace workspace)
             : base(workspace)
         {
             Width = 640.0;
             Height = 480.0;
+
+            OutputWidth = Width;
+            OutputHeight = Height;
         }
     }
 }

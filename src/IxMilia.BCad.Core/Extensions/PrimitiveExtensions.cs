@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
@@ -12,7 +13,7 @@ namespace IxMilia.BCad.Extensions
     {
         private static double[] SIN;
         private static double[] COS;
-        public const int DefaultPixelBuffer = 20;
+        public const double DefaultViewportBuffer = 20.0;
 
         static PrimitiveExtensions()
         {
@@ -919,7 +920,7 @@ namespace IxMilia.BCad.Extensions
             return points;
         }
 
-        public static ViewPort ShowAllViewPort(this IEnumerable<IPrimitive> primitives, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, int pixelBuffer = DefaultPixelBuffer)
+        public static Rect GetExtents(this IEnumerable<IPrimitive> primitives, Vector sight)
         {
             var drawingPlane = new Plane(Point.Origin, sight);
             var planeProjection = drawingPlane.ToXYPlaneProjection();
@@ -928,7 +929,10 @@ namespace IxMilia.BCad.Extensions
                 .Select(p => planeProjection.Transform(p));
 
             if (allPoints.Count() < 2)
-                return new ViewPort(Point.Origin, Vector.ZAxis, Vector.YAxis, 10.0);
+            {
+                // TODO: better handling for 0 or 1 primitives
+                return new Rect(0, 0, 1, 1);
+            }
 
             var first = allPoints.First();
             var minx = first.X;
@@ -947,10 +951,26 @@ namespace IxMilia.BCad.Extensions
                     maxy = point.Y;
             }
 
+            return new Rect(minx, miny, maxx, maxy);
+        }
+
+        public static ViewPort ShowAllViewPort(this IEnumerable<IPrimitive> primitives, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, double viewportBuffer = DefaultViewportBuffer)
+        {
+            return primitives.GetExtents(sight).ShowAllViewPort(sight, up, viewPortWidth, viewPortHeight, viewportBuffer);
+        }
+
+        public static ViewPort ShowAllViewPort(this Rect extents, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, double viewportBuffer = DefaultViewportBuffer)
+        {
+            var minx = extents.Left;
+            var miny = extents.Top;
+            var maxx = extents.BottomRight.X;
+            var maxy = extents.BottomRight.Y;
             var deltaX = maxx - minx;
             var deltaY = maxy - miny;
 
             // translate back out of XY plane
+            var drawingPlane = new Plane(Point.Origin, sight);
+            var planeProjection = drawingPlane.ToXYPlaneProjection();
             var unproj = planeProjection.Inverse();
             var bottomLeft = unproj.Transform(new Point(minx, miny, 0));
             var topRight = unproj.Transform(new Point(minx + deltaX, miny + deltaY, 0));
@@ -969,7 +989,7 @@ namespace IxMilia.BCad.Extensions
 
                 // add a buffer of some amount of pixels
                 var pixelWidth = drawingWidth * drawingToViewScale;
-                var newPixelWidth = pixelWidth + (pixelBuffer * 2);
+                var newPixelWidth = pixelWidth + (viewportBuffer * 2.0);
                 viewHeight *= newPixelWidth / pixelWidth;
             }
             else
@@ -980,7 +1000,7 @@ namespace IxMilia.BCad.Extensions
 
                 // add a buffer of some amount of pixels
                 var pixelHeight = drawingHeight * drawingToViewScale;
-                var newPixelHeight = pixelHeight + (pixelBuffer * 2);
+                var newPixelHeight = pixelHeight + (viewportBuffer * 2.0);
                 viewHeight *= newPixelHeight / pixelHeight;
             }
 

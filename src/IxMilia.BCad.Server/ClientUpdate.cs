@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
 
@@ -20,7 +21,7 @@ namespace IxMilia.BCad.Server
             Z = z;
         }
 
-        public ClientPoint(Point p)
+        internal ClientPoint(Point p)
             : this(p.X, p.Y, p.Z)
         {
         }
@@ -28,6 +29,64 @@ namespace IxMilia.BCad.Server
         public static implicit operator ClientPoint(Point p)
         {
             return new ClientPoint(p.X, p.Y, p.Z);
+        }
+
+        public override string ToString()
+        {
+            return $"({X}, {Y}, {Z})";
+        }
+    }
+
+    public struct ClientRectangle
+    {
+        public ClientPoint TopLeft { get; }
+        public ClientPoint BottomRight { get; }
+
+        public ClientRectangle(ClientPoint topLeft, ClientPoint bottomRight)
+        {
+            TopLeft = topLeft;
+            BottomRight = bottomRight;
+        }
+
+        public override string ToString()
+        {
+            return $"{{{TopLeft} - {BottomRight}}}";
+        }
+    }
+
+    public struct ClientPlotSettings
+    {
+        public ClientRectangle Viewport { get; }
+        public string ScaleA { get; }
+        public string ScaleB { get; }
+        public PlotScalingType ScalingType { get; }
+        public PlotViewPortType ViewPortType { get; }
+        public double Width { get; }
+        public double Height { get; }
+        public double PreviewMaxSize { get; }
+
+        public ClientPlotSettings(ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, double width, double height, double previewMaxSize)
+        {
+            Viewport = viewport;
+            ScaleA = scaleA;
+            ScaleB = scaleB;
+            ScalingType = scalingType;
+            ViewPortType = viewPortType;
+            Width = width;
+            Height = height;
+            PreviewMaxSize = previewMaxSize;
+        }
+    }
+
+    public struct ClientDownload
+    {
+        public string Filename { get; }
+        public string Data { get; }
+
+        public ClientDownload(string filename, string data)
+        {
+            Filename = filename;
+            Data = data;
         }
     }
 

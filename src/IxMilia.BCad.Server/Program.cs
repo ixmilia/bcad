@@ -50,6 +50,7 @@ namespace IxMilia.BCad.Server
             serverRpc.AddLocalRpcTarget(server);
             ((HtmlDialogService)workspace.DialogService).Agent = server;
             serverRpc.TraceSource.Listeners.Add(new Listener());
+            serverRpc.TraceSource.Switch.Level = SourceLevels.Warning;
             serverRpc.StartListening();
             Console.Error.WriteLine("server listening");
 
@@ -61,7 +62,7 @@ namespace IxMilia.BCad.Server
 
         private static void RegisterWithWorkspace(IWorkspace workspace)
         {
-            workspace.RegisterService(new HtmlDialogService());
+            workspace.RegisterService(new HtmlDialogService(workspace));
 
             workspace.ReaderWriterService.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
             workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
@@ -76,10 +77,12 @@ namespace IxMilia.BCad.Server
     {
         public override void Write(string message)
         {
+            Console.Error.Write(message);
         }
 
         public override void WriteLine(string message)
         {
+            Console.Error.WriteLine(message);
         }
 
         public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)

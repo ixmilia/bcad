@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
-using IxMilia.BCad.FileHandlers;
 using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Primitives;
 using IxMilia.BCad.Settings;
 using Newtonsoft.Json.Linq;
@@ -134,7 +135,14 @@ namespace IxMilia.BCad.Server
             }
         }
 
-        public void PushUpdate(ClientUpdate clientUpdate)
+        internal void DownloadFile(string filename, byte[] data)
+        {
+            var base64 = Convert.ToBase64String(data);
+            var download = new ClientDownload(filename, base64);
+            _rpc.NotifyAsync("DownloadFile", download);
+        }
+
+        private void PushUpdate(ClientUpdate clientUpdate)
         {
             _rpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
@@ -240,6 +248,31 @@ namespace IxMilia.BCad.Server
             }
 
             return null;
+        }
+
+        public string GetPlotPreview(ClientPlotSettings settings)
+        {
+            var htmlDialogService = (HtmlDialogService)_workspace.DialogService;
+            var viewModel = htmlDialogService.CreateAndPopulateViewModel(settings);
+            viewModel.OutputWidth = settings.PreviewMaxSize;
+            viewModel.OutputHeight = settings.PreviewMaxSize;
+            if (settings.Width > settings.Height)
+            {
+                // keep width, reset height
+                viewModel.OutputHeight = settings.Height / settings.Width * settings.PreviewMaxSize;
+            }
+            else
+            {
+                // keep height, reset width
+                viewModel.OutputWidth = settings.Width / settings.Height * settings.PreviewMaxSize;
+            }
+
+            using (var stream = htmlDialogService.PlotToStream(viewModel))
+            using (var reader = new StreamReader(stream))
+            {
+                var contents = reader.ReadToEnd();
+                return contents;
+            }
         }
 
         public void Undo()

@@ -194,3 +194,25 @@ table.dialog-layer-table tbody {
     width: 200px;
     height: 100px;
 }
+
+/* plot dialog */
+#dialog-plot-background {
+    background-color: gray;
+    border: 1px solid black;
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+#dialog-plot-display {
+    background-color: white;
+    border: 1px solid black;
+}
+
+.dialog-plot-scale-value > input[id="dialog-plot-scaling-type-fit"]:checked {
+    color: gray;
+}

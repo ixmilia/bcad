@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -54,6 +55,8 @@ namespace IxMilia.BCad.Server
             }
 
             // special-cased types
+            AddInterface(typeof(ClientDownload));
+            AddInterface(typeof(ClientUpdate));
             AddInterface(typeof(DxfFileSettings));
 
             // emit types
@@ -85,6 +88,7 @@ namespace IxMilia.BCad.Server
             // add commands
             sb.AppendLine("export abstract class ClientAgent {");
             sb.AppendLine("    abstract postNotification(method: string, params: any): void;");
+            sb.AppendLine("    abstract invoke(method: string, params: any): Promise<any>;");
             foreach (var methodInfo in agentType.GetMethods(methodBindingFlags))
             {
                 if (!methodInfo.IsSpecialName)
@@ -92,9 +96,18 @@ namespace IxMilia.BCad.Server
                     var parameters = methodInfo.GetParameters();
                     var args = string.Join(", ", parameters.Select(p => $"{p.Name}: {TypeName(p.ParameterType)}"));
                     sb.AppendLine();
-                    sb.AppendLine($"    {CamelCase(methodInfo.Name)}({args}): void {{");
-                    sb.AppendLine($"        this.postNotification('{methodInfo.Name}', {{ {string.Join(", ", parameters.Select(p => p.Name))} }});");
-                    sb.AppendLine("    }");
+                    if (methodInfo.ReturnType == typeof(void) || methodInfo.ReturnType == typeof(Task))
+                    {
+                        sb.AppendLine($"    {CamelCase(methodInfo.Name)}({args}): void {{");
+                        sb.AppendLine($"        this.postNotification('{methodInfo.Name}', {{ {string.Join(", ", parameters.Select(p => p.Name))} }});");
+                        sb.AppendLine("    }");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"    {CamelCase(methodInfo.Name)}({args}): Promise<{TypeName(methodInfo.ReturnType)}> {{");
+                        sb.AppendLine($"        return this.invoke('{methodInfo.Name}', {{ {string.Join(", ", parameters.Select(p => p.Name))} }});");
+                        sb.AppendLine("    }");
+                    }
                 }
             }
 
@@ -118,7 +131,11 @@ namespace IxMilia.BCad.Server
 
                 if (type.IsGenericType)
                 {
-                    return $"{TypeName(type.GenericTypeArguments[0])}[]";
+                    typeName = $"{TypeName(type.GenericTypeArguments[0])}";
+                    if (typeof(IEnumerable).IsAssignableFrom(type))
+                    {
+                        typeName += "[]";
+                    }
                 }
 
                 return typeName;

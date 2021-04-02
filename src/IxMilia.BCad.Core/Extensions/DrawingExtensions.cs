@@ -218,9 +218,14 @@ namespace IxMilia.BCad
             return drawing.Add(polyLayer);
         }
 
-        public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, int pixelBuffer = PrimitiveExtensions.DefaultPixelBuffer)
+        public static Rect GetExtents(this Drawing drawing, Vector sight)
         {
-            return drawing.GetEntities().SelectMany(e => e.GetPrimitives()).ShowAllViewPort(sight, up, viewPortWidth, viewPortHeight, pixelBuffer);
+            return drawing.GetEntities().SelectMany(e => e.GetPrimitives()).GetExtents(sight);
+        }
+
+        public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, double viewportBuffer = PrimitiveExtensions.DefaultViewportBuffer)
+        {
+            return drawing.GetExtents(sight).ShowAllViewPort(sight, up, viewPortWidth, viewPortHeight, viewportBuffer);
         }
     }
 }

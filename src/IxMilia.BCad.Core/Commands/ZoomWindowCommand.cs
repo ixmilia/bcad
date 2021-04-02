@@ -18,7 +18,7 @@ namespace IxMilia.BCad.Commands
                 workspace.ActiveViewPort.Up,
                 workspace.ViewControl.DisplayWidth,
                 workspace.ViewControl.DisplayHeight,
-                pixelBuffer: 0);
+                viewportBuffer: 0.0);
 
             if (newVp == null)
                 return false;

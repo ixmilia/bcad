@@ -6,8 +6,8 @@ namespace IxMilia.BCad.Commands
     {
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
-            var result = (bool)(await workspace.DialogService.ShowDialog("plot", null));
-            return result == true;
+            var result = await workspace.DialogService.ShowDialog("plot", null);
+            return true;
         }
     }
 }
