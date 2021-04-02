@@ -56,6 +56,7 @@ namespace IxMilia.BCad.Server
 
     public struct ClientPlotSettings
     {
+        public string PlotType { get; }
         public ClientRectangle Viewport { get; }
         public string ScaleA { get; }
         public string ScaleB { get; }
@@ -65,8 +66,9 @@ namespace IxMilia.BCad.Server
         public double Height { get; }
         public double PreviewMaxSize { get; }
 
-        public ClientPlotSettings(ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, double width, double height, double previewMaxSize)
+        public ClientPlotSettings(string plotType, ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, double width, double height, double previewMaxSize)
         {
+            PlotType = plotType;
             Viewport = viewport;
             ScaleA = scaleA;
             ScaleB = scaleB;
@@ -81,11 +83,13 @@ namespace IxMilia.BCad.Server
     public struct ClientDownload
     {
         public string Filename { get; }
+        public string MimeType { get; }
         public string Data { get; }
 
-        public ClientDownload(string filename, string data)
+        public ClientDownload(string filename, string mimeType, string data)
         {
             Filename = filename;
+            MimeType = mimeType;
             Data = data;
         }
     }

@@ -1,7 +1,10 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.FileHandlers;
+using IxMilia.BCad.Plotting;
+using IxMilia.BCad.Plotting.Pdf;
 using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Services;
 
@@ -12,11 +15,13 @@ namespace IxMilia.BCad.Server
         internal ServerAgent Agent { get; set; }
 
         private IWorkspace _workspace;
+        private PdfPlotterFactory _pdfPlotterFactory;
         private SvgPlotterFactory _svgPlotterFactory;
 
         public HtmlDialogService(IWorkspace workspace)
         {
             _workspace = workspace;
+            _pdfPlotterFactory = new PdfPlotterFactory(workspace);
             _svgPlotterFactory = new SvgPlotterFactory(workspace);
         }
 
@@ -55,8 +60,14 @@ namespace IxMilia.BCad.Server
                             stream.CopyTo(ms);
                             ms.Seek(0, SeekOrigin.Begin);
                             var bytes = ms.ToArray();
-                            var filename = Path.GetFileNameWithoutExtension(_workspace.Drawing.Settings.FileName ?? "Untitled") + ".svg";
-                            Agent.DownloadFile(filename, bytes);
+                            var filename = Path.GetFileNameWithoutExtension(_workspace.Drawing.Settings.FileName ?? "Untitled") + "." + plotSettings.PlotType;
+                            var mimeType = plotSettings.PlotType switch
+                            {
+                                "pdf" => "application/pdf",
+                                "svg" => "image/svg+xml",
+                                _ => "application/octet-stream",
+                            };
+                            Agent.DownloadFile(filename, mimeType, bytes);
                         }
 
                         result = plotSettings;
@@ -67,28 +78,59 @@ namespace IxMilia.BCad.Server
             return result;
         }
 
-        public SvgPlotterViewModel CreateAndPopulateViewModel(ClientPlotSettings settings)
+        public ViewModelBase CreateAndPopulateViewModel(ClientPlotSettings settings, string plotTypeOverride = null)
         {
-            var viewModel = (SvgPlotterViewModel)_svgPlotterFactory.CreatePlotterViewModel();
-            viewModel.PlotAsDocument = false;
-            viewModel.ViewPortType = settings.ViewPortType;
-            viewModel.ScalingType = settings.ScalingType;
-            viewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
-            viewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
-            viewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
-            viewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
-            viewModel.Width = settings.Width;
-            viewModel.Height = settings.Height;
-            viewModel.OutputWidth = settings.Width;
-            viewModel.OutputHeight = settings.Height;
+            ViewModelBase viewModel = null;
+            switch (plotTypeOverride ?? settings.PlotType)
+            {
+                case "pdf":
+                    {
+                        var pdfViewModel = (PdfPlotterViewModel)_pdfPlotterFactory.CreatePlotterViewModel();
+                        var pageViewModel = pdfViewModel.Pages.Single(); // TODO: support multiple pages
+                        pageViewModel.ViewPortType = settings.ViewPortType;
+                        pageViewModel.ScalingType = settings.ScalingType;
+                        pageViewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
+                        pageViewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
+                        pageViewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
+                        pageViewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
+                        pageViewModel.Width = settings.Width;
+                        pageViewModel.Height = settings.Height;
+                        viewModel = pdfViewModel;
+                    }
+                    break;
+                case "svg":
+                    {
+                        var svgViewModel = (SvgPlotterViewModel)_svgPlotterFactory.CreatePlotterViewModel();
+                        svgViewModel.PlotAsDocument = true;
+                        svgViewModel.ViewPortType = settings.ViewPortType;
+                        svgViewModel.ScalingType = settings.ScalingType;
+                        svgViewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
+                        svgViewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
+                        svgViewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
+                        svgViewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
+                        svgViewModel.Width = settings.Width;
+                        svgViewModel.Height = settings.Height;
+                        svgViewModel.OutputWidth = settings.Width;
+                        svgViewModel.OutputHeight = settings.Height;
+                        viewModel = svgViewModel;
+                    }
+                    break;
+            }
+
             return viewModel;
         }
 
-        public Stream PlotToStream(SvgPlotterViewModel viewModel)
+        public Stream PlotToStream(ViewModelBase viewModel)
         {
             var stream = new MemoryStream();
             viewModel.Stream = stream;
-            var plotter = _svgPlotterFactory.CreatePlotter(viewModel);
+            IPlotterFactory plotterFactory = viewModel switch
+            {
+                PdfPlotterViewModel _ => _pdfPlotterFactory,
+                SvgPlotterViewModel _ => _svgPlotterFactory,
+                _ => throw new System.Exception($"Unexpected view model: {viewModel?.GetType().Name}"),
+            };
+            var plotter = plotterFactory.CreatePlotter(viewModel);
             plotter.Plot(_workspace);
             viewModel.Stream.Seek(0, SeekOrigin.Begin);
             return viewModel.Stream;

@@ -386,10 +386,25 @@
         <input id="dialog-plot-viewport-type-window" type="radio" name="viewport-type" value="window" />
         <label for="dialog-plot-viewport-type-window">Window</label><br />
 
+        <label for="dialog-plot-type">Plot type</label>
+        <select id="dialog-plot-type">
+          <option value="pdf" selected="selected">PDF</option>
+          <option value="svg">SVG</option>
+        </select>
+        <br />
+
         <span>Size</span>
-        <input id="dialog-plot-size-width" type="number" value="640" />
-        <span>x</span>
-        <input id="dialog-plot-size-height" type="number" value="480" />
+        <div id="dialog-plot-size-pdf">
+          <select id="dialog-plot-size-pdf-orientation">
+            <option value="letter">Letter</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </div>
+        <div id="dialog-plot-size-svg" style="display: none">
+          <input id="dialog-plot-size-width" type="number" value="640" />
+          <span>x</span>
+          <input id="dialog-plot-size-height" type="number" value="480" />
+        </div>
 
         <div id="dialog-plot-background">
           <div id="dialog-plot-display"></div>

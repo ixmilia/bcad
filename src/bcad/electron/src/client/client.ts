@@ -22,7 +22,7 @@ export class Client extends ClientAgent {
                 case 'DownloadFile':
                     const fileData = <ClientDownload>message.params;
                     const element = document.createElement('a');
-                    element.href = 'data:image/svg+xml;base64,' + fileData.Data;
+                    element.href = `data:${fileData.MimeType};base64,${fileData.Data}`;
                     element.download = fileData.Filename;
                     element.click();
                     break;

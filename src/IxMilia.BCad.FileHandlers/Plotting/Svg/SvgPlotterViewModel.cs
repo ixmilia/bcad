@@ -1,16 +1,7 @@
-using System.IO;
-
 namespace IxMilia.BCad.Plotting.Svg
 {
     public class SvgPlotterViewModel : ViewPortViewModel
     {
-        private Stream _stream;
-        public Stream Stream
-        {
-            get => _stream;
-            set => SetValue(ref _stream, value);
-        }
-
         private double _width;
         public double Width
         {

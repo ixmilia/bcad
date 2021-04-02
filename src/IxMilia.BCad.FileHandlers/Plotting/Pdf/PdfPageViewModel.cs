@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace IxMilia.BCad.Plotting.Pdf
 {
     public class PdfPageViewModel : ViewPortViewModel
@@ -18,37 +15,41 @@ namespace IxMilia.BCad.Plotting.Pdf
 
         public string PageName => $"Page {PageNumber}";
 
-        private PdfPageSize _pageSize;
-        public PdfPageSize PageSize
+        public double MaxPreviewSize => 400.0;
+
+        private double _width;
+        public double Width
         {
-            get => _pageSize;
+            get => _width;
             set
             {
-                SetValue(ref _pageSize, value);
+                SetValue(ref _width, value);
                 OnPropertyChanged(nameof(ViewWidth));
                 OnPropertyChanged(nameof(ViewHeight));
-                OnPropertyChanged(nameof(PreviewWidth));
-                OnPropertyChanged(nameof(PreviewHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
 
-        public IEnumerable<PdfPageSize> AvailablePageSizes => new[] { PdfPageSize.Portrait, PdfPageSize.Landscape };
+        private double _height;
+        public double Height
+        {
+            get => _height;
+            set
+            {
+                SetValue(ref _height, value);
+                OnPropertyChanged(nameof(ViewWidth));
+                OnPropertyChanged(nameof(ViewHeight));
+                OnPropertyChanged(nameof(ViewPort));
+            }
+        }
 
-        public override double ViewWidth => PageSize == PdfPageSize.Portrait ? 8.5 : 11.0;
+        public override double ViewWidth => Width;
 
-        public override double ViewHeight => PageSize == PdfPageSize.Portrait ? 11.0 : 8.5;
-
-        public double MaxPreviewSize => 400.0;
-
-        public double PreviewWidth => (ViewWidth / Math.Max(ViewWidth, ViewHeight)) * MaxPreviewSize;
-
-        public double PreviewHeight=> (ViewHeight / Math.Max(ViewWidth, ViewHeight)) * MaxPreviewSize;
+        public override double ViewHeight => Height;
 
         public PdfPageViewModel(IWorkspace workspace)
             : base(workspace)
         {
-            PageSize = PdfPageSize.Portrait;
         }
     }
 }

@@ -43,7 +43,8 @@ namespace IxMilia.BCad.FileHandlers.Test
             var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
             Assert.Equal(1, vm.Pages.Count);
             Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(8.5, 11.0, 0.0))));
-            vm.SelectedPage.PageSize = PdfPageSize.Portrait;
+            vm.SelectedPage.Width = 8.5;
+            vm.SelectedPage.Height = 11.0;
             vm.SelectedPage.ScalingType = PlotScalingType.Absolute;
             vm.SelectedPage.ViewPortType = PlotViewPortType.Extents;
             var actual = PlotToString(vm);

@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
 
 namespace IxMilia.BCad.Plotting.Pdf
@@ -20,13 +19,6 @@ namespace IxMilia.BCad.Plotting.Pdf
         }
 
         public ObservableCollection<PdfPageViewModel> Pages { get; }
-
-        private Stream _stream;
-        public Stream Stream
-        {
-            get => _stream;
-            set => SetValue(ref _stream, value);
-        }
 
         private string _fileName;
         public string FileName

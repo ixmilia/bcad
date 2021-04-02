@@ -15,6 +15,10 @@ export class PlotDialog extends DialogBase {
     private scaleB: HTMLInputElement;
     private width: HTMLInputElement;
     private height: HTMLInputElement;
+    private plotType: HTMLSelectElement;
+    private plotSizeSvg: HTMLDivElement;
+    private plotSizePdf: HTMLDivElement;
+    private pdfOrientation: HTMLSelectElement;
 
     constructor(readonly client: Client, dialogHandler: DialogHandler) {
         super(dialogHandler, "plot");
@@ -30,6 +34,24 @@ export class PlotDialog extends DialogBase {
         this.viewportWindow = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-window');
         this.width = <HTMLInputElement>document.getElementById('dialog-plot-size-width');
         this.height = <HTMLInputElement>document.getElementById('dialog-plot-size-height');
+        this.plotType = <HTMLSelectElement>document.getElementById('dialog-plot-type');
+        this.plotSizePdf = <HTMLDivElement>document.getElementById('dialog-plot-size-pdf');
+        this.plotSizeSvg = <HTMLDivElement>document.getElementById('dialog-plot-size-svg');
+        this.pdfOrientation = <HTMLSelectElement>document.getElementById('dialog-plot-size-pdf-orientation');
+
+        this.plotType.addEventListener('change', () => {
+            this.plotSizePdf.style.display = 'none';
+            this.plotSizeSvg.style.display = 'none';
+            switch (this.plotType.value) {
+                case 'pdf':
+                    this.plotSizePdf.style.display = 'block';
+                    break;
+                case 'svg':
+                    this.plotSizeSvg.style.display = 'block';
+                    break;
+            }
+        });
+
         const elements = [
             'dialog-plot-scaling-type-absolute',
             'dialog-plot-scaling-type-fit',
@@ -39,6 +61,8 @@ export class PlotDialog extends DialogBase {
             'dialog-plot-viewport-type-window',
             'dialog-plot-size-width',
             'dialog-plot-size-height',
+            'dialog-plot-type',
+            'dialog-plot-size-pdf-orientation',
         ];
         for (const element of elements) {
             document.getElementById(element)!.addEventListener('change', () => {
@@ -74,14 +98,32 @@ export class PlotDialog extends DialogBase {
                 Z: 0,
             }
         };
+
+        let width = this.width.valueAsNumber;
+        let height = this.height.valueAsNumber;
+
+        if (this.plotType.value === 'pdf') {
+            switch (this.pdfOrientation.value) {
+                case 'letter':
+                    width = 8.5;
+                    height = 11.0;
+                    break;
+                case 'landscape':
+                    width = 11.0;
+                    height = 8.5;
+                    break;
+            }
+        }
+
         const settings: ClientPlotSettings = {
+            PlotType: this.plotType.value,
             Viewport: viewport,
             ScaleA: this.scaleA.value,
             ScaleB: this.scaleB.value,
             ScalingType: this.scaleFit.checked ? 1 : 0,
             ViewPortType: this.viewportWindow ? 1 : 0,
-            Width: this.width.valueAsNumber,
-            Height: this.height.valueAsNumber,
+            Width: width,
+            Height: height,
             PreviewMaxSize: this.displayContainerDiv.clientHeight,
         };
         return settings;

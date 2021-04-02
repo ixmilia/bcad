@@ -135,10 +135,10 @@ namespace IxMilia.BCad.Server
             }
         }
 
-        internal void DownloadFile(string filename, byte[] data)
+        internal void DownloadFile(string filename, string mimeType, byte[] data)
         {
             var base64 = Convert.ToBase64String(data);
-            var download = new ClientDownload(filename, base64);
+            var download = new ClientDownload(filename, mimeType, base64);
             _rpc.NotifyAsync("DownloadFile", download);
         }
 
@@ -253,7 +253,8 @@ namespace IxMilia.BCad.Server
         public string GetPlotPreview(ClientPlotSettings settings)
         {
             var htmlDialogService = (HtmlDialogService)_workspace.DialogService;
-            var viewModel = htmlDialogService.CreateAndPopulateViewModel(settings);
+            var viewModel = (SvgPlotterViewModel)htmlDialogService.CreateAndPopulateViewModel(settings, plotTypeOverride: "svg"); // force to svg for preview
+            viewModel.PlotAsDocument = false;
             viewModel.OutputWidth = settings.PreviewMaxSize;
             viewModel.OutputHeight = settings.PreviewMaxSize;
             if (settings.Width > settings.Height)
