@@ -1,13 +1,21 @@
 using System;
+using System.IO;
 
 namespace IxMilia.BCad.Plotting
 {
-    public abstract class ViewPortViewModel : ViewModelBase
+    public abstract class ViewPortViewModelBase : ViewModelBase
     {
         public IWorkspace Workspace { get; }
 
         public abstract double ViewHeight { get; }
         public abstract double ViewWidth { get; }
+
+        private Stream _stream;
+        public Stream Stream
+        {
+            get => _stream;
+            set => SetValue(ref _stream, value);
+        }
 
         private PlotScalingType _scalingType;
         public PlotScalingType ScalingType
@@ -112,7 +120,7 @@ namespace IxMilia.BCad.Plotting
             }
         }
 
-        public ViewPortViewModel(IWorkspace workspace)
+        public ViewPortViewModelBase(IWorkspace workspace)
         {
             Workspace = workspace;
             ScalingType = PlotScalingType.ToFit;

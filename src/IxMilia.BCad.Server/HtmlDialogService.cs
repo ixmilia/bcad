@@ -78,49 +78,42 @@ namespace IxMilia.BCad.Server
             return result;
         }
 
-        public ViewModelBase CreateAndPopulateViewModel(ClientPlotSettings settings, string plotTypeOverride = null)
+        public ViewPortViewModelBase CreateAndPopulateViewModel(ClientPlotSettings settings, string plotTypeOverride = null)
         {
-            ViewModelBase viewModel = null;
+            ViewPortViewModelBase viewModel = null;
             switch (plotTypeOverride ?? settings.PlotType)
             {
                 case "pdf":
-                    {
-                        var pdfViewModel = (PdfPlotterViewModel)_pdfPlotterFactory.CreatePlotterViewModel();
-                        var pageViewModel = pdfViewModel.Pages.Single(); // TODO: support multiple pages
-                        pageViewModel.ViewPortType = settings.ViewPortType;
-                        pageViewModel.ScalingType = settings.ScalingType;
-                        pageViewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
-                        pageViewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
-                        pageViewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
-                        pageViewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
-                        pageViewModel.Width = settings.Width;
-                        pageViewModel.Height = settings.Height;
-                        viewModel = pdfViewModel;
-                    }
+                    var pdfViewModel = (PdfPlotterViewModel)_pdfPlotterFactory.CreatePlotterViewModel();
+                    pdfViewModel.Width = settings.Width;
+                    pdfViewModel.Height = settings.Height;
+                    viewModel = pdfViewModel;
                     break;
                 case "svg":
-                    {
-                        var svgViewModel = (SvgPlotterViewModel)_svgPlotterFactory.CreatePlotterViewModel();
-                        svgViewModel.PlotAsDocument = true;
-                        svgViewModel.ViewPortType = settings.ViewPortType;
-                        svgViewModel.ScalingType = settings.ScalingType;
-                        svgViewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
-                        svgViewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
-                        svgViewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
-                        svgViewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
-                        svgViewModel.Width = settings.Width;
-                        svgViewModel.Height = settings.Height;
-                        svgViewModel.OutputWidth = settings.Width;
-                        svgViewModel.OutputHeight = settings.Height;
-                        viewModel = svgViewModel;
-                    }
+                    var svgViewModel = (SvgPlotterViewModel)_svgPlotterFactory.CreatePlotterViewModel();
+                    svgViewModel.PlotAsDocument = true;
+                    svgViewModel.Width = settings.Width;
+                    svgViewModel.Height = settings.Height;
+                    svgViewModel.OutputWidth = settings.Width;
+                    svgViewModel.OutputHeight = settings.Height;
+                    viewModel = svgViewModel;
                     break;
+            }
+
+            if (viewModel is object)
+            {
+                viewModel.ViewPortType = settings.ViewPortType;
+                viewModel.ScalingType = settings.ScalingType;
+                viewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
+                viewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
+                viewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
+                viewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
             }
 
             return viewModel;
         }
 
-        public Stream PlotToStream(ViewModelBase viewModel)
+        public Stream PlotToStream(ViewPortViewModelBase viewModel)
         {
             var stream = new MemoryStream();
             viewModel.Stream = stream;

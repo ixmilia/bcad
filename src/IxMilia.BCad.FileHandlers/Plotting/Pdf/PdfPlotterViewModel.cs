@@ -1,48 +1,40 @@
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
-
 namespace IxMilia.BCad.Plotting.Pdf
 {
-    public class PdfPlotterViewModel : ViewModelBase
+    public class PdfPlotterViewModel : ViewPortViewModelBase
     {
-        public IWorkspace Workspace { get; }
-
-        private PdfPageViewModel _selectedPage;
-        public PdfPageViewModel SelectedPage
+        private double _width;
+        public double Width
         {
-            get => _selectedPage;
+            get => _width;
             set
             {
-                SetValue(ref _selectedPage, value);
+                SetValue(ref _width, value);
+                OnPropertyChanged(nameof(ViewWidth));
+                OnPropertyChanged(nameof(ViewHeight));
+                OnPropertyChanged(nameof(ViewPort));
             }
         }
 
-        public ObservableCollection<PdfPageViewModel> Pages { get; }
-
-        private string _fileName;
-        public string FileName
+        private double _height;
+        public double Height
         {
-            get => _fileName;
-            set => SetValue(ref _fileName, value);
+            get => _height;
+            set
+            {
+                SetValue(ref _height, value);
+                OnPropertyChanged(nameof(ViewWidth));
+                OnPropertyChanged(nameof(ViewHeight));
+                OnPropertyChanged(nameof(ViewPort));
+            }
         }
+
+        public override double ViewWidth => Width;
+
+        public override double ViewHeight => Height;
 
         public PdfPlotterViewModel(IWorkspace workspace)
+            : base(workspace)
         {
-            Workspace = workspace;
-            Pages = new ObservableCollection<PdfPageViewModel>();
-            Pages.CollectionChanged += PagesCollectionChanged;
-            Pages.Add(new PdfPageViewModel(Workspace));
-            SelectedPage = Pages.First();
-        }
-
-        private void PagesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            int i = 1;
-            foreach (var page in Pages)
-            {
-                page.PageNumber = i++;
-            }
         }
     }
 }

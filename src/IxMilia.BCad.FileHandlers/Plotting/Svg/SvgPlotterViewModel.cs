@@ -1,6 +1,6 @@
 namespace IxMilia.BCad.Plotting.Svg
 {
-    public class SvgPlotterViewModel : ViewPortViewModel
+    public class SvgPlotterViewModel : ViewPortViewModelBase
     {
         private double _width;
         public double Width

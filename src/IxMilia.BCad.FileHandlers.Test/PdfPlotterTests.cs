@@ -41,12 +41,11 @@ namespace IxMilia.BCad.FileHandlers.Test
         public void SimplePlotTest()
         {
             var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
-            Assert.Equal(1, vm.Pages.Count);
             Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(8.5, 11.0, 0.0))));
-            vm.SelectedPage.Width = 8.5;
-            vm.SelectedPage.Height = 11.0;
-            vm.SelectedPage.ScalingType = PlotScalingType.Absolute;
-            vm.SelectedPage.ViewPortType = PlotViewPortType.Extents;
+            vm.Width = 8.5;
+            vm.Height = 11.0;
+            vm.ScalingType = PlotScalingType.Absolute;
+            vm.ViewPortType = PlotViewPortType.Extents;
             var actual = PlotToString(vm);
 
             // line should be scaled to (8.5 * 72, 11 * 72)
