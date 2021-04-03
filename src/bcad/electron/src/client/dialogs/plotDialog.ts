@@ -99,21 +99,27 @@ export class PlotDialog extends DialogBase {
             }
         };
 
-        let width = this.width.valueAsNumber;
-        let height = this.height.valueAsNumber;
-
-        if (this.plotType.value === 'pdf') {
-            switch (this.pdfOrientation.value) {
-                case 'letter':
-                    width = 8.5;
-                    height = 11.0;
+        const [width, height] = ((): [number, number] => {
+            switch (this.plotType.value) {
+                case 'pdf':
+                    const pdfPpi = 72.0;
+                    const pointsFromInches = (inches: number) => inches * pdfPpi;
+                    const pointsFromMm = (mm: number) => pointsFromInches(mm / 25.4);
+                    switch (this.pdfOrientation.value) {
+                        case 'a4-portrait':
+                            return [pointsFromMm(210), pointsFromMm(297)];
+                        case 'a4-landscape':
+                            return [pointsFromMm(297), pointsFromMm(210)];
+                        case 'letter-portrait':
+                            return [pointsFromInches(8.5), pointsFromInches(11.0)];
+                        case 'letter-landscape':
+                            return [pointsFromInches(11.0), pointsFromInches(8.5)];
+                    }
                     break;
-                case 'landscape':
-                    width = 11.0;
-                    height = 8.5;
-                    break;
+                case 'svg':
+                    return [this.width.valueAsNumber, this.height.valueAsNumber];
             }
-        }
+        })();
 
         const settings: ClientPlotSettings = {
             PlotType: this.plotType.value,
