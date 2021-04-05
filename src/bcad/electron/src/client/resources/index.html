@@ -382,9 +382,17 @@
         <p>Viewport type</p>
         <input id="dialog-plot-viewport-type-extents" type="radio" name="viewport-type" value="extents"
           checked="checked" />
-        <label for="dialog-plot-viewport-type-extents">Extents</label><br />
+        <label for="dialog-plot-viewport-type-extents">Extents</label>
+        <br />
+
+        <input id="dialog-plot-viewport-type-viewport" type="radio" name="viewport-type" value="viewport" />
+        <label for="dialog-plot-viewport-type-viewport">Viewport</label>
+        <br />
+
         <input id="dialog-plot-viewport-type-window" type="radio" name="viewport-type" value="window" />
-        <label for="dialog-plot-viewport-type-window">Window</label><br />
+        <label for="dialog-plot-viewport-type-window">Window</label>
+        <button id="dialog-plot-select-viewport">Select...</button>
+        <br />
 
         <label for="dialog-plot-type">Plot type</label>
         <select id="dialog-plot-type">
@@ -396,10 +404,10 @@
         <span>Size</span>
         <div id="dialog-plot-size-pdf">
           <select id="dialog-plot-size-pdf-orientation">
-            <option value="a4-portrait" selected="selected">A4 - portrait</option>
-            <option value="a4-landscape">A4 - landscape</option>
-            <option value="letter-portrait">Letter - portrait</option>
+            <option value="letter-portrait" selected="selected">Letter - portrait</option>
             <option value="letter-landscape">Letter - landscape</option>
+            <option value="a4-portrait">A4 - portrait</option>
+            <option value="a4-landscape">A4 - landscape</option>
           </select>
         </div>
         <div id="dialog-plot-size-svg" style="display: none">

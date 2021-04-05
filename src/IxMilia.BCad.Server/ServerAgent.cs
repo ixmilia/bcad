@@ -22,6 +22,8 @@ namespace IxMilia.BCad.Server
         private JsonRpc _rpc;
 
         public bool IsRunning { get; private set; }
+        public double Width => _dim.Width;
+        public double Height => _dim.Height;
 
         public ServerAgent(IWorkspace workspace, JsonRpc rpc)
         {
@@ -274,6 +276,17 @@ namespace IxMilia.BCad.Server
                 var contents = reader.ReadToEnd();
                 return contents;
             }
+        }
+
+        public async Task<ClientRectangle?> GetSelectionRectangle()
+        {
+            var rect = await _dim.GetSelectionRectangle();
+            if (rect.HasValue)
+            {
+                return new ClientRectangle(rect.GetValueOrDefault().TopLeftScreen, rect.GetValueOrDefault().BottomRightScreen);
+            }
+
+            return null;
         }
 
         public void Undo()

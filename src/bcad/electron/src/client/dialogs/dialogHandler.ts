@@ -2,10 +2,12 @@ import { Client } from "../client";
 
 export class DialogHandler {
     private dialogContainer: HTMLDivElement;
-    private dialogHandlers: Record<string, {(dialogOptions: object): Promise<object>}> = {};
+    private dialogMask: HTMLElement;
+    private dialogHandlers: Record<string, { (dialogOptions: object): Promise<object> }> = {};
 
     constructor(client: Client) {
         this.dialogContainer = <HTMLDivElement>document.getElementById('modal-dialog-container');
+        this.dialogMask = <HTMLElement>document.getElementById('modal-dialog-mask');
         this.dialogContainer.addEventListener('keydown', (ev) => {
             ev.stopImmediatePropagation();
             return false;
@@ -15,12 +17,7 @@ export class DialogHandler {
         });
         client.registerDialogHandler((dialogId, dialogOptions) => {
             return new Promise<object>(async (resolve, reject) => {
-                // show modal blocker
-                let dialogMask = <HTMLElement>document.getElementById('modal-dialog-mask');
-                dialogMask.style.display = 'block';
-
-                // show dialog container
-                this.dialogContainer.style.display = 'block';
+                this.showDialogs();
 
                 // show individual dialog
                 let dialogElementId = `modal-dialog-${dialogId}`;
@@ -41,11 +38,20 @@ export class DialogHandler {
                 }
                 finally {
                     dialogElement.style.display = 'none';
-                    this.dialogContainer.style.display = 'none';
-                    dialogMask.style.display = 'none';
+                    this.hideDialogs();
                 }
             });
         });
+    }
+
+    showDialogs() {
+        this.dialogContainer.style.display = 'block';
+        this.dialogMask.style.display = 'block';
+    }
+
+    hideDialogs() {
+        this.dialogContainer.style.display = 'none';
+        this.dialogMask.style.display = 'none';
     }
 
     private resizeDialog() {
@@ -53,7 +59,7 @@ export class DialogHandler {
         this.dialogContainer.style.top = `${(window.innerHeight / 2) - (this.dialogContainer.clientHeight / 2)}px`;
     }
 
-    registerDialogHandler(dialogId: string, dialogHandler: {(dialogOptions: object): Promise<object>}) {
+    registerDialogHandler(dialogId: string, dialogHandler: { (dialogOptions: object): Promise<object> }) {
         this.dialogHandlers[dialogId] = dialogHandler;
     }
 }

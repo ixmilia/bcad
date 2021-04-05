@@ -5,6 +5,7 @@
     "inlineSourceMap": true,
     "outDir": "out",
     "baseUrl": ".",
+    "strict": true,
     "paths": {
       "*": [
         "node_modules/*"

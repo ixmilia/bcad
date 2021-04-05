@@ -9,6 +9,7 @@ export class PlotDialog extends DialogBase {
     private outputPane: HTMLDivElement;
     private scaleAbsolute: HTMLInputElement;
     private scaleFit: HTMLInputElement;
+    private drawingExtents: HTMLInputElement;
     private viewportExtents: HTMLInputElement;
     private viewportWindow: HTMLInputElement;
     private scaleA: HTMLInputElement;
@@ -19,6 +20,9 @@ export class PlotDialog extends DialogBase {
     private plotSizeSvg: HTMLDivElement;
     private plotSizePdf: HTMLDivElement;
     private pdfOrientation: HTMLSelectElement;
+    private selectViewportButton: HTMLButtonElement;
+
+    private selectedViewport: ClientRectangle;
 
     constructor(readonly client: Client, dialogHandler: DialogHandler) {
         super(dialogHandler, "plot");
@@ -30,7 +34,8 @@ export class PlotDialog extends DialogBase {
         this.scaleFit = <HTMLInputElement>document.getElementById('dialog-plot-scaling-type-fit');
         this.scaleA = <HTMLInputElement>document.getElementById('dialog-plot-scale-a');
         this.scaleB = <HTMLInputElement>document.getElementById('dialog-plot-scale-b');
-        this.viewportExtents = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-extents');
+        this.drawingExtents = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-extents');
+        this.viewportExtents = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-viewport');
         this.viewportWindow = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-window');
         this.width = <HTMLInputElement>document.getElementById('dialog-plot-size-width');
         this.height = <HTMLInputElement>document.getElementById('dialog-plot-size-height');
@@ -38,6 +43,25 @@ export class PlotDialog extends DialogBase {
         this.plotSizePdf = <HTMLDivElement>document.getElementById('dialog-plot-size-pdf');
         this.plotSizeSvg = <HTMLDivElement>document.getElementById('dialog-plot-size-svg');
         this.pdfOrientation = <HTMLSelectElement>document.getElementById('dialog-plot-size-pdf-orientation');
+        this.selectViewportButton = <HTMLButtonElement>document.getElementById('dialog-plot-select-viewport');
+
+        // ensure it's set to _something_
+        this.selectedViewport = {
+            TopLeft: { X: 0, Y: 0, Z: 0 },
+            BottomRight: { X: 0, Y: 0, Z: 0 },
+        };
+
+        [this.scaleA, this.scaleB].forEach(s => s.addEventListener('change', () => { this.scaleAbsolute.checked = true; }));
+
+        this.selectViewportButton.addEventListener('click', async () => {
+            dialogHandler.hideDialogs();
+            const selection = await this.client.getSelectionRectangle();
+            dialogHandler.showDialogs();
+            if (selection) {
+                this.selectedViewport = selection;
+                this.viewportWindow.checked = true;
+            }
+        });
 
         this.plotType.addEventListener('change', () => {
             this.plotSizePdf.style.display = 'none';
@@ -58,6 +82,7 @@ export class PlotDialog extends DialogBase {
             'dialog-plot-scale-a',
             'dialog-plot-scale-b',
             'dialog-plot-viewport-type-extents',
+            'dialog-plot-viewport-type-viewport',
             'dialog-plot-viewport-type-window',
             'dialog-plot-size-width',
             'dialog-plot-size-height',
@@ -85,40 +110,53 @@ export class PlotDialog extends DialogBase {
     }
 
     private generatePlotSettings(): ClientPlotSettings {
-        // TODO: let user select viewport
-        const viewport: ClientRectangle = {
-            TopLeft: {
-                X: 0,
-                Y: 0,
-                Z: 0,
-            },
-            BottomRight: {
-                X: this.outputPane.clientWidth,
-                Y: this.outputPane.clientHeight,
-                Z: 0,
+        const viewport = ((): ClientRectangle => {
+            if (this.viewportWindow.checked) {
+                return this.selectedViewport;
+            } else if (this.viewportExtents.checked) {
+                return {
+                    TopLeft: { X: 0, Y: 0, Z: 0, },
+                    BottomRight: { X: this.outputPane.clientWidth, Y: this.outputPane.clientHeight, Z: 0, }
+                };
+            } else {
+                // if (this.drawingExtents.checked) // doesn't matter, value not used
+                return {
+                    TopLeft: { X: 0, Y: 0, Z: 0, },
+                    BottomRight: { X: this.outputPane.clientWidth, Y: this.outputPane.clientHeight, Z: 0, }
+                };
             }
-        };
+        })();
 
         const [width, height] = ((): [number, number] => {
             switch (this.plotType.value) {
                 case 'pdf':
                     const pdfPpi = 72.0;
+                    const mmPerInch = 25.4
                     const pointsFromInches = (inches: number) => inches * pdfPpi;
-                    const pointsFromMm = (mm: number) => pointsFromInches(mm / 25.4);
+                    const pointsFromMm = (mm: number) => pointsFromInches(mm / mmPerInch);
+
+                    const a4Small = 210;
+                    const a4Large = 297;
+                    const letterSmall = 8.5;
+                    const letterLarge = 11.0;
+
                     switch (this.pdfOrientation.value) {
                         case 'a4-portrait':
-                            return [pointsFromMm(210), pointsFromMm(297)];
+                            return [pointsFromMm(a4Small), pointsFromMm(a4Large)];
                         case 'a4-landscape':
-                            return [pointsFromMm(297), pointsFromMm(210)];
+                            return [pointsFromMm(a4Large), pointsFromMm(a4Small)];
                         case 'letter-portrait':
-                            return [pointsFromInches(8.5), pointsFromInches(11.0)];
+                            return [pointsFromInches(letterSmall), pointsFromInches(letterLarge)];
                         case 'letter-landscape':
-                            return [pointsFromInches(11.0), pointsFromInches(8.5)];
+                            return [pointsFromInches(letterLarge), pointsFromInches(letterSmall)];
                     }
                     break;
                 case 'svg':
                     return [this.width.valueAsNumber, this.height.valueAsNumber];
             }
+
+            // make the compiler happy and return something
+            return [this.width.valueAsNumber, this.height.valueAsNumber];
         })();
 
         const settings: ClientPlotSettings = {

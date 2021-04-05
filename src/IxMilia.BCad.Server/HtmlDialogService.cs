@@ -1,5 +1,4 @@
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.FileHandlers;
@@ -102,12 +101,15 @@ namespace IxMilia.BCad.Server
 
             if (viewModel is object)
             {
+                var transform = _workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(Agent.Width, Agent.Height).Inverse();
+                var topLeft = transform.Transform(settings.Viewport.TopLeft.ToPoint());
+                var bottomRight = transform.Transform(settings.Viewport.BottomRight.ToPoint());
                 viewModel.ViewPortType = settings.ViewPortType;
                 viewModel.ScalingType = settings.ScalingType;
                 viewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
                 viewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
-                viewModel.BottomLeft = new Point(settings.Viewport.TopLeft.X, settings.Viewport.TopLeft.Y, 0.0);
-                viewModel.TopRight = new Point(settings.Viewport.BottomRight.X, settings.Viewport.BottomRight.Y, 0.0);
+                viewModel.BottomLeft = new Point(topLeft.X, bottomRight.Y, 0.0);
+                viewModel.TopRight = new Point(bottomRight.X, topLeft.Y, 0.0);
             }
 
             return viewModel;

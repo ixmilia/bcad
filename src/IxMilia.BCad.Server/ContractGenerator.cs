@@ -121,7 +121,7 @@ namespace IxMilia.BCad.Server
                 var underlying = Nullable.GetUnderlyingType(type);
                 if (underlying is { })
                 {
-                    return TypeName(underlying);
+                    return $"{TypeName(underlying)} | undefined";
                 }
 
                 if (type.IsArray)

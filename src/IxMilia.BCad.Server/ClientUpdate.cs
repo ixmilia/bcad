@@ -26,6 +26,11 @@ namespace IxMilia.BCad.Server
         {
         }
 
+        public Point ToPoint()
+        {
+            return new Point(X, Y, Z);
+        }
+
         public static implicit operator ClientPoint(Point p)
         {
             return new ClientPoint(p.X, p.Y, p.Z);
