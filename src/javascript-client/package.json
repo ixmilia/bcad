@@ -1,0 +1,34 @@
+{
+  "name": "bcad",
+  "version": "42.42.42",
+  "description": "JavaScript client for BCad.",
+  "main": "./out/client.js",
+  "scripts": {
+    "collect-styles:7": "npx copyfiles --error --verbose --up 3 ./node_modules/7.css/dist/* ./out/client-full/7/",
+    "collect-styles:xp": "npx copyfiles --error --verbose --up 3 ./node_modules/xp.css/dist/* ./out/client-full/xp/",
+    "collect-styles": "npm run collect-styles:7 && npm run collect-styles:xp",
+    "compile:tsc": "tsc -p ./",
+    "compile:clean-output": "npx rimraf ./out/client-full/",
+    "compile:webpack": "webpack-cli ./out/main.js -o ./out/client-full/ --mode development",
+    "compile:copy-html": "npx copyfiles --error --verbose --flat ./src/resources/* ./out/client-full/",
+    "compile": "npm run compile:tsc && npm run compile:clean-output && npm run compile:webpack && npm run compile:copy-html && npm run collect-styles",
+    "watch": "tsc -watch -p ./"
+  },
+  "repository": "https://github.com/ixmilia/bcad",
+  "author": "IxMilia",
+  "license": "MIT",
+  "devDependencies": {
+    "copyfiles": "^2.3.0",
+    "rimraf": "3.0.2",
+    "typescript": "4.2.3",
+    "webpack": "^5.25.0",
+    "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "7.css": "^0.4.1",
+    "resize-observer": "^1.0.0",
+    "vscode-jsonrpc": "5.0.1",
+    "webgl-strict-types": "^1.0.3",
+    "xp.css": "^0.2.4"
+  }
+}

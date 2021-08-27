@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,13 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj" />
-    <ProjectReference Include="..\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj" />
-    <ProjectReference Include="..\IxMilia.Converters\src\IxMilia.Converters\IxMilia.Converters.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="StreamJsonRpc" Version="2.2.34" />
+    <ProjectReference Include="..\IxMilia.BCad.Rpc\IxMilia.BCad.Rpc.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         configuration: [Debug, Release]
     steps:
     - uses: actions/checkout@v1
@@ -24,23 +24,9 @@ jobs:
       shell: pwsh
       run: ./build-and-test.ps1 -configuration ${{ matrix.configuration }}
 
-    # save electron app on Release
+    # save artifact on Release
     - uses: actions/upload-artifact@v2
       if: matrix.configuration == 'Release'
       with:
-        name: ${{ env.electron_artifact_file_name }}
-        path: artifacts/publish/${{ env.electron_artifact_file_name }}
-
-    # save server global tool on windows-latest Release
-    - uses: actions/upload-artifact@v2
-      if: matrix.os == 'windows-latest' && matrix.configuration == 'Release'
-      with:
-        name: ${{ env.global_tool_artifact_file_name }}
-        path: artifacts/packages/${{ matrix.configuration }}/${{ env.global_tool_artifact_file_name }}
-
-    # save VS Code extension on windows-latest Release
-    - uses: actions/upload-artifact@v2
-      if: matrix.os == 'windows-latest' && matrix.configuration == 'Release'
-      with:
-        name: ${{ env.vscode_artifact_file_name }}
-        path: src/bcad/vscode/${{ env.vscode_artifact_file_name }}
+        name: ${{ env.artifact_name }}
+        path: ${{ env.full_artifact_path }}

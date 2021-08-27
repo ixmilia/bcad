@@ -1,1 +1,0 @@
-The presence of this file indicates the extension is running under a local development environment.

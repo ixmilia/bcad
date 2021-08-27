@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Unix'">
+    <TargetFramework>net5.0</TargetFramework>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <!-- MacOS not currently supported -->
+
+  <ItemGroup>
+    <PackageReference Include="Photino.NET" Version="2.0.13" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <!-- Used in non-Windows for file dialogs -->
+    <PackageReference Include="GtkSharp" Version="3.24.24.34" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\javascript-client\out\client-full\**\*">
+      <Link>wwwroot\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IxMilia.BCad.Rpc\IxMilia.BCad.Rpc.csproj" />
+  </ItemGroup>
+
+</Project>

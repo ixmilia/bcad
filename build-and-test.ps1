@@ -17,47 +17,58 @@ function Set-EnvironmentVariable([string]$name, [string]$value) {
 }
 
 try {
-    $version = Get-Content -Path "$PSScriptRoot/version.txt"
-
-    # restore and build this repo
     dotnet restore
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    dotnet build -c $configuration
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-    dotnet pack -c $configuration
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-    # tests
-    if (-Not $noTest) {
-        dotnet test --no-restore --no-build -c $configuration
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    }
-
     # build client contracts file
     $contractsFiles = @(
-        "$PSScriptRoot/src/bcad/electron/src/client/contracts.generated.ts"
+        "$PSScriptRoot/src/javascript-client/src/contracts.generated.ts"
     )
     $runArgs = @()
     foreach ($contractFile in $contractsFiles) {
         $runArgs += "--out-file"
         $runArgs += $contractFile
     }
-    dotnet run -p "$PSScriptRoot/src/IxMilia.BCad.Server/IxMilia.BCad.Server.csproj" -- $runArgs
+    dotnet run --project "$PSScriptRoot/src/IxMilia.BCad.Server/IxMilia.BCad.Server.csproj" -- $runArgs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    # build electron
-    . $PSScriptRoot/src/bcad/electron/build.ps1 -configuration $configuration -version $version
+    # build js client
+    Push-Location "$PSScriptRoot/src/javascript-client"
+    npm i
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    npm run compile
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Pop-Location
+
+    # build
+    dotnet build --configuration $configuration
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    # build VS Code extension
-    . $PSScriptRoot/src/bcad/vscode/build.ps1 -version $version
+    # tests
+    if (-Not $noTest) {
+        dotnet test --no-restore --no-build --configuration $configuration
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    }
+
+    # publish
+    $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "darwin" } elseif ($IsWindows) { "win32" }
+    $packageOutputDir = "$PSScriptRoot/artifacts/publish/$configuration/$os"
+    dotnet publish "$PSScriptRoot/src/bcad/bcad.csproj" `
+        --self-contained true `
+        --no-restore `
+        --no-build `
+        --configuration $configuration `
+        --output $packageOutputDir
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    # report final artifact names for GitHub Actions
-    Set-EnvironmentVariable "global_tool_artifact_file_name" "IxMilia.BCad.Server.$version.nupkg"
-    Set-EnvironmentVariable "vscode_artifact_file_name" "bcad-$version.vsix"
+    # create package
+    $artifactName = "bcad-$os.zip"
+    $packagesDir = "$PSScriptRoot/artifacts/packages"
+    $fullArtifactPath = "$packagesDir/$artifactName"
+    New-Item -ItemType Directory -Path $packagesDir -Force
+    Compress-Archive -Path $packageOutputDir -DestinationPath $fullArtifactPath -Force
+    Set-EnvironmentVariable "artifact_name" $artifactName
+    Set-EnvironmentVariable "full_artifact_path" $fullArtifactPath
 }
 catch {
     Write-Host $_

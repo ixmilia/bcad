@@ -1,10 +1,6 @@
 using System;
-using StreamJsonRpc;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Collections.Generic;
-using IxMilia.BCad.Services;
-using IxMilia.BCad.FileHandlers;
 
 namespace IxMilia.BCad.Server
 {
@@ -40,84 +36,13 @@ namespace IxMilia.BCad.Server
 
         private async Task RunAsync()
         {
-            Console.Error.WriteLine("starting run");
-            var workspace = new RpcServerWorkspace();
-            RegisterWithWorkspace(workspace);
+            var server = new FullServer();
+            server.Start(Console.OpenStandardOutput(), Console.OpenStandardInput());
 
-            var serverRpc = new JsonRpc(Console.OpenStandardOutput(), Console.OpenStandardInput());
-            var server = new ServerAgent(workspace, serverRpc);
-            //System.Diagnostics.Debugger.Launch();
-            serverRpc.AddLocalRpcTarget(server);
-            ((HtmlDialogService)workspace.DialogService).Agent = server;
-            serverRpc.TraceSource.Listeners.Add(new Listener());
-            serverRpc.TraceSource.Switch.Level = SourceLevels.Warning;
-            serverRpc.StartListening();
-            Console.Error.WriteLine("server listening");
-
-            while (server.IsRunning)
+            while (server.Agent.IsRunning)
             {
                 await Task.Delay(50);
             }
-        }
-
-        private static void RegisterWithWorkspace(IWorkspace workspace)
-        {
-            workspace.RegisterService(new HtmlDialogService(workspace));
-
-            workspace.ReaderWriterService.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
-            workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
-            workspace.ReaderWriterService.RegisterFileHandler(new IgesFileHandler(), true, true, ".igs", "iges");
-            workspace.ReaderWriterService.RegisterFileHandler(new JsonFileHandler(), true, true, ".json");
-            workspace.ReaderWriterService.RegisterFileHandler(new StepFileHandler(), true, false, ".stp", ".step");
-            workspace.ReaderWriterService.RegisterFileHandler(new StlFileHandler(), true, false, ".stl");
-        }
-    }
-
-    class Listener : TraceListener
-    {
-        public override void Write(string message)
-        {
-            Console.Error.Write(message);
-        }
-
-        public override void WriteLine(string message)
-        {
-            Console.Error.WriteLine(message);
-        }
-
-        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
-        {
-            base.TraceEvent(eventCache, source, eventType, id, message);
-        }
-
-        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id)
-        {
-            base.TraceEvent(eventCache, source, eventType, id);
-        }
-
-        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
-        {
-            base.TraceEvent(eventCache, source, eventType, id, format, args);
-        }
-
-        public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
-        {
-            base.TraceData(eventCache, source, eventType, id, data);
-        }
-
-        public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
-        {
-            base.TraceData(eventCache, source, eventType, id, data);
-        }
-
-        public override void Fail(string message)
-        {
-            base.Fail(message);
-        }
-
-        public override void Fail(string message, string detailMessage)
-        {
-            base.Fail(message, detailMessage);
         }
     }
 }

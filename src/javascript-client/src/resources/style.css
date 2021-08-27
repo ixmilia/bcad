@@ -1,0 +1,218 @@
+html {
+    height: calc(100% - 20px);
+}
+
+body {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#ribbon-pane {
+}
+
+#output-pane {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+#bottom-pane {
+}
+
+.displayCanvas {
+    cursor: none;
+    flex: 1;
+}
+
+.twoDCanvas {
+    position: absolute;
+    z-index: 1;
+}
+
+#prompt {
+    display: inline;
+}
+
+#ribbon {
+    background-color: white;
+    border-bottom: 1px gray;
+    height: 100px;
+}
+
+.ribbon-unpinned-show {
+    position: absolute;
+    top: 24px;
+    left: 20px;
+    z-index: 10;
+}
+
+.ribbon-unpinned-hide {
+    display: none;
+}
+
+.ribbon {
+    display: none;
+    height: 100%;
+}
+
+.ribbon-active {
+    display: block;
+}
+
+.ribbon-selector {
+    background: lightgray;
+}
+
+.ribbon-selector-active {
+    background: white;
+}
+
+.ribbon-button-group {
+    border: solid 1px lightgray;
+    display: inline-block;
+    height: 100%;
+    padding: 2px;
+}
+
+.ribbon-button-group-content {
+    height: 72px;
+}
+
+.ribbon-button-group-name {
+    text-align: center;
+}
+
+.command-button {
+    height: 72px;
+    width: 72px;
+}
+
+.command-button-small {
+    height: 24px;
+    text-align: left;
+    width: 84px;
+}
+
+.command-button-tiny {
+    height: 24px;
+    width: 36px;
+}
+
+.command-button-center {
+    text-align: center;
+}
+
+.icon-large {
+    display: inline-block;
+    height: 48px;
+    width: 48px;
+}
+
+.icon-small {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+}
+
+.settings-button {
+    display: inline-block;
+}
+
+#current-layer-selector {
+    vertical-align: top;
+    width: 150px;
+}
+
+.debug-transform-value {
+    border: 1px solid black;
+    line-height: 12px;
+    overflow: hidden;
+    width: 80px;
+}
+
+/* blocks out the entire application */
+#modal-dialog-mask {
+    background-color: rgba(128, 128, 128, 0.5);
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+
+/* parent container for all dialogs; contains OK/Cancel buttons */
+#modal-dialog-container {
+    background-color: rgba(255, 255, 255, 1.0);
+    display: none;
+    position: absolute;
+}
+
+/* individual dialog parent */
+.modal-dialog {
+    display: none;
+    position: relative;
+}
+
+/* layer dialog */
+.layer-dialog {
+    width: 400px;
+    height: 400px;
+}
+table.dialog-layer-table {
+    width: 100%;
+    height: 300px;
+}
+table.dialog-layer-table tbody, table.dialog-layer-table thead {
+    display: block;
+}
+table.dialog-layer-table tbody {
+    overflow: hidden;
+    overflow-y: scroll;
+}
+.dialog-layer-list-layer-name {
+    display: inline-block;
+    width: 200px;
+}
+.dialog-layer-list-layer-color {
+    border: 1px solid black;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+.dialog-layer-list-layer-visible {
+    display: inline-block;
+    width: 20px;
+}
+
+/* file settings dialog */
+.file-settings-dialog {
+    width: 200px;
+    height: 100px;
+}
+
+/* plot dialog */
+#dialog-plot-background {
+    background-color: gray;
+    border: 1px solid black;
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+#dialog-plot-display {
+    background-color: white;
+    border: 1px solid black;
+}
+
+.dialog-plot-scale-value > input[id="dialog-plot-scaling-type-fit"]:checked {
+    color: gray;
+}
