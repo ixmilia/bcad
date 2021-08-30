@@ -40,14 +40,8 @@ export class Ribbon {
             }
         });
 
-        document.getElementById('ribbon-is-pinned')?.addEventListener('click', (ev) => {
-            const ribbon = document.getElementById('ribbon')!;
-            const checkbox = <HTMLInputElement>ev.target;
-            if (checkbox.checked) {
-                ribbon.classList.remove('ribbon-unpinned-show', 'ribbon-unpinned-hide');
-            } else {
-                ribbon.classList.add('ribbon-unpinned-show');
-            }
+        document.getElementById('theme-selector')?.addEventListener('change', e => {
+            (<HTMLLinkElement>document.getElementById('theme-stylesheet'))!.href = (<HTMLOptionElement>e?.target)?.value;
         });
 
         new SettingsRibbon(client);

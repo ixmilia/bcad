@@ -1,9 +1,12 @@
-html {
-    height: calc(100% - 20px);
+:root {
+    --theme-gap: 40px;
 }
 
-body {
-    background-color: white;
+html {
+    height: calc(100% - var(--theme-gap));
+}
+
+.full-frame {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -37,20 +40,8 @@ body {
 }
 
 #ribbon {
-    background-color: white;
     border-bottom: 1px gray;
     height: 100px;
-}
-
-.ribbon-unpinned-show {
-    position: absolute;
-    top: 24px;
-    left: 20px;
-    z-index: 10;
-}
-
-.ribbon-unpinned-hide {
-    display: none;
 }
 
 .ribbon {
@@ -147,7 +138,6 @@ body {
 
 /* parent container for all dialogs; contains OK/Cancel buttons */
 #modal-dialog-container {
-    background-color: rgba(255, 255, 255, 1.0);
     display: none;
     position: absolute;
 }

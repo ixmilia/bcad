@@ -17,6 +17,12 @@ export abstract class DialogBase {
                         this.dialogCancel();
                         reject();
                     });
+
+                    const closeButton = document.getElementById('dialog-close');
+                    closeButton?.addEventListener('click', () => {
+                        this.dialogCancel();
+                        reject();
+                    });
                 });
             return promise;
         });
