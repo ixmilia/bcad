@@ -8,7 +8,11 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
-    "build-all": "npm run compile && npm run build-assets",
+    "collect-styles": "npm run collect-styles:xp && npm run collect-styles:98 && npm run collect-styles:7",
+    "collect-styles:xp": "npx copyfiles --error --flat --verbose ./node_modules/xp.css/dist/xp.css ./src/client/resources",
+    "collect-styles:98": "npx copyfiles --error --flat --verbose ./node_modules/xp.css/dist/98.css ./src/client/resources",
+    "collect-styles:7": "npx copyfiles --error --flat --verbose ./node_modules/7.css/dist/7.css ./src/client/resources",
+    "build-all": "npm run compile && npm run build-assets && npm run collect-styles",
     "build-assets": "npm run build-icons && npm run build-server",
     "build-icons": "icon-gen -i ./bcad.svg -o ./out --ico name=bcad sizes=32",
     "build-server": "run-script-os",
