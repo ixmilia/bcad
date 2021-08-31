@@ -80,6 +80,16 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
+        public void LayersAreNotDuplicatedOnSave()
+        {
+            var drawing = new Drawing();
+            drawing = drawing.Update(layers: drawing.Layers.Insert("0", new Layer("0")));
+
+            var dxf = WriteToFile(drawing);
+            Assert.Equal("0", dxf.Layers.Single().Name);
+        }
+
+        [Fact]
         public void VerifyDefaultDxfVersionInDirectWriteTest()
         {
             var file = WriteToFile(new Drawing());
