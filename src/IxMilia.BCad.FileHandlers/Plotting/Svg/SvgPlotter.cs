@@ -23,9 +23,9 @@ namespace IxMilia.BCad.Plotting.Svg
             };
             var dxfFile = DxfFileHandler.ToDxfFile(workspace.Drawing, workspace.ActiveViewPort, fileSettings);
             var viewPort = ViewModel.ViewPort;
-            var viewPortWidth = ViewModel.ViewWidth / ViewModel.ViewHeight * viewPort.ViewHeight;
+            var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * viewPort.ViewHeight;
             var dxfRect = new ConverterDxfRect(viewPort.BottomLeft.X, viewPort.BottomLeft.X + viewPortWidth, viewPort.BottomLeft.Y, viewPort.BottomLeft.Y + viewPort.ViewHeight);
-            var svgRect = new ConverterSvgRect(ViewModel.ViewWidth, ViewModel.ViewHeight);
+            var svgRect = new ConverterSvgRect(ViewModel.DisplayWidth, ViewModel.DisplayHeight);
             var options = new DxfToSvgConverterOptions(dxfRect, svgRect);
             var xml = converter.Convert(dxfFile, options);
             xml.Attribute("width").Value = $"{ViewModel.OutputWidth}";

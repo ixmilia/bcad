@@ -1,36 +1,47 @@
+using IxMilia.Pdf;
+
 namespace IxMilia.BCad.Plotting.Pdf
 {
     public class PdfPlotterViewModel : ViewPortViewModelBase
     {
-        private double _width;
-        public double Width
+        private double _displayWidth;
+        public override double DisplayWidth
         {
-            get => _width;
+            get => _displayWidth;
             set
             {
-                SetValue(ref _width, value);
-                OnPropertyChanged(nameof(ViewWidth));
-                OnPropertyChanged(nameof(ViewHeight));
+                SetValue(ref _displayWidth, value);
+                OnPropertyChanged(nameof(DisplayWidth));
+                OnPropertyChanged(nameof(DisplayHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
 
-        private double _height;
-        public double Height
+        private double _displayHeight;
+        public override double DisplayHeight
         {
-            get => _height;
+            get => _displayHeight;
             set
             {
-                SetValue(ref _height, value);
-                OnPropertyChanged(nameof(ViewWidth));
-                OnPropertyChanged(nameof(ViewHeight));
+                SetValue(ref _displayHeight, value);
+                OnPropertyChanged(nameof(DisplayWidth));
+                OnPropertyChanged(nameof(DisplayHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
 
-        public override double ViewWidth => Width;
-
-        public override double ViewHeight => Height;
+        private PdfMeasurementType _displayUnit;
+        public PdfMeasurementType DisplayUnit
+        {
+            get => _displayUnit;
+            set
+            {
+                SetValue(ref _displayUnit, value);
+                OnPropertyChanged(nameof(DisplayWidth));
+                OnPropertyChanged(nameof(DisplayHeight));
+                OnPropertyChanged(nameof(ViewPort));
+            }
+        }
 
         public PdfPlotterViewModel(IWorkspace workspace)
             : base(workspace)

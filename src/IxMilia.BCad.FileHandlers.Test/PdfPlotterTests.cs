@@ -43,8 +43,9 @@ namespace IxMilia.BCad.FileHandlers.Test
         {
             var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
             Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(8.5, 11.0, 0.0))));
-            vm.Width = new PdfMeasurement(8.5, PdfMeasurementType.Inch).AsPoints();
-            vm.Height = new PdfMeasurement(11.0, PdfMeasurementType.Inch).AsPoints();
+            vm.DisplayWidth = 8.5;
+            vm.DisplayHeight = 11.0;
+            vm.DisplayUnit = PdfMeasurementType.Inch;
             vm.ScalingType = PlotScalingType.Absolute;
             vm.ViewPortType = PlotViewPortType.Extents;
             var actual = PlotToString(vm);

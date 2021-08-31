@@ -7,8 +7,8 @@ namespace IxMilia.BCad.Plotting
     {
         public IWorkspace Workspace { get; }
 
-        public abstract double ViewHeight { get; }
-        public abstract double ViewWidth { get; }
+        public abstract double DisplayHeight { get; set; }
+        public abstract double DisplayWidth { get; set; }
 
         private Stream _stream;
         public Stream Stream
@@ -94,8 +94,8 @@ namespace IxMilia.BCad.Plotting
                         vp = Workspace.Drawing.ShowAllViewPort(
                             Workspace.ActiveViewPort.Sight,
                             Workspace.ActiveViewPort.Up,
-                            ViewWidth,
-                            ViewHeight,
+                            DisplayWidth,
+                            DisplayHeight,
                             viewportBuffer: 0.0);
                         break;
                     case PlotViewPortType.Window:
@@ -108,7 +108,7 @@ namespace IxMilia.BCad.Plotting
                 switch (ScalingType)
                 {
                     case PlotScalingType.Absolute:
-                        vp = vp.Update(viewHeight: ViewHeight * ScaleB / ScaleA);
+                        vp = vp.Update(viewHeight: DisplayHeight * ScaleB / ScaleA);
                         break;
                     case PlotScalingType.ToFit:
                         break;

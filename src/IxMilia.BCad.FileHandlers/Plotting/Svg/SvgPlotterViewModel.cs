@@ -2,35 +2,31 @@ namespace IxMilia.BCad.Plotting.Svg
 {
     public class SvgPlotterViewModel : ViewPortViewModelBase
     {
-        private double _width;
-        public double Width
+        private double _viewWidth;
+        public override double DisplayWidth
         {
-            get => _width;
+            get => _viewWidth;
             set
             {
-                SetValue(ref _width, value);
-                OnPropertyChanged(nameof(ViewWidth));
-                OnPropertyChanged(nameof(ViewHeight));
+                SetValue(ref _viewWidth, value);
+                OnPropertyChanged(nameof(DisplayWidth));
+                OnPropertyChanged(nameof(DisplayHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
 
-        private double _height;
-        public double Height
+        private double _viewHeight;
+        public override double DisplayHeight
         {
-            get => _height;
+            get => _viewHeight;
             set
             {
-                SetValue(ref _height, value);
-                OnPropertyChanged(nameof(ViewWidth));
-                OnPropertyChanged(nameof(ViewHeight));
+                SetValue(ref _viewHeight, value);
+                OnPropertyChanged(nameof(DisplayWidth));
+                OnPropertyChanged(nameof(DisplayHeight));
                 OnPropertyChanged(nameof(ViewPort));
             }
         }
-
-        public override double ViewWidth => Width;
-
-        public override double ViewHeight => Height;
 
         private double _outputWidth;
         public double OutputWidth
@@ -56,11 +52,11 @@ namespace IxMilia.BCad.Plotting.Svg
         public SvgPlotterViewModel(IWorkspace workspace)
             : base(workspace)
         {
-            Width = 640.0;
-            Height = 480.0;
+            DisplayWidth = 640.0;
+            DisplayHeight = 480.0;
 
-            OutputWidth = Width;
-            OutputHeight = Height;
+            OutputWidth = DisplayWidth;
+            OutputHeight = DisplayHeight;
         }
     }
 }

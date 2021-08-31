@@ -84,15 +84,15 @@ namespace IxMilia.BCad.Server
             {
                 case "pdf":
                     var pdfViewModel = (PdfPlotterViewModel)_pdfPlotterFactory.CreatePlotterViewModel();
-                    pdfViewModel.Width = settings.Width;
-                    pdfViewModel.Height = settings.Height;
+                    pdfViewModel.DisplayWidth = settings.Width;
+                    pdfViewModel.DisplayHeight = settings.Height;
                     viewModel = pdfViewModel;
                     break;
                 case "svg":
                     var svgViewModel = (SvgPlotterViewModel)_svgPlotterFactory.CreatePlotterViewModel();
                     svgViewModel.PlotAsDocument = true;
-                    svgViewModel.Width = settings.Width;
-                    svgViewModel.Height = settings.Height;
+                    svgViewModel.DisplayWidth = settings.Width;
+                    svgViewModel.DisplayHeight = settings.Height;
                     svgViewModel.OutputWidth = settings.Width;
                     svgViewModel.OutputHeight = settings.Height;
                     viewModel = svgViewModel;
