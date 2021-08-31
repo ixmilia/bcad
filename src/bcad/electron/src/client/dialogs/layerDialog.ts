@@ -76,8 +76,8 @@ export class LayerDialog extends DialogBase {
         // <tr>
         //   <td><input type="text" class="dialog-layer-list-layer-name" value="0" data-original-value="0"></input></td>
         //   <td><input type="color" class="dialog-layer-list-layer-color" value="#FFFFFF"></input></td>
-        //   <td><input type="checkbox" class="dialog-layer-list-layer-color-auto"></input></td>
-        //   <td><input type="checkbox" class="dialog-layer-list-layer-visible"></input></td>
+        //   <td><input type="checkbox" class="dialog-layer-list-layer-color-auto" id="..."></input><label for="...">&nbsp;</label></td>
+        //   <td><input type="checkbox" class="dialog-layer-list-layer-visible" id="..."></input><label for="...">&nbsp;</label></td>
         //   <td><button>Del</button></td>
         // </tr>
         let row = document.createElement('tr');
@@ -104,22 +104,32 @@ export class LayerDialog extends DialogBase {
         let colorAutoInput = document.createElement('input');
         colorAutoInput.classList.add('dialog-layer-list-layer-color-auto');
         colorAutoInput.setAttribute('type', 'checkbox');
+        colorAutoInput.setAttribute('id', `layer-color-auto-${layer.Name}`);
         colorAutoInput.checked = layer.Color === '';
         colorAutoInput.addEventListener('change', () => {
             colorInput.disabled = colorAutoInput.checked;
         });
+        let colorAutoInputLabel = document.createElement('label');
+        colorAutoInputLabel.setAttribute('for', `layer-color-auto-${layer.Name}`);
+        colorAutoInputLabel.innerHTML = '&nbsp;';
         let tdColorAuto = document.createElement('td');
         tdColorAuto.appendChild(colorAutoInput);
+        tdColorAuto.appendChild(colorAutoInputLabel);
         row.appendChild(tdColorAuto);
         // visibility
         let visibleInput = document.createElement('input');
         visibleInput.classList.add('dialog-layer-list-layer-visible');
         visibleInput.setAttribute('type', 'checkbox');
+        visibleInput.setAttribute('id', `layer-visible-${layer.Name}`);
         if (layer.IsVisible) {
             visibleInput.setAttribute('checked', 'checked');
         }
+        let visibleInputLabel = document.createElement('label');
+        visibleInputLabel.setAttribute('for', `layer-visible-${layer.Name}`);
+        visibleInputLabel.innerHTML = '&nbsp;';
         let tdVisible = document.createElement('td');
         tdVisible.appendChild(visibleInput);
+        tdVisible.appendChild(visibleInputLabel);
         row.appendChild(tdVisible);
         // delete
         let deleteButton = document.createElement('button');
