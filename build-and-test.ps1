@@ -24,12 +24,7 @@ try {
     $contractsFiles = @(
         "$PSScriptRoot/src/javascript-client/src/contracts.generated.ts"
     )
-    $runArgs = @()
-    foreach ($contractFile in $contractsFiles) {
-        $runArgs += "--out-file"
-        $runArgs += $contractFile
-    }
-    dotnet run --project "$PSScriptRoot/src/IxMilia.BCad.Server/IxMilia.BCad.Server.csproj" -- $runArgs
+    dotnet run --project "$PSScriptRoot/src/IxMilia.BCad.InterfaceGenerator/IxMilia.BCad.InterfaceGenerator.csproj" -- $contractsFiles
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build js client
