@@ -1,4 +1,4 @@
-using IxMilia.BCad.Server;
+using IxMilia.BCad.Rpc;
 
 namespace IxMilia.BCad.InterfaceGenerator
 {

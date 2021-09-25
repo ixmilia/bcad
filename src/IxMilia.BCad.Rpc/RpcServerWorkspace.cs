@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace IxMilia.BCad.Server
+namespace IxMilia.BCad.Rpc
 {
     internal class RpcServerWorkspace : WorkspaceBase
     {

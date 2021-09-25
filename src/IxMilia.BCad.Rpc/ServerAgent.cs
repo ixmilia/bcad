@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Helpers;
@@ -13,7 +12,7 @@ using IxMilia.BCad.Settings;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
-namespace IxMilia.BCad.Server
+namespace IxMilia.BCad.Rpc
 {
     public class ServerAgent
     {

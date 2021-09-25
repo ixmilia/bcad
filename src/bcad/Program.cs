@@ -4,12 +4,12 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using IxMilia.BCad.Server;
+using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
 using PhotinoNET;
 using StreamJsonRpc;
 
-namespace bcad.photino
+namespace bcad
 {
     class Program
     {
@@ -35,32 +35,6 @@ namespace bcad.photino
 #endif
                 .RegisterWebMessageReceivedHandler((object sender, string message) =>
                 {
-                    try
-                    {
-                        // intercept the File.Open command (doesn't exist in the core)
-                        // {"id":2,"method":"ExecuteCommand","params":{"command":"File.Open"},"jsonrpc":"2.0"}
-                        if (message.Contains("File.Open"))
-                        {
-                            var json = Newtonsoft.Json.Linq.JObject.Parse(message);
-                            if (json.Value<string>("method") is string method && method == "ExecuteCommand" &&
-                                json["params"].Value<string>("command") is string command && command == "File.Open")
-                            {
-                                var filePath = OpenFileDialog.OpenFile();
-                                if (filePath != null)
-                                {
-                                    var data = File.ReadAllBytes(filePath);
-                                    var base64 = Convert.ToBase64String(data);
-                                    var _ = server.Agent.ParseFile(filePath, base64);
-                                }
-
-                                return;
-                            }
-                        }
-                    }
-                    finally
-                    {
-                    }
-
                     // forward JSON from client to server
                     var messageBytes = Encoding.UTF8.GetBytes(message);
                     var headerMessage = $"Content-Length: {messageBytes.Length}\r\n\r\n";
@@ -69,6 +43,12 @@ namespace bcad.photino
                     serverStream.Write(messageBytes);
                     serverStream.Flush();
                 });
+
+            var fileSystemService = new FileSystemService(action =>
+            {
+                window.Invoke(action);
+            });
+            server.Workspace.RegisterService(fileSystemService);
 
             Task.Run(async () =>
             {

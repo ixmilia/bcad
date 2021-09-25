@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace IxMilia.BCad.Server
+namespace IxMilia.BCad.Rpc
 {
     public enum DisplayUpdate
     {

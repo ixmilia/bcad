@@ -6,7 +6,7 @@ using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
 
-namespace IxMilia.BCad.Server
+namespace IxMilia.BCad.Rpc
 {
     public struct ClientPoint
     {

@@ -7,7 +7,7 @@ using IxMilia.BCad.Plotting.Pdf;
 using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Services;
 
-namespace IxMilia.BCad.Server
+namespace IxMilia.BCad.Rpc
 {
     public class HtmlDialogService : IDialogService
     {

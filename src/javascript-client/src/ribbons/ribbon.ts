@@ -4,7 +4,7 @@ import { DebugRibbon } from './debugRibbon';
 
 export class Ribbon {
     constructor(client: Client) {
-        document.querySelectorAll(".command-button").forEach(node => {
+        document.querySelectorAll(".command-button, .command-button-small, .command-button-tiny").forEach(node => {
             let button = <HTMLButtonElement>node;
             let commandName = button.getAttribute("data-command-name");
             if (commandName) {

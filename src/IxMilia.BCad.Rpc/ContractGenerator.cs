@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using IxMilia.BCad.FileHandlers;
 using Newtonsoft.Json.Linq;
 
-namespace IxMilia.BCad.Server
+namespace IxMilia.BCad.Rpc
 {
     public class ContractGenerator
     {

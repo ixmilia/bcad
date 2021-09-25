@@ -60,9 +60,12 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Move", "MOVE", new MoveCommand(), "move", "mov", "m"));
             RegisterCommand(new CadCommandInfo("File.New", "NEW", new NewCommand(), ModifierKeys.Control, Key.N, "new", "n"));
             RegisterCommand(new CadCommandInfo("Edit.Offset", "OFFSET", new OffsetCommand(), "offset", "off", "of"));
+            RegisterCommand(new CadCommandInfo("File.Open", "OPEN", new OpenCommand(), ModifierKeys.Control, Key.O, "open", "o"));
             RegisterCommand(new CadCommandInfo("View.Pan", "PAN", new PanCommand(), "pan", "p"));
             RegisterCommand(new CadCommandInfo("File.Plot", "PLOT", new PlotCommand(), ModifierKeys.Control, Key.P, "plot"));
             RegisterCommand(new CadCommandInfo("Edit.Rotate", "ROTATE", new RotateCommand(), "rotate", "rot", "ro"));
+            RegisterCommand(new CadCommandInfo("File.Save", "SAVE", new SaveCommand(), ModifierKeys.Control, Key.S, "save", "s"));
+            RegisterCommand(new CadCommandInfo("File.SaveAs", "SAVEAS", new SaveAsCommand(), ModifierKeys.Control | ModifierKeys.Shift, Key.S, "saveas", "sa"));
             RegisterCommand(new CadCommandInfo("Edit.Subtract", "SUBTRACT", new SubtractCommand(), "subtract", "sub"));
             RegisterCommand(new CadCommandInfo("Edit.Trim", "TRIM", new TrimCommand(), "trim", "tr"));
             RegisterCommand(new CadCommandInfo("Edit.Union", "UNION", new UnionCommand(), "union", "un"));
@@ -181,6 +184,9 @@ namespace IxMilia.BCad
 
         private IDialogService _dialogServiceCache;
         public IDialogService DialogService => CacheService<IDialogService>(ref _dialogServiceCache);
+
+        private IFileSystemService _fileSystemServiceCache;
+        public IFileSystemService FileSystemService => CacheService<IFileSystemService>(ref _fileSystemServiceCache);
 
         private IInputService _inputServiceCache;
         public IInputService InputService => CacheService<IInputService>(ref _inputServiceCache);
