@@ -18,8 +18,8 @@ namespace bcad
         {
             string windowTitle = "BCad";
             var server = new FullServer();
-            var serverStream = new HalfDuplexStream();
-            var clientStream = new HalfDuplexStream();
+            var serverStream = new SimplexStream();
+            var clientStream = new SimplexStream();
 
             var window = new PhotinoWindow()
                 .SetTitle(windowTitle)
@@ -50,16 +50,22 @@ namespace bcad
             });
             server.Workspace.RegisterService(fileSystemService);
 
-            Task.Run(async () =>
+            var _ = Task.Run(async () =>
             {
                 var clientHandler = new HeaderDelimitedMessageHandler(clientStream);
                 while (true)
                 {
-                    var message = await clientHandler.ReadAsync(CancellationToken.None);
-                    var buffer = new ArrayBufferWriter<byte>();
-                    clientHandler.Formatter.Serialize(buffer, message);
-                    var messageString = Encoding.UTF8.GetString(buffer.WrittenSpan);
-                    window.SendWebMessage(messageString);
+                    try
+                    {
+                        var message = await clientHandler.ReadAsync(CancellationToken.None);
+                        var buffer = new ArrayBufferWriter<byte>();
+                        clientHandler.Formatter.Serialize(buffer, message);
+                        var messageString = Encoding.UTF8.GetString(buffer.WrittenSpan);
+                        window.SendWebMessage(messageString);
+                    }
+                    catch (Exception _ex)
+                    {
+                    }
                 }
             });
 
