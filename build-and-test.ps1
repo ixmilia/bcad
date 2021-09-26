@@ -21,10 +21,12 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build client contracts file
+    $interfaceGeneratorProject = "$PSScriptRoot/src/IxMilia.BCad.InterfaceGenerator/IxMilia.BCad.InterfaceGenerator.csproj"
     $contractsFiles = @(
         "$PSScriptRoot/src/javascript-client/src/contracts.generated.ts"
     )
-    dotnet run --project "$PSScriptRoot/src/IxMilia.BCad.InterfaceGenerator/IxMilia.BCad.InterfaceGenerator.csproj" -- $contractsFiles
+    dotnet build $interfaceGeneratorProject
+    dotnet run --project $interfaceGeneratorProject -- $contractsFiles
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build js client
@@ -36,7 +38,7 @@ try {
     Pop-Location
 
     # build
-    dotnet build --configuration $configuration
+    dotnet build --configuration $configuration --no-restore
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # tests
