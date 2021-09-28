@@ -85,8 +85,12 @@ function bindServerMessage(hostType: HostType, callback: (message: any) => void)
         case HostType.WebView2:
             // @ts-ignore
             window.external.receiveMessage((message: string) => {
-                const objMessage = JSON.parse(message);
-                callback(objMessage);
+                try {
+                    const objMessage = JSON.parse(message);
+                    callback(objMessage);
+                } catch (err) {
+                    alert(`error parsing message: ${err}.  Message starts with "${message.substr(0, 20)}"`);
+                }
             });
     }
 }

@@ -30,7 +30,6 @@
   "dependencies": {
     "7.css": "^0.4.1",
     "resize-observer": "^1.0.0",
-    "vscode-jsonrpc": "5.0.1",
     "webgl-strict-types": "^1.0.3",
     "xp.css": "^0.2.4"
   }

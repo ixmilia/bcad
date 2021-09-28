@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using IxMilia.BCad.FileHandlers;
 using StreamJsonRpc;
 
@@ -17,18 +16,11 @@ namespace IxMilia.BCad.Rpc
             RegisterWithWorkspace(Workspace);
         }
 
-        public ServerAgent Start(Stream duplexStream)
-        {
-            return Start(duplexStream, duplexStream);
-        }
-
-        public ServerAgent Start(Stream sendingStream, Stream receivingStream)
+        public ServerAgent Start(IJsonRpcMessageHandler messageHandler)
         {
             Console.Error.WriteLine("starting run");
-
-            var serverRpc = new JsonRpc(sendingStream, receivingStream);
+            var serverRpc = new JsonRpc(messageHandler);
             var server = new ServerAgent(Workspace, serverRpc);
-            //System.Diagnostics.Debugger.Launch();
             serverRpc.AddLocalRpcTarget(server);
             ((HtmlDialogService)Workspace.DialogService).Agent = server;
             serverRpc.TraceSource.Listeners.Add(new Listener());
