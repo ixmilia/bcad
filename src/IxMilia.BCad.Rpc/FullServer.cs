@@ -10,26 +10,24 @@ namespace IxMilia.BCad.Rpc
         public IWorkspace Workspace { get; private set; }
         public ServerAgent Agent { get; private set; }
 
-        public FullServer()
+        public FullServer(IJsonRpcMessageHandler messageHandler)
         {
             Workspace = new RpcServerWorkspace();
             RegisterWithWorkspace(Workspace);
-        }
 
-        public ServerAgent Start(IJsonRpcMessageHandler messageHandler)
-        {
-            Console.Error.WriteLine("starting run");
             var serverRpc = new JsonRpc(messageHandler);
             var server = new ServerAgent(Workspace, serverRpc);
             serverRpc.AddLocalRpcTarget(server);
             ((HtmlDialogService)Workspace.DialogService).Agent = server;
             serverRpc.TraceSource.Listeners.Add(new Listener());
-            serverRpc.StartListening();
-            Console.Error.WriteLine("server listening");
-
             Agent = server;
+        }
 
-            return server;
+        public void Start()
+        {
+            Console.Error.WriteLine("starting run");
+            Agent.JsonRpc.StartListening();
+            Console.Error.WriteLine("server listening");
         }
 
         private static void RegisterWithWorkspace(IWorkspace workspace)

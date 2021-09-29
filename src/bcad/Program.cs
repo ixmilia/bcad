@@ -15,11 +15,20 @@ namespace bcad
         static void Main(string[] args)
         {
             string windowTitle = "BCad";
-            var server = new FullServer();
             var serverStream = new SimplexStream();
             var clientStream = new SimplexStream();
             var encoding = new UTF8Encoding(false);
             var writer = new StreamWriter(serverStream, encoding);
+            var messageHandler = new NewLineDelimitedMessageHandler(clientStream, serverStream, new JsonMessageFormatter(encoding));
+            var server = new FullServer(messageHandler);
+
+            server.Agent.IsReady += (o, e) =>
+            {
+                if (args.Length == 1)
+                {
+                    var _ = server.Workspace.ExecuteCommand("File.Open", args[0]);
+                }
+            };
 
             var window = new PhotinoWindow()
                 .SetTitle(windowTitle)
@@ -62,8 +71,7 @@ namespace bcad
                 }
             });
 
-            var messageHandler = new NewLineDelimitedMessageHandler(clientStream, serverStream, new JsonMessageFormatter(encoding));
-            server.Start(messageHandler);
+            server.Start();
             var indexPath = Path.Combine(Path.GetDirectoryName(typeof(Program).Assembly.Location), "wwwroot", "index.html");
             window.Load(indexPath);
             window.WaitForClose();
