@@ -1,0 +1,19 @@
+@font-face {
+    font-family: "Pixelated MS Sans Serif";
+    src: local("Verdana"),
+         local("Geneva"),
+         local("Tahoma"),
+         local(sans-serif);
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Pixelated MS Sans Serif";
+    src: local("Verdana"),
+         local("Geneva"),
+         local("Tahoma"),
+         local(sans-serif);
+    font-weight: bold;
+    font-style: normal;
+}
