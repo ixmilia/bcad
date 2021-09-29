@@ -1,5 +1,9 @@
-window, .window-body, .title-bar, .title-bar-text, .title-bar-controls {
-    background-color: white;
+:root {
+    --surface: white;
+}
+
+.window, .window-body, .title-bar, .title-bar-text, .title-bar-controls {
+    background: var(--surface);
 }
 
 .title-bar-controls button[aria-label="Close"] {
