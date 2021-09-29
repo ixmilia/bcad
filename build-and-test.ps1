@@ -49,7 +49,8 @@ try {
 
     # publish
     $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "darwin" } elseif ($IsWindows) { "win32" }
-    $packageOutputDir = "$PSScriptRoot/artifacts/publish/$configuration/$os"
+    $packageParentDir = "$PSScriptRoot/artifacts/publish/$configuration"
+    $packageOutputDir = "$packageParentDir/bcad-$os"
     dotnet publish "$PSScriptRoot/src/bcad/bcad.csproj" `
         --self-contained true `
         --no-restore `
@@ -59,13 +60,19 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # create package
-    $artifactName = "bcad-$os.zip"
+    $extension = if ($IsWindows) { "zip" } else { "tar.gz" }
+    $artifactName = "bcad-$os.$extension"
     $packagesDir = "$PSScriptRoot/artifacts/packages"
     $fullArtifactPath = "$packagesDir/$artifactName"
     New-Item -ItemType Directory -Path $packagesDir -Force
-    Compress-Archive -Path $packageOutputDir -DestinationPath $fullArtifactPath -Force
     Set-EnvironmentVariable "artifact_name" $artifactName
     Set-EnvironmentVariable "full_artifact_path" $fullArtifactPath
+    if ($IsWindows) {
+        Compress-Archive -Path "$packageOutputDir" -DestinationPath $fullArtifactPath -Force
+    }
+    else {
+        tar -zcf "$packagesDir/$artifactName" -C "$packageParentDir/" "bcad-$os"
+    }
 }
 catch {
     Write-Host $_
