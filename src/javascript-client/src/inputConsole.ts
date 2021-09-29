@@ -1,9 +1,10 @@
 import { Client } from './client';
+import { ShortcutHandler } from './shortcutHandler';
 
 export class InputConsole {
     private client: Client;
     private input: HTMLInputElement;
-    constructor(client: Client) {
+    constructor(client: Client, shortcutHandler: ShortcutHandler) {
         this.client = client;
         this.input = <HTMLInputElement>document.getElementById("input");
         this.input.addEventListener('keyup', (ev) => {
@@ -12,6 +13,10 @@ export class InputConsole {
 
         document.addEventListener('keyup', (ev) => {
             this.handleKeystroke(ev, true);
+        });
+
+        document.addEventListener('keydown', (ev) => {
+            shortcutHandler.handleShortcut(ev.shiftKey, ev.ctrlKey, ev.altKey, ev.key);
         });
     }
 

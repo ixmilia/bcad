@@ -6,8 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.FileHandlers;
 using Newtonsoft.Json.Linq;
+using StreamJsonRpc;
 
 namespace IxMilia.BCad.Rpc
 {
@@ -27,6 +29,14 @@ namespace IxMilia.BCad.Rpc
             { typeof(JObject), "object" },
         };
 
+        private HashSet<Type> _ignoredTypes = new HashSet<Type>()
+        {
+            typeof(void),
+            typeof(JsonRpc),
+            typeof(Task),
+            typeof(ValueType),
+        };
+
         public ContractGenerator(IEnumerable<string> outFiles)
         {
             OutFiles = outFiles;
@@ -35,9 +45,11 @@ namespace IxMilia.BCad.Rpc
         public void Run()
         {
             var avoidTypes = new HashSet<Type>(_wellKnownTypes.Keys);
-            avoidTypes.Add(typeof(void));
-            avoidTypes.Add(typeof(Task));
-            avoidTypes.Add(typeof(ValueType));
+            foreach (var ignoredType in _ignoredTypes)
+            {
+                avoidTypes.Add(ignoredType);
+            }
+
             var typeList = new HashSet<Type>();
             var agentType = typeof(ServerAgent);
 
@@ -66,10 +78,20 @@ namespace IxMilia.BCad.Rpc
                 if (type.IsEnum)
                 {
                     sb.AppendLine($"export enum {TypeName(type)} {{");
+                    var values = new List<object>();
                     foreach (var value in Enum.GetValues(type))
                     {
+                        values.Add(value);
+                    }
+
+                    foreach (var value in values.Distinct())
+                    {
                         var name = Enum.GetName(type, value);
-                        sb.AppendLine($"    {name} = {(int)value},");
+                        // `Key` values are string-based
+                        var displayValue = type == typeof(Key)
+                            ? string.Concat("\"", Enum.GetName(type, value), "\"")
+                            : ((int)value).ToString();
+                        sb.AppendLine($"    {name} = {displayValue},");
                     }
                 }
                 else

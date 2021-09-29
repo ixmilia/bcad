@@ -6,6 +6,7 @@ import { Ribbon } from "./ribbons/ribbon";
 import { ViewControl } from "./viewControl";
 import { DialogHandler } from "./dialogs/dialogHandler";
 import { LayerDialog } from "./dialogs/layerDialog";
+import { ShortcutHandler } from "./shortcutHandler";
 import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
 import { PlotDialog } from "./dialogs/plotDialog";
 import { Arguments } from "./args";
@@ -89,7 +90,7 @@ function bindServerMessage(hostType: HostType, callback: (message: any) => void)
                     const objMessage = JSON.parse(message);
                     callback(objMessage);
                 } catch (err) {
-                    alert(`error parsing message: ${err}.  Message starts with "${message.substr(0, 20)}"`);
+                    console.error(`error parsing message: ${err}.  Message was "${message}"`);
                 }
             });
     }
@@ -113,8 +114,9 @@ async function start(argArray: string[]): Promise<void> {
         client.handleMessage(message);
     });
 
+    const shortcutHandler = new ShortcutHandler(client);
     new LayerSelector(client);
-    new InputConsole(client);
+    new InputConsole(client, shortcutHandler);
     new OutputConsole(client);
     new Ribbon(client);
     new ViewControl(client);

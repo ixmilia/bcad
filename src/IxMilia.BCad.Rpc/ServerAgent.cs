@@ -180,7 +180,7 @@ namespace IxMilia.BCad.Rpc
 
         private ClientSettings GetSettings()
         {
-            return new ClientSettings(_workspace.SettingsService);
+            return new ClientSettings(_workspace);
         }
 
         private ClientTransform GetDisplayTransform()

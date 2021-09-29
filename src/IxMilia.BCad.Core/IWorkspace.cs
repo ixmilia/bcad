@@ -61,6 +61,7 @@ namespace IxMilia.BCad
         event EventHandler RubberBandGeneratorChanged;
 
         ObservableHashSet<Entity> SelectedEntities { get; }
+        IReadOnlyCollection<CadCommandInfo> Commands { get; }
 
         Task Initialize(params string[] args);
         void RegisterCommand(CadCommandInfo commandInfo);

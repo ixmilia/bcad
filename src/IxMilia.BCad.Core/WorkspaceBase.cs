@@ -22,6 +22,8 @@ namespace IxMilia.BCad
         private List<CadCommandInfo> _commands = new List<CadCommandInfo>();
         private List<IWorkspaceService> _services = new List<IWorkspaceService>();
 
+        public IReadOnlyCollection<CadCommandInfo> Commands => _commands;
+
         public WorkspaceBase()
         {
             Drawing = new Drawing();
@@ -62,7 +64,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Offset", "OFFSET", new OffsetCommand(), "offset", "off", "of"));
             RegisterCommand(new CadCommandInfo("File.Open", "OPEN", new OpenCommand(), ModifierKeys.Control, Key.O, "open", "o"));
             RegisterCommand(new CadCommandInfo("View.Pan", "PAN", new PanCommand(), "pan", "p"));
-            RegisterCommand(new CadCommandInfo("File.Plot", "PLOT", new PlotCommand(), ModifierKeys.Control, Key.P, "plot"));
+            RegisterCommand(new CadCommandInfo("File.Plot", "PLOT", new PlotCommand(), ModifierKeys.Control | ModifierKeys.Alt, Key.P, "plot"));
             RegisterCommand(new CadCommandInfo("Edit.Rotate", "ROTATE", new RotateCommand(), "rotate", "rot", "ro"));
             RegisterCommand(new CadCommandInfo("File.Save", "SAVE", new SaveCommand(), ModifierKeys.Control, Key.S, "save", "s"));
             RegisterCommand(new CadCommandInfo("File.SaveAs", "SAVEAS", new SaveAsCommand(), ModifierKeys.Control | ModifierKeys.Shift, Key.S, "saveas", "sa"));

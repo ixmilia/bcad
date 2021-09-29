@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Plotting;
-using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
 
 namespace IxMilia.BCad.Rpc
@@ -189,20 +190,22 @@ namespace IxMilia.BCad.Rpc
         public double SnapPointSize { get; }
         public double PointDisplaySize { get; }
         public int TextCursorSize { get; }
+        public CommandShortcut[] CommandShortcuts { get; }
 
-        public ClientSettings(ISettingsService settingsService)
+        public ClientSettings(IWorkspace workspace)
         {
-            BackgroundColor = settingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor);
-            CursorSize = settingsService.GetValue<int>(DisplaySettingsNames.CursorSize);
-            Debug = settingsService.GetValue<bool>(DefaultSettingsNames.Debug);
-            EntitySelectionRadius = settingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
-            HotPointColor = settingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);
-            HotPointSize = settingsService.GetValue<double>(DisplaySettingsNames.HotPointSize);
-            SnapAngles = settingsService.GetValue<double[]>(DisplaySettingsNames.SnapAngles);
-            SnapPointColor = settingsService.GetValue<CadColor>(DisplaySettingsNames.SnapPointColor);
-            SnapPointSize = settingsService.GetValue<double>(DisplaySettingsNames.SnapPointSize);
-            PointDisplaySize = settingsService.GetValue<double>(DisplaySettingsNames.PointDisplaySize);
-            TextCursorSize = settingsService.GetValue<int>(DisplaySettingsNames.TextCursorSize);
+            BackgroundColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor);
+            CursorSize = workspace.SettingsService.GetValue<int>(DisplaySettingsNames.CursorSize);
+            Debug = workspace.SettingsService.GetValue<bool>(DefaultSettingsNames.Debug);
+            EntitySelectionRadius = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
+            HotPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);
+            HotPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.HotPointSize);
+            SnapAngles = workspace.SettingsService.GetValue<double[]>(DisplaySettingsNames.SnapAngles);
+            SnapPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.SnapPointColor);
+            SnapPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.SnapPointSize);
+            PointDisplaySize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.PointDisplaySize);
+            TextCursorSize = workspace.SettingsService.GetValue<int>(DisplaySettingsNames.TextCursorSize);
+            CommandShortcuts = workspace.Commands.Where(c => c.Key != Key.None).Select(c => new CommandShortcut(c.Name, c.Modifier, c.Key)).ToArray();
         }
     }
 
