@@ -75,7 +75,7 @@ namespace bcad
             });
 
             server.Start();
-            var indexPath = Path.Combine(Path.GetDirectoryName(typeof(Program).Assembly.Location), "wwwroot", "index.html");
+            var indexPath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "index.html");
             window.Load(indexPath);
             window.WaitForClose();
         }

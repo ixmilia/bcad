@@ -52,7 +52,6 @@ try {
     $packageParentDir = "$PSScriptRoot/artifacts/publish/$configuration"
     $packageOutputDir = "$packageParentDir/bcad-$os"
     dotnet publish "$PSScriptRoot/src/bcad/bcad.csproj" `
-        --self-contained true `
         --no-restore `
         --no-build `
         --configuration $configuration `

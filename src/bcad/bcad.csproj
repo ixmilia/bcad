@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon>$(MSBuildThisFileDirectory)..\javascript-client\out\bcad.ico</ApplicationIcon>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
