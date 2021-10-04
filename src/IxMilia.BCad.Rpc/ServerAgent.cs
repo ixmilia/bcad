@@ -143,12 +143,12 @@ namespace IxMilia.BCad.Rpc
         {
             var base64 = Convert.ToBase64String(data);
             var download = new ClientDownload(filename, mimeType, base64);
-            JsonRpc.NotifyAsync("DownloadFile", download);
+            var _ = JsonRpc.NotifyAsync("DownloadFile", download);
         }
 
         private void PushUpdate(ClientUpdate clientUpdate)
         {
-            JsonRpc.NotifyAsync("ClientUpdate", clientUpdate);
+            var _ = JsonRpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
         public void Ready(double width, double height)

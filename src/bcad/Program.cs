@@ -47,9 +47,16 @@ namespace bcad
 #endif
                 .RegisterWebMessageReceivedHandler((object sender, string message) =>
                 {
-                    // forward JSON from client to server
-                    writer.WriteLine(message);
-                    writer.Flush();
+                    try
+                    {
+                        // forward JSON from client to server
+                        writer.WriteLine(message);
+                        writer.Flush();
+                    }
+                    catch
+                    {
+                        // don't let this die
+                    }
                 });
 
             var fileSystemService = new FileSystemService(action =>
@@ -68,8 +75,9 @@ namespace bcad
                         var line = await reader.ReadLineAsync();
                         window.SendWebMessage(line);
                     }
-                    catch (Exception _ex)
+                    catch
                     {
+                        // don't let this die
                     }
                 }
             });

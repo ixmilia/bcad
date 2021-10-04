@@ -15,15 +15,15 @@ namespace bcad
 
         public Task<string> GetFileNameFromUserForOpen()
         {
-            return Dispatch(() => OpenFileDialog.OpenFile());
+            return DispatchAsync(() => OpenFileDialog.OpenFile());
         }
 
         public Task<string> GetFileNameFromUserForSave()
         {
-            return Dispatch(() => OpenFileDialog.SaveFile());
+            return DispatchAsync(() => OpenFileDialog.SaveFile());
         }
 
-        private Task<T> Dispatch<T>(Func<T> func)
+        private Task<T> DispatchAsync<T>(Func<T> func)
         {
             var dispatchCompletion = new TaskCompletionSource<T>();
             _dispatch(() =>
