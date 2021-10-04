@@ -526,22 +526,45 @@ export class ViewControl {
 
     private populateVertices(drawing: Drawing) {
         // lines
-        let lineVerts = [];
-        let lineCols = [];
-        let lineVertsWithDefaultColor = [];
+        let lineVerts: number[] = [];
+        let lineCols: number[] = [];
+        let lineVertsWithDefaultColor: number[] = [];
         let lineCount = 0;
         let lineCountWithDefaultColor = 0;
-        for (let l of drawing.Lines) {
-            if (l.Color) {
-                lineVerts.push(l.P1.X, l.P1.Y, l.P1.Z);
-                lineVerts.push(l.P2.X, l.P2.Y, l.P2.Z);
-                lineCols.push(l.Color.R, l.Color.G, l.Color.B);
-                lineCols.push(l.Color.R, l.Color.G, l.Color.B);
+
+        function addLine(p1: number[], p2: number[], color?: CadColor) {
+            if (color) {
+                lineVerts.push(p1[0], p1[1], p1[2]);
+                lineVerts.push(p2[0], p2[1], p2[2]);
+                lineCols.push(color.R, color.G, color.B);
+                lineCols.push(color.R, color.G, color.B);
                 lineCount++;
             } else {
-                lineVertsWithDefaultColor.push(l.P1.X, l.P1.Y, l.P1.Z);
-                lineVertsWithDefaultColor.push(l.P2.X, l.P2.Y, l.P2.Z);
+                lineVertsWithDefaultColor.push(p1[0], p1[1], p1[2]);
+                lineVertsWithDefaultColor.push(p2[0], p2[1], p2[2]);
                 lineCountWithDefaultColor++;
+            }
+        }
+
+        for (let l of drawing.Lines) {
+            addLine([l.P1.X, l.P1.Y, l.P1.Z], [l.P2.X, l.P2.Y, l.P2.Z], l.Color);
+        }
+
+        // ellipses with non-integral start- and end-angles
+        for (const el of drawing.Ellipses) {
+            let startAngleTruncated = Math.trunc(el.StartAngle);
+            const endAngleTruncated = Math.trunc(el.EndAngle);
+            if (startAngleTruncated !== el.StartAngle) {
+                startAngleTruncated++;
+                const startLineA = transform(el.Transform, [Math.cos(startAngleTruncated * Math.PI / 180.0), Math.sin(startAngleTruncated * Math.PI / 180.0), 0.0, 1.0]);
+                const startLineB = transform(el.Transform, [Math.cos(el.StartAngle * Math.PI / 180.0), Math.sin(el.StartAngle * Math.PI / 180.0), 0.0, 1.0]);
+                addLine(startLineA, startLineB, el.Color);
+            }
+
+            if (endAngleTruncated !== el.EndAngle) {
+                const endLineA = transform(el.Transform, [Math.cos(endAngleTruncated * Math.PI / 180.0), Math.sin(endAngleTruncated * Math.PI / 180.0), 0.0, 1.0]);
+                const endLineB = transform(el.Transform, [Math.cos(el.EndAngle * Math.PI / 180.0), Math.sin(el.EndAngle * Math.PI / 180.0), 0.0, 1.0]);
+                addLine(endLineA, endLineB, el.Color);
             }
         }
 
@@ -682,6 +705,10 @@ export class ViewControl {
             this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, el.Transform);
             let startAngle = Math.trunc(el.StartAngle);
             let endAngle = Math.trunc(el.EndAngle);
+            if (startAngle !== el.StartAngle) {
+                // start on next whole degree
+                startAngle++;
+            }
 
             let ellipseColor = el.Color || this.settings.AutoColor;
             this.gl.vertexAttrib3f(this.colorLocation!, ellipseColor.R, ellipseColor.G, ellipseColor.B);
