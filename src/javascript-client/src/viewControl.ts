@@ -4,18 +4,18 @@ import { CursorState, SelectionState, SnapPointKind, ClientSettings, ClientTrans
 
 interface Drawing extends ClientDrawing {
     LineCount: number;
-    LineVertices: WebGLBuffer | null;
-    LineColors: WebGLBuffer | null;
+    LineVertices: WebGLBuffer;
+    LineColors: WebGLBuffer;
 
     LineCountWithDefaultColor: number;
-    LineVerticesWithDefaultColor: WebGLBuffer | null;
+    LineVerticesWithDefaultColor: WebGLBuffer;
 
     PointCount: number;
-    PointLocations: WebGLBuffer | null;
-    PointColors: WebGLBuffer | null;
+    PointLocations: WebGLBuffer;
+    PointColors: WebGLBuffer;
 
     PointCountWithDefaultColor: number;
-    PointLocationsWithDefaultColor: WebGLBuffer | null;
+    PointLocationsWithDefaultColor: WebGLBuffer;
 }
 
 export class ViewControl {
@@ -32,17 +32,17 @@ export class ViewControl {
     private twod: CanvasRenderingContext2D;
     private textCtx: CanvasRenderingContext2D;
     private rubberTextCtx: CanvasRenderingContext2D;
-    private viewTransformLocation: WebGLUniformLocation | null = null;
-    private objectWorldTransformLocation: WebGLUniformLocation | null = null;
-    private objectScaleTransformLocation: WebGLUniformLocation | null = null;
-    private pointMarkBuffer: WebGLBuffer | null = null;
-    private ellipseBuffer: WebGLBuffer | null = null;
-    private hotPointMarkBuffer: WebGLBuffer | null = null;
-    private hotPointLocations: WebGLBuffer | null = null;
-    private hotPointCount: number;
-    private coordinatesLocation: number | null = null;
-    private translationLocation: number | null = null;
-    private colorLocation: number | null = null;
+    private viewTransformLocation: WebGLUniformLocation = {};
+    private objectWorldTransformLocation: WebGLUniformLocation = {};
+    private objectScaleTransformLocation: WebGLUniformLocation = {};
+    private pointMarkBuffer: WebGLBuffer = {};
+    private ellipseBuffer: WebGLBuffer = {};
+    private hotPointMarkBuffer: WebGLBuffer = {};
+    private hotPointLocations: WebGLBuffer = {};
+    private hotPointCount: number = 0;
+    private coordinatesLocation: number = 0;
+    private translationLocation: number = 0;
+    private colorLocation: number = 0;
     private identity: number[];
     private transform: ClientTransform;
 
@@ -81,15 +81,15 @@ export class ViewControl {
             Ellipses: [],
             Text: [],
             LineCount: 0,
-            LineVertices: null,
-            LineColors: null,
+            LineVertices: {},
+            LineColors: {},
             LineCountWithDefaultColor: 0,
-            LineVerticesWithDefaultColor: null,
+            LineVerticesWithDefaultColor: {},
             PointCount: 0,
-            PointLocations: null,
-            PointColors: null,
+            PointLocations: {},
+            PointColors: {},
             PointCountWithDefaultColor: 0,
-            PointLocationsWithDefaultColor: null,
+            PointLocationsWithDefaultColor: {},
         };
         this.rubberBandDrawing = {
             CurrentLayer: "",
@@ -100,15 +100,15 @@ export class ViewControl {
             Ellipses: [],
             Text: [],
             LineCount: 0,
-            LineVertices: null,
-            LineColors: null,
+            LineVertices: {},
+            LineColors: {},
             LineCountWithDefaultColor: 0,
-            LineVerticesWithDefaultColor: null,
+            LineVerticesWithDefaultColor: {},
             PointCount: 0,
-            PointLocations: null,
-            PointColors: null,
+            PointLocations: {},
+            PointColors: {},
             PointCountWithDefaultColor: 0,
-            PointLocationsWithDefaultColor: null,
+            PointLocationsWithDefaultColor: {},
         };
         this.identity = [
             1, 0, 0, 0,
@@ -139,8 +139,11 @@ export class ViewControl {
         };
 
         // render
-
-        [this.gl, this.glAngle, this.twod, this.textCtx, this.rubberTextCtx] = this.getRenderingContexts();
+        this.gl = this.drawingCanvas.getContext('webgl') || throwError('Unable to get webgl context');
+        this.glAngle = this.gl.getExtension('ANGLE_instanced_arrays') || throwError('Unable to get ANGLE_instanced_arrays extension');
+        this.twod = this.cursorCanvas.getContext("2d") || throwError('Unable to get cursor canvas 2d context');
+        this.textCtx = this.textCanvas.getContext("2d") || throwError('Unable to get text canvas 2d context');
+        this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d") || throwError('Unable to get rubber text context');
         this.prepareCanvas();
         this.populateStaticVertices();
         this.populateVertices(this.entityDrawing);
@@ -151,35 +154,6 @@ export class ViewControl {
 
         this.client.subscribeToClientUpdates(clientUpdate => this.update(clientUpdate));
         this.client.ready(this.outputPane.clientWidth, this.outputPane.clientHeight);
-    }
-
-    private getRenderingContexts(): [WebGLRenderingContext, ANGLE_instanced_arrays, CanvasRenderingContext2D, CanvasRenderingContext2D, CanvasRenderingContext2D] {
-        const gl = this.drawingCanvas.getContext('webgl');
-        if (!gl) {
-            throw new Error('unable to get webgl context');
-        }
-
-        const glAngle = gl.getExtension('ANGLE_instanced_arrays');
-        if (!glAngle) {
-            throw new Error("unable to get webgl extension 'ANGLE_instanced_arrays'")
-        }
-
-        const twodContext = this.cursorCanvas.getContext("2d");
-        if (!twodContext) {
-            throw new Error('unable to get 2d context');
-        }
-
-        const textContext = this.textCanvas.getContext("2d");
-        if (!textContext) {
-            throw new Error('unable to get 2d context');
-        }
-
-        const rubberTextContext = this.rubberBandTextCanvas.getContext("2d");
-        if (!rubberTextContext) {
-            throw new Error('unable to get 2d context');
-        }
-
-        return [gl, glAngle, twodContext, textContext, rubberTextContext];
     }
 
     private update(clientUpdate: ClientUpdate) {
@@ -413,9 +387,9 @@ export class ViewControl {
         this.coordinatesLocation = this.gl.getAttribLocation(program, "vCoords");
         this.translationLocation = this.gl.getAttribLocation(program, "vTrans");
         this.colorLocation = this.gl.getAttribLocation(program, "vColor");
-        this.objectScaleTransformLocation = this.gl.getUniformLocation(program, "objectScaleTransform");
-        this.objectWorldTransformLocation = this.gl.getUniformLocation(program, "objectWorldTransform");
-        this.viewTransformLocation = this.gl.getUniformLocation(program, "viewTransform");
+        this.objectScaleTransformLocation = this.gl.getUniformLocation(program, "objectScaleTransform") || throwError('Unable to get object scale transform location');
+        this.objectWorldTransformLocation = this.gl.getUniformLocation(program, "objectWorldTransform") || throwError('Unable to get object world transform location');
+        this.viewTransformLocation = this.gl.getUniformLocation(program, "viewTransform") || throwError('Unable to get view transform location');
     }
 
     private prepareEvents() {
@@ -485,7 +459,7 @@ export class ViewControl {
         }
         let vertices = new Float32Array(verts);
 
-        this.ellipseBuffer = this.gl.createBuffer();
+        this.ellipseBuffer = this.gl.createBuffer() || throwError('Unable to create ellipse buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
 
@@ -499,7 +473,7 @@ export class ViewControl {
         verts.push(0.0, 0.5, 0.0);
         let pointMarkVertices = new Float32Array(verts);
 
-        this.pointMarkBuffer = this.gl.createBuffer();
+        this.pointMarkBuffer = this.gl.createBuffer() || throwError('Unable to create point mark buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.pointMarkBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, pointMarkVertices, this.gl.STATIC_DRAW);
 
@@ -517,7 +491,7 @@ export class ViewControl {
         verts.push(-0.5, -0.5, 0.0);
         let hotPointVertices = new Float32Array(verts);
 
-        this.hotPointMarkBuffer = this.gl.createBuffer();
+        this.hotPointMarkBuffer = this.gl.createBuffer() || throwError('Unable to create hot point mark buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointMarkBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, hotPointVertices, this.gl.STATIC_DRAW);
 
@@ -572,15 +546,15 @@ export class ViewControl {
         let lineColors = new Uint8Array(lineCols);
         let lineVerticesWithDefaultColor = new Float32Array(lineVertsWithDefaultColor);
 
-        drawing.LineVertices = this.gl.createBuffer();
+        drawing.LineVertices = this.gl.createBuffer() || throwError('Unable to create line vertices buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, lineVertices, this.gl.STATIC_DRAW);
 
-        drawing.LineColors = this.gl.createBuffer();
+        drawing.LineColors = this.gl.createBuffer() || throwError('Unable to create line colors buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineColors);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, lineColors, this.gl.STATIC_DRAW);
 
-        drawing.LineVerticesWithDefaultColor = this.gl.createBuffer();
+        drawing.LineVerticesWithDefaultColor = this.gl.createBuffer() || throwError('Unable to create line vertices with default color buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVerticesWithDefaultColor);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, lineVerticesWithDefaultColor, this.gl.STATIC_DRAW);
 
@@ -608,15 +582,15 @@ export class ViewControl {
         let pointColors = new Uint8Array(pointCols);
         let pointVerticesWithDefaultColor = new Float32Array(pointVertsWithDefaultColor);
 
-        drawing.PointLocations = this.gl.createBuffer();
+        drawing.PointLocations = this.gl.createBuffer() || throwError('Unable to create point locations buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocations);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, pointVertices, this.gl.STATIC_DRAW);
 
-        drawing.PointColors = this.gl.createBuffer();
+        drawing.PointColors = this.gl.createBuffer() || throwError('Unable to create point colors buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointColors);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, pointColors, this.gl.STATIC_DRAW);
 
-        drawing.PointLocationsWithDefaultColor = this.gl.createBuffer();
+        drawing.PointLocationsWithDefaultColor = this.gl.createBuffer() || throwError('Unable to create point locations with default color buffer');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocationsWithDefaultColor);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, pointVerticesWithDefaultColor, this.gl.STATIC_DRAW);
 
@@ -631,7 +605,7 @@ export class ViewControl {
             verts.push(p.X, p.Y, p.Z);
         }
         let vertices = new Float32Array(verts);
-        this.hotPointLocations = this.gl.createBuffer();
+        this.hotPointLocations = this.gl.createBuffer() || throwError('Unable to create hot point locations');
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointLocations);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
 
@@ -857,4 +831,8 @@ function transform(matrix: number[], point: number[]): number[] {
         matrix[2] * point[0] + matrix[6] * point[1] + matrix[10] * point[2] + matrix[14] * point[3],
         matrix[3] * point[0] + matrix[7] * point[1] + matrix[11] * point[2] + matrix[15] * point[3]
     ];
+}
+
+function throwError<T>(message: string): T {
+    throw new Error(message);
 }
