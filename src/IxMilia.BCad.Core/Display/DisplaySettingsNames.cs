@@ -18,5 +18,6 @@ namespace IxMilia.BCad.Display
         public const string SnapPointSize = Prefix + nameof(SnapPointSize);
         public const string TextCursorSize = Prefix + nameof(TextCursorSize);
         public const string PointDisplaySize = Prefix + nameof(PointDisplaySize);
+        public const string Theme = Prefix + nameof(Theme);
     }
 }

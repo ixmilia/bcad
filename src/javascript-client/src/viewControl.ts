@@ -135,6 +135,7 @@ export class ViewControl {
             SnapPointSize: 15,
             PointDisplaySize: 48,
             TextCursorSize: 18,
+            Theme: 'xp/98.css',
             CommandShortcuts: [],
         };
 

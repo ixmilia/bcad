@@ -41,8 +41,10 @@ export class Ribbon {
             }
         });
 
-        document.getElementById('theme-selector')?.addEventListener('change', e => {
-            (<HTMLLinkElement>document.getElementById('theme-stylesheet'))!.href = (<HTMLOptionElement>e?.target)?.value;
+        client.subscribeToClientUpdates(clientUpdate => {
+            if (clientUpdate.Settings) {
+                (<HTMLLinkElement>document.getElementById('theme-stylesheet'))!.href = clientUpdate.Settings.Theme;
+            }
         });
 
         new SettingsRibbon(client);

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
 using PhotinoNET;
@@ -23,6 +24,8 @@ namespace bcad
             formatter.JsonSerializer.Converters.Add(new KeyEnumConverter());
             var messageHandler = new NewLineDelimitedMessageHandler(clientStream, serverStream, formatter);
             var server = new FullServer(messageHandler);
+
+            server.Workspace.SettingsService.RegisterSetting(DisplaySettingsNames.Theme, typeof(string), "xp/98.css");
 
             server.Agent.IsReady += (o, e) =>
             {

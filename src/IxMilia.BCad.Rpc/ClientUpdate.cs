@@ -190,6 +190,7 @@ namespace IxMilia.BCad.Rpc
         public double SnapPointSize { get; }
         public double PointDisplaySize { get; }
         public int TextCursorSize { get; }
+        public string Theme { get; }
         public CommandShortcut[] CommandShortcuts { get; }
 
         public ClientSettings(IWorkspace workspace)
@@ -205,6 +206,7 @@ namespace IxMilia.BCad.Rpc
             SnapPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.SnapPointSize);
             PointDisplaySize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.PointDisplaySize);
             TextCursorSize = workspace.SettingsService.GetValue<int>(DisplaySettingsNames.TextCursorSize);
+            Theme = workspace.SettingsService.GetValue<string>(DisplaySettingsNames.Theme);
             CommandShortcuts = workspace.Commands.Where(c => c.Key != Key.None).Select(c => new CommandShortcut(c.Name, c.Modifier, c.Key)).ToArray();
         }
     }
