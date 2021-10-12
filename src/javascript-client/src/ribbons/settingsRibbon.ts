@@ -8,14 +8,14 @@ export class SettingsRibbon {
             let value = button.getAttribute("data-setting-value");
             if (name && value) {
                 button.addEventListener('click', () => {
-                    //client.setSetting(name!, value!);
+                    client.setSetting(name!, value!);
                 });
             }
         });
 
         this.getSnapAngleSelectors().forEach(input => {
             input.addEventListener('change', () => {
-                //client.setSetting("Display.SnapAngles", input.value);
+                client.setSetting("Display.SnapAngles", input.value);
             });
         });
 
