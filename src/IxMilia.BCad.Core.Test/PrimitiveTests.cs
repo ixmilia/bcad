@@ -14,15 +14,19 @@ namespace IxMilia.BCad.Core.Test
 
         #region Helpers
 
+        private static readonly PrimitiveBezier CircleQuadrant1Bezier = new PrimitiveBezier(new Point(1.0, 0.0, 0.0), new Point(1.0, PrimitiveEllipse.BezierConstant, 0.0), new Point(PrimitiveEllipse.BezierConstant, 1.0, 0.0), new Point(0.0, 1.0, 0.0));
+
         private static void TestIntersection(IPrimitive first, IPrimitive second, bool withinBounds, params Point[] points)
         {
-            var p = first.IntersectionPoints(second, withinBounds).OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
+            var p = first.IntersectionPoints(second, withinBounds).OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).Distinct().ToArray();
             points = points.OrderBy(x => x.X).ThenBy(y => y.Y).ThenBy(z => z.Z).ToArray();
-            Assert.Equal(points.Length, p.Length);
-            for (int i = 0; i < p.Length; i++)
+            var areEqual = points.Length == p.Length;
+            for (int i = 0; i < Math.Min(points.Length, p.Length); i++)
             {
-                AssertClose(points[i], p[i]);
+                areEqual &= AreClose(points[i], p[i]);
             }
+
+            Assert.True(areEqual, $"Expected:\n\t{string.Join("\n\t", points)}\nActual:\n\t{string.Join("\n\t", p)}");
         }
 
         private static bool AreClose(double expected, double actual)
@@ -30,15 +34,21 @@ namespace IxMilia.BCad.Core.Test
             return Math.Abs(expected - actual) < MathHelper.Epsilon;
         }
 
-        private static void AssertClose(double expected, double actual)
+        private static bool AreClose(Point expected, Point actual)
         {
-            Assert.True(Math.Abs(expected - actual) < MathHelper.Epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+            return AreClose(expected.X, actual.X)
+                && AreClose(expected.Y, actual.Y)
+                && AreClose(expected.Z, actual.Z);
+        }
+
+        private static void AssertClose(double expected, double actual, double epsilon = MathHelper.Epsilon)
+        {
+            Assert.True(Math.Abs(expected - actual) <= epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
         private static void AssertClose(Point expected, Point actual)
         {
-            Assert.True(AreClose(expected.X, actual.X) && AreClose(expected.Y, actual.Y) && AreClose(expected.Z, actual.Z),
-                $"Expected: {expected}\nActual: {actual}");
+            Assert.True(AreClose(expected, actual), $"Expected: {expected}\nActual: {actual}");
         }
 
         private static void AssertClose(Vector expected, Vector actual)
@@ -84,12 +94,12 @@ namespace IxMilia.BCad.Core.Test
             return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360);
         }
 
-        private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null)
+        private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null, double epsilon = MathHelper.Epsilon)
         {
             if (contained != null)
-                Assert.True(contained.All(p => primitive.IsPointOnPrimitive(p)));
+                Assert.True(contained.All(p => primitive.IsPointOnPrimitive(p, epsilon)));
             if (excluded != null)
-                Assert.True(excluded.All(p => !primitive.IsPointOnPrimitive(p)));
+                Assert.True(excluded.All(p => !primitive.IsPointOnPrimitive(p, epsilon)));
         }
 
         #endregion
@@ -432,6 +442,135 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public void BezierToSimplePrimitivesTest()
+        {
+            var simplePrimitives = CircleQuadrant1Bezier.IntersectionPrimitives;
+            var arc = (PrimitiveEllipse)simplePrimitives.Single();
+            Assert.True(arc.IsCircular);
+            AssertClose(0.0, arc.StartAngle, epsilon: 0.1);
+            AssertClose(90.0, arc.EndAngle, epsilon: 0.1);
+        }
+
+        [Fact]
+        public void BezierEllipseIntersectionTest()
+        {
+            TestIntersection(
+                CircleQuadrant1Bezier,
+                Ellipse(Point.Origin, 1.5, 0.5),
+                true,
+                new Point(0.902722534728, 0.399317755024, 0.0));
+        }
+
+        [Fact]
+        public void BezierLineIntersectionTest1()
+        {
+            TestIntersection(
+                CircleQuadrant1Bezier,
+                Line(new Point(0.5, 0.5, 0.0), new Point(1.0, 1.0, 0.0)),
+                true,
+                CircleQuadrant1Bezier.ComputeParameterizedPoint(0.5)); // approx (sqrt(2)/2, sqrt(2)/2)
+        }
+
+        [Fact]
+        public void BezierLineIntersectionTest2()
+        {
+            // taken from real-world curves
+            TestIntersection(
+                new PrimitiveBezier(
+                    new Point(59.1, 66.8, 0.0),
+                    new Point(63.1, 81.7, 0.0),
+                    new Point(98.6015384615385, 88.3461538461538, 0.0),
+                    new Point(109.037363313609, 75.2010840236686, 0.0)),
+                new PrimitiveLine(new Point(55.0, 30.0, 0.0), new Point(115.0, 85.0, 0.0)),
+                true,
+                new Point(106.77307628734064, 77.4586532633956, 0.0));
+        }
+
+        [Fact]
+        public void BezierLineIntersectionTest3()
+        {
+            // taken from real-world curves
+            TestIntersection(
+                new PrimitiveBezier(
+                    new Point(96.1092041015625, 36.5579833984375, 0.0),
+                    new Point(79.8453125, 30.9796875, 0.0),
+                    new Point(55.4, 52.8, 0.0),
+                    new Point(59.1, 66.8, 0.0)),
+                new PrimitiveLine(new Point(55.0, 30.0, 0.0), new Point(115.0, 85.0, 0.0)),
+                true,
+                new Point(70.38849858212606, 44.10612370028221, 0.0));
+        }
+
+        [Fact]
+        public void BezierPointIntersectionTest()
+        {
+            var point = CircleQuadrant1Bezier.ComputeParameterizedPoint(0.5); // approx (sqrt(2)/2, sqrt(2)/2)
+            TestIntersection(
+                CircleQuadrant1Bezier,
+                new PrimitivePoint(point),
+                true,
+                point);
+        }
+
+        [Fact]
+        public void BezierTextIntersectionTest()
+        {
+            TestIntersection(
+                CircleQuadrant1Bezier,
+                new PrimitiveText(string.Empty, Point.Origin, 1.0, Vector.ZAxis, 0.0),
+                true); // no intersection by design
+        }
+
+        [Fact]
+        public void BezierBezierIntersectionTest()
+        {
+            var circleQuadrant3Bezier = new PrimitiveBezier(
+                new Point(-1.0, 0.0, 0.0),
+                new Point(-1.0, -PrimitiveEllipse.BezierConstant, 0.0),
+                new Point(-PrimitiveEllipse.BezierConstant, -1.0, 0.0),
+                new Point(0.0, -1.0, 0.0));
+            var delta = new Vector(1.25, 1.25, 0.0);
+            var moved = new PrimitiveBezier(
+                circleQuadrant3Bezier.P1 + delta,
+                circleQuadrant3Bezier.P2 + delta,
+                circleQuadrant3Bezier.P3 + delta,
+                circleQuadrant3Bezier.P4 + delta);
+            TestIntersection(
+                CircleQuadrant1Bezier,
+                moved,
+                true,
+                new Point(0.2944601541200231, 0.9555398458800544, 0.0),
+                new Point(0.9555398458800544, 0.294460154120023, 0.0));
+        }
+
+        [Fact]
+        public void BezierIntersectionWhenOneCurveIsReallyAPointTest()
+        {
+            var p1 = new Point(0.0, 0.0, 0.0);
+            var p2 = new Point(1.0, 1.0, 0.0);
+            var b1 = new PrimitiveBezier(p1, p1, p1, p1);
+            var b2 = new PrimitiveBezier(p1, p1, p2, p2);
+            TestIntersection(
+                b1,
+                b2,
+                true,
+                p1);
+        }
+
+        [Fact]
+        public void BezierIntersectionWhenBothCurvesAreReallyPointsTest()
+        {
+            var p = new Point(0.0, 0.0, 0.0);
+            var b1 = new PrimitiveBezier(p, p, p, p);
+            var b2 = new PrimitiveBezier(p, p, p, p);
+            TestIntersection(
+                b1,
+                b2,
+                true,
+                p);
+        }
+
+        [Fact]
         public void PointOnLineTest()
         {
             TestPointContainment(Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
@@ -487,6 +626,29 @@ namespace IxMilia.BCad.Core.Test
                 {
                     new Point(0.0, -1.0, 0.0), // 270 degrees
                     new Point(0.0, 0.0, 0.0) // 0/360 degrees
+                });
+        }
+
+        [Fact]
+        public void IsPointOnBezierTest()
+        {
+            var bezier = new PrimitiveBezier(
+                new Point(0.0, 0.0, 0.0),
+                new Point(1.0, 0.0, 0.0),
+                new Point(4.0, 5.0, 0.0),
+                new Point(5.0, 5.0, 0.0));
+            var expectedPoint1 = bezier.ComputeParameterizedPoint(0.25);
+            var expectedPoint2 = bezier.ComputeParameterizedPoint(0.75);
+            TestPointContainment(
+                bezier,
+                contained: new[]
+                {
+                    expectedPoint1,
+                    expectedPoint2
+                },
+                excluded: new[]
+                {
+                    expectedPoint1 + new Vector(1.0, 0.0, 0.0)
                 });
         }
 

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Primitives;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Entities;
 
@@ -246,6 +247,14 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.GetEntityColor(), text);
         }
 
+        public static Spline ToSpline(this DxfSpline spline)
+        {
+            // only degree 3 curves are currently supported
+            return spline.DegreeOfCurve == 3
+                ? new Spline(spline.DegreeOfCurve, spline.ControlPoints.Select(p => p.Point.ToPoint()), spline.KnotValues, spline.GetEntityColor(), spline)
+                : null;
+        }
+
         public static Entity ToEntity(this DxfEntity item)
         {
             Entity entity = null;
@@ -274,6 +283,9 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                     break;
                 case DxfEntityType.Polyline:
                     entity = ((DxfPolyline)item).ToPolyline();
+                    break;
+                case DxfEntityType.Spline:
+                    entity = ((DxfSpline)item).ToSpline();
                     break;
                 case DxfEntityType.Text:
                     entity = ((DxfText)item).ToText();
@@ -366,6 +378,37 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             };
         }
 
+        public static DxfSpline ToDxfSpline(this Spline spline, Layer layer)
+        {
+            var dxfSpline = new DxfSpline()
+            {
+                DegreeOfCurve = 3,
+                Layer = layer.Name
+            };
+
+            var beziers = spline.GetPrimitives().OfType<PrimitiveBezier>().ToArray();
+            var knotDelta = 1.0 / beziers.Length;
+            dxfSpline.KnotValues.Add(0.0);
+            dxfSpline.KnotValues.Add(0.0);
+            dxfSpline.KnotValues.Add(0.0);
+            dxfSpline.KnotValues.Add(0.0);
+            var currentKnot = knotDelta;
+            foreach (var bezier in beziers)
+            {
+                dxfSpline.ControlPoints.Add(new DxfControlPoint(bezier.P1.ToDxfPoint()));
+                dxfSpline.ControlPoints.Add(new DxfControlPoint(bezier.P2.ToDxfPoint()));
+                dxfSpline.ControlPoints.Add(new DxfControlPoint(bezier.P3.ToDxfPoint()));
+                dxfSpline.ControlPoints.Add(new DxfControlPoint(bezier.P4.ToDxfPoint()));
+                dxfSpline.KnotValues.Add(currentKnot);
+                dxfSpline.KnotValues.Add(currentKnot);
+                dxfSpline.KnotValues.Add(currentKnot);
+                dxfSpline.KnotValues.Add(currentKnot);
+                currentKnot += knotDelta;
+            }
+
+            return dxfSpline;
+        }
+
         public static DxfEntity ToDxfEntity(this Entity item, Layer layer)
         {
             DxfEntity entity = null;
@@ -399,6 +442,9 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                     break;
                 case EntityKind.Text:
                     entity = ((Text)item).ToDxfText(layer);
+                    break;
+                case EntityKind.Spline:
+                    entity = ((Spline)item).ToDxfSpline(layer);
                     break;
                 default:
                     Debug.Assert(false, "Unsupported entity type: " + item.GetType().Name);

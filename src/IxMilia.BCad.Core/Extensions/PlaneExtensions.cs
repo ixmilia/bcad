@@ -32,6 +32,12 @@ namespace IxMilia.BCad.Extensions
                     var t = (PrimitiveText)primitive;
                     return plane.Contains(t.Location)
                         && plane.Normal.IsParallelTo(t.Normal);
+                case PrimitiveKind.Bezier:
+                    var b = (PrimitiveBezier)primitive;
+                    return plane.Contains(b.P1)
+                        && plane.Contains(b.P2)
+                        && plane.Contains(b.P3)
+                        && plane.Contains(b.P4);
                 default:
                     throw new ArgumentException("primitive.Kind");
             }

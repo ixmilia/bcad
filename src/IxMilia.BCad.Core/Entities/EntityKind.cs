@@ -10,6 +10,7 @@ namespace IxMilia.BCad.Entities
         Location = 1 << 5,
         Polyline = 1 << 6,
         Text = 1 << 7,
+        Spline = 1 << 8,
         All = int.MaxValue
     }
 }

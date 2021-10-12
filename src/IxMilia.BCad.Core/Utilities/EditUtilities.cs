@@ -72,9 +72,10 @@ namespace IxMilia.BCad.Utilities
                 .SelectMany(b => selectionPrimitives.Select(sel => b.IntersectionPoints(sel)))
                 .WhereNotNull()
                 .SelectMany(b => b)
-                .WhereNotNull();
+                .WhereNotNull()
+                .ToArray();
 
-            if (intersectionPoints.Any())
+            if (intersectionPoints.Length > 0)
             {
                 // perform the trim operation
                 switch (entityToTrim.Entity.Kind)
@@ -86,6 +87,9 @@ namespace IxMilia.BCad.Utilities
                     case EntityKind.Circle:
                     case EntityKind.Ellipse:
                         TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
+                        break;
+                    case EntityKind.Spline:
+                        TrimSpline((Spline)entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
                         break;
                     default:
                         Debug.Assert(false, "unsupported trim entity: " + entityToTrim.Entity.Kind);
@@ -228,6 +232,7 @@ namespace IxMilia.BCad.Utilities
                     result = new PrimitivePoint(point.Location + pointOffsetVector, point.Color);
                     break;
                 case PrimitiveKind.Text:
+                case PrimitiveKind.Bezier:
                     result = null;
                     break;
                 default:
@@ -369,8 +374,8 @@ namespace IxMilia.BCad.Utilities
                             Offset(drawingPlane, line, line.P1 - offsetVector, distance)
                         };
                 case PrimitiveKind.Point:
-                    return Enumerable.Empty<IPrimitive>();
                 case PrimitiveKind.Text:
+                case PrimitiveKind.Bezier:
                     return Enumerable.Empty<IPrimitive>();
                 default:
                     throw new ArgumentException("primitive.Kind");
@@ -553,6 +558,70 @@ namespace IxMilia.BCad.Utilities
 
             added = addedList;
             removed = removedList;
+        }
+
+        private static void TrimSpline(Spline entityToTrim, Point pivot, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        {
+            var addedList = new List<Entity>();
+            var currentBeziers = new List<PrimitiveBezier>();
+            var beziers = entityToTrim.GetPrimitives().Cast<PrimitiveBezier>();
+            foreach (var bezier in beziers)
+            {
+                // split bezier at intersection points and the curve containing the pivot gets deleted, others are kept
+                foreach (var intersection in intersectionPoints)
+                {
+                    // TODO: split at all points at once
+                    var t = bezier.GetParameterValueForPoint(intersection);
+                    if (t.HasValue)
+                    {
+                        var parts = bezier.Split(t.GetValueOrDefault());
+                        var isOnPart1 = parts.Item1.IsPointOnPrimitive(pivot, MathHelper.BezierEpsilon);
+                        var isOnPart2 = parts.Item2.IsPointOnPrimitive(pivot, MathHelper.BezierEpsilon);
+                        Debug.Assert(!(isOnPart1 && isOnPart2), "Pivot should not be on both curve parts.");
+                        if (isOnPart1)
+                        {
+                            if (currentBeziers.Count > 0)
+                            {
+                                // add current collection of curves
+                                var spline = Spline.FromBeziers(currentBeziers);
+                                addedList.Add(spline);
+
+                                // reset curve generation
+                                currentBeziers.Clear();
+                            }
+
+                            // start a new curve collection
+                            currentBeziers.Add(parts.Item2);
+                        }
+                        else if (isOnPart2)
+                        {
+                            // add part 1 and add curve collection
+                            currentBeziers.Add(parts.Item1);
+                            var spline = Spline.FromBeziers(currentBeziers);
+                            addedList.Add(spline);
+
+                            // reset curve generation
+                            currentBeziers.Clear();
+                        }
+                        else
+                        {
+                            // keep entire curve
+                            currentBeziers.Add(bezier);
+                        }
+                    }
+                }
+            }
+
+            if (currentBeziers.Count > 0)
+            {
+                var spline = Spline.FromBeziers(currentBeziers);
+                addedList.Add(spline);
+            }
+
+            added = addedList;
+            removed = addedList.Count == 0
+                ? Enumerable.Empty<Entity>()
+                : new[] { entityToTrim };
         }
 
         private static void ExtendLine(Line lineToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)

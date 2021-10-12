@@ -366,6 +366,17 @@ namespace IxMilia.BCad.Rpc
                 case PrimitiveText text:
                     clientDrawing.Text.Add(new ClientText(text.Value, text.Location, text.Height, text.Rotation, primitiveColor));
                     break;
+                case PrimitiveBezier bezier:
+                    var lineSegments = 10;
+                    var last = bezier.P1;
+                    for (int i = 1; i <= lineSegments; i++)
+                    {
+                        var t = (double)i / lineSegments;
+                        var next = bezier.ComputeParameterizedPoint(t);
+                        clientDrawing.Lines.Add(new ClientLine(last, next, primitiveColor));
+                        last = next;
+                    }
+                    break;
             }
         }
 

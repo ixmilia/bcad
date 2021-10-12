@@ -11,7 +11,8 @@ namespace IxMilia.BCad.Helpers
         public const double RadiansToDegrees = OneEighty / MathHelper.PI;
         public const double DegreesToRadians = MathHelper.PI / OneEighty;
         public const double TwoPI = MathHelper.PI * 2.0;
-        public const double Epsilon = 0.000000000001;
+        public const double Epsilon = 1.0E-12;
+        public const double BezierEpsilon = 1.0 / 1024.0;
         public const double SqrtThreeHalves = 1.2247448713916;
 
         public readonly static double[] SIN;
@@ -63,29 +64,36 @@ namespace IxMilia.BCad.Helpers
             return angle;
         }
 
-        public static bool CloseTo(double expected, double actual)
+        public static bool CloseTo(double expected, double actual, double epsilon = Epsilon)
         {
-            return Between(expected - Epsilon, expected + Epsilon, actual);
+            return Between(expected - epsilon, expected + epsilon, actual);
         }
 
-        public static bool CloseTo(Matrix4 expected, Matrix4 actual)
+        public static bool CloseTo(Matrix4 expected, Matrix4 actual, double epsilon = Epsilon)
         {
-            return CloseTo(expected.M11, actual.M11)
-                && CloseTo(expected.M12, actual.M12)
-                && CloseTo(expected.M13, actual.M13)
-                && CloseTo(expected.M14, actual.M14)
-                && CloseTo(expected.M21, actual.M21)
-                && CloseTo(expected.M22, actual.M22)
-                && CloseTo(expected.M23, actual.M23)
-                && CloseTo(expected.M24, actual.M24)
-                && CloseTo(expected.M31, actual.M31)
-                && CloseTo(expected.M32, actual.M32)
-                && CloseTo(expected.M33, actual.M33)
-                && CloseTo(expected.M34, actual.M34)
-                && CloseTo(expected.M41, actual.M41)
-                && CloseTo(expected.M42, actual.M42)
-                && CloseTo(expected.M43, actual.M43)
-                && CloseTo(expected.M44, actual.M44);
+            return CloseTo(expected.M11, actual.M11, epsilon)
+                && CloseTo(expected.M12, actual.M12, epsilon)
+                && CloseTo(expected.M13, actual.M13, epsilon)
+                && CloseTo(expected.M14, actual.M14, epsilon)
+                && CloseTo(expected.M21, actual.M21, epsilon)
+                && CloseTo(expected.M22, actual.M22, epsilon)
+                && CloseTo(expected.M23, actual.M23, epsilon)
+                && CloseTo(expected.M24, actual.M24, epsilon)
+                && CloseTo(expected.M31, actual.M31, epsilon)
+                && CloseTo(expected.M32, actual.M32, epsilon)
+                && CloseTo(expected.M33, actual.M33, epsilon)
+                && CloseTo(expected.M34, actual.M34, epsilon)
+                && CloseTo(expected.M41, actual.M41, epsilon)
+                && CloseTo(expected.M42, actual.M42, epsilon)
+                && CloseTo(expected.M43, actual.M43, epsilon)
+                && CloseTo(expected.M44, actual.M44, epsilon);
+        }
+
+        public static double CubeRoot(double v)
+        {
+            return v < 0.0
+                ? -Math.Pow(-v, 1.0 / 3.0)
+                : Math.Pow(v, 1.0 / 3.0);
         }
     }
 }

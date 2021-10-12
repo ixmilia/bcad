@@ -80,6 +80,19 @@ namespace IxMilia.BCad.Extensions
             return false;
         }
 
+        public static bool EquivalentTo(this Spline spline, Entity entity)
+        {
+            if (entity is Spline other)
+            {
+                return spline.Degree == other.Degree
+                    && spline.ControlPoints.SequenceEqual(other.ControlPoints)
+                    && spline.KnotValues.SequenceEqual(other.KnotValues)
+                    && spline.Color == other.Color;
+            }
+
+            return false;
+        }
+
         public static bool EquivalentTo(this IEnumerable<Vertex> a, IEnumerable<Vertex> b)
         {
             var expected = a.ToList();
@@ -121,6 +134,8 @@ namespace IxMilia.BCad.Extensions
                     return l.EquivalentTo(b);
                 case Polyline p:
                     return p.EquivalentTo(b);
+                case Spline s:
+                    return s.EquivalentTo(b);
                 default:
                     throw new NotSupportedException("Unsupported entity type");
             }

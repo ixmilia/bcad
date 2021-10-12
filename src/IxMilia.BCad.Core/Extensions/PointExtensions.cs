@@ -9,18 +9,18 @@ namespace IxMilia.BCad.Extensions
 {
     public static class PointExtensions
     {
-        public static bool CloseTo(this Point expected, Point actual)
+        public static bool CloseTo(this Point expected, Point actual, double epsilon = MathHelper.Epsilon)
         {
-            return MathHelper.CloseTo(expected.X, actual.X)
-                && MathHelper.CloseTo(expected.Y, actual.Y)
-                && MathHelper.CloseTo(expected.Z, actual.Z);
+            return MathHelper.CloseTo(expected.X, actual.X, epsilon)
+                && MathHelper.CloseTo(expected.Y, actual.Y, epsilon)
+                && MathHelper.CloseTo(expected.Z, actual.Z, epsilon);
         }
 
-        public static bool CloseTo(this Vector expected, Vector actual)
+        public static bool CloseTo(this Vector expected, Vector actual, double epsilon = MathHelper.Epsilon)
         {
-            return MathHelper.CloseTo(expected.X, actual.X)
-                && MathHelper.CloseTo(expected.Y, actual.Y)
-                && MathHelper.CloseTo(expected.Z, actual.Z);
+            return MathHelper.CloseTo(expected.X, actual.X, epsilon)
+                && MathHelper.CloseTo(expected.Y, actual.Y, epsilon)
+                && MathHelper.CloseTo(expected.Z, actual.Z, epsilon);
         }
 
         public static IEnumerable<PrimitiveLine> GetLinesFromPoints(this IEnumerable<Point> points)
@@ -147,7 +147,7 @@ namespace IxMilia.BCad.Extensions
                             };
                         if (verticies
                             .Zip(verticies.Skip(1), (a, b) => new PrimitiveLine(a, b))
-                            .Any(l => selectionLines.Any(s => s.IntersectionPoint(l) != null)))
+                            .Any(l => selectionLines.Any(s => s.IntersectionPoints(l) != null)))
                         {
                             isContained = true;
                         }

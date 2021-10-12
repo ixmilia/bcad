@@ -20,6 +20,17 @@ namespace IxMilia.BCad
             this.Size = size;
         }
 
+        public bool Intersects(BoundingBox other)
+        {
+            var left1 = Math.Max(MinimumPoint.X, other.MinimumPoint.X);
+            var left2 = Math.Min(MinimumPoint.X + Size.X, other.MinimumPoint.X + other.Size.X);
+            var top1 = Math.Max(MinimumPoint.Y, other.MinimumPoint.Y);
+            var top2 = Math.Min(MinimumPoint.Y + Size.Y, other.MinimumPoint.Y + other.Size.Y);
+            var back1 = Math.Max(MinimumPoint.Z, other.MinimumPoint.Z);
+            var back2 = Math.Min(MinimumPoint.Z + Size.Z, other.MinimumPoint.Z + other.Size.Z);
+            return left2 >= left1 && top2 >= top1 && back2 >= back1;
+        }
+
         public static BoundingBox FromPoints(params Point[] points)
         {
             Debug.Assert(points.Length > 0);

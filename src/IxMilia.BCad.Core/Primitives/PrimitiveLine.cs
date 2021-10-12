@@ -8,6 +8,9 @@ namespace IxMilia.BCad.Primitives
         public double Thickness { get; private set; }
         public PrimitiveKind Kind { get { return PrimitiveKind.Line; } }
 
+        public double Length => (P2 - P1).Length;
+        public double LengthSquared => (P2 - P1).LengthSquared;
+
         public PrimitiveLine(Point p1, Point p2, CadColor? color = null, double thickness = default(double))
         {
             this.P1 = p1;

@@ -71,6 +71,30 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
+        public void RoundTripSplineTest()
+        {
+            VerifyRoundTrip(new Spline(3,
+                new Point[]
+                {
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(1.0, 1.0, 0.0),
+                    new Point(2.0, 2.0, 0.0),
+                    new Point(3.0, 3.0, 0.0),
+                },
+                new double[]
+                {
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                }));
+        }
+
+        [Fact]
         public void RoundTripLayerTest()
         {
             // don't try to round-trip a null layer color; DXF always resets it to white

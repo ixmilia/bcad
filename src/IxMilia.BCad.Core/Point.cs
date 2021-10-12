@@ -105,5 +105,11 @@ namespace IxMilia.BCad
         {
             get { return new Point(0, 0, 0); }
         }
+
+        public static Point ScaledAlongPath(Point p1, Point p2, double scale)
+        {
+            var delta = (p2 - p1) * scale;
+            return p1 + delta;
+        }
     }
 }

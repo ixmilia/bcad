@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
@@ -8,6 +10,8 @@ namespace IxMilia.BCad.Primitives
 {
     public class PrimitiveEllipse : IPrimitive
     {
+        public const double BezierConstant = 0.551915024494;
+
         public Point Center { get; private set; }
         public Vector MajorAxis { get; private set; }
         public Vector Normal { get; private set; }
@@ -21,7 +25,9 @@ namespace IxMilia.BCad.Primitives
 
         public bool IsClosed { get { return MathHelper.CloseTo(0.0, StartAngle) && MathHelper.CloseTo(MathHelper.ThreeSixty, EndAngle); } }
 
-        public bool IsCircle => MinorAxisRatio == 1.0 && IsClosed;
+        public bool IsCircular => MathHelper.CloseTo(1.0, MinorAxisRatio);
+
+        public bool IsCircle => IsCircular && IsClosed;
 
         /// <summary>
         /// Creates a new PrimitiveEllipse.
@@ -62,6 +68,45 @@ namespace IxMilia.BCad.Primitives
         }
 
         /// <summary>
+        /// Returns a collection of 4 <see cref="PrimitiveBezier"/>s that represent the untrimmed ellipse.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<PrimitiveBezier> AsBezierCurves()
+        {
+            var minorAxis = MajorAxis.Cross(Normal).Normalize() * MajorAxis.Length * MinorAxisRatio;
+            var majorAxisScaled = MajorAxis.Normalize() * MajorAxis.Length * BezierConstant;
+            var minorAxisScaled = minorAxis.Normalize() * minorAxis.Length * BezierConstant;
+
+            // first quadrant
+            yield return new PrimitiveBezier(
+                Center + MajorAxis,
+                Center + MajorAxis + minorAxisScaled,
+                Center + minorAxis + majorAxisScaled,
+                Center + minorAxis);
+
+            // second quadrant
+            yield return new PrimitiveBezier(
+                Center + minorAxis,
+                Center + minorAxis - majorAxisScaled,
+                Center - MajorAxis + minorAxisScaled,
+                Center - MajorAxis);
+
+            // third quadrant
+            yield return new PrimitiveBezier(
+                Center - MajorAxis,
+                Center - MajorAxis - minorAxisScaled,
+                Center - minorAxis - majorAxisScaled,
+                Center - minorAxis);
+
+            // fourth quadrant
+            yield return new PrimitiveBezier(
+                Center - minorAxis,
+                Center - minorAxis + majorAxisScaled,
+                Center + MajorAxis - minorAxisScaled,
+                Center + MajorAxis);
+        }
+
+        /// <summary>
         /// Creates a circle that passes through the three specified points.  Null if the points are co-linear
         /// </summary>
         /// <param name="a">The first point.</param>
@@ -97,7 +142,7 @@ namespace IxMilia.BCad.Primitives
             if (idealNormal.HasValue && idealNormal.Value == normal * -1.0)
                 normal = idealNormal.Value;
 
-            return new PrimitiveEllipse(center.Value, (a - center.Value).Length, normal);
+            return new PrimitiveEllipse(center.GetValueOrDefault(), (a - center.GetValueOrDefault()).Length, normal);
         }
 
         /// <summary>
