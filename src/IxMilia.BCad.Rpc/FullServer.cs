@@ -26,7 +26,7 @@ namespace IxMilia.BCad.Rpc
         public void Start()
         {
             Console.Error.WriteLine("starting run");
-            Agent.JsonRpc.StartListening();
+            Agent.StartListening();
             Console.Error.WriteLine("server listening");
         }
 

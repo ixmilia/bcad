@@ -18,7 +18,7 @@ namespace IxMilia.BCad.Rpc
     {
         private IWorkspace _workspace;
         private DisplayInteractionManager _dim;
-        public JsonRpc JsonRpc { get; }
+        private JsonRpc _jsonRpc { get; }
 
         public bool IsRunning { get; private set; }
         public double Width => _dim.Width;
@@ -30,9 +30,13 @@ namespace IxMilia.BCad.Rpc
         public ServerAgent(IWorkspace workspace, JsonRpc rpc)
         {
             _workspace = workspace;
-            JsonRpc = rpc;
+            _jsonRpc = rpc;
             IsRunning = true;
             _dim = new DisplayInteractionManager(workspace, ProjectionStyle.OriginTopLeft);
+        }
+
+        public void StartListening()
+        {
             _dim.CurrentSnapPointUpdated += _dim_CurrentSnapPointUpdated;
             _dim.CursorStateUpdated += _dim_CursorStateUpdated;
             _dim.HotPointsUpdated += _dim_HotPointsUpdated;
@@ -43,6 +47,8 @@ namespace IxMilia.BCad.Rpc
             _workspace.OutputService.LineWritten += OutputService_LineWritten;
             _workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+
+            _jsonRpc.StartListening();
         }
 
         private void _dim_CurrentSnapPointUpdated(object sender, TransformedSnapPoint? e)
@@ -143,12 +149,12 @@ namespace IxMilia.BCad.Rpc
         {
             var base64 = Convert.ToBase64String(data);
             var download = new ClientDownload(filename, mimeType, base64);
-            var _ = JsonRpc.NotifyAsync("DownloadFile", download);
+            var _ = _jsonRpc.NotifyAsync("DownloadFile", download);
         }
 
         private void PushUpdate(ClientUpdate clientUpdate)
         {
-            var _ = JsonRpc.NotifyAsync("ClientUpdate", clientUpdate);
+            var _ = _jsonRpc.NotifyAsync("ClientUpdate", clientUpdate);
         }
 
         public void Ready(double width, double height)
@@ -376,7 +382,7 @@ namespace IxMilia.BCad.Rpc
 
         public async Task<JObject> ShowDialog(string id, object parameter)
         {
-            var result = await JsonRpc.InvokeAsync<JObject>("ShowDialog", new { id, parameter });
+            var result = await _jsonRpc.InvokeAsync<JObject>("ShowDialog", new { id, parameter });
             return result;
         }
 

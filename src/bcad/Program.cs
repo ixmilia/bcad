@@ -32,6 +32,19 @@ namespace bcad
                 }
             };
 
+            // try to load settings
+            string[] settingsLines = Array.Empty<string>();
+            var settingsFilePath = Path.Combine(AppContext.BaseDirectory, ".bcadconfig");
+            try
+            {
+                settingsLines = File.ReadAllLines(settingsFilePath);
+                server.Workspace.SettingsService.LoadFromLines(settingsLines);
+            }
+            catch
+            {
+                // don't really care if it failed
+            }
+
             var allowDebugging = false;
             var window = new PhotinoWindow()
                 .SetTitle(windowTitle)
@@ -86,6 +99,17 @@ namespace bcad
             var indexPath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "index.html");
             window.Load(indexPath);
             window.WaitForClose();
+
+            // try to save settings
+            try
+            {
+                var newSettingsContents = server.Workspace.SettingsService.WriteWithLines(settingsLines);
+                File.WriteAllText(settingsFilePath, newSettingsContents);
+            }
+            catch
+            {
+                // don't really care if it failed
+            }
         }
     }
 }
