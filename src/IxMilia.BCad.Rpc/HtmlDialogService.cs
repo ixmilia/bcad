@@ -56,7 +56,7 @@ namespace IxMilia.BCad.Rpc
                         using (var stream = PlotToStream(viewModel))
                         using (var ms = new MemoryStream())
                         {
-                            stream.CopyTo(ms);
+                            await stream.CopyToAsync(ms);
                             ms.Seek(0, SeekOrigin.Begin);
                             var bytes = ms.ToArray();
                             var filename = Path.GetFileNameWithoutExtension(_workspace.Drawing.Settings.FileName ?? "Untitled") + "." + plotSettings.PlotType;
