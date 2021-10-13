@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using IxMilia.BCad;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
@@ -12,10 +13,11 @@ namespace bcad
 {
     class Program
     {
+        private const string WindowTitle = "BCad";
+
         [STAThread]
         static void Main(string[] args)
         {
-            string windowTitle = "BCad";
             var serverStream = new SimplexStream();
             var clientStream = new SimplexStream();
             var encoding = new UTF8Encoding(false);
@@ -50,7 +52,6 @@ namespace bcad
 
             var allowDebugging = false;
             var window = new PhotinoWindow()
-                .SetTitle(windowTitle)
                 .SetUseOsDefaultSize(true)
                 .SetContextMenuEnabled(allowDebugging)
                 .Center()
@@ -74,12 +75,15 @@ namespace bcad
                         // don't let this die
                     }
                 });
+            SetTitle(window, server.Workspace);
 
             var fileSystemService = new FileSystemService(action =>
             {
                 window.Invoke(action);
             });
             server.Workspace.RegisterService(fileSystemService);
+
+            server.Workspace.WorkspaceChanged += (sender, args) => SetTitle(window, server.Workspace);
 
             var _ = Task.Run(async () =>
             {
@@ -113,6 +117,16 @@ namespace bcad
             {
                 // don't really care if it failed
             }
+        }
+
+        private static void SetTitle(PhotinoWindow window, IWorkspace workspace)
+        {
+            var drawingName = workspace.Drawing.Settings.FileName is null
+                ? "(Untitled)"
+                : Path.GetFileName(workspace.Drawing.Settings.FileName);
+            var dirtyMarker = workspace.IsDirty ? " *" : "";
+            var title = $"{WindowTitle} [{drawingName}]{dirtyMarker}";
+            window.SetTitle(title);
         }
     }
 }
