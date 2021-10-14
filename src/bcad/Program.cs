@@ -85,6 +85,34 @@ namespace bcad
 
             server.Workspace.WorkspaceChanged += (sender, args) => SetTitle(window, server.Workspace);
 
+            var doHardClose = false;
+            window.WindowClosing += (sender, args) =>
+            {
+                if (doHardClose)
+                {
+                    // close immediately
+                    return false;
+                }
+
+                if (server.Workspace.IsDirty)
+                {
+                    var _ = Task.Run(async () =>
+                    {
+                        var result = await server.Workspace.PromptForUnsavedChanges();
+                        if (result != UnsavedChangesResult.Cancel)
+                        {
+                            doHardClose = true;
+                            window.Close();
+                        }
+                    });
+
+                    // don't close yet
+                    return true;
+                }
+
+                return false;
+            };
+
             var _ = Task.Run(async () =>
             {
                 var reader = new StreamReader(clientStream, encoding);

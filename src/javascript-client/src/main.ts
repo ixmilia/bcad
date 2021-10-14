@@ -10,6 +10,7 @@ import { ShortcutHandler } from "./shortcutHandler";
 import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
 import { PlotDialog } from "./dialogs/plotDialog";
 import { Arguments } from "./args";
+import { SaveChangesDialog } from "./dialogs/saveChangesDialog";
 
 enum HostType {
     Electron = 1,
@@ -125,6 +126,7 @@ async function start(argArray: string[]): Promise<void> {
     new FileSettingsDialog(dialogHandler);
     new LayerDialog(dialogHandler);
     new PlotDialog(client, dialogHandler);
+    new SaveChangesDialog(dialogHandler);
 }
 
 window.addEventListener("DOMContentLoaded", () => {

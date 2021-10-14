@@ -72,6 +72,26 @@ namespace IxMilia.BCad.Rpc
                         result = plotSettings;
                     }
                     break;
+                case "saveChanges":
+                    var saveChangesResult = await Agent.ShowDialog(id, parameter);
+                    if (saveChangesResult is null)
+                    {
+                        result = UnsavedChangesResult.Cancel;
+                    }
+                    else
+                    {
+                        var stringValue = saveChangesResult["result"].ToString();
+                        switch (stringValue)
+                        {
+                            case "save":
+                                result = UnsavedChangesResult.Saved;
+                                break;
+                            case "discard":
+                                result = UnsavedChangesResult.Discarded;
+                                break;
+                        }
+                    }
+                    break;
             }
 
             return result;
