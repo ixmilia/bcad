@@ -29,6 +29,10 @@ export class FileSettingsDialog extends DialogBase {
         }
     }
 
+    dialogTitle(dialogOptions: object): string {
+        return 'Drawing Settings';
+    }
+
     dialogOk(): object {
         const result: DxfFileSettings = {
             FileVersion: DxfFileVersion[this.selector.value as keyof typeof DxfFileVersion]

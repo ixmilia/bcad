@@ -45,6 +45,10 @@ export class LayerDialog extends DialogBase {
         }
     }
 
+    dialogTitle(dialogOptions: object): string {
+        return 'Layers';
+    }
+
     dialogOk(): object {
         let changedLayers: ChangedLayer[] = [];
         for (let element of this.tableBody.children) {

@@ -3,6 +3,7 @@ import { DialogHandler } from "./dialogHandler";
 export abstract class DialogBase {
     constructor(dialogHandler: DialogHandler, dialogId: string) {
         dialogHandler.registerDialogHandler(dialogId, (dialogOptions) => {
+            document.getElementById('modal-dialog-title')!.innerText = this.dialogTitle(dialogOptions);
             this.dialogShowing(dialogOptions);
             let promise = new Promise<object>(
                 (resolve, reject) => {
@@ -29,6 +30,7 @@ export abstract class DialogBase {
     }
 
     abstract dialogShowing(dialogOptions: object): void;
+    abstract dialogTitle(dialogOptions: object): string;
     abstract dialogOk(): object;
     abstract dialogCancel(): void;
 }

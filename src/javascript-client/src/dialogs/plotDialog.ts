@@ -100,6 +100,10 @@ export class PlotDialog extends DialogBase {
         this.updatePreview().then(() => { });
     }
 
+    dialogTitle(dialogOptions: object): string {
+        return 'Plot';
+    }
+
     dialogOk(): object {
         const settings = this.generatePlotSettings();
         return settings;

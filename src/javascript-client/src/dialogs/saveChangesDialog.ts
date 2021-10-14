@@ -12,6 +12,10 @@ export class SaveChangesDialog extends DialogBase {
     dialogShowing(dialogOptions: object) {
     }
 
+    dialogTitle(dialogOptions: object): string {
+        return 'Save changes?';
+    }
+
     dialogOk(): object {
         const result = this.saveChanges.checked ? 'save' : 'discard';
         return {
