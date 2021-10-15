@@ -5,7 +5,7 @@ namespace IxMilia.BCad.Services
 {
     public interface IFileSystemService : IWorkspaceService
     {
-        Task<string> GetFileNameFromUserForSave();
+        Task<string> GetFileNameFromUserForSave(string extensionHint = null);
         Task<string> GetFileNameFromUserForOpen();
     }
 }

@@ -9,9 +9,9 @@ namespace bcad
             return OpenFilePlatformSpecific();
         }
 
-        public static string SaveFile()
+        public static string SaveFile(string extensionHint)
         {
-            return SaveFilePlatformSpecific();
+            return SaveFilePlatformSpecific(extensionHint);
         }
 
         public static (string name, string extension)[] SupportedFileExtensions = new (string, string)[]
@@ -26,7 +26,7 @@ namespace bcad
 #if WINDOWS
             using (var dialog = new System.Windows.Forms.OpenFileDialog())
             {
-                dialog.Filter = BuildWindowsFileFilter();
+                dialog.Filter = BuildWindowsFileFilter(null);
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     var filePath = dialog.FileName;
@@ -57,12 +57,12 @@ namespace bcad
             return null;
         }
 
-        private static string SaveFilePlatformSpecific()
+        private static string SaveFilePlatformSpecific(string extensionHint)
         {
 #if WINDOWS
             using (var dialog = new System.Windows.Forms.SaveFileDialog())
             {
-                dialog.Filter = BuildWindowsFileFilter();
+                dialog.Filter = BuildWindowsFileFilter(extensionHint);
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     var filePath = dialog.FileName;
@@ -73,9 +73,21 @@ namespace bcad
             using (var fcd = new Gtk.FileChooserDialog("Save File", null, Gtk.FileChooserAction.Save))
             {
                 fcd.Filter = new Gtk.FileFilter();
-                foreach (var (_name, extension) in SupportedFileExtensions)
+                if (string.IsNullOrWhiteSpace(extensionHint))
                 {
-                    fcd.Filter.AddPattern($"*{extension}");
+                    foreach (var (_name, extension) in SupportedFileExtensions)
+                    {
+                        fcd.Filter.AddPattern($"*{extension}");
+                    }
+                }
+                else
+                {
+                    if (!extensionHint.StartsWith("."))
+                    {
+                        extensionHint = "." + extensionHint;
+                    }
+
+                    fcd.Filter.AddPattern($"*{extensionHint}");
                 }
 
                 fcd.AddButton(Gtk.Stock.Cancel, Gtk.ResponseType.Cancel);
@@ -93,8 +105,18 @@ namespace bcad
             return null;
         }
 
-        private static string BuildWindowsFileFilter()
+        private static string BuildWindowsFileFilter(string extensionHint)
         {
+            if (!string.IsNullOrWhiteSpace(extensionHint))
+            {
+                if (!extensionHint.StartsWith("."))
+                {
+                    extensionHint = "." + extensionHint;
+                }
+
+                return $"{extensionHint} files|*{extensionHint}";
+            }
+
             var combinedExtensions = string.Join(";", SupportedFileExtensions.Select(ext => $"*{ext.extension}"));
             var filter = $"All CAD files ({combinedExtensions})|{combinedExtensions}|{string.Join("|", SupportedFileExtensions.Select(ext => $"{ext.name}|*{ext.extension}"))}";
             return filter;

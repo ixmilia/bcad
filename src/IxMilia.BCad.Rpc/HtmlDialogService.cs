@@ -52,24 +52,18 @@ namespace IxMilia.BCad.Rpc
                     if (plotResult != null)
                     {
                         var plotSettings = plotResult.ToObject<ClientPlotSettings>();
-                        var viewModel = CreateAndPopulateViewModel(plotSettings);
-                        using (var stream = PlotToStream(viewModel))
-                        using (var ms = new MemoryStream())
+                        var fileName = await _workspace.FileSystemService.GetFileNameFromUserForSave(plotSettings.PlotType);
+                        if (fileName != null)
                         {
-                            await stream.CopyToAsync(ms);
-                            ms.Seek(0, SeekOrigin.Begin);
-                            var bytes = ms.ToArray();
-                            var filename = Path.GetFileNameWithoutExtension(_workspace.Drawing.Settings.FileName ?? "Untitled") + "." + plotSettings.PlotType;
-                            var mimeType = plotSettings.PlotType switch
+                            var viewModel = CreateAndPopulateViewModel(plotSettings);
+                            using (var stream = PlotToStream(viewModel))
+                            using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                             {
-                                "pdf" => "application/pdf",
-                                "svg" => "image/svg+xml",
-                                _ => "application/octet-stream",
-                            };
-                            Agent.DownloadFile(filename, mimeType, bytes);
-                        }
+                                await stream.CopyToAsync(fileStream);
+                            }
 
-                        result = plotSettings;
+                            result = plotSettings;
+                        }
                     }
                     break;
                 case "saveChanges":

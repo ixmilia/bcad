@@ -145,13 +145,6 @@ namespace IxMilia.BCad.Rpc
             }
         }
 
-        internal void DownloadFile(string filename, string mimeType, byte[] data)
-        {
-            var base64 = Convert.ToBase64String(data);
-            var download = new ClientDownload(filename, mimeType, base64);
-            var _ = _jsonRpc.NotifyAsync("DownloadFile", download);
-        }
-
         private void PushUpdate(ClientUpdate clientUpdate)
         {
             var _ = _jsonRpc.NotifyAsync("ClientUpdate", clientUpdate);

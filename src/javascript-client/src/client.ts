@@ -19,13 +19,6 @@ export class Client extends ClientAgent {
                         sub(clientUpdate);
                     }
                     break;
-                case 'DownloadFile':
-                    const fileData = <ClientDownload>message.params;
-                    const element = document.createElement('a');
-                    element.href = `data:${fileData.MimeType};base64,${fileData.Data}`;
-                    element.download = fileData.Filename;
-                    element.click();
-                    break;
                 case 'ShowDialog':
                     const id: string = message.params[0].id;
                     const parameter: object = message.params[0].parameter;
