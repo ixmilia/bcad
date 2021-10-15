@@ -6,6 +6,11 @@ namespace IxMilia.BCad.Rpc
     {
         public override async Task<UnsavedChangesResult> PromptForUnsavedChanges()
         {
+            if (!IsDirty)
+            {
+                return UnsavedChangesResult.Saved;
+            }
+
             var result = await DialogService.ShowDialog("saveChanges", null);
             if (result is UnsavedChangesResult unsavedChangesResult)
             {
