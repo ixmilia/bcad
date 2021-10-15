@@ -10,6 +10,7 @@ export class SaveChangesDialog extends DialogBase {
     }
 
     dialogShowing(dialogOptions: object) {
+        this.saveChanges.checked = true;
     }
 
     dialogTitle(dialogOptions: object): string {
