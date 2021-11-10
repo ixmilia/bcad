@@ -44,7 +44,7 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal(expectTrim, removed.Any());
             if (expectTrim)
             {
-                Assert.Equal(1, removed.Count());
+                Assert.Single(removed);
                 Assert.True(removed.Single().EquivalentTo(entityToTrim));
             }
 
@@ -84,7 +84,7 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal(expectExtend, removed.Any());
             if (expectExtend)
             {
-                Assert.Equal(1, removed.Count());
+                Assert.Single(removed);
                 Assert.True(removed.Single().EquivalentTo(entityToExtend));
             }
 

@@ -17,10 +17,10 @@ namespace IxMilia.BCad.Core.Test
 
             Assert.Equal(4, tree.GetContainedItems(new Rect(0, 0, 100, 100)).Count);
             Assert.Equal(4, tree.GetContainedItems(new Rect(25, 25, 50, 50)).Count);
-            Assert.Equal(1, tree.GetContainedItems(new Rect(0, 0, 50, 50)).Count);
-            Assert.Equal(1, tree.GetContainedItems(new Rect(50, 0, 50, 50)).Count);
-            Assert.Equal(1, tree.GetContainedItems(new Rect(0, 50, 50, 50)).Count);
-            Assert.Equal(1, tree.GetContainedItems(new Rect(50, 50, 50, 50)).Count);
+            Assert.Single(tree.GetContainedItems(new Rect(0, 0, 50, 50)));
+            Assert.Single(tree.GetContainedItems(new Rect(50, 0, 50, 50)));
+            Assert.Single(tree.GetContainedItems(new Rect(0, 50, 50, 50)));
+            Assert.Single(tree.GetContainedItems(new Rect(50, 50, 50, 50)));
         }
 
         [Fact]
