@@ -1,39 +1,9 @@
-﻿using System.Linq;
-
-namespace bcad
+﻿namespace bcad
 {
     internal static class OpenFileDialog
     {
         public static string OpenFile()
         {
-            return OpenFilePlatformSpecific();
-        }
-
-        public static string SaveFile(string extensionHint)
-        {
-            return SaveFilePlatformSpecific(extensionHint);
-        }
-
-        public static (string name, string extension)[] SupportedFileExtensions = new (string, string)[]
-        {
-            ("DXF File", ".dxf"),
-            ("IGES File", ".iges"),
-            ("IGS File", ".igs"),
-        };
-
-        private static string OpenFilePlatformSpecific()
-        {
-#if WINDOWS
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
-            {
-                dialog.Filter = BuildWindowsFileFilter(null);
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    var filePath = dialog.FileName;
-                    return filePath;
-                }
-            }
-#else
             using (var fcd = new Gtk.FileChooserDialog("Open File", null, Gtk.FileChooserAction.Open))
             {
                 fcd.Filter = new Gtk.FileFilter();
@@ -52,24 +22,12 @@ namespace bcad
                     return fcd.Filename;
                 }
             }
-#endif
 
             return null;
         }
 
-        private static string SaveFilePlatformSpecific(string extensionHint)
+        public static string SaveFile(string extensionHint)
         {
-#if WINDOWS
-            using (var dialog = new System.Windows.Forms.SaveFileDialog())
-            {
-                dialog.Filter = BuildWindowsFileFilter(extensionHint);
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    var filePath = dialog.FileName;
-                    return filePath;
-                }
-            }
-#else
             using (var fcd = new Gtk.FileChooserDialog("Save File", null, Gtk.FileChooserAction.Save))
             {
                 fcd.Filter = new Gtk.FileFilter();
@@ -100,26 +58,15 @@ namespace bcad
                     return fcd.Filename;
                 }
             }
-#endif
 
             return null;
         }
 
-        private static string BuildWindowsFileFilter(string extensionHint)
+        public static (string name, string extension)[] SupportedFileExtensions = new (string, string)[]
         {
-            if (!string.IsNullOrWhiteSpace(extensionHint))
-            {
-                if (!extensionHint.StartsWith("."))
-                {
-                    extensionHint = "." + extensionHint;
-                }
-
-                return $"{extensionHint} files|*{extensionHint}";
-            }
-
-            var combinedExtensions = string.Join(";", SupportedFileExtensions.Select(ext => $"*{ext.extension}"));
-            var filter = $"All CAD files ({combinedExtensions})|{combinedExtensions}|{string.Join("|", SupportedFileExtensions.Select(ext => $"{ext.name}|*{ext.extension}"))}";
-            return filter;
-        }
+            ("DXF File", ".dxf"),
+            ("IGES File", ".iges"),
+            ("IGS File", ".igs"),
+        };
     }
 }

@@ -18,6 +18,8 @@ namespace bcad
         [STAThread]
         static void Main(string[] args)
         {
+            Gtk.Application.Init();
+
             var serverStream = new SimplexStream();
             var clientStream = new SimplexStream();
             var encoding = new UTF8Encoding(false);

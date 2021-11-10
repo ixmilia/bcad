@@ -48,7 +48,8 @@ try {
     }
 
     # publish
-    $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "darwin" } elseif ($IsWindows) { "win32" }
+    $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "darwin" } elseif ($IsWindows) { "win" }
+    $arch = "x64" # currently only x64 is supported
     $packageParentDir = "$PSScriptRoot/artifacts/publish/$configuration"
     $packageOutputDir = "$packageParentDir/bcad-$os"
     dotnet publish "$PSScriptRoot/src/bcad/bcad.csproj" `
@@ -60,7 +61,7 @@ try {
 
     # create package
     $extension = if ($IsWindows) { "zip" } else { "tar.gz" }
-    $artifactName = "bcad-$os.$extension"
+    $artifactName = "bcad-$os-$arch.$extension"
     $packagesDir = "$PSScriptRoot/artifacts/packages"
     $fullArtifactPath = "$packagesDir/$artifactName"
     New-Item -ItemType Directory -Path $packagesDir -Force
