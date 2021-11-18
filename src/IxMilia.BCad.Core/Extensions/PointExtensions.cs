@@ -145,9 +145,9 @@ namespace IxMilia.BCad.Extensions
                                 new PrimitiveLine(rect.BottomRight, rect.BottomLeft),
                                 new PrimitiveLine(rect.BottomLeft, rect.TopRight)
                             };
-                        if (verticies
-                            .Zip(verticies.Skip(1), (a, b) => new PrimitiveLine(a, b))
-                            .Any(l => selectionLines.Any(s => s.IntersectionPoints(l) != null)))
+                        var reconstructedLines = verticies.Zip(verticies.Skip(1), (a, b) => new PrimitiveLine(a, b)).ToList();
+                        var intersectionPoints = reconstructedLines.SelectMany(l => selectionLines.SelectMany(s => s.IntersectionPoints(l))).ToList();
+                        if (intersectionPoints.Any())
                         {
                             isContained = true;
                         }
