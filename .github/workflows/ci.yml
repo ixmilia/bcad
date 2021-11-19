@@ -26,8 +26,16 @@ jobs:
       run: ./build-and-test.ps1 -configuration ${{ matrix.configuration }}
 
     # save artifact on Release
-    - uses: actions/upload-artifact@v2
+    - name: publish artifact x64
+      uses: actions/upload-artifact@v2
       if: matrix.configuration == 'Release'
       with:
-        name: ${{ env.artifact_name }}
-        path: ${{ env.full_artifact_path }}
+        name: ${{ env.artifact_name_x64 }}
+        path: ${{ env.full_artifact_path_x64 }}
+
+    - name: publish artifact arm64
+      uses: actions/upload-artifact@v2
+      if: matrix.configuration == 'Release'
+      with:
+        name: ${{ env.artifact_name_arm64 }}
+        path: ${{ env.full_artifact_path_arm64 }}
