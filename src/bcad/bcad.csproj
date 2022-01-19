@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <ApplicationIcon>$(MSBuildThisFileDirectory)..\javascript-client\out\bcad.ico</ApplicationIcon>
+    <ApplicationIcon>$(MSBuildThisFileDirectory)..\javascript-client\out\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

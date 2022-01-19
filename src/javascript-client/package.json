@@ -4,7 +4,7 @@
   "description": "JavaScript client for BCad.",
   "main": "./out/client.js",
   "scripts": {
-    "build-icons": "icon-gen -i ./src/bcad.svg -o ./out --ico name=bcad sizes=32",
+    "build-icons": "icon-gen -i ./src/bcad.svg -o ./out -r --ico sizes=32",
     "collect-styles:7": "npx copyfiles --error --verbose --up 3 ./node_modules/7.css/dist/* ./out/client-full/7/",
     "collect-styles:xp": "npx copyfiles --error --verbose --up 3 ./node_modules/xp.css/dist/* ./out/client-full/xp/",
     "collect-styles": "npm run collect-styles:7 && npm run collect-styles:xp",
@@ -21,7 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "copyfiles": "^2.3.0",
-    "icon-gen": "2.0.0",
+    "icon-gen": "^3.0.0",
     "rimraf": "3.0.2",
     "typescript": "4.2.3",
     "webpack": "^5.25.0",
