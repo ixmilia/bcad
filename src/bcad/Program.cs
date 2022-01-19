@@ -46,6 +46,7 @@ namespace bcad
             {
                 settingsLines = File.ReadAllLines(settingsFilePath);
                 server.Workspace.SettingsService.LoadFromLines(settingsLines);
+                server.Workspace.Update(isDirty: false);
             }
             catch
             {
