@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using IxMilia.BCad.Settings;
 
 namespace IxMilia.BCad.Commands
 {
@@ -42,6 +43,8 @@ namespace IxMilia.BCad.Commands
                         workspace.ViewControl.DisplayHeight);
                 }
 
+                workspace.SettingsService.SetValue(DefaultSettingsNames.DrawingPrecision, drawing.Settings.UnitPrecision);
+                workspace.SettingsService.SetValue(DefaultSettingsNames.DrawingUnits, drawing.Settings.UnitFormat);
                 workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
                 workspace.UndoRedoService.ClearHistory();
             }
