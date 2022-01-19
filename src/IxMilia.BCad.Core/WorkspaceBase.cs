@@ -65,6 +65,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("File.Open", "OPEN", new OpenCommand(), ModifierKeys.Control, Key.O, "open", "o"));
             RegisterCommand(new CadCommandInfo("View.Pan", "PAN", new PanCommand(), "pan", "p"));
             RegisterCommand(new CadCommandInfo("File.Plot", "PLOT", new PlotCommand(), ModifierKeys.Control | ModifierKeys.Alt, Key.P, "plot"));
+            RegisterCommand(new CadCommandInfo("Edit.Quantize", "QUANTIZE", new QuantizeCommand(), "quant"));
             RegisterCommand(new CadCommandInfo("Edit.Rotate", "ROTATE", new RotateCommand(), "rotate", "rot", "ro"));
             RegisterCommand(new CadCommandInfo("File.Save", "SAVE", new SaveCommand(), ModifierKeys.Control, Key.S, "save", "s"));
             RegisterCommand(new CadCommandInfo("File.SaveAs", "SAVEAS", new SaveAsCommand(), ModifierKeys.Control | ModifierKeys.Shift, Key.S, "saveas", "sa"));

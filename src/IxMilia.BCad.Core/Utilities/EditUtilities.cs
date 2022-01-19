@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
@@ -343,6 +344,60 @@ namespace IxMilia.BCad.Utilities
                 case EntityKind.Text:
                     var text = (Text)entity;
                     return text.Update(location: text.Location + offset);
+                default:
+                    throw new ArgumentException("entity.Kind");
+            }
+        }
+
+        public static Entity Quantize(Entity entity, QuantizeSettings settings)
+        {
+            switch (entity)
+            {
+                case AggregateEntity agg:
+                    return agg.Update(
+                        location: settings.Quantize(agg.Location),
+                        children: ReadOnlyList<Entity>.Create(agg.Children.Select(c => Quantize(c, settings))));
+                case Arc arc:
+                    return arc.Update(
+                        center: settings.Quantize(arc.Center),
+                        radius: settings.QuantizeDistance(arc.Radius),
+                        startAngle: settings.QuantizeAngle(arc.StartAngle),
+                        endAngle: settings.QuantizeAngle(arc.EndAngle),
+                        normal: settings.Quantize(arc.Normal),
+                        thickness: settings.QuantizeDistance(arc.Thickness));
+                case Circle circle:
+                    return circle.Update(
+                        center: settings.Quantize(circle.Center),
+                        radius: settings.QuantizeDistance(circle.Radius),
+                        normal: settings.Quantize(circle.Normal),
+                        thickness: settings.QuantizeDistance(circle.Thickness));
+                case Ellipse el:
+                    return el.Update(
+                        center: settings.Quantize(el.Center),
+                        majorAxis: settings.Quantize(el.MajorAxis),
+                        minorAxisRatio: settings.QuantizeDistance(el.MinorAxisRatio),
+                        startAngle: settings.QuantizeAngle(el.StartAngle),
+                        endAngle: settings.QuantizeAngle(el.EndAngle),
+                        normal: settings.Quantize(el.Normal),
+                        thickness: settings.QuantizeDistance(el.Thickness));
+                case Line line:
+                    return line.Update(
+                        p1: settings.Quantize(line.P1),
+                        p2: settings.Quantize(line.P2),
+                        thickness: settings.QuantizeDistance(line.Thickness));
+                case Location loc:
+                    return loc.Update(
+                        point: settings.Quantize(loc.Point));
+                case Polyline poly:
+                    return poly.Update(
+                        vertices: poly.Vertices.Select(
+                            v => new Vertex(settings.Quantize(v.Location), settings.QuantizeAngle(v.IncludedAngle), v.Direction)));
+                case Text t:
+                    return t.Update(
+                        location: settings.Quantize(t.Location),
+                        normal: settings.Quantize(t.Normal),
+                        height: settings.QuantizeDistance(t.Height),
+                        rotation: settings.QuantizeAngle(t.Rotation));
                 default:
                     throw new ArgumentException("entity.Kind");
             }
