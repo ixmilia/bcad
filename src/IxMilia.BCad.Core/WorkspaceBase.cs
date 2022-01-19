@@ -91,6 +91,8 @@ namespace IxMilia.BCad
         private void RegisterDefaultSettings()
         {
             SettingsService.RegisterSetting(DefaultSettingsNames.Debug, typeof(bool), false);
+            SettingsService.RegisterSetting(DefaultSettingsNames.DrawingPrecision, typeof(int), 16);
+            SettingsService.RegisterSetting(DefaultSettingsNames.DrawingUnits, typeof(UnitFormat), UnitFormat.Architectural);
             SettingsService.RegisterSetting(DisplaySettingsNames.AngleSnap, typeof(bool), true);
             SettingsService.RegisterSetting(DisplaySettingsNames.BackgroundColor, typeof(CadColor), "#FF2F2F2F");
             SettingsService.RegisterSetting(DisplaySettingsNames.CursorSize, typeof(int), 60);
@@ -106,6 +108,26 @@ namespace IxMilia.BCad
             SettingsService.RegisterSetting(DisplaySettingsNames.SnapPointSize, typeof(double), 15.0);
             SettingsService.RegisterSetting(DisplaySettingsNames.TextCursorSize, typeof(int), 18);
             SettingsService.RegisterSetting(DisplaySettingsNames.PointDisplaySize, typeof(double), 48.0);
+
+            SettingsService.SettingChanged += (o, e) =>
+            {
+                DrawingSettings newSettings = null;
+                switch (e.SettingName)
+                {
+                    case DefaultSettingsNames.DrawingPrecision:
+                        newSettings = Drawing.Settings.Update(unitPrecision: SettingsService.GetValue<int>(e.SettingName));
+                        break;
+                    case DefaultSettingsNames.DrawingUnits:
+                        newSettings = Drawing.Settings.Update(unitFormat: SettingsService.GetValue<UnitFormat>(e.SettingName));
+                        break;
+                }
+
+                if (newSettings is object)
+                {
+                    var newDrawing = Drawing.Update(settings: newSettings);
+                    Update(drawing: newDrawing);
+                }
+            };
         }
 
         #region Events

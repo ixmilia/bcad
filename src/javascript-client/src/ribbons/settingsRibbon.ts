@@ -1,7 +1,21 @@
+import { UnitFormat } from "../contracts.generated";
 import { Client } from "../client";
 
 export class SettingsRibbon {
+    private unitElement: HTMLSelectElement;
+    private precisionElement: HTMLSelectElement;
+
     constructor(client: Client) {
+        this.unitElement = <HTMLSelectElement>document.getElementById("drawing-units");
+        this.precisionElement = <HTMLSelectElement>document.getElementById('drawing-units-precision');
+
+        this.unitElement.addEventListener("change", (ev) => {
+            client.setSetting('DrawingUnits', (<any>ev.target).value.toString());
+        });
+        this.precisionElement.addEventListener('change', (ev) => {
+            client.setSetting('DrawingPrecision', (<any>ev.target).value.toString());
+        });
+
         document.querySelectorAll(".settings-button").forEach(node => {
             let button = <HTMLButtonElement>node;
             let name = button.getAttribute("data-setting-name");
@@ -21,6 +35,57 @@ export class SettingsRibbon {
 
         client.subscribeToClientUpdates((clientUpdate) => {
             if (clientUpdate.Settings !== undefined) {
+                // drawing units and precision
+                let selectedUnits = 0;
+                let availablePrecisions: [string, number][] = [];
+                switch (clientUpdate.Settings.DrawingUnits) {
+                    case UnitFormat.Architectural:
+                        selectedUnits = 0;
+                        availablePrecisions = [
+                            ['1"', 1],
+                            ['1/2"', 2],
+                            ['1/4"', 4],
+                            ['1/8"', 8],
+                            ['1/16"', 16],
+                            ['1/32"', 32],
+                        ];
+                        break;
+                    case UnitFormat.Metric:
+                        selectedUnits = 1;
+                        availablePrecisions = [
+                            ['0', 0],
+                            ['1', 1],
+                            ['2', 2],
+                            ['3', 3],
+                            ['4', 4],
+                            ['5', 5],
+                            ['6', 6],
+                            ['7', 7],
+                            ['8', 8],
+                            ['9', 9],
+                            ['10', 10],
+                            ['11', 11],
+                            ['12', 12],
+                            ['13', 13],
+                            ['14', 14],
+                            ['15', 15],
+                            ['16', 16],
+                        ];
+                        break;
+                }
+                const optionElements = availablePrecisions.map(p => {
+                    const option = document.createElement('option');
+                    option.innerText = p[0];
+                    option.setAttribute('value', p[1].toString());
+                    if (clientUpdate.Settings.DrawingPrecision === p[1]) {
+                        option.setAttribute('selected', 'selected');
+                    }
+                    return option;
+                });
+                this.unitElement.item(selectedUnits)!.selected = true;
+                this.precisionElement.replaceChildren(...optionElements);
+
+                // snap angles
                 let snapAnglesString = clientUpdate.Settings.SnapAngles.join(";");
                 for (let sna of this.getSnapAngleSelectors()) {
                     if (sna.value === snapAnglesString) {

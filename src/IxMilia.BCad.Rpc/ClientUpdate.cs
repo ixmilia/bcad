@@ -182,6 +182,8 @@ namespace IxMilia.BCad.Rpc
         public CadColor BackgroundColor { get; }
         public int CursorSize { get; }
         public bool Debug { get; }
+        public int DrawingPrecision { get; }
+        public UnitFormat DrawingUnits { get; }
         public double EntitySelectionRadius { get; }
         public CadColor HotPointColor { get; }
         public double HotPointSize { get; }
@@ -198,6 +200,8 @@ namespace IxMilia.BCad.Rpc
             BackgroundColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor);
             CursorSize = workspace.SettingsService.GetValue<int>(DisplaySettingsNames.CursorSize);
             Debug = workspace.SettingsService.GetValue<bool>(DefaultSettingsNames.Debug);
+            DrawingPrecision = workspace.SettingsService.GetValue<int>(DefaultSettingsNames.DrawingPrecision);
+            DrawingUnits = workspace.SettingsService.GetValue<UnitFormat>(DefaultSettingsNames.DrawingUnits);
             EntitySelectionRadius = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
             HotPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);
             HotPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.HotPointSize);

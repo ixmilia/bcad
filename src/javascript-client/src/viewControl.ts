@@ -1,6 +1,6 @@
 import { Client } from './client';
 import { ResizeObserver } from 'resize-observer';
-import { CursorState, SelectionState, SnapPointKind, ClientSettings, ClientTransform, ClientUpdate, ClientDrawing, SelectionMode, Point, MouseButton, CadColor } from './contracts.generated';
+import { CursorState, SelectionState, SnapPointKind, ClientSettings, ClientTransform, ClientUpdate, ClientDrawing, SelectionMode, Point, MouseButton, CadColor, UnitFormat } from './contracts.generated';
 
 interface Drawing extends ClientDrawing {
     LineCount: number;
@@ -127,6 +127,8 @@ export class ViewControl {
             BackgroundColor: { A: 255, R: 255, G: 255, B: 255 },
             CursorSize: 60,
             Debug: false,
+            DrawingPrecision: 16,
+            DrawingUnits: UnitFormat.Architectural,
             EntitySelectionRadius: 3,
             HotPointColor: { A: 255, R: 0, G: 0, B: 255 },
             HotPointSize: 10,
