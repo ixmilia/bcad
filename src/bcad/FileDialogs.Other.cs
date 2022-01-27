@@ -1,7 +1,12 @@
 ﻿namespace bcad
 {
-    internal static class OpenFileDialog
+    internal partial class FileDialogs
     {
+        public static void Init()
+        {
+            Gtk.Application.Init();
+        }
+
         public static string OpenFile()
         {
             using (var fcd = new Gtk.FileChooserDialog("Open File", null, Gtk.FileChooserAction.Open))
@@ -61,12 +66,5 @@
 
             return null;
         }
-
-        public static (string name, string extension)[] SupportedFileExtensions = new (string, string)[]
-        {
-            ("DXF File", ".dxf"),
-            ("IGES File", ".iges"),
-            ("IGS File", ".igs"),
-        };
     }
 }

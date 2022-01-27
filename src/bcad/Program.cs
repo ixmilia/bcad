@@ -18,7 +18,7 @@ namespace bcad
         [STAThread]
         static void Main(string[] args)
         {
-            Gtk.Application.Init();
+            FileDialogs.Init();
 
             var serverStream = new SimplexStream();
             var clientStream = new SimplexStream();

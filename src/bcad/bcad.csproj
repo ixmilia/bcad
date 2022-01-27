@@ -21,8 +21,19 @@
 
   <!-- MacOS not currently supported -->
 
+  <!-- Include appropriate file dialog handler -->
   <ItemGroup>
+    <Compile Remove="FileDialogs.*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <Compile Include="FileDialogs.Windows.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
     <PackageReference Include="GtkSharp" Version="3.24.24.34" />
+    <Compile Include="FileDialogs.Other.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Photino.NET" Version="2.0.13" />
   </ItemGroup>
 

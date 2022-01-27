@@ -15,12 +15,12 @@ namespace bcad
 
         public Task<string> GetFileNameFromUserForOpen()
         {
-            return DispatchAsync(() => OpenFileDialog.OpenFile());
+            return DispatchAsync(() => FileDialogs.OpenFile());
         }
 
         public Task<string> GetFileNameFromUserForSave(string extensionHint = null)
         {
-            return DispatchAsync(() => OpenFileDialog.SaveFile(extensionHint));
+            return DispatchAsync(() => FileDialogs.SaveFile(extensionHint));
         }
 
         private Task<T> DispatchAsync<T>(Func<T> func)
