@@ -130,13 +130,17 @@ async function start(argArray: string[]): Promise<void> {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    start([]).catch((err: any) => {
-        const errorMessage = `error: ${err}`;
-        console.error(errorMessage);
-        let output = <HTMLTextAreaElement>document.getElementById("outputConsole");
+    const appendMessage = (message: string) => {
+        const output = <HTMLTextAreaElement>document.getElementById("outputConsole");
         if (output.value.length > 0) {
             output.value += '\n';
         }
-        output.value += errorMessage;
+        output.value += message;
+        output.scrollTop = output.scrollHeight;
+    };
+    start([]).catch((err: any) => {
+        const errorMessage = `error: ${err}`;
+        console.error(errorMessage);
+        appendMessage(errorMessage);
     });
 });

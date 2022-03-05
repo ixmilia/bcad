@@ -45,6 +45,7 @@ namespace IxMilia.BCad.Rpc
 
             _workspace.InputService.PromptChanged += InputService_PromptChanged;
             _workspace.OutputService.LineWritten += OutputService_LineWritten;
+            _workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
             _workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
             _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
 
@@ -79,6 +80,23 @@ namespace IxMilia.BCad.Rpc
         {
             var clientUpdate = new ClientUpdate();
             clientUpdate.OutputLines = new[] { e.Line };
+            PushUpdate(clientUpdate);
+        }
+
+        private void SelectedEntities_CollectionChanged(object sender, EventArgs e)
+        {
+            var selectedEntities = _workspace.SelectedEntities.ToList();
+            var clientUpdate = new ClientUpdate();
+            clientUpdate.SelectedEntitiesDrawing = new ClientDrawing(null);
+            var fallBackColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
+            foreach (var entity in selectedEntities)
+            {
+                foreach (var primitive in entity.GetPrimitives())
+                {
+                    AddPrimitiveToDrawing(clientUpdate.SelectedEntitiesDrawing, primitive, fallBackColor);
+                }
+            }
+
             PushUpdate(clientUpdate);
         }
 

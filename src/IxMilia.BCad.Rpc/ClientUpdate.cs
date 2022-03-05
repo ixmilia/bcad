@@ -239,6 +239,7 @@ namespace IxMilia.BCad.Rpc
         public bool IsDirty { get; set; }
         public ClientTransform Transform { get; set; }
         public ClientDrawing Drawing { get; set; }
+        public ClientDrawing SelectedEntitiesDrawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
         public TransformedSnapPoint? TransformedSnapPoint { get; set; }
         public CursorState? CursorState { get; set; }

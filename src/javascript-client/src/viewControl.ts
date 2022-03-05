@@ -1,6 +1,24 @@
 import { Client } from './client';
 import { ResizeObserver } from 'resize-observer';
-import { CursorState, SelectionState, SnapPointKind, ClientSettings, ClientTransform, ClientUpdate, ClientDrawing, SelectionMode, Point, MouseButton, CadColor, UnitFormat } from './contracts.generated';
+import {
+    CadColor,
+    ClientDrawing,
+    ClientEllipse,
+    ClientLine,
+    ClientPoint,
+    ClientPointLocation,
+    ClientSettings,
+    ClientText,
+    ClientTransform,
+    ClientUpdate,
+    CursorState,
+    MouseButton,
+    Point,
+    SelectionMode,
+    SelectionState,
+    SnapPointKind,
+    UnitFormat,
+} from './contracts.generated';
 
 interface Drawing extends ClientDrawing {
     LineCount: number;
@@ -22,6 +40,7 @@ export class ViewControl {
     // DOM
     private cursorCanvas: HTMLCanvasElement;
     private drawingCanvas: HTMLCanvasElement;
+    private selectionCanvas: HTMLCanvasElement;
     private textCanvas: HTMLCanvasElement;
     private rubberBandTextCanvas: HTMLCanvasElement;
     private outputPane: HTMLDivElement;
@@ -30,6 +49,7 @@ export class ViewControl {
     private gl: WebGLRenderingContext;
     private glAngle: ANGLE_instanced_arrays;
     private twod: CanvasRenderingContext2D;
+    private selectionTwod: CanvasRenderingContext2D;
     private textCtx: CanvasRenderingContext2D;
     private rubberTextCtx: CanvasRenderingContext2D;
     private viewTransformLocation: WebGLUniformLocation = {};
@@ -49,6 +69,7 @@ export class ViewControl {
     // CAD
     private client: Client;
     private entityDrawing: Drawing;
+    private selectedEntitiesDrawing: ClientDrawing;
     private rubberBandDrawing: Drawing;
     private cursorPosition: { x: number, y: number };
     private cursorState: CursorState;
@@ -62,6 +83,7 @@ export class ViewControl {
         // DOM
         this.cursorCanvas = <HTMLCanvasElement>document.getElementById('cursorCanvas');
         this.drawingCanvas = <HTMLCanvasElement>document.getElementById('drawingCanvas');
+        this.selectionCanvas = <HTMLCanvasElement>document.getElementById('selectionCanvas');
         this.textCanvas = <HTMLCanvasElement>document.getElementById('textCanvas');
         this.rubberBandTextCanvas = <HTMLCanvasElement>document.getElementById('rubberBandTextCanvas');
         this.outputPane = <HTMLDivElement>document.getElementById('output-pane');
@@ -90,6 +112,15 @@ export class ViewControl {
             PointColors: {},
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
+        };
+        this.selectedEntitiesDrawing = {
+            CurrentLayer: "0",
+            Layers: ["0"],
+            FileName: "",
+            Points: [],
+            Lines: [],
+            Ellipses: [],
+            Text: [],
         };
         this.rubberBandDrawing = {
             CurrentLayer: "",
@@ -145,6 +176,7 @@ export class ViewControl {
         this.gl = this.drawingCanvas.getContext('webgl') || throwError('Unable to get webgl context');
         this.glAngle = this.gl.getExtension('ANGLE_instanced_arrays') || throwError('Unable to get ANGLE_instanced_arrays extension');
         this.twod = this.cursorCanvas.getContext("2d") || throwError('Unable to get cursor canvas 2d context');
+        this.selectionTwod = this.selectionCanvas.getContext("2d") || throwError('Unable to get selection canvas 2d context');
         this.textCtx = this.textCanvas.getContext("2d") || throwError('Unable to get text canvas 2d context');
         this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d") || throwError('Unable to get rubber text context');
         this.prepareCanvas();
@@ -162,10 +194,15 @@ export class ViewControl {
     private update(clientUpdate: ClientUpdate) {
         let redraw = false;
         let redrawCursor = false;
+        let redrawSelected = false;
         if (clientUpdate.Drawing !== undefined) {
             this.entityDrawing.FileName = clientUpdate.Drawing.FileName;
             this.updateDrawing(this.entityDrawing, clientUpdate.Drawing);
             redraw = true;
+        }
+        if (clientUpdate.SelectedEntitiesDrawing !== undefined) {
+            this.selectedEntitiesDrawing = clientUpdate.SelectedEntitiesDrawing;
+            redrawSelected = true;
         }
         if (clientUpdate.RubberBandDrawing !== undefined) {
             this.updateDrawing(this.rubberBandDrawing, clientUpdate.RubberBandDrawing);
@@ -179,6 +216,7 @@ export class ViewControl {
         if (clientUpdate.Transform !== undefined) {
             this.transform = clientUpdate.Transform;
             redraw = true;
+            redrawSelected = true;
         }
         if (clientUpdate.CursorState !== undefined) {
             this.cursorState = clientUpdate.CursorState;
@@ -196,6 +234,7 @@ export class ViewControl {
             this.settings = clientUpdate.Settings;
             redraw = true;
             redrawCursor = true;
+            redrawSelected = true;
         }
         if (clientUpdate.Prompt !== undefined) {
             document.getElementById("prompt")!.innerText = clientUpdate.Prompt;
@@ -203,6 +242,9 @@ export class ViewControl {
 
         if (redraw) {
             this.redraw();
+        }
+        if (redrawSelected) {
+            this.renderHighlightToCanvas2D(this.selectionTwod, this.selectedEntitiesDrawing);
         }
         if (redrawCursor) {
             this.drawCursor();
@@ -414,6 +456,8 @@ export class ViewControl {
         (new ResizeObserver(() => {
             this.drawingCanvas.width = this.outputPane.clientWidth;
             this.drawingCanvas.height = this.outputPane.clientHeight;
+            this.selectionCanvas.width = this.outputPane.clientWidth;
+            this.selectionCanvas.height = this.outputPane.clientHeight;
             this.cursorCanvas.width = this.outputPane.clientWidth;
             this.cursorCanvas.height = this.outputPane.clientHeight;
             this.textCanvas.width = this.outputPane.clientWidth;
@@ -456,9 +500,8 @@ export class ViewControl {
         // ellipse
         let verts = [];
         for (let n = 0; n <= 720; n++) {
-            let x = Math.cos(n * Math.PI / 180.0);
-            let y = Math.sin(n * Math.PI / 180.0);
-            verts.push(x, y, 0.0);
+            const point = pointFromAngle(n);
+            verts.push(point[0], point[1], 0.0);
         }
         let vertices = new Float32Array(verts);
 
@@ -533,14 +576,14 @@ export class ViewControl {
             const endAngleTruncated = Math.trunc(el.EndAngle);
             if (startAngleTruncated !== el.StartAngle) {
                 startAngleTruncated++;
-                const startLineA = transform(el.Transform, [Math.cos(startAngleTruncated * Math.PI / 180.0), Math.sin(startAngleTruncated * Math.PI / 180.0), 0.0, 1.0]);
-                const startLineB = transform(el.Transform, [Math.cos(el.StartAngle * Math.PI / 180.0), Math.sin(el.StartAngle * Math.PI / 180.0), 0.0, 1.0]);
+                const startLineA = transform(el.Transform, pointFromAngle(startAngleTruncated));
+                const startLineB = transform(el.Transform, pointFromAngle(el.StartAngle));
                 addLine(startLineA, startLineB, el.Color);
             }
 
             if (endAngleTruncated !== el.EndAngle) {
-                const endLineA = transform(el.Transform, [Math.cos(endAngleTruncated * Math.PI / 180.0), Math.sin(endAngleTruncated * Math.PI / 180.0), 0.0, 1.0]);
-                const endLineB = transform(el.Transform, [Math.cos(el.EndAngle * Math.PI / 180.0), Math.sin(el.EndAngle * Math.PI / 180.0), 0.0, 1.0]);
+                const endLineA = transform(el.Transform, pointFromAngle(endAngleTruncated));
+                const endLineB = transform(el.Transform, pointFromAngle(el.EndAngle));
                 addLine(endLineA, endLineB, el.Color);
             }
         }
@@ -739,6 +782,86 @@ export class ViewControl {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
+    private renderHighlightToCanvas2D(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.lineWidth = 8;
+        context.font = '10px monospace'; // no text drawn; used for text metrics
+
+        for (const el of drawing.Ellipses) {
+            this.renderEllipseToCanvas2D(context, el);
+        }
+        for (const line of drawing.Lines) {
+            this.renderLineToCanvas2D(context, line);
+        }
+        for (const point of drawing.Points) {
+            this.renderPointToCanvas2D(context, point);
+        }
+        for (const text of drawing.Text) {
+            this.renderTextToCanvas2D(context, text);
+        }
+    }
+
+    private renderEllipseToCanvas2D(context: CanvasRenderingContext2D, el: ClientEllipse) {
+        context.beginPath();
+        this.setContextHighlightStroke(context, this.settings.AutoColor);
+        const start = transform(this.transform.CanvasTransform, transform(el.Transform, pointFromAngle(el.StartAngle)));
+        context.moveTo(start[0], start[1]);
+        for (let angle = el.StartAngle + 1; angle <= el.EndAngle; angle++) {
+            const point = transform(this.transform.CanvasTransform, transform(el.Transform, pointFromAngle(angle)));
+            context.lineTo(point[0], point[1]);
+        }
+
+        context.stroke();
+    }
+
+    private renderLineToCanvas2D(context: CanvasRenderingContext2D, line: ClientLine) {
+        this.renderHighlightLineToCanvas(context, line.P1, line.P2, this.settings.AutoColor);
+    }
+
+    private renderPointToCanvas2D(context: CanvasRenderingContext2D, point: ClientPointLocation) {
+        const center = transform(this.transform.CanvasTransform, [point.Location.X, point.Location.Y, point.Location.Z, 1]);
+        context.beginPath();
+        this.setContextHighlightStroke(context, this.settings.AutoColor);
+        context.arc(center[0], center[1], 4, 0, 2 * Math.PI);
+        context.stroke();
+    }
+
+    private renderTextToCanvas2D(context: CanvasRenderingContext2D, text: ClientText) {
+        const metrics = context.measureText(text.Text);
+        const bottomLeft = [text.Location.X, text.Location.Y, text.Location.Z, 1];
+        const bottomRight = add(bottomLeft, [metrics.width, 0, 0, 0]);
+        const topLeft = add(bottomLeft, [0, metrics.fontBoundingBoxAscent, 0, 0]);
+        const topRight = add(bottomRight, [0, metrics.fontBoundingBoxAscent, 0, 0]);
+
+        const screenBottomLeft = transform(this.transform.CanvasTransform, bottomLeft);
+        const screenBottomRight = transform(this.transform.CanvasTransform, bottomRight);
+        const screenTopLeft = transform(this.transform.CanvasTransform, topLeft);
+        const screenTopRight = transform(this.transform.CanvasTransform, topRight);
+
+        context.beginPath();
+        this.setContextHighlightStroke(context, this.settings.AutoColor);
+        context.moveTo(screenBottomLeft[0], screenBottomLeft[1]);
+        context.lineTo(screenBottomRight[0], screenBottomRight[1]);
+        context.lineTo(screenTopRight[0], screenTopRight[1]);
+        context.lineTo(screenTopLeft[0], screenTopLeft[1]);
+        context.closePath();
+        context.stroke();
+    }
+
+    private renderHighlightLineToCanvas(context: CanvasRenderingContext2D, p1: ClientPoint, p2: ClientPoint, color: CadColor) {
+        const p1Transformed = transform(this.transform.CanvasTransform, [p1.X, p1.Y, p1.Z, 1]);
+        const p2Transformed = transform(this.transform.CanvasTransform, [p2.X, p2.Y, p2.Z, 1]);
+        context.beginPath();
+        this.setContextHighlightStroke(context, color);
+        context.moveTo(p1Transformed[0], p1Transformed[1]);
+        context.lineTo(p2Transformed[0], p2Transformed[1]);
+        context.stroke();
+    }
+
+    private setContextHighlightStroke(context: CanvasRenderingContext2D, color: CadColor) {
+        context.strokeStyle = `${ViewControl.colorToHex(color)}40`; // default color, partial alpha
+    }
+
     private redrawText(textContext: CanvasRenderingContext2D, drawing: ClientDrawing) {
         textContext.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
         textContext.clearRect(0, 0, textContext.canvas.width, textContext.canvas.height);
@@ -827,6 +950,10 @@ export class ViewControl {
     }
 }
 
+function add(vector1: number[], vector2: number[]): number[] {
+    return [vector1[0] + vector2[0], vector1[1] + vector2[1], vector1[2] + vector2[2], 1];
+}
+
 function transform(matrix: number[], point: number[]): number[] {
     return [
         matrix[0] * point[0] + matrix[4] * point[1] + matrix[8] * point[2] + matrix[12] * point[3],
@@ -834,6 +961,14 @@ function transform(matrix: number[], point: number[]): number[] {
         matrix[2] * point[0] + matrix[6] * point[1] + matrix[10] * point[2] + matrix[14] * point[3],
         matrix[3] * point[0] + matrix[7] * point[1] + matrix[11] * point[2] + matrix[15] * point[3]
     ];
+}
+
+function pointFromAngle(angle: number): number[] {
+    return [Math.cos(angle * Math.PI / 180.0), Math.sin(angle * Math.PI / 180.0), 0.0, 1.0];
+}
+
+function toPoint(vector: number[]): Point {
+    return { X: vector[0], Y: vector[1], Z: vector[2] };
 }
 
 function throwError<T>(message: string): T {
