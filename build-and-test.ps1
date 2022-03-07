@@ -21,13 +21,7 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build client contracts file
-    $interfaceGeneratorProject = "$PSScriptRoot/src/IxMilia.BCad.InterfaceGenerator/IxMilia.BCad.InterfaceGenerator.csproj"
-    $contractsFiles = @(
-        "$PSScriptRoot/src/javascript-client/src/contracts.generated.ts"
-    )
-    dotnet build $interfaceGeneratorProject
-    dotnet run --project $interfaceGeneratorProject -- $contractsFiles
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    . ./build-contracts-file.ps1
 
     # build js client
     Push-Location "$PSScriptRoot/src/javascript-client"
