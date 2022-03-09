@@ -298,6 +298,8 @@ namespace IxMilia.BCad
                 this.ViewControl = viewControl.Value;
             this.IsDirty = isDirty;
             OnWorkspaceChanged(e);
+
+            var selectedEntityIds = SelectedEntities.Select(ent => ent.Id).ToList();
         }
 
         public event WorkspaceChangingEventHandler WorkspaceChanging;

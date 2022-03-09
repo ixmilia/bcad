@@ -8,5 +8,8 @@
 
 .title-bar-controls button[aria-label="Close"] {
     height: 20px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
     width: 20px;
 }

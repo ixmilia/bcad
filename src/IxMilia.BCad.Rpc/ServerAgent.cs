@@ -16,10 +16,10 @@ namespace IxMilia.BCad.Rpc
 {
     public class ServerAgent
     {
-        private IWorkspace _workspace;
         private DisplayInteractionManager _dim;
         private JsonRpc _jsonRpc { get; }
 
+        public IWorkspace Workspace { get; }
         public bool IsRunning { get; private set; }
         public double Width => _dim.Width;
         public double Height => _dim.Height;
@@ -29,7 +29,7 @@ namespace IxMilia.BCad.Rpc
 
         public ServerAgent(IWorkspace workspace, JsonRpc rpc)
         {
-            _workspace = workspace;
+            Workspace = workspace;
             _jsonRpc = rpc;
             IsRunning = true;
             _dim = new DisplayInteractionManager(workspace, ProjectionStyle.OriginTopLeft);
@@ -43,11 +43,11 @@ namespace IxMilia.BCad.Rpc
             _dim.RubberBandPrimitivesChanged += _dim_RubberBandPrimitivesChanged;
             _dim.SelectionRectangleUpdated += _dim_SelectionRectangleUpdated;
 
-            _workspace.InputService.PromptChanged += InputService_PromptChanged;
-            _workspace.OutputService.LineWritten += OutputService_LineWritten;
-            _workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
-            _workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
-            _workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
+            Workspace.InputService.PromptChanged += InputService_PromptChanged;
+            Workspace.OutputService.LineWritten += OutputService_LineWritten;
+            Workspace.SelectedEntities.CollectionChanged += SelectedEntities_CollectionChanged;
+            Workspace.SettingsService.SettingChanged += SettingsService_SettingChanged;
+            Workspace.WorkspaceChanged += _workspace_WorkspaceChanged;
 
             _jsonRpc.StartListening();
         }
@@ -85,16 +85,30 @@ namespace IxMilia.BCad.Rpc
 
         private void SelectedEntities_CollectionChanged(object sender, EventArgs e)
         {
-            var selectedEntities = _workspace.SelectedEntities.ToList();
+            var selectedEntities = Workspace.SelectedEntities.ToList();
             var clientUpdate = new ClientUpdate();
+
+            // prepare selected drawing
             clientUpdate.SelectedEntitiesDrawing = new ClientDrawing(null);
-            var fallBackColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
+            var fallBackColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
             foreach (var entity in selectedEntities)
             {
                 foreach (var primitive in entity.GetPrimitives())
                 {
                     AddPrimitiveToDrawing(clientUpdate.SelectedEntitiesDrawing, primitive, fallBackColor);
                 }
+            }
+
+            // update property pane
+            if (selectedEntities.Count == 1)
+            {
+                // TODO: handle multiple entities
+                var selectedEntity = selectedEntities.Single();
+                clientUpdate.PropertyPane = new ClientPropertyPane(Workspace.Drawing.GetPropertyPaneValues(selectedEntity));
+            }
+            else
+            {
+                clientUpdate.PropertyPane = new ClientPropertyPane();
             }
 
             PushUpdate(clientUpdate);
@@ -118,7 +132,7 @@ namespace IxMilia.BCad.Rpc
         {
             var clientUpdate = new ClientUpdate();
             clientUpdate.RubberBandDrawing = new ClientDrawing(null);
-            var fallBackColor = _workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
+            var fallBackColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
             foreach (var primitive in primitives)
             {
                 AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor);
@@ -197,19 +211,19 @@ namespace IxMilia.BCad.Rpc
 
         private ClientSettings GetSettings()
         {
-            return new ClientSettings(_workspace);
+            return new ClientSettings(Workspace);
         }
 
         private ClientTransform GetDisplayTransform()
         {
-            var transform = _workspace.ActiveViewPort.GetDisplayTransformDirect3DStyle(_dim.Width, _dim.Height);
+            var transform = Workspace.ActiveViewPort.GetDisplayTransformDirect3DStyle(_dim.Width, _dim.Height);
             var transformArray = transform.Transform.ToTransposeArray();
             if (transformArray.Any(double.IsNaN))
             {
                 return null;
             }
 
-            var canvasTransform = _workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(_dim.Width, _dim.Height);
+            var canvasTransform = Workspace.ActiveViewPort.GetTransformationMatrixWindowsStyle(_dim.Width, _dim.Height);
             var canvasTransformArray = canvasTransform.ToTransposeArray();
             if (canvasTransformArray.Any(double.IsNaN))
             {
@@ -221,12 +235,12 @@ namespace IxMilia.BCad.Rpc
 
         public void ChangeCurrentLayer(string currentLayer)
         {
-            _workspace.Update(drawing: _workspace.Drawing.Update(currentLayerName: currentLayer));
+            Workspace.Update(drawing: Workspace.Drawing.Update(currentLayerName: currentLayer));
         }
 
         public void Cancel()
         {
-            _workspace.InputService.Cancel();
+            Workspace.InputService.Cancel();
         }
 
         public void MouseDown(MouseButton button, double cursorX, double cursorY)
@@ -246,7 +260,7 @@ namespace IxMilia.BCad.Rpc
 
         public Task<bool> ExecuteCommand(string command)
         {
-            return _workspace.ExecuteCommand(command);
+            return Workspace.ExecuteCommand(command);
         }
 
         public async Task ParseFile(string filePath, string data)
@@ -254,17 +268,17 @@ namespace IxMilia.BCad.Rpc
             var bytes = Convert.FromBase64String(data);
             using var stream = new MemoryStream(bytes);
 
-            var success = await _workspace.ReaderWriterService.TryReadDrawing(filePath, stream, out var drawing, out var viewPort);
+            var success = await Workspace.ReaderWriterService.TryReadDrawing(filePath, stream, out var drawing, out var viewPort);
             if (success)
             {
-                _workspace.Update(drawing: drawing, activeViewPort: viewPort);
+                Workspace.Update(drawing: drawing, activeViewPort: viewPort);
             }
         }
 
         public async Task<string> GetDrawingContents(string filePath, bool preserveSettings)
         {
             using var stream = new MemoryStream();
-            var success = await _workspace.ReaderWriterService.TryWriteDrawing(filePath, _workspace.Drawing, _workspace.ActiveViewPort, stream, preserveSettings);
+            var success = await Workspace.ReaderWriterService.TryWriteDrawing(filePath, Workspace.Drawing, Workspace.ActiveViewPort, stream, preserveSettings);
             if (success)
             {
                 stream.Seek(0, SeekOrigin.Begin);
@@ -278,7 +292,7 @@ namespace IxMilia.BCad.Rpc
 
         public string GetPlotPreview(ClientPlotSettings settings)
         {
-            var htmlDialogService = (HtmlDialogService)_workspace.DialogService;
+            var htmlDialogService = (HtmlDialogService)Workspace.DialogService;
             var viewModel = (SvgPlotterViewModel)htmlDialogService.CreateAndPopulateViewModel(settings, plotTypeOverride: "svg"); // force to svg for preview
             viewModel.PlotAsDocument = false;
             viewModel.OutputWidth = settings.PreviewMaxSize;
@@ -318,9 +332,37 @@ namespace IxMilia.BCad.Rpc
             _dim.SubmitInput(value);
         }
 
+        public void SetPropertyPaneValue(ClientPropertyPaneValue propertyPaneValue)
+        {
+            var didUpdate = false;
+            var drawing = Workspace.Drawing;
+            var selectedEntities = Workspace.SelectedEntities.ToHashSet();
+            foreach (var selectedEntity in Workspace.SelectedEntities)
+            {
+                var existingEntityIds = drawing.GetEntities().Select(e => e.Id).ToHashSet();
+                if (drawing.TrySetPropertyPaneValue(selectedEntity, propertyPaneValue, out var updatedDrawing))
+                {
+                    drawing = updatedDrawing;
+                    didUpdate = true;
+                    selectedEntities.Remove(selectedEntity);
+                    existingEntityIds.Remove(selectedEntity.Id);
+                    var currentEntityIds = drawing.GetEntities().Select(e => e.Id).ToHashSet();
+                    var addedEntityId = currentEntityIds.Except(existingEntityIds).ToHashSet();
+                    var addedEntity = drawing.GetEntityById(addedEntityId.Single());
+                    selectedEntities.Add(addedEntity);
+                }
+            }
+
+            if (didUpdate)
+            {
+                Workspace.Update(drawing: drawing);
+                Workspace.SelectedEntities.Set(selectedEntities);
+            }
+        }
+
         private ClientDrawing GetDrawing()
         {
-            var drawing = _workspace.Drawing;
+            var drawing = Workspace.Drawing;
             var clientDrawing = new ClientDrawing(drawing.Settings.FileName);
             clientDrawing.CurrentLayer = drawing.CurrentLayerName;
             foreach (var layer in drawing.GetLayers())
@@ -400,7 +442,7 @@ namespace IxMilia.BCad.Rpc
 
         public void SetSetting(string name, string value)
         {
-            _workspace.SettingsService.SetValue(name, value);
+            Workspace.SettingsService.SetValue(name, value);
         }
     }
 }

@@ -11,6 +11,7 @@ import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
 import { PlotDialog } from "./dialogs/plotDialog";
 import { Arguments } from "./args";
 import { SaveChangesDialog } from "./dialogs/saveChangesDialog";
+import { PropertyPane } from "./propertyPane";
 
 enum HostType {
     Electron = 1,
@@ -121,6 +122,7 @@ async function start(argArray: string[]): Promise<void> {
     new OutputConsole(client);
     new Ribbon(client);
     new ViewControl(client);
+    new PropertyPane(client);
 
     let dialogHandler = new DialogHandler(client);
     new FileSettingsDialog(dialogHandler);

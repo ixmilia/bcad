@@ -37,6 +37,11 @@ namespace IxMilia.BCad.Rpc
             typeof(ValueType),
         };
 
+        private HashSet<string> _optionalProperties = new HashSet<string>()
+        {
+            $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.AllowedValues)}",
+        };
+
         public ContractGenerator(IEnumerable<string> outFiles)
         {
             OutFiles = outFiles;
@@ -99,7 +104,7 @@ namespace IxMilia.BCad.Rpc
                     sb.AppendLine($"export interface {TypeName(type)} {{");
                     foreach (var propertyInfo in type.GetProperties(propertyBindingFlags))
                     {
-                        sb.AppendLine($"    {PropertyName(propertyInfo)}: {TypeName(propertyInfo.PropertyType)};");
+                        sb.AppendLine($"    {PropertyName(type, propertyInfo)}: {TypeName(propertyInfo.PropertyType)};");
                     }
                 }
 
@@ -163,10 +168,11 @@ namespace IxMilia.BCad.Rpc
                 return typeName;
             }
 
-            string PropertyName(PropertyInfo propertyInfo)
+            string PropertyName(Type parentType, PropertyInfo propertyInfo)
             {
                 var name = propertyInfo.Name;
-                if (Nullable.GetUnderlyingType(propertyInfo.PropertyType) is { })
+                if (Nullable.GetUnderlyingType(propertyInfo.PropertyType) is { } ||
+                    _optionalProperties.Contains($"{parentType.Name}.{propertyInfo.Name}"))
                 {
                     name += "?";
                 }

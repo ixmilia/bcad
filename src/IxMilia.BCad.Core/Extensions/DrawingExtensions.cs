@@ -148,6 +148,11 @@ namespace IxMilia.BCad
         }
 
         /// <summary>
+        /// Formats the specified unit as the appropriate format.
+        /// </summary>
+        public static string FormatUnits(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, drawing.Settings.UnitFormat, drawing.Settings.UnitPrecision);
+
+        /// <summary>
         /// Get all transformed snap points for the drawing with the given display transform.
         /// </summary>
         public static QuadTree<TransformedSnapPoint> GetSnapPoints(this Drawing drawing, Matrix4 displayTransform, double width, double height, CancellationToken cancellationToken = default)

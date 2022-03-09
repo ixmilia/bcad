@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using IxMilia.BCad.Commands;
@@ -176,6 +177,81 @@ namespace IxMilia.BCad.Rpc
         }
     }
 
+    public class ClientPropertyPaneValue : IEquatable<ClientPropertyPaneValue>
+    {
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string Value { get; set; }
+        public List<string> AllowedValues { get; set; }
+
+        public ClientPropertyPaneValue(string name, string displayName, string value, IEnumerable<string> allowedValues = null)
+        {
+            Name = name;
+            DisplayName = displayName;
+            Value = value;
+            AllowedValues = allowedValues?.ToList();
+        }
+
+        public static bool operator==(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
+        {
+            if (v1 is null && v2 is null)
+            {
+                return true;
+            }
+
+            if (v1 is null || v2 is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(v1, v2))
+            {
+                return true;
+            }
+
+            return v1.Name == v2.Name
+                && v1.DisplayName == v2.DisplayName
+                && v1.Value == v2.Value
+                && ((v1.AllowedValues is null && v2.AllowedValues is null) ||
+                    (v1.AllowedValues is not null && v2.AllowedValues is not null && v1.AllowedValues.SequenceEqual(v2.AllowedValues)));
+        }
+
+        public static bool operator !=(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
+        {
+            return !(v1 == v2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ClientPropertyPaneValue other)
+            {
+                return this == other;
+            }
+
+            return false;
+        }
+
+        public bool Equals(ClientPropertyPaneValue other)
+        {
+            return this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, DisplayName, Value, AllowedValues);
+        }
+    }
+
+    public class ClientPropertyPane
+    {
+        public List<ClientPropertyPaneValue> Values { get; set; }
+
+        public ClientPropertyPane(IEnumerable<ClientPropertyPaneValue> values = null)
+        {
+            Values = (values ?? Enumerable.Empty<ClientPropertyPaneValue>()).ToList();
+        }
+    }
+
     public class ClientSettings
     {
         public CadColor AutoColor => BackgroundColor.GetAutoContrastingColor();
@@ -241,6 +317,7 @@ namespace IxMilia.BCad.Rpc
         public ClientDrawing Drawing { get; set; }
         public ClientDrawing SelectedEntitiesDrawing { get; set; }
         public ClientDrawing RubberBandDrawing { get; set; }
+        public ClientPropertyPane PropertyPane { get; set; }
         public TransformedSnapPoint? TransformedSnapPoint { get; set; }
         public CursorState? CursorState { get; set; }
         public ClientPoint[] HotPoints { get; set; }

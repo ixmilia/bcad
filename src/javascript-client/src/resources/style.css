@@ -9,9 +9,6 @@ body {
     height: 100%;
 }
 
-#ribbon-pane {
-}
-
 #output-pane {
     display: flex;
     flex: 1;
@@ -19,7 +16,17 @@ body {
     min-height: 0;
 }
 
-#bottom-pane {
+#property-pane {
+    display: none;
+    flex: none;
+    position: absolute;
+    right: 0px;
+    text-align: right;
+    z-index: 4;
+}
+
+.property-pane-setting-name {
+    text-align: right;
 }
 
 .displayCanvas {

@@ -1,0 +1,237 @@
+using System.Collections.Generic;
+using System.Linq;
+using IxMilia.BCad.Core.Test;
+using IxMilia.BCad.Entities;
+using Xunit;
+
+namespace IxMilia.BCad.Rpc.Test
+{
+    public class PropertyPaneTests : TestBase
+    {
+        private static Dictionary<string, ClientPropertyPaneValue> GetEntityProperties(Entity entity)
+        {
+            var layer = new Layer("test-layer").Add(entity);
+            var drawing = new Drawing().Add(layer);
+            var propertyMap = drawing.GetPropertyPaneValues(entity).ToDictionary(cp => cp.Name);
+            Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
+            Assert.True(propertyMap.Remove("layer"));
+            return propertyMap;
+        }
+
+        [Fact]
+        public void GetArcPropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(7.0, 8.0, 9.0), thickness: 10));
+            Assert.Equal(10, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
+            Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
+            Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
+            Assert.Equal(new ClientPropertyPaneValue("r", "Radius", "0'4\""), propertyMap["r"]);
+            Assert.Equal(new ClientPropertyPaneValue("sa", "Start Angle", "5"), propertyMap["sa"]);
+            Assert.Equal(new ClientPropertyPaneValue("ea", "End Angle", "6"), propertyMap["ea"]);
+            Assert.Equal(new ClientPropertyPaneValue("nx", "Normal X", "0'7\""), propertyMap["nx"]);
+            Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'8\""), propertyMap["ny"]);
+            Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'9\""), propertyMap["nz"]);
+            Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'10\""), propertyMap["t"]);
+        }
+
+        [Theory]
+        [InlineData("cx", "9", 9, 2, 3, 4, 5, 6, 0, 0, 1, 0)]
+        [InlineData("cy", "9", 1, 9, 3, 4, 5, 6, 0, 0, 1, 0)]
+        [InlineData("cz", "9", 1, 2, 9, 4, 5, 6, 0, 0, 1, 0)]
+        [InlineData("r", "9", 1, 2, 3, 9, 5, 6, 0, 0, 1, 0)]
+        [InlineData("sa", "9", 1, 2, 3, 4, 9, 6, 0, 0, 1, 0)]
+        [InlineData("ea", "9", 1, 2, 3, 4, 5, 9, 0, 0, 1, 0)]
+        [InlineData("nx", "9", 1, 2, 3, 4, 5, 6, 9, 0, 1, 0)]
+        [InlineData("ny", "9", 1, 2, 3, 4, 5, 6, 0, 9, 1, 0)]
+        [InlineData("nz", "9", 1, 2, 3, 4, 5, 6, 0, 0, 9, 0)]
+        [InlineData("t", "9", 1, 2, 3, 4, 5, 6, 0, 0, 1, 9)]
+        public void SetArcPropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double r, double sa, double ea, double nx, double ny, double nz, double t)
+        {
+            var entity = new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(0.0, 0.0, 1.0), thickness: t);
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Arc)updatedEntity;
+            Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
+            AssertClose(r, finalEntity.Radius);
+            AssertClose(sa, finalEntity.StartAngle);
+            AssertClose(ea, finalEntity.EndAngle);
+            Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
+            Assert.Equal(t, finalEntity.Thickness);
+        }
+
+        [Fact]
+        public void GetCirclePropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Circle(new Point(1.0, 2.0, 3.0), 4.0, new Vector(5.0, 6.0, 7.0), thickness: 8));
+            Assert.Equal(8, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
+            Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
+            Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
+            Assert.Equal(new ClientPropertyPaneValue("r", "Radius", "0'4\""), propertyMap["r"]);
+            Assert.Equal(new ClientPropertyPaneValue("nx", "Normal X", "0'5\""), propertyMap["nx"]);
+            Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'6\""), propertyMap["ny"]);
+            Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'7\""), propertyMap["nz"]);
+            Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'8\""), propertyMap["t"]);
+        }
+
+        [Theory]
+        [InlineData("cx", "9", 9, 2, 3, 4, 0, 0, 1, 0)]
+        [InlineData("cy", "9", 1, 9, 3, 4, 0, 0, 1, 0)]
+        [InlineData("cz", "9", 1, 2, 9, 4, 0, 0, 1, 0)]
+        [InlineData("r", "9", 1, 2, 3, 9, 0, 0, 1, 0)]
+        [InlineData("nx", "9", 1, 2, 3, 4, 9, 0, 1, 0)]
+        [InlineData("ny", "9", 1, 2, 3, 4, 0, 9, 1, 0)]
+        [InlineData("nz", "9", 1, 2, 3, 4, 0, 0, 9, 0)]
+        [InlineData("t", "9", 1, 2, 3, 4, 0, 0, 1, 9)]
+        public void SetCirclePropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double r, double nx, double ny, double nz, double t)
+        {
+            var entity = new Circle(new Point(1.0, 2.0, 3.0), 4.0, new Vector(0.0, 0.0, 1.0), thickness: t);
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Circle)updatedEntity;
+            Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
+            AssertClose(r, finalEntity.Radius);
+            Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
+            Assert.Equal(t, finalEntity.Thickness);
+        }
+
+        [Fact]
+        public void GetEllipsePropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 7.0, 8.0, 9.0, new Vector(10.0, 11.0, 12.0), thickness: 13));
+            Assert.Equal(13, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
+            Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
+            Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
+            Assert.Equal(new ClientPropertyPaneValue("mx", "Major Axis X", "0'4\""), propertyMap["mx"]);
+            Assert.Equal(new ClientPropertyPaneValue("my", "Y", "0'5\""), propertyMap["my"]);
+            Assert.Equal(new ClientPropertyPaneValue("mz", "Z", "0'6\""), propertyMap["mz"]);
+            Assert.Equal(new ClientPropertyPaneValue("mr", "Minor Axis Ratio", "7"), propertyMap["mr"]);
+            Assert.Equal(new ClientPropertyPaneValue("sa", "Start Angle", "8"), propertyMap["sa"]);
+            Assert.Equal(new ClientPropertyPaneValue("ea", "End Angle", "9"), propertyMap["ea"]);
+            Assert.Equal(new ClientPropertyPaneValue("nx", "Normal X", "0'10\""), propertyMap["nx"]);
+            Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'11\""), propertyMap["ny"]);
+            Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "1'0\""), propertyMap["nz"]);
+            Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "1'1\""), propertyMap["t"]);
+        }
+
+        [Theory]
+        [InlineData("cx", "99", 99, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("cy", "99", 1, 99, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("cz", "99", 1, 2, 99, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("mx", "99", 1, 2, 3, 99, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("my", "99", 1, 2, 3, 4, 99, 6, 7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("mz", "99", 1, 2, 3, 4, 5, 99, 7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("mr", "99", 1, 2, 3, 4, 5, 6, 99, 8, 9, 0, 0, 1, 0)]
+        [InlineData("sa", "99", 1, 2, 3, 4, 5, 6, 7, 99, 9, 0, 0, 1, 0)]
+        [InlineData("ea", "99", 1, 2, 3, 4, 5, 6, 7, 8, 99, 0, 0, 1, 0)]
+        [InlineData("nx", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 99, 0, 1, 0)]
+        [InlineData("ny", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 99, 1, 0)]
+        [InlineData("nz", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 99, 0)]
+        [InlineData("t", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 99)]
+        public void SetEllipsePropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double mx, double my, double mz, double ma, double sa, double ea, double nx, double ny, double nz, double t)
+        {
+            var entity = new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 7.0, 8.0, 9.0, new Vector(0.0, 0.0, 1.0), thickness: t);
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Ellipse)updatedEntity;
+            Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
+            Assert.Equal(new Vector(mx, my, mz), finalEntity.MajorAxis);
+            AssertClose(ma, finalEntity.MinorAxisRatio);
+            AssertClose(sa, finalEntity.StartAngle);
+            AssertClose(ea, finalEntity.EndAngle);
+            Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
+            Assert.Equal(t, finalEntity.Thickness);
+        }
+
+        [Fact]
+        public void GetLinePropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), thickness: 7));
+            Assert.Equal(7, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("x1", "Start X", "0'1\""), propertyMap["x1"]);
+            Assert.Equal(new ClientPropertyPaneValue("y1", "Y", "0'2\""), propertyMap["y1"]);
+            Assert.Equal(new ClientPropertyPaneValue("z1", "Z", "0'3\""), propertyMap["z1"]);
+            Assert.Equal(new ClientPropertyPaneValue("x2", "End X", "0'4\""), propertyMap["x2"]);
+            Assert.Equal(new ClientPropertyPaneValue("y2", "Y", "0'5\""), propertyMap["y2"]);
+            Assert.Equal(new ClientPropertyPaneValue("z2", "Z", "0'6\""), propertyMap["z2"]);
+            Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'7\""), propertyMap["t"]);
+        }
+
+        [Theory]
+        [InlineData("x1", "9", 9, 2, 3, 4, 5, 6, 0)]
+        [InlineData("y1", "9", 1, 9, 3, 4, 5, 6, 0)]
+        [InlineData("z1", "9", 1, 2, 9, 4, 5, 6, 0)]
+        [InlineData("x2", "9", 1, 2, 3, 9, 5, 6, 0)]
+        [InlineData("y2", "9", 1, 2, 3, 4, 9, 6, 0)]
+        [InlineData("z2", "9", 1, 2, 3, 4, 5, 9, 0)]
+        [InlineData("t", "9", 1, 2, 3, 4, 5, 6, 9)]
+        public void SetLinePropertyPaneValue(string propertyName, string propertyValue, double x1, double y1, double z1, double x2, double y2, double z2, double t)
+        {
+            var entity = new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), thickness: t);
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Line)updatedEntity;
+            Assert.Equal(new Point(x1, y1, z1), finalEntity.P1);
+            Assert.Equal(new Point(x2, y2, z2), finalEntity.P2);
+            Assert.Equal(t, finalEntity.Thickness);
+        }
+
+        [Fact]
+        public void GetLocationPropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Location(new Point(1.0, 2.0, 3.0)));
+            Assert.Equal(3, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("x", "Location X", "0'1\""), propertyMap["x"]);
+            Assert.Equal(new ClientPropertyPaneValue("y", "Y", "0'2\""), propertyMap["y"]);
+            Assert.Equal(new ClientPropertyPaneValue("z", "Z", "0'3\""), propertyMap["z"]);
+        }
+
+        [Theory]
+        [InlineData("x", "9", 9, 2, 3)]
+        [InlineData("y", "9", 1, 9, 3)]
+        [InlineData("z", "9", 1, 2, 9)]
+        public void SetLocationPropertyPaneValue(string propertyName, string propertyValue, double x, double y, double z)
+        {
+            var entity = new Location(new Point(1.0, 2.0, 3.0));
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Location)updatedEntity;
+            Assert.Equal(new Point(x, y, z), finalEntity.Point);
+        }
+
+        [Fact]
+        public void GetTextPropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Text("the-value", new Point(1.0, 2.0, 3.0), new Vector(0.0, 0.0, 1.0), 4.0, 5.0));
+            Assert.Equal(9, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("v", "Value", "the-value"), propertyMap["v"]);
+            Assert.Equal(new ClientPropertyPaneValue("x", "Location X", "0'1\""), propertyMap["x"]);
+            Assert.Equal(new ClientPropertyPaneValue("y", "Y", "0'2\""), propertyMap["y"]);
+            Assert.Equal(new ClientPropertyPaneValue("z", "Z", "0'3\""), propertyMap["z"]);
+            Assert.Equal(new ClientPropertyPaneValue("h", "Height", "0'4\""), propertyMap["h"]);
+            Assert.Equal(new ClientPropertyPaneValue("r", "Rotation", "5"), propertyMap["r"]);
+            Assert.Equal(new ClientPropertyPaneValue("nx", "Normal X", "0'0\""), propertyMap["nx"]);
+            Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'0\""), propertyMap["ny"]);
+            Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'1\""), propertyMap["nz"]);
+        }
+
+        [Theory]
+        [InlineData("v", "9", "9", 1, 2, 3, 4, 5, 0, 0, 1)]
+        [InlineData("x", "9", "the-value", 9, 2, 3, 4, 5, 0, 0, 1)]
+        [InlineData("y", "9", "the-value", 1, 9, 3, 4, 5, 0, 0, 1)]
+        [InlineData("z", "9", "the-value", 1, 2, 9, 4, 5, 0, 0, 1)]
+        [InlineData("h", "9", "the-value", 1, 2, 3, 9, 5, 0, 0, 1)]
+        [InlineData("r", "9", "the-value", 1, 2, 3, 4, 9, 0, 0, 1)]
+        [InlineData("nx", "9", "the-value", 1, 2, 3, 4, 5, 9, 0, 1)]
+        [InlineData("ny", "9", "the-value", 1, 2, 3, 4, 5, 0, 9, 1)]
+        [InlineData("nz", "9", "the-value", 1, 2, 3, 4, 5, 0, 0, 9)]
+        public void SetTextPropertyPaneValue(string propertyName, string propertyValue, string value, double x, double y, double z, double h, double r, double nx, double ny, double nz)
+        {
+            var entity = new Text("the-value", new Point(1.0, 2.0, 3.0), new Vector(nx, ny, nz), h, r);
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Text)updatedEntity;
+            Assert.Equal(value, finalEntity.Value);
+            Assert.Equal(new Point(x, y, z), finalEntity.Location);
+            Assert.Equal(h, finalEntity.Height);
+            Assert.Equal(r, finalEntity.Rotation);
+            Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
+        }
+    }
+}
