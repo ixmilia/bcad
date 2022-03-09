@@ -182,6 +182,33 @@ namespace IxMilia.BCad.Extensions
             return line.GetPrimitives().Single().MidPoint();
         }
 
+        public static Entity WithColor(this Entity entity, CadColor? color)
+        {
+            switch (entity)
+            {
+                case AggregateEntity agg:
+                    return agg.Update(color: color);
+                case Arc arc:
+                    return arc.Update(color: color);
+                case Circle circle:
+                    return circle.Update(color: color);
+                case Ellipse el:
+                    return el.Update(color: color);
+                case Line line:
+                    return line.Update(color: color);
+                case Location loc:
+                    return loc.Update(color: color);
+                case Polyline pl:
+                    return pl.Update(color: color);
+                case Spline sp:
+                    return sp.Update(color: color);
+                case Text t:
+                    return t.Update(color: color);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public static Entity WithThickness(this Entity entity, double thickness)
         {
             switch (entity)

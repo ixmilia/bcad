@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 
 namespace IxMilia.BCad.Rpc
 {
@@ -11,8 +12,7 @@ namespace IxMilia.BCad.Rpc
             var layer = drawing.ContainingLayer(entity);
 
             yield return new ClientPropertyPaneValue("layer", "Layer", layer.Name, drawing.GetLayers().Select(l => l.Name).OrderBy(s => s));
-
-            // TODO: color
+            yield return new ClientPropertyPaneValue("color", "Color", entity.Color?.ToRGBString());
 
             switch (entity)
             {
@@ -118,11 +118,37 @@ namespace IxMilia.BCad.Rpc
         public static bool TrySetEntityPropertyPaneValue(this Entity entity, ClientPropertyPaneValue value, out Entity updatedEntity)
         {
             updatedEntity = default;
-            switch (value.Name)
+            if (value.Name == "color")
             {
-                case "color":
-                    // TODO
-                    break;
+                if (value.Value is null)
+                {
+                    // unset color
+                    if (!entity.Color.HasValue)
+                    {
+                        // nothing to do
+                        return false;
+                    }
+                    else
+                    {
+                        updatedEntity = entity.WithColor(null);
+                        return true;
+                    }
+                }
+                else
+                {
+                    // set color
+                    var color = CadColor.Parse(value.Value);
+                    if (entity.Color == color)
+                    {
+                        // nothing to do
+                        return false;
+                    }
+                    else
+                    {
+                        updatedEntity = entity.WithColor(color);
+                        return true;
+                    }
+                }
             }
 
             switch (entity)

@@ -23,7 +23,40 @@ export class PropertyPane {
 
                         const valueCell = <HTMLTableCellElement>document.createElement('td');
                         valueCell.classList.add('property-pane-setting-value');
-                        if (value.AllowedValues !== undefined && value.AllowedValues.length > 0) {
+                        if (value.Name === 'color') {
+                            // special handling for colors
+                            const color = <HTMLInputElement>document.createElement('input');
+                            color.disabled = !value.Value;
+                            color.type = 'color';
+                            color.value = value.Value || '#000000';
+
+                            const isAuto = <HTMLInputElement>document.createElement('input');
+                            isAuto.id = 'property-pane-is-color-auto';
+                            isAuto.type = 'checkbox';
+                            isAuto.checked = !value.Value;
+                            isAuto.addEventListener('change', () => {
+                                color.disabled = isAuto.checked;
+                            });
+
+                            const label = <HTMLLabelElement>document.createElement('label');
+                            label.setAttribute('for', isAuto.id);
+                            label.innerText = 'Auto?';
+
+                            function reportColorChange() {
+                                client.setPropertyPaneValue({
+                                    Name: value.Name,
+                                    DisplayName: value.DisplayName,
+                                    Value: isAuto.checked ? undefined : color.value,
+                                });
+                            }
+
+                            isAuto.addEventListener('change', () => reportColorChange());
+                            color.addEventListener('change', () => reportColorChange());
+
+                            valueCell.appendChild(isAuto);
+                            valueCell.appendChild(label);
+                            valueCell.appendChild(color);
+                        } else if (value.AllowedValues !== undefined && value.AllowedValues.length > 0) {
                             // dropdown
                             const select = <HTMLSelectElement>document.createElement('select');
                             select.style.width = '100%';
@@ -48,7 +81,7 @@ export class PropertyPane {
                         } else {
                             // simple string value
                             const text = <HTMLInputElement>document.createElement('input');
-                            text.value = value.Value;
+                            text.value = value.Value || '';
                             text.addEventListener('change', () => {
                                 client.setPropertyPaneValue({
                                     Name: value.Name,

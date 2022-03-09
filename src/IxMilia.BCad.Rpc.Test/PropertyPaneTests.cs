@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using IxMilia.BCad.Core.Test;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 using Xunit;
 
 namespace IxMilia.BCad.Rpc.Test
@@ -10,11 +11,17 @@ namespace IxMilia.BCad.Rpc.Test
     {
         private static Dictionary<string, ClientPropertyPaneValue> GetEntityProperties(Entity entity)
         {
+            entity = entity.WithColor(CadColor.Red);
             var layer = new Layer("test-layer").Add(entity);
             var drawing = new Drawing().Add(layer);
             var propertyMap = drawing.GetPropertyPaneValues(entity).ToDictionary(cp => cp.Name);
+
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
             Assert.True(propertyMap.Remove("layer"));
+
+            Assert.Equal(new ClientPropertyPaneValue("color", "Color", "#FF0000"), propertyMap["color"]);
+            Assert.True(propertyMap.Remove("color"));
+
             return propertyMap;
         }
 
@@ -29,6 +36,29 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.True(drawing.TrySetPropertyPaneValue(entity, new ClientPropertyPaneValue("layer", "displayName", "other-test-layer"), out var updatedDrawing, out var updatedEntity));
             Assert.Null(updatedEntity);
             Assert.Equal("other-test-layer", updatedDrawing.ContainingLayer(entity).Name);
+        }
+
+        [Theory]
+        [InlineData("#FF0000", "#0000FF")]
+        [InlineData("#FF0000", null)]
+        [InlineData(null, "#FF0000")]
+        [InlineData(null, null)]
+        public void SetEntityCommonPropertyColor(string initialColor, string targetColor)
+        {
+            CadColor? color = initialColor is null ? null : CadColor.Parse(initialColor);
+            var entity = new Location(new Point(0.0, 0.0, 0.0), color: color);
+            var wasColorChanged = entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue("color", "displayName", targetColor), out var updatedEntity);
+            var wasColorExpectedToChange = initialColor != targetColor;
+            Assert.Equal(wasColorExpectedToChange, wasColorChanged);
+            if (wasColorChanged)
+            {
+                Assert.NotNull(updatedEntity);
+                Assert.Equal(targetColor, updatedEntity.Color?.ToRGBString());
+            }
+            else
+            {
+                Assert.Null(updatedEntity);
+            }
         }
 
         [Fact]

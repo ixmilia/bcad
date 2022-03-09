@@ -53,18 +53,21 @@ namespace bcad
                 // don't really care if it failed
             }
 
+#if DEBUG
+            var allowDebugging = true;
+            var logVerbosity = 1;
+#else
             var allowDebugging = false;
+            var logVerbosity = 0;
+#endif
+
             var window = new PhotinoWindow()
                 .SetUseOsDefaultSize(true)
-                .SetContextMenuEnabled(allowDebugging)
+                .SetContextMenuEnabled(false)
                 .Center()
                 .SetDevToolsEnabled(allowDebugging)
                 .SetResizable(true)
-#if DEBUG
-                .SetLogVerbosity(1)
-#else
-                .SetLogVerbosity(0)
-#endif
+                .SetLogVerbosity(logVerbosity)
                 .RegisterWebMessageReceivedHandler((object sender, string message) =>
                 {
                     try
