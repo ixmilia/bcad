@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Display;
+using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Plotting.Svg;
@@ -336,27 +337,26 @@ namespace IxMilia.BCad.Rpc
         {
             var didUpdate = false;
             var drawing = Workspace.Drawing;
-            var selectedEntities = Workspace.SelectedEntities.ToHashSet();
+            var newSelectedEntities = new HashSet<Entity>();
             foreach (var selectedEntity in Workspace.SelectedEntities)
             {
                 var existingEntityIds = drawing.GetEntities().Select(e => e.Id).ToHashSet();
-                if (drawing.TrySetPropertyPaneValue(selectedEntity, propertyPaneValue, out var updatedDrawing))
+                if (drawing.TrySetPropertyPaneValue(selectedEntity, propertyPaneValue, out var updatedDrawing, out var updatedEntity))
                 {
                     drawing = updatedDrawing;
                     didUpdate = true;
-                    selectedEntities.Remove(selectedEntity);
-                    existingEntityIds.Remove(selectedEntity.Id);
-                    var currentEntityIds = drawing.GetEntities().Select(e => e.Id).ToHashSet();
-                    var addedEntityId = currentEntityIds.Except(existingEntityIds).ToHashSet();
-                    var addedEntity = drawing.GetEntityById(addedEntityId.Single());
-                    selectedEntities.Add(addedEntity);
+                    newSelectedEntities.Add(updatedEntity ?? selectedEntity);
+                }
+                else
+                {
+                    newSelectedEntities.Add(selectedEntity);
                 }
             }
 
             if (didUpdate)
             {
                 Workspace.Update(drawing: drawing);
-                Workspace.SelectedEntities.Set(selectedEntities);
+                Workspace.SelectedEntities.Set(newSelectedEntities);
             }
         }
 

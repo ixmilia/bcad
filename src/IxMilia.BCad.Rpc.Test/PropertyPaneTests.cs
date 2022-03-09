@@ -26,7 +26,8 @@ namespace IxMilia.BCad.Rpc.Test
             var drawing = new Drawing().Add(layer).Add(new Layer("other-test-layer"));
             Assert.Equal("test-layer", drawing.ContainingLayer(entity).Name);
 
-            Assert.True(drawing.TrySetPropertyPaneValue(entity, new ClientPropertyPaneValue("layer", "displayName", "other-test-layer"), out var updatedDrawing));
+            Assert.True(drawing.TrySetPropertyPaneValue(entity, new ClientPropertyPaneValue("layer", "displayName", "other-test-layer"), out var updatedDrawing, out var updatedEntity));
+            Assert.Null(updatedEntity);
             Assert.Equal("other-test-layer", updatedDrawing.ContainingLayer(entity).Name);
         }
 
