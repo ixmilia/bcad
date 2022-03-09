@@ -19,6 +19,18 @@ namespace IxMilia.BCad.Rpc.Test
         }
 
         [Fact]
+        public void SetEntityCommonPropertyLayer()
+        {
+            var entity = new Location(new Point(0.0, 0.0, 0.0));
+            var layer = new Layer("test-layer").Add(entity);
+            var drawing = new Drawing().Add(layer).Add(new Layer("other-test-layer"));
+            Assert.Equal("test-layer", drawing.ContainingLayer(entity).Name);
+
+            Assert.True(drawing.TrySetPropertyPaneValue(entity, new ClientPropertyPaneValue("layer", "displayName", "other-test-layer"), out var updatedDrawing));
+            Assert.Equal("other-test-layer", updatedDrawing.ContainingLayer(entity).Name);
+        }
+
+        [Fact]
         public void GetArcPropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(7.0, 8.0, 9.0), thickness: 10));

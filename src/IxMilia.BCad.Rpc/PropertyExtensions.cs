@@ -84,20 +84,25 @@ namespace IxMilia.BCad.Rpc
 
         public static bool TrySetPropertyPaneValue(this Drawing drawing, Entity entity, ClientPropertyPaneValue value, out Drawing updatedDrawing)
         {
-            var layer = drawing.ContainingLayer(entity);
-
-            switch (value.Name)
+            updatedDrawing = default;
+            if (value.Name == "layer")
             {
-                case "layer":
-                    // TODO
-                    break;
-            }
+                var containingLayer = drawing.ContainingLayer(entity);
+                if (containingLayer.Name == value.Value)
+                {
+                    // no change
+                    return false;
+                }
 
-            switch (value.Name)
-            {
-                case "color":
-                    // TODO
-                    break;
+                var destinationLayer = drawing.Layers.GetValue(value.Value);
+                var updatedContainingLayer = containingLayer.Remove(entity);
+                var updatedDestinationLayer = destinationLayer.Add(entity);
+                updatedDrawing = drawing
+                    .Remove(containingLayer)
+                    .Remove(destinationLayer)
+                    .Add(updatedContainingLayer)
+                    .Add(updatedDestinationLayer);
+                return true;
             }
 
             if (entity.TrySetEntityPropertyPaneValue(value, out var updatedEntity))
@@ -106,7 +111,6 @@ namespace IxMilia.BCad.Rpc
                 return true;
             }
 
-            updatedDrawing = default;
             return false;
         }
 
