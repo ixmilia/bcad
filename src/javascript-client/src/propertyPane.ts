@@ -53,6 +53,13 @@ export class PropertyPane {
                             isAuto.addEventListener('change', () => reportColorChange());
                             color.addEventListener('change', () => reportColorChange());
 
+                            // special case for variable value
+                            if (value.IsUnrepresentable) {
+                                const warningSpan = <HTMLSpanElement>document.createElement('span');
+                                warningSpan.innerText = '*VARIES*';
+                                valueCell.appendChild(warningSpan);
+                            }
+
                             valueCell.appendChild(isAuto);
                             valueCell.appendChild(label);
                             valueCell.appendChild(color);
@@ -60,11 +67,20 @@ export class PropertyPane {
                             // dropdown
                             const select = <HTMLSelectElement>document.createElement('select');
                             select.style.width = '100%';
+
+                            if (value.IsUnrepresentable) {
+                                const option = <HTMLOptionElement>document.createElement('option');
+                                option.innerText = '*VARIES*';
+                                option.disabled = true;
+                                option.selected = true;
+                                select.appendChild(option);
+                            }
+
                             for (const allowedValue of value.AllowedValues) {
                                 const option = <HTMLOptionElement>document.createElement('option');
                                 option.innerText = allowedValue;
-                                if (value.Value === allowedValue) {
-                                    option.setAttribute('selected', 'selected');
+                                if (value.Value === allowedValue && !value.IsUnrepresentable) {
+                                    option.selected = true;
                                 }
 
                                 select.appendChild(option);

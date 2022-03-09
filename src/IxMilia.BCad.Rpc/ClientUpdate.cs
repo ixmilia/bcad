@@ -183,13 +183,15 @@ namespace IxMilia.BCad.Rpc
         public string DisplayName { get; set; }
         public string Value { get; set; }
         public List<string> AllowedValues { get; set; }
+        public bool IsUnrepresentable { get; set; }
 
-        public ClientPropertyPaneValue(string name, string displayName, string value, IEnumerable<string> allowedValues = null)
+        public ClientPropertyPaneValue(string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
         {
             Name = name;
             DisplayName = displayName;
             Value = value;
             AllowedValues = allowedValues?.ToList();
+            IsUnrepresentable = isUnrepresentable;
         }
 
         public static bool operator==(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
@@ -213,7 +215,8 @@ namespace IxMilia.BCad.Rpc
                 && v1.DisplayName == v2.DisplayName
                 && v1.Value == v2.Value
                 && ((v1.AllowedValues is null && v2.AllowedValues is null) ||
-                    (v1.AllowedValues is not null && v2.AllowedValues is not null && v1.AllowedValues.SequenceEqual(v2.AllowedValues)));
+                    (v1.AllowedValues is not null && v2.AllowedValues is not null && v1.AllowedValues.SequenceEqual(v2.AllowedValues)))
+                && v1.IsUnrepresentable == v2.IsUnrepresentable;
         }
 
         public static bool operator !=(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
@@ -238,7 +241,7 @@ namespace IxMilia.BCad.Rpc
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, DisplayName, Value, AllowedValues);
+            return HashCode.Combine(Name, DisplayName, Value, AllowedValues, IsUnrepresentable);
         }
     }
 

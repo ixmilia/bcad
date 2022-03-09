@@ -40,6 +40,7 @@ namespace IxMilia.BCad.Rpc
         private HashSet<string> _optionalProperties = new HashSet<string>()
         {
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.AllowedValues)}",
+            $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.IsUnrepresentable)}",
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.Value)}",
         };
 

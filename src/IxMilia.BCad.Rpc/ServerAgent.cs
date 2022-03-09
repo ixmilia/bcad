@@ -101,16 +101,25 @@ namespace IxMilia.BCad.Rpc
             }
 
             // update property pane
-            if (selectedEntities.Count == 1)
+            ClientPropertyPane propertyPane;
+            if (selectedEntities.Count == 0)
             {
-                // TODO: handle multiple entities
+                // nothing selected; send emtpy set to clear ui
+                propertyPane = new ClientPropertyPane();
+            }
+            else if (selectedEntities.Count == 1)
+            {
+                // get all properties for the selected entity
                 var selectedEntity = selectedEntities.Single();
-                clientUpdate.PropertyPane = new ClientPropertyPane(Workspace.Drawing.GetPropertyPaneValues(selectedEntity));
+                propertyPane = new ClientPropertyPane(Workspace.Drawing.GetPropertyPaneValues(selectedEntity));
             }
             else
             {
-                clientUpdate.PropertyPane = new ClientPropertyPane();
+                // only get properties common to all entities
+                propertyPane = new ClientPropertyPane(Workspace.Drawing.GetPropertyPaneValuesForMultipleEntities(selectedEntities));
             }
+
+            clientUpdate.PropertyPane = propertyPane;
 
             PushUpdate(clientUpdate);
         }

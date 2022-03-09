@@ -7,12 +7,33 @@ namespace IxMilia.BCad.Rpc
 {
     public static class PropertyExtensions
     {
+        private static IEnumerable<string> GetAllLayerNames(this Drawing drawing) => drawing.GetLayers().Select(l => l.Name).OrderBy(s => s);
+
+        private static string ToPropertyColorString(this CadColor? color) => color?.ToRGBString();
+
+        public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValuesForMultipleEntities(this Drawing drawing, IEnumerable<Entity> entities)
+        {
+            var distinctLayerNames = entities.Select(e => drawing.ContainingLayer(e)).Select(l => l.Name).Distinct().ToList();
+            var selectedLayerName = distinctLayerNames.Count == 1
+                ? distinctLayerNames.Single()
+                : null;
+
+            yield return new ClientPropertyPaneValue("layer", "Layer", selectedLayerName, drawing.GetAllLayerNames(), isUnrepresentable: distinctLayerNames.Count > 1);
+
+            var distinctColors = entities.Select(e => e.Color).Select(c => c.ToPropertyColorString()).Distinct().ToList();
+            var selectedColor = distinctColors.Count == 1
+                ? distinctColors.Single()
+                : null;
+
+            yield return new ClientPropertyPaneValue("color", "Color", selectedColor, isUnrepresentable: distinctColors.Count > 1);
+        }
+
         public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValues(this Drawing drawing, Entity entity)
         {
             var layer = drawing.ContainingLayer(entity);
 
-            yield return new ClientPropertyPaneValue("layer", "Layer", layer.Name, drawing.GetLayers().Select(l => l.Name).OrderBy(s => s));
-            yield return new ClientPropertyPaneValue("color", "Color", entity.Color?.ToRGBString());
+            yield return new ClientPropertyPaneValue("layer", "Layer", layer.Name, drawing.GetAllLayerNames());
+            yield return new ClientPropertyPaneValue("color", "Color", entity.Color.ToPropertyColorString());
 
             switch (entity)
             {

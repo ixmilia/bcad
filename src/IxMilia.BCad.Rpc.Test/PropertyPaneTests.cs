@@ -62,6 +62,48 @@ namespace IxMilia.BCad.Rpc.Test
         }
 
         [Fact]
+        public void GetMultipleEntityPropertyPaneValuesCommonLayerCommonNullColor()
+        {
+            var e1 = new Location(new Point());
+            var e2 = new Location(new Point());
+            var layer = new Layer("test-layer").Add(e1).Add(e2);
+            var drawing = new Drawing().Add(layer);
+            var propertyMap = drawing.GetPropertyPaneValuesForMultipleEntities(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
+
+            Assert.Equal(2, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
+            Assert.Equal(new ClientPropertyPaneValue("color", "Color", null), propertyMap["color"]);
+        }
+
+        [Fact]
+        public void GetMultipleEntityPropertyPaneValuesCommonSpecificColor()
+        {
+            var colorValue = "#FF0000";
+            var color = CadColor.Parse(colorValue);
+            var e1 = new Location(new Point(), color: color);
+            var e2 = new Location(new Point(), color: color);
+            var drawing = new Drawing().AddToCurrentLayer(e1).AddToCurrentLayer(e2);
+            var propertyMap = drawing.GetPropertyPaneValuesForMultipleEntities(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
+
+            Assert.Equal(new ClientPropertyPaneValue("color", "Color", colorValue), propertyMap["color"]);
+        }
+
+        [Fact]
+        public void GetMultipleEntityPropertyPaneValuesDifferentLayerDifferentColor()
+        {
+            var e1 = new Location(new Point());
+            var e2 = new Location(new Point(), color: CadColor.Red);
+            var layer1 = new Layer("test-layer-1").Add(e1);
+            var layer2 = new Layer("test-layer-2").Add(e2);
+            var drawing = new Drawing().Add(layer1).Add(layer2);
+            var propertyMap = drawing.GetPropertyPaneValuesForMultipleEntities(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
+
+            Assert.Equal(2, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", null, new[] { "0", "test-layer-1", "test-layer-2" }, isUnrepresentable: true), propertyMap["layer"]);
+            Assert.Equal(new ClientPropertyPaneValue("color", "Color", null, isUnrepresentable: true), propertyMap["color"]);
+        }
+
+        [Fact]
         public void GetArcPropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(7.0, 8.0, 9.0), thickness: 10));
