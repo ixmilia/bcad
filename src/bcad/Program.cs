@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad;
@@ -56,9 +57,11 @@ namespace bcad
 #if DEBUG
             var allowDebugging = true;
             var logVerbosity = 1;
+            var clientArguments = new[] { "--", "debug" };
 #else
             var allowDebugging = false;
             var logVerbosity = 0;
+            var clientArguments = new[] { "--" };
 #endif
 
             var window = new PhotinoWindow()
@@ -82,6 +85,13 @@ namespace bcad
                     }
                 });
             SetTitle(window, server.Workspace);
+
+            window.RegisterCustomSchemeHandler("app", (object sender, string scheme, string url, out string contentType) =>
+            {
+                contentType = "text/javascript";
+                var script = $"var clientArguments = [{string.Join(", ", clientArguments.Select(arg => $"\"{arg}\""))}];";
+                return new MemoryStream(Encoding.UTF8.GetBytes(script));
+            });
 
             var fileSystemService = new FileSystemService(action =>
             {

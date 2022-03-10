@@ -1,4 +1,5 @@
 import { Client } from './client';
+import { LogWriter } from './logWriter';
 
 export class PropertyPane {
     constructor(client: Client) {
@@ -43,10 +44,12 @@ export class PropertyPane {
                             label.innerText = 'Auto?';
 
                             function reportColorChange() {
+                                const newValue = isAuto.checked ? undefined : color.value;
+                                LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${newValue}`);
                                 client.setPropertyPaneValue({
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,
-                                    Value: isAuto.checked ? undefined : color.value,
+                                    Value: newValue,
                                 });
                             }
 
@@ -87,6 +90,7 @@ export class PropertyPane {
                             }
 
                             select.addEventListener('change', () => {
+                                LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${select.value}`);
                                 client.setPropertyPaneValue({
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,
@@ -99,6 +103,7 @@ export class PropertyPane {
                             const text = <HTMLInputElement>document.createElement('input');
                             text.value = value.Value || '';
                             text.addEventListener('change', () => {
+                                LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${text.value}`);
                                 client.setPropertyPaneValue({
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,

@@ -12,6 +12,7 @@ import { PlotDialog } from "./dialogs/plotDialog";
 import { Arguments } from "./args";
 import { SaveChangesDialog } from "./dialogs/saveChangesDialog";
 import { PropertyPane } from "./propertyPane";
+import { LogWriter } from "./logWriter";
 
 enum HostType {
     Electron = 1,
@@ -106,15 +107,15 @@ async function start(argArray: string[]): Promise<void> {
         throw new Error('Unable to determine client communication');
     }
 
-    if (args.isDebug) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-
     let postMessage = getPostMessage(hostType);
     const client = new Client(postMessage);
     bindServerMessage(hostType, message => {
         client.handleMessage(message);
     });
+
+    if (args.isDebug) {
+        LogWriter.init(client);
+    }
 
     const shortcutHandler = new ShortcutHandler(client);
     new LayerSelector(client);
@@ -140,7 +141,9 @@ window.addEventListener("DOMContentLoaded", () => {
         output.value += message;
         output.scrollTop = output.scrollHeight;
     };
-    start([]).catch((err: any) => {
+    // @ts-ignore
+    const args: string[] = clientArguments;
+    start(args).catch((err: any) => {
         const errorMessage = `error: ${err}`;
         console.error(errorMessage);
         appendMessage(errorMessage);

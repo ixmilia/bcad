@@ -243,6 +243,11 @@ namespace IxMilia.BCad.Rpc
             return new ClientTransform(transformArray, canvasTransformArray, transform.DisplayXScale, transform.DisplayYScale);
         }
 
+        public void WriteOutputLine(string line)
+        {
+            Workspace.OutputService.WriteLine(line);
+        }
+
         public void ChangeCurrentLayer(string currentLayer)
         {
             Workspace.Update(drawing: Workspace.Drawing.Update(currentLayerName: currentLayer));
