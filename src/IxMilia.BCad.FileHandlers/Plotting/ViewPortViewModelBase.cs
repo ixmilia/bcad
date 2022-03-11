@@ -108,7 +108,7 @@ namespace IxMilia.BCad.Plotting
                 switch (ScalingType)
                 {
                     case PlotScalingType.Absolute:
-                        vp = vp.Update(viewHeight: DisplayHeight * ScaleB / ScaleA);
+                        vp = vp.Update(viewHeight: DisplayHeight * ScaleA / ScaleB);
                         break;
                     case PlotScalingType.ToFit:
                         break;

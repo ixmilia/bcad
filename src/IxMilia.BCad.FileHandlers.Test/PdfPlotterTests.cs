@@ -56,5 +56,107 @@ namespace IxMilia.BCad.FileHandlers.Test
 612.00 792.00 l
 "), actual);
         }
+
+        [Fact]
+        public void PlotDrawingExtentsToFitTest()
+        {
+            //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
+            //    /             # 33 = 11 * 2 + 11
+            //   /
+            //  /
+            // / (8.5, 11)
+            var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
+            Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0))));
+            vm.DisplayWidth = 8.5;
+            vm.DisplayHeight = 11.0;
+            vm.DisplayUnit = PdfMeasurementType.Inch;
+            vm.ScalingType = PlotScalingType.ToFit;
+            vm.ViewPortType = PlotViewPortType.Extents;
+            var actual = PlotToString(vm);
+
+            // line should be scaled to (8.5 * 72, 11 * 72)
+            Assert.Contains(NormalizeToCrLf(@"
+0.00 0.00 m
+612.00 792.00 l
+"), actual);
+        }
+
+        [Fact]
+        public void PlotWindowToFitTest()
+        {
+            //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
+            //    /             # 33 = 11 * 2 + 11
+            //   /
+            //  /
+            // / (8.5, 11)
+            var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
+            Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0))));
+            vm.DisplayWidth = 8.5;
+            vm.DisplayHeight = 11.0;
+            vm.DisplayUnit = PdfMeasurementType.Inch;
+            vm.ScalingType = PlotScalingType.ToFit;
+            vm.ViewPortType = PlotViewPortType.Window;
+            vm.UpdateViewWindow(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0));
+            var actual = PlotToString(vm);
+
+            // line should be scaled to (8.5 * 72, 11 * 72)
+            Assert.Contains(NormalizeToCrLf(@"
+0.00 0.00 m
+612.00 792.00 l
+"), actual);
+        }
+
+        [Fact]
+        public void PlotDrawingExtentsToScaleTest()
+        {
+            //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
+            //    /             # 33 = 11 * 2 + 11
+            //   /
+            //  /
+            // / (8.5, 11)
+            var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
+            Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0))));
+            vm.DisplayWidth = 8.5;
+            vm.DisplayHeight = 11.0;
+            vm.DisplayUnit = PdfMeasurementType.Inch;
+            vm.ScalingType = PlotScalingType.Absolute;
+            vm.ScaleA = 2.0;
+            vm.ScaleB = 1.0;
+            vm.ViewPortType = PlotViewPortType.Extents;
+            var actual = PlotToString(vm);
+
+            // line should be scaled to (8.5 * 72, 11 * 72)
+            Assert.Contains(NormalizeToCrLf(@"
+0.00 0.00 m
+612.00 792.00 l
+"), actual);
+        }
+
+        [Fact]
+        public void PlotWindowToScaleTest()
+        {
+            //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
+            //    /             # 33 = 11 * 2 + 11
+            //   /
+            //  /
+            // / (8.5, 11)
+            var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
+            Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0))));
+            vm.DisplayWidth = 8.5;
+            vm.DisplayHeight = 11.0;
+            vm.DisplayUnit = PdfMeasurementType.Inch;
+            vm.ScalingType = PlotScalingType.Absolute;
+            vm.ScaleA = 2.0;
+            vm.ScaleB = 1.0;
+            vm.ViewPortType = PlotViewPortType.Window;
+            vm.UpdateViewWindow(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0));
+            var actual = PlotToString(vm);
+
+            // line should be scaled to (8.5 * 72, 11 * 72)
+            Assert.Contains(NormalizeToCrLf(@"
+0.00 0.00 m
+612.00 792.00 l
+"), actual);
+        }
     }
 }
