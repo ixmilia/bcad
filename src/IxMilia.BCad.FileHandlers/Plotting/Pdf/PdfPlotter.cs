@@ -27,10 +27,10 @@ namespace IxMilia.BCad.Plotting.Pdf
             var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * viewPort.ViewHeight;
             var dxfRect = new ConverterDxfRect(viewPort.BottomLeft.X, viewPort.BottomLeft.X + viewPortWidth, viewPort.BottomLeft.Y, viewPort.BottomLeft.Y + viewPort.ViewHeight);
             var pdfRect = new ConverterPdfRect(
-                new PdfMeasurement(0.0, PdfMeasurementType.Point),
-                new PdfMeasurement(ViewModel.DisplayWidth, PdfMeasurementType.Inch),
-                new PdfMeasurement(0.0, PdfMeasurementType.Point),
-                new PdfMeasurement(ViewModel.DisplayHeight, PdfMeasurementType.Inch));
+                new PdfMeasurement(0.0, ViewModel.DisplayUnit),
+                new PdfMeasurement(ViewModel.DisplayWidth, ViewModel.DisplayUnit),
+                new PdfMeasurement(0.0, ViewModel.DisplayUnit),
+                new PdfMeasurement(ViewModel.DisplayHeight, ViewModel.DisplayUnit));
             var options = new DxfToPdfConverterOptions(pageWidth, pageHeight, dxfRect, pdfRect);
             var pdfFile = converter.Convert(dxfFile, options);
             pdfFile.Save(ViewModel.Stream);

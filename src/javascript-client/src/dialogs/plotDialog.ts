@@ -1,3 +1,4 @@
+import { LogWriter } from '../logWriter';
 import { Client } from '../client';
 import { ClientPlotSettings, ClientRectangle } from '../contracts.generated';
 import { DialogBase } from './dialogBase';
@@ -169,7 +170,7 @@ export class PlotDialog extends DialogBase {
             ScaleA: this.scaleA.value,
             ScaleB: this.scaleB.value,
             ScalingType: this.scaleFit.checked ? 1 : 0,
-            ViewPortType: this.viewportWindow ? 1 : 0,
+            ViewPortType: this.viewportWindow.checked ? 1 : 0,
             Width: width,
             Height: height,
             PreviewMaxSize: this.displayContainerDiv.clientHeight,
@@ -179,6 +180,7 @@ export class PlotDialog extends DialogBase {
 
     private async updatePreview(): Promise<void> {
         const settings = this.generatePlotSettings();
+        LogWriter.write(`Plot settings: ${JSON.stringify(settings)}`);
         const previewContent = await this.client.getPlotPreview(settings);
         this.displayDiv.innerHTML = previewContent;
     }
