@@ -170,7 +170,7 @@ export class PlotDialog extends DialogBase {
             ScaleA: this.scaleA.value,
             ScaleB: this.scaleB.value,
             ScalingType: this.scaleFit.checked ? 1 : 0,
-            ViewPortType: this.viewportWindow.checked ? 1 : 0,
+            ViewPortType: !this.drawingExtents.checked ? 1 : 0,
             Width: width,
             Height: height,
             PreviewMaxSize: this.displayContainerDiv.clientHeight,

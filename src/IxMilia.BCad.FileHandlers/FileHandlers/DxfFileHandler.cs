@@ -107,6 +107,7 @@ namespace IxMilia.BCad.FileHandlers
         public static DxfFile ToDxfFile(Drawing drawing, ViewPort viewPort, DxfFileSettings settings)
         {
             var file = new DxfFile();
+            file.Layers.Clear();
             if (drawing.Tag is DxfFile oldFile)
             {
                 // preserve settings from the original file
