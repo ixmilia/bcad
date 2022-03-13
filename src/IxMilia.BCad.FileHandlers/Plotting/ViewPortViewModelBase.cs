@@ -10,13 +10,6 @@ namespace IxMilia.BCad.Plotting
         public abstract double DisplayHeight { get; set; }
         public abstract double DisplayWidth { get; set; }
 
-        private Stream _stream;
-        public Stream Stream
-        {
-            get => _stream;
-            set => SetValue(ref _stream, value);
-        }
-
         private PlotScalingType _scalingType;
         public PlotScalingType ScalingType
         {

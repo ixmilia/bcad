@@ -132,7 +132,6 @@ namespace IxMilia.BCad.Rpc
         public Stream PlotToStream(ViewPortViewModelBase viewModel)
         {
             var stream = new MemoryStream();
-            viewModel.Stream = stream;
             IPlotterFactory plotterFactory = viewModel switch
             {
                 PdfPlotterViewModel _ => _pdfPlotterFactory,
@@ -140,9 +139,9 @@ namespace IxMilia.BCad.Rpc
                 _ => throw new System.Exception($"Unexpected view model: {viewModel?.GetType().Name}"),
             };
             var plotter = plotterFactory.CreatePlotter(viewModel);
-            plotter.Plot(_workspace);
-            viewModel.Stream.Seek(0, SeekOrigin.Begin);
-            return viewModel.Stream;
+            plotter.Plot(_workspace.Drawing, _workspace.ActiveViewPort, stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
         }
     }
 }

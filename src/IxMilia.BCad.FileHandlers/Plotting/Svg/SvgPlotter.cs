@@ -1,3 +1,4 @@
+using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using IxMilia.BCad.FileHandlers;
@@ -14,17 +15,17 @@ namespace IxMilia.BCad.Plotting.Svg
             ViewModel = viewModel;
         }
 
-        public override void Plot(IWorkspace workspace)
+        public override void Plot(Drawing drawing, ViewPort viewPort, Stream outputStream)
         {
             var converter = new DxfToSvgConverter();
             var fileSettings = new DxfFileSettings()
             {
                 FileVersion = DxfFileVersion.R2004,
             };
-            var dxfFile = DxfFileHandler.ToDxfFile(workspace.Drawing, workspace.ActiveViewPort, fileSettings);
-            var viewPort = ViewModel.ViewPort;
-            var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * viewPort.ViewHeight;
-            var dxfRect = new ConverterDxfRect(viewPort.BottomLeft.X, viewPort.BottomLeft.X + viewPortWidth, viewPort.BottomLeft.Y, viewPort.BottomLeft.Y + viewPort.ViewHeight);
+            var dxfFile = DxfFileHandler.ToDxfFile(drawing, viewPort, fileSettings);
+            var plotViewPort = ViewModel.ViewPort;
+            var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * plotViewPort.ViewHeight;
+            var dxfRect = new ConverterDxfRect(plotViewPort.BottomLeft.X, plotViewPort.BottomLeft.X + viewPortWidth, plotViewPort.BottomLeft.Y, plotViewPort.BottomLeft.Y + plotViewPort.ViewHeight);
             var svgRect = new ConverterSvgRect(ViewModel.DisplayWidth, ViewModel.DisplayHeight);
             var options = new DxfToSvgConverterOptions(dxfRect, svgRect);
             var xml = converter.Convert(dxfFile, options);
@@ -36,7 +37,7 @@ namespace IxMilia.BCad.Plotting.Svg
                 Indent = true,
                 IndentChars = "  "
             };
-            using (var writer = XmlWriter.Create(ViewModel.Stream, writerSettings))
+            using (var writer = XmlWriter.Create(outputStream, writerSettings))
             {
                 if (ViewModel.PlotAsDocument)
                 {
