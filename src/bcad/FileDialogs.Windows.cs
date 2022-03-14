@@ -49,6 +49,16 @@ namespace bcad
             ofn.nMaxFileTitle = ofn.lpstrFileTitle.Length;
             ofn.lpstrTitle = title;
             ofn.Flags = OFN_OVERWRITEPROMPT;
+            if (extensionHint != null)
+            {
+                if (extensionHint.StartsWith("."))
+                {
+                    extensionHint = extensionHint.Substring(1);
+                }
+
+                ofn.lpstrDefExt = extensionHint;
+            }
+
             return ofn;
         }
 
