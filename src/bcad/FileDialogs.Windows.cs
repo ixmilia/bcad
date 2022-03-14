@@ -48,12 +48,14 @@ namespace bcad
             ofn.lpstrFileTitle = new string(new char[64]);
             ofn.nMaxFileTitle = ofn.lpstrFileTitle.Length;
             ofn.lpstrTitle = title;
+            ofn.Flags = OFN_OVERWRITEPROMPT;
             return ofn;
         }
 
         private const char FileFilterPatternSeparator = ';';
         private const char FileFilterPairSeparator = '\0';
         private const string FilterTerminator = "\0\0";
+        private const int OFN_OVERWRITEPROMPT = 0x00000002;
 
         private static string BuildWindowsFileFilter(string extensionHint)
         {
