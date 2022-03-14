@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -231,6 +232,21 @@ namespace IxMilia.BCad
         public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, double viewportBuffer = PrimitiveExtensions.DefaultViewportBuffer)
         {
             return drawing.GetExtents(sight).ShowAllViewPort(sight, up, viewPortWidth, viewPortHeight, viewportBuffer);
+        }
+
+        public static Layer MapEntities(this Layer layer, Func<Entity, Entity> mapper)
+        {
+            return layer.Update(entities: ReadOnlyTree<uint, Entity>.FromEnumerable(layer.GetEntities().Select(e => mapper(e)), e => e.Id));
+        }
+
+        public static Drawing MapLayers(this Drawing drawing, Func<Layer, Layer> mapper)
+        {
+            return drawing.Update(layers: ReadOnlyTree<string, Layer>.FromEnumerable(drawing.GetLayers().Select(l => mapper(l)), l => l.Name));
+        }
+
+        public static Drawing Map(this Drawing drawing, Func<Layer, Layer> layerMapper, Func<Entity, Entity> entityMapper)
+        {
+            return drawing.MapLayers(l => layerMapper(l.MapEntities(entityMapper)));
         }
     }
 }

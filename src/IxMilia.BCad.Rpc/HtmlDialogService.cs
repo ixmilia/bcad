@@ -56,7 +56,8 @@ namespace IxMilia.BCad.Rpc
                         if (fileName != null)
                         {
                             var viewModel = CreateAndPopulateViewModel(plotSettings);
-                            using (var stream = PlotToStream(viewModel))
+                            var drawing = _workspace.Drawing.UpdateColors(plotSettings.ColorType);
+                            using (var stream = PlotToStream(viewModel, drawing, _workspace.ActiveViewPort))
                             using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                             {
                                 await stream.CopyToAsync(fileStream);
@@ -129,7 +130,7 @@ namespace IxMilia.BCad.Rpc
             return viewModel;
         }
 
-        public Stream PlotToStream(ViewPortViewModelBase viewModel)
+        public Stream PlotToStream(ViewPortViewModelBase viewModel, Drawing drawing, ViewPort viewPort)
         {
             var stream = new MemoryStream();
             IPlotterFactory plotterFactory = viewModel switch
@@ -139,7 +140,7 @@ namespace IxMilia.BCad.Rpc
                 _ => throw new System.Exception($"Unexpected view model: {viewModel?.GetType().Name}"),
             };
             var plotter = plotterFactory.CreatePlotter(viewModel);
-            plotter.Plot(_workspace.Drawing, _workspace.ActiveViewPort, stream);
+            plotter.Plot(drawing, viewPort, stream);
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }

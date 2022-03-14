@@ -1,6 +1,6 @@
 import { LogWriter } from '../logWriter';
 import { Client } from '../client';
-import { ClientPlotSettings, ClientRectangle } from '../contracts.generated';
+import { ClientPlotSettings, ClientRectangle, PlotColorType, PlotScalingType, PlotViewPortType } from '../contracts.generated';
 import { DialogBase } from './dialogBase';
 import { DialogHandler } from './dialogHandler';
 
@@ -22,6 +22,9 @@ export class PlotDialog extends DialogBase {
     private plotSizePdf: HTMLDivElement;
     private pdfOrientation: HTMLSelectElement;
     private selectViewportButton: HTMLButtonElement;
+    private colorTypeExact: HTMLInputElement;
+    private colorTypeContrast: HTMLInputElement;
+    private colorTypeBlack: HTMLInputElement;
 
     private selectedViewport: ClientRectangle;
 
@@ -45,6 +48,9 @@ export class PlotDialog extends DialogBase {
         this.plotSizeSvg = <HTMLDivElement>document.getElementById('dialog-plot-size-svg');
         this.pdfOrientation = <HTMLSelectElement>document.getElementById('dialog-plot-size-pdf-orientation');
         this.selectViewportButton = <HTMLButtonElement>document.getElementById('dialog-plot-select-viewport');
+        this.colorTypeExact = <HTMLInputElement>document.getElementById('dialog-plot-color-type-exact');
+        this.colorTypeContrast = <HTMLInputElement>document.getElementById('dialog-plot-color-type-contrast');
+        this.colorTypeBlack = <HTMLInputElement>document.getElementById('dialog-plot-color-type-black');
 
         // ensure it's set to _something_
         this.selectedViewport = {
@@ -89,6 +95,9 @@ export class PlotDialog extends DialogBase {
             'dialog-plot-size-height',
             'dialog-plot-type',
             'dialog-plot-size-pdf-orientation',
+            'dialog-plot-color-type-exact',
+            'dialog-plot-color-type-contrast',
+            'dialog-plot-color-type-black',
         ];
         for (const element of elements) {
             document.getElementById(element)!.addEventListener('change', () => {
@@ -169,8 +178,9 @@ export class PlotDialog extends DialogBase {
             Viewport: viewport,
             ScaleA: this.scaleA.value,
             ScaleB: this.scaleB.value,
-            ScalingType: this.scaleFit.checked ? 1 : 0,
-            ViewPortType: !this.drawingExtents.checked ? 1 : 0,
+            ScalingType: this.scaleFit.checked ? PlotScalingType.ToFit : PlotScalingType.Absolute,
+            ViewPortType: !this.drawingExtents.checked ? PlotViewPortType.Window : PlotViewPortType.Extents,
+            ColorType: this.colorTypeExact.checked ? PlotColorType.Exact : this.colorTypeContrast.checked ? PlotColorType.Contrast : PlotColorType.Black,
             Width: width,
             Height: height,
             PreviewMaxSize: this.displayContainerDiv.clientHeight,

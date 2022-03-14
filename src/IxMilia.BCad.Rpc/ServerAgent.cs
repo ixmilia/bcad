@@ -323,7 +323,8 @@ namespace IxMilia.BCad.Rpc
                 viewModel.OutputWidth = settings.Width / settings.Height * settings.PreviewMaxSize;
             }
 
-            using (var stream = htmlDialogService.PlotToStream(viewModel))
+            var drawing = Workspace.Drawing.UpdateColors(settings.ColorType);
+            using (var stream = htmlDialogService.PlotToStream(viewModel, drawing, Workspace.ActiveViewPort))
             using (var reader = new StreamReader(stream))
             {
                 var contents = reader.ReadToEnd();

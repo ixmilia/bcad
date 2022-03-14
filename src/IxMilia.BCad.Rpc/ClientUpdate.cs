@@ -61,6 +61,13 @@ namespace IxMilia.BCad.Rpc
         }
     }
 
+    public enum PlotColorType
+    {
+        Exact,
+        Contrast,
+        Black,
+    }
+
     public struct ClientPlotSettings
     {
         public string PlotType { get; }
@@ -69,11 +76,12 @@ namespace IxMilia.BCad.Rpc
         public string ScaleB { get; }
         public PlotScalingType ScalingType { get; }
         public PlotViewPortType ViewPortType { get; }
+        public PlotColorType ColorType { get; }
         public double Width { get; }
         public double Height { get; }
         public double PreviewMaxSize { get; }
 
-        public ClientPlotSettings(string plotType, ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, double width, double height, double previewMaxSize)
+        public ClientPlotSettings(string plotType, ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, PlotColorType colorType, double width, double height, double previewMaxSize)
         {
             PlotType = plotType;
             Viewport = viewport;
@@ -81,6 +89,7 @@ namespace IxMilia.BCad.Rpc
             ScaleB = scaleB;
             ScalingType = scalingType;
             ViewPortType = viewPortType;
+            ColorType = colorType;
             Width = width;
             Height = height;
             PreviewMaxSize = previewMaxSize;
