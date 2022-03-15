@@ -55,7 +55,7 @@ namespace IxMilia.BCad.Rpc
                         var fileName = await _workspace.FileSystemService.GetFileNameFromUserForSave(plotSettings.PlotType);
                         if (fileName != null)
                         {
-                            var viewModel = CreateAndPopulateViewModel(plotSettings);
+                            var viewModel = CreateAndPopulateViewModel(plotSettings, _workspace.Drawing.Settings);
                             var drawing = _workspace.Drawing.UpdateColors(plotSettings.ColorType);
                             using (var stream = PlotToStream(viewModel, drawing, _workspace.ActiveViewPort))
                             using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
@@ -92,7 +92,7 @@ namespace IxMilia.BCad.Rpc
             return result;
         }
 
-        public ViewPortViewModelBase CreateAndPopulateViewModel(ClientPlotSettings settings, string plotTypeOverride = null)
+        public ViewPortViewModelBase CreateAndPopulateViewModel(ClientPlotSettings settings, DrawingSettings drawingSettings, string plotTypeOverride = null)
         {
             ViewPortViewModelBase viewModel = null;
             switch (plotTypeOverride ?? settings.PlotType)
@@ -121,8 +121,9 @@ namespace IxMilia.BCad.Rpc
                 var bottomRight = transform.Transform(settings.Viewport.BottomRight.ToPoint());
                 viewModel.ViewPortType = settings.ViewPortType;
                 viewModel.ScalingType = settings.ScalingType;
-                viewModel.ScaleA = DrawingSettings.TryParseUnits(settings.ScaleA, out var scaleA) ? scaleA : 1.0;
-                viewModel.ScaleB = DrawingSettings.TryParseUnits(settings.ScaleB, out var scaleB) ? scaleB : 1.0;
+                var (scaleA, scaleB) = settings.GetUnitAdjustedScale(drawingSettings);
+                viewModel.ScaleA = scaleA;
+                viewModel.ScaleB = scaleB;
                 viewModel.BottomLeft = new Point(topLeft.X, bottomRight.Y, 0.0);
                 viewModel.TopRight = new Point(bottomRight.X, topLeft.Y, 0.0);
             }

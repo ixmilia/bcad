@@ -308,7 +308,7 @@ namespace IxMilia.BCad.Rpc
         public string GetPlotPreview(ClientPlotSettings settings)
         {
             var htmlDialogService = (HtmlDialogService)Workspace.DialogService;
-            var viewModel = (SvgPlotterViewModel)htmlDialogService.CreateAndPopulateViewModel(settings, plotTypeOverride: "svg"); // force to svg for preview
+            var viewModel = (SvgPlotterViewModel)htmlDialogService.CreateAndPopulateViewModel(settings, Workspace.Drawing.Settings, plotTypeOverride: "svg"); // force to svg for preview
             viewModel.PlotAsDocument = false;
             viewModel.OutputWidth = settings.PreviewMaxSize;
             viewModel.OutputHeight = settings.PreviewMaxSize;

@@ -119,8 +119,8 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.DisplayHeight = 11.0;
             vm.DisplayUnit = PdfMeasurementType.Inch;
             vm.ScalingType = PlotScalingType.Absolute;
-            vm.ScaleA = 2.0;
-            vm.ScaleB = 1.0;
+            vm.ScaleA = 1.0;
+            vm.ScaleB = 2.0;
             vm.ViewPortType = PlotViewPortType.Extents;
             var actual = PlotToString(vm);
 
@@ -145,8 +145,8 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.DisplayHeight = 11.0;
             vm.DisplayUnit = PdfMeasurementType.Inch;
             vm.ScalingType = PlotScalingType.Absolute;
-            vm.ScaleA = 2.0;
-            vm.ScaleB = 1.0;
+            vm.ScaleA = 1.0;
+            vm.ScaleB = 2.0;
             vm.ViewPortType = PlotViewPortType.Window;
             vm.UpdateViewWindow(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0));
             var actual = PlotToString(vm);

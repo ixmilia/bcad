@@ -7,6 +7,7 @@ using IxMilia.BCad.Display;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Settings;
+using IxMilia.Pdf;
 
 namespace IxMilia.BCad.Rpc
 {
@@ -93,6 +94,15 @@ namespace IxMilia.BCad.Rpc
             Width = width;
             Height = height;
             PreviewMaxSize = previewMaxSize;
+        }
+
+        public (double scaleA, double scaleB) GetUnitAdjustedScale(DrawingSettings drawingSettings)
+        {
+            var drawingUnits = drawingSettings.UnitFormat == UnitFormat.Architectural ? PdfMeasurementType.Inch : PdfMeasurementType.Mm;
+            var scaleAValue = DrawingSettings.TryParseUnits(ScaleA, out var parsedScaleA) ? parsedScaleA : 1.0;
+            var scaleBValue = DrawingSettings.TryParseUnits(ScaleB, out var parsedScaleB) ? parsedScaleB : 1.0;
+            var scaleAMeasurement = new PdfMeasurement(scaleAValue, drawingUnits);
+            return (scaleAMeasurement.ConvertTo(PdfMeasurementType.Point).RawValue, scaleBValue);
         }
     }
 

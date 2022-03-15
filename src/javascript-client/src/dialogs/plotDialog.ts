@@ -67,6 +67,7 @@ export class PlotDialog extends DialogBase {
             if (selection) {
                 this.selectedViewport = selection;
                 this.viewportWindow.checked = true;
+                this.updatePreview();
             }
         });
 
