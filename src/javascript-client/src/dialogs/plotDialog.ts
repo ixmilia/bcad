@@ -10,9 +10,7 @@ export class PlotDialog extends DialogBase {
     private outputPane: HTMLDivElement;
     private scaleAbsolute: HTMLInputElement;
     private scaleFit: HTMLInputElement;
-    private drawingExtents: HTMLInputElement;
-    private viewportExtents: HTMLInputElement;
-    private viewportWindow: HTMLInputElement;
+    private viewportType: HTMLSelectElement;
     private scaleA: HTMLInputElement;
     private scaleB: HTMLInputElement;
     private width: HTMLInputElement;
@@ -22,9 +20,7 @@ export class PlotDialog extends DialogBase {
     private plotSizePdf: HTMLDivElement;
     private pdfOrientation: HTMLSelectElement;
     private selectViewportButton: HTMLButtonElement;
-    private colorTypeExact: HTMLInputElement;
-    private colorTypeContrast: HTMLInputElement;
-    private colorTypeBlack: HTMLInputElement;
+    private colorType: HTMLSelectElement;
 
     private selectedViewport: ClientRectangle;
 
@@ -38,9 +34,7 @@ export class PlotDialog extends DialogBase {
         this.scaleFit = <HTMLInputElement>document.getElementById('dialog-plot-scaling-type-fit');
         this.scaleA = <HTMLInputElement>document.getElementById('dialog-plot-scale-a');
         this.scaleB = <HTMLInputElement>document.getElementById('dialog-plot-scale-b');
-        this.drawingExtents = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-extents');
-        this.viewportExtents = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-viewport');
-        this.viewportWindow = <HTMLInputElement>document.getElementById('dialog-plot-viewport-type-window');
+        this.viewportType = <HTMLSelectElement>document.getElementById('dialog-plot-viewport-type');
         this.width = <HTMLInputElement>document.getElementById('dialog-plot-size-width');
         this.height = <HTMLInputElement>document.getElementById('dialog-plot-size-height');
         this.plotType = <HTMLSelectElement>document.getElementById('dialog-plot-type');
@@ -48,14 +42,12 @@ export class PlotDialog extends DialogBase {
         this.plotSizeSvg = <HTMLDivElement>document.getElementById('dialog-plot-size-svg');
         this.pdfOrientation = <HTMLSelectElement>document.getElementById('dialog-plot-size-pdf-orientation');
         this.selectViewportButton = <HTMLButtonElement>document.getElementById('dialog-plot-select-viewport');
-        this.colorTypeExact = <HTMLInputElement>document.getElementById('dialog-plot-color-type-exact');
-        this.colorTypeContrast = <HTMLInputElement>document.getElementById('dialog-plot-color-type-contrast');
-        this.colorTypeBlack = <HTMLInputElement>document.getElementById('dialog-plot-color-type-black');
+        this.colorType = <HTMLSelectElement>document.getElementById('dialog-plot-color-type');
 
         // ensure it's set to _something_
         this.selectedViewport = {
-            TopLeft: { X: 0, Y: 0, Z: 0 },
-            BottomRight: { X: 0, Y: 0, Z: 0 },
+            TopLeft: { X: 0, Y: 0, Z: 0, },
+            BottomRight: { X: this.outputPane.clientWidth, Y: this.outputPane.clientHeight, Z: 0, }
         };
 
         [this.scaleA, this.scaleB].forEach(s => s.addEventListener('change', () => { this.scaleAbsolute.checked = true; }));
@@ -66,7 +58,7 @@ export class PlotDialog extends DialogBase {
             dialogHandler.showDialogs();
             if (selection) {
                 this.selectedViewport = selection;
-                this.viewportWindow.checked = true;
+                this.viewportType.value = PlotViewPortType.Window;
                 this.updatePreview();
             }
         });
@@ -89,16 +81,12 @@ export class PlotDialog extends DialogBase {
             'dialog-plot-scaling-type-fit',
             'dialog-plot-scale-a',
             'dialog-plot-scale-b',
-            'dialog-plot-viewport-type-extents',
-            'dialog-plot-viewport-type-viewport',
-            'dialog-plot-viewport-type-window',
+            'dialog-plot-viewport-type',
             'dialog-plot-size-width',
             'dialog-plot-size-height',
             'dialog-plot-type',
             'dialog-plot-size-pdf-orientation',
-            'dialog-plot-color-type-exact',
-            'dialog-plot-color-type-contrast',
-            'dialog-plot-color-type-black',
+            'dialog-plot-color-type',
         ];
         for (const element of elements) {
             document.getElementById(element)!.addEventListener('change', () => {
@@ -126,19 +114,16 @@ export class PlotDialog extends DialogBase {
 
     private generatePlotSettings(): ClientPlotSettings {
         const viewport = ((): ClientRectangle => {
-            if (this.viewportWindow.checked) {
-                return this.selectedViewport;
-            } else if (this.viewportExtents.checked) {
-                return {
-                    TopLeft: { X: 0, Y: 0, Z: 0, },
-                    BottomRight: { X: this.outputPane.clientWidth, Y: this.outputPane.clientHeight, Z: 0, }
-                };
-            } else {
-                // if (this.drawingExtents.checked) // doesn't matter, value not used
-                return {
-                    TopLeft: { X: 0, Y: 0, Z: 0, },
-                    BottomRight: { X: this.outputPane.clientWidth, Y: this.outputPane.clientHeight, Z: 0, }
-                };
+            switch (this.viewportType.value) {
+                case PlotViewPortType.Window:
+                    return this.selectedViewport;
+                case PlotViewPortType.Extents:
+                case 'Viewport':
+                default:
+                    return {
+                        TopLeft: { X: 0, Y: 0, Z: 0, },
+                        BottomRight: { X: this.outputPane.clientWidth, Y: this.outputPane.clientHeight, Z: 0, }
+                    };
             }
         })();
 
@@ -180,8 +165,8 @@ export class PlotDialog extends DialogBase {
             ScaleA: this.scaleA.value,
             ScaleB: this.scaleB.value,
             ScalingType: this.scaleFit.checked ? PlotScalingType.ToFit : PlotScalingType.Absolute,
-            ViewPortType: !this.drawingExtents.checked ? PlotViewPortType.Window : PlotViewPortType.Extents,
-            ColorType: this.colorTypeExact.checked ? PlotColorType.Exact : this.colorTypeContrast.checked ? PlotColorType.Contrast : PlotColorType.Black,
+            ViewPortType: this.viewportType.value === PlotViewPortType.Extents ? PlotViewPortType.Extents : PlotViewPortType.Window,
+            ColorType: <PlotColorType>this.colorType.value,
             Width: width,
             Height: height,
             PreviewMaxSize: this.displayContainerDiv.clientHeight,

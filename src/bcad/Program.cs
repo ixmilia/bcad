@@ -26,7 +26,7 @@ namespace bcad
             var encoding = new UTF8Encoding(false);
             var writer = new StreamWriter(serverStream, encoding);
             var formatter = new JsonMessageFormatter(encoding);
-            formatter.JsonSerializer.Converters.Add(new KeyEnumConverter());
+            Serializer.PrepareSerializer(formatter.JsonSerializer);
             var messageHandler = new NewLineDelimitedMessageHandler(clientStream, serverStream, formatter);
             var server = new FullServer(messageHandler);
 

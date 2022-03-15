@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Commands;
+using IxMilia.BCad.Display;
 using IxMilia.BCad.FileHandlers;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
@@ -42,6 +43,12 @@ namespace IxMilia.BCad.Rpc
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.AllowedValues)}",
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.IsUnrepresentable)}",
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.Value)}",
+        };
+
+        public static HashSet<Type> EnumsAsNumbers = new HashSet<Type>()
+        {
+            typeof(CursorState),
+            typeof(ModifierKeys),
         };
 
         public ContractGenerator(IEnumerable<string> outFiles)
@@ -94,10 +101,9 @@ namespace IxMilia.BCad.Rpc
                     foreach (var value in values.Distinct())
                     {
                         var name = Enum.GetName(type, value);
-                        // `Key` values are string-based
-                        var displayValue = type == typeof(Key)
-                            ? string.Concat("\"", Enum.GetName(type, value), "\"")
-                            : ((int)value).ToString();
+                        var displayValue = EnumsAsNumbers.Contains(type)
+                            ? ((int)value).ToString()
+                            : string.Concat("\"", Enum.GetName(type, value), "\"");
                         sb.AppendLine($"    {name} = {displayValue},");
                     }
                 }

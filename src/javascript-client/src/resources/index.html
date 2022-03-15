@@ -446,31 +446,24 @@
           <input id="dialog-plot-scale-a" class="dialog-plot-scale-value" value="1" />
           <span>:</span>
           <input id="dialog-plot-scale-b" class="dialog-plot-scale-value" value="1" />
-
-          <p>Viewport type</p>
-          <input id="dialog-plot-viewport-type-extents" type="radio" name="viewport-type" value="extents"
-            checked="checked" />
-          <label for="dialog-plot-viewport-type-extents">Extents</label>
           <br />
 
-          <input id="dialog-plot-viewport-type-viewport" type="radio" name="viewport-type" value="viewport" />
-          <label for="dialog-plot-viewport-type-viewport">Viewport</label>
+          <label for="dialog-plot-viewport-type">Plot area</label>
+          <select id="dialog-plot-viewport-type">
+            <option value="Extents" selected="selected">Extents</option>
+            <option value="Viewport">Viewport</option>
+            <option value="Window">Window</option>
+          </select>
+          <button id="dialog-plot-select-viewport">Select window</button>
           <br />
 
-          <input id="dialog-plot-viewport-type-window" type="radio" name="viewport-type" value="window" />
-          <label for="dialog-plot-viewport-type-window">Window</label>
-          <button id="dialog-plot-select-viewport">Select...</button>
+          <label for="dialog-plot-color-type">Plot colors as</label>
+          <select id="dialog-plot-color-type">
+            <option value="Exact">Exact</option>
+            <option value="Contrast" selected="selected">Contrast</option>
+            <option value="Black">Black</option>
+          </select>
           <br />
-
-          <p>
-          <p>Plot colors as</p>
-          <input id="dialog-plot-color-type-exact" type="radio" name="color-type" value="exact" checked="checked" />
-          <label for="dialog-plot-color-type-exact">Exact</label><br />
-          <input id="dialog-plot-color-type-contrast" type="radio" name="color-type" value="contrast" />
-          <label for="dialog-plot-color-type-contrast">Contrast</label><br />
-          <input id="dialog-plot-color-type-black" type="radio" name="color-type" value="black" />
-          <label for="dialog-plot-color-type-black">Black</label><br />
-          </p>
 
           <label for="dialog-plot-type">Plot type</label>
           <select id="dialog-plot-type">
