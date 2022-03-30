@@ -63,6 +63,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Move", "MOVE", new MoveCommand(), "move", "mov", "m"));
             RegisterCommand(new CadCommandInfo("File.New", "NEW", new NewCommand(), ModifierKeys.Control, Key.N, "new", "n"));
             RegisterCommand(new CadCommandInfo("Edit.Offset", "OFFSET", new OffsetCommand(), "offset", "off", "of"));
+            RegisterCommand(new CadCommandInfo("Edit.Scale", "SCALE", new ScaleCommand(), "scale", "sc"));
             RegisterCommand(new CadCommandInfo("File.Open", "OPEN", new OpenCommand(), ModifierKeys.Control, Key.O, "open", "o"));
             RegisterCommand(new CadCommandInfo("View.Pan", "PAN", new PanCommand(), "pan", "p"));
             RegisterCommand(new CadCommandInfo("File.Plot", "PLOT", new PlotCommand(), ModifierKeys.Control | ModifierKeys.Alt, Key.P, "plot"));

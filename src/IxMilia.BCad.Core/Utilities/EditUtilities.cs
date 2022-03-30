@@ -332,6 +332,9 @@ namespace IxMilia.BCad.Utilities
                 case EntityKind.Ellipse:
                     var el = (Ellipse)entity;
                     return el.Update(center: el.Center + offset);
+                case EntityKind.Image:
+                    var image = (Image)entity;
+                    return image.Update(location: image.Location + offset);
                 case EntityKind.Line:
                     var line = (Line)entity;
                     return line.Update(p1: line.P1 + offset, p2: line.P2 + offset);
@@ -341,11 +344,77 @@ namespace IxMilia.BCad.Utilities
                 case EntityKind.Polyline:
                     var poly = (Polyline)entity;
                     return poly.Update(vertices: poly.Vertices.Select(v => new Vertex(v.Location + offset, v.IncludedAngle, v.Direction)));
+                case EntityKind.Spline:
+                    var sp = (Spline)entity;
+                    return sp.Update(controlPoints: sp.ControlPoints.Select(p => p + offset));
                 case EntityKind.Text:
                     var text = (Text)entity;
                     return text.Update(location: text.Location + offset);
                 default:
                     throw new ArgumentException("entity.Kind");
+            }
+        }
+
+        public static Entity Scale(Entity entity, Point basePoint, double scaleFactor)
+        {
+            switch (entity)
+            {
+                case AggregateEntity ag:
+                    return ag.Update(
+                        location: ag.Location.ScaleFrom(basePoint, scaleFactor),
+                        children: ReadOnlyList<Entity>.Create(ag.Children.Select(c => Scale(c, basePoint, scaleFactor))));
+                case Arc a:
+                    return a.Update(
+                        center: a.Center.ScaleFrom(basePoint, scaleFactor),
+                        radius: a.Radius * scaleFactor);
+                case Circle c:
+                    return c.Update(
+                        center: c.Center.ScaleFrom(basePoint, scaleFactor),
+                        radius: c.Radius * scaleFactor);
+                case Ellipse e:
+                    return e.Update(
+                        center: e.Center.ScaleFrom(basePoint, scaleFactor),
+                        majorAxis: e.MajorAxis * scaleFactor);
+                case Image i:
+                    return i.Update(
+                        location: i.Location.ScaleFrom(basePoint, scaleFactor),
+                        width: i.Width * scaleFactor,
+                        height: i.Height * scaleFactor);
+                case Line line:
+                    return line.Update(
+                        p1: line.P1.ScaleFrom(basePoint, scaleFactor),
+                        p2: line.P2.ScaleFrom(basePoint, scaleFactor));
+                case Location loc:
+                    return loc.Update(
+                        point: loc.Point.ScaleFrom(basePoint, scaleFactor));
+                case Polyline p:
+                    return p.Update(
+                        vertices: p.Vertices.Select(v => new Vertex(v.Location.ScaleFrom(basePoint, scaleFactor), v.IncludedAngle, v.Direction)));
+                case Spline s:
+                    return s.Update(
+                        controlPoints: s.ControlPoints.Select(p => p.ScaleFrom(basePoint, scaleFactor)));
+                case Text t:
+                    return t.Update(
+                        location: t.Location.ScaleFrom(basePoint, scaleFactor),
+                        height: t.Height * scaleFactor);
+                default:
+                    throw new ArgumentException(nameof(entity));
+            }
+        }
+
+        public static Point ScaleFrom(this Point point, Point basePoint, double scaleFactor)
+        {
+            var direction = point - basePoint;
+            var distance = direction.Length;
+            if (distance == 0.0)
+            {
+                // no change
+                return point;
+            }
+            else
+            {
+                var newDirection = direction * scaleFactor;
+                return basePoint + newDirection;
             }
         }
 

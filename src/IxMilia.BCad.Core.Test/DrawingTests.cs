@@ -136,5 +136,23 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal(new Point(1.0, 0.0, 0.0), vertices[1].Location);
             Assert.Equal(new Point(1.0, 1.0, 0.0), vertices[2].Location);
         }
+
+        [Fact]
+        public void ScaleEntities()
+        {
+            var drawing = new Drawing();
+            drawing = drawing.AddToCurrentLayer(new Line(new Point(1.0, 1.0, 0.0), new Point(2.0, 2.0, 0.0)));
+            drawing = drawing.AddToCurrentLayer(new Line(new Point(2.0, 2.0, 0.0), new Point(3.0, 3.0, 0.0)));
+            drawing = drawing.AddToCurrentLayer(new Circle(new Point(3.0, 3.0, 0.0), 4.0, Vector.ZAxis));
+            var lines = drawing.GetEntities().OfType<Line>().ToList();
+
+            var updatedDrawing = drawing.ScaleEntities(lines, new Point(1.0, 1.0, 0.0), 2.0);
+
+            Assert.True(updatedDrawing.GetEntities().OfType<Circle>().Single().EquivalentTo(new Circle(new Point(3.0, 3.0, 0.0), 4.0, Vector.ZAxis)));
+            var scaledLines = updatedDrawing.GetEntities().OfType<Line>().ToList();
+            Assert.Equal(2, scaledLines.Count);
+            Assert.True(scaledLines[0].EquivalentTo(new Line(new Point(1.0, 1.0, 0.0), new Point(3.0, 3.0, 0.0))));
+            Assert.True(scaledLines[1].EquivalentTo(new Line(new Point(3.0, 3.0, 0.0), new Point(5.0, 5.0, 0.0))));
+        }
     }
 }

@@ -8,6 +8,7 @@ using IxMilia.BCad.Display;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.SnapPoints;
+using IxMilia.BCad.Utilities;
 
 namespace IxMilia.BCad
 {
@@ -247,6 +248,20 @@ namespace IxMilia.BCad
         public static Drawing Map(this Drawing drawing, Func<Layer, Layer> layerMapper, Func<Entity, Entity> entityMapper)
         {
             return drawing.MapLayers(l => layerMapper(l.MapEntities(entityMapper)));
+        }
+
+        public static Drawing ScaleEntities(this Drawing drawing, IEnumerable<Entity> entities, Point basePoint, double scaleFactor)
+        {
+            var result = drawing;
+            foreach (var e in entities)
+            {
+                var layer = result.ContainingLayer(e);
+                var scaledEntity = EditUtilities.Scale(e, basePoint, scaleFactor);
+                var updatedLayer = layer.Remove(e).Add(scaledEntity);
+                result = result.Remove(layer).Add(updatedLayer);
+            }
+
+            return result;
         }
     }
 }
