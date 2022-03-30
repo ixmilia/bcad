@@ -8,7 +8,8 @@ namespace IxMilia.BCad.Services
 
         public void WriteLine(string text, params object[] args)
         {
-            OnWriteLine(string.Format(text, args));
+            var formattedText = args.Length == 0 ? text : string.Format(text, args);
+            OnWriteLine(formattedText);
         }
 
         private void OnWriteLine(string line)
