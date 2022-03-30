@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using IxMilia.BCad.Core.Test;
@@ -225,6 +226,40 @@ namespace IxMilia.BCad.Rpc.Test
             AssertClose(ea, finalEntity.EndAngle);
             Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
             Assert.Equal(t, finalEntity.Thickness);
+        }
+
+        [Fact]
+        public void GetImagePropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Image(new Point(1.0, 2.0, 3.0), "some-path", Array.Empty<byte>(), 4.0, 5.0, 6.0));
+            Assert.Equal(7, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("x", "Location X", "0'1\""), propertyMap["x"]);
+            Assert.Equal(new ClientPropertyPaneValue("y", "Y", "0'2\""), propertyMap["y"]);
+            Assert.Equal(new ClientPropertyPaneValue("z", "Z", "0'3\""), propertyMap["z"]);
+            Assert.Equal(new ClientPropertyPaneValue("p", "Path", "some-path"), propertyMap["p"]);
+            Assert.Equal(new ClientPropertyPaneValue("w", "Width", "0'4\""), propertyMap["w"]);
+            Assert.Equal(new ClientPropertyPaneValue("h", "Height", "0'5\""), propertyMap["h"]);
+            Assert.Equal(new ClientPropertyPaneValue("r", "Rotation", "6"), propertyMap["r"]);
+        }
+
+        [Theory]
+        [InlineData("x", "9", 9, 2, 3, "some-path", 4, 5, 6)]
+        [InlineData("y", "9", 1, 9, 3, "some-path", 4, 5, 6)]
+        [InlineData("z", "9", 1, 2, 9, "some-path", 4, 5, 6)]
+        [InlineData("p", "9", 1, 2, 3, "9", 4, 5, 6)]
+        [InlineData("w", "9", 1, 2, 3, "some-path", 9, 5, 6)]
+        [InlineData("h", "9", 1, 2, 3, "some-path", 4, 9, 6)]
+        [InlineData("r", "9", 1, 2, 3, "some-path", 4, 5, 9)]
+        public void SetImagePropertyPaneValue(string propertyName, string propertyValue, double x, double y, double z, string p, double w, double h, double r)
+        {
+            var entity = new Image(new Point(1.0, 2.0, 3.0), "some-path", Array.Empty<byte>(), 4.0, 5.0, 6.0);
+            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
+            var finalEntity = (Image)updatedEntity;
+            Assert.Equal(new Point(x, y, z), finalEntity.Location);
+            Assert.Equal(p, finalEntity.Path);
+            Assert.Equal(w, finalEntity.Width);
+            Assert.Equal(h, finalEntity.Height);
+            Assert.Equal(r, finalEntity.Rotation);
         }
 
         [Fact]

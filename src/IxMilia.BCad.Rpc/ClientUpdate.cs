@@ -179,6 +179,28 @@ namespace IxMilia.BCad.Rpc
             Color = color;
         }
     }
+    
+    public struct ClientImage
+    {
+        public ClientPoint Location { get; }
+        public string Base64ImageData { get; }
+        public string Path { get; }
+        public double Width { get; }
+        public double Height { get; }
+        public double Rotation { get; }
+        public CadColor? Color { get; private set; }
+
+        public ClientImage(Point location, string base64ImageData, string path, double width, double height, double rotation, CadColor? color = null)
+        {
+            Location = location;
+            Base64ImageData = base64ImageData;
+            Path = path;
+            Width = width;
+            Height = height;
+            Rotation = rotation;
+            Color = color;
+        }
+    }
 
     public class ClientDrawing
     {
@@ -189,6 +211,7 @@ namespace IxMilia.BCad.Rpc
         public List<ClientLine> Lines { get; } = new List<ClientLine>();
         public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();
         public List<ClientText> Text { get; } = new List<ClientText>();
+        public List<ClientImage> Images { get; } = new List<ClientImage>();
 
         public ClientDrawing(string fileName)
         {

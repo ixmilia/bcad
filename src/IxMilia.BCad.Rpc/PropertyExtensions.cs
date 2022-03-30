@@ -74,6 +74,15 @@ namespace IxMilia.BCad.Rpc
                     yield return new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(el.Normal.Z));
                     yield return new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(el.Thickness));
                     break;
+                case Image image:
+                    yield return new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(image.Location.X));
+                    yield return new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(image.Location.Y));
+                    yield return new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(image.Location.Z));
+                    yield return new ClientPropertyPaneValue("p", "Path", image.Path);
+                    yield return new ClientPropertyPaneValue("w", "Width", drawing.FormatUnits(image.Width));
+                    yield return new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(image.Height));
+                    yield return new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(image.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision));
+                    break;
                 case Line line:
                     yield return new ClientPropertyPaneValue("x1", "Start X", drawing.FormatUnits(line.P1.X));
                     yield return new ClientPropertyPaneValue("y1", "Y", drawing.FormatUnits(line.P1.Y));
@@ -192,6 +201,13 @@ namespace IxMilia.BCad.Rpc
                     if (el.TrySetEllipsePropertyPaneValue(value, out var updatedEllipse))
                     {
                         updatedEntity = updatedEllipse;
+                        return true;
+                    }
+                    break;
+                case Image i:
+                    if (i.TrySetImagePropertyPaneValue(value, out var updatedImage))
+                    {
+                        updatedEntity = updatedImage;
                         return true;
                     }
                     break;
@@ -527,6 +543,75 @@ namespace IxMilia.BCad.Rpc
             }
 
             updatedEllipse = default;
+            return false;
+        }
+        
+        private static bool TrySetImagePropertyPaneValue(this Image image, ClientPropertyPaneValue value, out Image updatedImage)
+        {
+            switch (value.Name)
+            {
+                case "x":
+                    {
+                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
+                        {
+                            updatedImage = image.Update(location: image.Location.WithX(unitValue));
+                            return true;
+                        }
+                        break;
+                    }
+                case "y":
+                    {
+                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
+                        {
+                            updatedImage = image.Update(location: image.Location.WithY(unitValue));
+                            return true;
+                        }
+                        break;
+                    }
+                case "z":
+                    {
+                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
+                        {
+                            updatedImage = image.Update(location: image.Location.WithZ(unitValue));
+                            return true;
+                        }
+                        break;
+                    }
+                case "p":
+                    {
+                        updatedImage = image.Update(path: value.Value);
+                        return true;
+                    }
+                case "w":
+                    {
+                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
+                        {
+                            updatedImage = image.Update(width: unitValue);
+                            return true;
+                        }
+                        break;
+                    }
+                case "h":
+                    {
+                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
+                        {
+                            updatedImage = image.Update(height: unitValue);
+                            return true;
+                        }
+                        break;
+                    }
+                case "r":
+                    {
+                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
+                        {
+                            updatedImage = image.Update(rotation: unitValue);
+                            return true;
+                        }
+                        break;
+                    }
+            }
+
+            updatedImage = default;
             return false;
         }
 

@@ -48,6 +48,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Draw.Arc", "ARC", new DrawArcCommand(), "arc", "a"));
             RegisterCommand(new CadCommandInfo("Draw.Circle", "CIRCLE", new DrawCircleCommand(), "circle", "c", "cir"));
             RegisterCommand(new CadCommandInfo("Draw.Ellipse", "ELLIPSE", new DrawEllipseCommand(), "ellipse", "el"));
+            RegisterCommand(new CadCommandInfo("Draw.Image", "IMAGE", new DrawImageCommand(), "image", "i"));
             RegisterCommand(new CadCommandInfo("Draw.Line", "LINE", new DrawLineCommand(), "line", "l"));
             RegisterCommand(new CadCommandInfo("Draw.Point", "POINT", new DrawPointCommand(), "point", "p"));
             RegisterCommand(new CadCommandInfo("Draw.Polygon", "POLYGON", new DrawPolygonCommand(), "polygon", "pg"));

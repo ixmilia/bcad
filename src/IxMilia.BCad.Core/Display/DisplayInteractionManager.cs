@@ -753,20 +753,42 @@ namespace IxMilia.BCad.Display
                     var dist = (displayPoint - screenPoint).Length;
                     return Tuple.Create(dist, point.Location);
                 case PrimitiveKind.Text:
-                    var text = (PrimitiveText)primitive;
-                    var rad = text.Rotation * MathHelper.DegreesToRadians;
-                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
-                    var up = text.Normal.Cross(right).Normalize() * text.Height;
-                    var borderPoints = new[]
                     {
-                        transformationMatrix.Transform(text.Location),
-                        transformationMatrix.Transform(text.Location + right),
-                        transformationMatrix.Transform(text.Location + up),
-                        transformationMatrix.Transform(text.Location + right + up)
-                    };
-                    if (borderPoints.ConvexHull().PolygonContains(screenPoint))
-                        return Tuple.Create(0.0, screenPoint);
-                    return ClosestPoint(borderPoints, screenPoint);
+                        var text = (PrimitiveText)primitive;
+                        var rad = text.Rotation * MathHelper.DegreesToRadians;
+                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                        var up = text.Normal.Cross(right).Normalize() * text.Height;
+                        var borderPoints = new[]
+                        {
+                            transformationMatrix.Transform(text.Location),
+                            transformationMatrix.Transform(text.Location + right),
+                            transformationMatrix.Transform(text.Location + up),
+                            transformationMatrix.Transform(text.Location + right + up)
+                        };
+                        if (borderPoints.ConvexHull().PolygonContains(screenPoint))
+                            return Tuple.Create(0.0, screenPoint);
+                        return ClosestPoint(borderPoints, screenPoint);
+                    }
+                case PrimitiveKind.Bezier:
+                    // TODO
+                    return Tuple.Create(0.0, screenPoint);
+                case PrimitiveKind.Image:
+                    {
+                        var image = (PrimitiveImage)primitive;
+                        var rad = image.Rotation * MathHelper.DegreesToRadians;
+                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * image.Width;
+                        var up = Vector.ZAxis.Cross(right).Normalize() * image.Height;
+                        var imagePoints = new[]
+                        {
+                            transformationMatrix.Transform(image.Location),
+                            transformationMatrix.Transform(image.Location + right),
+                            transformationMatrix.Transform(image.Location + up),
+                            transformationMatrix.Transform(image.Location + right + up)
+                        };
+                        if (imagePoints.ConvexHull().PolygonContains(screenPoint))
+                            return Tuple.Create(0.0, screenPoint);
+                        return ClosestPoint(imagePoints, screenPoint);
+                    }
                 default:
                     throw new InvalidOperationException();
             }
@@ -834,6 +856,17 @@ namespace IxMilia.BCad.Display
                     case PrimitiveKind.Text:
                         var text = (PrimitiveText)primitive;
                         hotPoints.Add(text.Location);
+                        break;
+                    case PrimitiveKind.Bezier:
+                        var bezier = (PrimitiveBezier)primitive;
+                        hotPoints.Add(bezier.P1);
+                        hotPoints.Add(bezier.P2);
+                        hotPoints.Add(bezier.P3);
+                        hotPoints.Add(bezier.P4);
+                        break;
+                    case PrimitiveKind.Image:
+                        var image = (PrimitiveImage)primitive;
+                        hotPoints.Add(image.Location);
                         break;
                 }
             }

@@ -31,6 +31,13 @@ namespace IxMilia.BCad
             return left2 >= left1 && top2 >= top1 && back2 >= back1;
         }
 
+        public bool Contains(Point point)
+        {
+            return point.X >= MinimumPoint.X && point.X <= MaximumPoint.X
+                && point.Y >= MinimumPoint.Y && point.Y <= MaximumPoint.Y
+                && point.Z >= MinimumPoint.Z && point.Z <= MaximumPoint.Z;
+        }
+
         public static BoundingBox FromPoints(params Point[] points)
         {
             Debug.Assert(points.Length > 0);

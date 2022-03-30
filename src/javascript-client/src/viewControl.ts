@@ -4,6 +4,7 @@ import {
     CadColor,
     ClientDrawing,
     ClientEllipse,
+    ClientImage,
     ClientLine,
     ClientPoint,
     ClientPointLocation,
@@ -34,11 +35,15 @@ interface Drawing extends ClientDrawing {
 
     PointCountWithDefaultColor: number;
     PointLocationsWithDefaultColor: WebGLBuffer;
+
+    ImageElements: [ClientImage, HTMLImageElement][];
 }
 
 export class ViewControl {
     // DOM
     private cursorCanvas: HTMLCanvasElement;
+    private imageCanvas: HTMLCanvasElement;
+    private rubberBandImageCanvas: HTMLCanvasElement;
     private drawingCanvas: HTMLCanvasElement;
     private selectionCanvas: HTMLCanvasElement;
     private textCanvas: HTMLCanvasElement;
@@ -48,6 +53,8 @@ export class ViewControl {
     // webgl
     private gl: WebGLRenderingContext;
     private glAngle: ANGLE_instanced_arrays;
+    private imageTwoD: CanvasRenderingContext2D;
+    private rubberBandImageTwoD: CanvasRenderingContext2D;
     private twod: CanvasRenderingContext2D;
     private selectionTwod: CanvasRenderingContext2D;
     private textCtx: CanvasRenderingContext2D;
@@ -82,6 +89,8 @@ export class ViewControl {
 
         // DOM
         this.cursorCanvas = <HTMLCanvasElement>document.getElementById('cursorCanvas');
+        this.imageCanvas = <HTMLCanvasElement>document.getElementById('imageCanvas');
+        this.rubberBandImageCanvas = <HTMLCanvasElement>document.getElementById('rubberBandImageCanvas');
         this.drawingCanvas = <HTMLCanvasElement>document.getElementById('drawingCanvas');
         this.selectionCanvas = <HTMLCanvasElement>document.getElementById('selectionCanvas');
         this.textCanvas = <HTMLCanvasElement>document.getElementById('textCanvas');
@@ -102,6 +111,7 @@ export class ViewControl {
             Lines: [],
             Ellipses: [],
             Text: [],
+            Images: [],
             LineCount: 0,
             LineVertices: {},
             LineColors: {},
@@ -112,6 +122,7 @@ export class ViewControl {
             PointColors: {},
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
+            ImageElements: [],
         };
         this.selectedEntitiesDrawing = {
             CurrentLayer: "0",
@@ -121,6 +132,7 @@ export class ViewControl {
             Lines: [],
             Ellipses: [],
             Text: [],
+            Images: [],
         };
         this.rubberBandDrawing = {
             CurrentLayer: "",
@@ -130,6 +142,7 @@ export class ViewControl {
             Lines: [],
             Ellipses: [],
             Text: [],
+            Images: [],
             LineCount: 0,
             LineVertices: {},
             LineColors: {},
@@ -140,6 +153,7 @@ export class ViewControl {
             PointColors: {},
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
+            ImageElements: [],
         };
         this.identity = [
             1, 0, 0, 0,
@@ -175,6 +189,8 @@ export class ViewControl {
         // render
         this.gl = this.drawingCanvas.getContext('webgl') || throwError('Unable to get webgl context');
         this.glAngle = this.gl.getExtension('ANGLE_instanced_arrays') || throwError('Unable to get ANGLE_instanced_arrays extension');
+        this.imageTwoD = this.imageCanvas.getContext('2d') || throwError('Unable to get image canvas 2d context');
+        this.rubberBandImageTwoD = this.rubberBandImageCanvas.getContext('2d') || throwError('Unable to get rubber band image canvas 2d context');
         this.twod = this.cursorCanvas.getContext("2d") || throwError('Unable to get cursor canvas 2d context');
         this.selectionTwod = this.selectionCanvas.getContext("2d") || throwError('Unable to get selection canvas 2d context');
         this.textCtx = this.textCanvas.getContext("2d") || throwError('Unable to get text canvas 2d context');
@@ -256,6 +272,12 @@ export class ViewControl {
         drawing.Lines = clientDrawing.Lines;
         drawing.Ellipses = clientDrawing.Ellipses;
         drawing.Text = clientDrawing.Text;
+        drawing.Images = clientDrawing.Images;
+        drawing.ImageElements = clientDrawing.Images.map(i => {
+            const img = new Image();
+            img.src = `data:${mimeTypeFromPath(i.Path)};base64,${i.Base64ImageData}`;
+            return [i, img];
+        });
         this.populateVertices(drawing);
     }
 
@@ -454,6 +476,8 @@ export class ViewControl {
             this.client.mouseMove(ev.offsetX, ev.offsetY);
         });
         (new ResizeObserver(() => {
+            this.imageCanvas.width = this.outputPane.clientWidth;
+            this.imageCanvas.height = this.outputPane.clientHeight;
             this.drawingCanvas.width = this.outputPane.clientWidth;
             this.drawingCanvas.height = this.outputPane.clientHeight;
             this.selectionCanvas.width = this.outputPane.clientWidth;
@@ -666,6 +690,8 @@ export class ViewControl {
         this.redrawSpecific(this.rubberBandDrawing);
         this.redrawText(this.textCtx, this.entityDrawing);
         this.redrawText(this.rubberTextCtx, this.rubberBandDrawing);
+        this.redrawImages(this.imageTwoD, this.entityDrawing);
+        this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing);
         this.redrawHotPoints();
     }
 
@@ -883,6 +909,27 @@ export class ViewControl {
         }
     }
 
+    private redrawImages(context: CanvasRenderingContext2D, drawing: Drawing) {
+        const scale = this.transform.CanvasTransform[0];
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        for (const [image, img] of drawing.ImageElements) {
+            const radians = image.Rotation * Math.PI / 180.0;
+            const upVectorWorld = [-Math.sin(radians) * image.Height, Math.cos(radians) * image.Height];
+            const topLeftWorld = [image.Location.X + upVectorWorld[0], image.Location.Y + upVectorWorld[1], image.Location.Z, 1];
+            const topLeftScreen = transform(this.transform.CanvasTransform, topLeftWorld);
+            const x = topLeftScreen[0];
+            const y = topLeftScreen[1];
+            const width = image.Width * scale;
+            const height = image.Height * scale;
+
+            context.save();
+            context.translate(x, y);
+            context.rotate(-radians);
+            context.drawImage(img, 0, 0, width, height);
+            context.restore();
+        }
+    }
+
     private redrawHotPoints() {
         if (this.hotPointCount == 0) {
             return;
@@ -973,4 +1020,19 @@ function toPoint(vector: number[]): Point {
 
 function throwError<T>(message: string): T {
     throw new Error(message);
+}
+
+function mimeTypeFromPath(path: string): string {
+    const extension = path.split('.').pop();
+    switch (extension) {
+        case 'bmp':
+            return 'image/bmp';
+        case 'jpg':
+        case 'jpeg':
+            return 'image/jpeg';
+        case 'png':
+            return 'image/png';
+        default:
+            return 'image/unknown';
+    }
 }

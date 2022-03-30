@@ -92,6 +92,22 @@ namespace IxMilia.BCad.Extensions
 
             return false;
         }
+        
+        public static bool EquivalentTo(this Image image, Entity entity)
+        {
+            if (entity is Image other)
+            {
+                return image.Location == other.Location
+                    && image.Path == other.Path
+                    && image.Width == other.Width
+                    && image.Height == other.Height
+                    && image.Rotation == other.Rotation
+                    && image.Color == other.Color
+                    && image.ImageData.SequenceEqual(other.ImageData);
+            }
+
+            return false;
+        }
 
         public static bool EquivalentTo(this IEnumerable<Vertex> a, IEnumerable<Vertex> b)
         {
@@ -136,6 +152,8 @@ namespace IxMilia.BCad.Extensions
                     return p.EquivalentTo(b);
                 case Spline s:
                     return s.EquivalentTo(b);
+                case Image i:
+                    return i.EquivalentTo(b);
                 default:
                     throw new NotSupportedException("Unsupported entity type");
             }
@@ -194,6 +212,8 @@ namespace IxMilia.BCad.Extensions
                     return circle.Update(color: color);
                 case Ellipse el:
                     return el.Update(color: color);
+                case Image i:
+                    return i.Update(color: color);
                 case Line line:
                     return line.Update(color: color);
                 case Location loc:

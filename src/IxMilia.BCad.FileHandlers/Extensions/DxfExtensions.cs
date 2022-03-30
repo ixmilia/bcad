@@ -1,11 +1,13 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Entities;
+using IxMilia.Dxf.Objects;
 
 namespace IxMilia.BCad.FileHandlers.Extensions
 {
@@ -241,6 +243,17 @@ namespace IxMilia.BCad.FileHandlers.Extensions
         {
             return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.GetEntityColor(), el);
         }
+        
+        public static Image ToImage(this DxfImage i)
+        {
+            // TODO: if path is not rooted, base off of drawing directory
+            var data = File.ReadAllBytes(i.ImageDefinition.FilePath);
+            var width = i.UVector.Length * i.ImageSize.X;
+            var height = i.VVector.Length * i.ImageSize.Y;
+            var rotation = Math.Atan2(i.UVector.Y, i.UVector.X) * MathHelper.RadiansToDegrees;
+            var image = new Image(i.Location.ToPoint(), i.ImageDefinition.FilePath, data, width, height, rotation, i.GetEntityColor());
+            return image;
+        }
 
         public static Text ToText(this DxfText text)
         {
@@ -268,6 +281,9 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                     break;
                 case DxfEntityType.Ellipse:
                     entity = ((DxfEllipse)item).ToEllipse();
+                    break;
+                case DxfEntityType.Image:
+                    entity = ((DxfImage)item).ToImage();
                     break;
                 case DxfEntityType.Leader:
                     entity = ((DxfLeader)item).ToPolyline();
@@ -409,6 +425,33 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return dxfSpline;
         }
 
+        public static DxfImage ToDxfImage(this Image image, Layer layer)
+        {
+            var (pixelWidth, pixelHeight) = Path.GetExtension(image.Path).ToLowerInvariant() switch
+            {
+                ".png" => (ToInt32BitEndian(image.ImageData, 16), ToInt32BitEndian(image.ImageData, 20)),
+                // TODO: Add support for other image formats
+                _ => throw new NotSupportedException(),
+            };
+            var dxfImage = new DxfImage(image.Path, image.Location.ToDxfPoint(), pixelWidth, pixelHeight, DxfVector.XAxis);
+            dxfImage.Layer = layer.Name;
+            var radians = image.Rotation * MathHelper.DegreesToRadians;
+            var uVector = new DxfVector(Math.Cos(radians), Math.Sin(radians), 0.0);
+            var vVector = new DxfVector(-Math.Sin(radians), Math.Cos(radians), 0.0);
+            var uVectorLength = dxfImage.ImageSize.X / image.Width;
+            var vVectorLength = dxfImage.ImageSize.Y / image.Height;
+            uVector /= uVectorLength;
+            vVector /= vVectorLength;
+            dxfImage.UVector = uVector;
+            dxfImage.VVector = vVector;
+            return dxfImage;
+        }
+
+        private static int ToInt32BitEndian(byte[] array, int startIndex)
+        {
+            return array[startIndex] << 24 | array[startIndex + 1] << 16 | array[startIndex + 2] << 8 | array[startIndex + 3];
+        }
+
         public static DxfEntity ToDxfEntity(this Entity item, Layer layer)
         {
             DxfEntity entity = null;
@@ -445,6 +488,9 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                     break;
                 case EntityKind.Spline:
                     entity = ((Spline)item).ToDxfSpline(layer);
+                    break;
+                case EntityKind.Image:
+                    entity = ((Image)item).ToDxfImage(layer);
                     break;
                 default:
                     Debug.Assert(false, "Unsupported entity type: " + item.GetType().Name);

@@ -144,12 +144,16 @@ namespace IxMilia.BCad.FileHandlers
                         {
                             block.Entities.Add(child);
                         }
+
+                        file.Blocks.Add(block);
                     }
                     else
                     {
                         var entity = item.ToDxfEntity(layer);
                         if (entity != null)
+                        {
                             file.Entities.Add(entity);
+                        }
                     }
                 }
             }

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Text;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
@@ -92,6 +93,72 @@ namespace IxMilia.BCad.FileHandlers.Test
                     1.0,
                     1.0,
                 }));
+        }
+
+        [Fact]
+        public void ReadImageTest()
+        {
+            var pngPath = "test-image.png";
+            var pngData = File.ReadAllBytes(pngPath);
+            var dxfContents = string.Join("\r\n",
+                new[]
+                {
+                    ("  0", "SECTION"),
+                    ("  2", "ENTITIES"),
+                    ("  0", "IMAGE"),
+                    (" 10", "1.0"), // location
+                    (" 20", "2.0"),
+                    (" 30", "3.0"),
+                    (" 11", "1.0"), // u vector
+                    (" 21", "0.0"),
+                    (" 31", "0.0"),
+                    (" 12", "0.0"), // v vector
+                    (" 22", "1.0"),
+                    (" 32", "0.0"),
+                    (" 13", "2.0"), // image size in pixels
+                    (" 23", "2.0"),
+                    ("340", "AAAA"), // imagedef handle
+                    ("  0", "ENDSEC"),
+                    ("  0", "SECTION"),
+                    ("  2", "OBJECTS"),
+                    ("  0", "IMAGEDEF"),
+                    ("  5", "AAAA"), // handle (corresponds to code 340 above)
+                    ("  1", "test-image.png"),
+                    (" 10", "2.0"), // size in pixels
+                    (" 20", "2.0"),
+                    ("  0", "ENDSEC"),
+                }.Select(pair => $"{pair.Item1}\r\n{pair.Item2}"));
+            using (var ms = new MemoryStream())
+            using (var writer = new StreamWriter(ms, new UTF8Encoding(false)))
+            {
+                writer.WriteLine(dxfContents);
+                writer.Flush();
+                ms.Seek(0, SeekOrigin.Begin);
+                var dxfFile = DxfFile.Load(ms);
+                var dxfImage = (DxfImage)dxfFile.Entities.Single();
+                var image = (Image)dxfImage.ToEntity();
+                Assert.Equal(new Point(1.0, 2.0, 3.0), image.Location);
+                Assert.Equal(pngPath, image.Path);
+                Assert.Equal(pngData, image.ImageData);
+                Assert.Equal(2.0, image.Width);
+                Assert.Equal(2.0, image.Height);
+                Assert.Equal(0.0, image.Rotation);
+            }
+        }
+
+        [Fact]
+        public void RoundTripImageTest()
+        {
+            // `test-image.png` is a solid red 4x4 image
+            var imagePath = "test-image.png";
+            var imageData = File.ReadAllBytes(imagePath);
+            VerifyRoundTrip(new Image(
+                new Point(1.0, 2.0, 3.0),
+                imagePath,
+                imageData,
+                8.0,
+                8.0,
+                0.0));
         }
 
         [Fact]

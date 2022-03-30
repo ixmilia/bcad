@@ -415,6 +415,9 @@ namespace IxMilia.BCad.Rpc
                     var transform = Matrix4.CreateScale(1.0, 1.0, 0.0) * ellipse.FromUnitCircle; // flatten display in z-plane
                     clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, transform.ToTransposeArray(), primitiveColor));
                     break;
+                case PrimitiveImage image:
+                    clientDrawing.Images.Add(new ClientImage(image.Location, Convert.ToBase64String(image.ImageData), image.Path, image.Width, image.Height, image.Rotation, image.Color));
+                    break;
                 case PrimitiveLine line:
                     clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
                     break;

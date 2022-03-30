@@ -39,6 +39,7 @@ namespace IxMilia.BCad.Extensions
                 case PrimitiveKind.Point:
                 case PrimitiveKind.Text:
                 case PrimitiveKind.Bezier:
+                case PrimitiveKind.Image:
                     return 0.0;
                 default:
                     throw new InvalidOperationException("Unsupported primitive.");
@@ -121,6 +122,9 @@ namespace IxMilia.BCad.Extensions
                 case PrimitiveKind.Bezier:
                     result = ((PrimitiveBezier)primitive).IntersectionPointsBetweenBezierAndPrimitive(other);
                     break;
+                case PrimitiveKind.Image:
+                    result = ((PrimitiveImage)primitive).GetBoundaryLines().SelectMany(l => l.IntersectionPoints(other, withinBounds));
+                    break;
                 default:
                     Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
@@ -151,6 +155,9 @@ namespace IxMilia.BCad.Extensions
                     break;
                 case PrimitiveKind.Bezier:
                     result = ((PrimitiveBezier)other).IntersectionPointsBetweenBezierAndPrimitive(point);
+                    break;
+                case PrimitiveKind.Image:
+                    result = ((PrimitiveImage)other).IntersectionPointsBetweenImageAndPoint(point);
                     break;
                 default:
                     Debug.Assert(false, "Unsupported primitive type");
@@ -198,6 +205,9 @@ namespace IxMilia.BCad.Extensions
                     break;
                 case PrimitiveKind.Bezier:
                     result = ((PrimitiveBezier)other).IntersectionPointsBetweenBezierAndPrimitive(line);
+                    break;
+                case PrimitiveKind.Image:
+                    result = ((PrimitiveImage)other).GetBoundaryLines().SelectMany(l => l.IntersectionPoints(line, withinBounds));
                     break;
                 default:
                     Debug.Assert(false, "Unsupported primitive type");
@@ -381,6 +391,9 @@ namespace IxMilia.BCad.Extensions
                     break;
                 case PrimitiveKind.Bezier:
                     result = ((PrimitiveBezier)primitive).IntersectionPointsBetweenBezierAndPrimitive(ellipse);
+                    break;
+                case PrimitiveKind.Image:
+                    result = ((PrimitiveImage)primitive).GetBoundaryLines().SelectMany(l => l.IntersectionPointsBetweenLineAndEllipse(ellipse));
                     break;
                 default:
                     Debug.Assert(false, "Unsupported primitive type");
@@ -700,6 +713,9 @@ namespace IxMilia.BCad.Extensions
                     var otherPrimitives = ((PrimitiveBezier)other).IntersectionPrimitives;
                     result = bezier.IntersectionPrimitives.SelectMany(p1 => otherPrimitives.SelectMany(p2 => p1.IntersectionPoints(p2)));
                     break;
+                case PrimitiveKind.Image:
+                    result = bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other));
+                    break;
                 default:
                     Debug.Assert(false, "Unsupported primitive type");
                     result = Enumerable.Empty<Point>();
@@ -707,6 +723,22 @@ namespace IxMilia.BCad.Extensions
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region Image-primitive intersection
+
+        private static IEnumerable<Point> IntersectionPointsBetweenImageAndPoint(this PrimitiveImage image, PrimitivePoint point)
+        {
+            if (image.GetBoundingBox().Contains(point.Location))
+            {
+                return new[] { point.Location };
+            }
+            else
+            {
+                return Enumerable.Empty<Point>();
+            }
         }
 
         #endregion
@@ -743,6 +775,8 @@ namespace IxMilia.BCad.Extensions
                     return new Text((PrimitiveText)primitive);
                 case PrimitiveKind.Bezier:
                     return Spline.FromBezier((PrimitiveBezier)primitive);
+                case PrimitiveKind.Image:
+                    return new Image((PrimitiveImage)primitive);
                 default:
                     throw new ArgumentException("primitive.Kind");
             }
@@ -790,6 +824,16 @@ namespace IxMilia.BCad.Extensions
                         bezier.P3 + offset,
                         bezier.P4 + offset,
                         bezier.Color);
+                case PrimitiveKind.Image:
+                    var image = (PrimitiveImage)primitive;
+                    return new PrimitiveImage(
+                        image.Location + offset,
+                        image.ImageData,
+                        image.Path,
+                        image.Width,
+                        image.Height,
+                        image.Rotation,
+                        image.Color);
                 default:
                     throw new ArgumentException("primitive.Kind");
             }
@@ -807,6 +851,8 @@ namespace IxMilia.BCad.Extensions
                     return IsPointOnPrimitiveText((PrimitiveText)primitive, point);
                 case PrimitiveKind.Bezier:
                     return IsPointOnPrimitiveBezier((PrimitiveBezier)primitive, point);
+                case PrimitiveKind.Image:
+                    return IsPointOnPrimitiveImage((PrimitiveImage)primitive, point);
                 default:
                     Debug.Assert(false, "unexpected primitive: " + primitive.Kind);
                     return false;
@@ -859,6 +905,11 @@ namespace IxMilia.BCad.Extensions
             var t = bezier.GetParameterValueForPoint(point);
             return t.HasValue;
         }
+        
+        private static bool IsPointOnPrimitiveImage(this PrimitiveImage image, Point point)
+        {
+            return image.GetBoundingBox().Contains(point);
+        }
 
         public static double GetAngle(this PrimitiveEllipse ellipse, Point point)
         {
@@ -892,11 +943,12 @@ namespace IxMilia.BCad.Extensions
                     points = new[] { ((PrimitivePoint)primitive).Location };
                     break;
                 case PrimitiveKind.Text:
-                    var text = (PrimitiveText)primitive;
-                    var rad = text.Rotation * MathHelper.DegreesToRadians;
-                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
-                    var up = text.Normal.Cross(right).Normalize() * text.Height;
-                    points = new[]
+                    {
+                        var text = (PrimitiveText)primitive;
+                        var rad = text.Rotation * MathHelper.DegreesToRadians;
+                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                        var up = text.Normal.Cross(right).Normalize() * text.Height;
+                        points = new[]
                         {
                             text.Location,
                             text.Location + right,
@@ -904,10 +956,27 @@ namespace IxMilia.BCad.Extensions
                             text.Location + up,
                             text.Location
                         };
+                    }
                     break;
                 case PrimitiveKind.Bezier:
                     var bezier = (PrimitiveBezier)primitive;
                     points = new[] { bezier.P1, bezier.P2, bezier.P3, bezier.P4 };
+                    break;
+                case PrimitiveKind.Image:
+                    {
+                        var image = (PrimitiveImage)primitive;
+                        var rad = image.Rotation * MathHelper.DegreesToRadians;
+                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * image.Width;
+                        var up = Vector.ZAxis.Cross(right).Normalize() * image.Height;
+                        points = new[]
+                        {
+                            image.Location,
+                            image.Location + right,
+                            image.Location + right + up,
+                            image.Location + up,
+                            image.Location
+                        };
+                    }
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -1119,6 +1188,7 @@ namespace IxMilia.BCad.Extensions
                 case PrimitiveKind.Point:
                 case PrimitiveKind.Text:
                 case PrimitiveKind.Bezier:
+                case PrimitiveKind.Image:
                     return primitive.GetInterestingPoints().Select(p => transformationMatrix.Transform(p));
                 case PrimitiveKind.Ellipse:
                     return ((PrimitiveEllipse)primitive).GetProjectedVerticies(transformationMatrix, 360);

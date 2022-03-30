@@ -7,5 +7,6 @@ namespace IxMilia.BCad.Primitives
         Point = 1 << 2,
         Text = 1 << 3,
         Bezier = 1 << 4,
+        Image = 1 << 5,
     }
 }
