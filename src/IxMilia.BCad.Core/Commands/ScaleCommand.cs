@@ -4,8 +4,6 @@ namespace IxMilia.BCad.Commands
 {
     public class ScaleCommand : ICadCommand
     {
-        private static double lastScaleFactor = 0.0;
-
         public async Task<bool> Execute(IWorkspace workspace, object arg)
         {
             // get all inputs
