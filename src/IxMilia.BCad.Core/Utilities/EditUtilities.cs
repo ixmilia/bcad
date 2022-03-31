@@ -405,17 +405,8 @@ namespace IxMilia.BCad.Utilities
         public static Point ScaleFrom(this Point point, Point basePoint, double scaleFactor)
         {
             var direction = point - basePoint;
-            var distance = direction.Length;
-            if (distance == 0.0)
-            {
-                // no change
-                return point;
-            }
-            else
-            {
-                var newDirection = direction * scaleFactor;
-                return basePoint + newDirection;
-            }
+            var newDirection = direction * scaleFactor;
+            return basePoint + newDirection;
         }
 
         public static Entity Quantize(Entity entity, QuantizeSettings settings)
