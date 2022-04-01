@@ -53,12 +53,20 @@ namespace IxMilia.BCad.Utilities
                     var el = (Ellipse)entity;
                     return el.Update(center: transform.Transform(el.Center),
                         majorAxis: inSitu.Transform(el.MajorAxis));
+                case EntityKind.Image:
+                    var image = (Image)entity;
+                    return image.Update(
+                        location: transform.Transform(image.Location),
+                        rotation: image.Rotation + angleInDegrees);
                 case EntityKind.Line:
                     var line = (Line)entity;
                     return line.Update(p1: transform.Transform(line.P1), p2: transform.Transform(line.P2));
                 case EntityKind.Location:
                     var loc = (Location)entity;
                     return loc.Update(point: transform.Transform(loc.Point));
+                case EntityKind.Spline:
+                    var sp = (Spline)entity;
+                    return sp.Update(controlPoints: sp.ControlPoints.Select(cp => transform.Transform(cp)));
                 default:
                     throw new ArgumentException("Unsupported entity type " + entity.Kind);
             }
