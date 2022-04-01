@@ -2,12 +2,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Entities;
-using IxMilia.Dxf.Objects;
 
 namespace IxMilia.BCad.FileHandlers.Extensions
 {
@@ -243,11 +243,10 @@ namespace IxMilia.BCad.FileHandlers.Extensions
         {
             return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.GetEntityColor(), el);
         }
-        
-        public static Image ToImage(this DxfImage i)
+
+        public static async Task<Image> ToImage(this DxfImage i, Func<string, Task<byte[]>> contentResolver)
         {
-            // TODO: if path is not rooted, base off of drawing directory
-            var data = File.ReadAllBytes(i.ImageDefinition.FilePath);
+            var data = await contentResolver(i.ImageDefinition.FilePath);
             var width = i.UVector.Length * i.ImageSize.X;
             var height = i.VVector.Length * i.ImageSize.Y;
             var rotation = Math.Atan2(i.UVector.Y, i.UVector.X) * MathHelper.RadiansToDegrees;
@@ -268,7 +267,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 : null;
         }
 
-        public static Entity ToEntity(this DxfEntity item)
+        public static async Task<Entity> ToEntity(this DxfEntity item, Func<string, Task<byte[]>> contentResolver)
         {
             Entity entity = null;
             switch (item.EntityType)
@@ -283,7 +282,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                     entity = ((DxfEllipse)item).ToEllipse();
                     break;
                 case DxfEntityType.Image:
-                    entity = ((DxfImage)item).ToImage();
+                    entity = await ((DxfImage)item).ToImage(contentResolver);
                     break;
                 case DxfEntityType.Leader:
                     entity = ((DxfLeader)item).ToPolyline();
@@ -429,7 +428,9 @@ namespace IxMilia.BCad.FileHandlers.Extensions
         {
             var (pixelWidth, pixelHeight) = Path.GetExtension(image.Path).ToLowerInvariant() switch
             {
-                ".png" => (ToInt32BitEndian(image.ImageData, 16), ToInt32BitEndian(image.ImageData, 20)),
+                ".png" => GetPngDimensions(image.ImageData),
+                ".jpg" => GetJpegDimensions(image.ImageData),
+                ".jpeg" => GetJpegDimensions(image.ImageData),
                 // TODO: Add support for other image formats
                 _ => throw new NotSupportedException(),
             };
@@ -447,9 +448,36 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return dxfImage;
         }
 
-        private static int ToInt32BitEndian(byte[] array, int startIndex)
+        private static int ToUInt16BitEndian(byte[] array, int startIndex)
         {
-            return array[startIndex] << 24 | array[startIndex + 1] << 16 | array[startIndex + 2] << 8 | array[startIndex + 3];
+            return (array[startIndex] << 8) | array[startIndex + 1];
+        }
+
+        private static uint ToUInt32BigEndian(byte[] array, int startIndex)
+        {
+            return (uint)((array[startIndex] << 24) | (array[startIndex + 1] << 16) | (array[startIndex + 2] << 8) | array[startIndex + 3]);
+        }
+
+        private static (int, int) GetPngDimensions(byte[] array)
+        {
+            var width = (int)ToUInt32BigEndian(array, 16);
+            var height = (int)ToUInt32BigEndian(array, 20);
+            return (width, height);
+        }
+
+        private static (int, int) GetJpegDimensions(byte[] array)
+        {
+            for (int i = 0; i < array.Length - 9; i++)
+            {
+                if (array[i] == 0xFF && array[i + 1] == 0xC0)
+                {
+                    var height = ToUInt16BitEndian(array, i + 5);
+                    var width = ToUInt16BitEndian(array, i + 7);
+                    return (width, height);
+                }
+            }
+
+            return (0, 0);
         }
 
         public static DxfEntity ToDxfEntity(this Entity item, Layer layer)

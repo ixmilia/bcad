@@ -1,13 +1,14 @@
-using System.ComponentModel;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace IxMilia.BCad.FileHandlers
 {
     public interface IFileHandler
     {
-        bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort);
+        Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver);
 
-        bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings);
+        Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings);
 
         object GetFileSettingsFromDrawing(Drawing drawing);
     }

@@ -1,6 +1,6 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 
 namespace IxMilia.BCad.Commands
 {
@@ -34,7 +34,7 @@ namespace IxMilia.BCad.Commands
             if (string.IsNullOrEmpty(imageRotationInput.Value)) return false;
             if (!double.TryParse(imageRotationInput.Value, out var imageRotation)) return false;
 
-            var imageData = File.ReadAllBytes(imagePath);
+            var imageData = await workspace.FileSystemService.GetContentResolverRelativeToPath(workspace.Drawing.Settings.FileName)(imagePath);
             var image = new Image(location, imagePath, imageData, imageWidth, imageHeight, imageRotation);
             workspace.AddToCurrentLayer(image);
 

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using IxMilia.BCad.Dialogs;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.FileHandlers;
 using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Plotting.Pdf;
@@ -57,7 +58,7 @@ namespace IxMilia.BCad.Rpc
                         {
                             var viewModel = CreateAndPopulateViewModel(plotSettings, _workspace.Drawing.Settings);
                             var drawing = _workspace.Drawing.UpdateColors(plotSettings.ColorType);
-                            using (var stream = PlotToStream(viewModel, drawing, _workspace.ActiveViewPort))
+                            using (var stream = await PlotToStream(viewModel, drawing, _workspace.ActiveViewPort))
                             using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                             {
                                 await stream.CopyToAsync(fileStream);
@@ -131,7 +132,7 @@ namespace IxMilia.BCad.Rpc
             return viewModel;
         }
 
-        public Stream PlotToStream(ViewPortViewModelBase viewModel, Drawing drawing, ViewPort viewPort)
+        public async Task<Stream> PlotToStream(ViewPortViewModelBase viewModel, Drawing drawing, ViewPort viewPort)
         {
             var stream = new MemoryStream();
             IPlotterFactory plotterFactory = viewModel switch
@@ -141,7 +142,7 @@ namespace IxMilia.BCad.Rpc
                 _ => throw new System.Exception($"Unexpected view model: {viewModel?.GetType().Name}"),
             };
             var plotter = plotterFactory.CreatePlotter(viewModel);
-            plotter.Plot(drawing, viewPort, stream);
+            await plotter.Plot(drawing, viewPort, stream, _workspace.FileSystemService.GetContentResolverRelativeToPath(drawing.Settings.FileName));
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }

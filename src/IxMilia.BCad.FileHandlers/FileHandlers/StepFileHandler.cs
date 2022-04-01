@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
@@ -15,7 +16,7 @@ namespace IxMilia.BCad.FileHandlers
             throw new NotImplementedException();
         }
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
+        public Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             var layer = new Layer("step");
             var file = StepFile.Load(fileStream);
@@ -54,13 +55,11 @@ namespace IxMilia.BCad.FileHandlers
                 }
             }
 
-            drawing = new Drawing().Add(layer);
-            viewPort = null;
-
-            return true;
+            var drawing = new Drawing().Add(layer);
+            return Task.FromResult(ReadDrawingResult.Succeeded(drawing, null));
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             throw new NotImplementedException();
         }

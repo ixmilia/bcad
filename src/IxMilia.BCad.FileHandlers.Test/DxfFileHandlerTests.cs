@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
@@ -13,58 +14,58 @@ namespace IxMilia.BCad.FileHandlers.Test
     {
         public override IFileHandler FileHandler => new DxfFileHandler();
 
-        protected override Entity RoundTripEntity(Entity entity)
+        protected override Task<Entity> RoundTripEntity(Entity entity)
         {
             // shortcut to avoid file writing/reading
-            return entity.ToDxfEntity(new Layer("layer")).ToEntity();
+            return entity.ToDxfEntity(new Layer("layer")).ToEntity(Workspace.FileSystemService.ReadAllBytesAsync);
         }
 
-        private DxfFile WriteToFile(Drawing drawing)
+        private async Task<DxfFile> WriteToFile(Drawing drawing)
         {
-            using (var stream = WriteToStream(drawing))
+            using (var stream = await WriteToStream(drawing))
             {
                 return DxfFile.Load(stream);
             }
         }
 
         [Fact]
-        public void RoundTripColorTest()
+        public async Task RoundTripColorTest()
         {
-            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, color: null));
-            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.Red));
-            VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.FromArgb(255, 1, 2, 5)));
+            await VerifyRoundTrip(new Line(Point.Origin, Point.Origin, color: null));
+            await VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.Red));
+            await VerifyRoundTrip(new Line(Point.Origin, Point.Origin, CadColor.FromArgb(255, 1, 2, 5)));
         }
 
         [Fact]
-        public void RoundTripArcTest()
+        public async Task RoundTripArcTest()
         {
-            VerifyRoundTrip(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, Vector.YAxis, CadColor.Yellow, thickness: 1.2345));
+            await VerifyRoundTrip(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, Vector.YAxis, CadColor.Yellow, thickness: 1.2345));
         }
 
         [Fact]
-        public void RoundTripCircleTest()
+        public async Task RoundTripCircleTest()
         {
-            VerifyRoundTrip(new Circle(new Point(1.0, 2.0, 3.0), 4.0, Vector.XAxis, CadColor.Red, thickness: 1.2345));
+            await VerifyRoundTrip(new Circle(new Point(1.0, 2.0, 3.0), 4.0, Vector.XAxis, CadColor.Red, thickness: 1.2345));
         }
 
         [Fact]
-        public void RoundTripLineTest()
+        public async Task RoundTripLineTest()
         {
-            VerifyRoundTrip(new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), CadColor.Green, thickness: 1.2345));
+            await VerifyRoundTrip(new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), CadColor.Green, thickness: 1.2345));
         }
 
         [Fact]
-        public void RoundTripPolylineTest()
+        public async Task RoundTripPolylineTest()
         {
             // 90 degree arc from (0,0) to (1,1) representing the fourth quadrant
-            VerifyRoundTrip(new Polyline(new[]
+            await VerifyRoundTrip(new Polyline(new[]
             {
                 new Vertex(Point.Origin),
                 new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.CounterClockwise)
             }));
 
             // 90 degree arc from (0,0) to (1,1) representing the second quadrant
-            VerifyRoundTrip(new Polyline(new[]
+            await VerifyRoundTrip(new Polyline(new[]
             {
                 new Vertex(Point.Origin),
                 new Vertex(new Point(1.0, 1.0, 0.0), 90.0, VertexDirection.Clockwise)
@@ -72,9 +73,9 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void RoundTripSplineTest()
+        public async Task RoundTripSplineTest()
         {
-            VerifyRoundTrip(new Spline(3,
+            await VerifyRoundTrip(new Spline(3,
                 new Point[]
                 {
                     new Point(0.0, 0.0, 0.0),
@@ -96,7 +97,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void ReadImageTest()
+        public async Task ReadImageTest()
         {
             var pngPath = "test-image.png";
             var pngData = File.ReadAllBytes(pngPath);
@@ -136,7 +137,7 @@ namespace IxMilia.BCad.FileHandlers.Test
                 ms.Seek(0, SeekOrigin.Begin);
                 var dxfFile = DxfFile.Load(ms);
                 var dxfImage = (DxfImage)dxfFile.Entities.Single();
-                var image = (Image)dxfImage.ToEntity();
+                var image = (Image)(await dxfImage.ToEntity(Workspace.FileSystemService.ReadAllBytesAsync));
                 Assert.Equal(new Point(1.0, 2.0, 3.0), image.Location);
                 Assert.Equal(pngPath, image.Path);
                 Assert.Equal(pngData, image.ImageData);
@@ -147,12 +148,12 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void RoundTripImageTest()
+        public async Task RoundTripImageTest()
         {
             // `test-image.png` is a solid red 4x4 image
             var imagePath = "test-image.png";
             var imageData = File.ReadAllBytes(imagePath);
-            VerifyRoundTrip(new Image(
+            await VerifyRoundTrip(new Image(
                 new Point(1.0, 2.0, 3.0),
                 imagePath,
                 imageData,
@@ -162,33 +163,33 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void RoundTripLayerTest()
+        public async Task RoundTripLayerTest()
         {
             // don't try to round-trip a null layer color; DXF always resets it to white
-            VerifyRoundTrip(new Layer("name", color: CadColor.White));
-            VerifyRoundTrip(new Layer("name", color: CadColor.Red));
-            VerifyRoundTrip(new Layer("name", color: CadColor.White, isVisible: false));
+            await VerifyRoundTrip(new Layer("name", color: CadColor.White));
+            await VerifyRoundTrip(new Layer("name", color: CadColor.Red));
+            await VerifyRoundTrip(new Layer("name", color: CadColor.White, isVisible: false));
         }
 
         [Fact]
-        public void LayersAreNotDuplicatedOnSave()
+        public async Task LayersAreNotDuplicatedOnSave()
         {
             var drawing = new Drawing();
             drawing = drawing.Update(layers: drawing.Layers.Insert("0", new Layer("0")));
 
-            var dxf = WriteToFile(drawing);
+            var dxf = await WriteToFile(drawing);
             Assert.Equal("0", dxf.Layers.Single().Name);
         }
 
         [Fact]
-        public void VerifyDefaultDxfVersionInDirectWriteTest()
+        public async Task VerifyDefaultDxfVersionInDirectWriteTest()
         {
-            var file = WriteToFile(new Drawing());
+            var file = await WriteToFile(new Drawing());
             Assert.Equal(DxfAcadVersion.R12, file.Header.Version);
         }
 
         [Fact]
-        public void VerifyNonDefaultVersionIsPreservedInDirectWriteTest()
+        public async Task VerifyNonDefaultVersionIsPreservedInDirectWriteTest()
         {
             var file = new DxfFile();
             file.Header.Version = DxfAcadVersion.R2007;
@@ -196,8 +197,8 @@ namespace IxMilia.BCad.FileHandlers.Test
             {
                 file.Save(ms);
                 ms.Seek(0, SeekOrigin.Begin);
-                var drawing = ReadFromStream(ms);
-                var result = WriteToFile(drawing);
+                var drawing = await ReadFromStream(ms);
+                var result = await WriteToFile(drawing);
 
                 // file read from disk has preserved version
                 Assert.Equal(DxfAcadVersion.R2007, result.Header.Version);
@@ -236,7 +237,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void ReadLwPolylineTest()
+        public async Task ReadLwPolylineTest()
         {
             var lwpoly = new DxfLwPolyline(new[]
             {
@@ -246,7 +247,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             {
                 Elevation = 12.0
             };
-            var poly = (Polyline)lwpoly.ToEntity();
+            var poly = (Polyline)(await lwpoly.ToEntity(Workspace.FileSystemService.ReadAllBytesAsync));
             Assert.Equal(2, poly.Vertices.Count());
             Assert.Equal(new Point(1.0, 2.0, 12.0), poly.Vertices.First().Location);
             Assert.Equal(new Point(3.0, 4.0, 12.0), poly.Vertices.Last().Location);

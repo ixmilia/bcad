@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Primitives;
@@ -283,10 +284,10 @@ namespace IxMilia.BCad.Rpc
             var bytes = Convert.FromBase64String(data);
             using var stream = new MemoryStream(bytes);
 
-            var success = await Workspace.ReaderWriterService.TryReadDrawing(filePath, stream, out var drawing, out var viewPort);
-            if (success)
+            var result = await Workspace.ReaderWriterService.ReadDrawing(filePath, stream, Workspace.FileSystemService.GetContentResolverRelativeToPath(filePath));
+            if (result.Success)
             {
-                Workspace.Update(drawing: drawing, activeViewPort: viewPort);
+                Workspace.Update(drawing: result.Drawing, activeViewPort: result.ViewPort);
             }
         }
 
@@ -305,7 +306,7 @@ namespace IxMilia.BCad.Rpc
             return null;
         }
 
-        public string GetPlotPreview(ClientPlotSettings settings)
+        public async Task<string> GetPlotPreview(ClientPlotSettings settings)
         {
             var htmlDialogService = (HtmlDialogService)Workspace.DialogService;
             var viewModel = (SvgPlotterViewModel)htmlDialogService.CreateAndPopulateViewModel(settings, Workspace.Drawing.Settings, plotTypeOverride: "svg"); // force to svg for preview
@@ -324,10 +325,10 @@ namespace IxMilia.BCad.Rpc
             }
 
             var drawing = Workspace.Drawing.UpdateColors(settings.ColorType);
-            using (var stream = htmlDialogService.PlotToStream(viewModel, drawing, Workspace.ActiveViewPort))
+            using (var stream = await htmlDialogService.PlotToStream(viewModel, drawing, Workspace.ActiveViewPort))
             using (var reader = new StreamReader(stream))
             {
-                var contents = reader.ReadToEnd();
+                var contents = await reader.ReadToEndAsync();
                 return contents;
             }
         }

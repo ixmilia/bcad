@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Settings;
 
 namespace IxMilia.BCad.Commands
@@ -23,29 +24,27 @@ namespace IxMilia.BCad.Commands
 
             using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
             {
-                var result = await workspace.ReaderWriterService.TryReadDrawing(fileName, stream, out var drawing, out var activeViewPort);
-                if (!result)
+                var result = await workspace.ReaderWriterService.ReadDrawing(fileName, stream, workspace.FileSystemService.GetContentResolverRelativeToPath(fileName));
+                if (!result.Success)
                 {
                     return false;
                 }
 
-                if (drawing == null)
+                if (result.Drawing == null)
                 {
                     return false;
                 }
 
-                if (activeViewPort == null)
-                {
-                    activeViewPort = drawing.ShowAllViewPort(
+                var activeViewPort = result.ViewPort
+                    ?? result.Drawing.ShowAllViewPort(
                         Vector.ZAxis,
                         Vector.YAxis,
                         workspace.ViewControl.DisplayWidth,
                         workspace.ViewControl.DisplayHeight);
-                }
 
-                workspace.SettingsService.SetValue(DefaultSettingsNames.DrawingPrecision, drawing.Settings.UnitPrecision);
-                workspace.SettingsService.SetValue(DefaultSettingsNames.DrawingUnits, drawing.Settings.UnitFormat);
-                workspace.Update(drawing: drawing, activeViewPort: activeViewPort, isDirty: false);
+                workspace.SettingsService.SetValue(DefaultSettingsNames.DrawingPrecision, result.Drawing.Settings.UnitPrecision);
+                workspace.SettingsService.SetValue(DefaultSettingsNames.DrawingUnits, result.Drawing.Settings.UnitFormat);
+                workspace.Update(drawing: result.Drawing, activeViewPort: activeViewPort, isDirty: false);
                 workspace.UndoRedoService.ClearHistory();
             }
 

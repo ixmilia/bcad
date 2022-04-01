@@ -11,6 +11,7 @@ namespace IxMilia.BCad.Core.Test
         {
             Workspace = new TestWorkspace();
             Workspace.RegisterService<IDialogService>(new TestDialogService());
+            Workspace.RegisterService<IFileSystemService>(new TestFileSystemService());
             Workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
             Workspace.Update(drawing: new Drawing());
         }

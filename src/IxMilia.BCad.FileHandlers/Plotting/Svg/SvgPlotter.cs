@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using IxMilia.BCad.FileHandlers;
@@ -15,7 +17,7 @@ namespace IxMilia.BCad.Plotting.Svg
             ViewModel = viewModel;
         }
 
-        public override void Plot(Drawing drawing, ViewPort viewPort, Stream outputStream)
+        public override async Task Plot(Drawing drawing, ViewPort viewPort, Stream outputStream, Func<string, Task<byte[]>> contentResolver)
         {
             var converter = new DxfToSvgConverter();
             var fileSettings = new DxfFileSettings()
@@ -27,8 +29,8 @@ namespace IxMilia.BCad.Plotting.Svg
             var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * plotViewPort.ViewHeight;
             var dxfRect = new ConverterDxfRect(plotViewPort.BottomLeft.X, plotViewPort.BottomLeft.X + viewPortWidth, plotViewPort.BottomLeft.Y, plotViewPort.BottomLeft.Y + plotViewPort.ViewHeight);
             var svgRect = new ConverterSvgRect(ViewModel.DisplayWidth, ViewModel.DisplayHeight);
-            var options = new DxfToSvgConverterOptions(dxfRect, svgRect);
-            var xml = converter.Convert(dxfFile, options);
+            var options = new DxfToSvgConverterOptions(dxfRect, svgRect, imageHrefResolver: DxfToSvgConverterOptions.CreateDataUriResolver(contentResolver));
+            var xml = await converter.Convert(dxfFile, options);
             xml.Attribute("width").Value = $"{ViewModel.OutputWidth}";
             xml.Attribute("height").Value = $"{ViewModel.OutputHeight}";
 

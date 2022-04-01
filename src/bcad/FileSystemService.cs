@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using IxMilia.BCad.Services;
 
@@ -21,6 +22,11 @@ namespace bcad
         public Task<string> GetFileNameFromUserForSave(string extensionHint = null)
         {
             return DispatchAsync(() => FileDialogs.SaveFile(extensionHint));
+        }
+
+        public Task<byte[]> ReadAllBytesAsync(string path)
+        {
+            return File.ReadAllBytesAsync(path);
         }
 
         private Task<T> DispatchAsync<T>(Func<T> func)

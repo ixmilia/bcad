@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad.FileHandlers
@@ -12,7 +13,7 @@ namespace IxMilia.BCad.FileHandlers
             throw new NotImplementedException();
         }
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
+        public Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             var points = new List<Location>();
             using (var reader = new StreamReader(fileStream))
@@ -34,13 +35,11 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             var layer = new Layer("ASC", points);
-            drawing = new Drawing().Add(layer);
-            viewPort = null;
-
-            return true;
+            var drawing = new Drawing().Add(layer);
+            return Task.FromResult(ReadDrawingResult.Succeeded(drawing, null));
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             throw new NotImplementedException();
         }

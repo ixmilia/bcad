@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IxMilia.BCad.Services
@@ -7,5 +6,6 @@ namespace IxMilia.BCad.Services
     {
         Task<string> GetFileNameFromUserForSave(string extensionHint = null);
         Task<string> GetFileNameFromUserForOpen();
+        Task<byte[]> ReadAllBytesAsync(string path);
     }
 }

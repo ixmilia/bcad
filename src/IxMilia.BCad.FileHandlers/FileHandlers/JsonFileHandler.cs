@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Helpers;
@@ -20,7 +21,7 @@ namespace IxMilia.BCad.FileHandlers
             return null;
         }
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
+        public Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             ReadOnlyTree<string, Layer> layers = null;
             using (var reader = new StreamReader(fileStream, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
@@ -71,18 +72,16 @@ namespace IxMilia.BCad.FileHandlers
                                 }
                             }
                             break;
-                        // TODO: handle other blocks?
+                            // TODO: handle other blocks?
                     }
                 }
             }
 
-            drawing = new Drawing().Update(layers: layers);
-            viewPort = null; // auto-generate later
-
-            return true;
+            var drawing = new Drawing().Update(layers: layers);
+            return Task.FromResult(ReadDrawingResult.Succeeded(drawing, null));
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             var jsonDrawing = new JsonDrawing();
             var modelSpace = new JsonBlock() { Name = "*Model_Space" };
@@ -135,7 +134,7 @@ namespace IxMilia.BCad.FileHandlers
                 writer.Write(json);
             }
 
-            return true;
+            return Task.FromResult(true);
         }
 
         private class JsonEntityConverter : JsonConverter

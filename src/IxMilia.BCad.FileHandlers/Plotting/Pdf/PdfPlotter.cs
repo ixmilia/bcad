@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.FileHandlers;
 using IxMilia.Converters;
 using IxMilia.Pdf;
@@ -14,7 +16,7 @@ namespace IxMilia.BCad.Plotting.Pdf
             ViewModel = viewModel;
         }
 
-        public override void Plot(Drawing drawing, ViewPort viewPort, Stream outputStream)
+        public override async Task Plot(Drawing drawing, ViewPort viewPort, Stream outputStream, Func<string, Task<byte[]>> contentResolver)
         {
             var converter = new DxfToPdfConverter();
             var fileSettings = new DxfFileSettings()
@@ -32,8 +34,8 @@ namespace IxMilia.BCad.Plotting.Pdf
                 new PdfMeasurement(ViewModel.DisplayWidth, ViewModel.DisplayUnit),
                 new PdfMeasurement(0.0, ViewModel.DisplayUnit),
                 new PdfMeasurement(ViewModel.DisplayHeight, ViewModel.DisplayUnit));
-            var options = new DxfToPdfConverterOptions(pageWidth, pageHeight, dxfRect, pdfRect);
-            var pdfFile = converter.Convert(dxfFile, options);
+            var options = new DxfToPdfConverterOptions(pageWidth, pageHeight, dxfRect, pdfRect, contentResolver: contentResolver);
+            var pdfFile = await converter.Convert(dxfFile, options);
             pdfFile.Save(outputStream);
         }
     }

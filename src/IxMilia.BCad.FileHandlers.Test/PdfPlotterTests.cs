@@ -22,7 +22,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             using (var ms = new MemoryStream())
             {
                 var plotter = PlotterFactory.CreatePlotter(viewModel);
-                plotter.Plot(Workspace.Drawing, Workspace.ActiveViewPort, ms);
+                plotter.Plot(Workspace.Drawing, Workspace.ActiveViewPort, ms, Workspace.FileSystemService.ReadAllBytesAsync);
                 ms.Seek(0, SeekOrigin.Begin);
                 using (var reader = new StreamReader(ms))
                 {

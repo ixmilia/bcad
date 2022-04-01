@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.FileHandlers.Extensions;
@@ -7,14 +8,14 @@ using IxMilia.Iges;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    public class IgesFileHandler: IFileHandler
+    public class IgesFileHandler : IFileHandler
     {
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             return null;
         }
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
+        public Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             var file = IgesFile.Load(fileStream);
             var layer = new Layer("igs");
@@ -27,19 +28,16 @@ namespace IxMilia.BCad.FileHandlers
                 }
             }
 
-            drawing = new Drawing(
+            var drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, 8),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 layer.Name,
                 file.Author);
             drawing.Tag = file;
-
-            viewPort = null; // auto-set it later
-
-            return true;
+            return Task.FromResult(ReadDrawingResult.Succeeded(drawing, null));
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             var file = new IgesFile();
             var oldFile = drawing.Tag as IgesFile;
@@ -65,7 +63,7 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             file.Save(fileStream);
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

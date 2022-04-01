@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.FileHandlers.Extensions;
@@ -23,7 +24,7 @@ namespace IxMilia.BCad.FileHandlers
             return settings;
         }
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
+        public async Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             var file = DxfFile.Load(fileStream);
             var layers = new ReadOnlyTree<string, Layer>();
@@ -37,7 +38,7 @@ namespace IxMilia.BCad.FileHandlers
                 var layer = GetOrCreateLayer(ref layers, item.Layer);
 
                 // create the entity
-                var entity = item.ToEntity();
+                var entity = await item.ToEntity(contentResolver);
 
                 // add the entity to the appropriate layer
                 if (entity != null)
@@ -55,7 +56,7 @@ namespace IxMilia.BCad.FileHandlers
                 var children = ReadOnlyList<Entity>.Empty();
                 foreach (var item in block.Entities)
                 {
-                    var tempEnt = item.ToEntity();
+                    var tempEnt = await item.ToEntity(contentResolver);
                     if (tempEnt != null)
                     {
                         children = children.Add(tempEnt);
@@ -70,7 +71,7 @@ namespace IxMilia.BCad.FileHandlers
                 }
             }
 
-            drawing = new Drawing(
+            var drawing = new Drawing(
                 settings: new DrawingSettings(fileName, file.Header.UnitFormat.ToUnitFormat(), file.Header.UnitPrecision),
                 layers: layers,
                 currentLayerName: file.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First(),
@@ -79,6 +80,7 @@ namespace IxMilia.BCad.FileHandlers
 
             // prefer `*ACTIVE` view port first
             // TODO: use `DxfFile.ActiveViewPort` when available
+            ViewPort viewPort;
             var vp = file.ViewPorts.FirstOrDefault(v => string.Compare(v.Name, DxfViewPort.ActiveViewPortName, StringComparison.OrdinalIgnoreCase) == 0)
                 ?? file.ViewPorts.FirstOrDefault();
             if (vp != null)
@@ -94,14 +96,14 @@ namespace IxMilia.BCad.FileHandlers
                 viewPort = null; // auto-set it later
             }
 
-            return true;
+            return ReadDrawingResult.Succeeded(drawing, viewPort);
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             var file = ToDxfFile(drawing, viewPort, fileSettings as DxfFileSettings);
             file.Save(fileStream);
-            return true;
+            return Task.FromResult(true);
         }
 
         public static DxfFile ToDxfFile(Drawing drawing, ViewPort viewPort, DxfFileSettings settings)

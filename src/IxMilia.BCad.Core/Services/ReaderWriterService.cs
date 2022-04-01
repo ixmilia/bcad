@@ -24,15 +24,12 @@ namespace IxMilia.BCad.Core.Services
             _fileHandlers.Add(new FileHandlerData(fileHandler, canRead, canWrite, fileExtensions));
         }
 
-        public Task<bool> TryReadDrawing(string fileName, Stream stream, out Drawing drawing, out ViewPort viewPort)
+        public async Task<ReadDrawingResult> ReadDrawing(string fileName, Stream stream, Func<string, Task<byte[]>> contentResolver)
         {
             if (fileName == null)
             {
                 throw new ArgumentNullException(nameof(fileName));
             }
-
-            drawing = default(Drawing);
-            viewPort = default(ViewPort);
 
             var extension = Path.GetExtension(fileName);
             var reader = ReaderFromExtension(extension);
@@ -41,18 +38,20 @@ namespace IxMilia.BCad.Core.Services
                 throw new Exception("Unknown file extension " + extension);
             }
 
-            reader.ReadDrawing(fileName, stream, out drawing, out viewPort);
+            var result = await reader.ReadDrawing(fileName, stream, contentResolver);
 
-            if (viewPort == null)
+            if (result.Success && result.ViewPort == null)
             {
-                viewPort = drawing.ShowAllViewPort(
-                    _workspace.ActiveViewPort.Sight,
-                    _workspace.ActiveViewPort.Up,
-                    _workspace.ViewControl.DisplayWidth,
-                    _workspace.ViewControl.DisplayHeight);
+                result = ReadDrawingResult.Succeeded(
+                    result.Drawing,
+                    result.Drawing.ShowAllViewPort(
+                        _workspace.ActiveViewPort.Sight,
+                        _workspace.ActiveViewPort.Up,
+                        _workspace.ViewControl.DisplayWidth,
+                        _workspace.ViewControl.DisplayHeight));
             }
 
-            return Task.FromResult(true);
+            return result;
         }
 
         public async Task<bool> TryWriteDrawing(string fileName, Drawing drawing, ViewPort viewPort, Stream stream, bool preserveSettings = true)
@@ -86,7 +85,7 @@ namespace IxMilia.BCad.Core.Services
             }
 
             _drawingSettingsCache.TryGetValue(drawing, out var previousDrawingSettings);
-            writer.WriteDrawing(fileName, stream, drawing, viewPort, fileSettings ?? previousDrawingSettings);
+            await writer.WriteDrawing(fileName, stream, drawing, viewPort, fileSettings ?? previousDrawingSettings);
 
             if (fileSettings != null)
             {

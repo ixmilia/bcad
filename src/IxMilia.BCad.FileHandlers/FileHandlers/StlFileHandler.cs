@@ -1,19 +1,20 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.Stl;
 
 namespace IxMilia.BCad.FileHandlers
 {
-    public class StlFileHandler: IFileHandler
+    public class StlFileHandler : IFileHandler
     {
         public object GetFileSettingsFromDrawing(Drawing drawing)
         {
             throw new NotImplementedException();
         }
 
-        public bool ReadDrawing(string fileName, Stream fileStream, out Drawing drawing, out ViewPort viewPort)
+        public Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             var file = StlFile.Load(fileStream);
             var lines = new Line[file.Triangles.Count * 3];
@@ -26,17 +27,15 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             var layer = new Layer(file.SolidName ?? "stl", lines);
-            drawing = new Drawing(
+            var drawing = new Drawing(
                 new DrawingSettings(fileName, UnitFormat.Architectural, -1),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer));
             drawing.Tag = file;
 
-            viewPort = null; // auto-set it later
-
-            return true;
+            return Task.FromResult(ReadDrawingResult.Succeeded(drawing, null));
         }
 
-        public bool WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
         {
             throw new NotImplementedException();
         }
