@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
 using IxMilia.Dxf;
@@ -482,48 +483,20 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static DxfEntity ToDxfEntity(this Entity item, Layer layer)
         {
-            DxfEntity entity = null;
-            switch (item.Kind)
-            {
-                case EntityKind.Aggregate:
-                    // no-op.  aggregates are handled separately
-                    break;
-                case EntityKind.Arc:
-                    // if start/end angles are a full circle, write it that way instead
-                    var arc = (Arc)item;
-                    if (arc.StartAngle == 0.0 && arc.EndAngle == 360.0)
-                        entity = new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer);
-                    else
-                        entity = ((Arc)item).ToDxfArc(layer);
-                    break;
-                case EntityKind.Circle:
-                    entity = ((Circle)item).ToDxfCircle(layer);
-                    break;
-                case EntityKind.Ellipse:
-                    entity = ((Ellipse)item).ToDxfEllipse(layer);
-                    break;
-                case EntityKind.Line:
-                    entity = ((Line)item).ToDxfLine(layer);
-                    break;
-                case EntityKind.Location:
-                    entity = ((Location)item).ToDxfLocation(layer);
-                    break;
-                case EntityKind.Polyline:
-                    entity = ((Polyline)item).ToDxfPolyline(layer);
-                    break;
-                case EntityKind.Text:
-                    entity = ((Text)item).ToDxfText(layer);
-                    break;
-                case EntityKind.Spline:
-                    entity = ((Spline)item).ToDxfSpline(layer);
-                    break;
-                case EntityKind.Image:
-                    entity = ((Image)item).ToDxfImage(layer);
-                    break;
-                default:
-                    Debug.Assert(false, "Unsupported entity type: " + item.GetType().Name);
-                    break;
-            }
+            var entity = item.MapEntity<DxfEntity>(
+                aggregate => null, // no-op, handled elsewhere
+                arc => arc.StartAngle == 0.0 && arc.EndAngle == 360.0
+                    ? new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer)
+                    : arc.ToDxfArc(layer),
+                circle => circle.ToDxfCircle(layer),
+                ellipse => ellipse.ToDxfEllipse(layer),
+                image => image.ToDxfImage(layer),
+                line => line.ToDxfLine(layer),
+                location => location.ToDxfLocation(layer),
+                polyline => polyline.ToDxfPolyline(layer),
+                spline => spline.ToDxfSpline(layer),
+                text => text.ToDxfText(layer)
+            );
 
             if (entity != null)
             {

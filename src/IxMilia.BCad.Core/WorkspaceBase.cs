@@ -55,7 +55,6 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Draw.PolyLine", "POLYLINE", new DrawPolyLineCommand(), "polyline", "pl"));
             RegisterCommand(new CadCommandInfo("Draw.Rectangle", "RECTANGLE", new DrawRectangleCommand(), "rectangle", "rect"));
             RegisterCommand(new CadCommandInfo("Draw.Text", "TEXT", new DrawTextCommand(), "text", "t"));
-            RegisterCommand(new CadCommandInfo("View.Properties", "PROPERTIES", new EntityPropertiesCommand(), "properties", "prop", "p"));
             RegisterCommand(new CadCommandInfo("Edit.Extend", "EXTEND", new ExtendCommand(), "extend", "ex"));
             RegisterCommand(new CadCommandInfo("Edit.Intersection", "INTERSECTION", new IntersectionCommand(), "intersection", "int"));
             RegisterCommand(new CadCommandInfo("Edit.JoinPolyline", "PJOIN", new JoinPolylineCommand(), "pjoin"));
@@ -76,7 +75,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Trim", "TRIM", new TrimCommand(), "trim", "tr"));
             RegisterCommand(new CadCommandInfo("Edit.Undo", "UNDO", new UndoCommand(), ModifierKeys.Control, Key.Z, "undo", "u"));
             RegisterCommand(new CadCommandInfo("Edit.Union", "UNION", new UnionCommand(), "union", "un"));
-            RegisterCommand(new CadCommandInfo("Zoom.Extents", "ZOOMEXTENTS",new ZoomExtentsCommand(), "zoomextents", "ze"));
+            RegisterCommand(new CadCommandInfo("Zoom.Extents", "ZOOMEXTENTS", new ZoomExtentsCommand(), "zoomextents", "ze"));
             RegisterCommand(new CadCommandInfo("Zoom.Window", "ZOOMWINDOW", new ZoomWindowCommand(), "zoomwindow", "zw"));
         }
 

@@ -9,6 +9,18 @@ namespace IxMilia.BCad.Extensions
 {
     public static class EntityExtensions
     {
+        public static bool EquivalentTo(this AggregateEntity agg, Entity entity)
+        {
+            if (entity is AggregateEntity other)
+            {
+                return agg.Location.CloseTo(other.Location)
+                    && agg.Children.Count == other.Children.Count
+                    && agg.Children.Zip(other.Children, (a, b) => a.EquivalentTo(b)).All(x => x);
+            }
+
+            return false;
+        }
+
         public static bool EquivalentTo(this Arc arc, Entity entity)
         {
             if (entity is Arc other)
@@ -56,6 +68,22 @@ namespace IxMilia.BCad.Extensions
             return false;
         }
 
+        public static bool EquivalentTo(this Image image, Entity entity)
+        {
+            if (entity is Image other)
+            {
+                return image.Location == other.Location
+                    && image.Path == other.Path
+                    && image.Width == other.Width
+                    && image.Height == other.Height
+                    && image.Rotation == other.Rotation
+                    && image.Color == other.Color
+                    && image.ImageData.SequenceEqual(other.ImageData);
+            }
+
+            return false;
+        }
+
         public static bool EquivalentTo(this Line line, Entity entity)
         {
             if (entity is Line other)
@@ -64,6 +92,16 @@ namespace IxMilia.BCad.Extensions
                     && line.P1.CloseTo(other.P1)
                     && line.P2.CloseTo(other.P2)
                     && MathHelper.CloseTo(line.Thickness, other.Thickness);
+            }
+
+            return false;
+        }
+
+        public static bool EquivalentTo(this Location location, Entity entity)
+        {
+            if (entity is Location other)
+            {
+                return location.Point.CloseTo(other.Point);
             }
 
             return false;
@@ -92,18 +130,17 @@ namespace IxMilia.BCad.Extensions
 
             return false;
         }
-        
-        public static bool EquivalentTo(this Image image, Entity entity)
+
+        public static bool EquivalentTo(this Text text, Entity entity)
         {
-            if (entity is Image other)
+            if (entity is Text other)
             {
-                return image.Location == other.Location
-                    && image.Path == other.Path
-                    && image.Width == other.Width
-                    && image.Height == other.Height
-                    && image.Rotation == other.Rotation
-                    && image.Color == other.Color
-                    && image.ImageData.SequenceEqual(other.ImageData);
+                return text.Value == other.Value
+                    && text.Location.CloseTo(other.Location)
+                    && text.Normal.CloseTo(other.Normal)
+                    && text.Height == other.Height
+                    && text.Width == other.Width
+                    && text.Rotation == other.Rotation;
             }
 
             return false;
@@ -138,61 +175,50 @@ namespace IxMilia.BCad.Extensions
 
         public static bool EquivalentTo(this Entity a, Entity b)
         {
-            switch (a)
-            {
-                case Arc arc:
-                    return arc.EquivalentTo(b);
-                case Circle circle:
-                    return circle.EquivalentTo(b);
-                case Ellipse el:
-                    return el.EquivalentTo(b);
-                case Line l:
-                    return l.EquivalentTo(b);
-                case Polyline p:
-                    return p.EquivalentTo(b);
-                case Spline s:
-                    return s.EquivalentTo(b);
-                case Image i:
-                    return i.EquivalentTo(b);
-                default:
-                    throw new NotSupportedException("Unsupported entity type");
-            }
+            return a.MapEntity<bool>(
+                aggregate => aggregate.EquivalentTo(b),
+                arc => arc.EquivalentTo(b),
+                circle => circle.EquivalentTo(b),
+                ellipse => ellipse.EquivalentTo(b),
+                image => image.EquivalentTo(b),
+                line => line.EquivalentTo(b),
+                location => location.EquivalentTo(b),
+                polyline => polyline.EquivalentTo(b),
+                spline => spline.EquivalentTo(b),
+                text => text.EquivalentTo(b)
+            );
         }
 
         public static Matrix4 GetUnitCircleProjection(this Entity entity)
         {
-            Matrix4 matrix;
-            switch (entity.Kind)
-            {
-                case EntityKind.Arc:
-                    var arc = (Arc)entity;
-                    matrix = arc.FromUnitCircle;
-                    break;
-                case EntityKind.Circle:
-                    var circle = (Circle)entity;
-                    matrix = circle.FromUnitCircle;
-                    break;
-                case EntityKind.Ellipse:
-                    var el = (Ellipse)entity;
-                    matrix = el.FromUnitCircle;
-                    break;
-                default:
-                    throw new ArgumentException("entity");
-            }
-
-            return matrix;
+            return entity.MapEntity<Matrix4>(
+                aggregate => throw new ArgumentException(nameof(entity)),
+                arc => arc.FromUnitCircle,
+                circle => circle.FromUnitCircle,
+                ellipse => ellipse.FromUnitCircle,
+                image => throw new ArgumentException(nameof(entity)),
+                line => throw new ArgumentException(nameof(entity)),
+                location => throw new ArgumentException(nameof(entity)),
+                polyline => throw new ArgumentException(nameof(entity)),
+                spline => throw new ArgumentException(nameof(entity)),
+                text => throw new ArgumentException(nameof(entity))
+            );
         }
 
         public static bool EnclosesPoint(this Entity entity, Point point)
         {
-            switch (entity.Kind)
-            {
-                case EntityKind.Circle:
-                case EntityKind.Polyline:
-                    return entity.GetPrimitives().PolygonContains(point);
-                default:
-                    return false;
-            }
+            return entity.MapEntity<bool>(
+                aggregate => false,
+                arc => arc.GetPrimitives().PolygonContains(point),
+                circle => circle.GetPrimitives().PolygonContains(point),
+                ellipse => false, // TODO: if closed, check it
+                image => false, // TODO: this could be meaningful
+                line => false,
+                location => false,
+                polyline => false,
+                spline => false,
+                tet => false
+            );
         }
 
         public static Point MidPoint(this Line line)
@@ -202,48 +228,34 @@ namespace IxMilia.BCad.Extensions
 
         public static Entity WithColor(this Entity entity, CadColor? color)
         {
-            switch (entity)
-            {
-                case AggregateEntity agg:
-                    return agg.Update(color: color);
-                case Arc arc:
-                    return arc.Update(color: color);
-                case Circle circle:
-                    return circle.Update(color: color);
-                case Ellipse el:
-                    return el.Update(color: color);
-                case Image i:
-                    return i.Update(color: color);
-                case Line line:
-                    return line.Update(color: color);
-                case Location loc:
-                    return loc.Update(color: color);
-                case Polyline pl:
-                    return pl.Update(color: color);
-                case Spline sp:
-                    return sp.Update(color: color);
-                case Text t:
-                    return t.Update(color: color);
-                default:
-                    throw new NotImplementedException();
-            }
+            return entity.MapEntity<Entity>(
+                aggregate => aggregate.Update(color: color),
+                arc => arc.Update(color: color),
+                circle => circle.Update(color: color),
+                ellipse => ellipse.Update(color: color),
+                image => image.Update(color: color),
+                line => line.Update(color: color),
+                location => location.Update(color: color),
+                polyline => polyline.Update(color: color),
+                spline => spline.Update(color: color),
+                text => text.Update(color: color)
+            );
         }
 
         public static Entity WithThickness(this Entity entity, double thickness)
         {
-            switch (entity)
-            {
-                case Arc arc:
-                    return arc.Update(thickness: thickness);
-                case Circle circle:
-                    return circle.Update(thickness: thickness);
-                case Ellipse el:
-                    return el.Update(thickness: thickness);
-                case Line line:
-                    return line.Update(thickness: thickness);
-                default:
-                    return entity;
-            }
+            return entity.MapEntity<Entity>(
+                aggregate => entity,
+                arc => arc.Update(thickness: thickness),
+                circle => circle.Update(thickness: thickness),
+                ellipse => ellipse.Update(thickness: thickness),
+                image => entity,
+                line => line.Update(thickness: thickness),
+                location => entity,
+                polyline => entity,
+                spline => spline,
+                text => text
+            );
         }
 
         public static IEnumerable<Entity> Union(this IEnumerable<Entity> entities)
@@ -295,6 +307,85 @@ namespace IxMilia.BCad.Extensions
             }
 
             return keptLines.GetPolylinesFromSegments();
+        }
+
+        public static void DoEntity(
+            this Entity entity,
+            Action<AggregateEntity> aggregateAction,
+            Action<Arc> arcAction,
+            Action<Circle> circleAction,
+            Action<Ellipse> ellipseAction,
+            Action<Image> imageAction,
+            Action<Line> lineAction,
+            Action<Location> locationAction,
+            Action<Polyline> polylineAction,
+            Action<Spline> splineAction,
+            Action<Text> textAction)
+        {
+            switch (entity)
+            {
+                case AggregateEntity aggregate:
+                    aggregateAction(aggregate);
+                    break;
+                case Arc arc:
+                    arcAction(arc);
+                    break;
+                case Circle circle:
+                    circleAction(circle);
+                    break;
+                case Ellipse ellipse:
+                    ellipseAction(ellipse);
+                    break;
+                case Image image:
+                    imageAction(image);
+                    break;
+                case Line line:
+                    lineAction(line);
+                    break;
+                case Location location:
+                    locationAction(location);
+                    break;
+                case Polyline polyline:
+                    polylineAction(polyline);
+                    break;
+                case Spline spline:
+                    splineAction(spline);
+                    break;
+                case Text text:
+                    textAction(text);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unexpected entity: {entity.Kind}");
+            };
+        }
+
+        public static TResult MapEntity<TResult>(
+            this Entity entity,
+            Func<AggregateEntity, TResult> aggregateMapper,
+            Func<Arc, TResult> arcMapper,
+            Func<Circle, TResult> circleMapper,
+            Func<Ellipse, TResult> ellipseMapper,
+            Func<Image, TResult> imageMapper,
+            Func<Line, TResult> lineMapper,
+            Func<Location, TResult> locationMapper,
+            Func<Polyline, TResult> polylineMapper,
+            Func<Spline, TResult> splineMapper,
+            Func<Text, TResult> textMapper)
+        {
+            return entity switch
+            {
+                AggregateEntity aggregate => aggregateMapper(aggregate),
+                Arc arc => arcMapper(arc),
+                Circle circle => circleMapper(circle),
+                Ellipse ellipse => ellipseMapper(ellipse),
+                Image image => imageMapper(image),
+                Line line => lineMapper(line),
+                Location location => locationMapper(location),
+                Polyline polyline => polylineMapper(polyline),
+                Spline spline => splineMapper(spline),
+                Text text => textMapper(text),
+                _ => throw new NotSupportedException($"Unexpected entity: {entity.Kind}"),
+            };
         }
 
         private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion)

@@ -13,19 +13,18 @@ namespace IxMilia.BCad.FileHandlers.Extensions
     {
         public static IgesEntity ToIgesEntity(this Entity entity)
         {
-            switch (entity.Kind)
-            {
-                case EntityKind.Line:
-                    return ((Line)entity).ToIgesLine();
-                case EntityKind.Location:
-                    return ((Location)entity).ToIgesLocation();
-                case EntityKind.Arc:
-                case EntityKind.Circle:
-                    return entity.ToIgesCircle();
-                default:
-                    //Debug.Assert(false, "Unsupported entity type: " + entity.Kind);
-                    return null;
-            }
+            return entity.MapEntity<IgesEntity>(
+                aggregate => null,
+                arc => arc.ToIgesCircle(),
+                circle => circle.ToIgesCircle(),
+                ellipse => null,
+                image => null,
+                line => line.ToIgesLine(),
+                location => location.ToIgesLocation(),
+                polyline => null,
+                spline => null,
+                text => null
+            );
         }
 
         public static IgesLine ToIgesLine(this Line line)
@@ -54,28 +53,18 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static IgesCircularArc ToIgesCircle(this Entity entity)
         {
-            Point center;
-            double startAngle, endAngle;
-            CadColor? color;
-            switch (entity.Kind)
-            {
-                case EntityKind.Arc:
-                    var arc = (Arc)entity;
-                    center = arc.Center;
-                    startAngle = arc.StartAngle;
-                    endAngle = arc.EndAngle;
-                    color = arc.Color;
-                    break;
-                case EntityKind.Circle:
-                    var circle = (Circle)entity;
-                    center = circle.Center;
-                    startAngle = 0.0;
-                    endAngle = 360.0;
-                    color = circle.Color;
-                    break;
-                default:
-                    throw new ArgumentException();
-            }
+            var (center, startAngle, endAngle, color) = entity.MapEntity<(Point, double, double, CadColor?)>(
+                aggregate => throw new ArgumentException(nameof(entity)),
+                arc => (arc.Center, arc.StartAngle, arc.EndAngle, arc.Color),
+                circle => (circle.Center, 0.0, 360.0, circle.Color),
+                ellipse => throw new ArgumentException(nameof(entity)),
+                image => throw new ArgumentException(nameof(entity)),
+                line => throw new ArgumentException(nameof(entity)),
+                location => throw new ArgumentException(nameof(entity)),
+                polyline => throw new ArgumentException(nameof(entity)),
+                spline => throw new ArgumentException(nameof(entity)),
+                text => throw new ArgumentException(nameof(entity))
+            );
 
             startAngle *= MathHelper.DegreesToRadians;
             endAngle *= MathHelper.DegreesToRadians;

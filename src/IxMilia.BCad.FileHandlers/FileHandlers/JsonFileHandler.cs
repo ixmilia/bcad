@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -98,28 +99,31 @@ namespace IxMilia.BCad.FileHandlers
                 jsonDrawing.Floorplan.Layers.Add(jsonLayer);
                 foreach (var entity in layer.GetEntities())
                 {
-                    switch (entity.Kind)
-                    {
-                        case EntityKind.Arc:
-                            var arc = (Arc)entity;
-                            var jsonArc = new JsonArc()
-                            {
-                                Layer = layer.Name,
-                                Center = arc.Center,
-                                Radius = arc.Radius,
-                                StartAngle = arc.StartAngle * MathHelper.DegreesToRadians,
-                                EndAngle = arc.EndAngle * MathHelper.DegreesToRadians
-                            };
-                            modelSpace.Entities.Add(jsonArc);
-                            break;
-                        case EntityKind.Line:
-                            var line = (Line)entity;
+                    entity.DoEntity(
+                        aggregate => { },
+                        arc => modelSpace.Entities.Add(new JsonArc()
+                        {
+                            Layer = layer.Name,
+                            Center = arc.Center,
+                            Radius = arc.Radius,
+                            StartAngle = arc.StartAngle * MathHelper.DegreesToRadians,
+                            EndAngle = arc.EndAngle * MathHelper.DegreesToRadians
+                        }),
+                        circle => { },
+                        ellipse => { },
+                        image => { },
+                        line =>
+                        {
                             var jsonLine = new JsonLine() { Layer = layer.Name };
                             jsonLine.Points.Add(line.P1);
                             jsonLine.Points.Add(line.P2);
                             modelSpace.Entities.Add(jsonLine);
-                            break;
-                    }
+                        },
+                        location => { },
+                        polyline => { },
+                        spline => { },
+                        text => { }
+                    );
                 }
 
                 foreach (var jsonEntity in modelSpace.Entities)

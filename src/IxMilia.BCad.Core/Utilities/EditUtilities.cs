@@ -38,38 +38,35 @@ namespace IxMilia.BCad.Utilities
         {
             var transform = GetRotateMatrix(offset, angleInDegrees);
             var inSitu = GetRotateMatrix(Vector.Zero, angleInDegrees);
-            switch (entity.Kind)
-            {
-                case EntityKind.Arc:
-                    var arc = (Arc)entity;
-                    return arc.Update(
-                        center: transform.Transform(arc.Center),
-                        startAngle: MathHelper.CorrectAngleDegrees(arc.StartAngle + angleInDegrees),
-                        endAngle: MathHelper.CorrectAngleDegrees(arc.EndAngle + angleInDegrees));
-                case EntityKind.Circle:
-                    var circ = (Circle)entity;
-                    return circ.Update(center: transform.Transform(circ.Center));
-                case EntityKind.Ellipse:
-                    var el = (Ellipse)entity;
-                    return el.Update(center: transform.Transform(el.Center),
-                        majorAxis: inSitu.Transform(el.MajorAxis));
-                case EntityKind.Image:
-                    var image = (Image)entity;
-                    return image.Update(
-                        location: transform.Transform(image.Location),
-                        rotation: image.Rotation + angleInDegrees);
-                case EntityKind.Line:
-                    var line = (Line)entity;
-                    return line.Update(p1: transform.Transform(line.P1), p2: transform.Transform(line.P2));
-                case EntityKind.Location:
-                    var loc = (Location)entity;
-                    return loc.Update(point: transform.Transform(loc.Point));
-                case EntityKind.Spline:
-                    var sp = (Spline)entity;
-                    return sp.Update(controlPoints: sp.ControlPoints.Select(cp => transform.Transform(cp)));
-                default:
-                    throw new ArgumentException("Unsupported entity type " + entity.Kind);
-            }
+            return entity.MapEntity<Entity>(
+                aggregate => aggregate.Update(
+                    location: transform.Transform(aggregate.Location),
+                    children: ReadOnlyList<Entity>.Create(aggregate.Children.Select(c => Rotate(entity, offset, angleInDegrees)))),
+                arc => arc.Update(
+                    center: transform.Transform(arc.Center),
+                    startAngle: MathHelper.CorrectAngleDegrees(arc.StartAngle + angleInDegrees),
+                    endAngle: MathHelper.CorrectAngleDegrees(arc.EndAngle + angleInDegrees)),
+                circle => circle.Update(
+                    center: transform.Transform(circle.Center)),
+                ellipse => ellipse.Update(
+                    center: transform.Transform(ellipse.Center),
+                    majorAxis: inSitu.Transform(ellipse.MajorAxis)),
+                image => image.Update(
+                    location: transform.Transform(image.Location),
+                    rotation: image.Rotation + angleInDegrees),
+                line => line.Update(
+                    p1: transform.Transform(line.P1),
+                    p2: transform.Transform(line.P2)),
+                location => location.Update(
+                    point: transform.Transform(location.Point)),
+                polyline => polyline.Update(
+                    vertices: polyline.Vertices.Select(v => new Vertex(transform.Transform(v.Location), v.IncludedAngle, v.Direction))),
+                spline => spline.Update(
+                    controlPoints: spline.ControlPoints.Select(cp => transform.Transform(cp))),
+                text => text.Update(
+                    location: transform.Transform(text.Location),
+                    rotation: text.Rotation + angleInDegrees)
+            );
         }
 
         public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
@@ -87,30 +84,39 @@ namespace IxMilia.BCad.Utilities
             if (intersectionPoints.Length > 0)
             {
                 // perform the trim operation
-                switch (entityToTrim.Entity.Kind)
-                {
-                    case EntityKind.Line:
-                        TrimLine((Line)entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
-                        break;
-                    case EntityKind.Arc:
-                    case EntityKind.Circle:
-                    case EntityKind.Ellipse:
-                        TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
-                        break;
-                    case EntityKind.Spline:
-                        TrimSpline((Spline)entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out removed, out added);
-                        break;
-                    default:
-                        Debug.Assert(false, "unsupported trim entity: " + entityToTrim.Entity.Kind);
-                        removed = new List<Entity>();
-                        added = new List<Entity>();
-                        break;
-                }
+                (removed, added) = entityToTrim.Entity.MapEntity<(IEnumerable<Entity>, IEnumerable<Entity>)>(
+                    aggregate => (null, null),
+                    arc => DoTrimEllipse(),
+                    circle => DoTrimEllipse(),
+                    ellipse => DoTrimEllipse(),
+                    image => (null, null),
+                    line =>
+                    {
+                        TrimLine(line, entityToTrim.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                        return (removedX, addedX);
+                    },
+                    location => (null, null),
+                    polyline => (null, null),
+                    spline =>
+                    {
+                        TrimSpline(spline, entityToTrim.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                        return (removedX, addedX);
+                    },
+                    text => (null, null)
+                );
+                removed ??= new List<Entity>();
+                added ??= new List<Entity>();
             }
             else
             {
                 removed = new List<Entity>();
                 added = new List<Entity>();
+            }
+
+            (IEnumerable<Entity>, IEnumerable<Entity>) DoTrimEllipse()
+            {
+                TrimEllipse(entityToTrim.Entity, entityToTrim.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                return (removedX, addedX);
             }
         }
 
@@ -128,47 +134,53 @@ namespace IxMilia.BCad.Utilities
 
             if (intersectionPoints.Any())
             {
-                switch (entityToExtend.Entity.Kind)
-                {
-                    case EntityKind.Arc:
-                    case EntityKind.Circle:
-                    case EntityKind.Ellipse:
-                        ExtendEllipse(entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
-                        break;
-                    case EntityKind.Line:
-                        ExtendLine((Line)entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out removed, out added);
-                        break;
-                    default:
-                        Debug.Assert(false, "unsupported extend entity: " + entityToExtend.Entity.Kind);
-                        removed = new List<Entity>();
-                        added = new List<Entity>();
-                        break;
-                }
+                (removed, added) = entityToExtend.Entity.MapEntity<(IEnumerable<Entity>, IEnumerable<Entity>)>(
+                    aggregate => (null, null),
+                    arc => DoExtendEllipse(),
+                    circle => DoExtendEllipse(),
+                    ellipse => DoExtendEllipse(),
+                    image => (null, null),
+                    line =>
+                    {
+                        ExtendLine(line, entityToExtend.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                        return (removedX, addedX);
+                    },
+                    location => (null, null),
+                    polyline => (null, null),
+                    spline => (null, null),
+                    text => (null, null)
+                );
+
+                removed ??= new List<Entity>();
+                added ??= new List<Entity>();
             }
             else
             {
                 removed = new List<Entity>();
                 added = new List<Entity>();
             }
+
+            (IEnumerable<Entity>, IEnumerable<Entity>) DoExtendEllipse()
+            {
+                ExtendEllipse(entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                return (removedX, addedX);
+            }
         }
 
         public static bool CanOffsetEntity(Entity entityToOffset)
         {
-            switch (entityToOffset.Kind)
-            {
-                case EntityKind.Arc:
-                case EntityKind.Circle:
-                case EntityKind.Ellipse:
-                case EntityKind.Line:
-                    return true;
-                case EntityKind.Aggregate:
-                case EntityKind.Location:
-                case EntityKind.Polyline:
-                case EntityKind.Text:
-                    return false;
-                default:
-                    throw new ArgumentException("entityToOffset.Kind");
-            }
+            return entityToOffset.MapEntity<bool>(
+                aggregate => false,
+                arc => true,
+                circle => true,
+                ellipse => true,
+                image => false,
+                line => true,
+                location => false,
+                polyline => false,
+                spline => false,
+                text => false
+            );
         }
 
         public static IPrimitive Offset(Plane drawingPlane, IPrimitive primitive, Point offsetDirection, double offsetDistance)
@@ -253,33 +265,35 @@ namespace IxMilia.BCad.Utilities
 
         public static Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
         {
-            switch (entityToOffset.Kind)
-            {
-                case EntityKind.Arc:
-                case EntityKind.Circle:
-                case EntityKind.Ellipse:
-                case EntityKind.Line:
-                    var primitive = entityToOffset.GetPrimitives().Single();
-                    var thickness = primitive.GetThickness();
-                    var offset = Offset(
-                        workspace.DrawingPlane,
-                        primitive,
-                        offsetDirection,
-                        offsetDistance);
-                    var entity = offset?.ToEntity();
-                    if (entity != null)
-                    {
-                        entity = entity.WithThickness(thickness);
-                    }
+            return entityToOffset.MapEntity<Entity>(
+                aggregate => null,
+                arc => DoOffset(),
+                circle => DoOffset(),
+                ellipse => DoOffset(),
+                image => null,
+                line => DoOffset(),
+                location => null,
+                polyline => null,
+                spline => null,
+                text => null
+            );
 
-                    return entity;
-                case EntityKind.Aggregate:
-                case EntityKind.Location:
-                case EntityKind.Polyline:
-                case EntityKind.Text:
-                    return null;
-                default:
-                    throw new ArgumentException("entityToOffset.Kind");
+            Entity DoOffset()
+            {
+                var primitive = entityToOffset.GetPrimitives().Single();
+                var thickness = primitive.GetThickness();
+                var offset = Offset(
+                    workspace.DrawingPlane,
+                    primitive,
+                    offsetDirection,
+                    offsetDistance);
+                var entity = offset?.ToEntity();
+                if (entity != null)
+                {
+                    entity = entity.WithThickness(thickness);
+                }
+
+                return entity;
             }
         }
 
@@ -326,88 +340,52 @@ namespace IxMilia.BCad.Utilities
 
         public static Entity Move(Entity entity, Vector offset)
         {
-            switch (entity.Kind)
-            {
-                case EntityKind.Aggregate:
-                    var agg = (AggregateEntity)entity;
-                    return agg.Update(location: agg.Location + offset);
-                case EntityKind.Arc:
-                    var arc = (Arc)entity;
-                    return arc.Update(center: arc.Center + offset);
-                case EntityKind.Circle:
-                    var circle = (Circle)entity;
-                    return circle.Update(center: circle.Center + offset);
-                case EntityKind.Ellipse:
-                    var el = (Ellipse)entity;
-                    return el.Update(center: el.Center + offset);
-                case EntityKind.Image:
-                    var image = (Image)entity;
-                    return image.Update(location: image.Location + offset);
-                case EntityKind.Line:
-                    var line = (Line)entity;
-                    return line.Update(p1: line.P1 + offset, p2: line.P2 + offset);
-                case EntityKind.Location:
-                    var location = (Location)entity;
-                    return location.Update(point: location.Point + offset);
-                case EntityKind.Polyline:
-                    var poly = (Polyline)entity;
-                    return poly.Update(vertices: poly.Vertices.Select(v => new Vertex(v.Location + offset, v.IncludedAngle, v.Direction)));
-                case EntityKind.Spline:
-                    var sp = (Spline)entity;
-                    return sp.Update(controlPoints: sp.ControlPoints.Select(p => p + offset));
-                case EntityKind.Text:
-                    var text = (Text)entity;
-                    return text.Update(location: text.Location + offset);
-                default:
-                    throw new ArgumentException("entity.Kind");
-            }
+            return entity.MapEntity<Entity>(
+                aggregate => aggregate.Update(location: aggregate.Location + offset),
+                arc => arc.Update(center: arc.Center + offset),
+                circle => circle.Update(center: circle.Center + offset),
+                ellipse => ellipse.Update(center: ellipse.Center + offset),
+                image => image.Update(location: image.Location + offset),
+                line => line.Update(p1: line.P1 + offset, p2: line.P2 + offset),
+                location => location.Update(point: location.Point + offset),
+                polyline => polyline.Update(vertices: polyline.Vertices.Select(v => new Vertex(v.Location + offset, v.IncludedAngle, v.Direction))),
+                spline => spline.Update(controlPoints: spline.ControlPoints.Select(p => p + offset)),
+                text => text.Update(location: text.Location + offset)
+            );
         }
 
         public static Entity Scale(Entity entity, Point basePoint, double scaleFactor)
         {
-            switch (entity)
-            {
-                case AggregateEntity ag:
-                    return ag.Update(
-                        location: ag.Location.ScaleFrom(basePoint, scaleFactor),
-                        children: ReadOnlyList<Entity>.Create(ag.Children.Select(c => Scale(c, basePoint, scaleFactor))));
-                case Arc a:
-                    return a.Update(
-                        center: a.Center.ScaleFrom(basePoint, scaleFactor),
-                        radius: a.Radius * scaleFactor);
-                case Circle c:
-                    return c.Update(
-                        center: c.Center.ScaleFrom(basePoint, scaleFactor),
-                        radius: c.Radius * scaleFactor);
-                case Ellipse e:
-                    return e.Update(
-                        center: e.Center.ScaleFrom(basePoint, scaleFactor),
-                        majorAxis: e.MajorAxis * scaleFactor);
-                case Image i:
-                    return i.Update(
-                        location: i.Location.ScaleFrom(basePoint, scaleFactor),
-                        width: i.Width * scaleFactor,
-                        height: i.Height * scaleFactor);
-                case Line line:
-                    return line.Update(
-                        p1: line.P1.ScaleFrom(basePoint, scaleFactor),
-                        p2: line.P2.ScaleFrom(basePoint, scaleFactor));
-                case Location loc:
-                    return loc.Update(
-                        point: loc.Point.ScaleFrom(basePoint, scaleFactor));
-                case Polyline p:
-                    return p.Update(
-                        vertices: p.Vertices.Select(v => new Vertex(v.Location.ScaleFrom(basePoint, scaleFactor), v.IncludedAngle, v.Direction)));
-                case Spline s:
-                    return s.Update(
-                        controlPoints: s.ControlPoints.Select(p => p.ScaleFrom(basePoint, scaleFactor)));
-                case Text t:
-                    return t.Update(
-                        location: t.Location.ScaleFrom(basePoint, scaleFactor),
-                        height: t.Height * scaleFactor);
-                default:
-                    throw new ArgumentException(nameof(entity));
-            }
+            return entity.MapEntity<Entity>(
+                aggregate => aggregate.Update(
+                    location: aggregate.Location.ScaleFrom(basePoint, scaleFactor),
+                    children: ReadOnlyList<Entity>.Create(aggregate.Children.Select(c => Scale(c, basePoint, scaleFactor)))),
+                arc => arc.Update(
+                    center: arc.Center.ScaleFrom(basePoint, scaleFactor),
+                    radius: arc.Radius * scaleFactor),
+                circle => circle.Update(
+                    center: circle.Center.ScaleFrom(basePoint, scaleFactor),
+                    radius: circle.Radius * scaleFactor),
+                ellipse => ellipse.Update(
+                    center: ellipse.Center.ScaleFrom(basePoint, scaleFactor),
+                    majorAxis: ellipse.MajorAxis * scaleFactor),
+                image => image.Update(
+                    location: image.Location.ScaleFrom(basePoint, scaleFactor),
+                    width: image.Width * scaleFactor,
+                    height: image.Height * scaleFactor),
+                line => line.Update(
+                    p1: line.P1.ScaleFrom(basePoint, scaleFactor),
+                    p2: line.P2.ScaleFrom(basePoint, scaleFactor)),
+                location => location.Update(
+                    point: location.Point.ScaleFrom(basePoint, scaleFactor)),
+                polyline => polyline.Update(
+                    vertices: polyline.Vertices.Select(v => new Vertex(v.Location.ScaleFrom(basePoint, scaleFactor), v.IncludedAngle, v.Direction))),
+                spline => spline.Update(
+                    controlPoints: spline.ControlPoints.Select(p => p.ScaleFrom(basePoint, scaleFactor))),
+                text => text.Update(
+                    location: text.Location.ScaleFrom(basePoint, scaleFactor),
+                    height: text.Height * scaleFactor)
+            );
         }
 
         public static Point ScaleFrom(this Point point, Point basePoint, double scaleFactor)
@@ -419,56 +397,52 @@ namespace IxMilia.BCad.Utilities
 
         public static Entity Quantize(Entity entity, QuantizeSettings settings)
         {
-            switch (entity)
-            {
-                case AggregateEntity agg:
-                    return agg.Update(
-                        location: settings.Quantize(agg.Location),
-                        children: ReadOnlyList<Entity>.Create(agg.Children.Select(c => Quantize(c, settings))));
-                case Arc arc:
-                    return arc.Update(
-                        center: settings.Quantize(arc.Center),
-                        radius: settings.QuantizeDistance(arc.Radius),
-                        startAngle: settings.QuantizeAngle(arc.StartAngle),
-                        endAngle: settings.QuantizeAngle(arc.EndAngle),
-                        normal: settings.Quantize(arc.Normal),
-                        thickness: settings.QuantizeDistance(arc.Thickness));
-                case Circle circle:
-                    return circle.Update(
-                        center: settings.Quantize(circle.Center),
-                        radius: settings.QuantizeDistance(circle.Radius),
-                        normal: settings.Quantize(circle.Normal),
-                        thickness: settings.QuantizeDistance(circle.Thickness));
-                case Ellipse el:
-                    return el.Update(
-                        center: settings.Quantize(el.Center),
-                        majorAxis: settings.Quantize(el.MajorAxis),
-                        minorAxisRatio: settings.QuantizeDistance(el.MinorAxisRatio),
-                        startAngle: settings.QuantizeAngle(el.StartAngle),
-                        endAngle: settings.QuantizeAngle(el.EndAngle),
-                        normal: settings.Quantize(el.Normal),
-                        thickness: settings.QuantizeDistance(el.Thickness));
-                case Line line:
-                    return line.Update(
-                        p1: settings.Quantize(line.P1),
-                        p2: settings.Quantize(line.P2),
-                        thickness: settings.QuantizeDistance(line.Thickness));
-                case Location loc:
-                    return loc.Update(
-                        point: settings.Quantize(loc.Point));
-                case Polyline poly:
-                    return poly.Update(
-                        vertices: poly.Vertices.Select(
-                            v => new Vertex(settings.Quantize(v.Location), settings.QuantizeAngle(v.IncludedAngle), v.Direction)));
-                case Text t:
-                    return t.Update(
-                        location: settings.Quantize(t.Location),
-                        normal: settings.Quantize(t.Normal),
-                        height: settings.QuantizeDistance(t.Height),
-                        rotation: settings.QuantizeAngle(t.Rotation));
-                default:
-                    throw new ArgumentException("entity.Kind");
-            }
+            return entity.MapEntity<Entity>(
+                aggregate => aggregate.Update(
+                    location: settings.Quantize(aggregate.Location),
+                    children: ReadOnlyList<Entity>.Create(aggregate.Children.Select(c => Quantize(c, settings)))),
+                arc => arc.Update(
+                    center: settings.Quantize(arc.Center),
+                    radius: settings.QuantizeDistance(arc.Radius),
+                    startAngle: settings.QuantizeAngle(arc.StartAngle),
+                    endAngle: settings.QuantizeAngle(arc.EndAngle),
+                    normal: settings.Quantize(arc.Normal),
+                    thickness: settings.QuantizeDistance(arc.Thickness)),
+                circle => circle.Update(
+                    center: settings.Quantize(circle.Center),
+                    radius: settings.QuantizeDistance(circle.Radius),
+                    normal: settings.Quantize(circle.Normal),
+                    thickness: settings.QuantizeDistance(circle.Thickness)),
+                ellipse => ellipse.Update(
+                    center: settings.Quantize(ellipse.Center),
+                    majorAxis: settings.Quantize(ellipse.MajorAxis),
+                    minorAxisRatio: settings.QuantizeDistance(ellipse.MinorAxisRatio),
+                    startAngle: settings.QuantizeAngle(ellipse.StartAngle),
+                    endAngle: settings.QuantizeAngle(ellipse.EndAngle),
+                    normal: settings.Quantize(ellipse.Normal),
+                    thickness: settings.QuantizeDistance(ellipse.Thickness)),
+                image => image.Update(
+                    location: settings.Quantize(image.Location),
+                    width: settings.QuantizeDistance(image.Width),
+                    height: settings.QuantizeDistance(image.Height),
+                    rotation: settings.QuantizeAngle(image.Rotation)),
+                line => line.Update(
+                    p1: settings.Quantize(line.P1),
+                    p2: settings.Quantize(line.P2),
+                    thickness: settings.QuantizeDistance(line.Thickness)),
+                location => location.Update(
+                    point: settings.Quantize(location.Point)),
+                polyline => polyline.Update(
+                    vertices: polyline.Vertices.Select(
+                        v => new Vertex(settings.Quantize(v.Location), settings.QuantizeAngle(v.IncludedAngle), v.Direction))),
+                spline => spline.Update(
+                    controlPoints: spline.ControlPoints.Select(cp => settings.Quantize(cp))),
+                text => text.Update(
+                    location: settings.Quantize(text.Location),
+                    normal: settings.Quantize(text.Normal),
+                    height: settings.QuantizeDistance(text.Height),
+                    rotation: settings.QuantizeAngle(text.Rotation))
+            );
         }
 
         private static IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
@@ -615,10 +589,10 @@ namespace IxMilia.BCad.Utilities
             var lesserAngles = normalizedAngles.Where(a => a < normalizedSelectionAngle).ToList();
             var greaterAngles = normalizedAngles.Where(a => a > normalizedSelectionAngle).ToList();
 
-            switch (entityToTrim.Kind)
-            {
-                case EntityKind.Arc:
-                    var arc = (Arc)entityToTrim;
+            entityToTrim.DoEntity(
+                aggregate => throw new ArgumentException(nameof(entityToTrim)),
+                arc =>
+                {
                     if (lesserAngles.Any() || greaterAngles.Any())
                     {
                         removedList.Add(entityToTrim);
@@ -631,9 +605,9 @@ namespace IxMilia.BCad.Utilities
                             addedList.Add(arc.Update(startAngle: greaterAngles.Min().CorrectAngleDegrees()));
                         }
                     }
-                    break;
-                case EntityKind.Circle:
-                    var circle = (Circle)entityToTrim;
+                },
+                circle =>
+                {
                     if (angles.Count >= 2)
                     {
                         // 2 cutting edges required
@@ -646,16 +620,16 @@ namespace IxMilia.BCad.Utilities
                             circle.Normal,
                             circle.Color));
                     }
-                    break;
-                case EntityKind.Ellipse:
-                    var el = (Ellipse)entityToTrim;
-                    if (el.StartAngle == 0.0 && el.EndAngle == 360.0)
+                },
+                ellipse =>
+                {
+                    if (ellipse.StartAngle == 0.0 && ellipse.EndAngle == 360.0)
                     {
                         // treat like a circle
                         if (angles.Count >= 2)
                         {
                             removedList.Add(entityToTrim);
-                            addedList.Add(el.Update(startAngle: angles[nextIndex], endAngle: angles[previousIndex]));
+                            addedList.Add(ellipse.Update(startAngle: angles[nextIndex], endAngle: angles[previousIndex]));
                         }
                     }
                     else
@@ -666,18 +640,22 @@ namespace IxMilia.BCad.Utilities
                             removedList.Add(entityToTrim);
                             if (lesserAngles.Any())
                             {
-                                addedList.Add(el.Update(endAngle: lesserAngles.Max().CorrectAngleDegrees()));
+                                addedList.Add(ellipse.Update(endAngle: lesserAngles.Max().CorrectAngleDegrees()));
                             }
                             if (greaterAngles.Any())
                             {
-                                addedList.Add(el.Update(startAngle: greaterAngles.Min().CorrectAngleDegrees()));
+                                addedList.Add(ellipse.Update(startAngle: greaterAngles.Min().CorrectAngleDegrees()));
                             }
                         }
                     }
-                    break;
-                default:
-                    throw new ArgumentException("This should never happen", "entityToTrim.Kind");
-            }
+                },
+                image => throw new ArgumentException(nameof(entityToTrim)),
+                line => throw new ArgumentException(nameof(entityToTrim)),
+                location => throw new ArgumentException(nameof(entityToTrim)),
+                polyline => throw new ArgumentException(nameof(entityToTrim)),
+                spline => throw new ArgumentException(nameof(entityToTrim)),
+                text => throw new ArgumentException(nameof(entityToTrim))
+            );
 
             added = addedList;
             removed = removedList;

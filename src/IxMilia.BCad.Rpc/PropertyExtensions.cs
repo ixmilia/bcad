@@ -32,84 +32,97 @@ namespace IxMilia.BCad.Rpc
         {
             var layer = drawing.ContainingLayer(entity);
 
-            yield return new ClientPropertyPaneValue("layer", "Layer", layer.Name, drawing.GetAllLayerNames());
-            yield return new ClientPropertyPaneValue("color", "Color", entity.Color.ToPropertyColorString());
-
-            switch (entity)
+            var general = new[]
             {
-                case Arc arc:
-                    yield return new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(arc.Center.X));
-                    yield return new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(arc.Center.Y));
-                    yield return new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(arc.Center.Z));
-                    yield return new ClientPropertyPaneValue("r", "Radius", drawing.FormatUnits(arc.Radius));
-                    yield return new ClientPropertyPaneValue("sa", "Start Angle", DrawingSettings.FormatUnits(arc.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    yield return new ClientPropertyPaneValue("ea", "End Angle", DrawingSettings.FormatUnits(arc.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    yield return new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(arc.Normal.X));
-                    yield return new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(arc.Normal.Y));
-                    yield return new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(arc.Normal.Z));
-                    yield return new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(arc.Thickness));
-                    break;
-                case Circle circle:
-                    yield return new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(circle.Center.X));
-                    yield return new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(circle.Center.Y));
-                    yield return new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(circle.Center.Z));
-                    yield return new ClientPropertyPaneValue("r", "Radius", drawing.FormatUnits(circle.Radius));
-                    yield return new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(circle.Normal.X));
-                    yield return new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(circle.Normal.Y));
-                    yield return new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(circle.Normal.Z));
-                    yield return new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(circle.Thickness));
-                    break;
-                case Ellipse el:
-                    yield return new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(el.Center.X));
-                    yield return new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(el.Center.Y));
-                    yield return new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(el.Center.Z));
-                    yield return new ClientPropertyPaneValue("mx", "Major Axis X", drawing.FormatUnits(el.MajorAxis.X));
-                    yield return new ClientPropertyPaneValue("my", "Y", drawing.FormatUnits(el.MajorAxis.Y));
-                    yield return new ClientPropertyPaneValue("mz", "Z", drawing.FormatUnits(el.MajorAxis.Z));
-                    yield return new ClientPropertyPaneValue("mr", "Minor Axis Ratio", DrawingSettings.FormatUnits(el.MinorAxisRatio, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    yield return new ClientPropertyPaneValue("sa", "Start Angle", DrawingSettings.FormatUnits(el.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    yield return new ClientPropertyPaneValue("ea", "End Angle", DrawingSettings.FormatUnits(el.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    yield return new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(el.Normal.X));
-                    yield return new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(el.Normal.Y));
-                    yield return new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(el.Normal.Z));
-                    yield return new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(el.Thickness));
-                    break;
-                case Image image:
-                    yield return new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(image.Location.X));
-                    yield return new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(image.Location.Y));
-                    yield return new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(image.Location.Z));
-                    yield return new ClientPropertyPaneValue("p", "Path", image.Path);
-                    yield return new ClientPropertyPaneValue("w", "Width", drawing.FormatUnits(image.Width));
-                    yield return new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(image.Height));
-                    yield return new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(image.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    break;
-                case Line line:
-                    yield return new ClientPropertyPaneValue("x1", "Start X", drawing.FormatUnits(line.P1.X));
-                    yield return new ClientPropertyPaneValue("y1", "Y", drawing.FormatUnits(line.P1.Y));
-                    yield return new ClientPropertyPaneValue("z1", "Z", drawing.FormatUnits(line.P1.Z));
-                    yield return new ClientPropertyPaneValue("x2", "End X", drawing.FormatUnits(line.P2.X));
-                    yield return new ClientPropertyPaneValue("y2", "Y", drawing.FormatUnits(line.P2.Y));
-                    yield return new ClientPropertyPaneValue("z2", "Z", drawing.FormatUnits(line.P2.Z));
-                    yield return new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(line.Thickness));
-                    break;
-                case Location loc:
-                    yield return new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(loc.Point.X));
-                    yield return new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(loc.Point.Y));
-                    yield return new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(loc.Point.Z));
-                    break;
-                case Text text:
-                    yield return new ClientPropertyPaneValue("v", "Value", text.Value);
-                    yield return new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(text.Location.X));
-                    yield return new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(text.Location.Y));
-                    yield return new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(text.Location.Z));
-                    yield return new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(text.Height));
-                    yield return new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(text.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision));
-                    yield return new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(text.Normal.X));
-                    yield return new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(text.Normal.Y));
-                    yield return new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(text.Normal.Z));
-                    break;
-                // TODO: other entities
-            }
+                new ClientPropertyPaneValue("layer", "Layer", layer.Name, drawing.GetAllLayerNames()),
+                new ClientPropertyPaneValue("color", "Color", entity.Color.ToPropertyColorString()),
+            };
+
+            var specific = entity.MapEntity<ClientPropertyPaneValue[]>(
+                aggregate => new ClientPropertyPaneValue[0],
+                arc => new[]
+                {
+                    new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(arc.Center.X)),
+                    new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(arc.Center.Y)),
+                    new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(arc.Center.Z)),
+                    new ClientPropertyPaneValue("r", "Radius", drawing.FormatUnits(arc.Radius)),
+                    new ClientPropertyPaneValue("sa", "Start Angle", DrawingSettings.FormatUnits(arc.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    new ClientPropertyPaneValue("ea", "End Angle", DrawingSettings.FormatUnits(arc.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(arc.Normal.X)),
+                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(arc.Normal.Y)),
+                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(arc.Normal.Z)),
+                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(arc.Thickness)),
+                },
+                circle => new[]
+                {
+                    new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(circle.Center.X)),
+                    new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(circle.Center.Y)),
+                    new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(circle.Center.Z)),
+                    new ClientPropertyPaneValue("r", "Radius", drawing.FormatUnits(circle.Radius)),
+                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(circle.Normal.X)),
+                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(circle.Normal.Y)),
+                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(circle.Normal.Z)),
+                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(circle.Thickness)),
+                },
+                ellipse => new[]
+                {
+                    new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(ellipse.Center.X)),
+                    new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(ellipse.Center.Y)),
+                    new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(ellipse.Center.Z)),
+                    new ClientPropertyPaneValue("mx", "Major Axis X", drawing.FormatUnits(ellipse.MajorAxis.X)),
+                    new ClientPropertyPaneValue("my", "Y", drawing.FormatUnits(ellipse.MajorAxis.Y)),
+                    new ClientPropertyPaneValue("mz", "Z", drawing.FormatUnits(ellipse.MajorAxis.Z)),
+                    new ClientPropertyPaneValue("mr", "Minor Axis Ratio", DrawingSettings.FormatUnits(ellipse.MinorAxisRatio, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    new ClientPropertyPaneValue("sa", "Start Angle", DrawingSettings.FormatUnits(ellipse.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    new ClientPropertyPaneValue("ea", "End Angle", DrawingSettings.FormatUnits(ellipse.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(ellipse.Normal.X)),
+                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(ellipse.Normal.Y)),
+                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(ellipse.Normal.Z)),
+                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(ellipse.Thickness)),
+                },
+                image => new[]
+                {
+                    new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(image.Location.X)),
+                    new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(image.Location.Y)),
+                    new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(image.Location.Z)),
+                    new ClientPropertyPaneValue("p", "Path", image.Path),
+                    new ClientPropertyPaneValue("w", "Width", drawing.FormatUnits(image.Width)),
+                    new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(image.Height)),
+                    new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(image.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                },
+                line => new[]
+                {
+                    new ClientPropertyPaneValue("x1", "Start X", drawing.FormatUnits(line.P1.X)),
+                    new ClientPropertyPaneValue("y1", "Y", drawing.FormatUnits(line.P1.Y)),
+                    new ClientPropertyPaneValue("z1", "Z", drawing.FormatUnits(line.P1.Z)),
+                    new ClientPropertyPaneValue("x2", "End X", drawing.FormatUnits(line.P2.X)),
+                    new ClientPropertyPaneValue("y2", "Y", drawing.FormatUnits(line.P2.Y)),
+                    new ClientPropertyPaneValue("z2", "Z", drawing.FormatUnits(line.P2.Z)),
+                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(line.Thickness)),
+                },
+                location => new[]
+                {
+                    new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(location.Point.X)),
+                    new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(location.Point.Y)),
+                    new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(location.Point.Z)),
+                },
+                polyline => new ClientPropertyPaneValue[0],
+                spline => new ClientPropertyPaneValue[0],
+                text => new[]
+                {
+                    new ClientPropertyPaneValue("v", "Value", text.Value),
+                    new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(text.Location.X)),
+                    new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(text.Location.Y)),
+                    new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(text.Location.Z)),
+                    new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(text.Height)),
+                    new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(text.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(text.Normal.X)),
+                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(text.Normal.Y)),
+                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(text.Normal.Z)),
+                }
+            );
+
+            return general.Concat(specific);
         }
 
         public static bool TrySetPropertyPaneValue(this Drawing drawing, Entity entity, ClientPropertyPaneValue value, out Drawing updatedDrawing, out Entity updatedEntity)
@@ -181,60 +194,76 @@ namespace IxMilia.BCad.Rpc
                 }
             }
 
-            switch (entity)
-            {
-                case Arc arc:
+            updatedEntity = entity.MapEntity<Entity>(
+                aggregate => null,
+                arc =>
+                {
                     if (arc.TrySetArcPropertyPaneValue(value, out var updatedArc))
                     {
-                        updatedEntity = updatedArc;
-                        return true;
+                        return updatedArc;
                     }
-                    break;
-                case Circle circle:
+
+                    return null;
+                },
+                circle =>
+                {
                     if (circle.TrySetCirclePropertyPaneValue(value, out var updatedCircle))
                     {
-                        updatedEntity = updatedCircle;
-                        return true;
+                        return updatedCircle;
                     }
-                    break;
-                case Ellipse el:
-                    if (el.TrySetEllipsePropertyPaneValue(value, out var updatedEllipse))
+
+                    return null;
+                },
+                ellipse =>
+                {
+                    if (ellipse.TrySetEllipsePropertyPaneValue(value, out var updatedEllipse))
                     {
-                        updatedEntity = updatedEllipse;
-                        return true;
+                        return updatedEllipse;
                     }
-                    break;
-                case Image i:
-                    if (i.TrySetImagePropertyPaneValue(value, out var updatedImage))
+
+                    return null;
+                },
+                image =>
+                {
+                    if (image.TrySetImagePropertyPaneValue(value, out var updatedImage))
                     {
-                        updatedEntity = updatedImage;
-                        return true;
+                        return updatedImage;
                     }
-                    break;
-                case Line line:
+
+                    return null;
+                },
+                line =>
+                {
                     if (line.TrySetLinePropertyPaneValue(value, out var updatedLine))
                     {
-                        updatedEntity = updatedLine;
-                        return true;
+                        return updatedLine;
                     }
-                    break;
-                case Location loc:
-                    if (loc.TrySetLocationPropertyPaneValue(value, out var updatedLocation))
+
+                    return null;
+                },
+                location =>
+                {
+                    if (location.TrySetLocationPropertyPaneValue(value, out var updatedLocation))
                     {
-                        updatedEntity = updatedLocation;
-                        return true;
+                        return updatedLocation;
                     }
-                    break;
-                case Text text:
+
+                    return null;
+                },
+                polyline => null,
+                spline => null,
+                text =>
+                {
                     if (text.TrySetTextPropertyPaneValue(value, out var updatedText))
                     {
-                        updatedEntity = updatedText;
-                        return true;
+                        return updatedText;
                     }
-                    break;
-            }
 
-            return false;
+                    return null;
+                }
+            );
+
+            return updatedEntity != null;
         }
 
         private static bool TrySetArcPropertyPaneValue(this Arc arc, ClientPropertyPaneValue value, out Arc updatedArc)
@@ -545,7 +574,7 @@ namespace IxMilia.BCad.Rpc
             updatedEllipse = default;
             return false;
         }
-        
+
         private static bool TrySetImagePropertyPaneValue(this Image image, ClientPropertyPaneValue value, out Image updatedImage)
         {
             switch (value.Name)

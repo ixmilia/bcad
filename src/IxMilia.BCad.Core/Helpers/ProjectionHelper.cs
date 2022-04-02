@@ -14,7 +14,7 @@ namespace IxMilia.BCad.Helpers
         {
             // create transform
             var transform = viewPort.GetProjectionMatrix(width, height, projectionStyle);
-            
+
             // project all entities
             var entities = new List<ProjectedEntity>();
             foreach (var layer in from l in drawing.GetLayers()
@@ -35,21 +35,18 @@ namespace IxMilia.BCad.Helpers
 
         public static ProjectedEntity Project(Entity entity, Layer layer, Matrix4 transform)
         {
-            switch (entity.Kind)
-            {
-                case EntityKind.Line:
-                    return Project((Line)entity, layer, transform);
-                case EntityKind.Text:
-                    return Project((Text)entity, layer, transform);
-                case EntityKind.Circle:
-                    return Project((Circle)entity, layer, transform);
-                case EntityKind.Arc:
-                    return Project((Arc)entity, layer, transform);
-                case EntityKind.Aggregate:
-                    return Project((AggregateEntity)entity, layer, transform);
-                default:
-                    return null;
-            }
+            return entity.MapEntity<ProjectedEntity>(
+                aggregate => Project(aggregate, layer, transform),
+                arc => Project(arc, layer, transform),
+                circle => Project(circle, layer, transform),
+                ellipse => null,
+                image => null,
+                line => Project(line, layer, transform),
+                location => null,
+                polyline => null,
+                spline => null,
+                text => Project(text, layer, transform)
+            );
         }
 
         public static ProjectedLine Project(Line line, Layer layer, Matrix4 transform)
