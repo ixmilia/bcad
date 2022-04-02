@@ -372,20 +372,21 @@ namespace IxMilia.BCad.Extensions
             Func<Spline, TResult> splineMapper,
             Func<Text, TResult> textMapper)
         {
-            return entity switch
-            {
-                AggregateEntity aggregate => aggregateMapper(aggregate),
-                Arc arc => arcMapper(arc),
-                Circle circle => circleMapper(circle),
-                Ellipse ellipse => ellipseMapper(ellipse),
-                Image image => imageMapper(image),
-                Line line => lineMapper(line),
-                Location location => locationMapper(location),
-                Polyline polyline => polylineMapper(polyline),
-                Spline spline => splineMapper(spline),
-                Text text => textMapper(text),
-                _ => throw new NotSupportedException($"Unexpected entity: {entity.Kind}"),
-            };
+            TResult result = default;
+            entity.DoEntity(
+                aggregate => result = aggregateMapper(aggregate),
+                arc => result = arcMapper(arc),
+                circle => result = circleMapper(circle),
+                ellipse => result = ellipseMapper(ellipse),
+                image => result = imageMapper(image),
+                line => result = lineMapper(line),
+                location => result = locationMapper(location),
+                polyline => result = polylineMapper(polyline),
+                spline => result = splineMapper(spline),
+                text => result = textMapper(text)
+            );
+
+            return result;
         }
 
         private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion)

@@ -1066,25 +1066,25 @@ namespace IxMilia.BCad.Extensions
             Action<PrimitiveBezier> bezierAction,
             Action<PrimitiveImage> imageAction)
         {
-            switch (primitive.Kind)
+            switch (primitive)
             {
-                case PrimitiveKind.Ellipse:
-                    ellipseAction((PrimitiveEllipse)primitive);
+                case PrimitiveEllipse ellipse:
+                    ellipseAction(ellipse);
                     break;
-                case PrimitiveKind.Line:
-                    lineAction((PrimitiveLine)primitive);
+                case PrimitiveLine line:
+                    lineAction(line);
                     break;
-                case PrimitiveKind.Point:
-                    pointAction((PrimitivePoint)primitive);
+                case PrimitivePoint point:
+                    pointAction(point);
                     break;
-                case PrimitiveKind.Text:
-                    textAction((PrimitiveText)primitive);
+                case PrimitiveText text:
+                    textAction(text);
                     break;
-                case PrimitiveKind.Bezier:
-                    bezierAction((PrimitiveBezier)primitive);
+                case PrimitiveBezier bezier:
+                    bezierAction(bezier);
                     break;
-                case PrimitiveKind.Image:
-                    imageAction((PrimitiveImage)primitive);
+                case PrimitiveImage image:
+                    imageAction(image);
                     break;
                 default:
                     throw new ArgumentException($"Unexpected primitive: {primitive.Kind}");
@@ -1100,16 +1100,17 @@ namespace IxMilia.BCad.Extensions
             Func<PrimitiveBezier, TResult> bezierMapper,
             Func<PrimitiveImage, TResult> imageMapper)
         {
-            return primitive switch
-            {
-                PrimitiveEllipse ellipse => ellipseMapper(ellipse),
-                PrimitiveLine line => lineMapper(line),
-                PrimitivePoint point => pointMapper(point),
-                PrimitiveText text => textMapper(text),
-                PrimitiveBezier bezier => bezierMapper(bezier),
-                PrimitiveImage image => imageMapper(image),
-                _ => throw new NotSupportedException($"Unexpected primitive: {primitive.Kind}"),
-            };
+            TResult result = default;
+            primitive.DoPrimitive(
+                ellipse => result = ellipseMapper(ellipse),
+                line => result = lineMapper(line),
+                point => result = pointMapper(point),
+                text => result = textMapper(text),
+                bezier => result = bezierMapper(bezier),
+                image => result = imageMapper(image)
+            );
+
+            return result;
         }
     }
 }
