@@ -60,27 +60,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(Value):
-                    return Value;
-                case nameof(Location):
-                    return Location;
-                case nameof(Normal):
-                    return Normal;
-                case nameof(Height):
-                    return Height;
-                case nameof(Width):
-                    return Width;
-                case nameof(Rotation):
-                    return Rotation;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Text Update(
             string value = null,
             Optional<Point> location = default(Optional<Point>),

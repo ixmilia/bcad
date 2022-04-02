@@ -43,17 +43,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(Point):
-                    return Point;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Location Update(
             Optional<Point> point = default(Optional<Point>),
             Optional<CadColor?> color = default(Optional<CadColor?>),

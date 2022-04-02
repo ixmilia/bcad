@@ -25,25 +25,6 @@ namespace IxMilia.BCad.Entities
             this.Id = nextId++;
         }
 
-        public virtual object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(Kind):
-                    return Kind;
-                case nameof(BoundingBox):
-                    return BoundingBox;
-                case nameof(Color):
-                    return Color;
-                case nameof(Id):
-                    return Id;
-                case nameof(Text):
-                    return Tag;
-                default:
-                    throw new KeyNotFoundException("The property could not be found");
-            }
-        }
-
         private static uint nextId = 1;
 
         public uint Id { get; private set; }

@@ -61,17 +61,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(Vertices):
-                    return Vertices;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Polyline Update(
             IEnumerable<Vertex> vertices = null,
             Optional<CadColor?> color = default(Optional<CadColor?>),

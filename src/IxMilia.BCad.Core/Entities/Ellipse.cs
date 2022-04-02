@@ -96,29 +96,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(Center):
-                    return Center;
-                case nameof(Normal):
-                    return Normal;
-                case nameof(MajorAxis):
-                    return MajorAxis;
-                case nameof(MinorAxisRatio):
-                    return MinorAxisRatio;
-                case nameof(StartAngle):
-                    return StartAngle;
-                case nameof(EndAngle):
-                    return EndAngle;
-                case nameof(Thickness):
-                    return Thickness;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Ellipse Update(
             Optional<Point> center = default(Optional<Point>),
             Optional<Vector> majorAxis = default(Optional<Vector>),

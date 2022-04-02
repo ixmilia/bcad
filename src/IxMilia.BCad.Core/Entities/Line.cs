@@ -49,21 +49,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(P1):
-                    return P1;
-                case nameof(P2):
-                    return P2;
-                case nameof(Thickness):
-                    return Thickness;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Line Update(
             Optional<Point> p1 = default(Optional<Point>),
             Optional<Point> p2 = default(Optional<Point>),

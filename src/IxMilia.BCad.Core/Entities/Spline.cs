@@ -66,21 +66,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(ControlPoints):
-                    return ControlPoints;
-                case nameof(Degree):
-                    return Degree;
-                case nameof(KnotValues):
-                    return KnotValues;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Spline Update(
             Optional<int> degree = default(Optional<int>),
             IEnumerable<Point> controlPoints = null,

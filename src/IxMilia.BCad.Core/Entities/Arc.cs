@@ -81,27 +81,6 @@ namespace IxMilia.BCad.Entities
             return _snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(Center):
-                    return Center;
-                case nameof(Normal):
-                    return Normal;
-                case nameof(Radius):
-                    return Radius;
-                case nameof(StartAngle):
-                    return StartAngle;
-                case nameof(EndAngle):
-                    return EndAngle;
-                case nameof(Thickness):
-                    return Thickness;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public Arc Update(
             Optional<Point> center = default(Optional<Point>),
             Optional<double> radius = default(Optional<double>),

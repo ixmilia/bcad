@@ -53,19 +53,6 @@ namespace IxMilia.BCad.Entities
             return this.snapPoints;
         }
 
-        public override object GetProperty(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case LocationText:
-                    return Location;
-                case ChildrenText:
-                    return Children;
-                default:
-                    return base.GetProperty(propertyName);
-            }
-        }
-
         public override EntityKind Kind { get { return EntityKind.Aggregate; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
