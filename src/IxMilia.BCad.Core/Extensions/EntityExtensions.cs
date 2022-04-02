@@ -507,67 +507,52 @@ namespace IxMilia.BCad.Extensions
             }
             else
             {
-                var result = new List<IPrimitive>();
-                switch (primitive.Kind)
-                {
-                    case PrimitiveKind.Line:
+                return primitive.MapPrimitive<IEnumerable<IPrimitive>>(
+                    ellipse =>
+                    {
+                        var result = new List<IPrimitive>();
+                        var orderedAngles = breakingPoints.Select(p => ellipse.GetAngle(p)).OrderBy(a => a).ToList();
+
+                        if (!ellipse.IsClosed)
                         {
-                            // order the points by distance from `line.P1` then the resultant line segments are:
-                            //   (line.P1, orderedPoints[0])
-                            //   (orderedPoints[0], orderedPoints[1])
-                            //   ...
-                            //   (orderedPoints[N - 1], line.P2)
-                            var line = (PrimitiveLine)primitive;
-                            var orderedPoints = breakingPoints.OrderBy(p => (line.P1 - p).LengthSquared).ToList();
-                            result.Add(new PrimitiveLine(line.P1, orderedPoints.First()));
-
-                            for (int i = 0; i < orderedPoints.Count - 1; i++)
-                            {
-                                result.Add(new PrimitiveLine(orderedPoints[i], orderedPoints[i + 1]));
-                            }
-
-                            result.Add(new PrimitiveLine(orderedPoints.Last(), line.P2));
+                            result.Add(new PrimitiveEllipse(ellipse.Center, ellipse.MajorAxis, ellipse.Normal, ellipse.MinorAxisRatio, ellipse.StartAngle, orderedAngles.First(), ellipse.Color));
                         }
-                        break;
-                    case PrimitiveKind.Ellipse:
+
+                        for (int i = 0; i < orderedAngles.Count - 1; i++)
                         {
-                            // order the points by angle from `el.StartAngle` then the resultant arc segments are:
-                            //   (arc.StartAngle, orderedAngles[0])
-                            //   (orderedAngles[0], orderedAngles[1])
-                            //   ...
-                            //   (orderedAngles[N - 1], arc.EndAngle)
-                            // but if it's closed, don't use the start/end angles, instead do:
-                            //   (orderedAngles[0], orderedAngles[1])
-                            //   (orderedAngles[1], orderedAngles[2])
-                            //   ...
-                            //   (orderedAngles[N - 1], orderedAngles[0])
-
-                            var el = (PrimitiveEllipse)primitive;
-                            var orderedAngles = breakingPoints.Select(p => el.GetAngle(p)).OrderBy(a => a).ToList();
-
-                            if (!el.IsClosed)
-                            {
-                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, el.StartAngle, orderedAngles.First(), el.Color));
-                            }
-
-                            for (int i = 0; i < orderedAngles.Count - 1; i++)
-                            {
-                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, orderedAngles[i], orderedAngles[i + 1], el.Color));
-                            }
-
-                            if (el.IsClosed)
-                            {
-                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, orderedAngles.Last(), orderedAngles.First(), el.Color));
-                            }
-                            else
-                            {
-                                result.Add(new PrimitiveEllipse(el.Center, el.MajorAxis, el.Normal, el.MinorAxisRatio, orderedAngles.Last(), el.EndAngle, el.Color));
-                            }
+                            result.Add(new PrimitiveEllipse(ellipse.Center, ellipse.MajorAxis, ellipse.Normal, ellipse.MinorAxisRatio, orderedAngles[i], orderedAngles[i + 1], ellipse.Color));
                         }
-                        break;
-                }
 
-                return result;
+                        if (ellipse.IsClosed)
+                        {
+                            result.Add(new PrimitiveEllipse(ellipse.Center, ellipse.MajorAxis, ellipse.Normal, ellipse.MinorAxisRatio, orderedAngles.Last(), orderedAngles.First(), ellipse.Color));
+                        }
+                        else
+                        {
+                            result.Add(new PrimitiveEllipse(ellipse.Center, ellipse.MajorAxis, ellipse.Normal, ellipse.MinorAxisRatio, orderedAngles.Last(), ellipse.EndAngle, ellipse.Color));
+                        }
+
+                        return result;
+                    },
+                    line =>
+                    {
+                        var result = new List<IPrimitive>();
+                        var orderedPoints = breakingPoints.OrderBy(p => (line.P1 - p).LengthSquared).ToList();
+                        result.Add(new PrimitiveLine(line.P1, orderedPoints.First()));
+
+                        for (int i = 0; i < orderedPoints.Count - 1; i++)
+                        {
+                            result.Add(new PrimitiveLine(orderedPoints[i], orderedPoints[i + 1]));
+                        }
+
+                        result.Add(new PrimitiveLine(orderedPoints.Last(), line.P2));
+                        return result;
+                    },
+                    point => null,
+                    text => null,
+                    bezier => null,
+                    image => null
+                ) ?? Array.Empty<IPrimitive>();
             }
         }
     }

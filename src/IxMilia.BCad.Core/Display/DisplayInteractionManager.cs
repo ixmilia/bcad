@@ -734,64 +734,49 @@ namespace IxMilia.BCad.Display
 
         private Tuple<double, Point> ClosestPoint(IPrimitive primitive, Point screenPoint)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    return ClosestPoint(el.GetProjectedVerticies(transformationMatrix, 360).ToArray(), screenPoint);
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    return ClosestPoint(new[]
-                    {
-                        transformationMatrix.Transform(line.P1),
-                        transformationMatrix.Transform(line.P2)
-                    }, screenPoint);
-                case PrimitiveKind.Point:
-                    // the closest point is the only point present
-                    var point = (PrimitivePoint)primitive;
+            return primitive.MapPrimitive<Tuple<double, Point>>(
+                ellipse => ClosestPoint(ellipse.GetProjectedVerticies(transformationMatrix, 360).ToArray(), screenPoint),
+                line => ClosestPoint(new[] { transformationMatrix.Transform(line.P1), transformationMatrix.Transform(line.P2) }, screenPoint),
+                point =>
+                {
                     var displayPoint = transformationMatrix.Transform(point.Location);
                     var dist = (displayPoint - screenPoint).Length;
                     return Tuple.Create(dist, point.Location);
-                case PrimitiveKind.Text:
+                },
+                text =>
+                {
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    var borderPoints = new[]
                     {
-                        var text = (PrimitiveText)primitive;
-                        var rad = text.Rotation * MathHelper.DegreesToRadians;
-                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
-                        var up = text.Normal.Cross(right).Normalize() * text.Height;
-                        var borderPoints = new[]
-                        {
-                            transformationMatrix.Transform(text.Location),
-                            transformationMatrix.Transform(text.Location + right),
-                            transformationMatrix.Transform(text.Location + up),
-                            transformationMatrix.Transform(text.Location + right + up)
-                        };
-                        if (borderPoints.ConvexHull().PolygonContains(screenPoint))
-                            return Tuple.Create(0.0, screenPoint);
-                        return ClosestPoint(borderPoints, screenPoint);
-                    }
-                case PrimitiveKind.Bezier:
-                    // TODO
-                    return Tuple.Create(0.0, screenPoint);
-                case PrimitiveKind.Image:
+                        transformationMatrix.Transform(text.Location),
+                        transformationMatrix.Transform(text.Location + right),
+                        transformationMatrix.Transform(text.Location + up),
+                        transformationMatrix.Transform(text.Location + right + up)
+                    };
+                    if (borderPoints.ConvexHull().PolygonContains(screenPoint))
+                        return Tuple.Create(0.0, screenPoint);
+                    return ClosestPoint(borderPoints, screenPoint);
+                },
+                bezier => Tuple.Create(0.0, screenPoint), // TODO
+                image =>
+                {
+                    var rad = image.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * image.Width;
+                    var up = Vector.ZAxis.Cross(right).Normalize() * image.Height;
+                    var imagePoints = new[]
                     {
-                        var image = (PrimitiveImage)primitive;
-                        var rad = image.Rotation * MathHelper.DegreesToRadians;
-                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * image.Width;
-                        var up = Vector.ZAxis.Cross(right).Normalize() * image.Height;
-                        var imagePoints = new[]
-                        {
-                            transformationMatrix.Transform(image.Location),
-                            transformationMatrix.Transform(image.Location + right),
-                            transformationMatrix.Transform(image.Location + up),
-                            transformationMatrix.Transform(image.Location + right + up)
-                        };
-                        if (imagePoints.ConvexHull().PolygonContains(screenPoint))
-                            return Tuple.Create(0.0, screenPoint);
-                        return ClosestPoint(imagePoints, screenPoint);
-                    }
-                default:
-                    throw new InvalidOperationException();
-            }
+                        transformationMatrix.Transform(image.Location),
+                        transformationMatrix.Transform(image.Location + right),
+                        transformationMatrix.Transform(image.Location + up),
+                        transformationMatrix.Transform(image.Location + right + up)
+                    };
+                    if (imagePoints.ConvexHull().PolygonContains(screenPoint))
+                        return Tuple.Create(0.0, screenPoint);
+                    return ClosestPoint(imagePoints, screenPoint);
+                }
+            );
         }
 
         private Tuple<double, Point> ClosestPoint(Point[] screenVerticies, Point screenPoint)
@@ -824,51 +809,16 @@ namespace IxMilia.BCad.Display
             var hotPoints = new List<Point>();
             foreach (var primitive in _workspace.SelectedEntities.SelectMany(entity => entity.GetPrimitives()))
             {
-                switch (primitive.Kind)
-                {
-                    case PrimitiveKind.Ellipse:
-                        var el = (PrimitiveEllipse)primitive;
-                        hotPoints.Add(el.Center);
-                        if (el.IsClosed)
-                        {
-                            hotPoints.Add(el.GetPoint(0.0));
-                            hotPoints.Add(el.GetPoint(90.0));
-                            hotPoints.Add(el.GetPoint(180.0));
-                            hotPoints.Add(el.GetPoint(270.0));
-                        }
-                        else
-                        {
-                            hotPoints.Add(el.StartPoint());
-                            hotPoints.Add(el.MidPoint());
-                            hotPoints.Add(el.EndPoint());
-                        }
-                        break;
-                    case PrimitiveKind.Line:
-                        var line = (PrimitiveLine)primitive;
-                        hotPoints.Add(line.P1);
-                        hotPoints.Add((line.P1 + line.P2) * 0.5);
-                        hotPoints.Add(line.P2);
-                        break;
-                    case PrimitiveKind.Point:
-                        var point = (PrimitivePoint)primitive;
-                        hotPoints.Add(point.Location);
-                        break;
-                    case PrimitiveKind.Text:
-                        var text = (PrimitiveText)primitive;
-                        hotPoints.Add(text.Location);
-                        break;
-                    case PrimitiveKind.Bezier:
-                        var bezier = (PrimitiveBezier)primitive;
-                        hotPoints.Add(bezier.P1);
-                        hotPoints.Add(bezier.P2);
-                        hotPoints.Add(bezier.P3);
-                        hotPoints.Add(bezier.P4);
-                        break;
-                    case PrimitiveKind.Image:
-                        var image = (PrimitiveImage)primitive;
-                        hotPoints.Add(image.Location);
-                        break;
-                }
+                hotPoints.AddRange(primitive.MapPrimitive<Point[]>(
+                    ellipse => ellipse.IsClosed
+                        ? new[] { ellipse.Center, ellipse.GetPoint(0.0), ellipse.GetPoint(90.0), ellipse.GetPoint(180.0), ellipse.GetPoint(270.0) }
+                        : new[] { ellipse.Center, ellipse.StartPoint(), ellipse.MidPoint(), ellipse.EndPoint() },
+                    line => new[] { line.P1, (line.P1 + line.P2) * 0.5, line.P2 },
+                    point => new[] { point.Location },
+                    text => new[] { text.Location },
+                    bezier => new[] { bezier.P1, bezier.P2, bezier.P3, bezier.P4 },
+                    image => new[] { image.Location }
+                ));
             }
 
             HotPointsUpdated?.Invoke(this, hotPoints);

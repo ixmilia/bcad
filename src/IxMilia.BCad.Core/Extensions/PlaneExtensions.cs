@@ -15,32 +15,25 @@ namespace IxMilia.BCad.Extensions
 
         public static bool Contains(this Plane plane, IPrimitive primitive)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    return plane.Contains(el.Center)
-                        && plane.Normal.IsParallelTo(el.Normal)
-                        && plane.Normal.IsOrthoganalTo(el.MajorAxis);
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    return plane.Contains(line.P1) && plane.Contains(line.P2);
-                case PrimitiveKind.Point:
-                    var p = (PrimitivePoint)primitive;
-                    return plane.Contains(p.Location);
-                case PrimitiveKind.Text:
-                    var t = (PrimitiveText)primitive;
-                    return plane.Contains(t.Location)
-                        && plane.Normal.IsParallelTo(t.Normal);
-                case PrimitiveKind.Bezier:
-                    var b = (PrimitiveBezier)primitive;
-                    return plane.Contains(b.P1)
-                        && plane.Contains(b.P2)
-                        && plane.Contains(b.P3)
-                        && plane.Contains(b.P4);
-                default:
-                    throw new ArgumentException("primitive.Kind");
-            }
+            return primitive.MapPrimitive<bool>(
+                ellipse =>
+                    plane.Contains(ellipse.Center) &&
+                    plane.Normal.IsParallelTo(ellipse.Normal) &&
+                    plane.Normal.IsOrthoganalTo(ellipse.MajorAxis),
+                line =>
+                    plane.Contains(line.P1) &&
+                    plane.Contains(line.P2),
+                point => plane.Contains(point.Location),
+                text =>
+                    plane.Contains(text.Location) &&
+                    plane.Normal.IsParallelTo(text.Normal),
+                bezier =>
+                    plane.Contains(bezier.P1) &&
+                    plane.Contains(bezier.P2) &&
+                    plane.Contains(bezier.P3) &&
+                    plane.Contains(bezier.P4),
+                image => plane.Contains(image.Location)
+            );
         }
 
         public static bool Contains(this Plane plane, Entity entity)

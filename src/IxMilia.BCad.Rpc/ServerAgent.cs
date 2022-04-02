@@ -404,9 +404,9 @@ namespace IxMilia.BCad.Rpc
         private void AddPrimitiveToDrawing(ClientDrawing clientDrawing, IPrimitive primitive, CadColor? fallBackColor)
         {
             var primitiveColor = primitive.Color ?? fallBackColor;
-            switch (primitive)
-            {
-                case PrimitiveEllipse ellipse:
+            primitive.DoPrimitive(
+                ellipse =>
+                {
                     var startAngle = ellipse.StartAngle.CorrectAngleDegrees();
                     var endAngle = ellipse.EndAngle.CorrectAngleDegrees();
                     if (endAngle <= startAngle)
@@ -415,20 +415,12 @@ namespace IxMilia.BCad.Rpc
                     }
                     var transform = Matrix4.CreateScale(1.0, 1.0, 0.0) * ellipse.FromUnitCircle; // flatten display in z-plane
                     clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, transform.ToTransposeArray(), primitiveColor));
-                    break;
-                case PrimitiveImage image:
-                    clientDrawing.Images.Add(new ClientImage(image.Location, Convert.ToBase64String(image.ImageData), image.Path, image.Width, image.Height, image.Rotation, image.Color));
-                    break;
-                case PrimitiveLine line:
-                    clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor));
-                    break;
-                case PrimitivePoint point:
-                    clientDrawing.Points.Add(new ClientPointLocation(point.Location, primitiveColor));
-                    break;
-                case PrimitiveText text:
-                    clientDrawing.Text.Add(new ClientText(text.Value, text.Location, text.Height, text.Rotation, primitiveColor));
-                    break;
-                case PrimitiveBezier bezier:
+                },
+                line => clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor)),
+                point => clientDrawing.Points.Add(new ClientPointLocation(point.Location, primitiveColor)),
+                text => clientDrawing.Text.Add(new ClientText(text.Value, text.Location, text.Height, text.Rotation, primitiveColor)),
+                bezier =>
+                {
                     var lineSegments = 10;
                     var last = bezier.P1;
                     for (int i = 1; i <= lineSegments; i++)
@@ -438,8 +430,9 @@ namespace IxMilia.BCad.Rpc
                         clientDrawing.Lines.Add(new ClientLine(last, next, primitiveColor));
                         last = next;
                     }
-                    break;
-            }
+                },
+                image => clientDrawing.Images.Add(new ClientImage(image.Location, Convert.ToBase64String(image.ImageData), image.Path, image.Width, image.Height, image.Rotation, image.Color))
+            );
         }
 
         public void Pan(double dx, double dy)

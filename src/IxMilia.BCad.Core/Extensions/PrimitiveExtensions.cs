@@ -30,20 +30,14 @@ namespace IxMilia.BCad.Extensions
 
         public static double GetThickness(this IPrimitive primitive)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    return ((PrimitiveEllipse)primitive).Thickness;
-                case PrimitiveKind.Line:
-                    return ((PrimitiveLine)primitive).Thickness;
-                case PrimitiveKind.Point:
-                case PrimitiveKind.Text:
-                case PrimitiveKind.Bezier:
-                case PrimitiveKind.Image:
-                    return 0.0;
-                default:
-                    throw new InvalidOperationException("Unsupported primitive.");
-            }
+            return primitive.MapPrimitive<double>(
+                ellipse => ellipse.Thickness,
+                line => line.Thickness,
+                point => 0.0,
+                text => 0.0,
+                bezier => 0.0,
+                image => 0.0
+            );
         }
 
         public static Point ClosestPoint(this PrimitiveLine line, Point point, bool withinBounds = true)
@@ -104,68 +98,28 @@ namespace IxMilia.BCad.Extensions
 
         public static IEnumerable<Point> IntersectionPoints(this IPrimitive primitive, IPrimitive other, bool withinBounds = true)
         {
-            IEnumerable<Point> result;
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Line:
-                    result = ((PrimitiveLine)primitive).IntersectionPointsBetweenLineAndPrimitive(other, withinBounds);
-                    break;
-                case PrimitiveKind.Ellipse:
-                    result = ((PrimitiveEllipse)primitive).IntersectionPointsBetweenEllipseAndPrimitive(other, withinBounds);
-                    break;
-                case PrimitiveKind.Point:
-                    result = ((PrimitivePoint)primitive).IntersectionPointsBetweenPointAndPrimitive(other, withinBounds);
-                    break;
-                case PrimitiveKind.Text:
-                    result = Enumerable.Empty<Point>();
-                    break;
-                case PrimitiveKind.Bezier:
-                    result = ((PrimitiveBezier)primitive).IntersectionPointsBetweenBezierAndPrimitive(other);
-                    break;
-                case PrimitiveKind.Image:
-                    result = ((PrimitiveImage)primitive).GetBoundaryLines().SelectMany(l => l.IntersectionPoints(other, withinBounds));
-                    break;
-                default:
-                    Debug.Assert(false, "Unsupported primitive type");
-                    result = Enumerable.Empty<Point>();
-                    break;
-            }
-
-            return result;
+            return primitive.MapPrimitive<IEnumerable<Point>>(
+                ellipse => ellipse.IntersectionPointsBetweenEllipseAndPrimitive(other, withinBounds),
+                line => line.IntersectionPointsBetweenLineAndPrimitive(other, withinBounds),
+                point => point.IntersectionPointsBetweenPointAndPrimitive(other, withinBounds),
+                text => Enumerable.Empty<Point>(),
+                bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(other),
+                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(other, withinBounds))
+            );
         }
 
         #region Point-primitive intersection
 
         private static IEnumerable<Point> IntersectionPointsBetweenPointAndPrimitive(this PrimitivePoint point, IPrimitive other, bool withinBounds = true)
         {
-            IEnumerable<Point> result;
-            switch (other.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    result = ((PrimitiveEllipse)other).IntersectionPointsBetweenEllipseAndPoint(point, withinBounds);
-                    break;
-                case PrimitiveKind.Line:
-                    result = ((PrimitiveLine)other).IntersectionPointsBetweenLineAndPoint(point, withinBounds);
-                    break;
-                case PrimitiveKind.Point:
-                    result = point.IntersectionPointsBetweenPointAndPoint((PrimitivePoint)other);
-                    break;
-                case PrimitiveKind.Text:
-                    result = Enumerable.Empty<Point>();
-                    break;
-                case PrimitiveKind.Bezier:
-                    result = ((PrimitiveBezier)other).IntersectionPointsBetweenBezierAndPrimitive(point);
-                    break;
-                case PrimitiveKind.Image:
-                    result = ((PrimitiveImage)other).IntersectionPointsBetweenImageAndPoint(point);
-                    break;
-                default:
-                    Debug.Assert(false, "Unsupported primitive type");
-                    result = Enumerable.Empty<Point>();
-                    break;
-            }
-
-            return result;
+            return other.MapPrimitive<IEnumerable<Point>>(
+                ellipse => ellipse.IntersectionPointsBetweenEllipseAndPoint(point, withinBounds),
+                line => line.IntersectionPointsBetweenLineAndPoint(point, withinBounds),
+                otherPoint => point.IntersectionPointsBetweenPointAndPoint(otherPoint),
+                text => Enumerable.Empty<Point>(),
+                bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(point),
+                image => image.IntersectionPointsBetweenImageAndPoint(point)
+            );
         }
 
         private static IEnumerable<Point> IntersectionPointsBetweenPointAndPoint(this PrimitivePoint first, PrimitivePoint second)
@@ -182,40 +136,20 @@ namespace IxMilia.BCad.Extensions
 
         private static IEnumerable<Point> IntersectionPointsBetweenLineAndPrimitive(this PrimitiveLine line, IPrimitive other, bool withinBounds = true)
         {
-            IEnumerable<Point> result;
             if (line.IsPoint())
             {
                 var point = new PrimitivePoint(line.P1);
                 return point.IntersectionPointsBetweenPointAndPrimitive(other, withinBounds);
             }
 
-            switch (other.Kind)
-            {
-                case PrimitiveKind.Line:
-                    result = line.IntersectionPointsBetweenLineAndLine((PrimitiveLine)other, withinBounds);
-                    break;
-                case PrimitiveKind.Ellipse:
-                    result = line.IntersectionPointsBetweenLineAndEllipse((PrimitiveEllipse)other, withinBounds);
-                    break;
-                case PrimitiveKind.Point:
-                    result = line.IntersectionPointsBetweenLineAndPoint((PrimitivePoint)other, withinBounds);
-                    break;
-                case PrimitiveKind.Text:
-                    result = Enumerable.Empty<Point>();
-                    break;
-                case PrimitiveKind.Bezier:
-                    result = ((PrimitiveBezier)other).IntersectionPointsBetweenBezierAndPrimitive(line);
-                    break;
-                case PrimitiveKind.Image:
-                    result = ((PrimitiveImage)other).GetBoundaryLines().SelectMany(l => l.IntersectionPoints(line, withinBounds));
-                    break;
-                default:
-                    Debug.Assert(false, "Unsupported primitive type");
-                    result = Enumerable.Empty<Point>();
-                    break;
-            }
-
-            return result;
+            return other.MapPrimitive<IEnumerable<Point>>(
+                ellipse => line.IntersectionPointsBetweenLineAndEllipse(ellipse, withinBounds),
+                otherLine => line.IntersectionPointsBetweenLineAndLine(otherLine, withinBounds),
+                point => line.IntersectionPointsBetweenLineAndPoint(point, withinBounds),
+                text => Enumerable.Empty<Point>(),
+                bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(line),
+                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(line, withinBounds))
+            );
         }
 
         #endregion
@@ -224,7 +158,7 @@ namespace IxMilia.BCad.Extensions
         {
             if (line.IsPointOnPrimitiveLine(point.Location, withinSegment: withinBounds))
             {
-                return  new Point[] { point.Location };
+                return new Point[] { point.Location };
             }
             else
             {
@@ -374,34 +308,14 @@ namespace IxMilia.BCad.Extensions
 
         private static IEnumerable<Point> IntersectionPointsBetweenEllipseAndPrimitive(this PrimitiveEllipse ellipse, IPrimitive primitive, bool withinBounds = true)
         {
-            IEnumerable<Point> result;
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    result = ellipse.IntersectionPointsBetweenEllipseAndEllipse((PrimitiveEllipse)primitive, withinBounds);
-                    break;
-                case PrimitiveKind.Line:
-                    result = ((PrimitiveLine)primitive).IntersectionPointsBetweenLineAndEllipse(ellipse, withinBounds);
-                    break;
-                case PrimitiveKind.Point:
-                    result = ellipse.IntersectionPointsBetweenEllipseAndPoint((PrimitivePoint)primitive, withinBounds);
-                    break;
-                case PrimitiveKind.Text:
-                    result = Enumerable.Empty<Point>();
-                    break;
-                case PrimitiveKind.Bezier:
-                    result = ((PrimitiveBezier)primitive).IntersectionPointsBetweenBezierAndPrimitive(ellipse);
-                    break;
-                case PrimitiveKind.Image:
-                    result = ((PrimitiveImage)primitive).GetBoundaryLines().SelectMany(l => l.IntersectionPointsBetweenLineAndEllipse(ellipse));
-                    break;
-                default:
-                    Debug.Assert(false, "Unsupported primitive type");
-                    result = Enumerable.Empty<Point>();
-                    break;
-            }
-
-            return result;
+            return primitive.MapPrimitive<IEnumerable<Point>>(
+                otherEllipse => ellipse.IntersectionPointsBetweenEllipseAndEllipse(otherEllipse, withinBounds),
+                line => line.IntersectionPointsBetweenLineAndEllipse(ellipse, withinBounds),
+                point => ellipse.IntersectionPointsBetweenEllipseAndPoint(point, withinBounds),
+                text => Enumerable.Empty<Point>(),
+                bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(ellipse),
+                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPointsBetweenLineAndEllipse(ellipse))
+            );
         }
 
         #endregion
@@ -562,7 +476,7 @@ namespace IxMilia.BCad.Extensions
 
                             var x1 = (A - B) / C;
                             var x2 = (A + B) / C;
-                            
+
                             // find y values
                             var D = -b2 + a2 * b2 - b2 * h2 - ((2 * b4 * h2) / (a2 - b2));
                             var E = (2 * b2 * h * Math.Sqrt(a2 * (a2 - b2 - a2 * b2 + b4 + b2 * h2))) / (a2 - b2);
@@ -656,7 +570,7 @@ namespace IxMilia.BCad.Extensions
                 var toFirstUnit = first.FromUnitCircle.Inverse();
                 var toSecondUnit = second.FromUnitCircle.Inverse();
                 results = from res in results
-                          // verify point is within first ellipse's angles
+                              // verify point is within first ellipse's angles
                           let trans1 = toFirstUnit.Transform(res)
                           let ang1 = ((Vector)trans1).ToAngle()
                           where first.IsAngleContained(ang1)
@@ -700,29 +614,14 @@ namespace IxMilia.BCad.Extensions
 
         private static IEnumerable<Point> IntersectionPointsBetweenBezierAndPrimitive(this PrimitiveBezier bezier, IPrimitive other)
         {
-            IEnumerable<Point> result;
-            switch (other.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                case PrimitiveKind.Line:
-                case PrimitiveKind.Point:
-                case PrimitiveKind.Text:
-                    result = bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other));
-                    break;
-                case PrimitiveKind.Bezier:
-                    var otherPrimitives = ((PrimitiveBezier)other).IntersectionPrimitives;
-                    result = bezier.IntersectionPrimitives.SelectMany(p1 => otherPrimitives.SelectMany(p2 => p1.IntersectionPoints(p2)));
-                    break;
-                case PrimitiveKind.Image:
-                    result = bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other));
-                    break;
-                default:
-                    Debug.Assert(false, "Unsupported primitive type");
-                    result = Enumerable.Empty<Point>();
-                    break;
-            }
-
-            return result;
+            return other.MapPrimitive<IEnumerable<Point>>(
+                ellipse => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other)),
+                line => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other)),
+                point => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other)),
+                text => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other)),
+                otherBezier => bezier.IntersectionPrimitives.SelectMany(p1 => otherBezier.IntersectionPrimitives.SelectMany(p2 => p1.IntersectionPoints(p2))),
+                image => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(image))
+            );
         }
 
         #endregion
@@ -745,118 +644,72 @@ namespace IxMilia.BCad.Extensions
 
         public static Entity ToEntity(this IPrimitive primitive)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    if (el.MinorAxisRatio == 1.0)
-                    {
-                        // circle or arc
-                        if (el.IsClosed)
-                        {
-                            // circle
-                            return new Circle(el);
-                        }
-                        else
-                        {
-                            // arc
-                            return new Arc(el);
-                        }
-                    }
-                    else
-                    {
-                        return new Ellipse(el);
-                    }
-                case PrimitiveKind.Line:
-                    return new Line((PrimitiveLine)primitive);
-                case PrimitiveKind.Point:
-                    return new Location((PrimitivePoint)primitive);
-                case PrimitiveKind.Text:
-                    return new Text((PrimitiveText)primitive);
-                case PrimitiveKind.Bezier:
-                    return Spline.FromBezier((PrimitiveBezier)primitive);
-                case PrimitiveKind.Image:
-                    return new Image((PrimitiveImage)primitive);
-                default:
-                    throw new ArgumentException("primitive.Kind");
-            }
+            return primitive.MapPrimitive<Entity>(
+                ellipse => ellipse.MinorAxisRatio == 1.0
+                    ? ellipse.IsClosed
+                        ? new Circle(ellipse)
+                        : new Arc(ellipse)
+                    : new Ellipse(ellipse),
+                line => new Line(line),
+                point => new Location(point),
+                text => new Text(text),
+                bezier => Spline.FromBezier(bezier),
+                image => new Image(image)
+            );
         }
 
         public static IPrimitive Move(this IPrimitive primitive, Vector offset)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    return new PrimitiveEllipse(
-                        el.Center + offset,
-                        el.MajorAxis,
-                        el.Normal,
-                        el.MinorAxisRatio,
-                        el.StartAngle,
-                        el.EndAngle,
-                        el.Color);
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    return new PrimitiveLine(
-                        line.P1 + offset,
-                        line.P2 + offset,
-                        line.Color);
-                case PrimitiveKind.Point:
-                    var point = (PrimitivePoint)primitive;
-                    return new PrimitivePoint(
-                        point.Location + offset,
-                        point.Color);
-                case PrimitiveKind.Text:
-                    var text = (PrimitiveText)primitive;
-                    return new PrimitiveText(
-                        text.Value,
-                        text.Location + offset,
-                        text.Height,
-                        text.Normal,
-                        text.Rotation,
-                        text.Color);
-                case PrimitiveKind.Bezier:
-                    var bezier = (PrimitiveBezier)primitive;
-                    return new PrimitiveBezier(
-                        bezier.P1 + offset,
-                        bezier.P2 + offset,
-                        bezier.P3 + offset,
-                        bezier.P4 + offset,
-                        bezier.Color);
-                case PrimitiveKind.Image:
-                    var image = (PrimitiveImage)primitive;
-                    return new PrimitiveImage(
-                        image.Location + offset,
-                        image.ImageData,
-                        image.Path,
-                        image.Width,
-                        image.Height,
-                        image.Rotation,
-                        image.Color);
-                default:
-                    throw new ArgumentException("primitive.Kind");
-            }
+            return primitive.MapPrimitive<IPrimitive>(
+                ellipse => new PrimitiveEllipse(
+                    ellipse.Center + offset,
+                    ellipse.MajorAxis,
+                    ellipse.Normal,
+                    ellipse.MinorAxisRatio,
+                    ellipse.StartAngle,
+                    ellipse.EndAngle,
+                    ellipse.Color),
+                line => new PrimitiveLine(
+                    line.P1 + offset,
+                    line.P2 + offset,
+                    line.Color),
+                point => new PrimitivePoint(
+                    point.Location + offset,
+                    point.Color),
+                text => new PrimitiveText(
+                    text.Value,
+                    text.Location + offset,
+                    text.Height,
+                    text.Normal,
+                    text.Rotation,
+                    text.Color),
+                bezier => new PrimitiveBezier(
+                    bezier.P1 + offset,
+                    bezier.P2 + offset,
+                    bezier.P3 + offset,
+                    bezier.P4 + offset,
+                    bezier.Color),
+                image => new PrimitiveImage(
+                    image.Location + offset,
+                    image.ImageData,
+                    image.Path,
+                    image.Width,
+                    image.Height,
+                    image.Rotation,
+                    image.Color)
+            );
         }
 
         public static bool IsPointOnPrimitive(this IPrimitive primitive, Point point, double epsilon = MathHelper.Epsilon)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Line:
-                    return IsPointOnPrimitiveLine((PrimitiveLine)primitive, point, epsilon);
-                case PrimitiveKind.Ellipse:
-                    return IsPointOnPrimitiveEllipse((PrimitiveEllipse)primitive, point, epsilon);
-                case PrimitiveKind.Text:
-                    return IsPointOnPrimitiveText((PrimitiveText)primitive, point);
-                case PrimitiveKind.Bezier:
-                    return IsPointOnPrimitiveBezier((PrimitiveBezier)primitive, point);
-                case PrimitiveKind.Image:
-                    return IsPointOnPrimitiveImage((PrimitiveImage)primitive, point);
-                default:
-                    Debug.Assert(false, "unexpected primitive: " + primitive.Kind);
-                    return false;
-            }
+            return primitive.MapPrimitive<bool>(
+                ellipse => IsPointOnPrimitiveEllipse(ellipse, point, epsilon),
+                line => IsPointOnPrimitiveLine(line, point, epsilon),
+                otherPoint => otherPoint.Location.CloseTo(point, epsilon),
+                text => IsPointOnPrimitiveText(text, point),
+                bezier => IsPointOnPrimitiveBezier(bezier, point),
+                image => IsPointOnPrimitiveImage(image, point)
+            );
         }
 
         private static bool IsPointOnPrimitiveLine(this PrimitiveLine line, Point point, double epsilon = MathHelper.Epsilon, bool withinSegment = true)
@@ -905,7 +758,7 @@ namespace IxMilia.BCad.Extensions
             var t = bezier.GetParameterValueForPoint(point);
             return t.HasValue;
         }
-        
+
         private static bool IsPointOnPrimitiveImage(this PrimitiveImage image, Point point)
         {
             return image.GetBoundingBox().Contains(point);
@@ -928,61 +781,40 @@ namespace IxMilia.BCad.Extensions
 
         public static Point[] GetInterestingPoints(this IPrimitive primitive)
         {
-            Point[] points;
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var ellipse = (PrimitiveEllipse)primitive;
-                    points = ellipse.GetInterestingPointsEllipse(360);
-                    break;
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    points = new[] { line.P1, line.P2 };
-                    break;
-                case PrimitiveKind.Point:
-                    points = new[] { ((PrimitivePoint)primitive).Location };
-                    break;
-                case PrimitiveKind.Text:
+            return primitive.MapPrimitive<Point[]>(
+                ellipse => ellipse.GetInterestingPointsEllipse(360),
+                line => new[] { line.P1, line.P2 },
+                point => new[] { point.Location },
+                text =>
+                {
+                    var rad = text.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
+                    var up = text.Normal.Cross(right).Normalize() * text.Height;
+                    return new[]
                     {
-                        var text = (PrimitiveText)primitive;
-                        var rad = text.Rotation * MathHelper.DegreesToRadians;
-                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * text.Width;
-                        var up = text.Normal.Cross(right).Normalize() * text.Height;
-                        points = new[]
-                        {
-                            text.Location,
-                            text.Location + right,
-                            text.Location + right + up,
-                            text.Location + up,
-                            text.Location
-                        };
-                    }
-                    break;
-                case PrimitiveKind.Bezier:
-                    var bezier = (PrimitiveBezier)primitive;
-                    points = new[] { bezier.P1, bezier.P2, bezier.P3, bezier.P4 };
-                    break;
-                case PrimitiveKind.Image:
+                        text.Location,
+                        text.Location + right,
+                        text.Location + right + up,
+                        text.Location + up,
+                        text.Location
+                    };
+                },
+                bezier => new[] { bezier.P1, bezier.P2, bezier.P3, bezier.P4 },
+                image =>
+                {
+                    var rad = image.Rotation * MathHelper.DegreesToRadians;
+                    var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * image.Width;
+                    var up = Vector.ZAxis.Cross(right).Normalize() * image.Height;
+                    return new[]
                     {
-                        var image = (PrimitiveImage)primitive;
-                        var rad = image.Rotation * MathHelper.DegreesToRadians;
-                        var right = new Vector(Math.Cos(rad), Math.Sin(rad), 0.0).Normalize() * image.Width;
-                        var up = Vector.ZAxis.Cross(right).Normalize() * image.Height;
-                        points = new[]
-                        {
-                            image.Location,
-                            image.Location + right,
-                            image.Location + right + up,
-                            image.Location + up,
-                            image.Location
-                        };
-                    }
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            return points;
+                        image.Location,
+                        image.Location + right,
+                        image.Location + right + up,
+                        image.Location + up,
+                        image.Location
+                    };
+                }
+            );
         }
 
         private static Point[] GetInterestingPointsEllipse(this PrimitiveEllipse ellipse, int maxSeg)
@@ -1120,81 +952,59 @@ namespace IxMilia.BCad.Extensions
 
         public static Point StartPoint(this IPrimitive primitive)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Line:
-                    return ((PrimitiveLine)primitive).P1;
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    return el.GetPoint(el.StartAngle);
-                case PrimitiveKind.Point:
-                    return ((PrimitivePoint)primitive).Location;
-                case PrimitiveKind.Bezier:
-                    return ((PrimitiveBezier)primitive).P1;
-                default:
-                    throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
-            }
+            return primitive.MapPrimitive<Point>(
+                ellipse => ellipse.GetPoint(ellipse.StartAngle),
+                line => line.P1,
+                point => point.Location,
+                text => text.Location,
+                bezier => bezier.P1,
+                image => image.Location
+            );
         }
 
         public static Point EndPoint(this IPrimitive primitive)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Line:
-                    return ((PrimitiveLine)primitive).P2;
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    return el.GetPoint(el.EndAngle);
-                case PrimitiveKind.Point:
-                    return ((PrimitivePoint)primitive).Location;
-                case PrimitiveKind.Bezier:
-                    return ((PrimitiveBezier)primitive).P4;
-                default:
-                    throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
-            }
+            return primitive.MapPrimitive<Point>(
+                ellipse => ellipse.GetPoint(ellipse.EndAngle),
+                line => line.P2,
+                point => point.Location,
+                text => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}"),
+                bezier => bezier.P4,
+                image => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
+            );
         }
 
         public static Point MidPoint(this IPrimitive primitive)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
-                    return (line.P1 + line.P2) / 2;
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    var endAngle = el.EndAngle;
-                    if (endAngle < el.StartAngle)
+            return primitive.MapPrimitive<Point>(
+                ellipse =>
+                {
+                    var endAngle = ellipse.EndAngle;
+                    if (endAngle < ellipse.StartAngle)
                     {
                         endAngle += MathHelper.ThreeSixty;
                     }
 
-                    return el.GetPoint((el.StartAngle + endAngle) * 0.5);
-                case PrimitiveKind.Point:
-                    return ((PrimitivePoint)primitive).Location;
-                case PrimitiveKind.Bezier:
-                    return ((PrimitiveBezier)primitive).ComputeParameterizedPoint(0.5); // find midpoint by length?
-                case PrimitiveKind.Text:
-                default:
-                    throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}");
-            }
+                    return ellipse.GetPoint((ellipse.StartAngle + endAngle) * 0.5);
+                },
+                line => (line.P1 + line.P2) / 2.0,
+                point => point.Location,
+                text => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}"),
+                bezier => bezier.ComputeParameterizedPoint(0.5), // find midpoint by length?
+                image => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
+            );
         }
 
         public static IEnumerable<Point> GetProjectedVerticies(this IPrimitive primitive, Matrix4 transformationMatrix)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Line:
-                case PrimitiveKind.Point:
-                case PrimitiveKind.Text:
-                case PrimitiveKind.Bezier:
-                case PrimitiveKind.Image:
-                    return primitive.GetInterestingPoints().Select(p => transformationMatrix.Transform(p));
-                case PrimitiveKind.Ellipse:
-                    return ((PrimitiveEllipse)primitive).GetProjectedVerticies(transformationMatrix, 360);
-                default:
-                    throw new InvalidOperationException();
-            }
+            return primitive.MapPrimitive<IEnumerable<Point>>(
+                ellipse => ellipse.GetProjectedVerticies(transformationMatrix, 360),
+                line => line.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
+                point => point.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
+                text => text.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
+                bezier => bezier.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
+                image => image.GetInterestingPoints().Select(p => transformationMatrix.Transform(p))
+            );
         }
 
         public static IEnumerable<Point> GetProjectedVerticies(this PrimitiveEllipse ellipse, Matrix4 transformationMatrix, int maxSeg)
@@ -1245,6 +1055,61 @@ namespace IxMilia.BCad.Extensions
             return primitives
                 .GetLineStripsFromPrimitives()
                 .GetPolylinesFromPrimitives();
+        }
+
+        public static void DoPrimitive(
+            this IPrimitive primitive,
+            Action<PrimitiveEllipse> ellipseAction,
+            Action<PrimitiveLine> lineAction,
+            Action<PrimitivePoint> pointAction,
+            Action<PrimitiveText> textAction,
+            Action<PrimitiveBezier> bezierAction,
+            Action<PrimitiveImage> imageAction)
+        {
+            switch (primitive.Kind)
+            {
+                case PrimitiveKind.Ellipse:
+                    ellipseAction((PrimitiveEllipse)primitive);
+                    break;
+                case PrimitiveKind.Line:
+                    lineAction((PrimitiveLine)primitive);
+                    break;
+                case PrimitiveKind.Point:
+                    pointAction((PrimitivePoint)primitive);
+                    break;
+                case PrimitiveKind.Text:
+                    textAction((PrimitiveText)primitive);
+                    break;
+                case PrimitiveKind.Bezier:
+                    bezierAction((PrimitiveBezier)primitive);
+                    break;
+                case PrimitiveKind.Image:
+                    imageAction((PrimitiveImage)primitive);
+                    break;
+                default:
+                    throw new ArgumentException($"Unexpected primitive: {primitive.Kind}");
+            }
+        }
+
+        public static TResult MapPrimitive<TResult>(
+            this IPrimitive primitive,
+            Func<PrimitiveEllipse, TResult> ellipseMapper,
+            Func<PrimitiveLine, TResult> lineMapper,
+            Func<PrimitivePoint, TResult> pointMapper,
+            Func<PrimitiveText, TResult> textMapper,
+            Func<PrimitiveBezier, TResult> bezierMapper,
+            Func<PrimitiveImage, TResult> imageMapper)
+        {
+            return primitive switch
+            {
+                PrimitiveEllipse ellipse => ellipseMapper(ellipse),
+                PrimitiveLine line => lineMapper(line),
+                PrimitivePoint point => pointMapper(point),
+                PrimitiveText text => textMapper(text),
+                PrimitiveBezier bezier => bezierMapper(bezier),
+                PrimitiveImage image => imageMapper(image),
+                _ => throw new NotSupportedException($"Unexpected primitive: {primitive.Kind}"),
+            };
         }
     }
 }

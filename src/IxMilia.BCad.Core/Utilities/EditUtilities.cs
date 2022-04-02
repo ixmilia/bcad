@@ -188,43 +188,41 @@ namespace IxMilia.BCad.Utilities
             if (!drawingPlane.Contains(offsetDirection))
                 return null;
 
-            IPrimitive result;
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    var projection = el.FromUnitCircle.Inverse();
+            return primitive.MapPrimitive<IPrimitive>(
+                ellipse =>
+                {
+                    var projection = ellipse.FromUnitCircle.Inverse();
                     var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
-                    var majorLength = el.MajorAxis.Length;
-                    if (isInside && (offsetDistance > majorLength * el.MinorAxisRatio)
+                    var majorLength = ellipse.MajorAxis.Length;
+                    if (isInside && (offsetDistance > majorLength * ellipse.MinorAxisRatio)
                         || (offsetDistance >= majorLength))
                     {
-                        result = null;
+                        return null;
                     }
                     else
                     {
                         Vector newMajor;
                         if (isInside)
                         {
-                            newMajor = el.MajorAxis.Normalize() * (majorLength - offsetDistance);
+                            newMajor = ellipse.MajorAxis.Normalize() * (majorLength - offsetDistance);
                         }
                         else
                         {
-                            newMajor = el.MajorAxis.Normalize() * (majorLength + offsetDistance);
+                            newMajor = ellipse.MajorAxis.Normalize() * (majorLength + offsetDistance);
                         }
-                        result = new PrimitiveEllipse(
-                            center: el.Center,
+                        return new PrimitiveEllipse(
+                            center: ellipse.Center,
                             majorAxis: newMajor,
-                            normal: el.Normal,
-                            minorAxisRatio: el.MinorAxisRatio,
-                            startAngle: el.StartAngle,
-                            endAngle: el.EndAngle,
-                            color: el.Color);
+                            normal: ellipse.Normal,
+                            minorAxisRatio: ellipse.MinorAxisRatio,
+                            startAngle: ellipse.StartAngle,
+                            endAngle: ellipse.EndAngle,
+                            color: ellipse.Color);
                     }
-                    break;
-                case PrimitiveKind.Line:
+                },
+                line =>
+                {
                     // find what side the offset occured on and move both end points
-                    var line = (PrimitiveLine)primitive;
                     // normalize to XY plane
                     var picked = drawingPlane.ToXYPlane(offsetDirection);
                     var p1 = drawingPlane.ToXYPlane(line.P1);
@@ -236,7 +234,7 @@ namespace IxMilia.BCad.Utilities
                     {
                         var offsetVector = (picked - intersection.Value).Normalize() * offsetDistance;
                         offsetVector = drawingPlane.FromXYPlane(offsetVector);
-                        result = new PrimitiveLine(
+                        return new PrimitiveLine(
                             p1: line.P1 + offsetVector,
                             p2: line.P2 + offsetVector,
                             color: line.Color);
@@ -244,23 +242,18 @@ namespace IxMilia.BCad.Utilities
                     else
                     {
                         // the selected point was directly on the line
-                        result = null;
+                        return null;
                     }
-                    break;
-                case PrimitiveKind.Point:
-                    var point = (PrimitivePoint)primitive;
+                },
+                point =>
+                {
                     var pointOffsetVector = (offsetDirection - point.Location).Normalize() * offsetDistance;
-                    result = new PrimitivePoint(point.Location + pointOffsetVector, point.Color);
-                    break;
-                case PrimitiveKind.Text:
-                case PrimitiveKind.Bezier:
-                    result = null;
-                    break;
-                default:
-                    throw new ArgumentException("primitive.Kind");
-            }
-
-            return result;
+                    return new PrimitivePoint(point.Location + pointOffsetVector, point.Color);
+                },
+                text => null,
+                bezier => null,
+                image => null
+            );
         }
 
         public static Entity Offset(IWorkspace workspace, Entity entityToOffset, Point offsetDirection, double offsetDistance)
@@ -447,17 +440,10 @@ namespace IxMilia.BCad.Utilities
 
         private static IEnumerable<IPrimitive> OffsetBothDirections(Plane drawingPlane, IPrimitive primitive, double distance)
         {
-            switch (primitive.Kind)
-            {
-                case PrimitiveKind.Ellipse:
-                    var el = (PrimitiveEllipse)primitive;
-                    return new[]
-                        {
-                            Offset(drawingPlane, el, el.Center, distance),
-                            Offset(drawingPlane, el, el.Center + (el.MajorAxis * 2.0), distance)
-                        };
-                case PrimitiveKind.Line:
-                    var line = (PrimitiveLine)primitive;
+            return primitive.MapPrimitive<IEnumerable<IPrimitive>>(
+                ellipse => new[] { Offset(drawingPlane, ellipse, ellipse.Center, distance), Offset(drawingPlane, ellipse, ellipse.Center + (ellipse.MajorAxis * 2.0), distance) },
+                line =>
+                {
                     var lineVector = line.P2 - line.P1;
                     if (lineVector.IsZeroVector)
                     {
@@ -466,17 +452,16 @@ namespace IxMilia.BCad.Utilities
 
                     var offsetVector = lineVector.Cross(drawingPlane.Normal);
                     return new[]
-                        {
-                            Offset(drawingPlane, line, line.P1 + offsetVector, distance),
-                            Offset(drawingPlane, line, line.P1 - offsetVector, distance)
-                        };
-                case PrimitiveKind.Point:
-                case PrimitiveKind.Text:
-                case PrimitiveKind.Bezier:
-                    return Enumerable.Empty<IPrimitive>();
-                default:
-                    throw new ArgumentException("primitive.Kind");
-            }
+                    {
+                        Offset(drawingPlane, line, line.P1 + offsetVector, distance),
+                        Offset(drawingPlane, line, line.P1 - offsetVector, distance)
+                    };
+                },
+                point => null,
+                text => null,
+                bezier => null,
+                image => null
+            ) ?? Enumerable.Empty<IPrimitive>();
         }
 
         private static void TrimLine(Line lineToTrim, Point pivot, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)

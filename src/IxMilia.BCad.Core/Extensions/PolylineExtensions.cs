@@ -39,57 +39,13 @@ namespace IxMilia.BCad.Extensions
                 for (int i = 0; i < primitiveList.Count; i++)
                 {
                     var primitive = primitiveList[i];
-                    switch (primitive)
-                    {
-                        case PrimitiveLine line:
-                            if (nextVertex != null)
-                            {
-                                // align with previous point
-                                if (nextVertex.Location.CloseTo(line.P1))
-                                {
-                                    // already in order
-                                    AddVertex(new Vertex(line.P1));
-                                    nextVertex = new Vertex(line.P2);
-                                }
-                                else
-                                {
-                                    // need to process 'backwards'
-                                    AddVertex(new Vertex(line.P2));
-                                    nextVertex = new Vertex(line.P1);
-                                }
-                            }
-                            else
-                            {
-                                // align line with next primitive
-                                var nextPrimitive = NextPrimitive(i);
-                                if (nextPrimitive != null)
-                                {
-                                    var nextStart = nextPrimitive.StartPoint();
-                                    var nextEnd = nextPrimitive.EndPoint();
-                                    if (line.P2.CloseTo(nextStart) || line.P2.CloseTo(nextEnd))
-                                    {
-                                        AddVertex(new Vertex(line.P1));
-                                        nextVertex = new Vertex(line.P2);
-                                    }
-                                    else
-                                    {
-                                        AddVertex(new Vertex(line.P2));
-                                        nextVertex = new Vertex(line.P1);
-                                    }
-                                }
-                                else
-                                {
-                                    // order is arbitrary
-                                    AddVertex(new Vertex(line.P1));
-                                    nextVertex = new Vertex(line.P2);
-                                }
-                            }
-                            break;
-                        case PrimitiveEllipse el:
+                    primitive.DoPrimitive(
+                        ellipse =>
+                        {
                             Point nearPoint, farPoint;
-                            var startPoint = el.StartPoint();
-                            var endPoint = el.EndPoint();
-                            var includedAngle = (el.EndAngle - el.StartAngle).CorrectAngleDegrees();
+                            var startPoint = ellipse.StartPoint();
+                            var endPoint = ellipse.EndPoint();
+                            var includedAngle = (ellipse.EndAngle - ellipse.StartAngle).CorrectAngleDegrees();
                             if (nextVertex != null)
                             {
                                 // align with previous point
@@ -138,10 +94,57 @@ namespace IxMilia.BCad.Extensions
                                 : VertexDirection.Clockwise;
                             AddVertex(new Vertex(nearPoint, includedAngle, direction));
                             nextVertex = new Vertex(farPoint, includedAngle, direction);
-                            break;
-                        default:
-                            throw new InvalidOperationException("Can only operate on lines and arcs");
-                    }
+                        },
+                        line =>
+                        {
+                            if (nextVertex != null)
+                            {
+                                // align with previous point
+                                if (nextVertex.Location.CloseTo(line.P1))
+                                {
+                                    // already in order
+                                    AddVertex(new Vertex(line.P1));
+                                    nextVertex = new Vertex(line.P2);
+                                }
+                                else
+                                {
+                                    // need to process 'backwards'
+                                    AddVertex(new Vertex(line.P2));
+                                    nextVertex = new Vertex(line.P1);
+                                }
+                            }
+                            else
+                            {
+                                // align line with next primitive
+                                var nextPrimitive = NextPrimitive(i);
+                                if (nextPrimitive != null)
+                                {
+                                    var nextStart = nextPrimitive.StartPoint();
+                                    var nextEnd = nextPrimitive.EndPoint();
+                                    if (line.P2.CloseTo(nextStart) || line.P2.CloseTo(nextEnd))
+                                    {
+                                        AddVertex(new Vertex(line.P1));
+                                        nextVertex = new Vertex(line.P2);
+                                    }
+                                    else
+                                    {
+                                        AddVertex(new Vertex(line.P2));
+                                        nextVertex = new Vertex(line.P1);
+                                    }
+                                }
+                                else
+                                {
+                                    // order is arbitrary
+                                    AddVertex(new Vertex(line.P1));
+                                    nextVertex = new Vertex(line.P2);
+                                }
+                            }
+                        },
+                        point => throw new InvalidOperationException("Can only operate on lines and arcs"),
+                        text => throw new InvalidOperationException("Can only operate on lines and arcs"),
+                        bezier => throw new InvalidOperationException("Can only operate on lines and arcs"),
+                        image => throw new InvalidOperationException("Can only operate on lines and arcs")
+                    );
                 }
 
                 if (nextVertex != null)
