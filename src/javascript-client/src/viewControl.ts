@@ -207,13 +207,13 @@ export class ViewControl {
         this.client.ready(this.outputPane.clientWidth, this.outputPane.clientHeight);
     }
 
-    private update(clientUpdate: ClientUpdate) {
+    private async update(clientUpdate: ClientUpdate): Promise<void> {
         let redraw = false;
         let redrawCursor = false;
         let redrawSelected = false;
         if (clientUpdate.Drawing !== undefined) {
             this.entityDrawing.FileName = clientUpdate.Drawing.FileName;
-            this.updateDrawing(this.entityDrawing, clientUpdate.Drawing);
+            await this.updateDrawing(this.entityDrawing, clientUpdate.Drawing);
             redraw = true;
         }
         if (clientUpdate.SelectedEntitiesDrawing !== undefined) {
@@ -221,7 +221,7 @@ export class ViewControl {
             redrawSelected = true;
         }
         if (clientUpdate.RubberBandDrawing !== undefined) {
-            this.updateDrawing(this.rubberBandDrawing, clientUpdate.RubberBandDrawing);
+            await this.updateDrawing(this.rubberBandDrawing, clientUpdate.RubberBandDrawing);
             redraw = true;
         }
         if (clientUpdate.TransformedSnapPoint !== undefined) {
@@ -248,6 +248,7 @@ export class ViewControl {
         }
         if (clientUpdate.Settings !== undefined) {
             this.settings = clientUpdate.Settings;
+            this.outputPane.style.background = ViewControl.colorToHex(this.settings.BackgroundColor);
             redraw = true;
             redrawCursor = true;
             redrawSelected = true;
@@ -267,18 +268,28 @@ export class ViewControl {
         }
     }
 
-    private updateDrawing(drawing: Drawing, clientDrawing: ClientDrawing) {
+    private async updateDrawing(drawing: Drawing, clientDrawing: ClientDrawing): Promise<void> {
         drawing.Points = clientDrawing.Points;
         drawing.Lines = clientDrawing.Lines;
         drawing.Ellipses = clientDrawing.Ellipses;
         drawing.Text = clientDrawing.Text;
         drawing.Images = clientDrawing.Images;
-        drawing.ImageElements = clientDrawing.Images.map(i => {
-            const img = new Image();
-            img.src = `data:${mimeTypeFromPath(i.Path)};base64,${i.Base64ImageData}`;
-            return [i, img];
-        });
+        drawing.ImageElements = await Promise.all(clientDrawing.Images.map(async i => {
+            const imageElement = await this.createImageElement(i);
+            const result: [ClientImage, HTMLImageElement] = [i, imageElement];
+            return result;
+        }));
         this.populateVertices(drawing);
+    }
+
+    private createImageElement(clientImage: ClientImage): Promise<HTMLImageElement> {
+        return new Promise(resolve => {
+            const image = new Image();
+            image.addEventListener('load', () => {
+                resolve(image);
+            });
+            image.src = `data:${mimeTypeFromPath(clientImage.Path)};base64,${clientImage.Base64ImageData}`;
+        });
     }
 
     private drawCursor() {
@@ -478,6 +489,8 @@ export class ViewControl {
         (new ResizeObserver(() => {
             this.imageCanvas.width = this.outputPane.clientWidth;
             this.imageCanvas.height = this.outputPane.clientHeight;
+            this.rubberBandImageCanvas.width = this.outputPane.clientWidth;
+            this.rubberBandImageCanvas.height = this.outputPane.clientHeight;
             this.drawingCanvas.width = this.outputPane.clientWidth;
             this.drawingCanvas.height = this.outputPane.clientHeight;
             this.selectionCanvas.width = this.outputPane.clientWidth;
@@ -684,7 +697,7 @@ export class ViewControl {
 
     private redraw() {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-        this.gl.clearColor(this.settings.BackgroundColor.R / 255.0, this.settings.BackgroundColor.G / 255.0, this.settings.BackgroundColor.B / 255.0, 1.0);
+        this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.redrawSpecific(this.entityDrawing);
         this.redrawSpecific(this.rubberBandDrawing);
