@@ -15,7 +15,7 @@ namespace IxMilia.BCad.Commands
             var location = input.Value;
 
             // get height
-            var heightInput = await workspace.InputService.GetDistance("Text height or first point", lastHeight);
+            var heightInput = await workspace.InputService.GetDistance(new UserDirective("Text height or first point"), lastHeight);
             if (heightInput.Cancel || !heightInput.HasValue) return false;
             var height = heightInput.Value;
             lastHeight = height;

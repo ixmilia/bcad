@@ -23,13 +23,37 @@ namespace IxMilia.BCad.Commands
 
             var basePoint = basePointValue.Value;
 
-            var scaleFactorValue = await workspace.InputService.GetDistance("Scale factor");
-            if (scaleFactorValue.Cancel || !scaleFactorValue.HasValue)
+            var scaleFactorValue = await workspace.InputService.GetDistance(new UserDirective("Scale factor or [r]eference", "r"));
+            if (scaleFactorValue.Cancel || (!scaleFactorValue.HasValue && string.IsNullOrEmpty(scaleFactorValue.Directive)))
             {
                 return false;
             }
 
-            var scaleFactor = scaleFactorValue.Value;
+            double scaleFactor;
+            if (scaleFactorValue.Directive == "r")
+            {
+                var firstDistanceValue = await workspace.InputService.GetDistance(new UserDirective("First scale distance"));
+                if (firstDistanceValue.Cancel ||
+                    !firstDistanceValue.HasValue ||
+                    firstDistanceValue.Value == 0.0)
+                {
+                    return false;
+                }
+
+                var secondDistanceValue = await workspace.InputService.GetDistance(new UserDirective("Second scale distance"));
+                if (secondDistanceValue.Cancel ||
+                    !secondDistanceValue.HasValue ||
+                    secondDistanceValue.Value == 0.0)
+                {
+                    return false;
+                }
+
+                scaleFactor = secondDistanceValue.Value / firstDistanceValue.Value;
+            }
+            else
+            {
+                scaleFactor = scaleFactorValue.Value;
+            }
 
             // now do it
             var drawing = workspace.Drawing.ScaleEntities(entities, basePoint, scaleFactor);

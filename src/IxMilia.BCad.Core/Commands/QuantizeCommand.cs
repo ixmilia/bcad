@@ -24,7 +24,7 @@ namespace IxMilia.BCad.Commands
             }
 
             // get distance quantum
-            var distance = await workspace.InputService.GetDistance(prompt: "Distance quantum", defaultDistance: LastDistanceQuantum);
+            var distance = await workspace.InputService.GetDistance(new UserDirective("Distance quantum"), defaultDistance: LastDistanceQuantum);
             if (distance.Cancel)
             {
                 return false;
@@ -43,7 +43,7 @@ namespace IxMilia.BCad.Commands
             LastDistanceQuantum = distanceQuantum;
 
             // get angle quantum
-            var angle = await workspace.InputService.GetDistance(prompt: "Angle quantum", defaultDistance: LastAngleQuantum);
+            var angle = await workspace.InputService.GetDistance(new UserDirective("Angle quantum"), defaultDistance: LastAngleQuantum);
             if (angle.Cancel)
             {
                 return false;

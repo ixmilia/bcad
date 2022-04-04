@@ -54,20 +54,22 @@ namespace IxMilia.BCad.Services
 
         private UserDirective currentDirective = null;
 
-        public async Task<ValueOrDirective<double>> GetDistance(string prompt = null, Optional<double> defaultDistance = default(Optional<double>))
+        public async Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Optional<double> defaultDistance = default(Optional<double>))
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Distance | InputType.Point));
-            if (prompt == null)
+            var allowedType = InputType.Distance | InputType.Directive | InputType.Point;
+            OnValueRequested(new ValueRequestedEventArgs(allowedType));
+            if (directive == null)
             {
-                prompt = "Offset distance or first point";
+                var prompt = "Offset distance or first point";
+                if (defaultDistance.HasValue)
+                {
+                    prompt += $" [{defaultDistance.Value}]";
+                }
+
+                directive = new UserDirective(prompt);
             }
 
-            if (defaultDistance.HasValue)
-            {
-                prompt += string.Format(" [{0}]", defaultDistance.Value);
-            }
-
-            await WaitFor(InputType.Distance | InputType.Point, new UserDirective(prompt), null);
+            await WaitFor(allowedType, directive, null);
             ValueOrDirective<double> result;
             switch (lastType)
             {
@@ -79,6 +81,9 @@ namespace IxMilia.BCad.Services
                     break;
                 case PushedValueType.Distance:
                     result = ValueOrDirective<double>.GetValue(pushedDistance);
+                    break;
+                case PushedValueType.Directive:
+                    result = ValueOrDirective<double>.GetDirective(pushedDirective);
                     break;
                 case PushedValueType.Point:
                     var first = pushedPoint;

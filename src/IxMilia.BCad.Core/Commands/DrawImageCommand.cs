@@ -19,12 +19,12 @@ namespace IxMilia.BCad.Commands
             if (string.IsNullOrEmpty(imagePathInput.Value)) return false;
             var imagePath = imagePathInput.Value;
 
-            var imageWidthInput = await workspace.InputService.GetDistance("Width");
+            var imageWidthInput = await workspace.InputService.GetDistance(new UserDirective("Width"));
             if (imageWidthInput.Cancel) return false;
             if (!imageWidthInput.HasValue) return false;
             var imageWidth = imageWidthInput.Value;
 
-            var imageHeightInput = await workspace.InputService.GetDistance("Height");
+            var imageHeightInput = await workspace.InputService.GetDistance(new UserDirective("Height"));
             if (imageHeightInput.Cancel) return false;
             if (!imageHeightInput.HasValue) return false;
             var imageHeight = imageHeightInput.Value;
