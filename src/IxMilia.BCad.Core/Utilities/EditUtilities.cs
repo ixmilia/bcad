@@ -374,6 +374,32 @@ namespace IxMilia.BCad.Utilities
             );
         }
 
+        public static IPrimitive Scale(IPrimitive primitive, Point basePoint, double scaleFactor)
+        {
+            return primitive.MapPrimitive<IPrimitive>(
+                ellipse => ellipse.Update(
+                    center: ellipse.Center.ScaleFrom(basePoint, scaleFactor),
+                    majorAxis: ellipse.MajorAxis * scaleFactor),
+                line => line.Update(
+                    p1: line.P1.ScaleFrom(basePoint, scaleFactor),
+                    p2: line.P2.ScaleFrom(basePoint, scaleFactor)),
+                point => point.Update(
+                    location: point.Location.ScaleFrom(basePoint, scaleFactor)),
+                text => text.Update(
+                    location: text.Location.ScaleFrom(basePoint, scaleFactor),
+                    height: text.Height * scaleFactor),
+                bezier => bezier.Update(
+                    p1: bezier.P1.ScaleFrom(basePoint, scaleFactor),
+                    p2: bezier.P2.ScaleFrom(basePoint, scaleFactor),
+                    p3: bezier.P3.ScaleFrom(basePoint, scaleFactor),
+                    p4: bezier.P4.ScaleFrom(basePoint, scaleFactor)),
+                image => image.Update(
+                    location: image.Location.ScaleFrom(basePoint, scaleFactor),
+                    width: image.Width * scaleFactor,
+                    height: image.Height * scaleFactor)
+            );
+        }
+
         public static Entity Scale(Entity entity, Point basePoint, double scaleFactor)
         {
             return entity.MapEntity<Entity>(

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Services
 {
@@ -25,7 +26,7 @@ namespace IxMilia.BCad.Services
     public interface IInputService : IWorkspaceService
     {
         Point LastPoint { get; }
-        Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Optional<double> defaultDistance = default(Optional<double>));
+        Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Func<double, IEnumerable<IPrimitive>> onCursorMove = null, Optional<double> defaultDistance = default(Optional<double>));
         Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>));
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, EntityKind entityKinds = EntityKind.All, RubberBandGenerator onCursorMove = null);

@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using IxMilia.BCad.Utilities;
 
 namespace IxMilia.BCad.Commands
 {
@@ -40,7 +42,14 @@ namespace IxMilia.BCad.Commands
                     return false;
                 }
 
-                var secondDistanceValue = await workspace.InputService.GetDistance(new UserDirective("Second scale distance"));
+                var entityPrimitives = entities.SelectMany(e => e.GetPrimitives()).ToArray();
+                var secondDistanceValue = await workspace.InputService.GetDistance(
+                    new UserDirective("Second scale distance"),
+                    onCursorMove: distance =>
+                    {
+                        var scaleFactor = distance / firstDistanceValue.Value;
+                        return entityPrimitives.Select(p => EditUtilities.Scale(p, basePoint, scaleFactor));
+                    });
                 if (secondDistanceValue.Cancel ||
                     !secondDistanceValue.HasValue ||
                     secondDistanceValue.Value == 0.0)

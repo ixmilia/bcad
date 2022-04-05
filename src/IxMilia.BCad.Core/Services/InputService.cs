@@ -54,7 +54,7 @@ namespace IxMilia.BCad.Services
 
         private UserDirective currentDirective = null;
 
-        public async Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Optional<double> defaultDistance = default(Optional<double>))
+        public async Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Func<double, IEnumerable<IPrimitive>> onCursorMove = null, Optional<double> defaultDistance = default(Optional<double>))
         {
             var allowedType = InputType.Distance | InputType.Directive | InputType.Point;
             OnValueRequested(new ValueRequestedEventArgs(allowedType));
@@ -88,9 +88,11 @@ namespace IxMilia.BCad.Services
                 case PushedValueType.Point:
                     var first = pushedPoint;
                     ResetWaiters();
+                    onCursorMove ??= _ => Enumerable.Empty<IPrimitive>();
                     var second = await GetPoint(new UserDirective("Second point of offset distance"), p =>
                     {
-                        return new[] { new PrimitiveLine(first, p) };
+                        var distance = (p - first).Length;
+                        return new[] { new PrimitiveLine(first, p) }.Concat(onCursorMove(distance));
                     });
                     if (second.HasValue)
                     {
