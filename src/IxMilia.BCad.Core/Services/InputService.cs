@@ -57,7 +57,6 @@ namespace IxMilia.BCad.Services
         public async Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Func<double, IEnumerable<IPrimitive>> onCursorMove = null, Optional<double> defaultDistance = default(Optional<double>))
         {
             var allowedType = InputType.Distance | InputType.Directive | InputType.Point;
-            OnValueRequested(new ValueRequestedEventArgs(allowedType));
             if (directive == null)
             {
                 var prompt = "Offset distance or first point";
@@ -119,7 +118,6 @@ namespace IxMilia.BCad.Services
         public async Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>))
         {
             this.LastPoint = lastPoint.HasValue ? lastPoint.Value : this.LastPoint;
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Point | InputType.Directive));
             await WaitFor(InputType.Point | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<Point> result;
             switch (lastType)
@@ -146,7 +144,6 @@ namespace IxMilia.BCad.Services
 
         public async Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Entity | InputType.Directive));
             await WaitFor(InputType.Entity | InputType.Directive, directive, onCursorMove);
             ValueOrDirective<SelectedEntity> result;
             switch (lastType)
@@ -173,7 +170,6 @@ namespace IxMilia.BCad.Services
 
         public async Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, EntityKind entityKinds = EntityKind.All, RubberBandGenerator onCursorMove = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Entities | InputType.Directive));
             ValueOrDirective<IEnumerable<Entity>>? result = null;
             HashSet<Entity> entities = new HashSet<Entity>();
             bool awaitingMore = true;
@@ -226,7 +222,6 @@ namespace IxMilia.BCad.Services
 
         public async Task<ValueOrDirective<string>> GetText(string prompt = null)
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.Text));
             await WaitFor(InputType.Text, new UserDirective(prompt ?? "Enter text"), null);
             ValueOrDirective<string> result;
             switch (lastType)
@@ -250,7 +245,6 @@ namespace IxMilia.BCad.Services
 
         public async Task<ValueOrDirective<bool>> GetNone()
         {
-            OnValueRequested(new ValueRequestedEventArgs(InputType.None));
             await WaitFor(InputType.None, new UserDirective("Pan"), null);
             ResetWaiters();
             return ValueOrDirective<bool>.GetValue(false);
@@ -268,6 +262,7 @@ namespace IxMilia.BCad.Services
             pushedDirective = null;
             pushedString = null;
             _workspace.RubberBandGenerator = onCursorMove;
+            OnValueRequested(new ValueRequestedEventArgs(type));
             return pushValueDone.Task;
         }
 
