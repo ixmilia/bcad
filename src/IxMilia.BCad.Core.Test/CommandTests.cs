@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
-using IxMilia.BCad.Services;
 using Xunit;
 
 namespace IxMilia.BCad.Core.Test
@@ -101,38 +100,7 @@ namespace IxMilia.BCad.Core.Test
 
                 var operation = workspaceOperations[operationIndex];
                 operationIndex++;
-                if ((e.InputType & operation.InputType) == operation.InputType)
-                {
-                    switch (operation.InputType)
-                    {
-                        case InputType.None:
-                            Workspace.InputService.PushNone();
-                            break;
-                        case InputType.Command:
-                            Workspace.InputService.PushCommand(((PushCommandOperation)operation).Command);
-                            break;
-                        case InputType.Distance:
-                            Workspace.InputService.PushDistance(((PushDistanceOperation)operation).Distance);
-                            break;
-                        case InputType.Directive:
-                            Workspace.InputService.PushDirective(((PushDirectiveOperation)operation).Directive);
-                            break;
-                        case InputType.Point:
-                            Workspace.InputService.PushPoint(((PushPointOperation)operation).Point);
-                            break;
-                        case InputType.Entity:
-                            Workspace.InputService.PushEntity(((PushEntityOperation)operation).Entity);
-                            break;
-                        case InputType.Entities:
-                            Workspace.InputService.PushEntities(((PushEntitiesOperation)operation).Entities);
-                            break;
-                        case InputType.Text:
-                            Workspace.InputService.PushText(((PushTextOperation)operation).Text);
-                            break;
-                        default:
-                            throw new Exception($"Unexpected workspace operation type {operation.InputType}");
-                    }
-                }
+                operation.DoOperation(Workspace);
             };
 
             var executeTask = Workspace.ExecuteCommand(command);
