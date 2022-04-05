@@ -106,6 +106,41 @@ namespace IxMilia.BCad.Primitives
                 Center + MajorAxis);
         }
 
+        public PrimitiveEllipse Update(
+            Optional<Point> center = default,
+            Optional<Vector> majorAxis = default,
+            Optional<Vector> normal = default,
+            Optional<double> minorAxisRatio = default,
+            Optional<double> startAngle = default,
+            Optional<double> endAngle = default,
+            Optional<CadColor?> color = default,
+            Optional<double> thickness = default)
+        {
+            var newCenter = center.HasValue ? center.Value : Center;
+            var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : MajorAxis;
+            var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newMinorAxisRatio = minorAxisRatio.HasValue ? minorAxisRatio.Value : MinorAxisRatio;
+            var newStartAngle = startAngle.HasValue ? startAngle.Value : StartAngle;
+            var newEndAngle = endAngle.HasValue ? endAngle.Value : EndAngle;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newThickness = thickness.HasValue ? thickness.Value : Thickness;
+
+            if (newCenter == Center &&
+                newMajorAxis == MajorAxis &&
+                newNormal == Normal &&
+                newMinorAxisRatio == MinorAxisRatio &&
+                newStartAngle == StartAngle &&
+                newEndAngle == EndAngle &&
+                newColor == Color &&
+                newThickness == Thickness)
+            {
+                // no change
+                return this;
+            }
+
+            return new PrimitiveEllipse(newCenter, newMajorAxis, newNormal, newMinorAxisRatio, newStartAngle, newEndAngle, newColor, newThickness);
+        }
+
         /// <summary>
         /// Creates a circle that passes through the three specified points.  Null if the points are co-linear
         /// </summary>

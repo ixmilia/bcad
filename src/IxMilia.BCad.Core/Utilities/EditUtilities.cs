@@ -39,48 +39,25 @@ namespace IxMilia.BCad.Utilities
             var transform = GetRotateMatrix(offset, angleInDegrees);
             var inSitu = GetRotateMatrix(Vector.Zero, angleInDegrees);
             return primitive.MapPrimitive<IPrimitive>(
-                ellipse => new PrimitiveEllipse(
+                ellipse => ellipse.Update(
                     center: transform.Transform(ellipse.Center),
-                    majorAxis: inSitu.Transform(ellipse.MajorAxis),
-                    normal: ellipse.Normal,
-                    minorAxisRatio: ellipse.MinorAxisRatio,
-                    startAngle: ellipse.StartAngle,
-                    endAngle: ellipse.EndAngle,
-                    color: ellipse.Color,
-                    thickness: ellipse.Thickness
-                ),
-                line => new PrimitiveLine(
+                    majorAxis: inSitu.Transform(ellipse.MajorAxis)),
+                line => line.Update(
                     p1: transform.Transform(line.P1),
-                    p2: transform.Transform(line.P2),
-                    color: line.Color,
-                    thickness: line.Thickness),
-                point => new PrimitivePoint(
-                    location: transform.Transform(point.Location),
-                    color: point.Color),
-                text => new PrimitiveText(
-                    value: text.Value,
+                    p2: transform.Transform(line.P2)),
+                point => point.Update(
+                    location: transform.Transform(point.Location)),
+                text => text.Update(
                     location: transform.Transform(text.Location),
-                    height: text.Height,
-                    normal: text.Normal,
-                    rotation: text.Rotation + angleInDegrees,
-                    color: text.Color
-                ),
-                bezier => new PrimitiveBezier(
+                    rotation: text.Rotation + angleInDegrees),
+                bezier => bezier.Update(
                     p1: transform.Transform(bezier.P1),
                     p2: transform.Transform(bezier.P2),
                     p3: transform.Transform(bezier.P3),
-                    p4: transform.Transform(bezier.P4),
-                    color: bezier.Color
-                ),
-                image => new PrimitiveImage(
+                    p4: transform.Transform(bezier.P4)),
+                image => image.Update(
                     location: transform.Transform(image.Location),
-                    imageData: image.ImageData,
-                    path: image.Path,
-                    width: image.Width,
-                    height: image.Height,
-                    rotation: image.Rotation + angleInDegrees,
-                    color: image.Color
-                )
+                    rotation: image.Rotation + angleInDegrees)
             );
         }
 

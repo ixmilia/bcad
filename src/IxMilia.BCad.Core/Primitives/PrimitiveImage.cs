@@ -46,6 +46,38 @@ namespace IxMilia.BCad.Primitives
             _boundingBox = BoundingBox.FromPoints(bottomLeft, bottomRight, topLeft, topRight);
         }
 
+        public PrimitiveImage Update(
+            Optional<Point> location = default,
+            Optional<byte[]> imageData = default,
+            Optional<string> path = default,
+            Optional<double> width = default,
+            Optional<double> height = default,
+            Optional<double> rotation = default,
+            Optional<CadColor?> color = default)
+        {
+            var newLocation = location.HasValue ? location.Value : Location;
+            var newImageData = imageData.HasValue ? imageData.Value : ImageData;
+            var newPath = path.HasValue ? path.Value : Path;
+            var newWidth = width.HasValue ? width.Value : Width;
+            var newHeight = height.HasValue ? height.Value : Height;
+            var newRotation = rotation.HasValue ? rotation.Value : Rotation;
+            var newColor = color.HasValue ? color.Value : Color;
+
+            if (newLocation == Location &&
+                newImageData == ImageData &&
+                newPath == Path &&
+                newWidth == Width &&
+                newHeight == Height &&
+                newRotation == Rotation &&
+                newColor == Color)
+            {
+                // no change
+                return this;
+            }
+
+            return new PrimitiveImage(newLocation, newImageData, newPath, newWidth, newHeight, newRotation, newColor);
+        }
+
         internal BoundingBox GetBoundingBox() => _boundingBox;
 
         internal PrimitiveLine[] GetBoundaryLines() => _boundaryLines;

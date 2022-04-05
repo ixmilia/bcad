@@ -11,5 +11,22 @@ namespace IxMilia.BCad.Primitives
             Location = location;
             Color = color;
         }
+
+        public PrimitivePoint Update(
+            Optional<Point> location = default,
+            Optional<CadColor?> color = default)
+        {
+            var newLocation = location.HasValue ? location.Value : Location;
+            var newColor = color.HasValue ? color.Value : Color;
+
+            if (newLocation == Location &&
+                newColor == Color)
+            {
+                // no change
+                return this;
+            }
+
+            return new PrimitivePoint(newLocation, newColor);
+        }
     }
 }

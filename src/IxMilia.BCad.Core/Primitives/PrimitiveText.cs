@@ -24,5 +24,34 @@ namespace IxMilia.BCad.Primitives
             // currently, not a good way to measure text, but assume a character's width is ~77% of its height
             this.Width = value.Length * this.Height * 0.77;
         }
+
+        public PrimitiveText Update(
+            Optional<string> value = default,
+            Optional<Point> location = default,
+            Optional<double> height = default,
+            Optional<Vector> normal = default,
+            Optional<double> rotation = default,
+            Optional<CadColor?> color = default)
+        {
+            var newValue = value.HasValue ? value.Value : Value;
+            var newLocation = location.HasValue ? location.Value : Location;
+            var newHeight = height.HasValue ? height.Value : Height;
+            var newNormal = normal.HasValue ? normal.Value : Normal;
+            var newRotation = rotation.HasValue ? rotation.Value : Rotation;
+            var newColor = color.HasValue ? color.Value : Color;
+
+            if (newValue == Value &&
+                newLocation == Location &&
+                newHeight == Height &&
+                newNormal == Normal &&
+                newRotation == Rotation &&
+                newColor == Color)
+            {
+                // no change
+                return this;
+            }
+
+            return new PrimitiveText(newValue, newLocation, newHeight, newNormal, newRotation, newColor);
+        }
     }
 }

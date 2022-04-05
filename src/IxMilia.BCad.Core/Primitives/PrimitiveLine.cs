@@ -34,5 +34,28 @@ namespace IxMilia.BCad.Primitives
 
             this.Color = color;
         }
+
+        public PrimitiveLine Update(
+            Optional<Point> p1 = default,
+            Optional<Point> p2 = default,
+            Optional<CadColor?> color = default,
+            Optional<double> thickness = default)
+        {
+            var newP1 = p1.HasValue ? p1.Value : P1;
+            var newP2 = p2.HasValue ? p2.Value : P2;
+            var newColor = color.HasValue ? color.Value : Color;
+            var newThickness = thickness.HasValue ? thickness.Value : Thickness;
+
+            if (newP1 == P1 &&
+                newP2 == P2 &&
+                newColor == Color &&
+                newThickness == Thickness)
+            {
+                // no change
+                return this;
+            }
+
+            return new PrimitiveLine(newP1, newP2, newColor, newThickness);
+        }
     }
 }

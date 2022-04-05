@@ -158,6 +158,32 @@ namespace IxMilia.BCad.Primitives
             return $"PrimitiveBezier: p1={P1}, p2={P2}, p3={P3}, p4={P4}";
         }
 
+        public PrimitiveBezier Update(
+            Optional<Point> p1 = default,
+            Optional<Point> p2 = default,
+            Optional<Point> p3 = default,
+            Optional<Point> p4 = default,
+            Optional<CadColor?> color = default)
+        {
+            var newP1 = p1.HasValue ? p1.Value : P1;
+            var newP2 = p2.HasValue ? p2.Value : P2;
+            var newP3 = p3.HasValue ? p3.Value : P3;
+            var newP4 = p4.HasValue ? p4.Value : P4;
+            var newColor = color.HasValue ? color.Value : Color;
+
+            if (newP1 == P1 &&
+                newP2 == P2 &&
+                newP3 == P3 &&
+                newP4 == P4 &&
+                newColor == Color)
+            {
+                // no change
+                return this;
+            }
+
+            return new PrimitiveBezier(newP1, newP2, newP3, newP4, newColor);
+        }
+
         public static PrimitiveBezier FromPoints(IList<Point> controlPoints, int startIndex, int pointCount)
         {
             if (pointCount != 4)
