@@ -34,6 +34,56 @@ namespace IxMilia.BCad.Utilities
             }
         }
 
+        public static IPrimitive Rotate(IPrimitive primitive, Vector offset, double angleInDegrees)
+        {
+            var transform = GetRotateMatrix(offset, angleInDegrees);
+            var inSitu = GetRotateMatrix(Vector.Zero, angleInDegrees);
+            return primitive.MapPrimitive<IPrimitive>(
+                ellipse => new PrimitiveEllipse(
+                    center: transform.Transform(ellipse.Center),
+                    majorAxis: inSitu.Transform(ellipse.MajorAxis),
+                    normal: ellipse.Normal,
+                    minorAxisRatio: ellipse.MinorAxisRatio,
+                    startAngle: ellipse.StartAngle,
+                    endAngle: ellipse.EndAngle,
+                    color: ellipse.Color,
+                    thickness: ellipse.Thickness
+                ),
+                line => new PrimitiveLine(
+                    p1: transform.Transform(line.P1),
+                    p2: transform.Transform(line.P2),
+                    color: line.Color,
+                    thickness: line.Thickness),
+                point => new PrimitivePoint(
+                    location: transform.Transform(point.Location),
+                    color: point.Color),
+                text => new PrimitiveText(
+                    value: text.Value,
+                    location: transform.Transform(text.Location),
+                    height: text.Height,
+                    normal: text.Normal,
+                    rotation: text.Rotation + angleInDegrees,
+                    color: text.Color
+                ),
+                bezier => new PrimitiveBezier(
+                    p1: transform.Transform(bezier.P1),
+                    p2: transform.Transform(bezier.P2),
+                    p3: transform.Transform(bezier.P3),
+                    p4: transform.Transform(bezier.P4),
+                    color: bezier.Color
+                ),
+                image => new PrimitiveImage(
+                    location: transform.Transform(image.Location),
+                    imageData: image.ImageData,
+                    path: image.Path,
+                    width: image.Width,
+                    height: image.Height,
+                    rotation: image.Rotation + angleInDegrees,
+                    color: image.Color
+                )
+            );
+        }
+
         public static Entity Rotate(Entity entity, Vector offset, double angleInDegrees)
         {
             var transform = GetRotateMatrix(offset, angleInDegrees);

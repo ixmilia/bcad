@@ -47,6 +47,24 @@ namespace IxMilia.BCad
             return this.X * v.X + this.Y * v.Y + this.Z * v.Z;
         }
 
+        public static double AngleBetweenInRadians(Vector v1, Vector v2)
+        {
+            var dot = v1.Dot(v2);
+            var det = (v1.X * v2.Y) - (v1.Y * v2.X);
+            var angleInRadians = Math.Atan2(det, dot);
+            if (angleInRadians < 0.0)
+            {
+                angleInRadians += 2.0 * Math.PI;
+            }
+
+            return angleInRadians;
+        }
+
+        public static double AngleBetweenInDegrees(Vector v1, Vector v2)
+        {
+            return AngleBetweenInRadians(v1, v2) * MathHelper.RadiansToDegrees;
+        }
+
         public static implicit operator Point(Vector vector)
         {
             return new Point(vector.X, vector.Y, vector.Z);

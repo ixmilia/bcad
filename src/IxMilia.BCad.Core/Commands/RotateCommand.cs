@@ -25,26 +25,22 @@ namespace IxMilia.BCad.Commands
                 return false;
             }
 
-            var angleText = await workspace.InputService.GetText(prompt: "Angle of rotation");
-            if (angleText.Cancel || !angleText.HasValue)
+            var entityPrimitives = entities.Value.SelectMany(e => e.GetPrimitives()).ToArray();
+            var angleValue = await workspace.InputService.GetAngleInDegrees("Angle of rotation", onCursorMove: angleInDegrees => entityPrimitives.Select(p => EditUtilities.Rotate(p, origin.Value, angleInDegrees)));
+            if (angleValue.Cancel || !angleValue.HasValue)
             {
                 return false;
             }
 
-            double angle;
-            if (double.TryParse(angleText.Value, out angle))
+            var rotationAngle = angleValue.Value;
+            var drawing = workspace.Drawing;
+            foreach (var ent in entities.Value)
             {
-                var drawing = workspace.Drawing;
-                foreach (var ent in entities.Value)
-                {
-                    drawing = drawing.Replace(ent, EditUtilities.Rotate(ent, origin.Value, angle));
-                }
-
-                workspace.Update(drawing: drawing);
-                return true;
+                drawing = drawing.Replace(ent, EditUtilities.Rotate(ent, origin.Value, rotationAngle));
             }
 
-            return false;
+            workspace.Update(drawing: drawing);
+            return true;
         }
     }
 }
