@@ -10,33 +10,52 @@ namespace IxMilia.BCad.Rpc.Test
 {
     public class PropertyPaneTests : TestBase
     {
-        private static Dictionary<string, ClientPropertyPaneValue> GetEntityProperties(Entity entity)
+        private (Drawing, Dictionary<string, ClientPropertyPaneValue>) GetDrawingAndEntityProperties(params Entity[] entities)
         {
-            entity = entity.WithColor(CadColor.Red);
-            var layer = new Layer("test-layer").Add(entity);
-            var drawing = new Drawing().Add(layer);
-            var propertyMap = drawing.GetPropertyPaneValues(entity).ToDictionary(cp => cp.Name);
+            var testLayer = new Layer("test-layer");
+            foreach (var entity in entities)
+            {
+                testLayer = testLayer.Add(entity);
+            }
+
+            var drawing = new Drawing().Add(testLayer);
+            var propertyMap = drawing.GetPropertyPaneValues(entities).ToDictionary(cp => cp.Name);
 
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
             Assert.True(propertyMap.Remove("layer"));
 
-            Assert.Equal(new ClientPropertyPaneValue("color", "Color", "#FF0000"), propertyMap["color"]);
+            Assert.Equal("Color", propertyMap["color"].DisplayName);
             Assert.True(propertyMap.Remove("color"));
 
+            return (drawing, propertyMap);
+        }
+
+        private Dictionary<string, ClientPropertyPaneValue> GetEntityProperties(params Entity[] entities)
+        {
+            var (_drawing, propertyMap) = GetDrawingAndEntityProperties(entities);
             return propertyMap;
+        }
+
+        private TEntity DoUpdate<TEntity>(TEntity entity, string propertyName, string valueToSet) where TEntity : Entity
+        {
+            var (drawing, propertyMap) = GetDrawingAndEntityProperties(entity);
+            var specificProperty = propertyMap[propertyName];
+            Assert.True(specificProperty.TryDoUpdate(drawing, entity, valueToSet, out var updatedDrawingAndEntity));
+            Assert.NotNull(updatedDrawingAndEntity.Item1);
+            Assert.NotNull(updatedDrawingAndEntity.Item2);
+            return (TEntity)updatedDrawingAndEntity.Item2;
         }
 
         [Fact]
         public void SetEntityCommonPropertyLayer()
         {
             var entity = new Location(new Point(0.0, 0.0, 0.0));
-            var layer = new Layer("test-layer").Add(entity);
-            var drawing = new Drawing().Add(layer).Add(new Layer("other-test-layer"));
-            Assert.Equal("test-layer", drawing.ContainingLayer(entity).Name);
+            var drawing = new Drawing().Add(new Layer("other-test-layer").Add(entity));
+            var propertyMap = drawing.GetPropertyPaneValues(new[] { entity }).ToDictionary(cp => cp.Name);
 
-            Assert.True(drawing.TrySetPropertyPaneValue(entity, new ClientPropertyPaneValue("layer", "displayName", "other-test-layer"), out var updatedDrawing, out var updatedEntity));
-            Assert.Null(updatedEntity);
-            Assert.Equal("other-test-layer", updatedDrawing.ContainingLayer(entity).Name);
+            Assert.True(propertyMap["layer"].TryDoUpdate(drawing, entity, "other-test-layer", out var updatedDrawingAndEntity));
+            Assert.Null(updatedDrawingAndEntity.Item2);
+            Assert.Equal("other-test-layer", updatedDrawingAndEntity.Item1.ContainingLayer(entity).Name);
         }
 
         [Theory]
@@ -48,17 +67,20 @@ namespace IxMilia.BCad.Rpc.Test
         {
             CadColor? color = initialColor is null ? null : CadColor.Parse(initialColor);
             var entity = new Location(new Point(0.0, 0.0, 0.0), color: color);
-            var wasColorChanged = entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue("color", "displayName", targetColor), out var updatedEntity);
+            var drawing = new Drawing().Add(new Layer("test-layer").Add(entity));
+            var propertyMap = drawing.GetPropertyPaneValues(new[] { entity }).ToDictionary(cp => cp.Name);
+            var specificProperty = propertyMap["color"];
+            var wasColorChanged = specificProperty.TryDoUpdate(drawing, entity, targetColor, out var updatedDrawingAndEntity);
             var wasColorExpectedToChange = initialColor != targetColor;
             Assert.Equal(wasColorExpectedToChange, wasColorChanged);
             if (wasColorChanged)
             {
-                Assert.NotNull(updatedEntity);
-                Assert.Equal(targetColor, updatedEntity.Color?.ToRGBString());
+                Assert.NotNull(updatedDrawingAndEntity.Item2);
+                Assert.Equal(targetColor, updatedDrawingAndEntity.Item2.Color?.ToRGBString());
             }
             else
             {
-                Assert.Null(updatedEntity);
+                Assert.Null(updatedDrawingAndEntity);
             }
         }
 
@@ -67,9 +89,8 @@ namespace IxMilia.BCad.Rpc.Test
         {
             var e1 = new Location(new Point());
             var e2 = new Location(new Point());
-            var layer = new Layer("test-layer").Add(e1).Add(e2);
-            var drawing = new Drawing().Add(layer);
-            var propertyMap = drawing.GetPropertyPaneValuesForMultipleEntities(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
+            var drawing = new Drawing().Add(new Layer("test-layer").Add(e1).Add(e2));
+            var propertyMap = drawing.GetPropertyPaneValues(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
 
             Assert.Equal(2, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
@@ -84,7 +105,7 @@ namespace IxMilia.BCad.Rpc.Test
             var e1 = new Location(new Point(), color: color);
             var e2 = new Location(new Point(), color: color);
             var drawing = new Drawing().AddToCurrentLayer(e1).AddToCurrentLayer(e2);
-            var propertyMap = drawing.GetPropertyPaneValuesForMultipleEntities(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
+            var propertyMap = drawing.GetPropertyPaneValues(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
 
             Assert.Equal(new ClientPropertyPaneValue("color", "Color", colorValue), propertyMap["color"]);
         }
@@ -97,7 +118,7 @@ namespace IxMilia.BCad.Rpc.Test
             var layer1 = new Layer("test-layer-1").Add(e1);
             var layer2 = new Layer("test-layer-2").Add(e2);
             var drawing = new Drawing().Add(layer1).Add(layer2);
-            var propertyMap = drawing.GetPropertyPaneValuesForMultipleEntities(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
+            var propertyMap = drawing.GetPropertyPaneValues(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
 
             Assert.Equal(2, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", null, new[] { "0", "test-layer-1", "test-layer-2" }, isUnrepresentable: true), propertyMap["layer"]);
@@ -135,8 +156,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetArcPropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double r, double sa, double ea, double nx, double ny, double nz, double t)
         {
             var entity = new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(0.0, 0.0, 1.0), thickness: t);
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Arc)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
             AssertClose(r, finalEntity.Radius);
             AssertClose(sa, finalEntity.StartAngle);
@@ -172,8 +192,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetCirclePropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double r, double nx, double ny, double nz, double t)
         {
             var entity = new Circle(new Point(1.0, 2.0, 3.0), 4.0, new Vector(0.0, 0.0, 1.0), thickness: t);
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Circle)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
             AssertClose(r, finalEntity.Radius);
             Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
@@ -217,8 +236,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetEllipsePropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double mx, double my, double mz, double ma, double sa, double ea, double nx, double ny, double nz, double t)
         {
             var entity = new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 7.0, 8.0, 9.0, new Vector(0.0, 0.0, 1.0), thickness: t);
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Ellipse)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
             Assert.Equal(new Vector(mx, my, mz), finalEntity.MajorAxis);
             AssertClose(ma, finalEntity.MinorAxisRatio);
@@ -253,8 +271,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetImagePropertyPaneValue(string propertyName, string propertyValue, double x, double y, double z, string p, double w, double h, double r)
         {
             var entity = new Image(new Point(1.0, 2.0, 3.0), "some-path", Array.Empty<byte>(), 4.0, 5.0, 6.0);
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Image)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(x, y, z), finalEntity.Location);
             Assert.Equal(p, finalEntity.Path);
             Assert.Equal(w, finalEntity.Width);
@@ -287,8 +304,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetLinePropertyPaneValue(string propertyName, string propertyValue, double x1, double y1, double z1, double x2, double y2, double z2, double t)
         {
             var entity = new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), thickness: t);
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Line)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(x1, y1, z1), finalEntity.P1);
             Assert.Equal(new Point(x2, y2, z2), finalEntity.P2);
             Assert.Equal(t, finalEntity.Thickness);
@@ -311,8 +327,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetLocationPropertyPaneValue(string propertyName, string propertyValue, double x, double y, double z)
         {
             var entity = new Location(new Point(1.0, 2.0, 3.0));
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Location)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(x, y, z), finalEntity.Point);
         }
 
@@ -345,8 +360,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void SetTextPropertyPaneValue(string propertyName, string propertyValue, string value, double x, double y, double z, double h, double r, double nx, double ny, double nz)
         {
             var entity = new Text("the-value", new Point(1.0, 2.0, 3.0), new Vector(nx, ny, nz), h, r);
-            Assert.True(entity.TrySetEntityPropertyPaneValue(new ClientPropertyPaneValue(propertyName, "displayName", propertyValue), out var updatedEntity));
-            var finalEntity = (Text)updatedEntity;
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(value, finalEntity.Value);
             Assert.Equal(new Point(x, y, z), finalEntity.Location);
             Assert.Equal(h, finalEntity.Height);

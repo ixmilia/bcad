@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
@@ -11,834 +12,179 @@ namespace IxMilia.BCad.Rpc
 
         private static string ToPropertyColorString(this CadColor? color) => color?.ToRGBString();
 
-        public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValuesForMultipleEntities(this Drawing drawing, IEnumerable<Entity> entities)
+        private static ClientPropertyPaneValue GetEntityLayerValue(Drawing drawing, string entityLayer, bool isUnrepresentable = false)
+        {
+            return ClientPropertyPaneValue.Create("layer", "Layer", entityLayer, (drawing, entity, newLayerName) =>
+            {
+                var containingLayer = drawing.ContainingLayer(entity);
+                if (containingLayer.Name == newLayerName)
+                {
+                    // no change
+                    return Tuple.Create<Drawing, Entity>(drawing, null);
+                }
+
+                var destinationLayer = drawing.Layers.GetValue(newLayerName);
+                var updatedContainingLayer = containingLayer.Remove(entity);
+                var updatedDestinationLayer = destinationLayer.Add(entity);
+                var updatedDrawing = drawing
+                    .Remove(containingLayer)
+                    .Remove(destinationLayer)
+                    .Add(updatedContainingLayer)
+                    .Add(updatedDestinationLayer);
+                return Tuple.Create<Drawing, Entity>(updatedDrawing, null);
+            }, drawing.GetAllLayerNames(), isUnrepresentable: isUnrepresentable);
+        }
+
+        private static ClientPropertyPaneValue GetEntityColorValue(CadColor? currentColor, bool isUnrepresentable = false)
+        {
+            return ClientPropertyPaneValue.CreateForEntity<Entity>("color", "Color", currentColor.ToPropertyColorString(), (entity, colorString) =>
+            {
+                CadColor? newColor = colorString == null ? null : CadColor.Parse(colorString);
+                if (entity.Color == newColor)
+                {
+                    // no change
+                    return null;
+                }
+
+                var updatedEntity = entity.WithColor(newColor);
+                return updatedEntity;
+            }, isUnrepresentable: isUnrepresentable);
+        }
+
+        public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValues(this IWorkspace workspace)
+        {
+            return workspace.Drawing.GetPropertyPaneValues(workspace.SelectedEntities);
+        }
+
+        public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValues(this Drawing drawing, IEnumerable<Entity> entities)
+        {
+            var selectedEntities = entities.ToList();
+            if (selectedEntities.Count == 0)
+            {
+                return Enumerable.Empty<ClientPropertyPaneValue>();
+            }
+            else if (selectedEntities.Count == 1)
+            {
+                return drawing.GetPropertyPaneValuesForSingleEntity(selectedEntities.Single());
+            }
+            else
+            {
+                return drawing.GetPropertyPaneValuesForMultipleEntities(selectedEntities);
+            }
+        }
+
+        private static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValuesForMultipleEntities(this Drawing drawing, IEnumerable<Entity> entities)
         {
             var distinctLayerNames = entities.Select(e => drawing.ContainingLayer(e)).Select(l => l.Name).Distinct().ToList();
             var selectedLayerName = distinctLayerNames.Count == 1
                 ? distinctLayerNames.Single()
                 : null;
 
-            yield return new ClientPropertyPaneValue("layer", "Layer", selectedLayerName, drawing.GetAllLayerNames(), isUnrepresentable: distinctLayerNames.Count > 1);
+            yield return GetEntityLayerValue(drawing, selectedLayerName, isUnrepresentable: distinctLayerNames.Count > 1);
 
-            var distinctColors = entities.Select(e => e.Color).Select(c => c.ToPropertyColorString()).Distinct().ToList();
+            var distinctColors = entities.Select(e => e.Color).Distinct().ToList();
             var selectedColor = distinctColors.Count == 1
                 ? distinctColors.Single()
                 : null;
 
-            yield return new ClientPropertyPaneValue("color", "Color", selectedColor, isUnrepresentable: distinctColors.Count > 1);
+            yield return GetEntityColorValue(selectedColor, distinctColors.Count > 1);
         }
 
-        public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValues(this Drawing drawing, Entity entity)
+        private static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValuesForSingleEntity(this Drawing drawing, Entity entity)
         {
             var layer = drawing.ContainingLayer(entity);
 
             var general = new[]
             {
-                new ClientPropertyPaneValue("layer", "Layer", layer.Name, drawing.GetAllLayerNames()),
-                new ClientPropertyPaneValue("color", "Color", entity.Color.ToPropertyColorString()),
+                GetEntityLayerValue(drawing, layer.Name),
+                GetEntityColorValue(entity.Color),
             };
 
             var specific = entity.MapEntity<ClientPropertyPaneValue[]>(
                 aggregate => new ClientPropertyPaneValue[0],
                 arc => new[]
                 {
-                    new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(arc.Center.X)),
-                    new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(arc.Center.Y)),
-                    new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(arc.Center.Z)),
-                    new ClientPropertyPaneValue("r", "Radius", drawing.FormatUnits(arc.Radius)),
-                    new ClientPropertyPaneValue("sa", "Start Angle", DrawingSettings.FormatUnits(arc.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
-                    new ClientPropertyPaneValue("ea", "End Angle", DrawingSettings.FormatUnits(arc.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
-                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(arc.Normal.X)),
-                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(arc.Normal.Y)),
-                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(arc.Normal.Z)),
-                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(arc.Thickness)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("cx", "Center X", drawing.FormatUnits(arc.Center.X), (arc, value) => arc.Update(center: arc.Center.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("cy", "Y", drawing.FormatUnits(arc.Center.Y), (arc, value) => arc.Update(center: arc.Center.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("cz", "Z", drawing.FormatUnits(arc.Center.Z), (arc, value) => arc.Update(center: arc.Center.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("r", "Radius", drawing.FormatUnits(arc.Radius), (arc, value) => arc.Update(radius: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("sa", "Start Angle", DrawingSettings.FormatUnits(arc.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (arc, value) => arc.Update(startAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("ea", "End Angle", DrawingSettings.FormatUnits(arc.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (arc, value) => arc.Update(endAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("nx", "Normal X", drawing.FormatUnits(arc.Normal.X), (arc, value) => arc.Update(normal: arc.Normal.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("ny", "Y", drawing.FormatUnits(arc.Normal.Y), (arc, value) => arc.Update(normal: arc.Normal.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("nz", "Z", drawing.FormatUnits(arc.Normal.Z), (arc, value) => arc.Update(normal: arc.Normal.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("t", "Thickness", drawing.FormatUnits(arc.Thickness), (arc, value) => arc.Update(thickness: value)),
                 },
                 circle => new[]
                 {
-                    new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(circle.Center.X)),
-                    new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(circle.Center.Y)),
-                    new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(circle.Center.Z)),
-                    new ClientPropertyPaneValue("r", "Radius", drawing.FormatUnits(circle.Radius)),
-                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(circle.Normal.X)),
-                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(circle.Normal.Y)),
-                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(circle.Normal.Z)),
-                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(circle.Thickness)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("cx", "Center X", drawing.FormatUnits(circle.Center.X), (circle, value) => circle.Update(center: circle.Center.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("cy", "Y", drawing.FormatUnits(circle.Center.Y), (circle, value) => circle.Update(center: circle.Center.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("cz", "Z", drawing.FormatUnits(circle.Center.Z), (circle, value) => circle.Update(center: circle.Center.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("r", "Radius", drawing.FormatUnits(circle.Radius), (circle, value) => circle.Update(radius: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("nx", "Normal X", drawing.FormatUnits(circle.Normal.X), (circle, value) => circle.Update(normal: circle.Normal.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("ny", "Y", drawing.FormatUnits(circle.Normal.Y), (circle, value) => circle.Update(normal: circle.Normal.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("nz", "Z", drawing.FormatUnits(circle.Normal.Z), (circle, value) => circle.Update(normal: circle.Normal.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("t", "Thickness", drawing.FormatUnits(circle.Thickness), (circle, value) => circle.Update(thickness: value)),
                 },
                 ellipse => new[]
                 {
-                    new ClientPropertyPaneValue("cx", "Center X", drawing.FormatUnits(ellipse.Center.X)),
-                    new ClientPropertyPaneValue("cy", "Y", drawing.FormatUnits(ellipse.Center.Y)),
-                    new ClientPropertyPaneValue("cz", "Z", drawing.FormatUnits(ellipse.Center.Z)),
-                    new ClientPropertyPaneValue("mx", "Major Axis X", drawing.FormatUnits(ellipse.MajorAxis.X)),
-                    new ClientPropertyPaneValue("my", "Y", drawing.FormatUnits(ellipse.MajorAxis.Y)),
-                    new ClientPropertyPaneValue("mz", "Z", drawing.FormatUnits(ellipse.MajorAxis.Z)),
-                    new ClientPropertyPaneValue("mr", "Minor Axis Ratio", DrawingSettings.FormatUnits(ellipse.MinorAxisRatio, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
-                    new ClientPropertyPaneValue("sa", "Start Angle", DrawingSettings.FormatUnits(ellipse.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
-                    new ClientPropertyPaneValue("ea", "End Angle", DrawingSettings.FormatUnits(ellipse.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
-                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(ellipse.Normal.X)),
-                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(ellipse.Normal.Y)),
-                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(ellipse.Normal.Z)),
-                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(ellipse.Thickness)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("cx", "Center X", drawing.FormatUnits(ellipse.Center.X), (ellipse, value) => ellipse.Update(center: ellipse.Center.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("cy", "Y", drawing.FormatUnits(ellipse.Center.Y), (ellipse, value) => ellipse.Update(center: ellipse.Center.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("cz", "Z", drawing.FormatUnits(ellipse.Center.Z), (ellipse, value) => ellipse.Update(center: ellipse.Center.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mx", "Major Axis X", drawing.FormatUnits(ellipse.MajorAxis.X), (ellipse, value) => ellipse.Update(majorAxis: ellipse.MajorAxis.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("my", "Y", drawing.FormatUnits(ellipse.MajorAxis.Y), (ellipse, value) => ellipse.Update(majorAxis: ellipse.MajorAxis.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mz", "Z", drawing.FormatUnits(ellipse.MajorAxis.Z), (ellipse, value) => ellipse.Update(majorAxis: ellipse.MajorAxis.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mr", "Minor Axis Ratio", DrawingSettings.FormatUnits(ellipse.MinorAxisRatio, UnitFormat.Metric, drawing.Settings.UnitPrecision), (ellipse, value) => ellipse.Update(minorAxisRatio: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("sa", "Start Angle", DrawingSettings.FormatUnits(ellipse.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (ellipse, value) => ellipse.Update(startAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("ea", "End Angle", DrawingSettings.FormatUnits(ellipse.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (ellipse, value) => ellipse.Update(endAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("nx", "Normal X", drawing.FormatUnits(ellipse.Normal.X), (ellipse, value) => ellipse.Update(normal: ellipse.Normal.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("ny", "Y", drawing.FormatUnits(ellipse.Normal.Y), (ellipse, value) => ellipse.Update(normal: ellipse.Normal.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("nz", "Z", drawing.FormatUnits(ellipse.Normal.Z), (ellipse, value) => ellipse.Update(normal: ellipse.Normal.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("t", "Thickness", drawing.FormatUnits(ellipse.Thickness), (ellipse, value) => ellipse.Update(thickness: value)),
                 },
                 image => new[]
                 {
-                    new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(image.Location.X)),
-                    new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(image.Location.Y)),
-                    new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(image.Location.Z)),
-                    new ClientPropertyPaneValue("p", "Path", image.Path),
-                    new ClientPropertyPaneValue("w", "Width", drawing.FormatUnits(image.Width)),
-                    new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(image.Height)),
-                    new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(image.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("x", "Location X", drawing.FormatUnits(image.Location.X), (image, value) => image.Update(location: image.Location.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("y", "Y", drawing.FormatUnits(image.Location.Y), (image, value) => image.Update(location: image.Location.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("z", "Z", drawing.FormatUnits(image.Location.Z), (image, value) => image.Update(location: image.Location.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntity<Image>("p", "Path", image.Path, (image, value) => image.Update(path: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("w", "Width", drawing.FormatUnits(image.Width), (image, value) => image.Update(width: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("h", "Height", drawing.FormatUnits(image.Height), (image, value) => image.Update(height: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("r", "Rotation", DrawingSettings.FormatUnits(image.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision), (image, value) => image.Update(rotation: value)),
                 },
                 line => new[]
                 {
-                    new ClientPropertyPaneValue("x1", "Start X", drawing.FormatUnits(line.P1.X)),
-                    new ClientPropertyPaneValue("y1", "Y", drawing.FormatUnits(line.P1.Y)),
-                    new ClientPropertyPaneValue("z1", "Z", drawing.FormatUnits(line.P1.Z)),
-                    new ClientPropertyPaneValue("x2", "End X", drawing.FormatUnits(line.P2.X)),
-                    new ClientPropertyPaneValue("y2", "Y", drawing.FormatUnits(line.P2.Y)),
-                    new ClientPropertyPaneValue("z2", "Z", drawing.FormatUnits(line.P2.Z)),
-                    new ClientPropertyPaneValue("t", "Thickness", drawing.FormatUnits(line.Thickness)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("x1", "Start X", drawing.FormatUnits(line.P1.X), (line, value) => line.Update(p1: line.P1.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("y1", "Y", drawing.FormatUnits(line.P1.Y), (line, value) => line.Update(p1: line.P1.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("z1", "Z", drawing.FormatUnits(line.P1.Z), (line, value) => line.Update(p1: line.P1.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("x2", "End X", drawing.FormatUnits(line.P2.X), (line, value) => line.Update(p2: line.P2.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("y2", "Y", drawing.FormatUnits(line.P2.Y), (line, value) => line.Update(p2: line.P2.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("z2", "Z", drawing.FormatUnits(line.P2.Z), (line, value) => line.Update(p2: line.P2.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("t", "Thickness", drawing.FormatUnits(line.Thickness), (line, value) => line.Update(thickness: value)),
                 },
                 location => new[]
                 {
-                    new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(location.Point.X)),
-                    new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(location.Point.Y)),
-                    new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(location.Point.Z)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Location>("x", "Location X", drawing.FormatUnits(location.Point.X), (location, value) => location.Update(point: location.Point.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Location>("y", "Y", drawing.FormatUnits(location.Point.Y), (location, value) => location.Update(point: location.Point.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Location>("z", "Z", drawing.FormatUnits(location.Point.Z), (location, value) => location.Update(point: location.Point.WithZ(value))),
                 },
                 polyline => new ClientPropertyPaneValue[0],
                 spline => new ClientPropertyPaneValue[0],
                 text => new[]
                 {
-                    new ClientPropertyPaneValue("v", "Value", text.Value),
-                    new ClientPropertyPaneValue("x", "Location X", drawing.FormatUnits(text.Location.X)),
-                    new ClientPropertyPaneValue("y", "Y", drawing.FormatUnits(text.Location.Y)),
-                    new ClientPropertyPaneValue("z", "Z", drawing.FormatUnits(text.Location.Z)),
-                    new ClientPropertyPaneValue("h", "Height", drawing.FormatUnits(text.Height)),
-                    new ClientPropertyPaneValue("r", "Rotation", DrawingSettings.FormatUnits(text.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision)),
-                    new ClientPropertyPaneValue("nx", "Normal X", drawing.FormatUnits(text.Normal.X)),
-                    new ClientPropertyPaneValue("ny", "Y", drawing.FormatUnits(text.Normal.Y)),
-                    new ClientPropertyPaneValue("nz", "Z", drawing.FormatUnits(text.Normal.Z)),
+                    ClientPropertyPaneValue.CreateForEntity<Text>("v", "Value", text.Value, (text, value) => text.Update(value: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("x", "Location X", drawing.FormatUnits(text.Location.X), (text, value) => text.Update(location: text.Location.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("y", "Y", drawing.FormatUnits(text.Location.Y), (text, value) => text.Update(location: text.Location.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("z", "Z", drawing.FormatUnits(text.Location.Z), (text, value) => text.Update(location: text.Location.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("h", "Height", drawing.FormatUnits(text.Height), (text, value) => text.Update(height: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("r", "Rotation", DrawingSettings.FormatUnits(text.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision), (text, value) => text.Update(rotation: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("nx", "Normal X", drawing.FormatUnits(text.Normal.X), (text, value) => text.Update(normal: text.Normal.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("ny", "Y", drawing.FormatUnits(text.Normal.Y), (text, value) => text.Update(normal: text.Normal.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("nz", "Z", drawing.FormatUnits(text.Normal.Z), (text, value) => text.Update(normal: text.Normal.WithZ(value))),
                 }
             );
 
             return general.Concat(specific);
-        }
-
-        public static bool TrySetPropertyPaneValue(this Drawing drawing, Entity entity, ClientPropertyPaneValue value, out Drawing updatedDrawing, out Entity updatedEntity)
-        {
-            updatedDrawing = default;
-            updatedEntity = default;
-            if (value.Name == "layer")
-            {
-                var containingLayer = drawing.ContainingLayer(entity);
-                if (containingLayer.Name == value.Value)
-                {
-                    // no change
-                    return false;
-                }
-
-                var destinationLayer = drawing.Layers.GetValue(value.Value);
-                var updatedContainingLayer = containingLayer.Remove(entity);
-                var updatedDestinationLayer = destinationLayer.Add(entity);
-                updatedDrawing = drawing
-                    .Remove(containingLayer)
-                    .Remove(destinationLayer)
-                    .Add(updatedContainingLayer)
-                    .Add(updatedDestinationLayer);
-                return true;
-            }
-
-            if (entity.TrySetEntityPropertyPaneValue(value, out updatedEntity))
-            {
-                updatedDrawing = drawing.Replace(entity, updatedEntity);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool TrySetEntityPropertyPaneValue(this Entity entity, ClientPropertyPaneValue value, out Entity updatedEntity)
-        {
-            updatedEntity = default;
-            if (value.Name == "color")
-            {
-                if (value.Value is null)
-                {
-                    // unset color
-                    if (!entity.Color.HasValue)
-                    {
-                        // nothing to do
-                        return false;
-                    }
-                    else
-                    {
-                        updatedEntity = entity.WithColor(null);
-                        return true;
-                    }
-                }
-                else
-                {
-                    // set color
-                    var color = CadColor.Parse(value.Value);
-                    if (entity.Color == color)
-                    {
-                        // nothing to do
-                        return false;
-                    }
-                    else
-                    {
-                        updatedEntity = entity.WithColor(color);
-                        return true;
-                    }
-                }
-            }
-
-            updatedEntity = entity.MapEntity<Entity>(
-                aggregate => null,
-                arc =>
-                {
-                    if (arc.TrySetArcPropertyPaneValue(value, out var updatedArc))
-                    {
-                        return updatedArc;
-                    }
-
-                    return null;
-                },
-                circle =>
-                {
-                    if (circle.TrySetCirclePropertyPaneValue(value, out var updatedCircle))
-                    {
-                        return updatedCircle;
-                    }
-
-                    return null;
-                },
-                ellipse =>
-                {
-                    if (ellipse.TrySetEllipsePropertyPaneValue(value, out var updatedEllipse))
-                    {
-                        return updatedEllipse;
-                    }
-
-                    return null;
-                },
-                image =>
-                {
-                    if (image.TrySetImagePropertyPaneValue(value, out var updatedImage))
-                    {
-                        return updatedImage;
-                    }
-
-                    return null;
-                },
-                line =>
-                {
-                    if (line.TrySetLinePropertyPaneValue(value, out var updatedLine))
-                    {
-                        return updatedLine;
-                    }
-
-                    return null;
-                },
-                location =>
-                {
-                    if (location.TrySetLocationPropertyPaneValue(value, out var updatedLocation))
-                    {
-                        return updatedLocation;
-                    }
-
-                    return null;
-                },
-                polyline => null,
-                spline => null,
-                text =>
-                {
-                    if (text.TrySetTextPropertyPaneValue(value, out var updatedText))
-                    {
-                        return updatedText;
-                    }
-
-                    return null;
-                }
-            );
-
-            return updatedEntity != null;
-        }
-
-        private static bool TrySetArcPropertyPaneValue(this Arc arc, ClientPropertyPaneValue value, out Arc updatedArc)
-        {
-            switch (value.Name)
-            {
-                case "cx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(center: arc.Center.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "cy":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(center: arc.Center.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "cz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(center: arc.Center.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(normal: arc.Normal.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "ny":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(normal: arc.Normal.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(normal: arc.Normal.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "r":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(radius: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "sa":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(startAngle: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "ea":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(endAngle: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "t":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedArc = arc.Update(thickness: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedArc = default;
-            return false;
-        }
-
-        private static bool TrySetCirclePropertyPaneValue(this Circle circle, ClientPropertyPaneValue value, out Circle updatedCircle)
-        {
-            switch (value.Name)
-            {
-                case "cx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(center: circle.Center.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "cy":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(center: circle.Center.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "cz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(center: circle.Center.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(normal: circle.Normal.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "ny":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(normal: circle.Normal.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(normal: circle.Normal.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "r":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(radius: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "t":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedCircle = circle.Update(thickness: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedCircle = default;
-            return false;
-        }
-
-        private static bool TrySetEllipsePropertyPaneValue(this Ellipse el, ClientPropertyPaneValue value, out Ellipse updatedEllipse)
-        {
-            switch (value.Name)
-            {
-                case "cx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(center: el.Center.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "cy":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(center: el.Center.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "cz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(center: el.Center.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "mr":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(minorAxisRatio: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "mx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(majorAxis: el.MajorAxis.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "my":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(majorAxis: el.MajorAxis.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "mz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(majorAxis: el.MajorAxis.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(normal: el.Normal.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "ny":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(normal: el.Normal.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(normal: el.Normal.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "sa":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(startAngle: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "ea":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(endAngle: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "t":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedEllipse = el.Update(thickness: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedEllipse = default;
-            return false;
-        }
-
-        private static bool TrySetImagePropertyPaneValue(this Image image, ClientPropertyPaneValue value, out Image updatedImage)
-        {
-            switch (value.Name)
-            {
-                case "x":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedImage = image.Update(location: image.Location.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "y":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedImage = image.Update(location: image.Location.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "z":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedImage = image.Update(location: image.Location.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "p":
-                    {
-                        updatedImage = image.Update(path: value.Value);
-                        return true;
-                    }
-                case "w":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedImage = image.Update(width: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "h":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedImage = image.Update(height: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "r":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedImage = image.Update(rotation: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedImage = default;
-            return false;
-        }
-
-        private static bool TrySetLinePropertyPaneValue(this Line line, ClientPropertyPaneValue value, out Line updatedLine)
-        {
-            switch (value.Name)
-            {
-                case "x1":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(p1: line.P1.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "y1":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(p1: line.P1.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "z1":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(p1: line.P1.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "x2":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(p2: line.P2.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "y2":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(p2: line.P2.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "z2":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(p2: line.P2.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "t":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLine = line.Update(thickness: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedLine = default;
-            return false;
-        }
-
-        private static bool TrySetLocationPropertyPaneValue(this Location loc, ClientPropertyPaneValue value, out Location updatedLocation)
-        {
-            switch (value.Name)
-            {
-                case "x":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLocation = loc.Update(point: loc.Point.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "y":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLocation = loc.Update(point: loc.Point.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "z":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedLocation = loc.Update(point: loc.Point.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedLocation = default;
-            return false;
-        }
-
-        private static bool TrySetTextPropertyPaneValue(this Text text, ClientPropertyPaneValue value, out Text updatedText)
-        {
-            switch (value.Name)
-            {
-                case "v":
-                    {
-                        updatedText = text.Update(value: value.Value);
-                        return true;
-                    }
-                case "x":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(location: text.Location.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "y":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(location: text.Location.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "z":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(location: text.Location.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "h":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(height: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "r":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(rotation: unitValue);
-                            return true;
-                        }
-                        break;
-                    }
-                case "nx":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(normal: text.Normal.WithX(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "ny":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(normal: text.Normal.WithY(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-                case "nz":
-                    {
-                        if (DrawingSettings.TryParseUnits(value.Value, out var unitValue))
-                        {
-                            updatedText = text.Update(normal: text.Normal.WithZ(unitValue));
-                            return true;
-                        }
-                        break;
-                    }
-            }
-
-            updatedText = default;
-            return false;
         }
 
         private static Point WithX(this Point point, double x)

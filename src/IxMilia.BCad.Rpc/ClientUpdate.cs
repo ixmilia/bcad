@@ -4,6 +4,7 @@ using System.Linq;
 using IxMilia.BCad.Commands;
 using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
+using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Settings;
@@ -179,7 +180,7 @@ namespace IxMilia.BCad.Rpc
             Color = color;
         }
     }
-    
+
     public struct ClientImage
     {
         public ClientPoint Location { get; }
@@ -227,6 +228,8 @@ namespace IxMilia.BCad.Rpc
         public List<string> AllowedValues { get; set; }
         public bool IsUnrepresentable { get; set; }
 
+        private Func<Drawing, Entity, string, Tuple<Drawing, Entity>> _drawingTransformer;
+
         public ClientPropertyPaneValue(string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
         {
             Name = name;
@@ -236,7 +239,54 @@ namespace IxMilia.BCad.Rpc
             IsUnrepresentable = isUnrepresentable;
         }
 
-        public static bool operator==(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
+        internal bool TryDoUpdate(Drawing drawing, Entity entity, string valueToSet, out Tuple<Drawing, Entity> updatedDrawingAndEntity)
+        {
+            updatedDrawingAndEntity = _drawingTransformer.Invoke(drawing, entity, valueToSet);
+            return updatedDrawingAndEntity != null;
+        }
+
+        internal static ClientPropertyPaneValue Create(string name, string displayName, string value, Func<Drawing, Entity, string, Tuple<Drawing, Entity>> drawingTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+        {
+            var propertyPaneValue = new ClientPropertyPaneValue(name, displayName, value, allowedValues, isUnrepresentable);
+            propertyPaneValue._drawingTransformer = drawingTransformer;
+            return propertyPaneValue;
+        }
+
+        internal static ClientPropertyPaneValue CreateForEntity<TEntity>(string name, string displayName, string value, Func<TEntity, string, Entity> entityTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+            where TEntity : Entity
+        {
+            Func<Drawing, Entity, string, Tuple<Drawing, Entity>> drawingTransformer = (drawing, entity, valueToSet) =>
+            {
+                var updatedEntity = entityTransformer((TEntity)entity, valueToSet);
+                if (updatedEntity == null)
+                {
+                    return null;
+                }
+
+                var containingLayer = drawing.ContainingLayer(entity);
+                var updatedLayer = containingLayer.Remove(entity).Add(updatedEntity);
+                var updatedDrawing = drawing.Remove(containingLayer).Add(updatedLayer);
+                return Tuple.Create(updatedDrawing, updatedEntity);
+            };
+            return Create(name, displayName, value, drawingTransformer, allowedValues, isUnrepresentable);
+        }
+
+        internal static ClientPropertyPaneValue CreateForEntityWithUnits<TEntity>(string name, string displayName, string value, Func<TEntity, double, Entity> entityTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+            where TEntity : Entity
+        {
+            return CreateForEntity<TEntity>(name, displayName, value, (entity, valueToSet) =>
+            {
+                if (DrawingSettings.TryParseUnits(valueToSet, out var unitValue))
+                {
+                    var updatedEntity = entityTransformer(entity, unitValue);
+                    return updatedEntity;
+                }
+
+                return null;
+            }, allowedValues, isUnrepresentable);
+        }
+
+        public static bool operator ==(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
         {
             if (v1 is null && v2 is null)
             {

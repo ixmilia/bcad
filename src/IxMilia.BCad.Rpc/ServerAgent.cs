@@ -108,16 +108,10 @@ namespace IxMilia.BCad.Rpc
                 // nothing selected; send emtpy set to clear ui
                 propertyPane = new ClientPropertyPane();
             }
-            else if (selectedEntities.Count == 1)
-            {
-                // get all properties for the selected entity
-                var selectedEntity = selectedEntities.Single();
-                propertyPane = new ClientPropertyPane(Workspace.Drawing.GetPropertyPaneValues(selectedEntity));
-            }
             else
             {
                 // only get properties common to all entities
-                propertyPane = new ClientPropertyPane(Workspace.Drawing.GetPropertyPaneValuesForMultipleEntities(selectedEntities));
+                propertyPane = new ClientPropertyPane(Workspace.GetPropertyPaneValues());
             }
 
             clientUpdate.PropertyPane = propertyPane;
@@ -351,17 +345,18 @@ namespace IxMilia.BCad.Rpc
 
         public void SetPropertyPaneValue(ClientPropertyPaneValue propertyPaneValue)
         {
+            var availablePropertyPaneValues = Workspace.GetPropertyPaneValues().ToList();
+            var matchingPropertyPaneValue = availablePropertyPaneValues.Single(x => x.Name == propertyPaneValue.Name);
             var didUpdate = false;
             var drawing = Workspace.Drawing;
             var newSelectedEntities = new HashSet<Entity>();
             foreach (var selectedEntity in Workspace.SelectedEntities)
             {
-                var existingEntityIds = drawing.GetEntities().Select(e => e.Id).ToHashSet();
-                if (drawing.TrySetPropertyPaneValue(selectedEntity, propertyPaneValue, out var updatedDrawing, out var updatedEntity))
+                if (matchingPropertyPaneValue.TryDoUpdate(drawing, selectedEntity, propertyPaneValue.Value, out var updatedDrawingAndEntity))
                 {
-                    drawing = updatedDrawing;
+                    drawing = updatedDrawingAndEntity.Item1;
                     didUpdate = true;
-                    newSelectedEntities.Add(updatedEntity ?? selectedEntity);
+                    newSelectedEntities.Add(updatedDrawingAndEntity.Item2 ?? selectedEntity);
                 }
                 else
                 {

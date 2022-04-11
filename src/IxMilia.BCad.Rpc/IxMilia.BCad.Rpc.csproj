@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="IxMilia.BCad.Rpc.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="StreamJsonRpc" Version="2.8.28" />
   </ItemGroup>
 
