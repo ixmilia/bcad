@@ -1,3 +1,5 @@
+import { LogWriter } from '../logWriter';
+import { ColorPicker } from '../controls/colorPicker';
 import { DialogBase } from './dialogBase';
 import { DialogHandler } from './dialogHandler';
 
@@ -54,13 +56,12 @@ export class LayerDialog extends DialogBase {
         for (let element of this.tableBody.children) {
             let row = <HTMLTableRowElement>element;
             let nameInput = <HTMLInputElement>row.children[0].children[0];
-            let colorInput = <HTMLInputElement>row.children[1].children[0];
-            let colorAutoInput = <HTMLInputElement>row.children[2].children[0];
-            let visibleInput = <HTMLInputElement>row.children[3].children[0];
+            let colorInput = <HTMLDivElement>row.children[1].children[0];
+            let visibleInput = <HTMLInputElement>row.children[2].children[0];
             let changed = {
                 OldLayerName: nameInput.getAttribute('data-original-value')!,
                 NewLayerName: nameInput.value,
-                Color: colorAutoInput.checked ? "" : colorInput.value,
+                Color: colorInput.getAttribute('data-color') || '#FFFFFF',
                 IsVisible: visibleInput.checked,
             };
             changedLayers.push(changed);
@@ -68,6 +69,8 @@ export class LayerDialog extends DialogBase {
         let result: LayerDialogResult = {
             ChangedLayers: changedLayers,
         };
+
+        LogWriter.write(`LAYER-DIALOG: OK, returning ${JSON.stringify(result)}`);
         return result;
     }
 
@@ -79,11 +82,11 @@ export class LayerDialog extends DialogBase {
         // each row will look like this:
         // <tr>
         //   <td><input type="text" class="dialog-layer-list-layer-name" value="0" data-original-value="0"></input></td>
-        //   <td><input type="color" class="dialog-layer-list-layer-color" value="#FFFFFF"></input></td>
-        //   <td><input type="checkbox" class="dialog-layer-list-layer-color-auto" id="..."></input><label for="...">&nbsp;</label></td>
+        //   <td><div data-color="#FFFFFF">...</div></td>
         //   <td><input type="checkbox" class="dialog-layer-list-layer-visible" id="..."></input><label for="...">&nbsp;</label></td>
         //   <td><button>Del</button></td>
         // </tr>
+        LogWriter.write(`LAYER-DIALOG: adding layer ${JSON.stringify(layer)}`);
         let row = document.createElement('tr');
 
         // name
@@ -96,30 +99,18 @@ export class LayerDialog extends DialogBase {
         tdName.appendChild(layerInput);
         row.appendChild(tdName);
         // color
-        let colorInput = document.createElement('input');
-        colorInput.classList.add('dialog-layer-list-layer-color');
-        colorInput.setAttribute('type', 'color');
-        colorInput.setAttribute('value', layer.Color);
-        colorInput.disabled = layer.Color === '';
-        let tdColor = document.createElement('td');
-        tdColor.appendChild(colorInput);
-        row.appendChild(tdColor);
-        // color auto
-        let colorAutoInput = document.createElement('input');
-        colorAutoInput.classList.add('dialog-layer-list-layer-color-auto');
-        colorAutoInput.setAttribute('type', 'checkbox');
-        colorAutoInput.setAttribute('id', `layer-color-auto-${layer.Name}`);
-        colorAutoInput.checked = layer.Color === '';
-        colorAutoInput.addEventListener('change', () => {
-            colorInput.disabled = colorAutoInput.checked;
+        const colorContainer = document.createElement('div');
+        const _colorPicker = new ColorPicker(colorContainer, {
+            initialColor: layer.Color,
+            allowNullColor: false,
+            onColorChanged: (_color, colorAsHex) => {
+                LogWriter.write(`LAYER-DIALOG: color changed to ${colorAsHex}`);
+                colorContainer.setAttribute('data-color', colorAsHex!);
+            },
         });
-        let colorAutoInputLabel = document.createElement('label');
-        colorAutoInputLabel.setAttribute('for', `layer-color-auto-${layer.Name}`);
-        colorAutoInputLabel.innerHTML = '&nbsp;';
-        let tdColorAuto = document.createElement('td');
-        tdColorAuto.appendChild(colorAutoInput);
-        tdColorAuto.appendChild(colorAutoInputLabel);
-        row.appendChild(tdColorAuto);
+        let tdColor = document.createElement('td');
+        tdColor.appendChild(colorContainer);
+        row.appendChild(tdColor);
         // visibility
         let visibleInput = document.createElement('input');
         visibleInput.classList.add('dialog-layer-list-layer-visible');

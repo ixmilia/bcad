@@ -1,0 +1,19 @@
+/* initial display object: a color square and text */
+.color-picker {
+    border: 1px solid black;
+    width: 96px;
+    height: 24px;
+}
+
+/* colorful square sample */
+.color-preview {
+    border: 1px solid black;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+}
+
+/* text representation */
+.color-name {
+    display: inline-block;
+}

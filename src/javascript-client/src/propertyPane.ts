@@ -1,4 +1,5 @@
 import { Client } from './client';
+import { ColorPicker } from './controls/colorPicker';
 import { LogWriter } from './logWriter';
 
 export class PropertyPane {
@@ -26,46 +27,20 @@ export class PropertyPane {
                         valueCell.classList.add('property-pane-setting-value');
                         if (value.Name === 'color') {
                             // special handling for colors
-                            const color = <HTMLInputElement>document.createElement('input');
-                            color.disabled = !value.Value;
-                            color.type = 'color';
-                            color.value = value.Value || '#000000';
-
-                            const isAuto = <HTMLInputElement>document.createElement('input');
-                            isAuto.id = 'property-pane-is-color-auto';
-                            isAuto.type = 'checkbox';
-                            isAuto.checked = !value.Value;
-                            isAuto.addEventListener('change', () => {
-                                color.disabled = isAuto.checked;
+                            valueCell.setAttribute('align', 'left');
+                            const colorPickerDiv = document.createElement('div');
+                            const _colorPicker = new ColorPicker(colorPickerDiv, {
+                                initialColor: value.Value,
+                                onColorChanged: (color, colorAsHex) => {
+                                    LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${JSON.stringify(color)}`);
+                                    client.setPropertyPaneValue({
+                                        Name: value.Name,
+                                        DisplayName: value.DisplayName,
+                                        Value: colorAsHex,
+                                    });
+                                }
                             });
-
-                            const label = <HTMLLabelElement>document.createElement('label');
-                            label.setAttribute('for', isAuto.id);
-                            label.innerText = 'Auto?';
-
-                            function reportColorChange() {
-                                const newValue = isAuto.checked ? undefined : color.value;
-                                LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${newValue}`);
-                                client.setPropertyPaneValue({
-                                    Name: value.Name,
-                                    DisplayName: value.DisplayName,
-                                    Value: newValue,
-                                });
-                            }
-
-                            isAuto.addEventListener('change', () => reportColorChange());
-                            color.addEventListener('change', () => reportColorChange());
-
-                            // special case for variable value
-                            if (value.IsUnrepresentable) {
-                                const warningSpan = <HTMLSpanElement>document.createElement('span');
-                                warningSpan.innerText = '*VARIES*';
-                                valueCell.appendChild(warningSpan);
-                            }
-
-                            valueCell.appendChild(isAuto);
-                            valueCell.appendChild(label);
-                            valueCell.appendChild(color);
+                            valueCell.appendChild(colorPickerDiv);
                         } else if (value.AllowedValues !== undefined && value.AllowedValues.length > 0) {
                             // dropdown
                             const select = <HTMLSelectElement>document.createElement('select');
