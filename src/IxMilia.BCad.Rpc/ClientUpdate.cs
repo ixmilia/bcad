@@ -440,9 +440,7 @@ namespace IxMilia.BCad.Rpc
         public ClientLayer(Layer layer)
         {
             Name = layer.Name;
-            Color = layer.Color.HasValue
-                ? layer.Color.GetValueOrDefault().ToRGBString()
-                : string.Empty;
+            Color = layer.Color?.ToRGBString();
             IsVisible = layer.IsVisible;
         }
     }

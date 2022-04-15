@@ -4,9 +4,9 @@ import { DialogBase } from './dialogBase';
 import { DialogHandler } from './dialogHandler';
 
 interface LayerInfo {
-    Name: string,
-    Color: string,
-    IsVisible: boolean,
+    Name: string;
+    Color: string | undefined;
+    IsVisible: boolean;
 }
 
 interface LayerDialogOptions {
@@ -16,7 +16,7 @@ interface LayerDialogOptions {
 interface ChangedLayer {
     OldLayerName: string,
     NewLayerName: string,
-    Color: string,
+    Color: string | null,
     IsVisible: boolean,
 }
 
@@ -25,15 +25,15 @@ interface LayerDialogResult {
 }
 
 export class LayerDialog extends DialogBase {
-    private tableBody: HTMLTableSectionElement;
+    private tableBody: HTMLDivElement;
 
     constructor(dialogHandler: DialogHandler) {
         super(dialogHandler, "layer");
-        this.tableBody = <HTMLTableSectionElement>document.getElementById('dialog-layer-list-body');
+        this.tableBody = <HTMLDivElement>document.getElementById('dialog-layer-list');
         document.getElementById('dialog-layer-add')!.addEventListener('click', () => {
             this.addLayerRow({
                 Name: "NewLayer",
-                Color: "",
+                Color: undefined,
                 IsVisible: true,
             });
         });
@@ -61,7 +61,7 @@ export class LayerDialog extends DialogBase {
             let changed = {
                 OldLayerName: nameInput.getAttribute('data-original-value')!,
                 NewLayerName: nameInput.value,
-                Color: colorInput.getAttribute('data-color') || '#FFFFFF',
+                Color: colorInput.getAttribute('data-color'),
                 IsVisible: visibleInput.checked,
             };
             changedLayers.push(changed);
@@ -80,61 +80,71 @@ export class LayerDialog extends DialogBase {
 
     private addLayerRow(layer: LayerInfo) {
         // each row will look like this:
-        // <tr>
-        //   <td><input type="text" class="dialog-layer-list-layer-name" value="0" data-original-value="0"></input></td>
-        //   <td><div data-color="#FFFFFF">...</div></td>
-        //   <td><input type="checkbox" class="dialog-layer-list-layer-visible" id="..."></input><label for="...">&nbsp;</label></td>
-        //   <td><button>Del</button></td>
-        // </tr>
+        // <div class="dialog-layer-row">
+        //   <div class="dialog-layer-name-column"><input type="text" class="dialog-layer-list-layer-name" value="0" data-original-value="0"></input></div>
+        //   <div class="dialog-layer-color-column"><div data-color="#FFFFFF">...</div></div>
+        //   <div class="dialog-layer-visible-column"><input type="checkbox" class="dialog-layer-list-layer-visible" id="..."></input><label for="...">&nbsp;</label></div>
+        //   <div class="dialog-layer-command-column"><button>Del</button></div>
+        // </div>
         LogWriter.write(`LAYER-DIALOG: adding layer ${JSON.stringify(layer)}`);
-        let row = document.createElement('tr');
+        const row = document.createElement('div');
+        row.classList.add('dialog-layer-row');
 
         // name
-        let layerInput = document.createElement('input');
+        const layerInput = document.createElement('input');
         layerInput.classList.add('dialog-layer-list-layer-name');
         layerInput.setAttribute('type', 'text');
         layerInput.setAttribute('value', layer.Name);
         layerInput.setAttribute('data-original-value', layer.Name);
-        let tdName = document.createElement('td');
-        tdName.appendChild(layerInput);
-        row.appendChild(tdName);
+        const nameColumn = document.createElement('div');
+        nameColumn.classList.add('dialog-layer-name-column');
+        nameColumn.appendChild(layerInput);
+        row.appendChild(nameColumn);
         // color
         const colorContainer = document.createElement('div');
+        if (layer.Color) {
+            colorContainer.setAttribute('data-color', layer.Color);
+        }
         const _colorPicker = new ColorPicker(colorContainer, {
             initialColor: layer.Color,
-            allowNullColor: false,
             onColorChanged: (_color, colorAsHex) => {
                 LogWriter.write(`LAYER-DIALOG: color changed to ${colorAsHex}`);
-                colorContainer.setAttribute('data-color', colorAsHex!);
+                if (colorAsHex) {
+                    colorContainer.setAttribute('data-color', colorAsHex);
+                } else {
+                    colorContainer.removeAttribute('data-color');
+                }
             },
         });
-        let tdColor = document.createElement('td');
-        tdColor.appendChild(colorContainer);
-        row.appendChild(tdColor);
+        const colorColumn = document.createElement('div');
+        colorColumn.classList.add('dialog-layer-color-column');
+        colorColumn.appendChild(colorContainer);
+        row.appendChild(colorColumn);
         // visibility
-        let visibleInput = document.createElement('input');
-        visibleInput.classList.add('dialog-layer-list-layer-visible');
+        const visibleInput = document.createElement('input');
         visibleInput.setAttribute('type', 'checkbox');
         visibleInput.setAttribute('id', `layer-visible-${layer.Name}`);
         if (layer.IsVisible) {
             visibleInput.setAttribute('checked', 'checked');
         }
-        let visibleInputLabel = document.createElement('label');
+        const visibleInputLabel = document.createElement('label');
         visibleInputLabel.setAttribute('for', `layer-visible-${layer.Name}`);
         visibleInputLabel.innerHTML = '&nbsp;';
-        let tdVisible = document.createElement('td');
-        tdVisible.appendChild(visibleInput);
-        tdVisible.appendChild(visibleInputLabel);
-        row.appendChild(tdVisible);
+        const visibleColumn = document.createElement('div');
+        visibleColumn.classList.add('dialog-layer-visible-column');
+        visibleColumn.appendChild(visibleInput);
+        visibleColumn.appendChild(visibleInputLabel);
+        row.appendChild(visibleColumn);
         // delete
-        let deleteButton = document.createElement('button');
-        deleteButton.innerText = "Del";
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = "Delete";
         deleteButton.addEventListener('click', () => {
             row.remove();
         });
-        let tdDelete = document.createElement('td');
-        tdDelete.appendChild(deleteButton);
-        row.appendChild(tdDelete);
+        const commandColumn = document.createElement('div');
+        commandColumn.classList.add('dialog-layer-command-column');
+        commandColumn.appendChild(deleteButton);
+        row.appendChild(commandColumn);
 
         this.tableBody.appendChild(row);
     }

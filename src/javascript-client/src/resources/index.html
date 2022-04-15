@@ -405,22 +405,15 @@
         <div id="modal-dialog-layer" class="modal-dialog layer-dialog">
           <p>
             Layers<br />
-          <table class="dialog-layer-table">
-            <thead>
-              <tr>
-                <th>
-                  <div class="dialog-layer-list-layer-name">Name</div>
-                </th>
-                <th>
-                  <div style="width: 50px">Color</div>
-                </th>
-                <th>Is Visible</th>
-                <th>Delete?</th>
-              </tr>
-            </thead>
-            <tbody id="dialog-layer-list-body">
-            </tbody>
-          </table>
+          <div style="flex: 0 0 auto;">
+            <div>
+              <div class="dialog-layer-name-column">Name</div>
+              <div class="dialog-layer-color-column">Color</div>
+              <div class="dialog-layer-visible-column">Is Visible</div>
+              <div class="dialog-layer-command-column">Delete?</div>
+            </div>
+            <div id="dialog-layer-list" class="dialog-layer-list"></div>
+          </div>
           <button id="dialog-layer-add">Add</button>
           </p>
         </div>

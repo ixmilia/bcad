@@ -71,6 +71,7 @@ export class ColorPicker {
         this.colorName.classList.add('color-name');
         this.colorName.textContent = colorToDisplayText(this.color);
         this.element.innerHTML = '';
+        this.element.classList.add('color-element');
         this.element.appendChild(this.colorPreview);
         this.element.appendChild(this.colorName);
 

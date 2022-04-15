@@ -28,9 +28,9 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "7.css": "^0.4.1",
+    "7.css": "^0.5.0",
     "resize-observer": "^1.0.0",
     "webgl-strict-types": "^1.0.3",
-    "xp.css": "^0.2.4"
+    "xp.css": "^0.3.0"
   }
 }

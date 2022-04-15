@@ -1,3 +1,8 @@
+/* the DOM element that is populated */
+.color-element {
+    cursor: default;
+}
+
 /* initial display object: a color square and text */
 .color-picker {
     border: 1px solid black;
