@@ -53,7 +53,8 @@ namespace IxMilia.BCad.Rpc
                     if (plotResult != null)
                     {
                         var plotSettings = plotResult.ToObject<ClientPlotSettings>();
-                        var fileName = await _workspace.FileSystemService.GetFileNameFromUserForSave(plotSettings.PlotType);
+                        var fileSpecification = _workspace.GetFileSpecificationFromExtension("." + plotSettings.PlotType);
+                        var fileName = await _workspace.FileSystemService.GetFileNameFromUserForSave(new[] { fileSpecification });
                         if (fileName != null)
                         {
                             var viewModel = CreateAndPopulateViewModel(plotSettings, _workspace.Drawing.Settings);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using IxMilia.BCad.Services;
@@ -14,14 +15,14 @@ namespace bcad
             _dispatch = dispatch;
         }
 
-        public Task<string> GetFileNameFromUserForOpen()
+        public Task<string> GetFileNameFromUserForOpen(IEnumerable<FileSpecification> fileSpecifications)
         {
-            return DispatchAsync(() => FileDialogs.OpenFile());
+            return DispatchAsync(() => FileDialogs.OpenFile(fileSpecifications));
         }
 
-        public Task<string> GetFileNameFromUserForSave(string extensionHint = null)
+        public Task<string> GetFileNameFromUserForSave(IEnumerable<FileSpecification> fileSpecifications)
         {
-            return DispatchAsync(() => FileDialogs.SaveFile(extensionHint));
+            return DispatchAsync(() => FileDialogs.SaveFile(fileSpecifications));
         }
 
         public Task<byte[]> ReadAllBytesAsync(string path)

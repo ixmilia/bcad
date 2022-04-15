@@ -13,7 +13,7 @@ namespace IxMilia.BCad.Commands
                 fileName = (string)arg;
 
             if (fileName == null)
-                fileName = await workspace.FileSystemService.GetFileNameFromUserForSave();
+                fileName = await workspace.GetDrawingFilenameFromUserForSave();
 
             if (string.IsNullOrEmpty(fileName))
                 return false;

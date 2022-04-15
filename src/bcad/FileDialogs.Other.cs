@@ -1,4 +1,7 @@
-﻿namespace bcad
+﻿using System.Collections.Generic;
+using IxMilia.BCad.Services;
+
+namespace bcad
 {
     internal partial class FileDialogs
     {
@@ -7,14 +10,17 @@
             Gtk.Application.Init();
         }
 
-        public static string OpenFile()
+        public static string OpenFile(IEnumerable<FileSpecification> fileSpecifications)
         {
             using (var fcd = new Gtk.FileChooserDialog("Open File", null, Gtk.FileChooserAction.Open))
             {
                 fcd.Filter = new Gtk.FileFilter();
-                foreach (var (_name, extension) in SupportedFileExtensions)
+                foreach (var specification in fileSpecifications)
                 {
-                    fcd.Filter.AddPattern($"*{extension}");
+                    foreach (var extension in specification.FileExtensions)
+                    {
+                        fcd.Filter.AddPattern($"*{extension}");
+                    }
                 }
 
                 fcd.AddButton(Gtk.Stock.Cancel, Gtk.ResponseType.Cancel);
@@ -31,26 +37,17 @@
             return null;
         }
 
-        public static string SaveFile(string extensionHint)
+        public static string SaveFile(IEnumerable<FileSpecification> fileSpecifications)
         {
             using (var fcd = new Gtk.FileChooserDialog("Save File", null, Gtk.FileChooserAction.Save))
             {
                 fcd.Filter = new Gtk.FileFilter();
-                if (string.IsNullOrWhiteSpace(extensionHint))
+                foreach (var specification in fileSpecifications)
                 {
-                    foreach (var (_name, extension) in SupportedFileExtensions)
+                    foreach (var extension in specification.FileExtensions)
                     {
                         fcd.Filter.AddPattern($"*{extension}");
                     }
-                }
-                else
-                {
-                    if (!extensionHint.StartsWith("."))
-                    {
-                        extensionHint = "." + extensionHint;
-                    }
-
-                    fcd.Filter.AddPattern($"*{extensionHint}");
                 }
 
                 fcd.AddButton(Gtk.Stock.Cancel, Gtk.ResponseType.Cancel);

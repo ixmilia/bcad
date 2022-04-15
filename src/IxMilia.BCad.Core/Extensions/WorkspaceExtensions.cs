@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad
 {
@@ -126,6 +130,38 @@ namespace IxMilia.BCad
         public static string Format(this IWorkspace workspace, Point point)
         {
             return string.Format("({0}, {1}, {2})", workspace.Format(point.X), workspace.Format(point.Y), workspace.Format(point.Z));
+        }
+
+        private static IEnumerable<FileSpecification> DrawingFileSpecifications = new[]
+        {
+            new FileSpecification("DXF File", new[] { ".dxf" }),
+            new FileSpecification("IGES File", new[] { ".iges", ".igs" }),
+        };
+
+        private static IEnumerable<FileSpecification> AllDrawingFileSpecifications = new[]
+        {
+            new FileSpecification("All CAD Drawings", DrawingFileSpecifications.SelectMany(spec => spec.FileExtensions)),
+        }.Concat(DrawingFileSpecifications);
+
+        private static IEnumerable<FileSpecification> PlotFileSpecifications = new[]
+        {
+            new FileSpecification("PDF File", new[] { ".pdf" }),
+            new FileSpecification("SVG File", new[] { ".svg" }),
+        };
+
+        public static Task<string> GetDrawingFilenameFromUserForOpen(this IWorkspace workspace)
+        {
+            return workspace.FileSystemService.GetFileNameFromUserForOpen(AllDrawingFileSpecifications);
+        }
+
+        public static Task<string> GetDrawingFilenameFromUserForSave(this IWorkspace workspace)
+        {
+            return workspace.FileSystemService.GetFileNameFromUserForSave(AllDrawingFileSpecifications);
+        }
+
+        public static FileSpecification GetFileSpecificationFromExtension(this IWorkspace _workspace, string extension)
+        {
+            return DrawingFileSpecifications.Concat(PlotFileSpecifications).FirstOrDefault(spec => spec.FileExtensions.Contains(extension));
         }
     }
 }

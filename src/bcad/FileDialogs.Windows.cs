@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using IxMilia.BCad.Services;
 
 namespace bcad
 {
@@ -16,9 +18,9 @@ namespace bcad
         {
         }
 
-        public static string OpenFile()
+        public static string OpenFile(IEnumerable<FileSpecification> fileSpecifications)
         {
-            var ofn = GetFileSpecification("Open Drawing...", null);
+            var ofn = GetFileSpecification("Open File", fileSpecifications);
             if (GetOpenFileName(ref ofn))
             {
                 return ofn.lpstrFile;
@@ -27,9 +29,9 @@ namespace bcad
             return null;
         }
 
-        public static string SaveFile(string extensionHint)
+        public static string SaveFile(IEnumerable<FileSpecification> fileSpecifications)
         {
-            var ofn = GetFileSpecification("Save Drawing...", extensionHint);
+            var ofn = GetFileSpecification("Save File", fileSpecifications);
             if (GetSaveFileName(ref ofn))
             {
                 return ofn.lpstrFile;
@@ -38,26 +40,24 @@ namespace bcad
             return null;
         }
 
-        private static OpenFileName GetFileSpecification(string title, string extensionHint)
+        private static OpenFileName GetFileSpecification(string title, IEnumerable<FileSpecification> fileSpecifications)
         {
             var ofn = new OpenFileName();
             ofn.lStructSize = Marshal.SizeOf(ofn);
-            ofn.lpstrFilter = BuildWindowsFileFilter(extensionHint);
+            ofn.lpstrFilter = BuildWindowsFileFilter(fileSpecifications);
             ofn.lpstrFile = new string(new char[256]);
             ofn.nMaxFile = ofn.lpstrFile.Length;
             ofn.lpstrFileTitle = new string(new char[64]);
             ofn.nMaxFileTitle = ofn.lpstrFileTitle.Length;
             ofn.lpstrTitle = title;
             ofn.Flags = OFN_OVERWRITEPROMPT;
-            if (extensionHint != null)
+            var extensionHint = fileSpecifications.First().FileExtensions.First();
+            if (extensionHint.StartsWith("."))
             {
-                if (extensionHint.StartsWith("."))
-                {
-                    extensionHint = extensionHint.Substring(1);
-                }
-
-                ofn.lpstrDefExt = extensionHint;
+                extensionHint = extensionHint.Substring(1);
             }
+
+            ofn.lpstrDefExt = extensionHint;
 
             return ofn;
         }
@@ -67,20 +67,9 @@ namespace bcad
         private const string FilterTerminator = "\0\0";
         private const int OFN_OVERWRITEPROMPT = 0x00000002;
 
-        private static string BuildWindowsFileFilter(string extensionHint)
+        private static string BuildWindowsFileFilter(IEnumerable<FileSpecification> fileSpecifications)
         {
-            if (!string.IsNullOrWhiteSpace(extensionHint))
-            {
-                if (!extensionHint.StartsWith("."))
-                {
-                    extensionHint = "." + extensionHint;
-                }
-
-                return $"{extensionHint} files{FileFilterPairSeparator}*{extensionHint}{FilterTerminator}";
-            }
-
-            var combinedExtensions = string.Join(FileFilterPatternSeparator, SupportedFileExtensions.Select(ext => $"*{ext.extension}"));
-            var filter = $"All CAD files ({combinedExtensions}){FileFilterPairSeparator}{combinedExtensions}{FileFilterPairSeparator}{string.Join(FileFilterPairSeparator, SupportedFileExtensions.Select(ext => $"{ext.name} ({ext.extension}){FileFilterPairSeparator}*{ext.extension}"))}{FilterTerminator}";
+            var filter = $"{string.Join(FileFilterPairSeparator, fileSpecifications.Select(spec => $"{spec.DisplayName} ({string.Join(FileFilterPatternSeparator, spec.FileExtensions)}){FileFilterPairSeparator}{string.Join(FileFilterPatternSeparator, spec.FileExtensions.Select(ext => $"*{ext}"))}"))}{FilterTerminator}";
             return filter;
         }
     }

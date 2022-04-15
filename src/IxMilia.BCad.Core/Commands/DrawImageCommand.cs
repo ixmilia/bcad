@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Commands
 {
@@ -13,11 +14,8 @@ namespace IxMilia.BCad.Commands
             if (!locationInput.HasValue) return false;
             var location = locationInput.Value;
 
-            // TODO: use a dialog
-            var imagePathInput = await workspace.InputService.GetText("Path");
-            if (imagePathInput.Cancel) return false;
-            if (string.IsNullOrEmpty(imagePathInput.Value)) return false;
-            var imagePath = imagePathInput.Value;
+            var imagePath = await workspace.FileSystemService.GetFileNameFromUserForOpen(new[] { new FileSpecification("JPEG Image", new[] { ".jpg", ".jpeg" }) });
+            if (imagePath == null) return false;
 
             var imageWidthInput = await workspace.InputService.GetDistance(new UserDirective("Width"));
             if (imageWidthInput.Cancel) return false;
