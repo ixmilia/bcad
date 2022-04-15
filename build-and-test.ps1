@@ -3,7 +3,8 @@
 [CmdletBinding(PositionalBinding = $false)]
 param (
     [string]$configuration = "Debug",
-    [switch]$noTest
+    [switch]$noTest,
+    [string]$deployTo
 )
 
 Set-StrictMode -version 2.0
@@ -67,6 +68,30 @@ try {
         else {
             tar -zcf "$packagesDir/$artifactName" -C "$packageParentDir/" "bcad-$os-$arch"
         }
+    }
+
+    if ($deployTo -ne "") {
+        if ($configuration -ne "Release") {
+            Write-Host "Deployment is only supported in Release configuration"
+            exit 1
+        }
+
+        if ($IsWindows) {
+            $thisArch = if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") { "x64" } else { "arm64" }
+        }
+        else {
+            $thisArch = if ((arch | Out-String).Trim() -eq "x86_64") { "x64" } else { "arm64" }
+        }
+
+        $deploySource = "$packageParentDir/bcad-$os-$thisArch"
+        $deployDestination = "$deployTo/bcad-$os-$thisArch"
+
+        if (Test-Path $deployDestination) {
+            Remove-Item -Path $deployDestination -Recurse -Force
+        }
+
+        Write-Host "Deploying to $deployDestination"
+        Copy-Item -Path $deploySource -Destination $deployDestination -Recurse -Force
     }
 }
 catch {
