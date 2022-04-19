@@ -134,7 +134,8 @@ namespace IxMilia.BCad
 
         private static IEnumerable<FileSpecification> DrawingFileSpecifications = new[]
         {
-            new FileSpecification("DXF File", new[] { ".dxf" }),
+            new FileSpecification("DXF File", new[] { ".dxf" }), // keep this first so it's the default
+            new FileSpecification("DWG File", new[] { ".dwg" }),
             new FileSpecification("IGES File", new[] { ".iges", ".igs" }),
         };
 

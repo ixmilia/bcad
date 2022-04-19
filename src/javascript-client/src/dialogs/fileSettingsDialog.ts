@@ -1,6 +1,6 @@
 import { DialogBase } from './dialogBase';
 import { DialogHandler } from './dialogHandler';
-import { DxfFileSettings, DxfFileVersion } from '../contracts.generated';
+import { DwgFileSettings, DwgFileVersion, DxfFileSettings, DxfFileVersion } from '../contracts.generated';
 import { LogWriter } from '../logWriter';
 
 interface FileSettingsOptions {
@@ -24,9 +24,13 @@ export class FileSettingsDialog extends DialogBase {
 
         const settings = <FileSettingsOptions>dialogOptions;
         switch (settings.Extension) {
+            case ".dwg":
+                const dwgSettings = <DwgFileSettings>settings.Settings;
+                this.buildVersionSelector(Object.values(DwgFileVersion), dwgSettings.FileVersion);
+                break;
             case ".dxf":
                 const dxfSettings = <DxfFileSettings>settings.Settings;
-                this.buildVersionSelectorForDxf(dxfSettings.FileVersion);
+                this.buildVersionSelector(Object.values(DxfFileVersion), dxfSettings.FileVersion);
                 break;
         }
     }
@@ -47,12 +51,12 @@ export class FileSettingsDialog extends DialogBase {
         // noop
     }
 
-    private buildVersionSelectorForDxf(selected: DxfFileVersion) {
-        for (const versionString in DxfFileVersion) {
+    private buildVersionSelector(avaialbleValues: string[], selectedValue: string) {
+        for (const versionString of avaialbleValues) {
             let option = document.createElement('option');
             option.setAttribute('value', versionString);
             option.innerText = versionString;
-            if (versionString === selected) {
+            if (versionString === selectedValue) {
                 option.setAttribute('selected', '1');
             }
 

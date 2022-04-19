@@ -24,9 +24,21 @@ namespace IxMilia.BCad.FileHandlers
             return settings;
         }
 
-        public async Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
+        public Task<ReadDrawingResult> ReadDrawing(string fileName, Stream fileStream, Func<string, Task<byte[]>> contentResolver)
         {
             var file = DxfFile.Load(fileStream);
+            return FromDxfFile(fileName, file, contentResolver);
+        }
+
+        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
+        {
+            var file = ToDxfFile(drawing, viewPort, fileSettings as DxfFileSettings);
+            file.Save(fileStream);
+            return Task.FromResult(true);
+        }
+
+        public static async Task<ReadDrawingResult> FromDxfFile(string fileName, DxfFile file, Func<string, Task<byte[]>> contentResolver)
+        {
             var layers = new ReadOnlyTree<string, Layer>();
             foreach (var layer in file.Layers)
             {
@@ -97,13 +109,6 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             return ReadDrawingResult.Succeeded(drawing, viewPort);
-        }
-
-        public Task<bool> WriteDrawing(string fileName, Stream fileStream, Drawing drawing, ViewPort viewPort, object fileSettings)
-        {
-            var file = ToDxfFile(drawing, viewPort, fileSettings as DxfFileSettings);
-            file.Save(fileStream);
-            return Task.FromResult(true);
         }
 
         public static DxfFile ToDxfFile(Drawing drawing, ViewPort viewPort, DxfFileSettings settings)

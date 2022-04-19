@@ -35,6 +35,7 @@ namespace IxMilia.BCad.Rpc
             workspace.RegisterService(new HtmlDialogService(workspace));
 
             workspace.ReaderWriterService.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
+            workspace.ReaderWriterService.RegisterFileHandler(new DwgFileHandler(), true, true, ".dwg");
             workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
             workspace.ReaderWriterService.RegisterFileHandler(new IgesFileHandler(), true, true, ".igs", "iges");
             workspace.ReaderWriterService.RegisterFileHandler(new JsonFileHandler(), true, true, ".json");

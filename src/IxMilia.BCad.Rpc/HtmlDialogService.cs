@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using IxMilia.BCad.Dialogs;
@@ -45,7 +46,19 @@ namespace IxMilia.BCad.Rpc
                     var settingsResult = await Agent.ShowDialog(id, parameter);
                     if (settingsResult != null)
                     {
-                        result = settingsResult.ToObject<DxfFileSettings>();
+                        if (parameter is FileSettings fileSettings)
+                        {
+                            result = fileSettings.Extension.ToLowerInvariant() switch
+                            {
+                                ".dwg" => settingsResult.ToObject<DwgFileSettings>(),
+                                ".dxf" => settingsResult.ToObject<DxfFileSettings>(),
+                                _ => throw new Exception("Unexpected file extension"),
+                            };
+                        }
+                        else
+                        {
+                            throw new Exception("Expected file settings object");
+                        }
                     }
                     break;
                 case "plot":

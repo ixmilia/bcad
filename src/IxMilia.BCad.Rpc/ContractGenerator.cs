@@ -83,6 +83,7 @@ namespace IxMilia.BCad.Rpc
             // special-cased types
             AddInterface(typeof(ClientDownload));
             AddInterface(typeof(ClientUpdate));
+            AddInterface(typeof(DwgFileSettings));
             AddInterface(typeof(DxfFileSettings));
 
             // emit types
