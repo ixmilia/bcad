@@ -21,6 +21,9 @@ namespace IxMilia.BCad.Core.Test
 
             // negative value
             TestMetric(-3.0, "-3", 4);
+
+            // really close to zero
+            TestMetric(1.578E-12, "0", 4);
         }
 
         [Fact]

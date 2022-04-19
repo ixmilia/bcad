@@ -16,6 +16,7 @@ export class PropertyPane {
                 propertyPaneContents.innerHTML = '';
                 propertyPane.style.display = 'none';
                 if (clientUpdate.PropertyPane.Values.length > 0) {
+                    LogWriter.write(`PROPERTY-PANE: got ${JSON.stringify(clientUpdate.PropertyPane.Values)}`);
                     const table = <HTMLTableElement>document.createElement('table');
                     for (const value of clientUpdate.PropertyPane.Values) {
                         const name = <HTMLTableCellElement>document.createElement('td');
