@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Commands
@@ -17,22 +18,27 @@ namespace IxMilia.BCad.Commands
             var imagePath = await workspace.FileSystemService.GetFileNameFromUserForOpen(new[] { new FileSpecification("JPEG Image", new[] { ".jpg", ".jpeg" }) });
             if (imagePath == null) return false;
 
-            var imageWidthInput = await workspace.InputService.GetDistance(new UserDirective("Width"));
+            var imageData = await workspace.FileSystemService.GetContentResolverRelativeToPath(workspace.Drawing.Settings.FileName)(imagePath);
+            var (rawImageWidth, rawImageHeight) = ImageHelpers.GetImageDimensions(imagePath, imageData);
+
+            var imageWidthInput = await workspace.InputService.GetDistance(new UserDirective($"Width [{rawImageWidth}]"), defaultDistance: rawImageWidth);
             if (imageWidthInput.Cancel) return false;
             if (!imageWidthInput.HasValue) return false;
             var imageWidth = imageWidthInput.Value;
 
-            var imageHeightInput = await workspace.InputService.GetDistance(new UserDirective("Height"));
+            var scaledRawHeight = (double)rawImageHeight / rawImageWidth * imageWidth;
+            var imageHeightInput = await workspace.InputService.GetDistance(new UserDirective($"Height [{scaledRawHeight}]"), defaultDistance: scaledRawHeight);
             if (imageHeightInput.Cancel) return false;
             if (!imageHeightInput.HasValue) return false;
             var imageHeight = imageHeightInput.Value;
 
-            var imageRotationInput = await workspace.InputService.GetText("Rotation");
+            var defaultRotation = 0;
+            var imageRotationInput = await workspace.InputService.GetText($"Rotation [{defaultRotation}]");
             if (imageRotationInput.Cancel) return false;
-            if (string.IsNullOrEmpty(imageRotationInput.Value)) return false;
-            if (!double.TryParse(imageRotationInput.Value, out var imageRotation)) return false;
+            var rawRotationInput = imageRotationInput.HasValue ? imageRotationInput.Value : defaultRotation.ToString();
+            if (string.IsNullOrWhiteSpace(rawRotationInput)) return false;
+            if (!double.TryParse(rawRotationInput, out var imageRotation)) return false;
 
-            var imageData = await workspace.FileSystemService.GetContentResolverRelativeToPath(workspace.Drawing.Settings.FileName)(imagePath);
             var image = new Image(location, imagePath, imageData, imageWidth, imageHeight, imageRotation);
             workspace.AddToCurrentLayer(image);
 

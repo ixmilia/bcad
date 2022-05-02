@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
@@ -427,14 +425,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static DxfImage ToDxfImage(this Image image, Layer layer)
         {
-            var (pixelWidth, pixelHeight) = Path.GetExtension(image.Path).ToLowerInvariant() switch
-            {
-                ".png" => GetPngDimensions(image.ImageData),
-                ".jpg" => GetJpegDimensions(image.ImageData),
-                ".jpeg" => GetJpegDimensions(image.ImageData),
-                // TODO: Add support for other image formats
-                _ => throw new NotSupportedException(),
-            };
+            var (pixelWidth, pixelHeight) = ImageHelpers.GetImageDimensions(image.Path, image.ImageData);
             var dxfImage = new DxfImage(image.Path, image.Location.ToDxfPoint(), pixelWidth, pixelHeight, DxfVector.XAxis);
             dxfImage.Layer = layer.Name;
             var radians = image.Rotation * MathHelper.DegreesToRadians;
@@ -447,38 +438,6 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             dxfImage.UVector = uVector;
             dxfImage.VVector = vVector;
             return dxfImage;
-        }
-
-        private static int ToUInt16BitEndian(byte[] array, int startIndex)
-        {
-            return (array[startIndex] << 8) | array[startIndex + 1];
-        }
-
-        private static uint ToUInt32BigEndian(byte[] array, int startIndex)
-        {
-            return (uint)((array[startIndex] << 24) | (array[startIndex + 1] << 16) | (array[startIndex + 2] << 8) | array[startIndex + 3]);
-        }
-
-        private static (int, int) GetPngDimensions(byte[] array)
-        {
-            var width = (int)ToUInt32BigEndian(array, 16);
-            var height = (int)ToUInt32BigEndian(array, 20);
-            return (width, height);
-        }
-
-        private static (int, int) GetJpegDimensions(byte[] array)
-        {
-            for (int i = 0; i < array.Length - 9; i++)
-            {
-                if (array[i] == 0xFF && array[i + 1] == 0xC0)
-                {
-                    var height = ToUInt16BitEndian(array, i + 5);
-                    var width = ToUInt16BitEndian(array, i + 7);
-                    return (width, height);
-                }
-            }
-
-            return (0, 0);
         }
 
         public static DxfEntity ToDxfEntity(this Entity item, Layer layer)
