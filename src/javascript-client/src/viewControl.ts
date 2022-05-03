@@ -84,6 +84,9 @@ export class ViewControl {
     private snapPointKind: SnapPointKind;
     private settings: ClientSettings;
 
+    private frameTimes: number[] = [];
+    private maxFrameTimes: number = 10;
+
     constructor(client: Client) {
         this.client = client;
 
@@ -422,6 +425,14 @@ export class ViewControl {
 
             this.twod.stroke();
         }
+
+        if (this.frameTimes.length > 0) {
+            const avgFrameTime = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
+            const fpsText = `${Math.round(1000 / avgFrameTime)} fps`;
+            this.twod.font = '20px monospace';
+            this.twod.fillStyle = ViewControl.colorToHex(this.settings.AutoColor);
+            this.twod.fillText(fpsText, 0, this.twod.canvas.height);
+        }
     }
 
     private prepareCanvas() {
@@ -696,16 +707,29 @@ export class ViewControl {
     }
 
     private redraw() {
-        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-        this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-        this.redrawSpecific(this.entityDrawing);
-        this.redrawSpecific(this.rubberBandDrawing);
-        this.redrawText(this.textCtx, this.entityDrawing);
-        this.redrawText(this.rubberTextCtx, this.rubberBandDrawing);
-        this.redrawImages(this.imageTwoD, this.entityDrawing);
-        this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing);
-        this.redrawHotPoints();
+        this.measureFrameTime(() => {
+            this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+            this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+            this.redrawSpecific(this.entityDrawing);
+            this.redrawSpecific(this.rubberBandDrawing);
+            this.redrawText(this.textCtx, this.entityDrawing);
+            this.redrawText(this.rubberTextCtx, this.rubberBandDrawing);
+            this.redrawImages(this.imageTwoD, this.entityDrawing);
+            this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing);
+            this.redrawHotPoints();
+        });
+    }
+
+    private measureFrameTime(body: () => void) {
+        const start = performance.now();
+        body();
+        const now = performance.now();
+        const diff = now - start;
+        this.frameTimes.push(diff);
+        if (this.frameTimes.length > this.maxFrameTimes) {
+            this.frameTimes.shift();
+        }
     }
 
     private resetRenderer() {
