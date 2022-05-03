@@ -11,6 +11,7 @@ namespace IxMilia.BCad.Display
         public const string HotPointSize = Prefix + nameof(HotPointSize);
         public const string Ortho = Prefix + nameof(Ortho);
         public const string PointSnap = Prefix + nameof(PointSnap);
+        public const string RenderId = Prefix + nameof(RenderId);
         public const string SnapAngleDistance = Prefix + nameof(SnapAngleDistance);
         public const string SnapAngles = Prefix + nameof(SnapAngles);
         public const string SnapPointColor = Prefix + nameof(SnapPointColor);

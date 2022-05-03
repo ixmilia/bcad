@@ -27,6 +27,38 @@ export class SettingsRibbon {
             }
         });
 
+        let reportSelectUpdates = true;
+        document.querySelectorAll(".settings-select").forEach(node => {
+            const select = <HTMLSelectElement>node;
+            const name = select.getAttribute("data-setting-name");
+            if (name) {
+                select.addEventListener('change', () => {
+                    if (reportSelectUpdates) {
+                        client.setSetting(name!, select.value);
+                    }
+                });
+            }
+        });
+        client.subscribeToClientUpdates((clientUpdate) => {
+            if (clientUpdate.Settings !== undefined) {
+                reportSelectUpdates = false;
+                document.querySelectorAll(".settings-select").forEach(node => {
+                    const select = <HTMLSelectElement>node;
+                    const name = select.getAttribute("data-setting-name");
+                    const path = select.getAttribute("data-setting-path");
+                    if (name && path) {
+                        let newValue = <any>clientUpdate.Settings;
+                        const parts = path.split('.');
+                        for (const part of parts) {
+                            newValue = newValue[part];
+                        }
+                        select.value = newValue;
+                    }
+                });
+                reportSelectUpdates = true;
+            }
+        });
+
         this.getSnapAngleSelectors().forEach(input => {
             input.addEventListener('change', () => {
                 client.setSetting("Display.SnapAngles", input.value);

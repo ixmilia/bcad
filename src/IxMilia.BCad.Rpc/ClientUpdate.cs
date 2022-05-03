@@ -358,6 +358,7 @@ namespace IxMilia.BCad.Rpc
         public double EntitySelectionRadius { get; }
         public CadColor HotPointColor { get; }
         public double HotPointSize { get; }
+        public string RenderId { get; }
         public double[] SnapAngles { get; }
         public CadColor SnapPointColor { get; }
         public double SnapPointSize { get; }
@@ -376,6 +377,7 @@ namespace IxMilia.BCad.Rpc
             EntitySelectionRadius = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
             HotPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);
             HotPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.HotPointSize);
+            RenderId = workspace.SettingsService.GetValue<string>(DisplaySettingsNames.RenderId);
             SnapAngles = workspace.SettingsService.GetValue<double[]>(DisplaySettingsNames.SnapAngles);
             SnapPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.SnapPointColor);
             SnapPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.SnapPointSize);

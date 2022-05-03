@@ -102,6 +102,7 @@ namespace IxMilia.BCad
             SettingsService.RegisterSetting(DisplaySettingsNames.HotPointSize, typeof(double), 10.0);
             SettingsService.RegisterSetting(DisplaySettingsNames.Ortho, typeof(bool), false);
             SettingsService.RegisterSetting(DisplaySettingsNames.PointSnap, typeof(bool), true);
+            SettingsService.RegisterSetting(DisplaySettingsNames.RenderId, typeof(string), "webgl");
             SettingsService.RegisterSetting(DisplaySettingsNames.SnapAngleDistance, typeof(double), 30.0);
             SettingsService.RegisterSetting(DisplaySettingsNames.SnapAngles, typeof(double[]), new[] { 0.0, 90.0, 180.0, 270.0 });
             SettingsService.RegisterSetting(DisplaySettingsNames.SnapPointColor, typeof(CadColor), "#FFFFFF00");

@@ -46,7 +46,9 @@ body {
     z-index: 2;
 }
 
-#drawingCanvas {
+#drawingCanvas,
+#flatCanvas,
+#rubberBandFlatCanvas {
     z-index: 3;
 }
 

@@ -50,6 +50,11 @@ export class ViewControl {
     private rubberBandTextCanvas: HTMLCanvasElement;
     private outputPane: HTMLDivElement;
 
+    private flatCanvas: HTMLCanvasElement;
+    private rubberBandFlatCanvas: HTMLCanvasElement;
+    private flatContext: CanvasRenderingContext2D;
+    private rubberBandFlatContext: CanvasRenderingContext2D;
+
     // webgl
     private gl: WebGLRenderingContext;
     private glAngle: ANGLE_instanced_arrays;
@@ -99,6 +104,9 @@ export class ViewControl {
         this.textCanvas = <HTMLCanvasElement>document.getElementById('textCanvas');
         this.rubberBandTextCanvas = <HTMLCanvasElement>document.getElementById('rubberBandTextCanvas');
         this.outputPane = <HTMLDivElement>document.getElementById('output-pane');
+
+        this.flatCanvas = <HTMLCanvasElement>document.getElementById('flatCanvas');
+        this.rubberBandFlatCanvas = <HTMLCanvasElement>document.getElementById('rubberBandFlatCanvas');
 
         // CAD
         this.cursorPosition = { x: 0, y: 0 };
@@ -180,6 +188,7 @@ export class ViewControl {
             EntitySelectionRadius: 3,
             HotPointColor: { A: 255, R: 0, G: 0, B: 255 },
             HotPointSize: 10,
+            RenderId: 'webgl',
             SnapAngles: [0, 90, 180, 270],
             SnapPointColor: { A: 255, R: 255, G: 255, B: 0 },
             SnapPointSize: 15,
@@ -198,6 +207,8 @@ export class ViewControl {
         this.selectionTwod = this.selectionCanvas.getContext("2d") || throwError('Unable to get selection canvas 2d context');
         this.textCtx = this.textCanvas.getContext("2d") || throwError('Unable to get text canvas 2d context');
         this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d") || throwError('Unable to get rubber text context');
+        this.flatContext = this.flatCanvas.getContext('2d') || throwError('Unable to get flat canvas 2d context');
+        this.rubberBandFlatContext = this.rubberBandFlatCanvas.getContext('2d') || throwError('Unable to get rubber band flat canvas 2d context');
         this.prepareCanvas();
         this.populateStaticVertices();
         this.populateVertices(this.entityDrawing);
@@ -425,14 +436,6 @@ export class ViewControl {
 
             this.twod.stroke();
         }
-
-        if (this.frameTimes.length > 0) {
-            const avgFrameTime = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
-            const fpsText = `${Math.round(1000 / avgFrameTime)} fps`;
-            this.twod.font = '20px monospace';
-            this.twod.fillStyle = ViewControl.colorToHex(this.settings.AutoColor);
-            this.twod.fillText(fpsText, 0, this.twod.canvas.height);
-        }
     }
 
     private prepareCanvas() {
@@ -512,6 +515,10 @@ export class ViewControl {
             this.textCanvas.height = this.outputPane.clientHeight;
             this.rubberBandTextCanvas.width = this.outputPane.clientWidth;
             this.rubberBandTextCanvas.height = this.outputPane.clientHeight;
+            this.flatCanvas.width = this.outputPane.clientWidth;
+            this.flatCanvas.height = this.outputPane.clientHeight;
+            this.rubberBandFlatCanvas.width = this.outputPane.clientWidth;
+            this.rubberBandFlatCanvas.height = this.outputPane.clientHeight;
             console.log(`sending resize with size (${this.drawingCanvas.width}, ${this.drawingCanvas.height})`);
             this.client.resize(this.drawingCanvas.width, this.drawingCanvas.height);
         })).observe(this.outputPane);
@@ -708,17 +715,39 @@ export class ViewControl {
 
     private redraw() {
         this.measureFrameTime(() => {
+            // clear flat renderer
+            this.flatContext.clearRect(0, 0, this.flatContext.canvas.width, this.flatContext.canvas.height);
+            this.rubberBandFlatContext.clearRect(0, 0, this.rubberBandFlatContext.canvas.width, this.rubberBandFlatContext.canvas.height);
+            // clear gl renderer
             this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-            this.redrawSpecific(this.entityDrawing);
-            this.redrawSpecific(this.rubberBandDrawing);
+
+            switch (this.settings.RenderId) {
+                case 'canvas':
+                    this.redraw2d(this.flatContext, this.entityDrawing);
+                    this.redraw2d(this.rubberBandFlatContext, this.rubberBandDrawing);
+                    break;
+                case 'webgl':
+                    this.redrawSpecific(this.entityDrawing);
+                    this.redrawSpecific(this.rubberBandDrawing);
+                    break;
+            }
+
             this.redrawText(this.textCtx, this.entityDrawing);
             this.redrawText(this.rubberTextCtx, this.rubberBandDrawing);
             this.redrawImages(this.imageTwoD, this.entityDrawing);
             this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing);
             this.redrawHotPoints();
         });
+
+        if (this.frameTimes.length > 0) {
+            const avgFrameTime = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
+            const fpsText = `${Math.round(1000 / avgFrameTime)} fps`;
+            this.flatContext.font = '20px monospace';
+            this.flatContext.fillStyle = ViewControl.colorToHex(this.settings.AutoColor);
+            this.flatContext.fillText(fpsText, 0, this.twod.canvas.height);
+        }
     }
 
     private measureFrameTime(body: () => void) {
@@ -925,9 +954,59 @@ export class ViewControl {
         context.strokeStyle = `${ViewControl.colorToHex(color)}40`; // default color, partial alpha
     }
 
-    private redrawText(textContext: CanvasRenderingContext2D, drawing: ClientDrawing) {
-        textContext.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
-        textContext.clearRect(0, 0, textContext.canvas.width, textContext.canvas.height);
+    private redraw2d(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
+        for (const line of drawing.Lines) {
+            this.redrawLine(context, line);
+        }
+
+        for (const el of drawing.Ellipses) {
+            this.redrawEllipse(context, el);
+        }
+
+        for (const point of drawing.Points) {
+            this.redrawPoint(context, point);
+        }
+    }
+
+    private redrawLine(context: CanvasRenderingContext2D, line: ClientLine) {
+        const p1 = transform(this.transform.CanvasTransform, [line.P1.X, line.P1.Y, line.P1.Z, 1.0]);
+        const p2 = transform(this.transform.CanvasTransform, [line.P2.X, line.P2.Y, line.P2.Z, 1.0]);
+        context.beginPath();
+        context.strokeStyle = ViewControl.colorToHex(line.Color || this.settings.AutoColor);
+        context.moveTo(p1[0], p1[1]);
+        context.lineTo(p2[0], p2[1]);
+        context.stroke();
+    }
+
+    private redrawEllipse(context: CanvasRenderingContext2D, el: ClientEllipse) {
+        const matrix = multiply(el.Transform, this.transform.CanvasTransform);
+        const center = transform(matrix, [0, 0, 0, 1]);
+        const xaxis = sub(transform(matrix, [1, 0, 0, 1]), center);
+        const yaxis = sub(transform(matrix, [0, 1, 0, 1]), center);
+        const radiusX = len(xaxis);
+        const radiusY = len(yaxis);
+        const rotation = Math.atan2(xaxis[1], xaxis[0]);
+        context.beginPath();
+        context.strokeStyle = ViewControl.colorToHex(el.Color || this.settings.AutoColor);
+        context.ellipse(center[0], center[1], radiusX, radiusY, rotation, el.StartAngle * Math.PI / -180.0, el.EndAngle * Math.PI / -180.0, true);
+        context.stroke();
+    }
+
+    private redrawPoint(context: CanvasRenderingContext2D, point: ClientPointLocation) {
+        const location = transform(this.transform.CanvasTransform, [point.Location.X, point.Location.Y, point.Location.Z, 1]);
+        context.beginPath();
+        context.strokeStyle = ViewControl.colorToHex(point.Color || this.settings.AutoColor);
+        const halfSize = this.settings.PointDisplaySize * 0.5;
+        context.moveTo(location[0] - halfSize, location[1]);
+        context.lineTo(location[0] + halfSize, location[1]);
+        context.moveTo(location[0], location[1] - halfSize);
+        context.lineTo(location[0], location[1] + halfSize);
+        context.stroke();
+    }
+
+    private redrawText(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
+        context.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         const yscale = this.transform.CanvasTransform[5];
 
         for (let text of drawing.Text) {
@@ -937,12 +1016,12 @@ export class ViewControl {
             const y = location[1];
             const textHeight = text.Height * Math.abs(yscale);
 
-            textContext.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
-            textContext.translate(x, y);
-            textContext.rotate(-text.RotationAngle * Math.PI / 180.0);
-            textContext.fillStyle = ViewControl.colorToHex(text.Color || this.settings.AutoColor);
-            textContext.font = `${textHeight}px monospace`;
-            textContext.fillText(text.Text, 0, 0);
+            context.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
+            context.translate(x, y);
+            context.rotate(-text.RotationAngle * Math.PI / 180.0);
+            context.fillStyle = ViewControl.colorToHex(text.Color || this.settings.AutoColor);
+            context.font = `${textHeight}px monospace`;
+            context.fillText(text.Text, 0, 0);
         }
     }
 
@@ -1036,6 +1115,51 @@ export class ViewControl {
 
 function add(vector1: number[], vector2: number[]): number[] {
     return [vector1[0] + vector2[0], vector1[1] + vector2[1], vector1[2] + vector2[2], 1];
+}
+
+function sub(vector1: number[], vector2: number[]): number[] {
+    return [vector1[0] - vector2[0], vector1[1] - vector2[1], vector1[2] - vector2[2], 1];
+}
+
+function len(vector: number[]) {
+    return Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+}
+
+function multiply(matrix1: number[], matrix2: number[]): number[] {
+    return [
+        matrix1[0] * matrix2[0] + matrix1[1] * matrix2[4] +
+        matrix1[2] * matrix2[8] + matrix1[3] * matrix2[12],
+        matrix1[0] * matrix2[1] + matrix1[1] * matrix2[5] +
+        matrix1[2] * matrix2[9] + matrix1[3] * matrix2[13],
+        matrix1[0] * matrix2[2] + matrix1[1] * matrix2[6] +
+        matrix1[2] * matrix2[10] + matrix1[3] * matrix2[14],
+        matrix1[0] * matrix2[3] + matrix1[1] * matrix2[7] +
+        matrix1[2] * matrix2[11] + matrix1[3] * matrix2[15],
+        matrix1[4] * matrix2[0] + matrix1[5] * matrix2[4] +
+        matrix1[6] * matrix2[8] + matrix1[7] * matrix2[12],
+        matrix1[4] * matrix2[1] + matrix1[5] * matrix2[5] +
+        matrix1[6] * matrix2[9] + matrix1[7] * matrix2[13],
+        matrix1[4] * matrix2[2] + matrix1[5] * matrix2[6] +
+        matrix1[6] * matrix2[10] + matrix1[7] * matrix2[14],
+        matrix1[4] * matrix2[3] + matrix1[5] * matrix2[7] +
+        matrix1[6] * matrix2[11] + matrix1[7] * matrix2[15],
+        matrix1[8] * matrix2[0] + matrix1[9] * matrix2[4] +
+        matrix1[10] * matrix2[8] + matrix1[11] * matrix2[12],
+        matrix1[8] * matrix2[1] + matrix1[9] * matrix2[5] +
+        matrix1[10] * matrix2[9] + matrix1[11] * matrix2[13],
+        matrix1[8] * matrix2[2] + matrix1[9] * matrix2[6] +
+        matrix1[10] * matrix2[10] + matrix1[11] * matrix2[14],
+        matrix1[8] * matrix2[3] + matrix1[9] * matrix2[7] +
+        matrix1[10] * matrix2[11] + matrix1[11] * matrix2[15],
+        matrix1[12] * matrix2[0] + matrix1[13] * matrix2[4] +
+        matrix1[14] * matrix2[8] + matrix1[15] * matrix2[12],
+        matrix1[12] * matrix2[1] + matrix1[13] * matrix2[5] +
+        matrix1[14] * matrix2[9] + matrix1[15] * matrix2[13],
+        matrix1[12] * matrix2[2] + matrix1[13] * matrix2[6] +
+        matrix1[14] * matrix2[10] + matrix1[15] * matrix2[14],
+        matrix1[12] * matrix2[3] + matrix1[13] * matrix2[7] +
+        matrix1[14] * matrix2[11] + matrix1[15] * matrix2[15]
+    ];
 }
 
 function transform(matrix: number[], point: number[]): number[] {
