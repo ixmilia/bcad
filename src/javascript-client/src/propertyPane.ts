@@ -26,7 +26,14 @@ export class PropertyPane {
 
                         const valueCell = <HTMLTableCellElement>document.createElement('td');
                         valueCell.classList.add('property-pane-setting-value');
-                        if (value.Name === 'color') {
+                        if (value.IsReadOnly) {
+                            if (value.Value) {
+                                // simple text span for read-only values
+                                const span = document.createElement('span');
+                                span.innerText = value.Value;
+                                valueCell.appendChild(span);
+                            }
+                        } else if (value.Name === 'color') {
                             // special handling for colors
                             valueCell.setAttribute('align', 'left');
                             const colorPickerDiv = document.createElement('div');
@@ -35,6 +42,7 @@ export class PropertyPane {
                                 onColorChanged: (color, colorAsHex) => {
                                     LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${JSON.stringify(color)}`);
                                     client.setPropertyPaneValue({
+                                        IsReadOnly: false,
                                         Name: value.Name,
                                         DisplayName: value.DisplayName,
                                         Value: colorAsHex,
@@ -68,6 +76,7 @@ export class PropertyPane {
                             select.addEventListener('change', () => {
                                 LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${select.value}`);
                                 client.setPropertyPaneValue({
+                                    IsReadOnly: false,
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,
                                     Value: select.value,
@@ -81,6 +90,7 @@ export class PropertyPane {
                             text.addEventListener('change', () => {
                                 LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${text.value}`);
                                 client.setPropertyPaneValue({
+                                    IsReadOnly: false,
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,
                                     Value: text.value,

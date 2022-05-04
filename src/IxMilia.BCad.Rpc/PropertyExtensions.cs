@@ -108,8 +108,8 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("cy", "Y", drawing.FormatUnits(arc.Center.Y), (arc, value) => arc.Update(center: arc.Center.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("cz", "Z", drawing.FormatUnits(arc.Center.Z), (arc, value) => arc.Update(center: arc.Center.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("r", "Radius", drawing.FormatUnits(arc.Radius), (arc, value) => arc.Update(radius: value)),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("sa", "Start Angle", DrawingSettings.FormatUnits(arc.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (arc, value) => arc.Update(startAngle: value)),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("ea", "End Angle", DrawingSettings.FormatUnits(arc.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (arc, value) => arc.Update(endAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("sa", "Start Angle", FormatDecimal(arc.StartAngle), (arc, value) => arc.Update(startAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("ea", "End Angle", FormatDecimal(arc.EndAngle), (arc, value) => arc.Update(endAngle: value)),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("nx", "Normal X", drawing.FormatUnits(arc.Normal.X), (arc, value) => arc.Update(normal: arc.Normal.WithX(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("ny", "Y", drawing.FormatUnits(arc.Normal.Y), (arc, value) => arc.Update(normal: arc.Normal.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("nz", "Z", drawing.FormatUnits(arc.Normal.Z), (arc, value) => arc.Update(normal: arc.Normal.WithZ(value))),
@@ -125,6 +125,7 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("ny", "Y", drawing.FormatUnits(circle.Normal.Y), (circle, value) => circle.Update(normal: circle.Normal.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("nz", "Z", drawing.FormatUnits(circle.Normal.Z), (circle, value) => circle.Update(normal: circle.Normal.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("t", "Thickness", drawing.FormatUnits(circle.Thickness), (circle, value) => circle.Update(thickness: value)),
+                    ClientPropertyPaneValue.CreateReadOnly("Area", FormatDecimal(circle.Area())),
                 },
                 ellipse => new[]
                 {
@@ -134,9 +135,9 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mx", "Major Axis X", drawing.FormatUnits(ellipse.MajorAxis.X), (ellipse, value) => ellipse.Update(majorAxis: ellipse.MajorAxis.WithX(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("my", "Y", drawing.FormatUnits(ellipse.MajorAxis.Y), (ellipse, value) => ellipse.Update(majorAxis: ellipse.MajorAxis.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mz", "Z", drawing.FormatUnits(ellipse.MajorAxis.Z), (ellipse, value) => ellipse.Update(majorAxis: ellipse.MajorAxis.WithZ(value))),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mr", "Minor Axis Ratio", DrawingSettings.FormatUnits(ellipse.MinorAxisRatio, UnitFormat.Metric, drawing.Settings.UnitPrecision), (ellipse, value) => ellipse.Update(minorAxisRatio: value)),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("sa", "Start Angle", DrawingSettings.FormatUnits(ellipse.StartAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (ellipse, value) => ellipse.Update(startAngle: value)),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("ea", "End Angle", DrawingSettings.FormatUnits(ellipse.EndAngle, UnitFormat.Metric, drawing.Settings.UnitPrecision), (ellipse, value) => ellipse.Update(endAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("mr", "Minor Axis Ratio", FormatDecimal(ellipse.MinorAxisRatio), (ellipse, value) => ellipse.Update(minorAxisRatio: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("sa", "Start Angle", FormatDecimal(ellipse.StartAngle), (ellipse, value) => ellipse.Update(startAngle: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("ea", "End Angle", FormatDecimal(ellipse.EndAngle), (ellipse, value) => ellipse.Update(endAngle: value)),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("nx", "Normal X", drawing.FormatUnits(ellipse.Normal.X), (ellipse, value) => ellipse.Update(normal: ellipse.Normal.WithX(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("ny", "Y", drawing.FormatUnits(ellipse.Normal.Y), (ellipse, value) => ellipse.Update(normal: ellipse.Normal.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Ellipse>("nz", "Z", drawing.FormatUnits(ellipse.Normal.Z), (ellipse, value) => ellipse.Update(normal: ellipse.Normal.WithZ(value))),
@@ -150,7 +151,7 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntity<Image>("p", "Path", image.Path, (image, value) => image.Update(path: value)),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("w", "Width", drawing.FormatUnits(image.Width), (image, value) => image.Update(width: value)),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("h", "Height", drawing.FormatUnits(image.Height), (image, value) => image.Update(height: value)),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("r", "Rotation", DrawingSettings.FormatUnits(image.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision), (image, value) => image.Update(rotation: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Image>("r", "Rotation", FormatDecimal(image.Rotation), (image, value) => image.Update(rotation: value)),
                 },
                 line => new[]
                 {
@@ -161,6 +162,7 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("y2", "Y", drawing.FormatUnits(line.P2.Y), (line, value) => line.Update(p2: line.P2.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("z2", "Z", drawing.FormatUnits(line.P2.Z), (line, value) => line.Update(p2: line.P2.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Line>("t", "Thickness", drawing.FormatUnits(line.Thickness), (line, value) => line.Update(thickness: value)),
+                    ClientPropertyPaneValue.CreateReadOnly("Length", drawing.FormatUnits(line.Length())),
                 },
                 location => new[]
                 {
@@ -177,7 +179,7 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("y", "Y", drawing.FormatUnits(text.Location.Y), (text, value) => text.Update(location: text.Location.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("z", "Z", drawing.FormatUnits(text.Location.Z), (text, value) => text.Update(location: text.Location.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("h", "Height", drawing.FormatUnits(text.Height), (text, value) => text.Update(height: value)),
-                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("r", "Rotation", DrawingSettings.FormatUnits(text.Rotation, UnitFormat.Metric, drawing.Settings.UnitPrecision), (text, value) => text.Update(rotation: value)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("r", "Rotation", FormatDecimal(text.Rotation), (text, value) => text.Update(rotation: value)),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("nx", "Normal X", drawing.FormatUnits(text.Normal.X), (text, value) => text.Update(normal: text.Normal.WithX(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("ny", "Y", drawing.FormatUnits(text.Normal.Y), (text, value) => text.Update(normal: text.Normal.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Text>("nz", "Z", drawing.FormatUnits(text.Normal.Z), (text, value) => text.Update(normal: text.Normal.WithZ(value))),
@@ -185,6 +187,11 @@ namespace IxMilia.BCad.Rpc
             );
 
             return general.Concat(specific);
+
+            string FormatDecimal(double value)
+            {
+                return DrawingSettings.FormatUnits(value, UnitFormat.Metric, drawing.Settings.UnitPrecision);
+            }
         }
 
         private static Point WithX(this Point point, double x)

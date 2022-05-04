@@ -9,6 +9,16 @@ namespace IxMilia.BCad.Extensions
 {
     public static class EntityExtensions
     {
+        public static double Area(this Circle circle)
+        {
+            return MathHelper.PI * circle.Radius * circle.Radius;
+        }
+
+        public static double Length(this Line line)
+        {
+            return (line.P2 - line.P1).Length;
+        }
+
         public static bool EquivalentTo(this AggregateEntity agg, Entity entity)
         {
             if (entity is AggregateEntity other)

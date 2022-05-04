@@ -39,5 +39,18 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(200.0, result.Height);
             Assert.Equal(300.0, result.PreviewMaxSize);
         }
+
+        [Fact]
+        public void ClientPropertyPaneValueDeserialization()
+        {
+            var json = @"{""IsReadOnly"":false,""Name"":""name"",""DisplayName"":""display-name"",""Value"":""the-value""}";
+            var result = Deserialize<ClientPropertyPaneValue>(json);
+            Assert.False(result.IsReadOnly);
+            Assert.Equal("name", result.Name);
+            Assert.Equal("display-name", result.DisplayName);
+            Assert.Equal("the-value", result.Value);
+            Assert.Null(result.AllowedValues);
+            Assert.False(result.IsUnrepresentable);
+        }
     }
 }

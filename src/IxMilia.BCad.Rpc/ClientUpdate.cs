@@ -9,6 +9,7 @@ using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Settings;
 using IxMilia.Pdf;
+using Newtonsoft.Json;
 
 namespace IxMilia.BCad.Rpc
 {
@@ -222,6 +223,7 @@ namespace IxMilia.BCad.Rpc
 
     public class ClientPropertyPaneValue : IEquatable<ClientPropertyPaneValue>
     {
+        public bool IsReadOnly { get; set; }
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public string Value { get; set; }
@@ -231,7 +233,14 @@ namespace IxMilia.BCad.Rpc
         private Func<Drawing, Entity, string, Tuple<Drawing, Entity>> _drawingTransformer;
 
         public ClientPropertyPaneValue(string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+            : this(false, name, displayName, value, allowedValues, isUnrepresentable)
         {
+        }
+
+        [JsonConstructor]
+        public ClientPropertyPaneValue(bool isReadOnly, string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+        {
+            IsReadOnly = isReadOnly;
             Name = name;
             DisplayName = displayName;
             Value = value;
@@ -250,6 +259,11 @@ namespace IxMilia.BCad.Rpc
             var propertyPaneValue = new ClientPropertyPaneValue(name, displayName, value, allowedValues, isUnrepresentable);
             propertyPaneValue._drawingTransformer = drawingTransformer;
             return propertyPaneValue;
+        }
+
+        internal static ClientPropertyPaneValue CreateReadOnly(string displayName, string value)
+        {
+            return new ClientPropertyPaneValue(true, displayName, displayName, value);
         }
 
         internal static ClientPropertyPaneValue CreateForEntity<TEntity>(string name, string displayName, string value, Func<TEntity, string, Entity> entityTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
@@ -303,7 +317,8 @@ namespace IxMilia.BCad.Rpc
                 return true;
             }
 
-            return v1.Name == v2.Name
+            return v1.IsReadOnly == v2.IsReadOnly
+                && v1.Name == v2.Name
                 && v1.DisplayName == v2.DisplayName
                 && v1.Value == v2.Value
                 && ((v1.AllowedValues is null && v2.AllowedValues is null) ||
@@ -333,7 +348,7 @@ namespace IxMilia.BCad.Rpc
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, DisplayName, Value, AllowedValues, IsUnrepresentable);
+            return HashCode.Combine(IsReadOnly, Name, DisplayName, Value, AllowedValues, IsUnrepresentable);
         }
     }
 
