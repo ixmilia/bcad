@@ -10,7 +10,7 @@
     "collect-styles": "npm run collect-styles:7 && npm run collect-styles:xp",
     "compile:tsc": "tsc -p ./",
     "compile:clean-output": "npx rimraf ./out/client-full/",
-    "compile:webpack": "webpack-cli ./out/main.js -o ./out/client-full/ --mode development",
+    "compile:webpack": "webpack-cli ./out/main.js -o ./out/client-full/ --mode development --config webpack.config.js",
     "compile:copy-html": "npx copyfiles --error --verbose --flat ./src/resources/* ./out/client-full/",
     "compile:all": "npm run compile:tsc && npm run compile:clean-output && npm run compile:webpack && npm run compile:copy-html && npm run collect-styles",
     "compile": "npm run compile:all && npm run build-icons",
@@ -23,6 +23,7 @@
     "copyfiles": "^2.3.0",
     "icon-gen": "^3.0.0",
     "rimraf": "3.0.2",
+    "source-map-loader": "3.0.1",
     "typescript": "4.5.4",
     "webpack": "^5.25.0",
     "webpack-cli": "^4.5.0"
