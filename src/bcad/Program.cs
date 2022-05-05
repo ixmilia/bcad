@@ -42,7 +42,7 @@ namespace bcad
 
             // try to load settings
             string[] settingsLines = Array.Empty<string>();
-            var settingsFilePath = Path.Combine(AppContext.BaseDirectory, ".bcadconfig");
+            var settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bcadconfig");
             try
             {
                 settingsLines = File.ReadAllLines(settingsFilePath);
