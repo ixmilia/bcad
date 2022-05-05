@@ -19,9 +19,8 @@ function Set-EnvironmentVariable([string]$name, [string]$value) {
 
 try {
     # build submodule
-    $shellExt = if ($IsWindows) { "cmd" } else { "sh" }
     Push-Location "$PSScriptRoot/src/IxMilia.Converters"
-    & "$PSScriptRoot/src/IxMilia.Converters/build-and-test.$shellExt" --configuration $configuration --notest
+    . .\build-and-test.ps1 -configuration $configuration -noTest
     Pop-Location
 
     dotnet restore
