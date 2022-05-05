@@ -84,7 +84,7 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             var drawing = new Drawing(
-                settings: new DrawingSettings(fileName, file.Header.UnitFormat.ToUnitFormat(), file.Header.UnitPrecision),
+                settings: new DrawingSettings(fileName, file.Header.UnitFormat.ToUnitFormat(), file.Header.UnitPrecision, file.Header.AngleUnitPrecision),
                 layers: layers,
                 currentLayerName: file.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First(),
                 author: null);
@@ -132,6 +132,7 @@ namespace IxMilia.BCad.FileHandlers
             file.Header.CurrentLayer = drawing.CurrentLayer.Name;
             file.Header.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
             file.Header.UnitPrecision = (short)drawing.Settings.UnitPrecision;
+            file.Header.AngleUnitPrecision = (short)drawing.Settings.AnglePrecision;
             foreach (var layer in drawing.GetLayers().OrderBy(x => x.Name))
             {
                 if (!file.Layers.Any(l => l.Name == layer.Name))

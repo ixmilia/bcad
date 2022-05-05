@@ -2,64 +2,68 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using IxMilia.BCad.Helpers;
 
 namespace IxMilia.BCad
 {
     public class DrawingSettings
     {
-        private readonly string fileName;
-        private readonly UnitFormat unitFormat;
-        private readonly int unitPrecision;
-
-        public string FileName { get { return this.fileName; } }
-        public UnitFormat UnitFormat { get { return this.unitFormat; } }
-        public int UnitPrecision { get { return this.unitPrecision; } }
+        public string FileName { get; private set; }
+        public UnitFormat UnitFormat { get; private set; }
+        public int UnitPrecision { get; private set; }
+        public int AnglePrecision { get; private set; }
 
         private static int[] AllowedArchitecturalPrecisions = new[] { 0, 2, 4, 8, 16, 32 };
 
         public DrawingSettings()
-            : this(null, UnitFormat.Architectural, 16)
+            : this(null, UnitFormat.Architectural, 16, 0)
         {
         }
 
-        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision)
+        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision, int anglePrecision)
         {
-            this.fileName = path;
-            this.unitFormat = unitFormat;
-            this.unitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
+            FileName = path;
+            UnitFormat = unitFormat;
+            UnitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
+            AnglePrecision = anglePrecision < 0 ? 0 : anglePrecision;
 
             switch (unitFormat)
             {
                 case UnitFormat.Architectural:
                     // only allowable values are 0, 2, 4, 8, 16, 32
-                    this.unitPrecision = AllowedArchitecturalPrecisions.Where(x => x <= this.unitPrecision).Max();
+                    UnitPrecision = AllowedArchitecturalPrecisions.Where(x => x <= UnitPrecision).Max();
                     break;
                 case UnitFormat.Metric:
                     // only allowable values are [0, 16]
-                    this.unitPrecision = Math.Max(0, this.unitPrecision);
-                    this.unitPrecision = Math.Min(16, this.unitPrecision);
+                    UnitPrecision = Math.Max(0, UnitPrecision);
+                    UnitPrecision = Math.Min(16, UnitPrecision);
                     break;
             }
         }
 
-        public DrawingSettings Update(string fileName = null, Optional<UnitFormat> unitFormat = default(Optional<UnitFormat>), Optional<int> unitPrecision = default(Optional<int>))
+        public DrawingSettings Update(
+            string fileName = null,
+            Optional<UnitFormat> unitFormat = default,
+            Optional<int> unitPrecision = default,
+            Optional<int> anglePrecision = default)
         {
-            var newFileName = fileName ?? this.fileName;
-            var newUnitFormat = unitFormat.HasValue ? unitFormat.Value : this.unitFormat;
-            var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : this.unitPrecision;
+            var newFileName = fileName ?? FileName;
+            var newUnitFormat = unitFormat.HasValue ? unitFormat.Value : UnitFormat;
+            var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : UnitPrecision;
+            var newAnglePrecision = anglePrecision.HasValue ? anglePrecision.Value : AnglePrecision;
 
-            if (newFileName == this.fileName &&
-                newUnitFormat == this.unitFormat &&
-                newUnitPrecision == this.unitPrecision)
+            if (newFileName == FileName &&
+                newUnitFormat == UnitFormat &&
+                newUnitPrecision == UnitPrecision &&
+                newAnglePrecision == AnglePrecision)
             {
                 return this;
             }
 
-            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision);
+            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision, newAnglePrecision);
         }
+
+        public static string FormatAngle(double value, int anglePrecision) => FormatScalar(value, anglePrecision);
 
         public static string FormatUnits(double value, UnitFormat unitFormat, int unitPrecision)
         {
@@ -70,7 +74,7 @@ namespace IxMilia.BCad
                 case UnitFormat.Architectural:
                     return string.Concat(prefix, FormatArchitectural(value, unitPrecision));
                 case UnitFormat.Metric:
-                    return string.Concat(prefix, FormatMetric(value, unitPrecision));
+                    return string.Concat(prefix, FormatScalar(value, unitPrecision));
                 default:
                     throw new ArgumentException("value");
             }
@@ -142,7 +146,7 @@ namespace IxMilia.BCad
             return (double)int.Parse(text);
         }
 
-        private static string FormatMetric(double value, int precision)
+        private static string FormatScalar(double value, int precision)
         {
             // precision is requested decimal places
             Debug.Assert(precision >= 0 && precision < decimalFormats.Length);

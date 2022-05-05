@@ -284,7 +284,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void GetLinePropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), thickness: 7));
-            Assert.Equal(8, propertyMap.Count);
+            Assert.Equal(10, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("x1", "Start X", "0'1\""), propertyMap["x1"]);
             Assert.Equal(new ClientPropertyPaneValue("y1", "Y", "0'2\""), propertyMap["y1"]);
             Assert.Equal(new ClientPropertyPaneValue("z1", "Z", "0'3\""), propertyMap["z1"]);
@@ -293,6 +293,8 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("z2", "Z", "0'6\""), propertyMap["z2"]);
             Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'7\""), propertyMap["t"]);
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Length", "0'5-3/16\""), propertyMap["Length"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Delta", "(0'3\",0'3\",0'3\")"), propertyMap["Delta"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Angle", "45"), propertyMap["Angle"]);
         }
 
         [Theory]

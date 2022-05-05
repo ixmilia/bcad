@@ -155,6 +155,21 @@ namespace IxMilia.BCad
         public static string FormatUnits(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, drawing.Settings.UnitFormat, drawing.Settings.UnitPrecision);
 
         /// <summary>
+        /// Formats the specified angle as the appropriate format.
+        /// </summary>
+        public static string FormatAngle(this Drawing drawing, double value) => DrawingSettings.FormatAngle(value, drawing.Settings.AnglePrecision);
+
+        /// <summary>
+        /// Formats the specified scalar value as the appropriate format.
+        /// </summary>
+        public static string FormatScalar(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, UnitFormat.Metric, drawing.Settings.UnitPrecision);
+
+        /// <summary>
+        /// Formats the specified vector as the appropriate format.
+        /// </summary>
+        public static string FormatVector(this Drawing drawing, Vector vector) => $"({drawing.FormatUnits(vector.X)},{drawing.FormatUnits(vector.Y)},{drawing.FormatUnits(vector.Z)})";
+
+        /// <summary>
         /// Get all transformed snap points for the drawing with the given display transform.
         /// </summary>
         public static QuadTree<TransformedSnapPoint> GetSnapPoints(this Drawing drawing, Matrix4 displayTransform, double width, double height, CancellationToken cancellationToken = default)

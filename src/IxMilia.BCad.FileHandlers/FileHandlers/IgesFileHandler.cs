@@ -29,7 +29,7 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             var drawing = new Drawing(
-                new DrawingSettings(fileName, UnitFormat.Architectural, 8),
+                new DrawingSettings(fileName, UnitFormat.Architectural, 8, 0),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 layer.Name,
                 file.Author);

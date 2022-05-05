@@ -14,9 +14,25 @@ namespace IxMilia.BCad.Extensions
             return MathHelper.PI * circle.Radius * circle.Radius;
         }
 
+        public static double AngleInRadians(this Line line)
+        {
+            var delta = line.Delta();
+            return Math.Atan2(delta.Y, delta.X);
+        }
+
+        public static double AngleInDegrees(this Line line)
+        {
+            return line.AngleInRadians() * MathHelper.RadiansToDegrees;
+        }
+
+        public static Vector Delta(this Line line)
+        {
+            return line.P2 - line.P1;
+        }
+
         public static double Length(this Line line)
         {
-            return (line.P2 - line.P1).Length;
+            return line.Delta().Length;
         }
 
         public static bool EquivalentTo(this AggregateEntity agg, Entity entity)

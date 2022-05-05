@@ -4,16 +4,21 @@ import { Client } from "../client";
 export class SettingsRibbon {
     private unitElement: HTMLSelectElement;
     private precisionElement: HTMLSelectElement;
+    private anglePrecisionElement: HTMLSelectElement;
 
     constructor(client: Client) {
         this.unitElement = <HTMLSelectElement>document.getElementById("drawing-units");
         this.precisionElement = <HTMLSelectElement>document.getElementById('drawing-units-precision');
+        this.anglePrecisionElement = <HTMLSelectElement>document.getElementById('angle-units-precision');
 
         this.unitElement.addEventListener("change", (ev) => {
             client.setSetting('DrawingUnits', (<any>ev.target).value.toString());
         });
         this.precisionElement.addEventListener('change', (ev) => {
             client.setSetting('DrawingPrecision', (<any>ev.target).value.toString());
+        });
+        this.anglePrecisionElement.addEventListener('change', (ev) => {
+            client.setSetting('AnglePrecision', (<any>ev.target).value.toString());
         });
 
         document.querySelectorAll(".settings-button").forEach(node => {
@@ -116,6 +121,18 @@ export class SettingsRibbon {
                 });
                 this.unitElement.item(selectedUnits)!.selected = true;
                 this.precisionElement.replaceChildren(...optionElements);
+
+                // angle precision
+                const anglePrecisionElements = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(p => {
+                    const option = document.createElement('option');
+                    option.innerText = p.toString();
+                    option.setAttribute('value', p.toString());
+                    if (clientUpdate.Settings.AnglePrecision === p) {
+                        option.setAttribute('selected', 'selected');
+                    }
+                    return option;
+                });
+                this.anglePrecisionElement.replaceChildren(...anglePrecisionElements);
 
                 // snap angles
                 let snapAnglesString = clientUpdate.Settings.SnapAngles.join(";");

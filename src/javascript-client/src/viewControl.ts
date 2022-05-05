@@ -183,6 +183,7 @@ export class ViewControl {
             BackgroundColor: { A: 255, R: 255, G: 255, B: 255 },
             CursorSize: 60,
             Debug: false,
+            AnglePrecision: 0,
             DrawingPrecision: 16,
             DrawingUnits: UnitFormat.Architectural,
             EntitySelectionRadius: 3,

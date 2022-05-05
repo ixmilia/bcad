@@ -248,6 +248,11 @@ namespace IxMilia.BCad.Rpc
             IsUnrepresentable = isUnrepresentable;
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(IsReadOnly)}={IsReadOnly};{nameof(Name)}={Name};{nameof(DisplayName)}={DisplayName};{nameof(Value)}={Value};{nameof(AllowedValues)}={(AllowedValues is null ? "null" : string.Join(",", AllowedValues))};{nameof(IsUnrepresentable)}={IsUnrepresentable}";
+        }
+
         internal bool TryDoUpdate(Drawing drawing, Entity entity, string valueToSet, out Tuple<Drawing, Entity> updatedDrawingAndEntity)
         {
             updatedDrawingAndEntity = _drawingTransformer.Invoke(drawing, entity, valueToSet);
@@ -369,6 +374,7 @@ namespace IxMilia.BCad.Rpc
         public int CursorSize { get; }
         public bool Debug { get; }
         public int DrawingPrecision { get; }
+        public int AnglePrecision { get; }
         public UnitFormat DrawingUnits { get; }
         public double EntitySelectionRadius { get; }
         public CadColor HotPointColor { get; }
@@ -388,6 +394,7 @@ namespace IxMilia.BCad.Rpc
             CursorSize = workspace.SettingsService.GetValue<int>(DisplaySettingsNames.CursorSize);
             Debug = workspace.SettingsService.GetValue<bool>(DefaultSettingsNames.Debug);
             DrawingPrecision = workspace.SettingsService.GetValue<int>(DefaultSettingsNames.DrawingPrecision);
+            AnglePrecision = workspace.SettingsService.GetValue<int>(DefaultSettingsNames.AnglePrecision);
             DrawingUnits = workspace.SettingsService.GetValue<UnitFormat>(DefaultSettingsNames.DrawingUnits);
             EntitySelectionRadius = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
             HotPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);

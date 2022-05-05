@@ -93,6 +93,7 @@ namespace IxMilia.BCad
         {
             SettingsService.RegisterSetting(DefaultSettingsNames.Debug, typeof(bool), false);
             SettingsService.RegisterSetting(DefaultSettingsNames.DrawingPrecision, typeof(int), 16);
+            SettingsService.RegisterSetting(DefaultSettingsNames.AnglePrecision, typeof(int), 0);
             SettingsService.RegisterSetting(DefaultSettingsNames.DrawingUnits, typeof(UnitFormat), UnitFormat.Architectural);
             SettingsService.RegisterSetting(DisplaySettingsNames.AngleSnap, typeof(bool), true);
             SettingsService.RegisterSetting(DisplaySettingsNames.BackgroundColor, typeof(CadColor), "#FF2F2F2F");
@@ -116,6 +117,9 @@ namespace IxMilia.BCad
                 DrawingSettings newSettings = null;
                 switch (e.SettingName)
                 {
+                    case DefaultSettingsNames.AnglePrecision:
+                        newSettings = Drawing.Settings.Update(anglePrecision: SettingsService.GetValue<int>(e.SettingName));
+                        break;
                     case DefaultSettingsNames.DrawingPrecision:
                         newSettings = Drawing.Settings.Update(unitPrecision: SettingsService.GetValue<int>(e.SettingName));
                         break;
