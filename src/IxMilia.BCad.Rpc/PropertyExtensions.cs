@@ -115,6 +115,10 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("ny", "Y", drawing.FormatUnits(arc.Normal.Y), (arc, value) => arc.Update(normal: arc.Normal.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("nz", "Z", drawing.FormatUnits(arc.Normal.Z), (arc, value) => arc.Update(normal: arc.Normal.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Arc>("t", "Thickness", drawing.FormatUnits(arc.Thickness), (arc, value) => arc.Update(thickness: value)),
+                    ClientPropertyPaneValue.CreateReadOnly("Start Point", drawing.FormatPoint(arc.EndPoint1)),
+                    ClientPropertyPaneValue.CreateReadOnly("End Point", drawing.FormatPoint(arc.EndPoint2)),
+                    ClientPropertyPaneValue.CreateReadOnly("Total Angle", drawing.FormatAngle(arc.TotalAngle())),
+                    ClientPropertyPaneValue.CreateReadOnly("Arc Length", drawing.FormatUnits(arc.ArcLength())),
                 },
                 circle => new[]
                 {
@@ -127,6 +131,8 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("nz", "Z", drawing.FormatUnits(circle.Normal.Z), (circle, value) => circle.Update(normal: circle.Normal.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("t", "Thickness", drawing.FormatUnits(circle.Thickness), (circle, value) => circle.Update(thickness: value)),
                     ClientPropertyPaneValue.CreateReadOnly("Area", drawing.FormatScalar(circle.Area())),
+                    ClientPropertyPaneValue.CreateReadOnly("Diameter", drawing.FormatUnits(circle.Diameter())),
+                    ClientPropertyPaneValue.CreateReadOnly("Circumference", drawing.FormatUnits(circle.Circumference())),
                 },
                 ellipse => new[]
                 {

@@ -167,6 +167,11 @@ namespace IxMilia.BCad
         /// <summary>
         /// Formats the specified vector as the appropriate format.
         /// </summary>
+        public static string FormatPoint(this Drawing drawing, Point point) => $"({drawing.FormatUnits(point.X)},{drawing.FormatUnits(point.Y)},{drawing.FormatUnits(point.Z)})";
+
+        /// <summary>
+        /// Formats the specified vector as the appropriate format.
+        /// </summary>
         public static string FormatVector(this Drawing drawing, Vector vector) => $"({drawing.FormatUnits(vector.X)},{drawing.FormatUnits(vector.Y)},{drawing.FormatUnits(vector.Z)})";
 
         /// <summary>

@@ -129,7 +129,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void GetArcPropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(7.0, 8.0, 9.0), thickness: 10));
-            Assert.Equal(10, propertyMap.Count);
+            Assert.Equal(14, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
             Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
             Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
@@ -140,6 +140,10 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'8\""), propertyMap["ny"]);
             Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'9\""), propertyMap["nz"]);
             Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'10\""), propertyMap["t"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Start Point", "(0'4-7/16\",0'0-7/8\",0'5-3/16\")"), propertyMap["Start Point"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("End Point", "(0'4-7/16\",0'1\",0'5-3/16\")"), propertyMap["End Point"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Total Angle", "1"), propertyMap["Total Angle"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Arc Length", "0'0-1/16\""), propertyMap["Arc Length"]);
         }
 
         [Theory]
@@ -169,7 +173,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void GetCirclePropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Circle(new Point(1.0, 2.0, 3.0), 4.0, new Vector(5.0, 6.0, 7.0), thickness: 8));
-            Assert.Equal(9, propertyMap.Count);
+            Assert.Equal(11, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
             Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
             Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
@@ -179,6 +183,8 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'7\""), propertyMap["nz"]);
             Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'8\""), propertyMap["t"]);
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Area", "50.2654824574368"), propertyMap["Area"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Diameter", "0'8\""), propertyMap["Diameter"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Circumference", "2'1-1/8\""), propertyMap["Circumference"]);
         }
 
         [Theory]

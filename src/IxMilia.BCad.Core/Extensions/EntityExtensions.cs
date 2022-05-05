@@ -9,9 +9,42 @@ namespace IxMilia.BCad.Extensions
 {
     public static class EntityExtensions
     {
+        public static double ArcLength(this Arc arc)
+        {
+            return arc.TotalAngle() / MathHelper.ThreeSixty * arc.Radius * 2.0 * MathHelper.PI;
+        }
+        
+        public static double TotalAngle(this Arc arc)
+        {
+            var startAngle = arc.StartAngle;
+            var endAngle = arc.EndAngle;
+            while (startAngle < 0)
+            {
+                startAngle += MathHelper.ThreeSixty;
+                endAngle += MathHelper.ThreeSixty;
+            }
+
+            while (endAngle < startAngle)
+            {
+                endAngle += MathHelper.ThreeSixty;
+            }
+
+            return endAngle - startAngle;
+        }
+        
         public static double Area(this Circle circle)
         {
             return MathHelper.PI * circle.Radius * circle.Radius;
+        }
+
+        public static double Circumference(this Circle circle)
+        {
+            return circle.Diameter() * MathHelper.PI;
+        }
+
+        public static double Diameter(this Circle circle)
+        {
+            return circle.Radius * 2.0;
         }
 
         public static double AngleInRadians(this Line line)
