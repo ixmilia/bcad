@@ -130,6 +130,11 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             }
         }
 
+        public static LineTypeSpecification GetLineTypeSpecification(this DxfEntity dxfEntity)
+        {
+            return new LineTypeSpecification(dxfEntity.LineTypeName, dxfEntity.LineTypeScale);
+        }
+
         public static Point ToPoint(this DxfPoint point)
         {
             return new Point(point.X, point.Y, point.Z);
@@ -152,7 +157,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static Location ToPoint(this DxfModelPoint point)
         {
-            return new Location(point.Location.ToPoint(), point.Color.ToColor(), point);
+            return new Location(point.Location.ToPoint(), point.Color.ToColor(), point.GetLineTypeSpecification(), point);
         }
 
         public static Vertex ToVertex(this DxfVertex vertex)
@@ -198,7 +203,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static Line ToLine(this DxfLine line)
         {
-            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.GetEntityColor(), line, line.Thickness);
+            return new Line(line.P1.ToPoint(), line.P2.ToPoint(), line.GetEntityColor(), line.GetLineTypeSpecification(), line, line.Thickness);
         }
 
         public static Polyline ToPolyline(this DxfLwPolyline poly)
@@ -209,7 +214,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 vertices.Add(vertices[0]);
             }
 
-            return new Polyline(vertices, poly.GetEntityColor(), poly);
+            return new Polyline(vertices, poly.GetEntityColor(), poly.GetLineTypeSpecification(), poly);
         }
 
         public static Polyline ToPolyline(this DxfPolyline poly)
@@ -220,27 +225,27 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 vertices.Add(vertices[0]);
             }
 
-            return new Polyline(vertices, poly.GetEntityColor(), poly);
+            return new Polyline(vertices, poly.GetEntityColor(), poly.GetLineTypeSpecification(), poly);
         }
 
         public static Polyline ToPolyline(this DxfLeader leader)
         {
-            return new Polyline(leader.Vertices.Select(v => new Vertex(v.ToPoint())), leader.GetEntityColor(), leader);
+            return new Polyline(leader.Vertices.Select(v => new Vertex(v.ToPoint())), leader.GetEntityColor(), leader.GetLineTypeSpecification(), leader);
         }
 
         public static Circle ToCircle(this DxfCircle circle)
         {
-            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.GetEntityColor(), circle, circle.Thickness);
+            return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.GetEntityColor(), circle.GetLineTypeSpecification(), circle, circle.Thickness);
         }
 
         public static Arc ToArc(this DxfArc arc)
         {
-            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.GetEntityColor(), arc, arc.Thickness);
+            return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.GetEntityColor(), arc.GetLineTypeSpecification(), arc, arc.Thickness);
         }
 
         public static Ellipse ToEllipse(this DxfEllipse el)
         {
-            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.GetEntityColor(), el);
+            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.GetEntityColor(), el.GetLineTypeSpecification(), el);
         }
 
         public static async Task<Image> ToImage(this DxfImage i, Func<string, Task<byte[]>> contentResolver)
@@ -255,14 +260,14 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static Text ToText(this DxfText text)
         {
-            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.GetEntityColor(), text);
+            return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.GetEntityColor(), text.GetLineTypeSpecification(), text);
         }
 
         public static Spline ToSpline(this DxfSpline spline)
         {
             // only degree 3 curves are currently supported
             return spline.DegreeOfCurve == 3
-                ? new Spline(spline.DegreeOfCurve, spline.ControlPoints.Select(p => p.Point.ToPoint()), spline.KnotValues, spline.GetEntityColor(), spline)
+                ? new Spline(spline.DegreeOfCurve, spline.ControlPoints.Select(p => p.Point.ToPoint()), spline.KnotValues, spline.GetEntityColor(), spline.GetLineTypeSpecification(), spline)
                 : null;
         }
 

@@ -19,8 +19,8 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Spline(int degree, IEnumerable<Point> controlPoints, IEnumerable<double> knotValues, CadColor? color = null, object tag = null)
-            : base(color, tag)
+        public Spline(int degree, IEnumerable<Point> controlPoints, IEnumerable<double> knotValues, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(color, lineTypeSpecification, tag)
         {
             if (controlPoints == null)
             {
@@ -67,28 +67,31 @@ namespace IxMilia.BCad.Entities
         }
 
         public Spline Update(
-            Optional<int> degree = default(Optional<int>),
+            Optional<int> degree = default,
             IEnumerable<Point> controlPoints = null,
             IEnumerable<double> knotValues = null,
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newDegree = degree.HasValue ? degree.Value : Degree;
             var newControlPoints = controlPoints ?? ControlPoints;
             var newKnotValues = knotValues ?? KnotValues;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newDegree == Degree &&
                 ReferenceEquals(newControlPoints, ControlPoints) &&
                 ReferenceEquals(newKnotValues, KnotValues) &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Spline(newDegree, newControlPoints, newKnotValues, newColor, newTag);
+            return new Spline(newDegree, newControlPoints, newKnotValues, newColor, newLineTypeSpecification, newTag);
         }
 
         public override string ToString()
@@ -96,12 +99,12 @@ namespace IxMilia.BCad.Entities
             return $"Spline: primitives=[{string.Join(", ", GetPrimitives())}], color={Color}";
         }
 
-        public static Spline FromBezier(PrimitiveBezier bezier)
+        public static Spline FromBezier(PrimitiveBezier bezier, LineTypeSpecification lineTypeSpecification = null)
         {
-            return FromBeziers(new[] { bezier });
+            return FromBeziers(new[] { bezier }, lineTypeSpecification);
         }
 
-        public static Spline FromBeziers(IEnumerable<PrimitiveBezier> beziers)
+        public static Spline FromBeziers(IEnumerable<PrimitiveBezier> beziers, LineTypeSpecification lineTypeSpecification = null)
         {
             if (beziers == null)
             {
@@ -135,7 +138,7 @@ namespace IxMilia.BCad.Entities
 
             knotValues.AddRange(Enumerable.Repeat(1.0, 4));
 
-            return new Spline(degree, controlPoints, knotValues);
+            return new Spline(degree, controlPoints, knotValues, lineTypeSpecification: lineTypeSpecification);
         }
     }
 }

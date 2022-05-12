@@ -23,6 +23,7 @@ namespace IxMilia.BCad.Commands
         {
             Entity circle = null;
             var drawingPlane = workspace.DrawingPlane;
+            var lineTypeSpecification = workspace.Drawing.Settings.CurrentLineTypeSpecification;
 
             var cen = await workspace.InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
             if (cen.Cancel) return false;
@@ -46,7 +47,7 @@ namespace IxMilia.BCad.Commands
                                 if (rad.Cancel) return false;
                                 if (rad.HasValue)
                                 {
-                                    circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal);
+                                    circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, lineTypeSpecification: lineTypeSpecification);
                                 }
                                 else // switch modes
                                 {
@@ -81,7 +82,7 @@ namespace IxMilia.BCad.Commands
                                 if (dia.Cancel) return false;
                                 if (dia.HasValue)
                                 {
-                                    circle = new Circle(cen.Value, (dia.Value - cen.Value).Length * 0.5, drawingPlane.Normal);
+                                    circle = new Circle(cen.Value, (dia.Value - cen.Value).Length * 0.5, drawingPlane.Normal, lineTypeSpecification: lineTypeSpecification);
                                 }
                                 else // switch modes
                                 {
@@ -126,7 +127,8 @@ namespace IxMilia.BCad.Commands
                                         IsoMinorRatio,
                                         0.0,
                                         360.0,
-                                        drawingPlane.Normal);
+                                        drawingPlane.Normal,
+                                        lineTypeSpecification: lineTypeSpecification);
                                 }
                                 else // switch modes
                                 {
@@ -166,7 +168,7 @@ namespace IxMilia.BCad.Commands
                         var ellipse = EditUtilities.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
                         if (ellipse != null)
                         {
-                            circle = ellipse.ToEntity();
+                            circle = ellipse.ToEntity(lineTypeSpecification);
                         }
                         break;
                     case "2":
@@ -206,7 +208,7 @@ namespace IxMilia.BCad.Commands
                         var circ = PrimitiveEllipse.ThreePointCircle(first.Value, second.Value, third.Value);
                         if (circ != null)
                         {
-                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal);
+                            circle = new Circle(circ.Center, circ.MajorAxis.Length, circ.Normal, lineTypeSpecification: lineTypeSpecification);
                         }
                         break;
                 }

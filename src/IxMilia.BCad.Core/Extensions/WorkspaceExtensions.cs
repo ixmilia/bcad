@@ -96,8 +96,8 @@ namespace IxMilia.BCad
         /// <param name="layerName">The name of the desired current layer.</param>
         public static void SetCurrentLayer(this IWorkspace workspace, string layerName)
         {
-            if (workspace.Drawing.CurrentLayerName != layerName)
-                workspace.Update(drawing: workspace.Drawing.Update(currentLayerName: layerName));
+            if (workspace.Drawing.Settings.CurrentLayerName != layerName)
+                workspace.Update(drawing: workspace.Drawing.Update(settings: workspace.Drawing.Settings.Update(currentLayerName: layerName)));
         }
 
         /// <summary>

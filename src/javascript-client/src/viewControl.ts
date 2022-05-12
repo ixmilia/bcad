@@ -117,6 +117,7 @@ export class ViewControl {
         this.entityDrawing = {
             CurrentLayer: "0",
             Layers: ["0"],
+            LineTypes: [],
             FileName: "",
             Points: [],
             Lines: [],
@@ -138,6 +139,7 @@ export class ViewControl {
         this.selectedEntitiesDrawing = {
             CurrentLayer: "0",
             Layers: ["0"],
+            LineTypes: [],
             FileName: "",
             Points: [],
             Lines: [],
@@ -148,6 +150,7 @@ export class ViewControl {
         this.rubberBandDrawing = {
             CurrentLayer: "",
             Layers: [],
+            LineTypes: [],
             FileName: "",
             Points: [],
             Lines: [],
@@ -964,6 +967,7 @@ export class ViewControl {
             this.redrawEllipse(context, el);
         }
 
+        context.setLineDash([]);
         for (const point of drawing.Points) {
             this.redrawPoint(context, point);
         }
@@ -974,6 +978,7 @@ export class ViewControl {
         const p2 = transform(this.transform.CanvasTransform, [line.P2.X, line.P2.Y, line.P2.Z, 1.0]);
         context.beginPath();
         context.strokeStyle = ViewControl.colorToHex(line.Color || this.settings.AutoColor);
+        context.setLineDash(line.LinePattern.map(p => p * this.transform.CanvasTransform[0]));
         context.moveTo(p1[0], p1[1]);
         context.lineTo(p2[0], p2[1]);
         context.stroke();
@@ -989,6 +994,7 @@ export class ViewControl {
         const rotation = Math.atan2(xaxis[1], xaxis[0]);
         context.beginPath();
         context.strokeStyle = ViewControl.colorToHex(el.Color || this.settings.AutoColor);
+        context.setLineDash(el.LinePattern.map(p => p * this.transform.CanvasTransform[0]));
         context.ellipse(center[0], center[1], radiusX, radiusY, rotation, el.StartAngle * Math.PI / -180.0, el.EndAngle * Math.PI / -180.0, true);
         context.stroke();
     }

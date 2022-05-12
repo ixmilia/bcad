@@ -26,13 +26,17 @@ namespace IxMilia.BCad.Commands
 
             foreach (var layerResult in result.Layers)
             {
+                var lineTypeSpecification = layerResult.LineTypeName is null
+                    ? null
+                    : new LineTypeSpecification(layerResult.LineTypeName, layerResult.LineTypeScale);
                 if (layers.TryFind(layerResult.OldLayerName, out var layer))
                 {
                     // update
                     layer = layer.Update(
                         name: layerResult.NewLayerName,
                         color: layerResult.Color,
-                        isVisible: layerResult.IsVisible);
+                        isVisible: layerResult.IsVisible,
+                        lineTypeSpecification: lineTypeSpecification);
                 }
                 else
                 {
@@ -40,7 +44,8 @@ namespace IxMilia.BCad.Commands
                     layer = new Layer(
                         layerResult.NewLayerName,
                         color: layerResult.Color,
-                        isVisible: layerResult.IsVisible);
+                        isVisible: layerResult.IsVisible,
+                        lineTypeSpecification: lineTypeSpecification);
                 }
 
                 layers = layers.Insert(layer.Name, layer);

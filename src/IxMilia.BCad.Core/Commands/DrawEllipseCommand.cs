@@ -43,7 +43,7 @@ namespace IxMilia.BCad.Commands
                         var minorAxisRatio = minorAxis.Length / majorAxisLength;
                         if (!minorEnd.Cancel && minorEnd.HasValue)
                         {
-                            var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal);
+                            var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification);
                             workspace.AddToCurrentLayer(el);
                             return true;
                         }

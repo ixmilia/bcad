@@ -2,32 +2,19 @@ import { LogWriter } from '../logWriter';
 import { ColorPicker } from '../controls/colorPicker';
 import { DialogBase } from './dialogBase';
 import { DialogHandler } from './dialogHandler';
-
-interface LayerInfo {
-    Name: string;
-    Color: string | undefined;
-    IsVisible: boolean;
-}
-
-interface LayerDialogOptions {
-    Layers: LayerInfo[],
-}
-
-interface ChangedLayer {
-    OldLayerName: string,
-    NewLayerName: string,
-    Color: string | null,
-    IsVisible: boolean,
-}
-
-interface LayerDialogResult {
-    ChangedLayers: ChangedLayer[],
-}
+import { Client } from '../client';
+import {
+    ClientChangedLayer,
+    ClientLayer,
+    ClientLayerParameters,
+    ClientLayerResult,
+} from '../contracts.generated';
 
 export class LayerDialog extends DialogBase {
     private tableBody: HTMLDivElement;
+    private lineTypeNames: string[] = [];
 
-    constructor(dialogHandler: DialogHandler) {
+    constructor(dialogHandler: DialogHandler, client: Client) {
         super(dialogHandler, "layer");
         this.tableBody = <HTMLDivElement>document.getElementById('dialog-layer-list');
         document.getElementById('dialog-layer-add')!.addEventListener('click', () => {
@@ -35,14 +22,21 @@ export class LayerDialog extends DialogBase {
                 Name: "NewLayer",
                 Color: undefined,
                 IsVisible: true,
+                LineTypeName: undefined,
+                LineTypeScale: undefined,
             });
+        });
+        client.subscribeToClientUpdates(clientUpdate => {
+            if (clientUpdate.Drawing?.LineTypes) {
+                this.lineTypeNames = clientUpdate.Drawing.LineTypes;
+            }
         });
     }
 
     dialogShowing(dialogOptions: object) {
-        let layerDialogOptions = <LayerDialogOptions>dialogOptions;
+        const layerDialogOptions = <ClientLayerParameters>dialogOptions;
         this.tableBody.innerHTML = '';
-        for (let layer of layerDialogOptions.Layers) {
+        for (const layer of layerDialogOptions.Layers) {
             this.addLayerRow(layer);
         }
     }
@@ -52,21 +46,25 @@ export class LayerDialog extends DialogBase {
     }
 
     dialogOk(): object {
-        let changedLayers: ChangedLayer[] = [];
-        for (let element of this.tableBody.children) {
-            let row = <HTMLTableRowElement>element;
-            let nameInput = <HTMLInputElement>row.children[0].children[0];
-            let colorInput = <HTMLDivElement>row.children[1].children[0];
-            let visibleInput = <HTMLInputElement>row.children[2].children[0];
-            let changed = {
+        const changedLayers: ClientChangedLayer[] = [];
+        for (const element of this.tableBody.children) {
+            const row = <HTMLTableRowElement>element;
+            const nameInput = <HTMLInputElement>row.children[0].children[0];
+            const colorInput = <HTMLDivElement>row.children[1].children[0];
+            const visibleInput = <HTMLInputElement>row.children[2].children[0];
+            const lineTypeNameInput = <HTMLSelectElement>row.children[3].children[0];
+            const lineTypeScaleInput = <HTMLSelectElement>row.children[4].children[0];
+            const changed: ClientChangedLayer = {
                 OldLayerName: nameInput.getAttribute('data-original-value')!,
                 NewLayerName: nameInput.value,
-                Color: colorInput.getAttribute('data-color'),
+                Color: colorInput.getAttribute('data-color') || undefined,
                 IsVisible: visibleInput.checked,
+                LineTypeName: lineTypeNameInput.selectedIndex === 0 ? undefined : lineTypeNameInput.value,
+                LineTypeScale: parseFloat(lineTypeScaleInput.value) || 1.0,
             };
             changedLayers.push(changed);
         }
-        let result: LayerDialogResult = {
+        const result: ClientLayerResult = {
             ChangedLayers: changedLayers,
         };
 
@@ -78,13 +76,15 @@ export class LayerDialog extends DialogBase {
         // noop
     }
 
-    private addLayerRow(layer: LayerInfo) {
+    private addLayerRow(layer: ClientLayer) {
         // each row will look like this:
         // <div class="dialog-layer-row">
-        //   <div class="dialog-layer-name-column"><input type="text" class="dialog-layer-list-layer-name" value="0" data-original-value="0"></input></div>
-        //   <div class="dialog-layer-color-column"><div data-color="#FFFFFF">...</div></div>
-        //   <div class="dialog-layer-visible-column"><input type="checkbox" class="dialog-layer-list-layer-visible" id="..."></input><label for="...">&nbsp;</label></div>
-        //   <div class="dialog-layer-command-column"><button>Del</button></div>
+        //   <div class="dialog-layer-column-1"><input type="text" value="0" data-original-value="0"></input></div>
+        //   <div class="dialog-layer-column-2"><div data-color="#FFFFFF">...</div></div>
+        //   <div class="dialog-layer-column-3"><input type="checkbox" id="..."></input><label for="...">&nbsp;</label></div>
+        //   <div class="dialog-layer-column-4"><select... /><label for="...">&nbsp;</label></div>
+        //   <div class="dialog-layer-column-5"><input type="text" id="..."></input><label for="...">&nbsp;</label></div>
+        //   <div class="dialog-layer-column-6"><button>Del</button></div>
         // </div>
         LogWriter.write(`LAYER-DIALOG: adding layer ${JSON.stringify(layer)}`);
         const row = document.createElement('div');
@@ -92,12 +92,12 @@ export class LayerDialog extends DialogBase {
 
         // name
         const layerInput = document.createElement('input');
-        layerInput.classList.add('dialog-layer-list-layer-name');
+        layerInput.style.width = '100%';
         layerInput.setAttribute('type', 'text');
         layerInput.setAttribute('value', layer.Name);
         layerInput.setAttribute('data-original-value', layer.Name);
         const nameColumn = document.createElement('div');
-        nameColumn.classList.add('dialog-layer-name-column');
+        nameColumn.classList.add('dialog-layer-column-1');
         nameColumn.appendChild(layerInput);
         row.appendChild(nameColumn);
         // color
@@ -117,7 +117,7 @@ export class LayerDialog extends DialogBase {
             },
         });
         const colorColumn = document.createElement('div');
-        colorColumn.classList.add('dialog-layer-color-column');
+        colorColumn.classList.add('dialog-layer-column-2');
         colorColumn.appendChild(colorContainer);
         row.appendChild(colorColumn);
         // visibility
@@ -131,10 +131,42 @@ export class LayerDialog extends DialogBase {
         visibleInputLabel.setAttribute('for', `layer-visible-${layer.Name}`);
         visibleInputLabel.innerHTML = '&nbsp;';
         const visibleColumn = document.createElement('div');
-        visibleColumn.classList.add('dialog-layer-visible-column');
+        visibleColumn.classList.add('dialog-layer-column-3');
         visibleColumn.appendChild(visibleInput);
         visibleColumn.appendChild(visibleInputLabel);
         row.appendChild(visibleColumn);
+        // line type name
+        const lineTypeNameSelect = document.createElement('select');
+        lineTypeNameSelect.style.width = '100%';
+        const autoOption = document.createElement('option');
+        autoOption.value = '(Auto)';
+        autoOption.innerText = '(Auto)';
+        if (!layer.LineTypeName) {
+            autoOption.selected = true;
+        }
+        lineTypeNameSelect.appendChild(autoOption);
+        for (const lineTypeName of this.lineTypeNames) {
+            const option = document.createElement('option');
+            option.value = lineTypeName;
+            option.innerText = lineTypeName;
+            if (layer.LineTypeName === lineTypeName) {
+                option.selected = true;
+            }
+            lineTypeNameSelect.appendChild(option);
+        }
+        const lineTypeNameColumn = document.createElement('div');
+        lineTypeNameColumn.classList.add('dialog-layer-column-4');
+        lineTypeNameColumn.appendChild(lineTypeNameSelect);
+        row.appendChild(lineTypeNameColumn);
+        // line type scale
+        const lineTypeScaleInput = document.createElement('input');
+        lineTypeScaleInput.setAttribute('type', 'text');
+        lineTypeScaleInput.setAttribute('value', layer.LineTypeScale?.toString() || '');
+        lineTypeScaleInput.style.width = '100%';
+        const lineTypeScaleColumn = document.createElement('div');
+        lineTypeScaleColumn.classList.add('dialog-layer-column-5');
+        lineTypeScaleColumn.appendChild(lineTypeScaleInput);
+        row.appendChild(lineTypeScaleColumn);
         // delete
         const deleteButton = document.createElement('button');
         deleteButton.innerText = "Delete";
@@ -142,7 +174,7 @@ export class LayerDialog extends DialogBase {
             row.remove();
         });
         const commandColumn = document.createElement('div');
-        commandColumn.classList.add('dialog-layer-command-column');
+        commandColumn.classList.add('dialog-layer-column-6');
         commandColumn.appendChild(deleteButton);
         row.appendChild(commandColumn);
 

@@ -10,12 +10,15 @@ namespace IxMilia.BCad
     {
         private readonly string name;
         private readonly CadColor? color;
+        private readonly LineTypeSpecification lineTypeSpecification;
         private readonly bool isVisible;
         private readonly ReadOnlyTree<uint, Entity> entities;
 
         public string Name { get { return name; } }
 
         public CadColor? Color { get { return color; } }
+
+        public LineTypeSpecification LineTypeSpecification => lineTypeSpecification;
 
         public bool IsVisible { get { return isVisible; } }
 
@@ -24,15 +27,16 @@ namespace IxMilia.BCad
             get { return this.entities.Count; }
         }
 
-        public Layer(string name, IEnumerable<Entity> entities, CadColor? color = null, bool isVisible = true)
-            : this(name, ReadOnlyTree<uint, Entity>.FromEnumerable(entities, (ent) => ent.Id), color, isVisible)
+        public Layer(string name, IEnumerable<Entity> entities, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, bool isVisible = true)
+            : this(name, ReadOnlyTree<uint, Entity>.FromEnumerable(entities, (ent) => ent.Id), color, lineTypeSpecification, isVisible)
         {
         }
 
-        public Layer(string name, ReadOnlyTree<uint, Entity> entities = null, CadColor? color = null, bool isVisible = true)
+        public Layer(string name, ReadOnlyTree<uint, Entity> entities = null, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, bool isVisible = true)
         {
             this.name = name;
             this.color = color;
+            this.lineTypeSpecification = lineTypeSpecification; ;
             this.isVisible = isVisible;
             this.entities = entities ?? new ReadOnlyTree<uint, Entity>();
         }
@@ -81,24 +85,27 @@ namespace IxMilia.BCad
 
         public Layer Update(
             string name = null,
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<bool> isVisible = default(Optional<bool>),
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<bool> isVisible = default,
             ReadOnlyTree<uint, Entity> entities = null)
         {
             var newName = name ?? this.name;
             var newColor = color.HasValue ? color.Value : this.color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : this.lineTypeSpecification;
             var newIsVisible = isVisible.HasValue ? isVisible.Value : this.isVisible;
             var newEntities = entities ?? this.entities;
 
             if (newName == this.name &&
                 newColor == this.color &&
+                newLineTypeSpecification == this.lineTypeSpecification &&
                 newIsVisible == this.isVisible &&
                 object.ReferenceEquals(newEntities, this.entities))
             {
                 return this;
             }
 
-            return new Layer(newName, newEntities, newColor, newIsVisible);
+            return new Layer(newName, newEntities, newColor, newLineTypeSpecification, newIsVisible);
         }
 
         public override string ToString()

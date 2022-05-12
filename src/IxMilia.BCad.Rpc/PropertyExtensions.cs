@@ -11,6 +11,8 @@ namespace IxMilia.BCad.Rpc
     {
         private static IEnumerable<string> GetAllLayerNames(this Drawing drawing) => drawing.GetLayers().Select(l => l.Name).OrderBy(s => s);
 
+        private static IEnumerable<string> GetAllLineTypeNames(this Drawing drawing) => drawing.GetLineTypes().Select(l => l.Name).OrderBy(s => s);
+
         private static string ToPropertyColorString(this CadColor? color) => color?.ToRGBString();
 
         private static ClientPropertyPaneValue GetEntityLayerValue(Drawing drawing, string entityLayer, bool isUnrepresentable = false)
@@ -34,6 +36,52 @@ namespace IxMilia.BCad.Rpc
                     .Add(updatedDestinationLayer);
                 return Tuple.Create<Drawing, Entity>(updatedDrawing, null);
             }, drawing.GetAllLayerNames(), isUnrepresentable: isUnrepresentable);
+        }
+
+        private static ClientPropertyPaneValue GetEntityLineTypeValue(Drawing drawing, string entityLineType, bool isUnrepresentable = false)
+        {
+            return ClientPropertyPaneValue.Create("lineType", "Line Type", entityLineType, (drawing, entity, newLineTypeName) =>
+            {
+                if (string.IsNullOrEmpty(newLineTypeName) || newLineTypeName == "(Auto)")
+                {
+                    newLineTypeName = null;
+                }
+
+                if (entity.LineTypeSpecification?.Name == newLineTypeName)
+                {
+                    // no change
+                    return Tuple.Create<Drawing, Entity>(drawing, null);
+                }
+
+                var containingLayer = drawing.ContainingLayer(entity);
+                var newLineTypeSpecification = newLineTypeName is null
+                    ? null
+                    : new LineTypeSpecification(newLineTypeName, entity.LineTypeSpecification?.Scale ?? 1.0);
+                var updatedEntity = entity.WithLineTypeSpecification(newLineTypeSpecification);
+                var updatedLayer = containingLayer
+                    .Remove(entity)
+                    .Add(updatedEntity);
+                var updatedDrawing = drawing
+                    .Remove(containingLayer)
+                    .Add(updatedLayer);
+                return Tuple.Create(updatedDrawing, updatedEntity);
+            }, new[] { "(Auto)" }.Concat(drawing.GetAllLineTypeNames()), isUnrepresentable: isUnrepresentable);
+        }
+
+        private static ClientPropertyPaneValue GetEntityLineTypeScaleValue(Drawing drawing, double newScale, bool isUnrepresentable = false)
+        {
+            return ClientPropertyPaneValue.CreateForEntityWithUnits<Entity>("lineTypeScale", "Line Type Scale", drawing.FormatScalar(newScale), (entity, newLineTypeScale) =>
+            {
+                if (entity.LineTypeSpecification is null)
+                {
+                    // no change
+                    return entity;
+                }
+
+                var updatedLineTypeSpecification = entity.LineTypeSpecification.Update(scale: newLineTypeScale);
+                var updatedEntity = entity.WithLineTypeSpecification(updatedLineTypeSpecification);
+                return updatedEntity;
+            });
         }
 
         private static ClientPropertyPaneValue GetEntityColorValue(CadColor? currentColor, bool isUnrepresentable = false)
@@ -83,6 +131,24 @@ namespace IxMilia.BCad.Rpc
 
             yield return GetEntityLayerValue(drawing, selectedLayerName, isUnrepresentable: distinctLayerNames.Count > 1);
 
+            var distinctLineTypeNames = entities.Select(e => e.LineTypeSpecification?.Name).Distinct().ToList();
+            var selectedLineTypeName = distinctLineTypeNames.Count == 1
+                ? distinctLineTypeNames.Single()
+                : null;
+
+            yield return GetEntityLineTypeValue(drawing, selectedLineTypeName, isUnrepresentable: distinctLineTypeNames.Count > 1);
+
+            var distinctLineTypeScales = entities.Where(e => e.LineTypeSpecification is not null).Select(e => e.LineTypeSpecification.Scale).Distinct().ToList();
+            if (distinctLineTypeScales.Count == 0)
+            {
+                distinctLineTypeScales.Add(1.0);
+            }
+            var selectedLineTypeScale = distinctLineTypeScales.Count == 1
+                ? distinctLineTypeScales.Single()
+                : 1.0;
+
+            yield return GetEntityLineTypeScaleValue(drawing, selectedLineTypeScale, isUnrepresentable: distinctLineTypeScales.Count > 1);
+
             var distinctColors = entities.Select(e => e.Color).Distinct().ToList();
             var selectedColor = distinctColors.Count == 1
                 ? distinctColors.Single()
@@ -98,6 +164,8 @@ namespace IxMilia.BCad.Rpc
             var general = new[]
             {
                 GetEntityLayerValue(drawing, layer.Name),
+                GetEntityLineTypeValue(drawing, entity.LineTypeSpecification?.Name),
+                GetEntityLineTypeScaleValue(drawing, entity.LineTypeSpecification?.Scale ?? 1.0),
                 GetEntityColorValue(entity.Color),
             };
 

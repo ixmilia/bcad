@@ -12,20 +12,24 @@ namespace IxMilia.BCad
         public UnitFormat UnitFormat { get; private set; }
         public int UnitPrecision { get; private set; }
         public int AnglePrecision { get; private set; }
+        public string CurrentLayerName { get; private set; }
+        public LineTypeSpecification CurrentLineTypeSpecification { get; private set; }
 
         private static int[] AllowedArchitecturalPrecisions = new[] { 0, 2, 4, 8, 16, 32 };
 
         public DrawingSettings()
-            : this(null, UnitFormat.Architectural, 16, 0)
+            : this(null, UnitFormat.Architectural, 16, 0, "0", null)
         {
         }
 
-        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision, int anglePrecision)
+        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, LineTypeSpecification currentLineTypeSpecification)
         {
             FileName = path;
             UnitFormat = unitFormat;
             UnitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
             AnglePrecision = anglePrecision < 0 ? 0 : anglePrecision;
+            CurrentLayerName = currentLayerName;
+            CurrentLineTypeSpecification = currentLineTypeSpecification;
 
             switch (unitFormat)
             {
@@ -45,22 +49,28 @@ namespace IxMilia.BCad
             string fileName = null,
             Optional<UnitFormat> unitFormat = default,
             Optional<int> unitPrecision = default,
-            Optional<int> anglePrecision = default)
+            Optional<int> anglePrecision = default,
+            Optional<string> currentLayerName = default,
+            Optional<LineTypeSpecification> currentLineTypeSpecification = default)
         {
             var newFileName = fileName ?? FileName;
             var newUnitFormat = unitFormat.HasValue ? unitFormat.Value : UnitFormat;
             var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : UnitPrecision;
             var newAnglePrecision = anglePrecision.HasValue ? anglePrecision.Value : AnglePrecision;
+            var newCurrentLayerName = currentLayerName.HasValue ? currentLayerName.Value : CurrentLayerName;
+            var newCurrentLineTypeSpecification = currentLineTypeSpecification.HasValue ? currentLineTypeSpecification.Value : CurrentLineTypeSpecification;
 
             if (newFileName == FileName &&
                 newUnitFormat == UnitFormat &&
                 newUnitPrecision == UnitPrecision &&
-                newAnglePrecision == AnglePrecision)
+                newAnglePrecision == AnglePrecision &&
+                newCurrentLayerName == CurrentLayerName &&
+                newCurrentLineTypeSpecification == CurrentLineTypeSpecification)
             {
                 return this;
             }
 
-            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision, newAnglePrecision);
+            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newCurrentLineTypeSpecification);
         }
 
         public static string FormatAngle(double value, int anglePrecision) => FormatScalar(value, anglePrecision);

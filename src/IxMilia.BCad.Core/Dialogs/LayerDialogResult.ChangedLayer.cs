@@ -8,6 +8,8 @@ namespace IxMilia.BCad.Dialogs
             public string NewLayerName { get; set; }
             public CadColor? Color { get; set; }
             public bool IsVisible { get; set; }
+            public string LineTypeName { get; set; }
+            public double LineTypeScale { get; set; }
         }
     }
 }

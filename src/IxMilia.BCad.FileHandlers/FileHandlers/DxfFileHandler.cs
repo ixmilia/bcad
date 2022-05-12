@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,15 +40,26 @@ namespace IxMilia.BCad.FileHandlers
 
         public static async Task<ReadDrawingResult> FromDxfFile(string fileName, DxfFile file, Func<string, Task<byte[]>> contentResolver)
         {
+            var lineTypes = new ReadOnlyTree<string, LineType>();
+            foreach (var lineType in file.LineTypes)
+            {
+                lineTypes = lineTypes.Insert(lineType.Name, new LineType(lineType.Name, lineType.Elements.Select(e => Math.Abs(e.DashDotSpaceLength)).ToArray(), lineType.Description));
+            }
+
             var layers = new ReadOnlyTree<string, Layer>();
             foreach (var layer in file.Layers)
             {
-                layers = layers.Insert(layer.Name, new Layer(layer.Name, color: layer.Color.ToColor(), isVisible: layer.IsLayerOn));
+                var layerLineTypeSpecification = layer.LineTypeName is null
+                    ? null
+                    : new LineTypeSpecification(layer.LineTypeName, 1.0);
+                GetOrCreateLineType(ref lineTypes, layer.LineTypeName);
+                layers = layers.Insert(layer.Name, new Layer(layer.Name, color: layer.Color.ToColor(), lineTypeSpecification: layerLineTypeSpecification, isVisible: layer.IsLayerOn));
             }
 
             foreach (var item in file.Entities)
             {
                 var layer = GetOrCreateLayer(ref layers, item.Layer);
+                GetOrCreateLineType(ref lineTypes, item.LineTypeName);
 
                 // create the entity
                 var entity = await item.ToEntity(contentResolver);
@@ -83,10 +95,25 @@ namespace IxMilia.BCad.FileHandlers
                 }
             }
 
+            var currentLineTypeName = file.Header.CurrentEntityLineType is null
+                ? null
+                : lineTypes.KeyExists(file.Header.CurrentEntityLineType)
+                    ? file.Header.CurrentEntityLineType
+                    : null;
+            var lineTypeSpecification = currentLineTypeName is null
+                ? null
+                : new LineTypeSpecification(currentLineTypeName, file.Header.CurrentEntityLineTypeScale);
+            var currentLayerName = file.Header.CurrentLayer is not null && layers.KeyExists(file.Header.CurrentLayer) ? file.Header.CurrentLayer : layers.GetKeys().OrderBy(x => x).First();
             var drawing = new Drawing(
-                settings: new DrawingSettings(fileName, file.Header.UnitFormat.ToUnitFormat(), file.Header.UnitPrecision, file.Header.AngleUnitPrecision),
+                settings: new DrawingSettings(
+                    fileName,
+                    file.Header.UnitFormat.ToUnitFormat(),
+                    file.Header.UnitPrecision,
+                    file.Header.AngleUnitPrecision,
+                    currentLayerName,
+                    lineTypeSpecification),
                 layers: layers,
-                currentLayerName: file.Header.CurrentLayer ?? layers.GetKeys().OrderBy(x => x).First(),
+                lineTypes: lineTypes,
                 author: null);
             drawing.Tag = file;
 
@@ -114,7 +141,7 @@ namespace IxMilia.BCad.FileHandlers
         public static DxfFile ToDxfFile(Drawing drawing, ViewPort viewPort, DxfFileSettings settings)
         {
             var file = new DxfFile();
-            file.Layers.Clear();
+
             if (drawing.Tag is DxfFile oldFile)
             {
                 // preserve settings from the original file
@@ -129,14 +156,34 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             // save layers and entities
-            file.Header.CurrentLayer = drawing.CurrentLayer.Name;
+            file.Header.CurrentLayer = drawing.Settings.CurrentLayerName;
+            file.Header.CurrentEntityLineType = drawing.Settings.CurrentLineTypeSpecification?.Name;
+            file.Header.CurrentEntityLineTypeScale = drawing.Settings.CurrentLineTypeSpecification?.Scale ?? 1.0;
             file.Header.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
             file.Header.UnitPrecision = (short)drawing.Settings.UnitPrecision;
             file.Header.AngleUnitPrecision = (short)drawing.Settings.AnglePrecision;
+
+            file.LineTypes.Clear();
+            foreach (var lineType in drawing.GetLineTypes().OrderBy(x => x.Name))
+            {
+                var dxfLineType = EnsureLineType(file, lineType.Name);
+                dxfLineType.Description = lineType.Description;
+                foreach (var patternLength in lineType.Pattern)
+                {
+                    dxfLineType.Elements.Add(new DxfLineTypeElement() { DashDotSpaceLength = patternLength });
+                }
+            }
+
+            file.Layers.Clear();
             foreach (var layer in drawing.GetLayers().OrderBy(x => x.Name))
             {
                 if (!file.Layers.Any(l => l.Name == layer.Name))
                 {
+                    if (layer.LineTypeSpecification?.Name is string lineTypeName)
+                    {
+                        EnsureLineType(file, lineTypeName);
+                    }
+
                     file.Layers.Add(new DxfLayer(layer.Name, layer.Color.ToDxfColor()) { IsLayerOn = layer.IsVisible });
                 }
 
@@ -195,6 +242,37 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             return layer;
+        }
+
+        private static LineType GetOrCreateLineType(ref ReadOnlyTree<string, LineType> lineTypes, string lineTypeName)
+        {
+            if (lineTypeName is null)
+            {
+                // null line type is perfectly fine
+                return null;
+            }
+
+            if (lineTypes.KeyExists(lineTypeName))
+            {
+                return lineTypes.GetValue(lineTypeName);
+            }
+
+            // add the line type
+            var lineType = new LineType(lineTypeName, Array.Empty<double>(), null);
+            lineTypes = lineTypes.Insert(lineType.Name, lineType);
+            return lineType;
+        }
+
+        private static DxfLineType EnsureLineType(DxfFile dxf, string lineTypeName)
+        {
+            var existingLineType = dxf.LineTypes.FirstOrDefault(l => l.Name == lineTypeName);
+            if (existingLineType is null)
+            {
+                existingLineType = new DxfLineType(lineTypeName);
+                dxf.LineTypes.Add(existingLineType);
+            }
+
+            return existingLineType;
         }
     }
 }

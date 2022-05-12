@@ -20,8 +20,8 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Polyline(IEnumerable<Vertex> vertices, CadColor? color = null, object tag = null)
-            : base(color, tag)
+        public Polyline(IEnumerable<Vertex> vertices, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(color, lineTypeSpecification, tag)
         {
             var vertexList = new List<Vertex>(vertices); // to prevent backing changes
             Vertices = vertexList;
@@ -63,21 +63,24 @@ namespace IxMilia.BCad.Entities
 
         public Polyline Update(
             IEnumerable<Vertex> vertices = null,
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newVectices = vertices ?? Vertices;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
-            if (object.ReferenceEquals(newVectices, Vertices) &&
+            if (ReferenceEquals(newVectices, Vertices) &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Polyline(newVectices, newColor, newTag);
+            return new Polyline(newVectices, newColor, newLineTypeSpecification, newTag);
         }
 
         public bool ContainsPoint(Point point)

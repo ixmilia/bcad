@@ -10,7 +10,7 @@ namespace IxMilia.BCad.Commands
             var location = await workspace.InputService.GetPoint(new UserDirective("Location"));
             if (location.Cancel) return false;
             if (!location.HasValue) return true;
-            workspace.AddToCurrentLayer(new Location(location.Value));
+            workspace.AddToCurrentLayer(new Location(location.Value, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification));
             return true;
         }
     }

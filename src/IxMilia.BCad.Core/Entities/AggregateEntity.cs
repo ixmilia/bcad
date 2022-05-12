@@ -10,8 +10,6 @@ namespace IxMilia.BCad.Entities
 {
     public class AggregateEntity : Entity
     {
-        private const string LocationText = "Location";
-        private const string ChildrenText = "Children";
         private readonly Point location;
         private readonly ReadOnlyList<Entity> children;
         private readonly IPrimitive[] primitives;
@@ -27,8 +25,8 @@ namespace IxMilia.BCad.Entities
         {
         }
 
-        public AggregateEntity(Point location, ReadOnlyList<Entity> children, CadColor? color = null, object tag = null)
-            : base(color, tag)
+        public AggregateEntity(Point location, ReadOnlyList<Entity> children, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(color, lineTypeSpecification, tag)
         {
             if (children == null)
                 throw new ArgumentNullException("children");
@@ -60,25 +58,28 @@ namespace IxMilia.BCad.Entities
         public override int PrimitiveCount { get { return this.primitives.Count(); } }
 
         public AggregateEntity Update(
-            Optional<Point> location = default(Optional<Point>),
+            Optional<Point> location = default,
             ReadOnlyList<Entity> children = null,
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newLocation = location.HasValue ? location.Value : this.location;
             var newChildren = children ?? this.children;
             var newColor = color.HasValue ? color.Value : this.Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : this.Tag;
 
             if (newLocation == this.location &&
-                object.ReferenceEquals(newChildren, this.children) &&
-                newColor == this.Color &&
-                newTag == this.Tag)
+                ReferenceEquals(newChildren, this.children) &&
+                newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
+                newTag == Tag)
             {
                 return this;
             }
 
-            return new AggregateEntity(newLocation, newChildren, newColor, newTag);
+            return new AggregateEntity(newLocation, newChildren, newColor, newLineTypeSpecification, newTag);
         }
     }
 }

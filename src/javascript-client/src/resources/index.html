@@ -108,7 +108,7 @@
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
               <button class="command-button command-button-tiny" data-command-name="Edit.Layers">
-                <svg class="icon-small">
+                <svg viewBox="0 0 16 16" class="icon-small">
                   <polygon points="3,0 15,0 12,5 0,5 3,0" style="fill: lavenderblush; stroke: black" />
                   <polygon points="3,5 15,5 12,10 0,10 3,5" style="fill: lightyellow; stroke: black" />
                   <polygon points="3,10 15,10 12,15 0,15 3,10" style="fill: lightblue; stroke: black" />
@@ -117,6 +117,23 @@
               <select id="current-layer-selector"></select>
             </div>
             <div class="ribbon-button-group-name">Layers</div>
+          </div>
+          <div class="ribbon-button-group">
+            <div class="ribbon-button-group-content">
+              <button class="command-button command-button-tiny" data-command-name="Edit.LineTypes">
+                <svg viewBox="0 0 16 16" class="icon-small">
+                  <g stroke="black" fill="black">
+                    <polygon points="0,0 6,0 6,2 0,2 0,0" />
+                    <polygon points="10,0 15,0 15,2 10,2 10,0" />
+                    <polygon points="0,6 15,6 15,8 0,8 0,6" />
+                    <polygon points="0,12 6,12 6,14 0,14 0,12" />
+                    <polygon points="10,12 15,12 15,14 10,14 10,12" />
+                  </g>
+                </svg>
+              </button>
+              <select id="current-line-type-selector"></select>
+            </div>
+            <div class="ribbon-button-group-name">Line Types</div>
           </div>
         </div>
         <div id="viewRibbon" class="ribbon">
@@ -424,14 +441,31 @@
             Layers<br />
           <div style="flex: 0 0 auto;">
             <div>
-              <div class="dialog-layer-name-column">Name</div>
-              <div class="dialog-layer-color-column">Color</div>
-              <div class="dialog-layer-visible-column">Is Visible</div>
-              <div class="dialog-layer-command-column">Delete?</div>
+              <div class="dialog-layer-column-1">Name</div>
+              <div class="dialog-layer-column-2">Color</div>
+              <div class="dialog-layer-column-3">Is Visible</div>
+              <div class="dialog-layer-column-4">Line Type</div>
+              <div class="dialog-layer-column-5">Scale</div>
+              <div class="dialog-layer-column-6">Delete?</div>
             </div>
             <div id="dialog-layer-list" class="dialog-layer-list"></div>
           </div>
           <button id="dialog-layer-add">Add</button>
+          </p>
+        </div>
+        <div id="modal-dialog-line-type" class="modal-dialog line-type-dialog">
+          <p>
+            Line Types<br />
+          <div style="flex: 0 0 auto;">
+            <div>
+              <div class="dialog-line-type-name-column">Name</div>
+              <div class="dialog-line-type-pattern-column">Pattern</div>
+              <div class="dialog-line-type-description-column">Description</div>
+              <div class="dialog-line-type-command-column">Delete?</div>
+            </div>
+            <div id="dialog-line-type-list" class="dialog-line-type-list"></div>
+          </div>
+          <button id="dialog-line-type-add">Add</button>
           </p>
         </div>
         <div id="modal-dialog-FileSettings" class="modal-dialog file-settings-dialog">

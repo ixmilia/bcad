@@ -10,62 +10,66 @@ namespace IxMilia.BCad
     {
         private readonly DrawingSettings settings;
         private readonly ReadOnlyTree<string, Layer> layers;
-        private readonly string currentLayerName;
+        private readonly ReadOnlyTree<string, LineType> lineTypes;
         private readonly string author;
 
-        public DrawingSettings Settings { get { return settings; } }
+        public DrawingSettings Settings => settings;
 
-        public string CurrentLayerName { get { return currentLayerName; } }
+        public ReadOnlyTree<string, Layer> Layers => layers;
 
-        public Layer CurrentLayer { get { return this.layers.GetValue(this.currentLayerName); } }
+        public ReadOnlyTree<string, LineType> LineTypes => lineTypes;
 
-        public ReadOnlyTree<string, Layer> Layers { get { return this.layers; } }
-
-        public string Author { get { return author; } }
+        public string Author => author;
 
         public object Tag { get; set; }
 
         public Drawing()
-            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0")), "0", null)
+            : this(new DrawingSettings(), new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0")), new ReadOnlyTree<string, LineType>())
         {
         }
 
         public Drawing(DrawingSettings settings)
-            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0")))
+            : this(settings, new ReadOnlyTree<string, Layer>().Insert("0", new Layer("0")), new ReadOnlyTree<string, LineType>())
         {
         }
 
-        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers)
-            : this(settings, layers, layers.GetKeys().OrderBy(x => x).First(), null)
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, ReadOnlyTree<string, LineType> lineTypes)
+            : this(settings, layers, lineTypes, null)
         {
         }
 
-        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string author)
-            : this(settings, layers, layers.GetKeys().OrderBy(x => x).First(), author)
+        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, ReadOnlyTree<string, LineType> lineTypes, string author)
         {
-        }
-
-        public Drawing(DrawingSettings settings, ReadOnlyTree<string, Layer> layers, string currentLayerName, string author)
-        {
-            if (settings == null)
-                throw new ArgumentNullException("settings");
-            if (layers == null)
-                throw new ArgumentNullException("layers");
-            if (layers.Count == 0)
-                throw new ArgumentException("At least one layer must be specified.");
-            if (currentLayerName == null)
-                throw new ArgumentNullException("currentLayerName");
-            if (!layers.KeyExists(currentLayerName))
-                throw new InvalidOperationException("The current layer is not part of the layers collection.");
-            this.settings = settings;
-            this.layers = layers;
-            this.currentLayerName = currentLayerName;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.layers = layers ?? throw new ArgumentNullException(nameof(layers));
+            this.lineTypes = lineTypes ?? throw new ArgumentNullException(nameof(lineTypes));
             this.author = author;
+
+            if (layers.Count == 0)
+            {
+                throw new ArgumentException("At least one layer must be specified.");
+            }
+            
+            if (!layers.KeyExists(settings.CurrentLayerName))
+            {
+                throw new InvalidOperationException("The current layer is not part of the layers collection.");
+            }
+
+            if (settings.CurrentLineTypeSpecification is not null &&
+                !lineTypes.KeyExists(settings.CurrentLineTypeSpecification.Name))
+            {
+                throw new InvalidOperationException("The current line type is not part of the line types collection.");
+            }
         }
 
-        public IEnumerable<Layer> GetLayers(CancellationToken cancellationToken = default(CancellationToken))
+        public IEnumerable<Layer> GetLayers(CancellationToken cancellationToken = default)
         {
             return this.layers.GetValues(cancellationToken);
+        }
+
+        public IEnumerable<LineType> GetLineTypes(CancellationToken cancellationToken = default)
+        {
+            return this.lineTypes.GetValues(cancellationToken);
         }
 
         /// <summary>
@@ -75,9 +79,21 @@ namespace IxMilia.BCad
         /// <returns>If the layer was found on the drawing.</returns>
         public bool LayerExists(Layer layer)
         {
-            Layer found;
-            if (this.layers.TryFind(layer.Name, out found))
+            if (Layers.TryFind(layer.Name, out var found))
+            {
                 return found == layer;
+            }
+
+            return false;
+        }
+
+        public bool LineTypeExists(LineType lineType)
+        {
+            if (LineTypes.TryFind(lineType.Name, out var found))
+            {
+                return found == lineType;
+            }
+
             return false;
         }
 
@@ -88,7 +104,12 @@ namespace IxMilia.BCad
         /// <returns>The updated drawing.</returns>
         public Drawing Add(Layer layer)
         {
-            return this.Update(layers: this.layers.Insert(layer.Name, layer));
+            return this.Update(layers: layers.Insert(layer.Name, layer));
+        }
+
+        public Drawing Add(LineType lineType)
+        {
+            return this.Update(lineTypes: LineTypes.Insert(lineType.Name, lineType));
         }
 
         /// <summary>
@@ -99,8 +120,21 @@ namespace IxMilia.BCad
         public Drawing Remove(Layer layer)
         {
             if (!LayerExists(layer))
+            {
                 throw new ArgumentException("The drawing does not contain the specified layer");
-            return this.Update(layers: this.layers.Delete(layer.Name));
+            }
+
+            return Update(layers: Layers.Delete(layer.Name));
+        }
+
+        public Drawing Remove(LineType lineType)
+        {
+            if (!LineTypeExists(lineType))
+            {
+                throw new ArgumentException("The drawing does not contain the specified line type");
+            }
+
+            return Update(lineTypes: LineTypes.Delete(lineType.Name));
         }
 
         /// <summary>
@@ -112,8 +146,21 @@ namespace IxMilia.BCad
         public Drawing Replace(Layer oldLayer, Layer newLayer)
         {
             if (!LayerExists(oldLayer))
+            {
                 throw new ArgumentException("The drawing does not contain the specified layer");
-            return this.Update(layers: this.layers.Delete(oldLayer.Name).Insert(newLayer.Name, newLayer));
+            }
+
+            return Update(layers: Layers.Delete(oldLayer.Name).Insert(newLayer.Name, newLayer));
+        }
+        
+        public Drawing Replace(LineType oldLineType, LineType newLineType)
+        {
+            if (!LineTypeExists(oldLineType))
+            {
+                throw new ArgumentException("The drawing does not contain the specified line type");
+            }
+
+            return Update(lineTypes: LineTypes.Delete(oldLineType.Name).Insert(newLineType.Name, newLineType));
         }
 
         /// <summary>
@@ -123,7 +170,11 @@ namespace IxMilia.BCad
         /// <param name="layers">The layers for the drawing.</param>
         /// <param name="currentLayerName">The name of the current layer.</param>
         /// <returns>The new drawing with the specified updates.</returns>
-        public Drawing Update(DrawingSettings settings = null, ReadOnlyTree<string, Layer> layers = null, string currentLayerName = null, string author = null)
+        public Drawing Update(
+            DrawingSettings settings = null,
+            ReadOnlyTree<string, Layer> layers = null,
+            ReadOnlyTree<string, LineType> lineTypes = null,
+            string author = null)
         {
             var newLayers = layers ?? this.layers;
             if (newLayers.Count == 0)
@@ -132,17 +183,19 @@ namespace IxMilia.BCad
                 newLayers = newLayers.Insert("0", new Layer("0"));
             }
 
-            var newCurrentName = currentLayerName ?? this.currentLayerName;
-            if (!newLayers.KeyExists(newCurrentName))
+            var newLineTypes = lineTypes ?? LineTypes;
+            var newSettings = settings ?? Settings;
+
+            // ensure current layer is still part of the layers collection
+            if (!newLayers.KeyExists(newSettings.CurrentLayerName))
             {
-                // ensure the current layer is available
-                newCurrentName = newLayers.GetKeys().OrderBy(x => x).First();
+                newSettings = newSettings.Update(currentLayerName: newLayers.GetKeys().OrderBy(x => x).First());
             }
 
             return new Drawing(
-                settings ?? this.settings,
+                newSettings,
                 newLayers,
-                newCurrentName,
+                newLineTypes,
                 author ?? this.author)
             {
                 Tag = this.Tag

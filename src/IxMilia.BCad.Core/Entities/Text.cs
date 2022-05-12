@@ -28,13 +28,13 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Text(string value, Point location, Vector normal, double height, double rotation, CadColor? color = null, object tag = null)
-            : this(new PrimitiveText(value, location, height, normal, rotation, color), tag)
+        public Text(string value, Point location, Vector normal, double height, double rotation, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : this(new PrimitiveText(value, location, height, normal, rotation, color), lineTypeSpecification, tag)
         {
         }
 
-        public Text(PrimitiveText text, object tag = null)
-            : base(text.Color, tag)
+        public Text(PrimitiveText text, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(text.Color, lineTypeSpecification, tag)
         {
             _primitive = text;
             _primitives = new[] { _primitive };
@@ -62,12 +62,13 @@ namespace IxMilia.BCad.Entities
 
         public Text Update(
             string value = null,
-            Optional<Point> location = default(Optional<Point>),
-            Optional<Vector> normal = default(Optional<Vector>),
-            Optional<double> height = default(Optional<double>),
-            Optional<double> rotation = default(Optional<double>),
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<Point> location = default,
+            Optional<Vector> normal = default,
+            Optional<double> height = default,
+            Optional<double> rotation = default,
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newValue = value ?? Value;
             var newLocation = location.HasValue ? location.Value : Location;
@@ -75,6 +76,7 @@ namespace IxMilia.BCad.Entities
             var newHeight = height.HasValue ? height.Value : Height;
             var newRotation = rotation.HasValue ? rotation.Value : Rotation;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newValue == Value &&
@@ -83,12 +85,13 @@ namespace IxMilia.BCad.Entities
                 newHeight == Height &&
                 newRotation == Rotation &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Text(newValue, newLocation, newNormal, newHeight, newRotation, newColor, newTag);
+            return new Text(newValue, newLocation, newNormal, newHeight, newRotation, newColor, newLineTypeSpecification, newTag);
         }
 
         public override string ToString()

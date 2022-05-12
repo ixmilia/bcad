@@ -59,6 +59,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Intersection", "INTERSECTION", new IntersectionCommand(), "intersection", "int"));
             RegisterCommand(new CadCommandInfo("Edit.JoinPolyline", "PJOIN", new JoinPolylineCommand(), "pjoin"));
             RegisterCommand(new CadCommandInfo("Edit.Layers", "LAYERS", new LayersCommand(), ModifierKeys.Control, Key.L, "layers", "layer", "la"));
+            RegisterCommand(new CadCommandInfo("Edit.LineTypes", "LTYPE", new LineTypeCommand(), "ltype"));
             RegisterCommand(new CadCommandInfo("Edit.Move", "MOVE", new MoveCommand(), "move", "mov", "m"));
             RegisterCommand(new CadCommandInfo("File.New", "NEW", new NewCommand(), ModifierKeys.Control, Key.N, "new", "n"));
             RegisterCommand(new CadCommandInfo("Edit.Offset", "OFFSET", new OffsetCommand(), "offset", "off", "of"));

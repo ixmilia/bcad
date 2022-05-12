@@ -13,6 +13,8 @@ import { Arguments } from "./args";
 import { SaveChangesDialog } from "./dialogs/saveChangesDialog";
 import { PropertyPane } from "./propertyPane";
 import { LogWriter } from "./logWriter";
+import { LineTypeDialog } from "./dialogs/lineTypeDialog";
+import { LineTypeSelector } from "./lineTypeSelector";
 
 enum HostType {
     Electron = 1,
@@ -119,6 +121,7 @@ async function start(argArray: string[]): Promise<void> {
 
     const shortcutHandler = new ShortcutHandler(client);
     new LayerSelector(client);
+    new LineTypeSelector(client);
     new InputConsole(client, shortcutHandler);
     new OutputConsole(client);
     new Ribbon(client);
@@ -127,7 +130,8 @@ async function start(argArray: string[]): Promise<void> {
 
     let dialogHandler = new DialogHandler(client);
     new FileSettingsDialog(dialogHandler);
-    new LayerDialog(dialogHandler);
+    new LayerDialog(dialogHandler, client);
+    new LineTypeDialog(dialogHandler);
     new PlotDialog(client, dialogHandler);
     new SaveChangesDialog(dialogHandler);
 }

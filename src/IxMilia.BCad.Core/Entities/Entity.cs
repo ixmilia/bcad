@@ -13,14 +13,17 @@ namespace IxMilia.BCad.Entities
         public virtual int PrimitiveCount { get { return 1; } }
 
         private readonly CadColor? color;
+        private readonly LineTypeSpecification lineTypeSpecification;
         private readonly object tag;
 
-        public CadColor? Color { get { return color; } }
-        public object Tag { get { return tag; } }
+        public CadColor? Color => color;
+        public LineTypeSpecification LineTypeSpecification => lineTypeSpecification;
+        public object Tag => tag;
 
-        protected Entity(CadColor? color, object tag)
+        protected Entity(CadColor? color, LineTypeSpecification lineTypeSpecification, object tag)
         {
             this.color = color;
+            this.lineTypeSpecification = lineTypeSpecification;
             this.tag = tag;
             this.Id = nextId++;
         }

@@ -122,6 +122,12 @@ namespace IxMilia.BCad.Rpc
         }
     }
 
+    public interface IClientPrimitive
+    {
+        CadColor? Color { get; }
+        double[] LinePattern { get; }
+    }
+
     public struct ClientPointLocation
     {
         public ClientPoint Location { get; }
@@ -134,33 +140,37 @@ namespace IxMilia.BCad.Rpc
         }
     }
 
-    public struct ClientLine
+    public struct ClientLine : IClientPrimitive
     {
         public ClientPoint P1 { get; }
         public ClientPoint P2 { get; }
         public CadColor? Color { get; }
+        public double[] LinePattern { get; }
 
-        public ClientLine(ClientPoint p1, ClientPoint p2, CadColor? color)
+        public ClientLine(ClientPoint p1, ClientPoint p2, CadColor? color, double[] linePattern)
         {
             P1 = p1;
             P2 = p2;
             Color = color;
+            LinePattern = linePattern ?? Array.Empty<double>();
         }
     }
 
-    public struct ClientEllipse
+    public struct ClientEllipse : IClientPrimitive
     {
         public double StartAngle { get; }
         public double EndAngle { get; }
         public double[] Transform { get; }
         public CadColor? Color { get; }
+        public double[] LinePattern { get; }
 
-        public ClientEllipse(double startAngle, double endAngle, double[] transform, CadColor? color)
+        public ClientEllipse(double startAngle, double endAngle, double[] transform, CadColor? color, double[] linePattern)
         {
             StartAngle = startAngle;
             EndAngle = endAngle;
             Transform = transform;
             Color = color;
+            LinePattern = linePattern ?? Array.Empty<double>();
         }
     }
 
@@ -208,6 +218,8 @@ namespace IxMilia.BCad.Rpc
     {
         public string CurrentLayer { get; set; }
         public List<string> Layers { get; } = new List<string>();
+        public string CurrentLineType { get; set; }
+        public List<string> LineTypes { get; } = new List<string>();
         public string FileName { get; }
         public List<ClientPointLocation> Points { get; } = new List<ClientPointLocation>();
         public List<ClientLine> Lines { get; } = new List<ClientLine>();
@@ -460,12 +472,16 @@ namespace IxMilia.BCad.Rpc
         public string Name { get; }
         public string Color { get; }
         public bool IsVisible { get; }
+        public string LineTypeName { get; }
+        public double LineTypeScale { get; }
 
         public ClientLayer(Layer layer)
         {
             Name = layer.Name;
             Color = layer.Color?.ToRGBString();
             IsVisible = layer.IsVisible;
+            LineTypeName = layer.LineTypeSpecification?.Name;
+            LineTypeScale = layer.LineTypeSpecification?.Scale ?? 1.0;
         }
     }
 
@@ -488,6 +504,8 @@ namespace IxMilia.BCad.Rpc
         public string NewLayerName { get; set; }
         public string Color { get; set; }
         public bool IsVisible { get; set; }
+        public string LineTypeName { get; set; }
+        public double LineTypeScale { get; set; }
     }
 
     public class ClientLayerResult
@@ -507,6 +525,65 @@ namespace IxMilia.BCad.Rpc
                         ? new CadColor?()
                         : CadColor.Parse(changedLayer.Color),
                     IsVisible = changedLayer.IsVisible,
+                    LineTypeName = changedLayer.LineTypeName,
+                    LineTypeScale = changedLayer.LineTypeScale,
+                });
+            }
+
+            return result;
+        }
+    }
+
+    public class ClientLineType
+    {
+        public string Name { get; }
+        public double[] Pattern { get; }
+        public string Description{ get; }
+
+        public ClientLineType(LineType lineType)
+        {
+            Name = lineType.Name;
+            Pattern = lineType.Pattern;
+            Description = lineType.Description;
+        }
+    }
+
+    public class ClientLineTypeParameters
+    {
+        public List<ClientLineType> LineTypes { get; } = new List<ClientLineType>();
+
+        public ClientLineTypeParameters(LineTypeDialogParameters lineTypeDialogParameters)
+        {
+            foreach (var lineType in lineTypeDialogParameters.LineTypes)
+            {
+                LineTypes.Add(new ClientLineType(lineType));
+            }
+        }
+    }
+
+    public class ClientChangedLineType
+    {
+        public string OldLineTypeName { get; set; }
+        public string NewLineTypeName { get; set; }
+        public double[] Pattern { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class ClientLineTypeResult
+    {
+        public List<ClientChangedLineType> ChangedLineTypes { get; } = new List<ClientChangedLineType>();
+
+        public LineTypeDialogResult ToDialogResult()
+        {
+            var result = new LineTypeDialogResult();
+            foreach (var changedLineType in ChangedLineTypes)
+            {
+                result.LineTypes.Add(new LineTypeDialogResult.LineTypeResult()
+                {
+                    OldLineTypeName = changedLineType.OldLineTypeName,
+                    NewLineTypeName = changedLineType.NewLineTypeName,
+                    Pattern = changedLineType.Pattern,
+                    Description = changedLineType.Description,
                 });
             }
 

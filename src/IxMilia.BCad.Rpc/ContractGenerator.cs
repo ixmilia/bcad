@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Commands;
+using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.FileHandlers;
 using Newtonsoft.Json.Linq;
@@ -40,6 +41,12 @@ namespace IxMilia.BCad.Rpc
 
         private HashSet<string> _optionalProperties = new HashSet<string>()
         {
+            $"{nameof(ClientChangedLayer)}.{nameof(ClientChangedLayer.Color)}",
+            $"{nameof(ClientChangedLayer)}.{nameof(ClientChangedLayer.LineTypeName)}",
+            $"{nameof(ClientDrawing)}.{nameof(ClientDrawing.CurrentLineType)}",
+            $"{nameof(ClientLayer)}.{nameof(ClientLayer.Color)}",
+            $"{nameof(ClientLayer)}.{nameof(ClientLayer.LineTypeName)}",
+            $"{nameof(ClientLayer)}.{nameof(ClientLayer.LineTypeScale)}",
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.AllowedValues)}",
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.IsUnrepresentable)}",
             $"{nameof(ClientPropertyPaneValue)}.{nameof(ClientPropertyPaneValue.Value)}",
@@ -82,6 +89,8 @@ namespace IxMilia.BCad.Rpc
 
             // special-cased types
             AddInterface(typeof(ClientDownload));
+            AddInterface(typeof(ClientLayerParameters));
+            AddInterface(typeof(ClientLayerResult));
             AddInterface(typeof(ClientUpdate));
             AddInterface(typeof(DwgFileSettings));
             AddInterface(typeof(DxfFileSettings));

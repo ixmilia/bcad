@@ -34,8 +34,8 @@ namespace IxMilia.BCad
         /// <returns></returns>
         public static Drawing AddToCurrentLayer(this Drawing drawing, Entity entity)
         {
-            var newLayer = drawing.CurrentLayer.Add(entity);
-            var newLayerSet = drawing.Layers.Delete(drawing.CurrentLayer.Name).Insert(newLayer.Name, newLayer);
+            var newLayer = drawing.GetCurrentLayer().Add(entity);
+            var newLayerSet = drawing.Layers.Delete(drawing.Settings.CurrentLayerName).Insert(newLayer.Name, newLayer);
             return drawing.Update(layers: newLayerSet);
         }
 
@@ -135,6 +135,46 @@ namespace IxMilia.BCad
         public static Entity GetEntityById(this Drawing drawing, uint id)
         {
             return drawing.GetLayers().Select(l => l.GetEntityById(id)).Where(e => e != null).SingleOrDefault();
+        }
+
+        public static Layer GetCurrentLayer(this Drawing drawing)
+        {
+            return drawing.Layers.GetValue(drawing.Settings.CurrentLayerName);
+        }
+
+        public static LineType GetLineTypeFromLayer(this Drawing drawing, Layer layer)
+        {
+            if (!drawing.LayerExists(layer))
+            {
+                return null;
+            }
+
+            if (layer.LineTypeSpecification is null)
+            {
+                return null;
+            }
+
+            if (!drawing.LineTypes.KeyExists(layer.LineTypeSpecification.Name))
+            {
+                return null;
+            }
+
+            return drawing.LineTypes.GetValue(layer.LineTypeSpecification.Name);
+        }
+
+        public static LineType GetLineTypeFromEntity(this Drawing drawing, Entity entity)
+        {
+            if (entity.LineTypeSpecification is null)
+            {
+                return null;
+            }
+
+            if (!drawing.LineTypes.KeyExists(entity.LineTypeSpecification.Name))
+            {
+                return null;
+            }
+
+            return drawing.LineTypes.GetValue(entity.LineTypeSpecification.Name);
         }
 
         /// <summary>

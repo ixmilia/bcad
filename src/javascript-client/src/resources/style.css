@@ -194,31 +194,43 @@ body {
 
 /* layer dialog */
 .layer-dialog {
-    width: 500px;
+    width: 600px;
     height: 400px;
 }
 
-.dialog-layer-name-column {
+/* name */
+.dialog-layer-column-1 {
     display: inline-block;
-    width: 200px;
+    width: 150px;
 }
 
-.dialog-layer-list-layer-name {
-    width: 100%;
-}
-
-.dialog-layer-color-column {
+/* color */
+.dialog-layer-column-2 {
     display: inline-block;
     margin-left: 16px;
     width: 80px;
 }
 
-.dialog-layer-visible-column {
+/* is visible */
+.dialog-layer-column-3 {
     display: inline-block;
     width: 64px;
 }
 
-.dialog-layer-command-column {
+/* line type name */
+.dialog-layer-column-4 {
+    display: inline-block;
+    width: 80px;
+}
+
+/* line type scale */
+.dialog-layer-column-5 {
+    display: inline-block;
+    width: 64px;
+}
+
+/* delete button */
+.dialog-layer-column-6 {
     display: inline-block;
     width: 75px;
 }
@@ -229,6 +241,53 @@ body {
 }
 
 .dialog-layer-row {
+    height: 32px;
+}
+
+/* line type dialog */
+.line-type-dialog {
+    width: 600px;
+    height: 400px;
+}
+
+.dialog-line-type-name-column {
+    display: inline-block;
+    width: 150px;
+}
+
+.dialog-line-type-list-line-type-name {
+    width: 100%;
+}
+
+.dialog-line-type-pattern-column {
+    display: inline-block;
+    width: 150px;
+}
+
+.dialog-line-type-list-line-type-pattern {
+    width: 100%;
+}
+
+.dialog-line-type-description-column {
+    display: inline-block;
+    width: 200px;
+}
+
+.dialog-line-type-list-line-type-description {
+    width: 100%;
+}
+
+.dialog-line-type-command-column {
+    display: inline-block;
+    width: 75px;
+}
+
+.dialog-line-type-list {
+    height: 300px;
+    overflow-y: scroll;
+}
+
+.dialog-line-type-row {
     height: 32px;
 }
 

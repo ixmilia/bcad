@@ -26,7 +26,7 @@ namespace IxMilia.BCad.Commands
             var text = textInput.Value;
 
             // add it
-            workspace.AddToCurrentLayer(new Text(text, location, workspace.DrawingPlane.Normal, height, 0.0));
+            workspace.AddToCurrentLayer(new Text(text, location, workspace.DrawingPlane.Normal, height, 0.0, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification));
 
             return true;
         }

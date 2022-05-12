@@ -301,6 +301,22 @@ namespace IxMilia.BCad.Extensions
             );
         }
 
+        public static Entity WithLineTypeSpecification(this Entity entity, LineTypeSpecification lineTypeSpecification)
+        {
+            return entity.MapEntity<Entity>(
+                aggregate => aggregate.Update(lineTypeSpecification: lineTypeSpecification),
+                arc => arc.Update(lineTypeSpecification: lineTypeSpecification),
+                circle => circle.Update(lineTypeSpecification: lineTypeSpecification),
+                ellipse => ellipse.Update(lineTypeSpecification: lineTypeSpecification),
+                image => image.Update(lineTypeSpecification: lineTypeSpecification),
+                line => line.Update(lineTypeSpecification: lineTypeSpecification),
+                location => location.Update(lineTypeSpecification: lineTypeSpecification),
+                polyline => polyline.Update(lineTypeSpecification: lineTypeSpecification),
+                spline => spline.Update(lineTypeSpecification: lineTypeSpecification),
+                text => text.Update(lineTypeSpecification: lineTypeSpecification)
+            );
+        }
+
         public static Entity WithThickness(this Entity entity, double thickness)
         {
             return entity.MapEntity<Entity>(

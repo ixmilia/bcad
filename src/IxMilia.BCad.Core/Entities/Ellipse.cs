@@ -31,13 +31,13 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color = null, object tag = null, double thickness = default(double))
-            : this(new PrimitiveEllipse(center, majorAxis, normal, minorAxisRatio, startAngle, endAngle, color, thickness), tag)
+        public Ellipse(Point center, Vector majorAxis, double minorAxisRatio, double startAngle, double endAngle, Vector normal, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null, double thickness = default(double))
+            : this(new PrimitiveEllipse(center, majorAxis, normal, minorAxisRatio, startAngle, endAngle, color, thickness), lineTypeSpecification, tag)
         {
         }
 
-        public Ellipse(PrimitiveEllipse ellipse, object tag = null)
-            : base(ellipse.Color, tag)
+        public Ellipse(PrimitiveEllipse ellipse, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(ellipse.Color, lineTypeSpecification, tag)
         {
             _primitive = ellipse;
             _primitives = new[] { _primitive };
@@ -97,15 +97,16 @@ namespace IxMilia.BCad.Entities
         }
 
         public Ellipse Update(
-            Optional<Point> center = default(Optional<Point>),
-            Optional<Vector> majorAxis = default(Optional<Vector>),
-            Optional<double> minorAxisRatio = default(Optional<double>),
-            Optional<double> startAngle = default(Optional<double>),
-            Optional<double> endAngle = default(Optional<double>),
-            Optional<Vector> normal = default(Optional<Vector>),
-            Optional<double> thickness = default(Optional<double>),
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<Point> center = default,
+            Optional<Vector> majorAxis = default,
+            Optional<double> minorAxisRatio = default,
+            Optional<double> startAngle = default,
+            Optional<double> endAngle = default,
+            Optional<Vector> normal = default,
+            Optional<double> thickness = default,
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newCenter = center.HasValue ? center.Value : Center;
             var newMajorAxis = majorAxis.HasValue ? majorAxis.Value : MajorAxis;
@@ -115,6 +116,7 @@ namespace IxMilia.BCad.Entities
             var newNormal = normal.HasValue ? normal.Value : Normal;
             var newThickness = thickness.HasValue ? thickness.Value : Thickness;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newCenter == Center &&
@@ -125,12 +127,13 @@ namespace IxMilia.BCad.Entities
                 newNormal == Normal &&
                 newThickness == Thickness &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor, newTag, newThickness);
+            return new Ellipse(newCenter, newMajorAxis, newMinorAxisRatio, newStartAngle, newEndAngle, newNormal, newColor, newLineTypeSpecification, newTag, newThickness);
         }
 
         public override string ToString()

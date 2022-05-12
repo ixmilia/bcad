@@ -20,13 +20,13 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Line(Point p1, Point p2, CadColor? color = null, object tag = null, double thickness = default(double))
-            : this(new PrimitiveLine(p1, p2, color, thickness), tag)
+        public Line(Point p1, Point p2, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null, double thickness = default(double))
+            : this(new PrimitiveLine(p1, p2, color, thickness), lineTypeSpecification, tag)
         {
         }
 
-        public Line(PrimitiveLine line, object tag = null)
-            : base(line.Color, tag)
+        public Line(PrimitiveLine line, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(line.Color, lineTypeSpecification, tag)
         {
             _primitive = line;
             _primitives = new[] { _primitive };
@@ -50,28 +50,31 @@ namespace IxMilia.BCad.Entities
         }
 
         public Line Update(
-            Optional<Point> p1 = default(Optional<Point>),
-            Optional<Point> p2 = default(Optional<Point>),
-            Optional<double> thickness = default(Optional<double>),
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<Point> p1 = default,
+            Optional<Point> p2 = default,
+            Optional<double> thickness = default,
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newP1 = p1.HasValue ? p1.Value : P1;
             var newP2 = p2.HasValue ? p2.Value : P2;
             var newThickness = thickness.HasValue ? thickness.Value : Thickness;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newP1 == P1 &&
                 newP2 == P2 &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag &&
                 newThickness == Thickness)
             {
                 return this;
             }
 
-            return new Line(newP1, newP2, newColor, newTag, newThickness);
+            return new Line(newP1, newP2, newColor, newLineTypeSpecification, newTag, newThickness);
         }
 
         public override string ToString()

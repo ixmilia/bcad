@@ -39,7 +39,7 @@ namespace IxMilia.BCad.Commands
             if (string.IsNullOrWhiteSpace(rawRotationInput)) return false;
             if (!double.TryParse(rawRotationInput, out var imageRotation)) return false;
 
-            var image = new Image(location, imagePath, imageData, imageWidth, imageHeight, imageRotation);
+            var image = new Image(location, imagePath, imageData, imageWidth, imageHeight, imageRotation, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification);
             workspace.AddToCurrentLayer(image);
 
             return true;

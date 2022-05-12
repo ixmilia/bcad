@@ -27,6 +27,12 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal("Color", propertyMap["color"].DisplayName);
             Assert.True(propertyMap.Remove("color"));
 
+            Assert.Equal("Line Type", propertyMap["lineType"].DisplayName);
+            Assert.True(propertyMap.Remove("lineType"));
+
+            Assert.Equal("Line Type Scale", propertyMap["lineTypeScale"].DisplayName);
+            Assert.True(propertyMap.Remove("lineTypeScale"));
+
             return (drawing, propertyMap);
         }
 
@@ -92,9 +98,11 @@ namespace IxMilia.BCad.Rpc.Test
             var drawing = new Drawing().Add(new Layer("test-layer").Add(e1).Add(e2));
             var propertyMap = drawing.GetPropertyPaneValues(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
 
-            Assert.Equal(2, propertyMap.Count);
+            Assert.Equal(4, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
             Assert.Equal(new ClientPropertyPaneValue("color", "Color", null), propertyMap["color"]);
+            Assert.Equal(new ClientPropertyPaneValue("lineType", "Line Type", null, new[] { "(Auto)" }), propertyMap["lineType"]);
+            Assert.Equal(new ClientPropertyPaneValue("lineTypeScale", "Line Type Scale", "1"), propertyMap["lineTypeScale"]);
         }
 
         [Fact]
@@ -120,9 +128,11 @@ namespace IxMilia.BCad.Rpc.Test
             var drawing = new Drawing().Add(layer1).Add(layer2);
             var propertyMap = drawing.GetPropertyPaneValues(new[] { e1, e2 }).ToDictionary(cp => cp.Name);
 
-            Assert.Equal(2, propertyMap.Count);
+            Assert.Equal(4, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", null, new[] { "0", "test-layer-1", "test-layer-2" }, isUnrepresentable: true), propertyMap["layer"]);
             Assert.Equal(new ClientPropertyPaneValue("color", "Color", null, isUnrepresentable: true), propertyMap["color"]);
+            Assert.Equal(new ClientPropertyPaneValue("lineType", "Line Type", null, new[] { "(Auto)" }), propertyMap["lineType"]);
+            Assert.Equal(new ClientPropertyPaneValue("lineTypeScale", "Line Type Scale", "1"), propertyMap["lineTypeScale"]);
         }
 
         [Fact]

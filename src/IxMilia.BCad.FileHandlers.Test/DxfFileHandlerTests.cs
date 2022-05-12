@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
@@ -172,6 +173,19 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
+        public async Task RoundTripLineTypeTest()
+        {
+            var lineType = new LineType("custom-line-type", new[] { 0.5, 0.5 }, "some description");
+            var drawing = new Drawing()
+                .Update(lineTypes: new ReadOnlyTree<string, LineType>().Insert(lineType.Name, lineType));
+            var roundTrippedDrawing = await RoundTripDrawing(drawing);
+            var roundTrippedLineType = roundTrippedDrawing.LineTypes.GetValue(lineType.Name);
+            Assert.Equal("custom-line-type", roundTrippedLineType.Name);
+            Assert.Equal(new[] { 0.5, 0.5 }, roundTrippedLineType.Pattern);
+            Assert.Equal("some description", roundTrippedLineType.Description);
+        }
+
+        [Fact]
         public async Task LayersAreNotDuplicatedOnSave()
         {
             var drawing = new Drawing();
@@ -251,6 +265,50 @@ namespace IxMilia.BCad.FileHandlers.Test
             Assert.Equal(2, poly.Vertices.Count());
             Assert.Equal(new Point(1.0, 2.0, 12.0), poly.Vertices.First().Location);
             Assert.Equal(new Point(3.0, 4.0, 12.0), poly.Vertices.Last().Location);
+        }
+
+        [Fact]
+        public async Task MissingLayersAreAddedOnRead()
+        {
+            var dxfContents = string.Join("\r\n",
+                new[]
+                {
+                    ("  0", "SECTION"),
+                    ("  2", "ENTITIES"),
+                    ("  0", "LINE"),
+                    ("  8", "not-a-layer"), // entity is on a layer that wasn't defined
+                    ("  0", "ENDSEC"),
+                }.Select(pair => $"{pair.Item1}\r\n{pair.Item2}"));
+            using var ms = new MemoryStream();
+            using var writer = new StreamWriter(ms, new UTF8Encoding(false));
+            writer.WriteLine(dxfContents);
+            writer.Flush();
+            ms.Seek(0, SeekOrigin.Begin);
+            var result = await FileHandler.ReadDrawing(null, ms, null);
+            Assert.True(result.Success);
+            Assert.NotNull(result.Drawing.Layers.GetValue("not-a-layer"));
+        }
+
+        [Fact]
+        public async Task MissingLineTypesAreAddedOnRead()
+        {
+            var dxfContents = string.Join("\r\n",
+                new[]
+                {
+                    ("  0", "SECTION"),
+                    ("  2", "ENTITIES"),
+                    ("  0", "LINE"),
+                    ("  6", "not-a-line-type"), // entity uses a line type that's not in the file
+                    ("  0", "ENDSEC"),
+                }.Select(pair => $"{pair.Item1}\r\n{pair.Item2}"));
+            using var ms = new MemoryStream();
+            using var writer = new StreamWriter(ms, new UTF8Encoding(false));
+            writer.WriteLine(dxfContents);
+            writer.Flush();
+            ms.Seek(0, SeekOrigin.Begin);
+            var result = await FileHandler.ReadDrawing(null, ms, null);
+            Assert.True(result.Success);
+            Assert.NotNull(result.Drawing.LineTypes.GetValue("not-a-line-type"));
         }
     }
 }

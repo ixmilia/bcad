@@ -642,19 +642,19 @@ namespace IxMilia.BCad.Extensions
 
         #endregion
 
-        public static Entity ToEntity(this IPrimitive primitive)
+        public static Entity ToEntity(this IPrimitive primitive, LineTypeSpecification lineTypeSpecification = null)
         {
             return primitive.MapPrimitive<Entity>(
                 ellipse => ellipse.MinorAxisRatio == 1.0
                     ? ellipse.IsClosed
-                        ? new Circle(ellipse)
-                        : new Arc(ellipse)
-                    : new Ellipse(ellipse),
-                line => new Line(line),
-                point => new Location(point),
-                text => new Text(text),
-                bezier => Spline.FromBezier(bezier),
-                image => new Image(image)
+                        ? new Circle(ellipse, lineTypeSpecification: lineTypeSpecification)
+                        : new Arc(ellipse, lineTypeSpecification: lineTypeSpecification)
+                    : new Ellipse(ellipse, lineTypeSpecification: lineTypeSpecification),
+                line => new Line(line, lineTypeSpecification: lineTypeSpecification),
+                point => new Location(point, lineTypeSpecification: lineTypeSpecification),
+                text => new Text(text, lineTypeSpecification: lineTypeSpecification),
+                bezier => Spline.FromBezier(bezier, lineTypeSpecification: lineTypeSpecification),
+                image => new Image(image, lineTypeSpecification: lineTypeSpecification)
             );
         }
 

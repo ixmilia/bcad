@@ -97,7 +97,7 @@ namespace IxMilia.BCad.Rpc
             {
                 foreach (var primitive in entity.GetPrimitives())
                 {
-                    AddPrimitiveToDrawing(clientUpdate.SelectedEntitiesDrawing, primitive, fallBackColor);
+                    AddPrimitiveToDrawing(clientUpdate.SelectedEntitiesDrawing, primitive, null, fallBackColor);
                 }
             }
 
@@ -140,7 +140,7 @@ namespace IxMilia.BCad.Rpc
             var fallBackColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
             foreach (var primitive in primitives)
             {
-                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, fallBackColor);
+                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, null, fallBackColor);
             }
 
             PushUpdate(clientUpdate);
@@ -245,7 +245,18 @@ namespace IxMilia.BCad.Rpc
 
         public void ChangeCurrentLayer(string currentLayer)
         {
-            Workspace.Update(drawing: Workspace.Drawing.Update(currentLayerName: currentLayer));
+            Workspace.SetCurrentLayer(currentLayer);
+        }
+
+        public void ChangeCurrentLineType(string currentLineType)
+        {
+            if (currentLineType == "(Auto)")
+            {
+                currentLineType = null;
+            }
+
+            var currentLineTypeSpecification = Workspace.Drawing.Settings.CurrentLineTypeSpecification?.Update(name: currentLineType) ?? new LineTypeSpecification(currentLineType, 1.0);
+            Workspace.Update(drawing: Workspace.Drawing.Update(settings: Workspace.Drawing.Settings.Update(currentLineTypeSpecification: currentLineTypeSpecification)));
         }
 
         public void Cancel()
@@ -375,28 +386,39 @@ namespace IxMilia.BCad.Rpc
         {
             var drawing = Workspace.Drawing;
             var clientDrawing = new ClientDrawing(drawing.Settings.FileName);
-            clientDrawing.CurrentLayer = drawing.CurrentLayerName;
+            clientDrawing.CurrentLayer = drawing.Settings.CurrentLayerName;
             foreach (var layer in drawing.GetLayers())
             {
+                var layerLineType = drawing.GetLineTypeFromLayer(layer);
+                var layerLineTypePattern = layerLineType is not null
+                    ? layerLineType.Pattern.Select(p => p * layer.LineTypeSpecification.Scale).ToArray()
+                    : null;
                 clientDrawing.Layers.Add(layer.Name);
                 if (layer.IsVisible)
                 {
                     foreach (var entity in layer.GetEntities())
                     {
                         var entityColor = entity.Color ?? layer.Color;
+                        var entityLineType = drawing.GetLineTypeFromEntity(entity);
+                        var entityLineTypePattern = entityLineType is not null
+                            ? entityLineType.Pattern.Select(p => p * entity.LineTypeSpecification.Scale).ToArray()
+                            : layerLineTypePattern;
                         foreach (var primitive in entity.GetPrimitives())
                         {
-                            AddPrimitiveToDrawing(clientDrawing, primitive, fallBackColor: entityColor);
+                            AddPrimitiveToDrawing(clientDrawing, primitive, entityLineTypePattern, fallBackColor: entityColor);
                         }
                     }
                 }
             }
 
+            clientDrawing.CurrentLineType = drawing.Settings.CurrentLineTypeSpecification?.Name;
+            clientDrawing.LineTypes.AddRange(drawing.GetLineTypes().Select(lt => lt.Name));
+
             clientDrawing.Layers.Sort();
             return clientDrawing;
         }
 
-        private void AddPrimitiveToDrawing(ClientDrawing clientDrawing, IPrimitive primitive, CadColor? fallBackColor)
+        private void AddPrimitiveToDrawing(ClientDrawing clientDrawing, IPrimitive primitive, double[] linePattern, CadColor? fallBackColor)
         {
             var primitiveColor = primitive.Color ?? fallBackColor;
             primitive.DoPrimitive(
@@ -409,9 +431,9 @@ namespace IxMilia.BCad.Rpc
                         endAngle += 360.0;
                     }
                     var transform = Matrix4.CreateScale(1.0, 1.0, 0.0) * ellipse.FromUnitCircle; // flatten display in z-plane
-                    clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, transform.ToTransposeArray(), primitiveColor));
+                    clientDrawing.Ellipses.Add(new ClientEllipse(startAngle, endAngle, transform.ToTransposeArray(), primitiveColor, linePattern));
                 },
-                line => clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor)),
+                line => clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor, linePattern)),
                 point => clientDrawing.Points.Add(new ClientPointLocation(point.Location, primitiveColor)),
                 text => clientDrawing.Text.Add(new ClientText(text.Value, text.Location, text.Height, text.Rotation, primitiveColor)),
                 bezier =>
@@ -422,7 +444,7 @@ namespace IxMilia.BCad.Rpc
                     {
                         var t = (double)i / lineSegments;
                         var next = bezier.ComputeParameterizedPoint(t);
-                        clientDrawing.Lines.Add(new ClientLine(last, next, primitiveColor));
+                        clientDrawing.Lines.Add(new ClientLine(last, next, primitiveColor, linePattern));
                         last = next;
                     }
                 },

@@ -21,7 +21,7 @@ namespace IxMilia.BCad.Commands
                 return true;
             }
 
-            drawing = drawing.CombineEntitiesIntoPolyline(entities, drawing.CurrentLayerName);
+            drawing = drawing.CombineEntitiesIntoPolyline(entities, drawing.Settings.CurrentLayerName);
             workspace.Update(drawing);
             return true;
         }

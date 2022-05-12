@@ -134,12 +134,12 @@ namespace IxMilia.BCad.FileHandlers.Extensions
         public static Line ToLine(this IgesLine line)
         {
             // TODO: handle different forms (segment, ray, continuous)
-            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), GetColor(line), line);
+            return new Line(TransformPoint(line, line.P1), TransformPoint(line, line.P2), GetColor(line), null, line);
         }
 
         public static Location ToLocation(this IgesLocation point)
         {
-            return new Location(new Point(point.X, point.Y, point.Z), GetColor(point), point);
+            return new Location(new Point(point.X, point.Y, point.Z), GetColor(point), null, point);
         }
 
         public static Entity ToArc(this IgesCircularArc arc)
@@ -163,7 +163,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             // if start/end points are the same, it's a circle.  otherwise it's an arc
             if (startPoint.CloseTo(endPoint))
             {
-                return new Circle(center, radius, normal, GetColor(arc), arc);
+                return new Circle(center, radius, normal, GetColor(arc), null, arc);
             }
             else
             {
@@ -177,7 +177,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 var endUnit = toUnit.Transform(endPoint);
                 var startAngle = ((Vector)startUnit).ToAngle();
                 var endAngle = ((Vector)endUnit).ToAngle();
-                return new Arc(center, radius, startAngle, endAngle, normal, GetColor(arc), arc);
+                return new Arc(center, radius, startAngle, endAngle, normal, GetColor(arc), null, arc);
             }
         }
 

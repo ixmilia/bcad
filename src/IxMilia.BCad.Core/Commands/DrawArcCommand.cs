@@ -47,7 +47,8 @@ namespace IxMilia.BCad.Commands
                                 primitiveArc.MajorAxis.Length,
                                 primitiveArc.StartAngle,
                                 primitiveArc.EndAngle,
-                                primitiveArc.Normal);
+                                primitiveArc.Normal,
+                                lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification);
                             workspace.AddToCurrentLayer(arc);
                             return true;
                         }

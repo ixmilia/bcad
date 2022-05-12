@@ -61,7 +61,7 @@ namespace IxMilia.BCad.Commands
                 points.Add(points.First());
             }
 
-            var polyline = new Polyline(points);
+            var polyline = new Polyline(points, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification);
             workspace.AddToCurrentLayer(polyline);
             return true;
         }

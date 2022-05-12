@@ -35,13 +35,13 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, CadColor? color = null, object tag = null, double thickness = default(double))
-            : this(new PrimitiveEllipse(center, radius, startAngle, endAngle, normal, color, thickness), tag)
+        public Arc(Point center, double radius, double startAngle, double endAngle, Vector normal, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null, double thickness = default(double))
+            : this(new PrimitiveEllipse(center, radius, startAngle, endAngle, normal, color, thickness), lineTypeSpecification, tag)
         {
         }
 
-        public Arc(PrimitiveEllipse arc, object tag = null)
-            : base(arc.Color, tag)
+        public Arc(PrimitiveEllipse arc, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(arc.Color, lineTypeSpecification, tag)
         {
             if (arc.MinorAxisRatio != 1.0)
             {
@@ -82,14 +82,15 @@ namespace IxMilia.BCad.Entities
         }
 
         public Arc Update(
-            Optional<Point> center = default(Optional<Point>),
-            Optional<double> radius = default(Optional<double>),
-            Optional<double> startAngle = default(Optional<double>),
-            Optional<double> endAngle = default(Optional<double>),
-            Optional<Vector> normal = default(Optional<Vector>),
-            Optional<double> thickness = default(Optional<double>),
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<Point> center = default,
+            Optional<double> radius = default,
+            Optional<double> startAngle = default,
+            Optional<double> endAngle = default,
+            Optional<Vector> normal = default,
+            Optional<double> thickness = default,
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newCenter = center.HasValue ? center.Value : Center;
             var newRadius = radius.HasValue ? radius.Value : Radius;
@@ -98,6 +99,7 @@ namespace IxMilia.BCad.Entities
             var newNormal = normal.HasValue ? normal.Value : Normal;
             var newThickness = thickness.HasValue ? thickness.Value : Thickness;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newCenter == Center &&
@@ -107,12 +109,13 @@ namespace IxMilia.BCad.Entities
                 newNormal == Normal &&
                 newThickness == Thickness &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Arc(newCenter, newRadius, newStartAngle, newEndAngle, newNormal, newColor, newTag, newThickness);
+            return new Arc(newCenter, newRadius, newStartAngle, newEndAngle, newNormal, newColor, newLineTypeSpecification, newTag, newThickness);
         }
 
         public override string ToString()

@@ -42,6 +42,17 @@ namespace IxMilia.BCad.Rpc
                         result = layerDialogResult;
                     }
                     break;
+                case "line-type":
+                    var lineTypeParameters = (LineTypeDialogParameters)parameter;
+                    var clientLineTypeParameters = new ClientLineTypeParameters(lineTypeParameters);
+                    var resultObject2 = await Agent.ShowDialog(id, clientLineTypeParameters);
+                    if (resultObject2 != null)
+                    {
+                        var clientLineTypeResult = resultObject2.ToObject<ClientLineTypeResult>();
+                        var lineTypeDialogResult = clientLineTypeResult.ToDialogResult();
+                        result = lineTypeDialogResult;
+                    }
+                    break;
                 case "FileSettings":
                     var settingsResult = await Agent.ShowDialog(id, parameter);
                     if (settingsResult != null)

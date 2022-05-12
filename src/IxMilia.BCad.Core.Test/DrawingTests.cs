@@ -23,7 +23,7 @@ namespace IxMilia.BCad.Core.Test
             Workspace.SetCurrentLayer("Other");
             Workspace.AddToCurrentLayer(Line());
             Assert.Equal(1, Workspace.GetLayer("Other").EntityCount);
-            Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
+            Assert.Equal("Other", Workspace.Drawing.Settings.CurrentLayerName);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace IxMilia.BCad.Core.Test
             Workspace.SetCurrentLayer("Other");
             Workspace.Add(Workspace.GetLayer("0"), Line());
             Assert.Equal(1, Workspace.GetLayer("0").EntityCount);
-            Assert.Equal(Workspace.GetLayer("Other"), Workspace.Drawing.CurrentLayer);
+            Assert.Equal("Other", Workspace.Drawing.Settings.CurrentLayerName);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace IxMilia.BCad.Core.Test
             Workspace.AddLayer("Other");
             Workspace.SetCurrentLayer("Other");
             Workspace.Remove(Workspace.GetLayer("Other"));
-            Assert.Equal(Workspace.GetLayer("0"), Workspace.Drawing.CurrentLayer);
+            Assert.Equal("0", Workspace.Drawing.Settings.CurrentLayerName);
         }
 
         [Fact]
@@ -50,8 +50,8 @@ namespace IxMilia.BCad.Core.Test
         {
             var zero = Workspace.GetLayer("0");
             Workspace.Remove(zero);
-            Assert.Equal(Workspace.GetLayer("0"), Workspace.Drawing.CurrentLayer);
-            Assert.NotEqual(zero, Workspace.Drawing.CurrentLayer);
+            Assert.Equal("0", Workspace.Drawing.Settings.CurrentLayerName);
+            Assert.NotSame(zero, Workspace.GetLayer("0"));
         }
 
         [Fact]
@@ -119,8 +119,9 @@ namespace IxMilia.BCad.Core.Test
             };
             var drawing = new Drawing()
                 .Add(new Layer("some-layer"))
-                .Add(new Layer("some-other-layer"))
-                .Update(currentLayerName: "some-layer");
+                .Add(new Layer("some-other-layer"));
+            drawing = drawing
+                .Update(settings: drawing.Settings.Update(currentLayerName: "some-layer"));
             foreach (var entity in entities)
             {
                 drawing = drawing.AddToCurrentLayer(entity);

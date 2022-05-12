@@ -25,13 +25,13 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Image(Point location, string path, byte[] imageData, double width, double height, double rotation, CadColor? color = null, object tag = null)
-            : this(new PrimitiveImage(location, imageData, path, width, height, rotation, color), tag)
+        public Image(Point location, string path, byte[] imageData, double width, double height, double rotation, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : this(new PrimitiveImage(location, imageData, path, width, height, rotation, color), lineTypeSpecification, tag)
         {
         }
 
-        public Image(PrimitiveImage image, object tag = null)
-            : base(image.Color, tag)
+        public Image(PrimitiveImage image, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(image.Color, lineTypeSpecification, tag)
         {
             _image = image ?? throw new ArgumentNullException(nameof(image));
 
@@ -51,14 +51,15 @@ namespace IxMilia.BCad.Entities
         public override IEnumerable<SnapPoint> GetSnapPoints() => _snapPoints;
 
         public Image Update(
-            Optional<Point> location = default(Optional<Point>),
+            Optional<Point> location = default,
             byte[] imageData = null,
             string path = null,
-            Optional<double> width = default(Optional<double>),
-            Optional<double> height = default(Optional<double>),
-            Optional<double> rotation = default(Optional<double>),
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<double> width = default,
+            Optional<double> height = default,
+            Optional<double> rotation = default,
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newLocation = location.HasValue ? location.Value : Location;
             var newPath = path ?? Path;
@@ -67,6 +68,7 @@ namespace IxMilia.BCad.Entities
             var newHeight = height.HasValue ? height.Value : Height;
             var newRotation = rotation.HasValue ? rotation.Value : Rotation;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newLocation == Location &&
@@ -75,12 +77,13 @@ namespace IxMilia.BCad.Entities
                 newHeight == Height &&
                 newRotation == Rotation &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Image(newLocation, newPath, newImageData, newWidth, newHeight, newRotation, newColor, newTag);
+            return new Image(newLocation, newPath, newImageData, newWidth, newHeight, newRotation, newColor, newLineTypeSpecification, newTag);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Primitives;
 
 namespace IxMilia.BCad.Commands
@@ -22,7 +23,7 @@ namespace IxMilia.BCad.Commands
                 if (current.Cancel) break;
                 if (current.HasValue)
                 {
-                    workspace.AddToCurrentLayer(new Line(last, current.Value));
+                    workspace.AddToCurrentLayer(new Line(last, current.Value, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification));
                     last = current.Value;
                     if (last == first) break; // closed
                 }
@@ -30,7 +31,7 @@ namespace IxMilia.BCad.Commands
                 {
                     if (last != first)
                     {
-                        workspace.AddToCurrentLayer(new Line(last, first));
+                        workspace.AddToCurrentLayer(new Line(last, first, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification));
                     }
                     break;
                 }

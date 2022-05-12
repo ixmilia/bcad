@@ -16,13 +16,13 @@ namespace IxMilia.BCad.Entities
 
         public override BoundingBox BoundingBox { get; }
 
-        public Location(Point location, CadColor? color = null, object tag = null)
-            : this(new PrimitivePoint(location, color), tag)
+        public Location(Point location, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : this(new PrimitivePoint(location, color), lineTypeSpecification, tag)
         {
         }
 
-        public Location(PrimitivePoint point, object tag = null)
-            : base(point.Color, tag)
+        public Location(PrimitivePoint point, LineTypeSpecification lineTypeSpecification = null, object tag = null)
+            : base(point.Color, lineTypeSpecification, tag)
         {
             _primitive = point;
             _primitives = new[] { _primitive };
@@ -44,22 +44,25 @@ namespace IxMilia.BCad.Entities
         }
 
         public Location Update(
-            Optional<Point> point = default(Optional<Point>),
-            Optional<CadColor?> color = default(Optional<CadColor?>),
-            Optional<object> tag = default(Optional<object>))
+            Optional<Point> point = default,
+            Optional<CadColor?> color = default,
+            Optional<LineTypeSpecification> lineTypeSpecification = default,
+            Optional<object> tag = default)
         {
             var newPoint = point.HasValue ? point.Value : Point;
             var newColor = color.HasValue ? color.Value : Color;
+            var newLineTypeSpecification = lineTypeSpecification.HasValue ? lineTypeSpecification.Value : LineTypeSpecification;
             var newTag = tag.HasValue ? tag.Value : Tag;
 
             if (newPoint == Point &&
                 newColor == Color &&
+                newLineTypeSpecification == LineTypeSpecification &&
                 newTag == Tag)
             {
                 return this;
             }
 
-            return new Location(newPoint, newColor, newTag);
+            return new Location(newPoint, newColor, newLineTypeSpecification, newTag);
         }
 
         public override string ToString()
