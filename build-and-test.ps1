@@ -18,6 +18,8 @@ function Set-EnvironmentVariable([string]$name, [string]$value) {
 }
 
 try {
+    $runTests = -Not $noTest
+
     # build submodule
     Push-Location "$PSScriptRoot/src/IxMilia.Converters"
     . .\build-and-test.ps1 -configuration $configuration -noTest
@@ -42,7 +44,7 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # tests
-    if (-Not $noTest) {
+    if ($runTests) {
         dotnet test --no-restore --no-build --configuration $configuration
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
