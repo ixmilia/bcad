@@ -3,6 +3,8 @@ import { SettingsRibbon } from './settingsRibbon';
 import { DebugRibbon } from './debugRibbon';
 
 export class Ribbon {
+    private debugRibbon: DebugRibbon;
+
     constructor(client: Client) {
         document.querySelectorAll(".command-button, .command-button-small, .command-button-tiny").forEach(node => {
             let button = <HTMLButtonElement>node;
@@ -48,6 +50,12 @@ export class Ribbon {
         });
 
         new SettingsRibbon(client);
-        new DebugRibbon(client);
+        this.debugRibbon = new DebugRibbon(client);
+    }
+
+    public reportFps(fps: number) {
+        if (this.debugRibbon) {
+            this.debugRibbon.setFps(fps);
+        }
     }
 }

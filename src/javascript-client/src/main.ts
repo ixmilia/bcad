@@ -124,8 +124,8 @@ async function start(argArray: string[]): Promise<void> {
     new LineTypeSelector(client);
     new InputConsole(client, shortcutHandler);
     new OutputConsole(client);
-    new Ribbon(client);
-    new ViewControl(client);
+    const ribbon = new Ribbon(client);
+    new ViewControl(client, fps => ribbon.reportFps(fps));
     new PropertyPane(client);
 
     let dialogHandler = new DialogHandler(client);

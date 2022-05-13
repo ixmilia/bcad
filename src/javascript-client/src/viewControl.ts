@@ -92,7 +92,7 @@ export class ViewControl {
     private frameTimes: number[] = [];
     private maxFrameTimes: number = 10;
 
-    constructor(client: Client) {
+    constructor(client: Client, private reportFps: (fps: number) => void) {
         this.client = client;
 
         // DOM
@@ -747,10 +747,8 @@ export class ViewControl {
 
         if (this.frameTimes.length > 0) {
             const avgFrameTime = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
-            const fpsText = `${Math.round(1000 / avgFrameTime)} fps`;
-            this.flatContext.font = '20px monospace';
-            this.flatContext.fillStyle = ViewControl.colorToHex(this.settings.AutoColor);
-            this.flatContext.fillText(fpsText, 0, this.twod.canvas.height);
+            const fps = Math.round(1000 / avgFrameTime);
+            this.reportFps(fps);
         }
     }
 

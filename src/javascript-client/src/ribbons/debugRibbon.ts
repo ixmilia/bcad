@@ -13,6 +13,17 @@ export class DebugRibbon {
                     document.getElementById(`debug-transform-m${r}${c}`)!.innerText = d;
                 }
             }
+
+            if (clientUpdate.Drawing) {
+                document.getElementById('debug-ribbon-line-count')!.innerText = `${clientUpdate.Drawing.Lines.length}`;
+                document.getElementById('debug-ribbon-ellipse-count')!.innerText = `${clientUpdate.Drawing.Ellipses.length}`;
+                document.getElementById('debug-ribbon-text-count')!.innerText = `${clientUpdate.Drawing.Text.length}`;
+                document.getElementById('debug-ribbon-point-count')!.innerText = `${clientUpdate.Drawing.Points.length}`;
+            }
         });
+    }
+
+    public setFps(fps: number) {
+        document.getElementById('debug-ribbon-fps')!.innerText = `${fps}`;
     }
 }
