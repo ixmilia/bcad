@@ -29,12 +29,12 @@
     <Compile Include="FileDialogs.Windows.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <PackageReference Include="GtkSharp" Version="3.24.24.34" />
+    <PackageReference Include="GtkSharp" Version="$(GtkSharpPackageVersion)" />
     <Compile Include="FileDialogs.Other.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Photino.NET" Version="2.0.13" />
+    <PackageReference Include="Photino.NET" Version="$(PhotinoNETPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

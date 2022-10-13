@@ -1,11 +1,13 @@
 <Project>
 
   <PropertyGroup>
-    <MicrosoftNETTestSdkPackageVersion>17.0.0</MicrosoftNETTestSdkPackageVersion>
-    <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
+    <GtkSharpPackageVersion>3.24.24.38</GtkSharpPackageVersion>
+    <MicrosoftNETTestSdkPackageVersion>17.3.2</MicrosoftNETTestSdkPackageVersion>
+    <MicrosoftSourceLinkGitHubPackageVersion>1.1.1</MicrosoftSourceLinkGitHubPackageVersion>
     <NewtonsoftJsonPackageVersion>13.0.1</NewtonsoftJsonPackageVersion>
-    <xunitPackageVersion>2.4.1</xunitPackageVersion>
-    <xunitrunnervisualstudioPackageVersion>2.4.3</xunitrunnervisualstudioPackageVersion>
+    <PhotinoNETPackageVersion>2.3.0</PhotinoNETPackageVersion>
+    <xunitPackageVersion>2.4.2</xunitPackageVersion>
+    <xunitrunnervisualstudioPackageVersion>2.4.5</xunitrunnervisualstudioPackageVersion>
   </PropertyGroup>
 
 </Project>
