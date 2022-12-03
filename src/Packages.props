@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <GtkSharpPackageVersion>3.24.24.38</GtkSharpPackageVersion>
-    <MicrosoftNETTestSdkPackageVersion>17.3.2</MicrosoftNETTestSdkPackageVersion>
+    <MicrosoftNETTestSdkPackageVersion>17.4.0</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.1.1</MicrosoftSourceLinkGitHubPackageVersion>
-    <NewtonsoftJsonPackageVersion>13.0.1</NewtonsoftJsonPackageVersion>
+    <NewtonsoftJsonPackageVersion>13.0.2</NewtonsoftJsonPackageVersion>
     <PhotinoNETPackageVersion>2.3.0</PhotinoNETPackageVersion>
+    <StreamJsonRpcPackageVersion>2.13.33</StreamJsonRpcPackageVersion>
     <xunitPackageVersion>2.4.2</xunitPackageVersion>
     <xunitrunnervisualstudioPackageVersion>2.4.5</xunitrunnervisualstudioPackageVersion>
   </PropertyGroup>
