@@ -60,6 +60,12 @@ try {
             --self-contained `
             --output $packageOutputDir
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        dotnet publish "$PSScriptRoot/src/bccoreconsole/bccoreconsole.csproj" `
+            --configuration $configuration `
+            --runtime "$os-$arch" `
+            --self-contained `
+            --output $packageOutputDir
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         # create package
         $extension = if ($IsWindows) { "zip" } else { "tar.gz" }
