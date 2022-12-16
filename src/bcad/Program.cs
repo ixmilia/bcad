@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
@@ -32,12 +33,63 @@ namespace bcad
 
             server.Workspace.SettingsService.RegisterSetting(DisplaySettingsNames.Theme, typeof(string), "xp/98.css");
 
+            Action CloseApplication = () => { };
+
             server.Agent.IsReady += (o, e) =>
             {
-                if (args.Length == 1)
+                string batchFile = null;
+                string fileToOpen = null;
+                for (int i = 0; i < args.Length; i++)
                 {
-                    var _ = server.Workspace.ExecuteCommand("File.Open", args[0]);
+                    var arg = args[i];
+                    switch (arg.ToLowerInvariant())
+                    {
+                        case "/b":
+                            if (i + 1 < args.Length)
+                            {
+                                batchFile = args[i + 1];
+                                i++;
+                            }
+                            else
+                            {
+                                throw new ArgumentException($"Expected batch file");
+                            }
+                            break;
+                        default:
+                            if (fileToOpen is null)
+                            {
+                                fileToOpen = arg;
+                            }
+                            else
+                            {
+                                throw new ArgumentException($"File already specified; unexpected argument {arg}");
+                            }
+                            break;
+                    }
                 }
+
+                var _ = Task.Run(async () =>
+                {
+                    if (fileToOpen is object)
+                    {
+                        await server.Workspace.ExecuteCommand("File.Open", fileToOpen);
+                    }
+
+                    if (batchFile is object)
+                    {
+                        var batchCommandLines = File.ReadAllLines(batchFile).Select(line => line.Trim()).Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+                        foreach (var batchCommandLine in batchCommandLines)
+                        {
+                            var result = await server.Workspace.ExecuteCommandLine(batchCommandLine);
+                            if (!result)
+                            {
+                                throw new Exception($"Error executing batch command: {batchCommandLine}");
+                            }
+                        }
+
+                        CloseApplication();
+                    }
+                });
             };
 
             // try to load settings
@@ -84,7 +136,6 @@ namespace bcad
                         // don't let this die
                     }
                 });
-            SetTitle(window, server.Workspace);
 
             window.RegisterCustomSchemeHandler("app", (object sender, string scheme, string url, out string contentType) =>
             {
@@ -127,6 +178,12 @@ namespace bcad
                 }
 
                 return false;
+            };
+
+            CloseApplication = () =>
+            {
+                doHardClose = true;
+                window.Close();
             };
 
             var _ = Task.Run(async () =>

@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.EventArguments;
+using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad
@@ -163,6 +167,60 @@ namespace IxMilia.BCad
         public static FileSpecification GetFileSpecificationFromExtension(this IWorkspace _workspace, string extension)
         {
             return DrawingFileSpecifications.Concat(PlotFileSpecifications).FirstOrDefault(spec => spec.FileExtensions.Contains(extension));
+        }
+
+        public static async Task<bool> ExecuteCommandLine(this IWorkspace workspace, string commandLine)
+        {
+            if (!CommandLineSplitter.TrySplitCommandLine(commandLine, out var parts))
+            {
+                return false;
+            }
+
+            if (parts.Length == 0)
+            {
+                return false;
+            }
+
+            var command = parts[0];
+            var arguments = parts.Skip(1).ToArray();
+            var argumentIndex = 0;
+            var pushedNone = false;
+            void ValueRequestedHandler(object sender, ValueRequestedEventArgs e)
+            {
+                if (argumentIndex >= arguments.Length)
+                {
+                    if (pushedNone)
+                    {
+                        throw new Exception("Command already finished");
+                    }
+                    else
+                    {
+                        pushedNone = true;
+                        workspace.InputService.PushNone();
+                    }
+                }
+                else
+                {
+                    var argValue = arguments[argumentIndex];
+                    var result = workspace.InputService.TrySubmitValue(argValue);
+                    argumentIndex++;
+                }
+            };
+            void ExecutionFinished(object sender, CadCommandExecutedEventArgs e)
+            {
+                if (argumentIndex < arguments.Length)
+                {
+                    throw new ArgumentException($"Unconsumed arguments: {string.Join(", ", arguments.Skip(argumentIndex))}");
+                }
+            }
+
+            workspace.CommandExecuted += ExecutionFinished;
+            workspace.InputService.ValueRequested += ValueRequestedHandler;
+            var result = await workspace.ExecuteCommand(command);
+            workspace.InputService.ValueRequested -= ValueRequestedHandler;
+            workspace.CommandExecuted -= ExecutionFinished;
+
+            return result;
         }
     }
 }

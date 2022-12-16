@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using Xunit;
@@ -78,6 +79,80 @@ namespace IxMilia.BCad.Core.Test
             Assert.True(result);
             var actual = (Line)Workspace.Drawing.GetEntities().Single();
             Assert.True(actual.EquivalentTo(new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0))));
+        }
+
+        [Fact]
+        public void SplitLineIntoCommandParts()
+        {
+            Assert.True(CommandLineSplitter.TrySplitCommandLine(@" part1 ""part \""2\""""   3   4.0 ", out var parts));
+            Assert.Equal(new[] { "part1", "part \"2\"", "3", "4.0" }, parts);
+        }
+
+        [Fact]
+        public void SplitCommandLineIntoPartsNonStringAtEnd()
+        {
+            Assert.True(CommandLineSplitter.TrySplitCommandLine("a b", out var parts));
+            Assert.Equal(new[] { "a", "b" }, parts);
+        }
+
+        [Fact]
+        public void SplitCommandLineIntoPartsStringAtEnd()
+        {
+            Assert.True(CommandLineSplitter.TrySplitCommandLine(@"a \""b\""", out var parts));
+            Assert.Equal(new[] { "a", @"\""b\""" }, parts);
+        }
+
+        [Fact]
+        public void SplitCommandExceptionOnUnterminatedString()
+        {
+            Assert.False(CommandLineSplitter.TrySplitCommandLine(@"a ""b", out var _));
+        }
+
+        [Fact]
+        public async Task InsertLineSegments()
+        {
+            var result = await Workspace.ExecuteCommandLine(@"LINE 0,0 1,0");
+            Assert.True(result);
+            var entities = Workspace.Drawing.GetEntities().ToArray();
+            var line = (Line)entities.Single();
+            Assert.Equal(new Point(0.0, 0.0, 0.0), line.P1);
+            Assert.Equal(new Point(1.0, 0.0, 0.0), line.P2);
+        }
+
+        [Fact]
+        public async Task InsertLineSegmentsWithCloseCommand()
+        {
+            var result = await Workspace.ExecuteCommandLine(@"LINE 0,0 1,0 0,1 c");
+            Assert.True(result);
+            var entities = Workspace.Drawing.GetEntities().ToArray();
+            Assert.Equal(3, entities.Length);
+            var l1 = (Line)entities[0];
+            var l2 = (Line)entities[1];
+            var l3 = (Line)entities[2];
+            Assert.Equal(new Point(0.0, 0.0, 0.0), l1.P1);
+            Assert.Equal(new Point(1.0, 0.0, 0.0), l1.P2);
+            Assert.Equal(new Point(1.0, 0.0, 0.0), l2.P1);
+            Assert.Equal(new Point(0.0, 1.0, 0.0), l2.P2);
+            Assert.Equal(new Point(0.0, 1.0, 0.0), l3.P1);
+            Assert.Equal(new Point(0.0, 0.0, 0.0), l3.P2);
+        }
+
+        [Fact]
+        public async Task InsertTextFromCommandLine()
+        {
+            var result = await Workspace.ExecuteCommandLine(@"TEXT 1,2 3 test");
+            Assert.True(result);
+            var actual = (Text)Workspace.Drawing.GetEntities().Single();
+            Assert.Equal(new Point(1.0, 2.0, 0.0), actual.Location);
+            Assert.Equal(3.0, actual.Height);
+            Assert.Equal("test", actual.Value);
+        }
+
+        [Fact]
+        public async Task ExtraCommandLineArgumentsCausesAnError()
+        {
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => Workspace.ExecuteCommandLine(@"LINE 0,0 1,1 c extra-argument"));
+            Assert.Equal("Unconsumed arguments: extra-argument", ex.Message);
         }
 
         protected async Task<bool> Execute(string command, params TestWorkspaceOperation[] workspaceOperations)
