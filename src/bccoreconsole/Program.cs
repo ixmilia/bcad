@@ -55,14 +55,11 @@ namespace IxMilia.BCad
             }
 
             await workspace.ExecuteCommand("File.Open", inputFile);
-            var batchCommandLines = File.ReadAllLines(scriptFile).Select(line => line.Trim()).Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-            foreach (var batchCommandLine in batchCommandLines)
+            var batchCommandLines = File.ReadAllLines(scriptFile);
+            var result = await workspace.ExecuteTokensFromLinesAsync(batchCommandLines);
+            if (!result)
             {
-                var result = await workspace.ExecuteCommandLine(batchCommandLine);
-                if (!result)
-                {
-                    throw new Exception($"Error executing batch command: {batchCommandLine}");
-                }
+                throw new Exception($"Error executing batch command: {batchCommandLines}");
             }
         }
     }

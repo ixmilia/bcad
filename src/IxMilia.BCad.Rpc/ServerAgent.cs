@@ -349,9 +349,9 @@ namespace IxMilia.BCad.Rpc
             return null;
         }
 
-        public void SubmitInput(string value)
+        public Task SubmitInput(string value)
         {
-            _dim.SubmitInput(value);
+            return _dim.SubmitInputAsync(value);
         }
 
         public void SetPropertyPaneValue(ClientPropertyPaneValue propertyPaneValue)

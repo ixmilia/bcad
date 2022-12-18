@@ -391,12 +391,12 @@ namespace IxMilia.BCad.Display
             }, updateSnapPointsCancellationTokenSource.Token).ConfigureAwait(false);
         }
 
-        public void SubmitInput(string text)
+        public Task SubmitInputAsync(string text)
         {
             var cursorPoint = _workspace.InputService.AllowedInputTypes.HasFlag(InputType.Point)
                 ? _workspace.ViewControl.GetCursorPoint(CancellationToken.None).Result
                 : default;
-            _workspace.InputService.TrySubmitValue(text, cursorPoint);
+            return _workspace.InputService.TrySubmitValueAsync(text, cursorPoint);
         }
 
         private long GetNextDrawSnapPointId()

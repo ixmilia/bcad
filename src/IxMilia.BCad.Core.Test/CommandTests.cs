@@ -82,37 +82,52 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
-        public void SplitLineIntoCommandParts()
+        public void SplitLineIntoTokenPartsGeneratesSingleEmptyToken()
         {
-            Assert.True(CommandLineSplitter.TrySplitCommandLine(@" part1 ""part \""2\""""   3   4.0 ", out var parts));
-            Assert.Equal(new[] { "part1", "part \"2\"", "3", "4.0" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("", out var parts));
+            Assert.Equal(new[] { "" }, parts);
         }
 
         [Fact]
-        public void SplitCommandLineIntoPartsNonStringAtEnd()
+        public void SplitLineIntoTokenParts()
         {
-            Assert.True(CommandLineSplitter.TrySplitCommandLine("a b", out var parts));
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@" part1 ""part 2""   3   4.0 ", out var parts));
+            Assert.Equal(new[] { "part1", "part 2", "3", "4.0" }, parts);
+        }
+
+        [Fact]
+        public void SplitLineIntoTokenPartsNonStringAtEnd()
+        {
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("a b", out var parts));
             Assert.Equal(new[] { "a", "b" }, parts);
         }
 
         [Fact]
-        public void SplitCommandLineIntoPartsStringAtEnd()
+        public void SplitLineIntoTokenPartsStringAtEnd()
         {
-            Assert.True(CommandLineSplitter.TrySplitCommandLine(@"a \""b\""", out var parts));
-            Assert.Equal(new[] { "a", @"\""b\""" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@"a ""b""", out var parts));
+            Assert.Equal(new[] { "a", "b" }, parts);
         }
 
         [Fact]
-        public void SplitCommandExceptionOnUnterminatedString()
+        public void SplitLineIntoTokenPartsBackslashDoesNotEscapeInString()
         {
-            Assert.False(CommandLineSplitter.TrySplitCommandLine(@"a ""b", out var _));
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@" ""C:\path\to\file"" ", out var parts));
+            Assert.Equal(new[] { @"C:\path\to\file" }, parts);
+        }
+
+        [Fact]
+        public void SplitLineFailsOnUnterminatedString()
+        {
+            Assert.False(CommandLineSplitter.TrySplitIntoTokens(@"a ""b", out var _));
         }
 
         [Fact]
         public async Task InsertLineSegments()
         {
-            var result = await Workspace.ExecuteCommandLine(@"LINE 0,0 1,0");
+            var result = await Workspace.ExecuteTokensFromLinesAsync(new[] { "LINE 0,0 1,0", "" });
             Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
             var entities = Workspace.Drawing.GetEntities().ToArray();
             var line = (Line)entities.Single();
             Assert.Equal(new Point(0.0, 0.0, 0.0), line.P1);
@@ -122,8 +137,9 @@ namespace IxMilia.BCad.Core.Test
         [Fact]
         public async Task InsertLineSegmentsWithCloseCommand()
         {
-            var result = await Workspace.ExecuteCommandLine(@"LINE 0,0 1,0 0,1 c");
+            var result = await Workspace.ExecuteTokensFromLineAsync(@"LINE 0,0 1,0 0,1 c");
             Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
             var entities = Workspace.Drawing.GetEntities().ToArray();
             Assert.Equal(3, entities.Length);
             var l1 = (Line)entities[0];
@@ -140,19 +156,13 @@ namespace IxMilia.BCad.Core.Test
         [Fact]
         public async Task InsertTextFromCommandLine()
         {
-            var result = await Workspace.ExecuteCommandLine(@"TEXT 1,2 3 test");
+            var result = await Workspace.ExecuteTokensFromLineAsync(@"TEXT 1,2 3 test");
             Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
             var actual = (Text)Workspace.Drawing.GetEntities().Single();
             Assert.Equal(new Point(1.0, 2.0, 0.0), actual.Location);
             Assert.Equal(3.0, actual.Height);
             Assert.Equal("test", actual.Value);
-        }
-
-        [Fact]
-        public async Task ExtraCommandLineArgumentsCausesAnError()
-        {
-            var ex = await Assert.ThrowsAsync<ArgumentException>(() => Workspace.ExecuteCommandLine(@"LINE 0,0 1,1 c extra-argument"));
-            Assert.Equal("Unconsumed arguments: extra-argument", ex.Message);
         }
 
         protected async Task<bool> Execute(string command, params TestWorkspaceOperation[] workspaceOperations)

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Services;
 
 namespace IxMilia.BCad.Extensions
@@ -24,8 +25,14 @@ namespace IxMilia.BCad.Extensions
             };
         }
 
-        public static bool TrySubmitValue(this IInputService inputService, string text, Point cursorPoint = default)
+        public static async Task<bool> TrySubmitValueAsync(this IInputService inputService, string text, Point cursorPoint = default)
         {
+            var valueReceivedTaskCompletionSource = new TaskCompletionSource<bool>();
+            void ValueReceivedHandler(object sender, ValueReceivedEventArgs e) => valueReceivedTaskCompletionSource.SetResult(true);
+
+            inputService.ValueReceived += ValueReceivedHandler;
+
+            var result = true;
             if (inputService.AllowedInputTypes.HasFlag(InputType.Directive) &&
                 inputService.AllowedDirectives.Contains(text))
             {
@@ -48,6 +55,10 @@ namespace IxMilia.BCad.Extensions
                 {
                     inputService.PushPoint(point);
                 }
+                else
+                {
+                    inputService.PushNone();
+                }
             }
             else if (inputService.AllowedInputTypes.HasFlag(InputType.Command))
             {
@@ -60,10 +71,19 @@ namespace IxMilia.BCad.Extensions
             else
             {
                 // not sure what to do
-                return false;
+                result = false;
             }
 
-            return true;
+            if (!result)
+            {
+                // still have to complete the task
+                valueReceivedTaskCompletionSource.SetResult(false);
+            }
+
+            await valueReceivedTaskCompletionSource.Task;
+            inputService.ValueReceived -= ValueReceivedHandler;
+
+            return result;
         }
     }
 }

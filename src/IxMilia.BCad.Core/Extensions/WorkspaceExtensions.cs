@@ -169,58 +169,37 @@ namespace IxMilia.BCad
             return DrawingFileSpecifications.Concat(PlotFileSpecifications).FirstOrDefault(spec => spec.FileExtensions.Contains(extension));
         }
 
-        public static async Task<bool> ExecuteCommandLine(this IWorkspace workspace, string commandLine)
+        public static async Task<bool> ExecuteTokensFromLineAsync(this IWorkspace workspace, string line)
         {
-            if (!CommandLineSplitter.TrySplitCommandLine(commandLine, out var parts))
+            if (!CommandLineSplitter.TrySplitIntoTokens(line, out var tokens))
             {
                 return false;
             }
 
-            if (parts.Length == 0)
+            foreach (var token in tokens)
             {
-                return false;
-            }
-
-            var command = parts[0];
-            var arguments = parts.Skip(1).ToArray();
-            var argumentIndex = 0;
-            var pushedNone = false;
-            void ValueRequestedHandler(object sender, ValueRequestedEventArgs e)
-            {
-                if (argumentIndex >= arguments.Length)
+                var result = await workspace.InputService.TrySubmitValueAsync(token);
+                if (!result)
                 {
-                    if (pushedNone)
-                    {
-                        throw new Exception("Command already finished");
-                    }
-                    else
-                    {
-                        pushedNone = true;
-                        workspace.InputService.PushNone();
-                    }
-                }
-                else
-                {
-                    var argValue = arguments[argumentIndex];
-                    var result = workspace.InputService.TrySubmitValue(argValue);
-                    argumentIndex++;
-                }
-            };
-            void ExecutionFinished(object sender, CadCommandExecutedEventArgs e)
-            {
-                if (argumentIndex < arguments.Length)
-                {
-                    throw new ArgumentException($"Unconsumed arguments: {string.Join(", ", arguments.Skip(argumentIndex))}");
+                    return false;
                 }
             }
 
-            workspace.CommandExecuted += ExecutionFinished;
-            workspace.InputService.ValueRequested += ValueRequestedHandler;
-            var result = await workspace.ExecuteCommand(command);
-            workspace.InputService.ValueRequested -= ValueRequestedHandler;
-            workspace.CommandExecuted -= ExecutionFinished;
+            return true;
+        }
 
-            return result;
+        public static async Task<bool> ExecuteTokensFromLinesAsync(this IWorkspace workspace, IEnumerable<string> lines)
+        {
+            foreach (var line in lines)
+            {
+                var result = await workspace.ExecuteTokensFromLineAsync(line);
+                if (!result)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -77,14 +77,11 @@ namespace bcad
 
                     if (batchFile is object)
                     {
-                        var batchCommandLines = File.ReadAllLines(batchFile).Select(line => line.Trim()).Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-                        foreach (var batchCommandLine in batchCommandLines)
+                        var batchCommandLines = File.ReadAllLines(batchFile);
+                        var result = await server.Workspace.ExecuteTokensFromLinesAsync(batchCommandLines);
+                        if (!result)
                         {
-                            var result = await server.Workspace.ExecuteCommandLine(batchCommandLine);
-                            if (!result)
-                            {
-                                throw new Exception($"Error executing batch command: {batchCommandLine}");
-                            }
+                            throw new Exception($"Error executing batch command: {batchCommandLines}");
                         }
 
                         CloseApplication();

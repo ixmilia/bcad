@@ -5,9 +5,9 @@ namespace IxMilia.BCad.Commands
 {
     public static class CommandLineSplitter
     {
-        public static bool TrySplitCommandLine(string line, out string[] commandParts)
+        public static bool TrySplitIntoTokens(string line, out string[] tokens)
         {
-            commandParts = default;
+            tokens = default;
             var parts = new List<string>();
             for (int i = 0; i < line.Length; i++)
             {
@@ -22,32 +22,19 @@ namespace IxMilia.BCad.Commands
                 {
                     // get a string
                     var sb = new StringBuilder();
-                    var isEscaped = false;
                     var foundEnd = false;
                     for (int j = i + 1; j < line.Length && !foundEnd; j++)
                     {
                         c = line[j];
-                        if (isEscaped)
+                        if (c == '"')
                         {
-                            sb.Append(c);
-                            isEscaped = false;
+                            i = j;
+                            foundEnd = true;
+                            parts.Add(sb.ToString());
                         }
                         else
                         {
-                            switch (c)
-                            {
-                                case '\\':
-                                    isEscaped = true;
-                                    break;
-                                case '"':
-                                    i = j;
-                                    foundEnd = true;
-                                    parts.Add(sb.ToString());
-                                    break;
-                                default:
-                                    sb.Append(c);
-                                    break;
-                            }
+                            sb.Append(c);
                         }
                     }
 
@@ -75,7 +62,13 @@ namespace IxMilia.BCad.Commands
                 }
             }
 
-            commandParts = parts.ToArray();
+            if (parts.Count == 0)
+            {
+                // at least one entry is always created
+                parts.Add(string.Empty);
+            }
+
+            tokens = parts.ToArray();
             return true;
         }
 
