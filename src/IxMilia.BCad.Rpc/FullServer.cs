@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using IxMilia.BCad.FileHandlers;
+using IxMilia.BCad.Extensions;
 using StreamJsonRpc;
 
 namespace IxMilia.BCad.Rpc
@@ -33,14 +33,7 @@ namespace IxMilia.BCad.Rpc
         private static void RegisterWithWorkspace(IWorkspace workspace)
         {
             workspace.RegisterService(new HtmlDialogService(workspace));
-
-            workspace.ReaderWriterService.RegisterFileHandler(new AscFileHandler(), true, false, ".asc");
-            workspace.ReaderWriterService.RegisterFileHandler(new DwgFileHandler(), true, true, ".dwg");
-            workspace.ReaderWriterService.RegisterFileHandler(new DxfFileHandler(), true, true, ".dxf");
-            workspace.ReaderWriterService.RegisterFileHandler(new IgesFileHandler(), true, true, ".igs", "iges");
-            workspace.ReaderWriterService.RegisterFileHandler(new JsonFileHandler(), true, true, ".json");
-            workspace.ReaderWriterService.RegisterFileHandler(new StepFileHandler(), true, false, ".stp", ".step");
-            workspace.ReaderWriterService.RegisterFileHandler(new StlFileHandler(), true, false, ".stl");
+            workspace.RegisterFileHandlers();
         }
     }
 

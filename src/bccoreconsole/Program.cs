@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace IxMilia.BCad
@@ -44,17 +43,16 @@ namespace IxMilia.BCad
                 }
             }
 
-            if (inputFile is null)
-            {
-                throw new ArgumentException("Expected input file specified with '/i' switch.");
-            }
-
             if (scriptFile is null)
             {
                 throw new ArgumentException("Expected script file specified with '/s' switch.");
             }
 
-            await workspace.ExecuteCommand("File.Open", inputFile);
+            if (inputFile is not null)
+            {
+                await workspace.ExecuteCommand("File.Open", inputFile);
+            }
+
             var batchCommandLines = File.ReadAllLines(scriptFile);
             var result = await workspace.ExecuteTokensFromLinesAsync(batchCommandLines);
             if (!result)

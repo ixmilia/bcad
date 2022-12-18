@@ -77,10 +77,13 @@ namespace IxMilia.BCad.Core.Services
             if (fileSettings != null)
             {
                 var parameter = new FileSettings(extension.ToLower(), fileSettings);
-                fileSettings = await _workspace.DialogService.ShowDialog("FileSettings", parameter);
-                if (fileSettings is null)
+                if (_workspace.DialogService != null)
                 {
-                    return false;
+                    fileSettings = await _workspace.DialogService.ShowDialog("FileSettings", parameter);
+                    if (fileSettings is null)
+                    {
+                        return false;
+                    }
                 }
             }
 
