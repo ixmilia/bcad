@@ -123,6 +123,20 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public void SplitLineIntoTokenPartsIgnoresCommentLines()
+        {
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("; comment at start of line", out var parts));
+            Assert.Empty(parts);
+        }
+
+        [Fact]
+        public void SplitLineIntoTokenPartsTreatsSemicolonNotAtStartAsToken()
+        {
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(" ;a-token", out var parts));
+            Assert.Equal(new[] { ";a-token" }, parts);
+        }
+
+        [Fact]
         public async Task InsertLineSegments()
         {
             var result = await Workspace.ExecuteTokensFromLinesAsync(new[] { "LINE 0,0 1,0", "" });

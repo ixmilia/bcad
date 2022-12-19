@@ -9,6 +9,14 @@ namespace IxMilia.BCad.Commands
         {
             tokens = default;
             var parts = new List<string>();
+
+            if (line.Length > 0 && line[0] == ';')
+            {
+                // comments are only recognized at the start of a line
+                tokens = new string[0];
+                return true;
+            }
+
             for (int i = 0; i < line.Length; i++)
             {
                 var c = line[i];
