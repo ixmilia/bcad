@@ -5,78 +5,86 @@ namespace IxMilia.BCad.Commands
 {
     public static class CommandLineSplitter
     {
-        public static bool TrySplitIntoTokens(string line, out string[] tokens)
+        public static bool TrySplitIntoTokens(string script, out string[] tokens)
         {
             tokens = default;
-            var parts = new List<string>();
+            var allParts = new List<string>();
 
-            if (line.Length > 0 && line[0] == ';')
-            {
-                // comments are only recognized at the start of a line
-                tokens = new string[0];
-                return true;
-            }
+            var lines = script.Split('\n');
 
-            for (int i = 0; i < line.Length; i++)
+            foreach (var line in lines)
             {
-                var c = line[i];
-                if (IsWhitespace(c))
+                var parts = new List<string>();
+
+                if (line.Length > 0 && line[0] == ';')
                 {
-                    // skip
+                    // comments are only recognized at the start of a line
                     continue;
                 }
 
-                if (c == '"')
+                for (int i = 0; i < line.Length; i++)
                 {
-                    // get a string
-                    var sb = new StringBuilder();
-                    var foundEnd = false;
-                    for (int j = i + 1; j < line.Length && !foundEnd; j++)
+                    var c = line[i];
+                    if (IsWhitespace(c))
                     {
-                        c = line[j];
-                        if (c == '"')
-                        {
-                            i = j;
-                            foundEnd = true;
-                            parts.Add(sb.ToString());
-                        }
-                        else
-                        {
-                            sb.Append(c);
-                        }
+                        // skip
+                        continue;
                     }
 
-                    if (!foundEnd)
+                    if (c == '"')
                     {
-                        return false;
+                        // get a string
+                        var sb = new StringBuilder();
+                        var foundEnd = false;
+                        for (int j = i + 1; j < line.Length && !foundEnd; j++)
+                        {
+                            c = line[j];
+                            if (c == '"')
+                            {
+                                i = j;
+                                foundEnd = true;
+                                parts.Add(sb.ToString());
+                            }
+                            else
+                            {
+                                sb.Append(c);
+                            }
+                        }
+
+                        if (!foundEnd)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        // get anything
+                        var end = i;
+                        for (; end < line.Length; end++)
+                        {
+                            c = line[end];
+                            if (IsWhitespace(c))
+                            {
+                                break;
+                            }
+                        }
+
+                        var part = line.Substring(i, end - i);
+                        parts.Add(part);
+                        i = end;
                     }
                 }
-                else
+
+                if (parts.Count == 0)
                 {
-                    // get anything
-                    var end = i;
-                    for (; end < line.Length; end++)
-                    {
-                        c = line[end];
-                        if (IsWhitespace(c))
-                        {
-                            break;
-                        }
-                    }
-
-                    var part = line.Substring(i, end - i);
-                    parts.Add(part);
-                    i = end;
+                    // at least one entry is always created
+                    parts.Add(string.Empty);
                 }
+
+                allParts.AddRange(parts);
             }
 
-            if (parts.Count == 0)
-            {
-                // at least one entry is always created
-                parts.Add(string.Empty);
-            }
-
-            tokens = parts.ToArray();
+            tokens = allParts.ToArray();
             return true;
         }
 

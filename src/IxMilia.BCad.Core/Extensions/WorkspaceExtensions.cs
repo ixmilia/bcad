@@ -169,9 +169,9 @@ namespace IxMilia.BCad
             return DrawingFileSpecifications.Concat(PlotFileSpecifications).FirstOrDefault(spec => spec.FileExtensions.Contains(extension));
         }
 
-        public static async Task<bool> ExecuteTokensFromLineAsync(this IWorkspace workspace, string line)
+        public static async Task<bool> ExecuteTokensFromScriptAsync(this IWorkspace workspace, string script)
         {
-            if (!CommandLineSplitter.TrySplitIntoTokens(line, out var tokens))
+            if (!CommandLineSplitter.TrySplitIntoTokens(script, out var tokens))
             {
                 return false;
             }
@@ -179,20 +179,6 @@ namespace IxMilia.BCad
             foreach (var token in tokens)
             {
                 var result = await workspace.InputService.TrySubmitValueAsync(token);
-                if (!result)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public static async Task<bool> ExecuteTokensFromLinesAsync(this IWorkspace workspace, IEnumerable<string> lines)
-        {
-            foreach (var line in lines)
-            {
-                var result = await workspace.ExecuteTokensFromLineAsync(line);
                 if (!result)
                 {
                     return false;

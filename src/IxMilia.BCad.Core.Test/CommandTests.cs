@@ -84,36 +84,36 @@ namespace IxMilia.BCad.Core.Test
         [Fact]
         public void SplitLineIntoTokenPartsGeneratesSingleEmptyToken()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens("", out var parts));
-            Assert.Equal(new[] { "" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("", out var tokens));
+            Assert.Equal(new[] { "" }, tokens);
         }
 
         [Fact]
         public void SplitLineIntoTokenParts()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@" part1 ""part 2""   3   4.0 ", out var parts));
-            Assert.Equal(new[] { "part1", "part 2", "3", "4.0" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@" part1 ""part 2""   3   4.0 ", out var tokens));
+            Assert.Equal(new[] { "part1", "part 2", "3", "4.0" }, tokens);
         }
 
         [Fact]
         public void SplitLineIntoTokenPartsNonStringAtEnd()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens("a b", out var parts));
-            Assert.Equal(new[] { "a", "b" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("a b", out var tokens));
+            Assert.Equal(new[] { "a", "b" }, tokens);
         }
 
         [Fact]
         public void SplitLineIntoTokenPartsStringAtEnd()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@"a ""b""", out var parts));
-            Assert.Equal(new[] { "a", "b" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@"a ""b""", out var tokens));
+            Assert.Equal(new[] { "a", "b" }, tokens);
         }
 
         [Fact]
         public void SplitLineIntoTokenPartsBackslashDoesNotEscapeInString()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@" ""C:\path\to\file"" ", out var parts));
-            Assert.Equal(new[] { @"C:\path\to\file" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(@" ""C:\path\to\file"" ", out var tokens));
+            Assert.Equal(new[] { @"C:\path\to\file" }, tokens);
         }
 
         [Fact]
@@ -125,21 +125,42 @@ namespace IxMilia.BCad.Core.Test
         [Fact]
         public void SplitLineIntoTokenPartsIgnoresCommentLines()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens("; comment at start of line", out var parts));
-            Assert.Empty(parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("; comment at start of line\n; comment at start of another line", out var tokens));
+            Assert.Empty(tokens);
+        }
+
+        [Fact]
+        public void SplitLineIntoTokenPartsReturnsTokenAfterCommentLine()
+        {
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("; some comment\nabc", out var tokens));
+            Assert.Equal(new[] { "abc" }, tokens);
         }
 
         [Fact]
         public void SplitLineIntoTokenPartsTreatsSemicolonNotAtStartAsToken()
         {
-            Assert.True(CommandLineSplitter.TrySplitIntoTokens(" ;a-token", out var parts));
-            Assert.Equal(new[] { ";a-token" }, parts);
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens(" ;a-token", out var tokens));
+            Assert.Equal(new[] { ";a-token" }, tokens);
+        }
+
+        [Fact]
+        public void SplitScriptIntoTokenPartsWithNewlines()
+        {
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("a b c\n   d e   ", out var tokens));
+            Assert.Equal(new[] { "a", "b", "c", "d", "e" }, tokens);
+        }
+
+        [Fact]
+        public void SplitScriptIntoTokenPartsAlwaysProducesEmptyTokenFromEmptyLine()
+        {
+            Assert.True(CommandLineSplitter.TrySplitIntoTokens("a\n\nb", out var tokens));
+            Assert.Equal(new[] { "a", "", "b" }, tokens);
         }
 
         [Fact]
         public async Task InsertLineSegments()
         {
-            var result = await Workspace.ExecuteTokensFromLinesAsync(new[] { "LINE 0,0 1,0", "" });
+            var result = await Workspace.ExecuteTokensFromScriptAsync("LINE 0,0 1,0\n");
             Assert.True(result);
             Assert.False(Workspace.IsCommandExecuting);
             var entities = Workspace.Drawing.GetEntities().ToArray();
@@ -151,7 +172,7 @@ namespace IxMilia.BCad.Core.Test
         [Fact]
         public async Task InsertLineSegmentsWithCloseCommand()
         {
-            var result = await Workspace.ExecuteTokensFromLineAsync(@"LINE 0,0 1,0 0,1 c");
+            var result = await Workspace.ExecuteTokensFromScriptAsync(@"LINE 0,0 1,0 0,1 c");
             Assert.True(result);
             Assert.False(Workspace.IsCommandExecuting);
             var entities = Workspace.Drawing.GetEntities().ToArray();
@@ -170,7 +191,7 @@ namespace IxMilia.BCad.Core.Test
         [Fact]
         public async Task InsertTextFromCommandLine()
         {
-            var result = await Workspace.ExecuteTokensFromLineAsync(@"TEXT 1,2 3 test");
+            var result = await Workspace.ExecuteTokensFromScriptAsync(@"TEXT 1,2 3 test");
             Assert.True(result);
             Assert.False(Workspace.IsCommandExecuting);
             var actual = (Text)Workspace.Drawing.GetEntities().Single();

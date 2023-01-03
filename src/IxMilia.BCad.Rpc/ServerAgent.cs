@@ -286,8 +286,7 @@ namespace IxMilia.BCad.Rpc
 
         public Task<bool> ExecuteScript(string script)
         {
-            var lines = script.Split('\n');
-            return Workspace.ExecuteTokensFromLinesAsync(lines);
+            return Workspace.ExecuteTokensFromScriptAsync(script);
         }
 
         public async Task ParseFile(string filePath, string data)
