@@ -3,9 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Hello World!</title>
+  <title>BCad</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" id="theme-stylesheet" href="xp/98.css" />
+  <!-- the following is useful when debugging the HTML in a browser -->
+  <!-- <link rel="stylesheet" id="theme-stylesheet" href="../../out/client-full/xp/98.css" /> -->
   <link rel="stylesheet" href="font-override.css" />
   <link rel="stylesheet" href="color-picker.css" />
 </head>
@@ -194,6 +196,13 @@
               </select>
             </div>
             <div class="ribbon-button-group-name">Renderer</div>
+          </div>
+          <div class="ribbon-button-group">
+            <div class="ribbon-button-group-content">
+              <input type="checkbox" id="showScript" />
+              <label for="showScript">Script Editor</label>
+            </div>
+            <div class="ribbon-button-group-name">Other</div>
           </div>
         </div>
         <div id="settingsRibbon" class="ribbon">
@@ -425,21 +434,32 @@
       </div>
     </div>
   </div>
-  <div id="output-pane" class="window-body">
-    <canvas id="imageCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="rubberBandImageCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="flatCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="rubberBandFlatCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="drawingCanvas" class="displayCanvas"></canvas>
-    <canvas id="selectionCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="textCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="rubberBandTextCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <canvas id="cursorCanvas" class="displayCanvas twoDCanvas"></canvas>
-    <div id="property-pane" class="window">
+  <div id="output-row" class="window-body">
+    <div id="script-pane" class="window">
       <div class="title-bar">
-        <div class="title-bar-text">Properties</div>
+        <div class="title-bar-text">Script editor</div>
       </div>
-      <div id="property-pane-contents" class="window-body"></div>
+      <div class="window-body" style="display: flex; flex-direction: column; height: 90%;">
+        <button id="run-script">Run</button>
+        <textarea id="script-content"></textarea>
+      </div>
+    </div>
+    <div id="output-pane" class="window-body">
+      <canvas id="imageCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="rubberBandImageCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="flatCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="rubberBandFlatCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="drawingCanvas" class="displayCanvas"></canvas>
+      <canvas id="selectionCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="textCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="rubberBandTextCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <canvas id="cursorCanvas" class="displayCanvas twoDCanvas"></canvas>
+      <div id="property-pane" class="window">
+        <div class="title-bar">
+          <div class="title-bar-text">Properties</div>
+        </div>
+        <div id="property-pane-contents" class="window-body"></div>
+      </div>
     </div>
   </div>
   <div id="bottom-pane" class="window-body">
@@ -585,6 +605,10 @@
   </div>
   <script src="app://args.js" type="text/javascript"></script>
   <script src="main.js" type="text/javascript"></script>
+
+  <!-- the following are useful when debugging the HTML in a browser -->
+  <!-- <script type="text/javascript">var clientArguments = [];</script>
+  <script src="../../out/client-full/main.js" type="text/javascript"></script> -->
 </body>
 
 </html>

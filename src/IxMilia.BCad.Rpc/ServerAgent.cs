@@ -284,6 +284,12 @@ namespace IxMilia.BCad.Rpc
             return Workspace.ExecuteCommand(command);
         }
 
+        public Task<bool> ExecuteScript(string script)
+        {
+            var lines = script.Split('\n');
+            return Workspace.ExecuteTokensFromLinesAsync(lines);
+        }
+
         public async Task ParseFile(string filePath, string data)
         {
             var bytes = Convert.FromBase64String(data);

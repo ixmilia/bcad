@@ -12,6 +12,7 @@ import { PlotDialog } from "./dialogs/plotDialog";
 import { Arguments } from "./args";
 import { SaveChangesDialog } from "./dialogs/saveChangesDialog";
 import { PropertyPane } from "./propertyPane";
+import { ScriptPane } from "./scriptPane";
 import { LogWriter } from "./logWriter";
 import { LineTypeDialog } from "./dialogs/lineTypeDialog";
 import { LineTypeSelector } from "./lineTypeSelector";
@@ -21,6 +22,7 @@ enum HostType {
     WebView = 2,
     WebView2 = 3,
     VSCode = 4,
+    None = 5,
 }
 
 function getHostType(): HostType | undefined {
@@ -44,11 +46,13 @@ function getHostType(): HostType | undefined {
         return HostType.Electron;
     }
 
-    return undefined;
+    return HostType.None;
 }
 
 function getPostMessage(hostType: HostType): ((message: any) => void) {
     switch (hostType) {
+        case HostType.None:
+            return message => console.log(message);
         case HostType.Electron:
             // @ts-ignore
             return message => ipcRenderer.send('post-message', message);
@@ -73,6 +77,8 @@ function getPostMessage(hostType: HostType): ((message: any) => void) {
 
 function bindServerMessage(hostType: HostType, callback: (message: any) => void) {
     switch (hostType) {
+        case HostType.None:
+            break;
         case HostType.Electron:
             // @ts-ignore
             ipcRenderer.on('post-message', (_event, arg) => callback(arg));
@@ -126,6 +132,7 @@ async function start(argArray: string[]): Promise<void> {
     new OutputConsole(client);
     const ribbon = new Ribbon(client);
     new ViewControl(client, fps => ribbon.reportFps(fps));
+    new ScriptPane(client);
     new PropertyPane(client);
 
     let dialogHandler = new DialogHandler(client);
