@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using IxMilia.BCad.Services;
 
-namespace IxMilia.BCad
+namespace bcad
 {
     public class PassThroughFileSystemService : IFileSystemService
     {

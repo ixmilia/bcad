@@ -66,6 +66,10 @@ try {
             --self-contained `
             --output $packageOutputDir
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        $coreConsolePdb = "$packageOutputDir/bccoreconsole.pdb"
+        if (Test-Path $coreConsolePdb) {
+            Remove-Item $coreConsolePdb
+        }
 
         # create package
         $extension = if ($IsWindows) { "zip" } else { "tar.gz" }

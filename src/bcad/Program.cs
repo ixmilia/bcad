@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad;
-using IxMilia.BCad.Commands;
+using IxMilia.BCad.CommandLine;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
@@ -17,9 +17,34 @@ namespace bcad
     {
         private const string WindowTitle = "BCad";
 
+        static async Task PerformAutomatedStepsAsync(IWorkspace workspace, CadArguments arguments)
+        {
+            if (arguments.DrawingFile is not null)
+            {
+                await workspace.ExecuteCommand("File.Open", arguments.DrawingFile.FullName);
+            }
+
+            if (arguments.BatchFile is not null)
+            {
+                var batchCommandScript = File.ReadAllText(arguments.BatchFile.FullName);
+                var result = await workspace.ExecuteTokensFromScriptAsync(batchCommandScript);
+            }
+        }
+
         [STAThread]
         static void Main(string[] args)
         {
+            var arguments = CommandLineParser.Parse(args);
+
+            if (!arguments.ShowUI)
+            {
+                FileDialogs.GetConsole();
+                Console.WriteLine("console mode");
+                var consoleWorkspace = new ConsoleWorkspace();
+                PerformAutomatedStepsAsync(consoleWorkspace, arguments).Wait();
+                Environment.Exit(0);
+            }
+
             FileDialogs.Init();
 
             var serverStream = new SimplexStream();
@@ -37,53 +62,11 @@ namespace bcad
 
             server.Agent.IsReady += (o, e) =>
             {
-                string batchFile = null;
-                string fileToOpen = null;
-                for (int i = 0; i < args.Length; i++)
-                {
-                    var arg = args[i];
-                    switch (arg.ToLowerInvariant())
-                    {
-                        case "/b":
-                            if (i + 1 < args.Length)
-                            {
-                                batchFile = args[i + 1];
-                                i++;
-                            }
-                            else
-                            {
-                                throw new ArgumentException($"Expected batch file");
-                            }
-                            break;
-                        default:
-                            if (fileToOpen is null)
-                            {
-                                fileToOpen = arg;
-                            }
-                            else
-                            {
-                                throw new ArgumentException($"File already specified; unexpected argument {arg}");
-                            }
-                            break;
-                    }
-                }
-
                 var _ = Task.Run(async () =>
                 {
-                    if (fileToOpen is object)
+                    await PerformAutomatedStepsAsync(server.Workspace, arguments);
+                    if (arguments.BatchFile is not null)
                     {
-                        await server.Workspace.ExecuteCommand("File.Open", fileToOpen);
-                    }
-
-                    if (batchFile is object)
-                    {
-                        var batchCommandScript = File.ReadAllText(batchFile);
-                        var result = await server.Workspace.ExecuteTokensFromScriptAsync(batchCommandScript);
-                        if (!result)
-                        {
-                            throw new Exception($"Error executing batch command: {batchCommandScript}");
-                        }
-
                         CloseApplication();
                     }
                 });

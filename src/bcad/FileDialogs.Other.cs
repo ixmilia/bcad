@@ -10,6 +10,10 @@ namespace bcad
             Gtk.Application.Init();
         }
 
+        public static void GetConsole()
+        {
+        }
+
         public static string OpenFile(IEnumerable<FileSpecification> fileSpecifications)
         {
             using (var fcd = new Gtk.FileChooserDialog("Open File", null, Gtk.FileChooserAction.Open))

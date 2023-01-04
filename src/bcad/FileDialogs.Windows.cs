@@ -14,8 +14,17 @@ namespace bcad
         [DllImport("Comdlg32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool GetSaveFileName(ref OpenFileName lpofn);
 
+        [DllImport("kernel32.dll")]
+        static extern bool AttachConsole(int dwProcessId);
+        private const int ATTACH_PARENT_PROCESS = -1;
+
         public static void Init()
         {
+        }
+
+        public static void GetConsole()
+        {
+            AttachConsole(ATTACH_PARENT_PROCESS);
         }
 
         public static string OpenFile(IEnumerable<FileSpecification> fileSpecifications)

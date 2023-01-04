@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using IxMilia.BCad;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Services;
 
-namespace IxMilia.BCad
+namespace bcad
 {
     internal class ConsoleWorkspace : WorkspaceBase
     {
