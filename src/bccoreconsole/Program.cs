@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace IxMilia.BCad
 {
@@ -9,19 +10,16 @@ namespace IxMilia.BCad
         static int Main(string[] args)
         {
             var binDirectory = AppContext.BaseDirectory;
-            if (Debugger.IsAttached)
-            {
 #if DEBUG
-                binDirectory = Path.Join(binDirectory, "..", "..", "..", "bcad", "Debug", "net7.0");
+            binDirectory = Path.Join(binDirectory, "..", "..", "..", "bcad", "Debug", "net7.0");
 #endif
-            }
 
             var proc = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
-                    FileName = "bcad.exe",
-                    Arguments = $"coreconsole {string.Join(" ", args)}",
+                    FileName = Path.Join(binDirectory, "bcad.exe"),
+                    Arguments = $"coreconsole {string.Join(" ", args.Select(a => string.Concat("\"", a, "\"")))}",
                     WorkingDirectory = binDirectory,
                 }
             };

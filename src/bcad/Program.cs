@@ -39,9 +39,8 @@ namespace bcad
             if (!arguments.ShowUI)
             {
                 FileDialogs.GetConsole();
-                Console.WriteLine("console mode");
                 var consoleWorkspace = new ConsoleWorkspace();
-                PerformAutomatedStepsAsync(consoleWorkspace, arguments).Wait();
+                PerformAutomatedStepsAsync(consoleWorkspace, arguments).ConfigureAwait(false).GetAwaiter().GetResult();
                 Environment.Exit(0);
             }
 
