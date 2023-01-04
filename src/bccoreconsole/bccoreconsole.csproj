@@ -18,6 +18,11 @@
     <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">
+    <!-- according to https://github.com/dotnet/runtime/issues/78559 the x64 linux build can't cross-compile arm64 -->
+    <PublishAot>false</PublishAot>
+  </PropertyGroup>
+
   <!-- MacOS not currently supported -->
 
 </Project>
