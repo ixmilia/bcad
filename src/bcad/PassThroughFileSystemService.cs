@@ -14,13 +14,13 @@ namespace bcad
             _inputService = inputService;
         }
 
-        public Task<string> GetFileNameFromUserForOpen(IEnumerable<FileSpecification> fileSpecifications) => GetString();
+        public Task<string> GetFileNameFromUserForOpen(IEnumerable<FileSpecification> fileSpecifications) => GetStringAsync();
 
-        public Task<string> GetFileNameFromUserForSave(IEnumerable<FileSpecification> fileSpecifications) => GetString();
+        public Task<string> GetFileNameFromUserForSave(IEnumerable<FileSpecification> fileSpecifications) => GetStringAsync();
 
         public Task<byte[]> ReadAllBytesAsync(string path) => File.ReadAllBytesAsync(path);
 
-        private async Task<string> GetString()
+        private async Task<string> GetStringAsync()
         {
             var result = await _inputService.GetText();
             if (result.HasValue)
