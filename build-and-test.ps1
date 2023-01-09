@@ -60,16 +60,14 @@ try {
             --self-contained `
             --output $packageOutputDir
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        dotnet publish "$PSScriptRoot/src/bccoreconsole/bccoreconsole.csproj" `
-            --configuration $configuration `
-            --runtime "$os-$arch" `
-            --self-contained `
-            --output $packageOutputDir
+
+        Push-Location "$PSScriptRoot/src/bccoreconsole"
+        $goarch = if ($arch -eq "x64") { "amd64" } else { "arm64" }
+        $env:GOARCH = $goarch
+        go build -o "$packageOutputDir/"
+        $env:GOARCH = ""
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        $coreConsolePdb = "$packageOutputDir/bccoreconsole.pdb"
-        if (Test-Path $coreConsolePdb) {
-            Remove-Item $coreConsolePdb
-        }
+        Pop-Location
 
         # create package
         $extension = if ($IsWindows) { "zip" } else { "tar.gz" }
