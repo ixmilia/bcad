@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Commands;
-using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.FileHandlers;
 using Newtonsoft.Json.Linq;
@@ -130,7 +129,19 @@ namespace IxMilia.BCad.Rpc
                 sb.AppendLine();
             }
 
-            // add commands
+            // add command names
+            var workspace = new RpcServerWorkspace();
+            var commandNames = workspace.Commands.SelectMany(c => new[] { c.Name }.Concat(c.Aliases)).OrderBy(name => name).Distinct();
+            sb.AppendLine("export const CommandNames: string[] = [");
+            foreach (var commandName in commandNames)
+            {
+                sb.AppendLine($"    \"{commandName}\",");
+            }
+
+            sb.AppendLine("];");
+            sb.AppendLine();
+
+            // add client commands
             sb.AppendLine("export abstract class ClientAgent {");
             sb.AppendLine("    abstract postNotification(method: string, params: any): void;");
             sb.AppendLine("    abstract invoke(method: string, params: any): Promise<any>;");

@@ -1,4 +1,5 @@
 import { Client } from './client';
+import * as contracts from './contracts.generated';
 import * as monaco from 'monaco-editor';
 
 export class ScriptPane {
@@ -14,18 +15,14 @@ export class ScriptPane {
         });
         monaco.languages.setMonarchTokensProvider(languageId, {
             ignoreCase: true,
-            keywords: [
-                // TODO: expand this
-                'LINE',
-                'CIRCLE',
-            ],
+            keywords: contracts.CommandNames,
             tokenizer: {
                 root: [
                     [/[+-]?\d+(?:(?:\.\d*)?(?:[eE][+-]?\d+)?)?/, 'number'],
                     [/"[^"]*"/, 'string'],
                     [/"[^"]*$/, 'string.invalid'],
                     [/^;.*/, 'comment'],
-                    [/[a-zA-Z_#][a-zA-Z0-9_\-\?\!\*]*/, {
+                    [/[a-zA-Z_#][a-zA-Z0-9_\-\?\!\*.]*/, {
                         cases: {
                             '@keywords': 'keyword',
                             '@default': 'identifier'
