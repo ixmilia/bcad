@@ -1,14 +1,12 @@
 import { Client } from './client';
 import { ColorPicker } from './controls/colorPicker';
+import { InputConsole } from './inputConsole';
 import { LogWriter } from './logWriter';
 
 export class PropertyPane {
     constructor(client: Client) {
         const propertyPane = <HTMLDivElement>document.getElementById("property-pane");
-        propertyPane.addEventListener('mousemove', ev => ev.stopPropagation());
-        propertyPane.addEventListener('mousedown', ev => ev.stopPropagation());
-        propertyPane.addEventListener('mouseup', ev => ev.stopPropagation());
-        propertyPane.addEventListener('wheel', ev => ev.stopPropagation());
+        InputConsole.ensureCapturedEvents(propertyPane, true);
 
         const propertyPaneContents = <HTMLDivElement>document.getElementById("property-pane-contents");
         client.subscribeToClientUpdates(clientUpdate => {

@@ -1,6 +1,7 @@
-import { ClientAgent, ClientDownload, ClientUpdate } from "./contracts.generated";
+import { ClientAgent, ClientUpdate } from "./contracts.generated";
 
 export class Client extends ClientAgent {
+    private functionHandlers: Map<string, ((args: any[]) => void)[]> = new Map();
     private clientUpdateSubscriptions: Array<{ (clientUpdate: ClientUpdate): void }> = [];
     private currentDialogHandler: { (dialogId: string, dialogOptions: object): Promise<any> } = async (_dialogId, _dialogOptions) => { };
     private invocationCallbacks: Map<number, (result: any) => void> = new Map();
@@ -10,8 +11,23 @@ export class Client extends ClientAgent {
         super();
     }
 
+    addFunctionHandler(handlerName: string, handler: (args: any[]) => void) {
+        const handlers = this.functionHandlers.get(handlerName) ?? [];
+        handlers.push(handler);
+        this.functionHandlers.set(handlerName, handlers);
+    }
+
     handleMessage(message: any) {
         if (message) {
+            if (typeof message.method === 'string') {
+                const handlers = this.functionHandlers.get(message.method);
+                if (handlers) {
+                    for (const handler of handlers) {
+                        handler(message.params);
+                    }
+                }
+            }
+
             switch (message.method) {
                 case 'ClientUpdate':
                     const clientUpdate = <ClientUpdate>message.params[0];

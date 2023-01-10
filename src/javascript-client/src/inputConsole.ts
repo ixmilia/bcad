@@ -1,69 +1,92 @@
 import { Client } from './client';
 import { ShortcutHandler } from './shortcutHandler';
 
+const mouseEvents: string[] = [
+    'mouseup',
+    'mousedown',
+    'wheel',
+];
+
+const userEvents: string[] = [
+    'keyup',
+    'keydown',
+    ...mouseEvents,
+];
+
 export class InputConsole {
     private client: Client;
     private input: HTMLInputElement;
+
     constructor(client: Client, shortcutHandler: ShortcutHandler) {
         this.client = client;
         this.input = <HTMLInputElement>document.getElementById("input");
-        this.input.addEventListener('keyup', (ev) => {
-            this.handleLocalKeystroke(ev);
+
+        this.client.addFunctionHandler('clearInput', () => {
+            this.clearInput();
         });
 
-        document.addEventListener('keyup', (ev) => {
-            this.handleKeystroke(ev, true);
+        InputConsole.ensureCapturedEvents(this.input);
+
+        // all select elements need to handle their own mouse events
+        document.querySelectorAll('select').forEach(select => {
+            mouseEvents.forEach(mouseEvent => {
+                select.addEventListener(mouseEvent, ev => {
+                    ev.stopPropagation();
+                });
+            });
         });
 
-        document.addEventListener('keydown', (ev) => {
+        // otherwise always focus the input
+        userEvents.forEach(eventName => {
+            document.addEventListener(eventName, () => {
+                this.focus();
+            });
+        });
+
+        this.input.addEventListener('input', _ => {
+            this.client.inputChanged(this.input.value);
+        });
+        this.input.addEventListener('keydown', ev => {
+            this.handleKeystroke(ev);
             shortcutHandler.handleShortcut(ev.shiftKey, ev.ctrlKey, ev.altKey, ev.key);
         });
+
+        this.focus();
     }
 
-    private handleKeystroke(ev: KeyboardEvent, manualEdit: boolean) {
+    focus() {
+        this.input.focus();
+    }
+
+    static ensureCapturedEvents(element: HTMLElement, captureMouseMove?: boolean) {
+        const mouseMoveEvents: string[] = captureMouseMove ? ['mousemove'] : [];
+        const allEvents = [...userEvents, ...mouseMoveEvents];
+        for (const eventName of allEvents) {
+            element.addEventListener(eventName, ev => {
+                ev.stopPropagation();
+            });
+        }
+    }
+
+    private handleKeystroke(ev: KeyboardEvent) {
         switch (ev.key) {
             case "Enter":
-            case " ":
-                this.submit(ev.key === " ");
+                this.submit();
                 break;
             case "Escape":
                 this.clearInput();
                 this.client.cancel();
                 break;
-            case "Backspace":
-                if (manualEdit && this.input.value.length > 0) {
-                    this.input.value = this.input.value.substr(0, this.input.value.length - 1);
-                }
-                break;
-            default:
-                if (manualEdit &&
-                    ev.key.length == 1 &&
-                    !ev.altKey &&
-                    !ev.ctrlKey) {
-                    this.input.value += ev.key;
-                }
-                break;
         }
-    }
-
-    private handleLocalKeystroke(ev: KeyboardEvent) {
-        ev.stopImmediatePropagation();
-        this.handleKeystroke(ev, false);
     }
 
     private clearInput() {
         this.input.value = "";
     }
 
-    private submit(trimLastSpace: boolean) {
+    private submit() {
         let value = this.input.value;
         this.clearInput();
-        if (trimLastSpace && value.length > 0 && value.charAt(value.length - 1) == " ") {
-            // if submitted with SPACE, last character needs to be removed
-            value = value.substr(0, value.length - 1);
-        }
-
-        this.input.focus();
         this.client.submitInput(value);
     }
 }

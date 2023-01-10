@@ -10,6 +10,7 @@ using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
@@ -352,6 +353,17 @@ namespace IxMilia.BCad.Rpc
             }
 
             return null;
+        }
+
+        public async Task InputChanged(string value)
+        {
+            if ((Workspace.InputService.AllowedInputTypes & InputType.Text) != InputType.Text &&
+                value.EndsWith(" "))
+            {
+                // if the user typed a space in non-text mode, process it
+                await SubmitInput(value.Substring(0, value.Length - 1));
+                await _jsonRpc.InvokeAsync<JObject>("clearInput");
+            }
         }
 
         public Task SubmitInput(string value)

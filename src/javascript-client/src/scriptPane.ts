@@ -1,12 +1,13 @@
 import { Client } from './client';
 import * as contracts from './contracts.generated';
 import * as monaco from 'monaco-editor';
+import { InputConsole } from './inputConsole';
 
 export class ScriptPane {
     constructor(client: Client) {
         const scriptPane = <HTMLDivElement>document.getElementById("script-pane");
         const scriptEditor = <HTMLDivElement>document.getElementById("script-content");
-        ScriptPane.captureUserGestures(scriptPane);
+        InputConsole.ensureCapturedEvents(scriptPane);
 
         // prepare monaco editor
         const languageId = 'cad';
@@ -59,15 +60,6 @@ export class ScriptPane {
         // add ctrl+enter shortcut to run script
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
             executeScript();
-        });
-    }
-
-    static captureUserGestures(element: HTMLElement) {
-        const eventList = ['keydown', 'keyup', 'mousedown', 'mouseup', 'mousemove'];
-        eventList.forEach(eventName => {
-            element.addEventListener(eventName, ev => {
-                ev.stopPropagation();
-            });
         });
     }
 }

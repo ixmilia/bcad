@@ -1,3 +1,4 @@
+import { InputConsole } from "../inputConsole";
 import { Client } from "../client";
 
 export class DialogHandler {
@@ -8,10 +9,8 @@ export class DialogHandler {
     constructor(client: Client) {
         this.dialogContainer = <HTMLDivElement>document.getElementById('modal-dialog-container');
         this.dialogMask = <HTMLElement>document.getElementById('modal-dialog-mask');
-        this.dialogContainer.addEventListener('keydown', (ev) => {
-            ev.stopImmediatePropagation();
-            return false;
-        });
+
+        InputConsole.ensureCapturedEvents(this.dialogContainer);
         window.addEventListener('resize', () => {
             this.resizeDialog();
         });
