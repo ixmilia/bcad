@@ -112,13 +112,98 @@
           </div>
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
-              <button class="command-button command-button-small" data-command-name="Edit.Move">
-                <svg viewBox="0 0 16 16" class="icon-small">
-                  <polygon
-                    points="8,0 10,2 8,2 8,7 13,7 13,5 15,7 15,8 13,10 13,8 8,8 8,13 10,13 8,15 7,15 5,13 7,13 7,8 2,8 2,10 0,8 0,7 2,5 2,7 7,7 7,2 5,2 7,0" />
-                </svg>
-                Move
-              </button>
+              <table cellspacing="0">
+                <tbody class="button-grid-item">
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Move">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <polygon
+                            points="8,0 10,2 8,2 8,7 13,7 13,5 15,7 15,8 13,10 13,8 8,8 8,13 10,13 8,15 7,15 5,13 7,13 7,8 2,8 2,10 0,8 0,7 2,5 2,7 7,7 7,2 5,2 7,0" />
+                        </svg>
+                        <div class="command-button-small-label">Move</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Trim">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <line x1="0" y1="7" x2="7" y2="7" style="stroke: black" />
+                          <line x1="7" y1="7" x2="10" y2="7" style="stroke: green" />
+                          <line x1="12" y1="7" x2="14" y2="7" style="stroke: green" />
+                          <line x1="5" y1="13" x2="9" y2="2" style="stroke: red" />
+                        </svg>
+                        <div class="command-button-small-label">Trim</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Rotate">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <path d="M 10 3 A 6 6 0 1 1 6 3" style="stroke: black" fill-opacity="0.0" />
+                          <polygon points="4,2 8,2 8,6">
+                        </svg>
+                        <div class="command-button-small-label">Rotate</div>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Copy">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <circle cx="4" cy="4" r="3" style="stroke: black" fill-opacity="0.0" />
+                          <path d="M 8 2.5 A 3 3 0 0 1 11 4.5" style="stroke: black" fill-opacity="0.0" />
+                          <circle cx="9.5" cy="9.5" r="3" style="stroke: blue; fill: lightblue" />
+                          <circle cx="12" cy="12" r="3" style="stroke: blue; fill: lightblue" />
+                        </svg>
+                        <div class="command-button-small-label">Copy</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Extend">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <line x1="0" y1="7" x2="7" y2="7" style="stroke: black" />
+                          <line x1="7" y1="7" x2="9" y2="7" style="stroke: green" />
+                          <line x1="11" y1="7" x2="13" y2="7" style="stroke: green" />
+                          <line x1="11" y1="13" x2="15" y2="2" style="stroke: red" />
+                        </svg>
+                        <div class="command-button-small-label">Extend</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Scale">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <polygon points="1,8 8,8 8,15 1,15" style="stroke: black" fill-opacity="0.0" />
+                          <path d="M 1 7 L 1 1 L 15 1 L 15 15 L 9 15" style="stroke: blue" fill-opacity="0.0" />
+                          <path d="M 9 7 L 12 3" style="stroke: black" fill-opacity="0.0" />
+                          <path d="M 13 3 L 10 3 L 13 6" style="stroke: black" />
+                        </svg>
+                        <div class="command-button-small-label">Scale</div>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Delete">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <path
+                            d="M 3 0 L 7 5 L 8 5 L 12 0 L 15 3 L 10 7 L 10 8 L 15 12 L 12 15 L 8 10 L 7 10 L 3 15 L 0 12 L 5 8 L 5 7 L 0 3 L 3 0"
+                            style="stroke: black; fill: darkred" />
+                        </svg>
+                        <div class="command-button-small-label">Delete</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Edit.Offset">
+                        <svg viewBox="0 0 16 16" class="icon-small">
+                          <path d="M 1 3 L 11 3 A 4 4 0 1 1 11 12 L 1 12 Z" style="stroke: black" fill-opacity="0.0" />
+                          <path d="M 3 5 L 10 5 A 2 2 0 1 1 10 10 L 3 10 Z" style="stroke: #00A2E8"
+                            fill-opacity="0.0" />
+                        </svg>
+                        <div class="command-button-small-label">Offset</div>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div class="ribbon-button-group-name">Modify</div>
           </div>

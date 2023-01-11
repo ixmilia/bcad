@@ -152,6 +152,7 @@ body {
     height: 24px;
     text-align: left;
     width: 84px;
+    position: relative;
 }
 
 .command-button-tiny {
@@ -161,6 +162,19 @@ body {
 
 .command-button-center {
     text-align: center;
+}
+
+.command-button-small-label {
+    margin: 0 auto;
+    position: absolute;
+    left: 32px;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.button-grid-item {
+    padding: 0px;
 }
 
 .icon-large {
