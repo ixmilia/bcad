@@ -1,6 +1,6 @@
 import { Client } from './client';
 import * as contracts from './contracts.generated';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { InputConsole } from './inputConsole';
 
 export class ScriptPane {
