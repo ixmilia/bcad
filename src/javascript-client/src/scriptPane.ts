@@ -33,7 +33,7 @@ export class ScriptPane {
             }
         });
         const editor = monaco.editor.create(scriptEditor, {
-            value: '; add your script here',
+            value: '; add your script here\n',
             language: languageId,
         });
 
