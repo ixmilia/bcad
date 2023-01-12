@@ -26,13 +26,20 @@
         <div id="fileRibbon" class="ribbon">
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
-              <button class="command-button-small" data-command-name="File.Open">
+              <button class="command-button" data-command-name="File.New">
+                <img class="icon-large" src="icons/file.new.svg" />
+                New
+              </button>
+              <button class="command-button" data-command-name="File.Open">
+                <img class="icon-large" src="icons/file.open.svg" />
                 Open
               </button>
-              <button class="command-button-small" data-command-name="File.Save">
+              <button class="command-button" data-command-name="File.Save">
+                <img class="icon-large" src="icons/file.save.svg" />
                 Save
               </button>
-              <button class="command-button-small" data-command-name="File.SaveAs">
+              <button class="command-button" data-command-name="File.SaveAs">
+                <img class="icon-large" src="icons/file.saveas.svg" />
                 Save As
               </button>
             </div>
@@ -43,68 +50,31 @@
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
               <button class="command-button" data-command-name="Draw.Line">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <rect x="1" y="28" width="3" height="3" style="stroke: black" fill="white" />
-                  <rect x="28" y="1" width="3" height="3" style="stroke: black" fill="white" />
-                  <line x1="4" y1="28" x2="28" y2="4" style="stroke: black" />
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.line.svg" />
                 Line
               </button>
               <button class="command-button" data-command-name="Draw.PolyLine">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <rect x="1" y="23" width="3" height="3" style="stroke: black" fill="white" />
-                  <rect x="19" y="23" width="3" height="3" style="stroke: black" fill="white" />
-                  <rect x="19" y="7" width="3" height="3" style="stroke: black" fill="white" />
-                  <line x1="4" y1="24.5" x2="18" y2="24.5" style="stroke: black" />
-                  <path d="M 22 24.5 A 8 8 0 0 0 22 8.5" style="stroke: black" fill-opacity="0.0" />
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.polyline.svg" />
                 Polyline
               </button>
               <button class="command-button" data-command-name="Draw.Circle">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <circle cx="15.5" cy="15.5" r="15" stroke="black" fill-opacity="0.0" />
-                  <line x1="15.5" y1="15.5" x2="26" y2="4" style="stroke: black" />
-                  <rect x="14" y="14" width="3" height="3" style="stroke: black" fill="white" />
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.circle.svg" />
                 Circle
               </button>
               <button class="command-button" data-command-name="Draw.Arc">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <path d="M 2.5 20 A 8 7 0 0 1 29.5 20" style="stroke: black" fill-opacity="0.0" />
-                  <rect x="1" y="20.5" width="3" height="3" style="stroke: black" fill="white" />
-                  <rect x="14.5" y="7" width="3" height="3" style="stroke: black" fill="white" />
-                  <rect x="28" y="20.5" width="3" height="3" style="stroke: black" fill="white" />
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.arc.svg" />
                 Arc
               </button>
               <button class="command-button" data-command-name="Draw.Ellipse">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <ellipse cx="16" cy="16" rx="15.5" ry="8" stroke="black" fill-opacity="0.0" />
-                  <line x1="17.5" y1="16" x2="32" y2="16" style="stroke: black" />
-                  <line x1="16" y1="14.5" x2="16" y2="8" style="stroke: black" />
-                  <rect x="14.5" y="14.5" width="3" height="3" style="stroke: black" fill="white" />
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.ellipse.svg" />
                 Ellipse
               </button>
               <button class="command-button" data-command-name="Draw.Text">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <text x="50%" y="50%" style="font: 36px serif" dominant-baseline="central"
-                    text-anchor="middle">T</text>
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.text.svg" />
                 Text
               </button>
               <button class="command-button" data-command-name="Draw.Point">
-                <svg viewBox="0 0 32 32" class="icon-large">
-                  <line x1="16" y1="5" x2="16" y2="27" style="stroke: black" />
-                  <line x1="5" y1="16" x2="27" y2="16" style="stroke: black" />
-                </svg>
-                <br />
+                <img class="icon-large" src="icons/draw.point.svg" />
                 Point
               </button>
             </div>
@@ -117,30 +87,19 @@
                   <tr class="button-grid-item">
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Move">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <polygon
-                            points="8,0 10,2 8,2 8,7 13,7 13,5 15,7 15,8 13,10 13,8 8,8 8,13 10,13 8,15 7,15 5,13 7,13 7,8 2,8 2,10 0,8 0,7 2,5 2,7 7,7 7,2 5,2 7,0" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.move.svg" />
                         <div class="command-button-small-label">Move</div>
                       </button>
                     </td>
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Trim">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <line x1="0" y1="7" x2="7" y2="7" style="stroke: black" />
-                          <line x1="7" y1="7" x2="10" y2="7" style="stroke: green" />
-                          <line x1="12" y1="7" x2="14" y2="7" style="stroke: green" />
-                          <line x1="5" y1="13" x2="9" y2="2" style="stroke: red" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.trim.svg" />
                         <div class="command-button-small-label">Trim</div>
                       </button>
                     </td>
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Rotate">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <path d="M 10 3 A 6 6 0 1 1 6 3" style="stroke: black" fill-opacity="0.0" />
-                          <polygon points="4,2 8,2 8,6">
-                        </svg>
+                        <img class="icon-small" src="icons/edit.rotate.svg" />
                         <div class="command-button-small-label">Rotate</div>
                       </button>
                     </td>
@@ -148,34 +107,19 @@
                   <tr class="button-grid-item">
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Copy">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <circle cx="4" cy="4" r="3" style="stroke: black" fill-opacity="0.0" />
-                          <path d="M 8 2.5 A 3 3 0 0 1 11 4.5" style="stroke: black" fill-opacity="0.0" />
-                          <circle cx="9.5" cy="9.5" r="3" style="stroke: blue; fill: lightblue" />
-                          <circle cx="12" cy="12" r="3" style="stroke: blue; fill: lightblue" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.copy.svg" />
                         <div class="command-button-small-label">Copy</div>
                       </button>
                     </td>
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Extend">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <line x1="0" y1="7" x2="7" y2="7" style="stroke: black" />
-                          <line x1="7" y1="7" x2="9" y2="7" style="stroke: green" />
-                          <line x1="11" y1="7" x2="13" y2="7" style="stroke: green" />
-                          <line x1="11" y1="13" x2="15" y2="2" style="stroke: red" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.extend.svg" />
                         <div class="command-button-small-label">Extend</div>
                       </button>
                     </td>
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Scale">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <polygon points="1,8 8,8 8,15 1,15" style="stroke: black" fill-opacity="0.0" />
-                          <path d="M 1 7 L 1 1 L 15 1 L 15 15 L 9 15" style="stroke: blue" fill-opacity="0.0" />
-                          <path d="M 9 7 L 12 3" style="stroke: black" fill-opacity="0.0" />
-                          <path d="M 13 3 L 10 3 L 13 6" style="stroke: black" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.scale.svg" />
                         <div class="command-button-small-label">Scale</div>
                       </button>
                     </td>
@@ -183,21 +127,13 @@
                   <tr class="button-grid-item">
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Delete">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <path
-                            d="M 3 0 L 7 5 L 8 5 L 12 0 L 15 3 L 10 7 L 10 8 L 15 12 L 12 15 L 8 10 L 7 10 L 3 15 L 0 12 L 5 8 L 5 7 L 0 3 L 3 0"
-                            style="stroke: black; fill: darkred" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.delete.svg" />
                         <div class="command-button-small-label">Delete</div>
                       </button>
                     </td>
                     <td class="button-grid-item">
                       <button class="command-button command-button-small" data-command-name="Edit.Offset">
-                        <svg viewBox="0 0 16 16" class="icon-small">
-                          <path d="M 1 3 L 11 3 A 4 4 0 1 1 11 12 L 1 12 Z" style="stroke: black" fill-opacity="0.0" />
-                          <path d="M 3 5 L 10 5 A 2 2 0 1 1 10 10 L 3 10 Z" style="stroke: #00A2E8"
-                            fill-opacity="0.0" />
-                        </svg>
+                        <img class="icon-small" src="icons/edit.offset.svg" />
                         <div class="command-button-small-label">Offset</div>
                       </button>
                     </td>
@@ -214,11 +150,7 @@
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
               <button class="command-button command-button-tiny" data-command-name="Edit.Layers">
-                <svg viewBox="0 0 16 16" class="icon-small">
-                  <polygon points="3,0 15,0 12,5 0,5 3,0" style="fill: lavenderblush; stroke: black" />
-                  <polygon points="3,5 15,5 12,10 0,10 3,5" style="fill: lightyellow; stroke: black" />
-                  <polygon points="3,10 15,10 12,15 0,15 3,10" style="fill: lightblue; stroke: black" />
-                </svg>
+                <img class="icon-small" src="icons/edit.layers.svg" />
               </button>
               <select id="current-layer-selector"></select>
             </div>
@@ -227,15 +159,7 @@
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
               <button class="command-button command-button-tiny" data-command-name="Edit.LineTypes">
-                <svg viewBox="0 0 16 16" class="icon-small">
-                  <g stroke="black" fill="black">
-                    <polygon points="0,0 6,0 6,2 0,2 0,0" />
-                    <polygon points="10,0 15,0 15,2 10,2 10,0" />
-                    <polygon points="0,6 15,6 15,8 0,8 0,6" />
-                    <polygon points="0,12 6,12 6,14 0,14 0,12" />
-                    <polygon points="10,12 15,12 15,14 10,14 10,12" />
-                  </g>
-                </svg>
+                <img class="icon-small" src="icons/edit.linetypes.svg" />
               </button>
               <select id="current-line-type-selector"></select>
             </div>

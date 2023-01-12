@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <polygon points="1,8 8,8 8,15 1,15" style="stroke: black" fill-opacity="0.0" />
+  <path d="M 1 7 L 1 1 L 15 1 L 15 15 L 9 15" style="stroke: blue" fill-opacity="0.0" />
+  <path d="M 9 7 L 12 3" style="stroke: black" fill-opacity="0.0" />
+  <path d="M 13 3 L 10 3 L 13 6" style="stroke: black" />
+</svg>

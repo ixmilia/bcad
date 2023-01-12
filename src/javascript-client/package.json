@@ -11,8 +11,8 @@
     "compile:tsc": "tsc -p ./",
     "compile:clean-output": "npx rimraf ./out/client-full/",
     "compile:webpack": "webpack-cli ./out/main.js -o ./out/client-full/ --mode development --config webpack.config.js",
-    "compile:copy-html": "npx copyfiles --error --verbose --flat ./src/resources/* ./out/client-full/",
-    "compile:all": "npm run compile:tsc && npm run compile:clean-output && npm run compile:webpack && npm run compile:copy-html && npm run collect-styles",
+    "compile:copy-resources": "npx copyfiles --error --verbose --up 2 ./src/resources/**/* ./out/client-full/",
+    "compile:all": "npm run compile:tsc && npm run compile:clean-output && npm run compile:webpack && npm run compile:copy-resources && npm run collect-styles",
     "compile": "npm run compile:all && npm run build-icons",
     "watch": "tsc -watch -p ./"
   },
