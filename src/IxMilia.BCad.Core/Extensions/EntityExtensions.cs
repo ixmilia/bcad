@@ -464,6 +464,22 @@ namespace IxMilia.BCad.Extensions
             return result;
         }
 
+        public static bool TryExplodeEntity(this Entity entity, out IEnumerable<Entity> exploded)
+        {
+            exploded = MapEntity(entity,
+                aggregate => aggregate.Children.SelectMany(e => e.GetPrimitives().Select(p => p.Move(aggregate.Location).ToEntity(e.LineTypeSpecification ?? aggregate.LineTypeSpecification))),
+                arc => null,
+                circle => null,
+                ellipse => null,
+                image => null,
+                line => null,
+                location => null,
+                polyline => polyline.GetPrimitives().Select(p => p.ToEntity(polyline.LineTypeSpecification)),
+                spline => null,
+                text => null);
+            return exploded is not null;
+        }
+
         private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion)
         {
             var allSegments = PerformAllIntersections(entityCollection);

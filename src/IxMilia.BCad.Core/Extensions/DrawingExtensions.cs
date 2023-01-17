@@ -323,5 +323,26 @@ namespace IxMilia.BCad
 
             return result;
         }
+
+        public static Drawing ExplodeEntities(this Drawing drawing, IEnumerable<Entity> entities)
+        {
+            var result = drawing;
+            foreach (var entity in entities)
+            {
+                if (entity.TryExplodeEntity(out var exploded))
+                {
+                    var originalLayer = result.ContainingLayer(entity);
+                    var updatedLayer = originalLayer.Remove(entity);
+                    foreach (var ex in exploded)
+                    {
+                        updatedLayer = updatedLayer.Add(ex);
+                    }
+
+                    result = result.Remove(originalLayer).Add(updatedLayer);
+                }
+            }
+
+            return result;
+        }
     }
 }

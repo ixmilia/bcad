@@ -1,4 +1,5 @@
 using System.Linq;
+using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Primitives;
@@ -171,6 +172,36 @@ namespace IxMilia.BCad.Core.Test
             var spline = Spline.FromBeziers(new[] { quadrant1, quadrant2 });
             Assert.Equal(8, spline.ControlPoints.Count());
             Assert.Equal(new[] { 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0 }, spline.KnotValues);
+        }
+
+        [Fact]
+        public void ExplodeEntities()
+        {
+            var poly = new Polyline(new[]
+            {
+                new Vertex(new Point(0.0, 0.0, 0.0)),
+                new Vertex(new Point(1.0, 0.0, 0.0), 90.0, VertexDirection.CounterClockwise),
+                new Vertex(new Point(2.0, 1.0, 0.0)),
+            });
+            var line = new Line(new Point(3.0, 3.0, 0.0), new Point(4.0, 4.0, 0.0));
+            var agg = new AggregateEntity(new Point(10.0, 10.0, 0.0), ReadOnlyList<Entity>.Create(new Entity[] { poly, line }));
+            Assert.True(agg.TryExplodeEntity(out var exploded));
+            var explodedList = exploded.ToList();
+            Assert.Equal(3, explodedList.Count);
+
+            var line1 = (Line)explodedList[0];
+            Assert.Equal(new Point(10.0, 10.0, 0.0), line1.P1);
+            Assert.Equal(new Point(11.0, 10.0, 0.0), line1.P2);
+
+            var arc = (Arc)explodedList[1];
+            AssertClose(new Point(11.0, 11.0, 0.0), arc.Center);
+            AssertClose(1.0, arc.Radius);
+            AssertClose(270.0, arc.StartAngle);
+            AssertClose(0.0, arc.EndAngle);
+
+            var line2 = (Line)explodedList[2];
+            Assert.Equal(new Point(13.0, 13.0, 0.0), line2.P1);
+            Assert.Equal(new Point(14.0, 14.0, 0.0), line2.P2);
         }
     }
 }
