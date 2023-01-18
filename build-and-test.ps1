@@ -23,6 +23,7 @@ try {
     # build submodule
     Push-Location "$PSScriptRoot/src/IxMilia.Converters"
     . .\build-and-test.ps1 -configuration $configuration -noTest
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Pop-Location
 
     dotnet restore
@@ -30,6 +31,7 @@ try {
 
     # build client contracts file
     . ./build-contracts-file.ps1
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build js client
     Push-Location "$PSScriptRoot/src/javascript-client"
