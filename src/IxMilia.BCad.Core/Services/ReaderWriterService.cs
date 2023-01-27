@@ -13,10 +13,29 @@ namespace IxMilia.BCad.Core.Services
         private IWorkspace _workspace;
         private Dictionary<Drawing, object> _drawingSettingsCache = new Dictionary<Drawing, object>();
         private List<FileHandlerData> _fileHandlers = new List<FileHandlerData>();
+        private Drawing _lastDrawing;
 
         public ReaderWriterService(IWorkspace workspace)
         {
             _workspace = workspace;
+            workspace.WorkspaceChanging += (_, e) =>
+            {
+                if (e.IsDrawingChange)
+                {
+                    _lastDrawing = workspace.Drawing;
+                }
+            };
+            workspace.WorkspaceChanged += (_, e) =>
+            {
+                if (e.IsDrawingChange)
+                {
+                    if (_lastDrawing is { } && _drawingSettingsCache.TryGetValue(_lastDrawing, out var previousSettings))
+                    {
+                        _drawingSettingsCache.Remove(_lastDrawing);
+                        _drawingSettingsCache.Add(workspace.Drawing, previousSettings);
+                    }
+                }
+            };
         }
 
         public void RegisterFileHandler(IFileHandler fileHandler, bool canRead, bool canWrite, params string[] fileExtensions)
