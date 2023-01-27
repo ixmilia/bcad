@@ -682,7 +682,7 @@ namespace IxMilia.BCad.Display
             return entities;
         }
 
-        private SelectedEntity GetHitEntity(Point screenPoint)
+        public SelectedEntity GetHitEntity(Point screenPoint)
         {
             var selectionRadius = _workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
             var selectionRadius2 = selectionRadius * selectionRadius;
@@ -741,12 +741,18 @@ namespace IxMilia.BCad.Display
                     {
                         transformationMatrix.Transform(image.Location),
                         transformationMatrix.Transform(image.Location + right),
+                        transformationMatrix.Transform(image.Location + right + up),
                         transformationMatrix.Transform(image.Location + up),
-                        transformationMatrix.Transform(image.Location + right + up)
                     };
-                    if (imagePoints.ConvexHull().PolygonContains(screenPoint))
-                        return Tuple.Create(0.0, screenPoint);
-                    return ClosestPoint(imagePoints, screenPoint);
+                    var borderLines = new[]
+                    {
+                        new PrimitiveLine(imagePoints[0], imagePoints[1]),
+                        new PrimitiveLine(imagePoints[1], imagePoints[2]),
+                        new PrimitiveLine(imagePoints[2], imagePoints[3]),
+                        new PrimitiveLine(imagePoints[3], imagePoints[0]),
+                    };
+                    var closestBorderLine = borderLines.Select(l => ClosestPoint(l, screenPoint)).OrderBy(p => p.Item1).FirstOrDefault();
+                    return closestBorderLine;
                 }
             );
         }
