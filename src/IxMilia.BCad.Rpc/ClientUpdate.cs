@@ -302,6 +302,21 @@ namespace IxMilia.BCad.Rpc
             return Create(name, displayName, value, drawingTransformer, allowedValues, isUnrepresentable);
         }
 
+        internal static ClientPropertyPaneValue CreateForEntityWithScalar<TEntity>(string name, string displayName, string value, Func<TEntity, double, Entity> entityTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+            where TEntity : Entity
+        {
+            return CreateForEntity<TEntity>(name, displayName, value, (entity, valueToSet) =>
+            {
+                if (double.TryParse(valueToSet, out var doubleValue))
+                {
+                    var updatedEntity = entityTransformer(entity, doubleValue);
+                    return updatedEntity;
+                }
+
+                return null;
+            }, allowedValues, isUnrepresentable);
+        }
+
         internal static ClientPropertyPaneValue CreateForEntityWithUnits<TEntity>(string name, string displayName, string value, Func<TEntity, double, Entity> entityTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
             where TEntity : Entity
         {

@@ -198,9 +198,9 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("ny", "Y", drawing.FormatUnits(circle.Normal.Y), (circle, value) => circle.Update(normal: circle.Normal.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("nz", "Z", drawing.FormatUnits(circle.Normal.Z), (circle, value) => circle.Update(normal: circle.Normal.WithZ(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("t", "Thickness", drawing.FormatUnits(circle.Thickness), (circle, value) => circle.Update(thickness: value)),
-                    ClientPropertyPaneValue.CreateReadOnly("Area", drawing.FormatScalar(circle.Area())),
-                    ClientPropertyPaneValue.CreateReadOnly("Diameter", drawing.FormatUnits(circle.Diameter())),
-                    ClientPropertyPaneValue.CreateReadOnly("Circumference", drawing.FormatUnits(circle.Circumference())),
+                    ClientPropertyPaneValue.CreateForEntityWithScalar<Circle>("a", "Area", drawing.FormatScalar(circle.Area()), (circle, value) => circle.Update(radius: Math.Sqrt(value / MathHelper.PI))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("d", "Diameter", drawing.FormatUnits(circle.Radius * 2.0), (circle, value) => circle.Update(radius: value / 2.0)),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("c", "Circumference", drawing.FormatUnits(circle.Radius * 2.0 * MathHelper.PI), (circle, value) => circle.Update(radius: value / (2.0 * MathHelper.PI))),
                 },
                 ellipse => new[]
                 {
