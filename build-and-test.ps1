@@ -26,18 +26,12 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Pop-Location
 
-    # generate code for lisp
-    Push-Location "$PSScriptRoot/src/IxMilia.Lisp"
-    . .\generate-code.ps1
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    Pop-Location
-
     # restore
     dotnet restore
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build client contracts file
-    . ./build-contracts-file.ps1
+    . ./build-contracts-files.ps1
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # build js client
