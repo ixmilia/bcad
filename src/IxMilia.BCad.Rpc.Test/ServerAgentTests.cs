@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using IxMilia.BCad.Core.Test;
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Lisp.Test;
 using Xunit;
 
 namespace IxMilia.BCad.Rpc.Test
@@ -10,7 +10,7 @@ namespace IxMilia.BCad.Rpc.Test
         [Fact]
         public void SelectedEntitiesAreUpdatedWhenSettingAProperty()
         {
-            var sa = new ServerAgent(new TestWorkspace(), null);
+            var sa = new ServerAgent(new TestLispWorkspace(), null);
 
             // add entity and select it
             var originalEntity = new Location(new Point(1.0, 1.0, 1.0));
@@ -29,7 +29,7 @@ namespace IxMilia.BCad.Rpc.Test
         [Fact]
         public void MultipleEntitiesAreUpdatedTogetherWhenSettingAProperty()
         {
-            var sa = new ServerAgent(new TestWorkspace(), null);
+            var sa = new ServerAgent(new TestLispWorkspace(), null);
 
             // add a test layer
             sa.Workspace.Add(new Layer("test-layer"));

@@ -356,7 +356,7 @@ namespace IxMilia.BCad
             _commands.Add(commandInfo);
         }
 
-        public async Task<bool> ExecuteCommand(string commandName, object arg)
+        public async Task<bool> ExecuteCommand(string commandName, object arg = null)
         {
             if (commandName == null && lastCommand == null)
             {

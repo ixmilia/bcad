@@ -10,6 +10,10 @@
 	path = src/IxMilia.Iges
 	url = https://github.com/ixmilia/iges
 	branch = main
+[submodule "src/IxMilia.Lisp"]
+	path = src/IxMilia.Lisp
+	url = https://github.com/ixmilia/lisp
+	branch = main
 [submodule "src/IxMilia.Step"]
 	path = src/IxMilia.Step
 	url = https://github.com/ixmilia/step

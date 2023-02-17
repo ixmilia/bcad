@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj" />
     <ProjectReference Include="..\IxMilia.BCad.FileHandlers\IxMilia.BCad.FileHandlers.csproj" />
+    <ProjectReference Include="..\IxMilia.BCad.Lisp\IxMilia.BCad.Lisp.csproj" />
     <ProjectReference Include="..\IxMilia.Converters\src\IxMilia.Converters\IxMilia.Converters.csproj" />
   </ItemGroup>
 

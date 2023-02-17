@@ -474,6 +474,11 @@
         <div class="title-bar-text">Script editor</div>
       </div>
       <div class="window-body" style="display: flex; flex-direction: column; height: 90%;">
+        <label for="script-type">Script type</label>
+        <select class="settings-select" name="script-type" id="script-type">
+          <option value=".scr">CAD Script</option>
+          <option value=".lisp">Lisp</option>
+        </select>
         <button id="run-script">Run</button>
         <div id="script-content"></div>
       </div>

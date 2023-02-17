@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.Lisp;
 using StreamJsonRpc;
 
 namespace IxMilia.BCad.Rpc
 {
     public class FullServer
     {
-        public IWorkspace Workspace { get; private set; }
+        public LispWorkspace Workspace { get; private set; }
         public ServerAgent Agent { get; private set; }
 
         public FullServer(IJsonRpcMessageHandler messageHandler)

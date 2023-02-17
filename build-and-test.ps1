@@ -26,6 +26,13 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Pop-Location
 
+    # generate code for lisp
+    Push-Location "$PSScriptRoot/src/IxMilia.Lisp"
+    . .\generate-code.ps1
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Pop-Location
+
+    # restore
     dotnet restore
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 

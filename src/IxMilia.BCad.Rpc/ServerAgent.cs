@@ -8,10 +8,12 @@ using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
+using IxMilia.BCad.Lisp;
 using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Primitives;
 using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
+using IxMilia.Lisp;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
@@ -22,7 +24,7 @@ namespace IxMilia.BCad.Rpc
         private DisplayInteractionManager _dim;
         private JsonRpc _jsonRpc { get; }
 
-        public IWorkspace Workspace { get; }
+        public LispWorkspace Workspace { get; }
         public bool IsRunning { get; private set; }
         public double Width => _dim.Width;
         public double Height => _dim.Height;
@@ -30,7 +32,7 @@ namespace IxMilia.BCad.Rpc
         private bool _readyEventFired;
         public event EventHandler IsReady;
 
-        public ServerAgent(IWorkspace workspace, JsonRpc rpc)
+        public ServerAgent(LispWorkspace workspace, JsonRpc rpc)
         {
             Workspace = workspace;
             _jsonRpc = rpc;
@@ -285,9 +287,23 @@ namespace IxMilia.BCad.Rpc
             return Workspace.ExecuteCommand(command);
         }
 
-        public Task<bool> ExecuteScript(string script)
+        public async Task<bool> ExecuteScript(string extension, string script)
         {
-            return Workspace.ExecuteTokensFromScriptAsync(script);
+            switch (extension.ToLowerInvariant())
+            {
+                case ".lisp":
+                    var result = await Workspace.EvaluateAsync(script);
+                    if (!result.IsNil())
+                    {
+                        Workspace.OutputService.WriteLine(result.ToString());
+                    }
+                    return result is not LispError;
+                case ".scr":
+                    return await Workspace.ExecuteTokensFromScriptAsync(script);
+                default:
+                    Workspace.OutputService.WriteLine($"Unsupported script type {extension}");
+                    return false;
+            }
         }
 
         public async Task ParseFile(string filePath, string data)

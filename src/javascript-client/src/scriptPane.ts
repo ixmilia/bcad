@@ -1,20 +1,26 @@
 import { Client } from './client';
 import * as contracts from './contracts.generated';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as lispGrammar from './grammar/grammar';
 import { InputConsole } from './inputConsole';
 
 export class ScriptPane {
     constructor(client: Client) {
         const scriptPane = <HTMLDivElement>document.getElementById("script-pane");
         const scriptEditor = <HTMLDivElement>document.getElementById("script-content");
+        const scriptTypeSelector = <HTMLSelectElement>document.getElementById("script-type");
         InputConsole.ensureCapturedEvents(scriptPane);
 
         // prepare monaco editor
-        const languageId = 'cad';
+        const scriptLanguageId = 'scr';
         monaco.languages.register({
-            id: languageId
+            id: scriptLanguageId
         });
-        monaco.languages.setMonarchTokensProvider(languageId, {
+        const lispLanguageId = 'lisp';
+        monaco.languages.register({
+            id: lispLanguageId
+        });
+        monaco.languages.setMonarchTokensProvider(scriptLanguageId, {
             ignoreCase: true,
             keywords: contracts.CommandNames,
             tokenizer: {
@@ -32,9 +38,26 @@ export class ScriptPane {
                 ],
             }
         });
+        monaco.languages.setMonarchTokensProvider(lispLanguageId, lispGrammar.languageGrammar);
         const editor = monaco.editor.create(scriptEditor, {
             value: '; add your script here\n',
-            language: languageId,
+            language: scriptLanguageId,
+        });
+
+        scriptTypeSelector.addEventListener('change', ev => {
+            const model = editor.getModel();
+            if (model) {
+                switch (scriptTypeSelector.value) {
+                    case '.scr':
+                        monaco.editor.setModelLanguage(model, scriptLanguageId);
+                        break;
+                    case '.lisp':
+                        monaco.editor.setModelLanguage(model, lispLanguageId);
+                        break;
+                }
+            }
+
+            editor.layout();
         });
 
         const showScriptToggle = <HTMLInputElement>document.getElementById('showScript');
@@ -50,7 +73,7 @@ export class ScriptPane {
         // prepare script execution
         function executeScript() {
             const scriptContent = editor.getValue();
-            client.executeScript(scriptContent);
+            client.executeScript(scriptTypeSelector.value, scriptContent);
         }
         const runScriptButton = <HTMLButtonElement>document.getElementById("run-script");
         runScriptButton.addEventListener('click', ev => {

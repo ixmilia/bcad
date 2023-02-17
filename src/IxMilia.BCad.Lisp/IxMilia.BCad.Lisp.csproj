@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>IxMilia.BCad.Lisp</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IxMilia.BCad.Core\IxMilia.BCad.Core.csproj" />
+    <ProjectReference Include="..\IxMilia.Lisp\src\IxMilia.Lisp\IxMilia.Lisp.csproj" />
+  </ItemGroup>
+
+</Project>

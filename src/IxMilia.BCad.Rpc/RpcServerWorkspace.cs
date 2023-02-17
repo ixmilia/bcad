@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
+using IxMilia.BCad.Lisp;
 
 namespace IxMilia.BCad.Rpc
 {
-    internal class RpcServerWorkspace : WorkspaceBase
+    internal class RpcServerWorkspace : LispWorkspace
     {
         public override async Task<UnsavedChangesResult> PromptForUnsavedChanges()
         {
