@@ -27,6 +27,7 @@ namespace IxMilia.BCad.Services
     {
         Point LastPoint { get; }
         Task<ValueOrDirective<double>> GetDistance(UserDirective directive = null, Func<double, IEnumerable<IPrimitive>> onCursorMove = null, Optional<double> defaultDistance = default(Optional<double>));
+        Task<ValueOrDirective<double>> GetDistanceFromPoint(Point startPoint, UserDirective directive = null, Func<Point, IEnumerable<IPrimitive>> onCursorMove = null, Optional<double> defaultDistance = default(Optional<double>));
         Task<ValueOrDirective<Point>> GetPoint(UserDirective directive, RubberBandGenerator onCursorMove = null, Optional<Point> lastPoint = default(Optional<Point>));
         Task<ValueOrDirective<SelectedEntity>> GetEntity(UserDirective directive, RubberBandGenerator onCursorMove = null);
         Task<ValueOrDirective<IEnumerable<Entity>>> GetEntities(string prompt = null, EntityKind entityKinds = EntityKind.All, RubberBandGenerator onCursorMove = null);

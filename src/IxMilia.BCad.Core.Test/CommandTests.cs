@@ -82,6 +82,43 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public async Task DrawCircleWithPointForRadius()
+        {
+            var result = await Execute("CIRCLE",
+                new PushPointOperation(new Point(1.0, 2.0, 0.0)), // center point
+                new PushPointOperation(new Point(2.0, 2.0, 0.0)) // point on radius
+            );
+            Assert.True(result);
+            var actual = (Circle)Workspace.Drawing.GetEntities().Single();
+            Assert.True(actual.EquivalentTo(new Circle(new Point(1.0, 2.0, 0.0), 1.0, Vector.ZAxis)));
+        }
+
+        [Fact]
+        public async Task DrawCircleWithDoubleForRadius()
+        {
+            var result = await Execute("CIRCLE",
+                new PushPointOperation(new Point(1.0, 2.0, 0.0)), // center point
+                new PushDistanceOperation(1.0) // radius
+            );
+            Assert.True(result);
+            var actual = (Circle)Workspace.Drawing.GetEntities().Single();
+            Assert.True(actual.EquivalentTo(new Circle(new Point(1.0, 2.0, 0.0), 1.0, Vector.ZAxis)));
+        }
+
+        [Fact]
+        public async Task DrawCircleWithDiameter()
+        {
+            var result = await Execute("CIRCLE",
+                new PushPointOperation(new Point(0.0, 0.0, 0.0)), // initial point
+                new PushDirectiveOperation("d"), // switch to diameter mode
+                new PushPointOperation(new Point(2.0, 0.0, 0.0)) // second point
+            );
+            Assert.True(result);
+            var actual = (Circle)Workspace.Drawing.GetEntities().Single();
+            Assert.True(actual.EquivalentTo(new Circle(new Point(1.0, 0.0, 0.0), 1.0, Vector.ZAxis)));
+        }
+
+        [Fact]
         public void SplitLineIntoTokenPartsGeneratesSingleEmptyToken()
         {
             Assert.True(CommandLineSplitter.TrySplitIntoTokens("", out var tokens));
@@ -186,6 +223,36 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal(new Point(0.0, 1.0, 0.0), l2.P2);
             Assert.Equal(new Point(0.0, 1.0, 0.0), l3.P1);
             Assert.Equal(new Point(0.0, 0.0, 0.0), l3.P2);
+        }
+
+        [Fact]
+        public async Task InsertCircleWithTwoPointsScript()
+        {
+            var result = await Workspace.ExecuteTokensFromScriptAsync(@"CIRCLE 1,0 2,0");
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var circle = (Circle)Workspace.Drawing.GetEntities().Single();
+            Assert.True(circle.EquivalentTo(new Circle(new Point(1.0, 0.0, 0.0), 1.0, Vector.ZAxis)));
+        }
+
+        [Fact]
+        public async Task InsertCircleWithPointAndDistanceScript()
+        {
+            var result = await Workspace.ExecuteTokensFromScriptAsync(@"CIRCLE 1,0 1");
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var circle = (Circle)Workspace.Drawing.GetEntities().Single();
+            Assert.True(circle.EquivalentTo(new Circle(new Point(1.0, 0.0, 0.0), 1.0, Vector.ZAxis)));
+        }
+
+        [Fact]
+        public async Task InsertCircleWithDiameterScript()
+        {
+            var result = await Workspace.ExecuteTokensFromScriptAsync(@"CIRCLE 1,0 d 2,0");
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var circle = (Circle)Workspace.Drawing.GetEntities().Single();
+            Assert.True(circle.EquivalentTo(new Circle(new Point(1.5, 0.0, 0.0), 0.5, Vector.ZAxis)));
         }
 
         [Fact]

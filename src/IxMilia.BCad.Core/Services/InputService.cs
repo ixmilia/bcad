@@ -85,27 +85,58 @@ namespace IxMilia.BCad.Services
                     result = ValueOrDirective<double>.GetDirective(pushedDirective);
                     break;
                 case PushedValueType.Point:
-                    var first = pushedPoint;
+                    var startPoint = pushedPoint;
                     ResetWaiters();
                     onCursorMove ??= _ => Enumerable.Empty<IPrimitive>();
-                    var second = await GetPoint(new UserDirective("Second point of offset distance"), p =>
+                    result = await GetDistanceFromPoint(startPoint, directive, p =>
                     {
-                        var distance = (p - first).Length;
-                        return new[] { new PrimitiveLine(first, p) }.Concat(onCursorMove(distance));
-                    });
-                    if (second.HasValue)
-                    {
-                        var dist = (second.Value - first).Length;
-                        result = ValueOrDirective<double>.GetValue(dist);
-                    }
-                    else if (second.Directive != null)
-                    {
-                        result = ValueOrDirective<double>.GetDirective(second.Directive);
-                    }
-                    else
-                    {
-                        result = ValueOrDirective<double>.GetCancel();
-                    }
+                        var distance = (startPoint - p).Length;
+                        return onCursorMove(distance);
+                    }, defaultDistance: defaultDistance);
+                    break;
+                default:
+                    throw new Exception("Unexpected pushed value");
+            }
+
+            ResetWaiters();
+            return result;
+        }
+
+        public async Task<ValueOrDirective<double>> GetDistanceFromPoint(Point startPoint, UserDirective directive = null, Func<Point, IEnumerable<IPrimitive>> onCursorMove = null, Optional<double> defaultDistance = default(Optional<double>))
+        {
+            var allowedType = InputType.Distance | InputType.Directive | InputType.Point;
+            if (directive == null)
+            {
+                var prompt = "Offset distance or first point";
+                if (defaultDistance.HasValue)
+                {
+                    prompt += $" [{defaultDistance.Value}]";
+                }
+
+                directive = new UserDirective(prompt);
+            }
+
+            onCursorMove ??= _ => Enumerable.Empty<IPrimitive>();
+            await WaitFor(allowedType, directive, onCursorMove: p => onCursorMove(p));
+
+            ValueOrDirective<double> result;
+            switch (lastType)
+            {
+                case PushedValueType.Cancel:
+                    result = ValueOrDirective<double>.GetCancel();
+                    break;
+                case PushedValueType.None:
+                    result = ValueOrDirective<double>.GetValue(defaultDistance.Value);
+                    break;
+                case PushedValueType.Distance:
+                    result = ValueOrDirective<double>.GetValue(pushedDistance);
+                    break;
+                case PushedValueType.Directive:
+                    result = ValueOrDirective<double>.GetDirective(pushedDirective);
+                    break;
+                case PushedValueType.Point:
+                    var distance = (pushedPoint - startPoint).Length;
+                    result = ValueOrDirective<double>.GetValue(distance);
                     break;
                 default:
                     throw new Exception("Unexpected pushed value");

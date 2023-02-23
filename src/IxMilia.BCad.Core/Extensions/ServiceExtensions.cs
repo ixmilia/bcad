@@ -33,23 +33,29 @@ namespace IxMilia.BCad.Extensions
             inputService.ValueReceived += ValueReceivedHandler;
 
             var result = true;
+            var handled = false;
             if (inputService.AllowedInputTypes.HasFlag(InputType.Directive) &&
                 inputService.AllowedDirectives.Contains(text))
             {
                 inputService.PushDirective(text);
+                handled = true;
             }
-            else if (inputService.AllowedInputTypes.HasFlag(InputType.Distance))
+
+            if (!handled && inputService.AllowedInputTypes.HasFlag(InputType.Distance))
             {
                 if (string.IsNullOrEmpty(text))
                 {
                     inputService.PushNone();
+                    handled = true;
                 }
                 else if (DrawingSettings.TryParseUnits(text, out var distance))
                 {
                     inputService.PushDistance(distance);
+                    handled = true;
                 }
             }
-            else if (inputService.AllowedInputTypes.HasFlag(InputType.Point))
+
+            if (!handled && inputService.AllowedInputTypes.HasFlag(InputType.Point))
             {
                 if (inputService.TryParsePoint(text, cursorPoint, inputService.LastPoint, out var point))
                 {
@@ -59,16 +65,23 @@ namespace IxMilia.BCad.Extensions
                 {
                     inputService.PushNone();
                 }
+
+                handled = true;
             }
-            else if (inputService.AllowedInputTypes.HasFlag(InputType.Command))
+
+            if (!handled && inputService.AllowedInputTypes.HasFlag(InputType.Command))
             {
                 inputService.PushCommand(string.IsNullOrEmpty(text) ? null : text);
+                handled = true;
             }
-            else if (inputService.AllowedInputTypes.HasFlag(InputType.Text))
+
+            if (!handled && inputService.AllowedInputTypes.HasFlag(InputType.Text))
             {
                 inputService.PushText(text ?? string.Empty);
+                handled = true;
             }
-            else
+
+            if (!handled)
             {
                 // not sure what to do
                 result = false;

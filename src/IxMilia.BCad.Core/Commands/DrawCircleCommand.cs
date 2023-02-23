@@ -25,9 +25,9 @@ namespace IxMilia.BCad.Commands
             var drawingPlane = workspace.DrawingPlane;
             var lineTypeSpecification = workspace.Drawing.Settings.CurrentLineTypeSpecification;
 
-            var cen = await workspace.InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
-            if (cen.Cancel) return false;
-            if (cen.HasValue)
+            var initial = await workspace.InputService.GetPoint(new UserDirective("Select center, [ttr], or [th]ree-point", "ttr", "th"));
+            if (initial.Cancel) return false;
+            if (initial.HasValue)
             {
                 var mode = CircleMode.Radius;
                 while (circle == null)
@@ -36,18 +36,18 @@ namespace IxMilia.BCad.Commands
                     {
                         case CircleMode.Radius:
                             {
-                                var rad = await workspace.InputService.GetPoint(new UserDirective("Enter radius or [d]iameter/[i]sometric", "d", "i"), (p) =>
+                                var rad = await workspace.InputService.GetDistanceFromPoint(initial.Value, new UserDirective("Enter radius or [d]iameter/[i]sometric", "d", "i"), p =>
                                 {
                                     return new IPrimitive[]
                                     {
-                                        new PrimitiveLine(cen.Value, p),
-                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal)
+                                        new PrimitiveLine(initial.Value, p),
+                                        new PrimitiveEllipse(initial.Value, (p - initial.Value).Length, drawingPlane.Normal)
                                     };
                                 });
                                 if (rad.Cancel) return false;
                                 if (rad.HasValue)
                                 {
-                                    circle = new Circle(cen.Value, (rad.Value - cen.Value).Length, drawingPlane.Normal, lineTypeSpecification: lineTypeSpecification);
+                                    circle = new Circle(initial.Value, rad.Value, drawingPlane.Normal, lineTypeSpecification: lineTypeSpecification);
                                 }
                                 else // switch modes
                                 {
@@ -73,16 +73,18 @@ namespace IxMilia.BCad.Commands
                             {
                                 var dia = await workspace.InputService.GetPoint(new UserDirective("Enter diameter or [r]adius/[i]sometric", "r", "i"), (p) =>
                                 {
+                                    var diameterLine = new PrimitiveLine(initial.Value, p);
                                     return new IPrimitive[]
                                     {
-                                        new PrimitiveLine(cen.Value, p),
-                                        new PrimitiveEllipse(cen.Value, (p - cen.Value).Length, drawingPlane.Normal)
+                                        diameterLine,
+                                        new PrimitiveEllipse(diameterLine.MidPoint(), (p - initial.Value).Length * 0.5, drawingPlane.Normal)
                                     };
                                 });
                                 if (dia.Cancel) return false;
                                 if (dia.HasValue)
                                 {
-                                    circle = new Circle(cen.Value, (dia.Value - cen.Value).Length * 0.5, drawingPlane.Normal, lineTypeSpecification: lineTypeSpecification);
+                                    var diameterLine = new PrimitiveLine(initial.Value, dia.Value);
+                                    circle = new Circle(diameterLine.MidPoint(), (dia.Value - initial.Value).Length * 0.5, drawingPlane.Normal, lineTypeSpecification: lineTypeSpecification);
                                 }
                                 else // switch modes
                                 {
@@ -110,9 +112,9 @@ namespace IxMilia.BCad.Commands
                                 {
                                     return new IPrimitive[]
                                     {
-                                        new PrimitiveLine(cen.Value, p),
-                                        new PrimitiveEllipse(cen.Value,
-                                            Vector.SixtyDegrees * (p - cen.Value).Length * MathHelper.SqrtThreeHalves,
+                                        new PrimitiveLine(initial.Value, p),
+                                        new PrimitiveEllipse(initial.Value,
+                                            Vector.SixtyDegrees * (p - initial.Value).Length * MathHelper.SqrtThreeHalves,
                                             drawingPlane.Normal,
                                             IsoMinorRatio,
                                             0.0,
@@ -122,8 +124,8 @@ namespace IxMilia.BCad.Commands
                                 if (isoRad.Cancel) return false;
                                 if (isoRad.HasValue)
                                 {
-                                    circle = new Ellipse(cen.Value,
-                                        Vector.SixtyDegrees * (isoRad.Value - cen.Value).Length * MathHelper.SqrtThreeHalves,
+                                    circle = new Ellipse(initial.Value,
+                                        Vector.SixtyDegrees * (isoRad.Value - initial.Value).Length * MathHelper.SqrtThreeHalves,
                                         IsoMinorRatio,
                                         0.0,
                                         360.0,
@@ -155,7 +157,7 @@ namespace IxMilia.BCad.Commands
             }
             else
             {
-                switch (cen.Directive)
+                switch (initial.Directive)
                 {
                     case "ttr":
                         var firstEntity = await workspace.InputService.GetEntity(new UserDirective("First entity"));
