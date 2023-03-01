@@ -64,6 +64,14 @@ try {
             --output $packageOutputDir
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+        # remove unnecessary files
+        $unnecessaryFiles = @(
+            "IxMilia.Dxf.xml"
+        )
+        foreach ($file in $unnecessaryFiles) {
+            Remove-Item "$packageOutputDir/$file"
+        }
+
         Push-Location "$PSScriptRoot/src/bccoreconsole"
         $goarch = if ($arch -eq "x64") { "amd64" } else { "arm64" }
         $env:GOARCH = $goarch
