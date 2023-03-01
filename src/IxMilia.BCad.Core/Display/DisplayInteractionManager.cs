@@ -31,7 +31,7 @@ namespace IxMilia.BCad.Display
 
         private Matrix4 transformationMatrix;
         private Matrix4 unprojectMatrix;
-        private QuadTree<TransformedSnapPoint> snapPointsQuadTree;
+        private QuadTree<TransformedSnapPoint> snapPointsQuadTree = new QuadTree<TransformedSnapPoint>(new Rect(), t => new Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
         private CancellationTokenSource updateSnapPointsCancellationTokenSource = new CancellationTokenSource();
         private Task updateSnapPointsTask = new Task(() => { });
         private long lastDrawnSnapPointId;
@@ -197,7 +197,14 @@ namespace IxMilia.BCad.Display
 
             updateSnapPointsTask = Task.Run(() =>
             {
-                snapPointsQuadTree = _workspace.Drawing.GetSnapPoints(transform, Width, Height, token);
+                try
+                {
+                    snapPointsQuadTree = _workspace.Drawing.GetSnapPoints(transform, Width, Height, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    snapPointsQuadTree = new QuadTree<TransformedSnapPoint>(new Rect(), t => new Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
+                }
             });
 
             return updateSnapPointsTask;

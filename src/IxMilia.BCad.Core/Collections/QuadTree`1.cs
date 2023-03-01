@@ -9,12 +9,10 @@ namespace IxMilia.BCad.Collections
         public delegate Rect GetBoundingRectangle(T item);
 
         private IQuadTreeNode _root;
-        private GetBoundingRectangle _getBounding;
 
         public QuadTree(Rect rect, GetBoundingRectangle getBoundingRectangle, int maxItems = MAX_ITEMS)
         {
             _root = new QuadTreeLeaf(rect, getBoundingRectangle, maxItems);
-            _getBounding = getBoundingRectangle;
         }
 
         public int Count
