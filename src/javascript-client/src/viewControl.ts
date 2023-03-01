@@ -922,10 +922,17 @@ export class ViewControl {
 
     private renderTextToCanvas2D(context: CanvasRenderingContext2D, text: ClientText) {
         const metrics = context.measureText(text.Text);
+        const textScaleFactor = text.Height / metrics.fontBoundingBoxAscent;
         const bottomLeft = [text.Location.X, text.Location.Y, text.Location.Z, 1];
-        const bottomRight = add(bottomLeft, [metrics.width, 0, 0, 0]);
-        const topLeft = add(bottomLeft, [0, metrics.fontBoundingBoxAscent, 0, 0]);
-        const topRight = add(bottomRight, [0, metrics.fontBoundingBoxAscent, 0, 0]);
+        const rotationInRadians = text.RotationAngle * Math.PI / 180.0;
+        const rotation = createRotationMatrix(rotationInRadians);
+        const rightVector = [metrics.actualBoundingBoxRight * textScaleFactor, 0.0, 0.0, 1.0];
+        const upVector = [0.0, text.Height, 0.0, 1.0];
+        const rotatedRightVector = transform(rotation, rightVector);
+        const rotatedUpVector = transform(rotation, upVector);
+        const bottomRight = add(bottomLeft, rotatedRightVector);
+        const topLeft = add(bottomLeft, rotatedUpVector);
+        const topRight = add(bottomRight, rotatedUpVector);
 
         const screenBottomLeft = transform(this.transform.CanvasTransform, bottomLeft);
         const screenBottomRight = transform(this.transform.CanvasTransform, bottomRight);
@@ -1130,6 +1137,17 @@ function len(vector: number[]) {
     return Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
 }
 
+function createRotationMatrix(angle: number): number[] {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return [
+        cos, sin, 0.0, 0.0,
+        -sin, cos, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ];
+}
+
 function multiply(matrix1: number[], matrix2: number[]): number[] {
     return [
         matrix1[0] * matrix2[0] + matrix1[1] * matrix2[4] +
@@ -1178,10 +1196,6 @@ function transform(matrix: number[], point: number[]): number[] {
 
 function pointFromAngle(angle: number): number[] {
     return [Math.cos(angle * Math.PI / 180.0), Math.sin(angle * Math.PI / 180.0), 0.0, 1.0];
-}
-
-function toPoint(vector: number[]): Point {
-    return { X: vector[0], Y: vector[1], Z: vector[2] };
 }
 
 function throwError<T>(message: string): T {
