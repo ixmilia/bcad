@@ -9,6 +9,7 @@ namespace IxMilia.BCad.Commands
 {
     internal abstract class AbstractCopyMoveCommand : ICadCommand
     {
+        protected abstract bool AllowMultiplePlacements { get; }
         protected abstract Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta);
 
         public async Task<bool> Execute(IWorkspace workspace, object arg)
@@ -31,20 +32,32 @@ namespace IxMilia.BCad.Commands
             }
 
             var primitives = entities.Value.SelectMany(e => e.GetPrimitives());
-            var destination = await workspace.InputService.GetPoint(new UserDirective("Destination point"), p =>
-            {
-                var offset = p - origin.Value;
-                return primitives.Select(pr => pr.Move(offset))
-                    .Concat(new[] { new PrimitiveLine(origin.Value, p) });
-            });
 
-            if (destination.Cancel || !destination.HasValue)
+            do
             {
-                return false;
-            }
+                var destination = await workspace.InputService.GetPoint(new UserDirective("Destination point"), p =>
+                {
+                    var offset = p - origin.Value;
+                    return primitives.Select(pr => pr.Move(offset))
+                        .Concat(new[] { new PrimitiveLine(origin.Value, p) });
+                });
 
-            var delta = destination.Value - origin.Value;
-            workspace.Update(drawing: DoEdit(workspace.Drawing, entities.Value, delta));
+                if (destination.Cancel || !destination.HasValue)
+                {
+                    if (!AllowMultiplePlacements)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                var delta = destination.Value - origin.Value;
+                workspace.Update(drawing: DoEdit(workspace.Drawing, entities.Value, delta));
+            } while (AllowMultiplePlacements);
+
             return true;
         }
     }

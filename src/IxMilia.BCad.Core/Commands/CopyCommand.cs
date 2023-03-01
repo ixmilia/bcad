@@ -6,6 +6,8 @@ namespace IxMilia.BCad.Commands
 {
     internal class CopyCommand : AbstractCopyMoveCommand
     {
+        protected override bool AllowMultiplePlacements => true;
+
         protected override Drawing DoEdit(Drawing drawing, IEnumerable<Entity> entities, Vector delta)
         {
             foreach (var ent in entities)

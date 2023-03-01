@@ -119,6 +119,31 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public async Task CopyCommandCanPlaceResultMultipleTimes()
+        {
+            var line = new Line(new Point(0.0, 0.0, 0.0), new Point(1, 0, 0));
+            Workspace.AddToCurrentLayer(line);
+            var result = await Execute("COPY",
+                new PushEntitiesOperation(new[] { line }), // select line
+                new PushNoneOperation(), // done selecting entities
+                new PushPointOperation(new Point(5.0, 0.0, 0.0)), // copy base point
+                new PushPointOperation(new Point(5.0, 1.0, 0.0)), // insertion point 1
+                new PushPointOperation(new Point(5.0, 2.0, 0.0)), // insertion point 2
+                new PushNoneOperation() // done
+            );
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var lines = Workspace.Drawing.GetEntities().Cast<Line>().ToArray();
+            Assert.Equal(3, lines.Length);
+            Assert.Equal(new Point(0.0, 0.0, 0.0), lines[0].P1);
+            Assert.Equal(new Point(1.0, 0.0, 0.0), lines[0].P2);
+            Assert.Equal(new Point(0.0, 1.0, 0.0), lines[1].P1);
+            Assert.Equal(new Point(1.0, 1.0, 0.0), lines[1].P2);
+            Assert.Equal(new Point(0.0, 2.0, 0.0), lines[2].P1);
+            Assert.Equal(new Point(1.0, 2.0, 0.0), lines[2].P2);
+        }
+
+        [Fact]
         public void SplitLineIntoTokenPartsGeneratesSingleEmptyToken()
         {
             Assert.True(CommandLineSplitter.TrySplitIntoTokens("", out var tokens));
