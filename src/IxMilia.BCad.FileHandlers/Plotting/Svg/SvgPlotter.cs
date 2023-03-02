@@ -28,7 +28,13 @@ namespace IxMilia.BCad.Plotting.Svg
             var plotViewPort = ViewModel.ViewPort;
             var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * plotViewPort.ViewHeight;
             var dxfRect = new ConverterDxfRect(plotViewPort.BottomLeft.X, plotViewPort.BottomLeft.X + viewPortWidth, plotViewPort.BottomLeft.Y, plotViewPort.BottomLeft.Y + plotViewPort.ViewHeight);
-            var svgRect = new ConverterSvgRect(ViewModel.DisplayWidth, ViewModel.DisplayHeight);
+            var svgRect = new ConverterSvgRect(
+                ViewModel.DisplayWidth,
+                ViewModel.DisplayHeight,
+                leftMargin: ViewModel.Margin,
+                rightMargin: ViewModel.Margin,
+                topMargin: ViewModel.Margin,
+                bottomMargin: ViewModel.Margin);
             var options = new DxfToSvgConverterOptions(dxfRect, svgRect, imageHrefResolver: DxfToSvgConverterOptions.CreateDataUriResolver(contentResolver));
             var xml = await converter.Convert(dxfFile, options);
             xml.Attribute("width").Value = $"{ViewModel.OutputWidth}";

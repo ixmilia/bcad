@@ -157,5 +157,27 @@ namespace IxMilia.BCad.FileHandlers.Test
 612.00 792.00 l
 "), actual);
         }
+
+        [Fact]
+        public void PlotWithMarginTest()
+        {
+            var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
+            Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(4.0, 5.25, 0.0))));
+            vm.DisplayWidth = 8.5;
+            vm.DisplayHeight = 11.0;
+            vm.DisplayUnit = PdfMeasurementType.Inch;
+            vm.ScalingType = PlotScalingType.Absolute;
+            vm.ScaleA = 2.0;
+            vm.ScaleB = 1.0;
+            vm.Margin = 0.25;
+            vm.MarginUnit = PdfMeasurementType.Inch;
+            vm.ViewPortType = PlotViewPortType.Extents;
+            var actual = PlotToString(vm);
+
+            Assert.Contains(NormalizeToCrLf(@"
+18.00 18.00 m
+594.00 774.00 l
+"), actual);
+        }
     }
 }

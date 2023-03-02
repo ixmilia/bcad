@@ -54,6 +54,17 @@ namespace IxMilia.BCad.Plotting
             }
         }
 
+        private double _margin;
+        public double Margin
+        {
+            get => _margin;
+            set
+            {
+                SetValue(ref _margin, value);
+                OnPropertyChanged(nameof(Margin));
+            }
+        }
+
         private Point _bottomLeft;
         public Point BottomLeft
         {
@@ -81,18 +92,19 @@ namespace IxMilia.BCad.Plotting
             get
             {
                 ViewPort vp;
+                var margin2 = Margin * 2.0;
                 switch (ViewPortType)
                 {
                     case PlotViewPortType.Extents:
                         vp = Workspace.Drawing.ShowAllViewPort(
                             Workspace.ActiveViewPort.Sight,
                             Workspace.ActiveViewPort.Up,
-                            DisplayWidth,
-                            DisplayHeight,
+                            DisplayWidth - margin2,
+                            DisplayHeight - margin2,
                             viewportBuffer: 0.0);
                         break;
                     case PlotViewPortType.Window:
-                        vp = new ViewPort(BottomLeft, Workspace.ActiveViewPort.Sight, Workspace.ActiveViewPort.Up, TopRight.Y - BottomLeft.Y);
+                        vp = new ViewPort(BottomLeft, Workspace.ActiveViewPort.Sight, Workspace.ActiveViewPort.Up, TopRight.Y - BottomLeft.Y - margin2);
                         break;
                     default:
                         throw new InvalidOperationException("unsupported viewport type");
@@ -101,7 +113,7 @@ namespace IxMilia.BCad.Plotting
                 switch (ScalingType)
                 {
                     case PlotScalingType.Absolute:
-                        vp = vp.Update(viewHeight: DisplayHeight * ScaleB / ScaleA);
+                        vp = vp.Update(viewHeight: (DisplayHeight - margin2) * ScaleB / ScaleA);
                         break;
                     case PlotScalingType.ToFit:
                         break;

@@ -27,13 +27,23 @@ namespace IxMilia.BCad.Plotting.Pdf
             var pageWidth = new PdfMeasurement(ViewModel.DisplayWidth, ViewModel.DisplayUnit);
             var pageHeight = new PdfMeasurement(ViewModel.DisplayHeight, ViewModel.DisplayUnit);
             var plotViewPort = ViewModel.ViewPort;
-            var viewPortWidth = ViewModel.DisplayWidth / ViewModel.DisplayHeight * plotViewPort.ViewHeight;
-            var dxfRect = new ConverterDxfRect(plotViewPort.BottomLeft.X, plotViewPort.BottomLeft.X + viewPortWidth, plotViewPort.BottomLeft.Y, plotViewPort.BottomLeft.Y + plotViewPort.ViewHeight);
+            var margin = new PdfMeasurement(ViewModel.Margin, ViewModel.MarginUnit);
+            var displayWidth = new PdfMeasurement(ViewModel.DisplayWidth, ViewModel.DisplayUnit);
+            var displayHeight = new PdfMeasurement(ViewModel.DisplayHeight, ViewModel.DisplayUnit);
+            var margin2 = margin * 2.0;
+            var rawDisplayWidth = (displayWidth - margin2).ConvertTo(ViewModel.DisplayUnit).RawValue;
+            var rawDisplayHeight = (displayHeight - margin2).ConvertTo(ViewModel.DisplayUnit).RawValue;
+            var viewPortWidth = rawDisplayWidth / rawDisplayHeight * plotViewPort.ViewHeight;
+            var dxfRect = new ConverterDxfRect(
+                plotViewPort.BottomLeft.X,
+                plotViewPort.BottomLeft.X + viewPortWidth,
+                plotViewPort.BottomLeft.Y,
+                plotViewPort.BottomLeft.Y + plotViewPort.ViewHeight);
             var pdfRect = new ConverterPdfRect(
-                new PdfMeasurement(0.0, ViewModel.DisplayUnit),
-                new PdfMeasurement(ViewModel.DisplayWidth, ViewModel.DisplayUnit),
-                new PdfMeasurement(0.0, ViewModel.DisplayUnit),
-                new PdfMeasurement(ViewModel.DisplayHeight, ViewModel.DisplayUnit));
+                margin,
+                new PdfMeasurement(ViewModel.DisplayWidth, ViewModel.DisplayUnit) - margin,
+                margin,
+                new PdfMeasurement(ViewModel.DisplayHeight, ViewModel.DisplayUnit) - margin);
             var options = new DxfToPdfConverterOptions(pageWidth, pageHeight, dxfRect, pdfRect, contentResolver: contentResolver);
             var pdfFile = await converter.Convert(dxfFile, options);
             pdfFile.Save(outputStream);

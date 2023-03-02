@@ -82,9 +82,11 @@ namespace IxMilia.BCad.Rpc
         public PlotColorType ColorType { get; }
         public double Width { get; }
         public double Height { get; }
+        public string Margin { get; }
+        public string MarginUnit { get; }
         public double PreviewMaxSize { get; }
 
-        public ClientPlotSettings(string plotType, ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, PlotColorType colorType, double width, double height, double previewMaxSize)
+        public ClientPlotSettings(string plotType, ClientRectangle viewport, string scaleA, string scaleB, PlotScalingType scalingType, PlotViewPortType viewPortType, PlotColorType colorType, double width, double height, string margin, string marginUnit, double previewMaxSize)
         {
             PlotType = plotType;
             Viewport = viewport;
@@ -95,6 +97,8 @@ namespace IxMilia.BCad.Rpc
             ColorType = colorType;
             Width = width;
             Height = height;
+            Margin = margin;
+            MarginUnit = marginUnit;
             PreviewMaxSize = previewMaxSize;
         }
 

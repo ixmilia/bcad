@@ -14,6 +14,7 @@ using IxMilia.BCad.Primitives;
 using IxMilia.BCad.Services;
 using IxMilia.BCad.Settings;
 using IxMilia.Lisp;
+using IxMilia.Pdf;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
@@ -349,6 +350,16 @@ namespace IxMilia.BCad.Rpc
             {
                 // keep height, reset width
                 viewModel.OutputWidth = settings.Width / settings.Height * settings.PreviewMaxSize;
+            }
+
+            // plot previews are generated as svg, so pdf margins need to be manually adjusted
+            if (settings.PlotType == "pdf")
+            {
+                var marginUnit = settings.MarginUnit == "in" ? PdfMeasurementType.Inch : PdfMeasurementType.Mm;
+                var marginMeasurement = new PdfMeasurement(viewModel.Margin, marginUnit);
+                var marginScale = viewModel.OutputHeight / viewModel.DisplayHeight;
+                var scaledRawMargin = marginMeasurement.AsPoints() * marginScale;
+                viewModel.Margin = scaledRawMargin;
             }
 
             var drawing = Workspace.Drawing.UpdateColors(settings.ColorType);

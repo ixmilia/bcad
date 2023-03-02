@@ -15,6 +15,8 @@ export class PlotDialog extends DialogBase {
     private scaleB: HTMLInputElement;
     private width: HTMLInputElement;
     private height: HTMLInputElement;
+    private margin: HTMLInputElement;
+    private marginUnit: HTMLSelectElement;
     private plotType: HTMLSelectElement;
     private plotSizeSvg: HTMLDivElement;
     private plotSizePdf: HTMLDivElement;
@@ -37,6 +39,8 @@ export class PlotDialog extends DialogBase {
         this.viewportType = <HTMLSelectElement>document.getElementById('dialog-plot-viewport-type');
         this.width = <HTMLInputElement>document.getElementById('dialog-plot-size-width');
         this.height = <HTMLInputElement>document.getElementById('dialog-plot-size-height');
+        this.margin = <HTMLInputElement>document.getElementById('dialog-plot-margin');
+        this.marginUnit = <HTMLSelectElement>document.getElementById('dialog-plot-margin-unit');
         this.plotType = <HTMLSelectElement>document.getElementById('dialog-plot-type');
         this.plotSizePdf = <HTMLDivElement>document.getElementById('dialog-plot-size-pdf');
         this.plotSizeSvg = <HTMLDivElement>document.getElementById('dialog-plot-size-svg');
@@ -66,9 +70,11 @@ export class PlotDialog extends DialogBase {
         this.plotType.addEventListener('change', () => {
             this.plotSizePdf.style.display = 'none';
             this.plotSizeSvg.style.display = 'none';
+            this.marginUnit.style.display = 'none';
             switch (this.plotType.value) {
                 case 'pdf':
                     this.plotSizePdf.style.display = 'block';
+                    this.marginUnit.style.display = 'inline';
                     break;
                 case 'svg':
                     this.plotSizeSvg.style.display = 'block';
@@ -84,6 +90,8 @@ export class PlotDialog extends DialogBase {
             'dialog-plot-viewport-type',
             'dialog-plot-size-width',
             'dialog-plot-size-height',
+            'dialog-plot-margin',
+            'dialog-plot-margin-unit',
             'dialog-plot-type',
             'dialog-plot-size-pdf-orientation',
             'dialog-plot-color-type',
@@ -169,6 +177,8 @@ export class PlotDialog extends DialogBase {
             ColorType: <PlotColorType>this.colorType.value,
             Width: width,
             Height: height,
+            Margin: this.margin.value,
+            MarginUnit: this.marginUnit.value,
             PreviewMaxSize: this.displayContainerDiv.clientHeight,
         };
         return settings;

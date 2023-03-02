@@ -43,6 +43,17 @@ namespace IxMilia.BCad.Plotting.Pdf
             }
         }
 
+        private PdfMeasurementType _marginUnit;
+        public PdfMeasurementType MarginUnit
+        {
+            get => _marginUnit;
+            set
+            {
+                SetValue(ref _marginUnit, value);
+                OnPropertyChanged(nameof(MarginUnit));
+            }
+        }
+
         public PdfPlotterViewModel(IWorkspace workspace)
             : base(workspace)
         {

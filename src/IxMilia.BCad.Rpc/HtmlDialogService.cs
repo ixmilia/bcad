@@ -8,6 +8,7 @@ using IxMilia.BCad.Plotting;
 using IxMilia.BCad.Plotting.Pdf;
 using IxMilia.BCad.Plotting.Svg;
 using IxMilia.BCad.Services;
+using IxMilia.Pdf;
 
 namespace IxMilia.BCad.Rpc
 {
@@ -127,6 +128,7 @@ namespace IxMilia.BCad.Rpc
                     var pdfViewModel = (PdfPlotterViewModel)_pdfPlotterFactory.CreatePlotterViewModel();
                     pdfViewModel.DisplayWidth = settings.Width;
                     pdfViewModel.DisplayHeight = settings.Height;
+                    pdfViewModel.MarginUnit = settings.MarginUnit == "in" ? PdfMeasurementType.Inch : PdfMeasurementType.Mm;
                     viewModel = pdfViewModel;
                     break;
                 case "svg":
@@ -148,6 +150,8 @@ namespace IxMilia.BCad.Rpc
                 viewModel.ViewPortType = settings.ViewPortType;
                 viewModel.ScalingType = settings.ScalingType;
                 var (scaleA, scaleB) = settings.GetUnitAdjustedScale(drawingSettings);
+                DrawingSettings.TryParseUnits(settings.Margin, out var margin);
+                viewModel.Margin = margin;
                 viewModel.ScaleA = scaleA;
                 viewModel.ScaleB = scaleB;
                 viewModel.BottomLeft = new Point(topLeft.X, bottomRight.Y, 0.0);
