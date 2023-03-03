@@ -1,0 +1,9 @@
+Package: bcad
+Version: %VERSION%
+Section: custom
+Priority: optional
+Architecture: %ARCHITECTURE%
+Essential: no
+Installed-Size: %SIZE%
+Maintainer: brettfo
+Description: A graphical CAD editor.

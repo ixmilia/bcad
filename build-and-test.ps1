@@ -93,6 +93,7 @@ try {
         }
         else {
             tar -zcf "$packagesDir/$artifactName" -C "$packageParentDir/" "bcad-$os-$arch"
+            ./build-package.sh --configuration $configuration --architecture $arch
         }
     }
 

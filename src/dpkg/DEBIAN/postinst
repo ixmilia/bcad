@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+# create the symlink
+ln -s /usr/share/bcad/bcad /usr/bin/bcad
