@@ -1,3 +1,7 @@
+:root {
+    --plot-preview-size: 600px;
+}
+
 html {
     height: calc(100% - 20px);
 }
@@ -338,8 +342,8 @@ body {
 #dialog-plot-background {
     background-color: gray;
     border: 1px solid black;
-    width: 400px;
-    height: 400px;
+    width: var(--plot-preview-size);
+    height: var(--plot-preview-size);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -349,7 +353,9 @@ body {
 
 #dialog-plot-display {
     background-color: white;
-    border: 1px solid black;
+    outline: 1px solid black;
+    max-width: var(--plot-preview-size);
+    max-height: var(--plot-preview-size);
 }
 
 .dialog-plot-scale-value>input[id="dialog-plot-scaling-type-fit"]:checked {

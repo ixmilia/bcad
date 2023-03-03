@@ -575,69 +575,73 @@
           </table>
           </p>
         </div>
-        <div id="modal-dialog-plot" class="modal-dialog plot-dialog">
-          <p>
-          <p>Scaling type</p>
-          <input id="dialog-plot-scaling-type-fit" type="radio" name="scaling-type" value="fit" checked="checked" />
-          <label for="dialog-plot-scaling-type-fit">Fit</label><br />
-          <input id="dialog-plot-scaling-type-absolute" type="radio" name="scaling-type" value="absolute" />
-          <label for="dialog-plot-scaling-type-absolute">Absolute</label><br />
-          <input id="dialog-plot-scale-a" class="dialog-plot-scale-value" value="1" />
-          <span>:</span>
-          <input id="dialog-plot-scale-b" class="dialog-plot-scale-value" value="1" />
-          <br />
+        <div id="modal-dialog-plot" class="modal-dialog plot-dialog" style="display: table;">
+          <div style="display: table-row;">
+            <div style="display: table-cell; vertical-align: top; width: 350px;">
+              <p>
+              <p>Scaling type</p>
+              <input id="dialog-plot-scaling-type-fit" type="radio" name="scaling-type" value="fit" checked="checked" />
+              <label for="dialog-plot-scaling-type-fit">Fit</label><br />
+              <input id="dialog-plot-scaling-type-absolute" type="radio" name="scaling-type" value="absolute" />
+              <label for="dialog-plot-scaling-type-absolute">Absolute</label><br />
+              <input id="dialog-plot-scale-a" class="dialog-plot-scale-value" value="1" />
+              <span>:</span>
+              <input id="dialog-plot-scale-b" class="dialog-plot-scale-value" value="1" />
+              <br />
 
-          <label for="dialog-plot-viewport-type">Plot area</label>
-          <select id="dialog-plot-viewport-type">
-            <option value="Extents" selected="selected">Extents</option>
-            <option value="Viewport">Viewport</option>
-            <option value="Window">Window</option>
-          </select>
-          <button id="dialog-plot-select-viewport">Select window</button>
-          <br />
+              <label for="dialog-plot-viewport-type">Plot area</label>
+              <select id="dialog-plot-viewport-type">
+                <option value="Extents" selected="selected">Extents</option>
+                <option value="Viewport">Viewport</option>
+                <option value="Window">Window</option>
+              </select>
+              <button id="dialog-plot-select-viewport">Select window</button>
+              <br />
 
-          <label for="dialog-plot-color-type">Plot colors as</label>
-          <select id="dialog-plot-color-type">
-            <option value="Exact">Exact</option>
-            <option value="Contrast" selected="selected">Contrast</option>
-            <option value="Black">Black</option>
-          </select>
-          <br />
+              <label for="dialog-plot-color-type">Plot colors as</label>
+              <select id="dialog-plot-color-type">
+                <option value="Exact">Exact</option>
+                <option value="Contrast" selected="selected">Contrast</option>
+                <option value="Black">Black</option>
+              </select>
+              <br />
 
-          <label for="dialog-plot-type">Plot type</label>
-          <select id="dialog-plot-type">
-            <option value="pdf" selected="selected">PDF</option>
-            <option value="svg">SVG</option>
-          </select>
-          <br />
+              <label for="dialog-plot-type">Plot type</label>
+              <select id="dialog-plot-type">
+                <option value="pdf" selected="selected">PDF</option>
+                <option value="svg">SVG</option>
+              </select>
+              <br />
 
-          <label for="dialog-plot-margin">Margin</label>
-          <input id="dialog-plot-margin" value="0.0" />
-          <select id="dialog-plot-margin-unit">
-            <option value="in" selected="selected">Inches</option>
-            <option value="mm">Millimeters</option>
-          </select>
-          <br />
+              <label for="dialog-plot-margin">Margin</label>
+              <input id="dialog-plot-margin" value="0.0" />
+              <select id="dialog-plot-margin-unit">
+                <option value="in" selected="selected">Inches</option>
+                <option value="mm">Millimeters</option>
+              </select>
+              <br />
 
-          <span>Size</span>
-          <div id="dialog-plot-size-pdf">
-            <select id="dialog-plot-size-pdf-orientation">
-              <option value="letter-portrait" selected="selected">Letter - portrait</option>
-              <option value="letter-landscape">Letter - landscape</option>
-              <option value="a4-portrait">A4 - portrait</option>
-              <option value="a4-landscape">A4 - landscape</option>
-            </select>
+              <span>Size</span>
+              <div id="dialog-plot-size-pdf">
+                <select id="dialog-plot-size-pdf-orientation">
+                  <option value="letter-portrait" selected="selected">Letter - portrait</option>
+                  <option value="letter-landscape">Letter - landscape</option>
+                  <option value="a4-portrait">A4 - portrait</option>
+                  <option value="a4-landscape">A4 - landscape</option>
+                </select>
+              </div>
+              <div id="dialog-plot-size-svg" style="display: none">
+                <input id="dialog-plot-size-width" type="number" value="640" />
+                <span>x</span>
+                <input id="dialog-plot-size-height" type="number" value="480" />
+              </div>
+            </div>
+            <div style="display: table-cell;">
+              <div id="dialog-plot-background">
+                <div id="dialog-plot-display"></div>
+              </div>
+            </div>
           </div>
-          <div id="dialog-plot-size-svg" style="display: none">
-            <input id="dialog-plot-size-width" type="number" value="640" />
-            <span>x</span>
-            <input id="dialog-plot-size-height" type="number" value="480" />
-          </div>
-
-          <div id="dialog-plot-background">
-            <div id="dialog-plot-display"></div>
-          </div>
-          </p>
         </div>
         <div id="modal-dialog-saveChanges" class="modal-dialog">
           <p>
