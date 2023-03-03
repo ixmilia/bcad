@@ -6,13 +6,13 @@
   "scripts": {
     "build-icons": "icon-gen -i ./src/bcad.svg -o ./out -r --ico sizes=32",
     "copy-grammar": "npx rimraf ./grammar/*.ts && npx copyfiles --error --verbose --up 6 ../IxMilia.Lisp/src/lisp-monaco-editor/src/grammar/*.ts ./src/grammar/",
-    "collect-styles:7": "npx copyfiles --error --verbose --up 3 ./node_modules/7.css/dist/* ./out/client-full/7/",
-    "collect-styles:xp": "npx copyfiles --error --verbose --up 3 ./node_modules/xp.css/dist/* ./out/client-full/xp/",
+    "collect-styles:7": "npx copyfiles --error --verbose --up 3 \"./node_modules/7.css/dist/*\" ./out/client-full/7/",
+    "collect-styles:xp": "npx copyfiles --error --verbose --up 3 \"./node_modules/xp.css/dist/*\" ./out/client-full/xp/",
     "collect-styles": "npm run collect-styles:7 && npm run collect-styles:xp",
     "compile:tsc": "tsc -p ./",
     "compile:clean-output": "npx rimraf ./out/client-full/",
     "compile:webpack": "webpack-cli ./out/main.js -o ./out/client-full/ --mode development --config webpack.config.js",
-    "compile:copy-resources": "npx copyfiles --error --verbose --up 2 ./src/resources/**/* ./out/client-full/",
+    "compile:copy-resources": "npx copyfiles --error --verbose --up 2 \"./src/resources/**/*\" ./out/client-full/",
     "compile:all": "npm run copy-grammar && npm run compile:tsc && npm run compile:clean-output && npm run compile:webpack && npm run compile:copy-resources && npm run collect-styles",
     "compile": "npm run compile:all && npm run build-icons",
     "watch": "tsc -watch -p ./"
