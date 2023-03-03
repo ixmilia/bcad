@@ -54,6 +54,10 @@ try {
 
     # publish
     $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "osx" } elseif ($IsWindows) { "win" }
+    $packagesDir = "$PSScriptRoot/artifacts/packages/$configuration"
+    New-Item -ItemType Directory -Path $packagesDir -Force
+    Set-EnvironmentVariable "artifact_name" $os
+    Set-EnvironmentVariable "artifact_path" $packagesDir
     foreach ($arch in @("x64", "arm64")) {
         $packageParentDir = "$PSScriptRoot/artifacts/publish/$configuration"
         $packageOutputDir = "$packageParentDir/bcad-$os-$arch"
@@ -81,18 +85,11 @@ try {
         Pop-Location
 
         # create package
-        $extension = if ($IsWindows) { "zip" } else { "tar.gz" }
-        $artifactName = "bcad-$os-$arch.$extension"
-        $packagesDir = "$PSScriptRoot/artifacts/packages"
-        $fullArtifactPath = "$packagesDir/$artifactName"
-        New-Item -ItemType Directory -Path $packagesDir -Force
-        Set-EnvironmentVariable "artifact_name_$arch" $artifactName
-        Set-EnvironmentVariable "full_artifact_path_$arch" $fullArtifactPath
         if ($IsWindows) {
-            Compress-Archive -Path "$packageOutputDir" -DestinationPath $fullArtifactPath -Force
+            Compress-Archive -Path "$packageOutputDir" -DestinationPath "$packagesDir/bcad-$os-$arch.zip" -Force
         }
         else {
-            tar -zcf "$packagesDir/$artifactName" -C "$packageParentDir/" "bcad-$os-$arch"
+            tar -zcf "$packagesDir/bcad-$os-$arch.tar.gz" -C "$packageParentDir/" "bcad-$os-$arch"
             ./build-package.sh --configuration $configuration --architecture $arch
         }
     }

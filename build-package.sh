@@ -53,7 +53,7 @@ sed -i "s/%SIZE%/$size/" $destination/DEBIAN/control
 sed -i "s/%VERSION%/$version/" $destination/DEBIAN/control
 
 # now build the package
-dpkg-deb --build $destination $_SCRIPT_DIR/artifacts/packages
+dpkg-deb --build $destination $_SCRIPT_DIR/artifacts/packages/$CONFIGURATION
 
 # clean up
 rm -rf $destination
