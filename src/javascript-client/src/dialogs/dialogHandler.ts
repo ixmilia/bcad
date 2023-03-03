@@ -18,6 +18,11 @@ export class DialogHandler {
             return new Promise<object>(async (resolve, reject) => {
                 this.showDialogs();
 
+                // hide all dialogs
+                [...document.getElementsByClassName('modal-dialog')].forEach((element) => {
+                    (<HTMLElement>element).style.display = 'none';
+                });
+
                 // show individual dialog
                 let dialogElementId = `modal-dialog-${dialogId}`;
                 let dialogElement = <HTMLElement>document.getElementById(dialogElementId);
