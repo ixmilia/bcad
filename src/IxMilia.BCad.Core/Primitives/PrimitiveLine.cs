@@ -35,6 +35,8 @@ namespace IxMilia.BCad.Primitives
             this.Color = color;
         }
 
+        public override string ToString() => $"P1 = {P1}, P2 = {P2}";
+
         public PrimitiveLine Update(
             Optional<Point> p1 = default,
             Optional<Point> p2 = default,

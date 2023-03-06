@@ -64,6 +64,40 @@ namespace IxMilia.BCad.Helpers
             return angle;
         }
 
+        public static Tuple<double, double> CorrectAnglesDegrees(double startAngle, double endAngle)
+        {
+            var newStartAngle = startAngle.CorrectAngleDegrees();
+            var newEndAngle = endAngle;
+            while (newEndAngle < newStartAngle)
+            {
+                newEndAngle += ThreeSixty;
+            }
+
+            return Tuple.Create(newStartAngle, newEndAngle);
+        }
+
+        public static Tuple<double, double> EnsureMinorAngleDegrees(double startAngle, double endAngle)
+        {
+            var correctedAngles = CorrectAnglesDegrees(startAngle, endAngle);
+            var newStartAngle = correctedAngles.Item1;
+            var newEndAngle = correctedAngles.Item2;
+            var containedAngle = newEndAngle - newStartAngle;
+            if (containedAngle >= OneEighty)
+            {
+                var temp = newStartAngle;
+                newStartAngle = newEndAngle;
+                newEndAngle = temp;
+
+                // while swapping, we may have to turn 360 into 0
+                while (newStartAngle > newEndAngle)
+                {
+                    newStartAngle -= ThreeSixty;
+                }
+            }
+
+            return Tuple.Create(newStartAngle.CorrectAngleDegrees(), newEndAngle.CorrectAngleDegrees());
+        }
+
         public static bool CloseTo(double expected, double actual, double epsilon = Epsilon)
         {
             return Between(expected - epsilon, expected + epsilon, actual);

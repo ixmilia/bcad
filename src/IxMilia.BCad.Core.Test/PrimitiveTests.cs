@@ -5,6 +5,7 @@ using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
+using IxMilia.BCad.Utilities;
 using Xunit;
 
 namespace IxMilia.BCad.Core.Test
@@ -41,14 +42,14 @@ namespace IxMilia.BCad.Core.Test
                 && AreClose(expected.Z, actual.Z);
         }
 
-        private static void AssertClose(double expected, double actual, double epsilon = MathHelper.Epsilon)
+        private static void AssertClose(double expected, double actual, double epsilon = MathHelper.Epsilon, string message = null)
         {
-            Assert.True(Math.Abs(expected - actual) <= epsilon, string.Format("Expected: {0}\nActual: {1}", expected, actual));
+            Assert.True(Math.Abs(expected - actual) <= epsilon, message ?? string.Format("Expected: {0}\nActual: {1}", expected, actual));
         }
 
-        private static void AssertClose(Point expected, Point actual)
+        private static void AssertClose(Point expected, Point actual, string message = null)
         {
-            Assert.True(AreClose(expected, actual), $"Expected: {expected}\nActual: {actual}");
+            Assert.True(AreClose(expected, actual), message ?? $"Expected: {expected}\nActual: {actual}");
         }
 
         private static void AssertClose(Vector expected, Vector actual)
@@ -61,6 +62,27 @@ namespace IxMilia.BCad.Core.Test
             AssertClose(expected.Location, actual.Location);
             AssertClose(expected.IncludedAngle, actual.IncludedAngle);
             Assert.Equal(expected.Direction, actual.Direction);
+        }
+
+        private static void AssertSimilar(PrimitiveLine expected, PrimitiveLine actual)
+        {
+            AssertClose(expected.P1, actual.P1);
+            AssertClose(expected.P2, actual.P2);
+        }
+
+        private static void AssertSimilar(PrimitiveEllipse expected, PrimitiveEllipse actual)
+        {
+            if (expected is null && actual is null)
+            {
+                return;
+            }
+
+            var message = $"Expected: {expected}\n  Actual: {actual}";
+            AssertClose(expected.Center, actual.Center, message);
+            AssertClose(expected.MajorAxis, actual.MajorAxis, message);
+            AssertClose(expected.MinorAxisRatio, actual.MinorAxisRatio, message: message);
+            AssertClose(expected.StartAngle, actual.StartAngle, message: message);
+            AssertClose(expected.EndAngle, actual.EndAngle, message: message);
         }
 
         private static void TestThreePointArcNormal(Point a, Point b, Point c, Vector idealNormal, Point expectedCenter, double expectedRadius, double expectedStartAngle, double expectedEndAngle)
@@ -823,6 +845,69 @@ namespace IxMilia.BCad.Core.Test
             var primitive = (PrimitiveLine)poly.GetPrimitives().Single();
             Assert.Equal(line.P1, primitive.P1);
             Assert.Equal(line.P2, primitive.P2);
+        }
+
+        [Theory]
+        [MemberData(nameof(FilletTestData))]
+        public void FilletTest(FilletOptions options, FilletResult expectedResult)
+        {
+            var expectedSuccess = expectedResult != null;
+            var actualSuccess = FilletUtility.TryFillet(options, out var actual);
+            Assert.Equal(expectedSuccess, actualSuccess);
+            if (expectedSuccess)
+            {
+                AssertSimilar(expectedResult.UpdatedLine1, actual.UpdatedLine1);
+                AssertSimilar(expectedResult.UpdatedLine2, actual.UpdatedLine2);
+                AssertSimilar(expectedResult.Fillet, actual.Fillet);
+            }
+        }
+
+        public static IEnumerable<object[]> FilletTestData()
+        {
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.5, 0.0, 0.0)),
+                    new Point(0.0, 0.5, 0.0),
+                    new PrimitiveLine(new Point(1.0, -0.5, 0.0), new Point(1.0, 1.0, 0.0)),
+                    new Point(1.0, 0.5, 0.0),
+                    0.0),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0)),
+                    null)
+            };
+
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.5, 0.0, 0.0)),
+                    new Point(0.0, 0.5, 0.0),
+                    new PrimitiveLine(new Point(1.0, -0.5, 0.0), new Point(1.0, 1.0, 0.0)),
+                    new Point(1.0, 0.5, 0.0),
+                    0.25),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, 0.25, 0.0), new Point(1.0, 1.0, 0.0)),
+                    new PrimitiveEllipse(new Point(0.75, 0.25, 0.0), 0.25, 270.0, 0.0, Vector.ZAxis))
+            };
+
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.5, 0.0, 0.0)),
+                    new Point(0.0, 0.5, 0.0),
+                    new PrimitiveLine(new Point(1.0, 0.5, 0.0), new Point(1.0, -1.0, 0.0)),
+                    new Point(1.0, -0.5, 0.0),
+                    0.25),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, -0.25, 0.0), new Point(1.0, -1.0, 0.0)),
+                    new PrimitiveEllipse(new Point(0.75, -0.25, 0.0), 0.25, 0.0, 90.0, Vector.ZAxis))
+            };
         }
     }
 }

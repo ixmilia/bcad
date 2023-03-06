@@ -57,6 +57,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Draw.Text", "TEXT", new DrawTextCommand(), "text", "t"));
             RegisterCommand(new CadCommandInfo("Edit.Explode", "EXPLODE", new ExplodeCommand(), "explode", "x"));
             RegisterCommand(new CadCommandInfo("Edit.Extend", "EXTEND", new ExtendCommand(), "extend", "ex"));
+            RegisterCommand(new CadCommandInfo("Edit.Fillet", "FILLET", new FilletCommand(), "fillet", "f"));
             RegisterCommand(new CadCommandInfo("Edit.Intersection", "INTERSECTION", new IntersectionCommand(), "intersection", "int"));
             RegisterCommand(new CadCommandInfo("Edit.JoinPolyline", "PJOIN", new JoinPolylineCommand(), "pjoin"));
             RegisterCommand(new CadCommandInfo("Edit.Layers", "LAYERS", new LayersCommand(), ModifierKeys.Control, Key.L, "layers", "layer", "la"));

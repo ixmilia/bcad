@@ -141,6 +141,8 @@ namespace IxMilia.BCad.Primitives
             return new PrimitiveEllipse(newCenter, newMajorAxis, newNormal, newMinorAxisRatio, newStartAngle, newEndAngle, newColor, newThickness);
         }
 
+        public override string ToString() => $"Center = {Center}, MajorAxis = {MajorAxis}, MinorAxisRatio = {MinorAxisRatio}, StartAngle = {StartAngle}, EndAngle = {EndAngle}";
+
         /// <summary>
         /// Creates a circle that passes through the three specified points.  Null if the points are co-linear
         /// </summary>
