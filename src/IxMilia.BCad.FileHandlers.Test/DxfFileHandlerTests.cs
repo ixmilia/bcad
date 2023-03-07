@@ -310,5 +310,15 @@ namespace IxMilia.BCad.FileHandlers.Test
             Assert.True(result.Success);
             Assert.NotNull(result.Drawing.LineTypes.GetValue("not-a-line-type"));
         }
+
+        [Fact]
+        public async Task RoundTripFilletRadius()
+        {
+            var drawing = new Drawing();
+            Assert.NotEqual(6.0, drawing.Settings.FilletRadius);
+            drawing = drawing.Update(settings: drawing.Settings.Update(filletRadius: 6.0));
+            var roundTripped = await RoundTripDrawing(drawing);
+            Assert.Equal(6.0, roundTripped.Settings.FilletRadius);
+        }
     }
 }

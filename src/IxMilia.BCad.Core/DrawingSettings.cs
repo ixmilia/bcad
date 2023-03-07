@@ -13,22 +13,24 @@ namespace IxMilia.BCad
         public int UnitPrecision { get; private set; }
         public int AnglePrecision { get; private set; }
         public string CurrentLayerName { get; private set; }
+        public double FilletRadius { get; private set; }
         public LineTypeSpecification CurrentLineTypeSpecification { get; private set; }
 
         private static int[] AllowedArchitecturalPrecisions = new[] { 0, 2, 4, 8, 16, 32 };
 
         public DrawingSettings()
-            : this(null, UnitFormat.Architectural, 16, 0, "0", null)
+            : this(null, UnitFormat.Architectural, 16, 0, "0", 0.0, null)
         {
         }
 
-        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, LineTypeSpecification currentLineTypeSpecification)
+        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, double filletRadius, LineTypeSpecification currentLineTypeSpecification)
         {
             FileName = path;
             UnitFormat = unitFormat;
             UnitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
             AnglePrecision = anglePrecision < 0 ? 0 : anglePrecision;
             CurrentLayerName = currentLayerName;
+            FilletRadius = filletRadius;
             CurrentLineTypeSpecification = currentLineTypeSpecification;
 
             switch (unitFormat)
@@ -43,6 +45,11 @@ namespace IxMilia.BCad
                     UnitPrecision = Math.Min(16, UnitPrecision);
                     break;
             }
+
+            if (FilletRadius < 0.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(filletRadius));
+            }
         }
 
         public DrawingSettings Update(
@@ -51,6 +58,7 @@ namespace IxMilia.BCad
             Optional<int> unitPrecision = default,
             Optional<int> anglePrecision = default,
             Optional<string> currentLayerName = default,
+            Optional<double> filletRadius = default,
             Optional<LineTypeSpecification> currentLineTypeSpecification = default)
         {
             var newFileName = fileName ?? FileName;
@@ -58,6 +66,7 @@ namespace IxMilia.BCad
             var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : UnitPrecision;
             var newAnglePrecision = anglePrecision.HasValue ? anglePrecision.Value : AnglePrecision;
             var newCurrentLayerName = currentLayerName.HasValue ? currentLayerName.Value : CurrentLayerName;
+            var newFilletRadius = filletRadius.HasValue ? filletRadius.Value : FilletRadius;
             var newCurrentLineTypeSpecification = currentLineTypeSpecification.HasValue ? currentLineTypeSpecification.Value : CurrentLineTypeSpecification;
 
             if (newFileName == FileName &&
@@ -65,12 +74,13 @@ namespace IxMilia.BCad
                 newUnitPrecision == UnitPrecision &&
                 newAnglePrecision == AnglePrecision &&
                 newCurrentLayerName == CurrentLayerName &&
+                newFilletRadius == FilletRadius &&
                 newCurrentLineTypeSpecification == CurrentLineTypeSpecification)
             {
                 return this;
             }
 
-            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newCurrentLineTypeSpecification);
+            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newFilletRadius, newCurrentLineTypeSpecification);
         }
 
         public static string FormatAngle(double value, int anglePrecision) => FormatScalar(value, anglePrecision);

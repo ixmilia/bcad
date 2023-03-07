@@ -144,6 +144,46 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public async Task FilletCommandReadsRadiusFromDrawingSettings()
+        {
+            var line1 = new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0));
+            var line2 = new Line(new Point(2.0, 0.0, 0.0), new Point(2.0, 2.0, 0.0));
+            Assert.NotEqual(0.25, Workspace.Drawing.Settings.FilletRadius);
+            Workspace.AddToCurrentLayer(line1);
+            Workspace.AddToCurrentLayer(line2);
+            Workspace.Update(drawing: Workspace.Drawing.Update(settings: Workspace.Drawing.Settings.Update(filletRadius: 0.25)));
+            var result = await Execute("FILLET",
+                new PushEntityOperation(new SelectedEntity(line1, new Point(0.5, 0.0, 0.0))),
+                new PushEntityOperation(new SelectedEntity(line2, new Point(2.0, 0.5, 0.0)))
+            );
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var arc = Workspace.Drawing.GetEntities().OfType<Arc>().Single();
+            Assert.Equal(0.25, arc.Radius);
+        }
+
+        [Fact]
+        public async Task FilletCommandSavesRadiusToDrawingSettings()
+        {
+            var line1 = new Line(new Point(0.0, 0.0, 0.0), new Point(2.0, 0.0, 0.0));
+            var line2 = new Line(new Point(2.0, 0.0, 0.0), new Point(2.0, 2.0, 0.0));
+            Assert.NotEqual(0.25, Workspace.Drawing.Settings.FilletRadius);
+            Workspace.AddToCurrentLayer(line1);
+            Workspace.AddToCurrentLayer(line2);
+            var result = await Execute("FILLET",
+                new PushEntityOperation(new SelectedEntity(line1, new Point(0.5, 0.0, 0.0))),
+                new PushDirectiveOperation("r"),
+                new PushDistanceOperation(0.25),
+                new PushEntityOperation(new SelectedEntity(line2, new Point(2.0, 0.5, 0.0)))
+            );
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var arc = Workspace.Drawing.GetEntities().OfType<Arc>().Single();
+            Assert.Equal(0.25, arc.Radius);
+            Assert.Equal(0.25, Workspace.Drawing.Settings.FilletRadius);
+        }
+
+        [Fact]
         public void SplitLineIntoTokenPartsGeneratesSingleEmptyToken()
         {
             Assert.True(CommandLineSplitter.TrySplitIntoTokens("", out var tokens));

@@ -111,6 +111,7 @@ namespace IxMilia.BCad.FileHandlers
                     file.Header.UnitPrecision,
                     file.Header.AngleUnitPrecision,
                     currentLayerName,
+                    file.Header.FilletRadius,
                     lineTypeSpecification),
                 layers: layers,
                 lineTypes: lineTypes,
@@ -162,6 +163,7 @@ namespace IxMilia.BCad.FileHandlers
             file.Header.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
             file.Header.UnitPrecision = (short)drawing.Settings.UnitPrecision;
             file.Header.AngleUnitPrecision = (short)drawing.Settings.AnglePrecision;
+            file.Header.FilletRadius = drawing.Settings.FilletRadius;
 
             file.LineTypes.Clear();
             foreach (var lineType in drawing.GetLineTypes().OrderBy(x => x.Name))

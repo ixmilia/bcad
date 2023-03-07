@@ -15,5 +15,15 @@ namespace IxMilia.BCad.FileHandlers.Test
         {
             await VerifyRoundTrip(new Line(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), CadColor.Green, thickness: 1.2345));
         }
+
+        [Fact]
+        public async Task RoundTripFilletRadius()
+        {
+            var drawing = new Drawing();
+            Assert.NotEqual(6.0, drawing.Settings.FilletRadius);
+            drawing = drawing.Update(settings: drawing.Settings.Update(filletRadius: 6.0));
+            var roundTripped = await RoundTripDrawing(drawing);
+            Assert.Equal(6.0, roundTripped.Settings.FilletRadius);
+        }
     }
 }

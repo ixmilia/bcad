@@ -8,8 +8,6 @@ namespace IxMilia.BCad.Commands
 {
     public class FilletCommand : ICadCommand
     {
-        private static double LastFilletDistance = 0.0;
-
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
             var entity1 = await workspace.InputService.GetEntity(new UserDirective("Select first entity"));
@@ -18,7 +16,7 @@ namespace IxMilia.BCad.Commands
                 return false;
             }
 
-            var filletDistance = LastFilletDistance;
+            var filletDistance = workspace.Drawing.Settings.FilletRadius;
             SelectedEntity secondEntity = null;
             while (secondEntity == null)
             {
@@ -72,8 +70,12 @@ namespace IxMilia.BCad.Commands
                 drawing = drawing.AddToCurrentLayer(newArc);
             }
 
+            if (drawing.Settings.FilletRadius != filletDistance)
+            {
+                drawing = drawing.Update(settings: drawing.Settings.Update(filletRadius: filletDistance));
+            }
+
             workspace.Update(drawing: drawing);
-            LastFilletDistance = filletDistance;
             return true;
         }
     }
