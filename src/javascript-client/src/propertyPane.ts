@@ -85,6 +85,14 @@ export class PropertyPane {
                             // simple string value
                             const text = <HTMLInputElement>document.createElement('input');
                             text.value = value.Value || '';
+                            text.addEventListener('focus', () => {
+                                text.select();
+                            });
+                            text.addEventListener('keydown', (e) => {
+                                if (e.key === 'Escape') {
+                                    client.cancel();
+                                }
+                            });
                             text.addEventListener('change', () => {
                                 LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${text.value}`);
                                 client.setPropertyPaneValue({
