@@ -187,6 +187,7 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateReadOnly("End Point", drawing.FormatPoint(arc.EndPoint2)),
                     ClientPropertyPaneValue.CreateReadOnly("Total Angle", drawing.FormatAngle(arc.TotalAngle())),
                     ClientPropertyPaneValue.CreateReadOnly("Arc Length", drawing.FormatUnits(arc.ArcLength())),
+                    ClientPropertyPaneValue.CreateActionForEntity<Arc>("cc", "Convert to circle", arc => new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color, arc.LineTypeSpecification, thickness: arc.Thickness)),
                 },
                 circle => new[]
                 {
@@ -201,6 +202,7 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithScalar<Circle>("a", "Area", drawing.FormatScalar(circle.Area()), (circle, value) => circle.Update(radius: Math.Sqrt(value / MathHelper.PI))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("d", "Diameter", drawing.FormatUnits(circle.Radius * 2.0), (circle, value) => circle.Update(radius: value / 2.0)),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Circle>("c", "Circumference", drawing.FormatUnits(circle.Radius * 2.0 * MathHelper.PI), (circle, value) => circle.Update(radius: value / (2.0 * MathHelper.PI))),
+                    ClientPropertyPaneValue.CreateActionForEntity<Circle>("ca", "Convert to arc", circle => new Arc(circle.Center, circle.Radius, 0.0, 360.0, circle.Normal, circle.Color, circle.LineTypeSpecification, thickness: circle.Thickness)),
                 },
                 ellipse => new[]
                 {

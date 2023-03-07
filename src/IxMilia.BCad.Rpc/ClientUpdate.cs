@@ -240,6 +240,7 @@ namespace IxMilia.BCad.Rpc
     public class ClientPropertyPaneValue : IEquatable<ClientPropertyPaneValue>
     {
         public bool IsReadOnly { get; set; }
+        public bool IsAction { get; set; }
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public string Value { get; set; }
@@ -249,14 +250,15 @@ namespace IxMilia.BCad.Rpc
         private Func<Drawing, Entity, string, Tuple<Drawing, Entity>> _drawingTransformer;
 
         public ClientPropertyPaneValue(string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
-            : this(false, name, displayName, value, allowedValues, isUnrepresentable)
+            : this(false, false, name, displayName, value, allowedValues, isUnrepresentable)
         {
         }
 
         [JsonConstructor]
-        public ClientPropertyPaneValue(bool isReadOnly, string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
+        public ClientPropertyPaneValue(bool isReadOnly, bool isAction, string name, string displayName, string value, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
         {
             IsReadOnly = isReadOnly;
+            IsAction = isAction;
             Name = name;
             DisplayName = displayName;
             Value = value;
@@ -266,7 +268,7 @@ namespace IxMilia.BCad.Rpc
 
         public override string ToString()
         {
-            return $"{nameof(IsReadOnly)}={IsReadOnly};{nameof(Name)}={Name};{nameof(DisplayName)}={DisplayName};{nameof(Value)}={Value};{nameof(AllowedValues)}={(AllowedValues is null ? "null" : string.Join(",", AllowedValues))};{nameof(IsUnrepresentable)}={IsUnrepresentable}";
+            return $"{nameof(IsReadOnly)}={IsReadOnly};{nameof(IsAction)}={IsAction};{nameof(Name)}={Name};{nameof(DisplayName)}={DisplayName};{nameof(Value)}={Value};{nameof(AllowedValues)}={(AllowedValues is null ? "null" : string.Join(",", AllowedValues))};{nameof(IsUnrepresentable)}={IsUnrepresentable}";
         }
 
         internal bool TryDoUpdate(Drawing drawing, Entity entity, string valueToSet, out Tuple<Drawing, Entity> updatedDrawingAndEntity)
@@ -284,25 +286,21 @@ namespace IxMilia.BCad.Rpc
 
         internal static ClientPropertyPaneValue CreateReadOnly(string displayName, string value)
         {
-            return new ClientPropertyPaneValue(true, displayName, displayName, value);
+            return new ClientPropertyPaneValue(true, false, displayName, displayName, value);
+        }
+
+        internal static ClientPropertyPaneValue CreateActionForEntity<TEntity>(string name, string displayName, Func<TEntity, Entity> entityTransformer)
+            where TEntity : Entity
+        {
+            var propertyPaneValue = new ClientPropertyPaneValue(false, true, name, displayName, null);
+            propertyPaneValue._drawingTransformer = CreateDrawingTransformerForEntity<TEntity>((entity, _unused) => entityTransformer(entity));
+            return propertyPaneValue;
         }
 
         internal static ClientPropertyPaneValue CreateForEntity<TEntity>(string name, string displayName, string value, Func<TEntity, string, Entity> entityTransformer, IEnumerable<string> allowedValues = null, bool isUnrepresentable = false)
             where TEntity : Entity
         {
-            Func<Drawing, Entity, string, Tuple<Drawing, Entity>> drawingTransformer = (drawing, entity, valueToSet) =>
-            {
-                var updatedEntity = entityTransformer((TEntity)entity, valueToSet);
-                if (updatedEntity == null)
-                {
-                    return null;
-                }
-
-                var containingLayer = drawing.ContainingLayer(entity);
-                var updatedLayer = containingLayer.Remove(entity).Add(updatedEntity);
-                var updatedDrawing = drawing.Remove(containingLayer).Add(updatedLayer);
-                return Tuple.Create(updatedDrawing, updatedEntity);
-            };
+            var drawingTransformer = CreateDrawingTransformerForEntity(entityTransformer);
             return Create(name, displayName, value, drawingTransformer, allowedValues, isUnrepresentable);
         }
 
@@ -336,6 +334,25 @@ namespace IxMilia.BCad.Rpc
             }, allowedValues, isUnrepresentable);
         }
 
+        private static Func<Drawing, Entity, string, Tuple<Drawing, Entity>> CreateDrawingTransformerForEntity<TEntity>(Func<TEntity, string, Entity> entityTransformer)
+            where TEntity : Entity
+        {
+            Func<Drawing, Entity, string, Tuple<Drawing, Entity>> drawingTransformer = (drawing, entity, valueToSet) =>
+            {
+                var updatedEntity = entityTransformer((TEntity)entity, valueToSet);
+                if (updatedEntity == null)
+                {
+                    return null;
+                }
+
+                var containingLayer = drawing.ContainingLayer(entity);
+                var updatedLayer = containingLayer.Remove(entity).Add(updatedEntity);
+                var updatedDrawing = drawing.Remove(containingLayer).Add(updatedLayer);
+                return Tuple.Create(updatedDrawing, updatedEntity);
+            };
+            return drawingTransformer;
+        }
+
         public static bool operator ==(ClientPropertyPaneValue v1, ClientPropertyPaneValue v2)
         {
             if (v1 is null && v2 is null)
@@ -354,6 +371,7 @@ namespace IxMilia.BCad.Rpc
             }
 
             return v1.IsReadOnly == v2.IsReadOnly
+                && v1.IsAction == v2.IsAction
                 && v1.Name == v2.Name
                 && v1.DisplayName == v2.DisplayName
                 && v1.Value == v2.Value

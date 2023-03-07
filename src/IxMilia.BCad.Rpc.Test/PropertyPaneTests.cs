@@ -139,7 +139,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void GetArcPropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Arc(new Point(1.0, 2.0, 3.0), 4.0, 5.0, 6.0, new Vector(7.0, 8.0, 9.0), thickness: 10));
-            Assert.Equal(14, propertyMap.Count);
+            Assert.Equal(15, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
             Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
             Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
@@ -154,6 +154,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("End Point", "(0'4-7/16\",0'1\",0'5-3/16\")"), propertyMap["End Point"]);
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Total Angle", "1"), propertyMap["Total Angle"]);
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Arc Length", "0'0-1/16\""), propertyMap["Arc Length"]);
+            Assert.Equal(new ClientPropertyPaneValue(false, true, "cc", "Convert to circle", null), propertyMap["cc"]);
         }
 
         [Theory]
@@ -183,7 +184,7 @@ namespace IxMilia.BCad.Rpc.Test
         public void GetCirclePropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Circle(new Point(1.0, 2.0, 3.0), 4.0, new Vector(5.0, 6.0, 7.0), thickness: 8));
-            Assert.Equal(11, propertyMap.Count);
+            Assert.Equal(12, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
             Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
             Assert.Equal(new ClientPropertyPaneValue("cz", "Z", "0'3\""), propertyMap["cz"]);
@@ -195,6 +196,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("a", "Area", "50.2654824574368"), propertyMap["a"]);
             Assert.Equal(new ClientPropertyPaneValue("d", "Diameter", "0'8\""), propertyMap["d"]);
             Assert.Equal(new ClientPropertyPaneValue("c", "Circumference", "2'1-1/8\""), propertyMap["c"]);
+            Assert.Equal(new ClientPropertyPaneValue(false, true, "ca", "Convert to arc", null), propertyMap["ca"]);
         }
 
         [Theory]
@@ -386,6 +388,42 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(h, finalEntity.Height);
             Assert.Equal(r, finalEntity.Rotation);
             Assert.Equal(new Vector(nx, ny, nz), finalEntity.Normal);
+        }
+
+        [Fact]
+        public void ConvertArcToCircle()
+        {
+            var arc = new Arc(new Point(1.0, 2.0, 3.0), 1.0, 90.0, 180.0, Vector.ZAxis);
+            var (drawing, propertyMap) = GetDrawingAndEntityProperties(arc);
+            var converter = propertyMap["cc"];
+            Assert.True(converter.TryDoUpdate(drawing, arc, null, out var result));
+            var entities = result.Item1.GetEntities().ToList();
+            Assert.Empty(entities.OfType<Arc>());
+            var onlyCircle = entities.OfType<Circle>().Single();
+            var circle = Assert.IsType<Circle>(result.Item2);
+            Assert.Same(circle, onlyCircle);
+            Assert.Equal(arc.Center, circle.Center);
+            Assert.Equal(arc.Radius, circle.Radius);
+            Assert.Equal(arc.Normal, circle.Normal);
+        }
+
+        [Fact]
+        public void ConvertCircleToArc()
+        {
+            var circle = new Circle(new Point(1.0, 2.0, 3.0), 1.0, Vector.ZAxis);
+            var (drawing, propertyMap) = GetDrawingAndEntityProperties(circle);
+            var converter = propertyMap["ca"];
+            Assert.True(converter.TryDoUpdate(drawing, circle, null, out var result));
+            var entities = result.Item1.GetEntities().ToList();
+            Assert.Empty(entities.OfType<Circle>());
+            var onlyArc = entities.OfType<Arc>().Single();
+            var arc = Assert.IsType<Arc>(result.Item2);
+            Assert.Same(arc, onlyArc);
+            Assert.Equal(circle.Center, arc.Center);
+            Assert.Equal(circle.Radius, arc.Radius);
+            Assert.Equal(circle.Normal, arc.Normal);
+            Assert.Equal(0.0, arc.StartAngle);
+            Assert.Equal(360.0, arc.EndAngle);
         }
     }
 }

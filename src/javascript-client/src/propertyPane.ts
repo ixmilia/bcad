@@ -31,6 +31,21 @@ export class PropertyPane {
                                 span.innerText = value.Value;
                                 valueCell.appendChild(span);
                             }
+                        } else if (value.IsAction) {
+                            name.innerText = ''; // display nothing; let the button do it
+                            const button = <HTMLButtonElement>document.createElement('button');
+                            button.textContent = value.DisplayName;
+                            button.addEventListener('click', () => {
+                                LogWriter.write(`PROPERTY-PANE: executing action ${value.Name}`);
+                                client.setPropertyPaneValue({
+                                    IsReadOnly: false,
+                                    IsAction: true,
+                                    Name: value.Name,
+                                    DisplayName: value.DisplayName,
+                                    Value: undefined,
+                                });
+                            });
+                            valueCell.appendChild(button);
                         } else if (value.Name === 'color') {
                             // special handling for colors
                             valueCell.setAttribute('align', 'left');
@@ -41,6 +56,7 @@ export class PropertyPane {
                                     LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${JSON.stringify(color)}`);
                                     client.setPropertyPaneValue({
                                         IsReadOnly: false,
+                                        IsAction: false,
                                         Name: value.Name,
                                         DisplayName: value.DisplayName,
                                         Value: colorAsHex,
@@ -75,6 +91,7 @@ export class PropertyPane {
                                 LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${select.value}`);
                                 client.setPropertyPaneValue({
                                     IsReadOnly: false,
+                                    IsAction: false,
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,
                                     Value: select.value,
@@ -97,6 +114,7 @@ export class PropertyPane {
                                 LogWriter.write(`PROPERTY-PANE: setting ${value.Name} to ${text.value}`);
                                 client.setPropertyPaneValue({
                                     IsReadOnly: false,
+                                    IsAction: false,
                                     Name: value.Name,
                                     DisplayName: value.DisplayName,
                                     Value: text.value,
