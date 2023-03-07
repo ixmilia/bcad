@@ -869,7 +869,7 @@ namespace IxMilia.BCad.Core.Test
                 new FilletOptions(
                     Plane.XY,
                     new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.5, 0.0, 0.0)),
-                    new Point(0.0, 0.5, 0.0),
+                    new Point(0.5, 0.0, 0.0),
                     new PrimitiveLine(new Point(1.0, -0.5, 0.0), new Point(1.0, 1.0, 0.0)),
                     new Point(1.0, 0.5, 0.0),
                     0.0),
@@ -884,7 +884,7 @@ namespace IxMilia.BCad.Core.Test
                 new FilletOptions(
                     Plane.XY,
                     new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.5, 0.0, 0.0)),
-                    new Point(0.0, 0.5, 0.0),
+                    new Point(0.5, 0.0, 0.0),
                     new PrimitiveLine(new Point(1.0, -0.5, 0.0), new Point(1.0, 1.0, 0.0)),
                     new Point(1.0, 0.5, 0.0),
                     0.25),
@@ -899,13 +899,73 @@ namespace IxMilia.BCad.Core.Test
                 new FilletOptions(
                     Plane.XY,
                     new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.5, 0.0, 0.0)),
-                    new Point(0.0, 0.5, 0.0),
+                    new Point(0.5, 0.0, 0.0),
                     new PrimitiveLine(new Point(1.0, 0.5, 0.0), new Point(1.0, -1.0, 0.0)),
                     new Point(1.0, -0.5, 0.0),
                     0.25),
                 new FilletResult(
                     new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.0, 0.0)),
                     new PrimitiveLine(new Point(1.0, -0.25, 0.0), new Point(1.0, -1.0, 0.0)),
+                    new PrimitiveEllipse(new Point(0.75, -0.25, 0.0), 0.25, 0.0, 90.0, Vector.ZAxis))
+            };
+
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(10.0, 0.0, 0.0)),
+                    new Point(0.5, 0.0, 0.0),
+                    new PrimitiveLine(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0)),
+                    new Point(1.0, 0.5, 0.0),
+                    0.0),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0)),
+                    null)
+            };
+
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(10.0, 0.0, 0.0)),
+                    new Point(0.5, 0.0, 0.0),
+                    new PrimitiveLine(new Point(1.0, 0.0, 0.0), new Point(1.0, 1.0, 0.0)),
+                    new Point(1.0, 0.5, 0.0),
+                    0.25),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, 0.25, 0.0), new Point(1.0, 1.0, 0.0)),
+                    new PrimitiveEllipse(new Point(0.75, 0.25, 0.0), 0.25, 270.0, 0.0, Vector.ZAxis))
+            };
+
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(10.0, 0.0, 0.0)),
+                    new Point(0.5, 0.0, 0.0),
+                    new PrimitiveLine(new Point(1.0, 1.0, 0.0), new Point(1.0, -10.0, 0.0)),
+                    new Point(1.0, -2.0, 0.0),
+                    0.25),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, -0.25, 0.0), new Point(1.0, -10.0, 0.0)),
+                    new PrimitiveEllipse(new Point(0.75, -0.25, 0.0), 0.25, 0.0, 90.0, Vector.ZAxis))
+            };
+
+            yield return new object[]
+            {
+                new FilletOptions(
+                    Plane.XY,
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(10.0, 0.0, 0.0)),
+                    new Point(0.5, 0.0000001, 0.0), // this point is slightly off the line
+                    new PrimitiveLine(new Point(1.0, 1.0, 0.0), new Point(1.0, -10.0, 0.0)),
+                    new Point(0.9999999, -2.0, 0.0), // this point is slightly off the line
+                    0.25),
+                new FilletResult(
+                    new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.0, 0.0)),
+                    new PrimitiveLine(new Point(1.0, -0.25, 0.0), new Point(1.0, -10.0, 0.0)),
                     new PrimitiveEllipse(new Point(0.75, -0.25, 0.0), 0.25, 0.0, 90.0, Vector.ZAxis))
             };
         }

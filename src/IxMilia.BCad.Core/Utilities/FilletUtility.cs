@@ -57,17 +57,16 @@ namespace IxMilia.BCad.Utilities
                 return false;
             }
 
-            var intersectionPoint = intersectionCandidate.Value;
-            var l1p1Distance = (options.Line1.P1 - intersectionPoint).LengthSquared;
-            var l1p2Distance = (options.Line1.P2 - intersectionPoint).LengthSquared;
-            var l2p1Distance = (options.Line2.P1 - intersectionPoint).LengthSquared;
-            var l2p2Distance = (options.Line2.P2 - intersectionPoint).LengthSquared;
-            var l1ReplaceP1 = l1p1Distance < l1p2Distance;
-            var l2ReplaceP1 = l2p1Distance < l2p2Distance;
+            var normalizedLine1SelectionPoint = options.Line1.ClosestPoint(options.Line1SelectionPoint);
+            var normalizedLine2SelectionPoint = options.Line2.ClosestPoint(options.Line2SelectionPoint);
 
             if (options.Radius == 0.0)
             {
                 // simple intersection and trim
+                var intersectionPoint = intersectionCandidate.Value;
+                var l1ReplaceP1 = IsPointBetween(intersectionPoint, options.Line1.P2, normalizedLine1SelectionPoint);
+                var l2ReplaceP1 = IsPointBetween(intersectionPoint, options.Line2.P2, normalizedLine2SelectionPoint);
+
                 var updatedL1 = l1ReplaceP1
                     ? options.Line1.Update(p1: intersectionPoint)
                     : options.Line1.Update(p2: intersectionPoint);
@@ -79,8 +78,8 @@ namespace IxMilia.BCad.Utilities
             else
             {
                 // we'll have to insert an arc
-                var line1Offset = EditUtilities.Offset(options.DrawingPlane, options.Line1, options.Line2SelectionPoint, options.Radius);
-                var line2Offset = EditUtilities.Offset(options.DrawingPlane, options.Line2, options.Line1SelectionPoint, options.Radius);
+                var line1Offset = EditUtilities.Offset(options.DrawingPlane, options.Line1, normalizedLine2SelectionPoint, options.Radius);
+                var line2Offset = EditUtilities.Offset(options.DrawingPlane, options.Line2, normalizedLine1SelectionPoint, options.Radius);
                 var centerCandidates = line1Offset.IntersectionPoints(line2Offset, withinBounds: false).ToList();
                 if (centerCandidates.Count == 0)
                 {
@@ -101,6 +100,9 @@ namespace IxMilia.BCad.Utilities
 
                 var l1Intersection = l1IntersectionCandidate.Value;
                 var l2Intersection = l2IntersectionCandidate.Value;
+                var l1ReplaceP1 = IsPointBetween(l1Intersection, options.Line1.P2, normalizedLine1SelectionPoint);
+                var l2ReplaceP1 = IsPointBetween(l2Intersection, options.Line2.P2, normalizedLine2SelectionPoint);
+
                 var updatedL1 = l1ReplaceP1
                     ? options.Line1.Update(p1: l1Intersection)
                     : options.Line1.Update(p2: l1Intersection);
@@ -121,6 +123,14 @@ namespace IxMilia.BCad.Utilities
             }
 
             return result != null;
+        }
+
+        private static bool IsPointBetween(Point boundary1, Point boundary2, Point candidate)
+        {
+            var betweenX = MathHelper.Between(boundary1.X, boundary2.X, candidate.X);
+            var betweenY = MathHelper.Between(boundary1.Y, boundary2.Y, candidate.Y);
+            var betweenZ = MathHelper.Between(boundary1.Z, boundary2.Z, candidate.Z);
+            return betweenX && betweenY && betweenZ;
         }
     }
 }
