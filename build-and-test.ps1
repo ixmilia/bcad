@@ -2,7 +2,8 @@
 
 [CmdletBinding(PositionalBinding = $false)]
 param (
-    [string]$configuration = "Debug",
+    [string][Alias('c')]$configuration = "Debug",
+    [string][Alias('a')]$architecture,
     [switch]$noTest,
     [string]$deployTo
 )
@@ -19,6 +20,16 @@ function Set-EnvironmentVariable([string]$name, [string]$value) {
 
 try {
     $runTests = -Not $noTest
+
+    # assign architecture
+    if ($architecture -eq '') {
+        if ($IsWindows) {
+            $architecture = if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") { "x64" } else { "arm64" }
+        }
+        else {
+            $architecture = if ((arch | Out-String).Trim() -eq "x86_64") { "x64" } else { "arm64" }
+        }
+    }
 
     # build submodule
     Push-Location "$PSScriptRoot/src/IxMilia.Converters"
@@ -56,59 +67,60 @@ try {
     $os = if ($IsLinux) { "linux" } elseif ($IsMacOS) { "osx" } elseif ($IsWindows) { "win" }
     $packagesDir = "$PSScriptRoot/artifacts/packages/$configuration"
     New-Item -ItemType Directory -Path $packagesDir -Force
-    Set-EnvironmentVariable "artifact_name" $os
-    Set-EnvironmentVariable "artifact_path" $packagesDir
-    foreach ($arch in @("x64", "arm64")) {
-        $packageParentDir = "$PSScriptRoot/artifacts/publish/$configuration"
-        $packageOutputDir = "$packageParentDir/bcad-$os-$arch"
-        dotnet publish "$PSScriptRoot/src/bcad/bcad.csproj" `
-            --configuration $configuration `
-            --runtime "$os-$arch" `
-            --self-contained `
-            --output $packageOutputDir
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    $packageParentDir = "$PSScriptRoot/artifacts/publish/$configuration"
+    $packageOutputDir = "$packageParentDir/bcad-$os-$architecture"
 
-        # remove unnecessary files
-        $unnecessaryFiles = @(
-            "IxMilia.Dxf.xml"
-        )
-        foreach ($file in $unnecessaryFiles) {
+    . ./publish.ps1 -configuration $configuration -runtime "$os-$architecture" -output $packageOutputDir
+    if ($IsLinux -And ($architecture -eq "arm64") -And ($LASTEXITCODE -ne 0)) {
+        # this never works the first time?
+        . ./publish.ps1 -configuration $configuration -runtime "$os-$architecture" -output $packageOutputDir
+    }
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    # remove unnecessary files
+    $unnecessaryFiles = @(
+        "bcad.dbg",
+        "bcad.pdb",
+        "IxMilia.Dxf.xml",
+        "Photino.NET.pdb"
+    )
+    foreach ($file in $unnecessaryFiles) {
+        if (Test-Path "$packageOutputDir/$file") {
             Remove-Item "$packageOutputDir/$file"
-        }
-
-        Push-Location "$PSScriptRoot/src/bccoreconsole"
-        $goarch = if ($arch -eq "x64") { "amd64" } else { "arm64" }
-        $env:GOARCH = $goarch
-        go build -o "$packageOutputDir/"
-        $env:GOARCH = ""
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        Pop-Location
-
-        # create package
-        if ($IsWindows) {
-            Compress-Archive -Path "$packageOutputDir" -DestinationPath "$packagesDir/bcad-$os-$arch.zip" -Force
-        }
-        else {
-            tar -zcf "$packagesDir/bcad-$os-$arch.tar.gz" -C "$packageParentDir/" "bcad-$os-$arch"
-            ./build-package.sh --configuration $configuration --architecture $arch
         }
     }
 
+    Push-Location "$PSScriptRoot/src/bccoreconsole"
+    $goarch = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
+    $env:GOARCH = $goarch
+    go build -o "$packageOutputDir/" -buildvcs=false
+    $env:GOARCH = ""
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Pop-Location
+
+    # create package
+    $artifactShortName = "bcad-$os-$architecture"
+    $artifactExtension = if ($IsWindows) { "zip" } else { "tar.gz" }
+    $artifactName = "$artifactShortName.$artifactExtension"
+    $artifactPath = "$packagesDir/$artifactName"
+    Set-EnvironmentVariable "artifact_name" $artifactName
+    Set-EnvironmentVariable "artifact_path" $artifactPath
+    if ($IsWindows) {
+        Compress-Archive -Path "$packageOutputDir" -DestinationPath $artifactPath -Force
+    }
+    else {
+        $packageVersion = (Get-Content "$PSScriptRoot/version.txt" | Out-String).Trim()
+        $packageArchitecture = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
+        $packageName = "bcad_${packageVersion}_$packageArchitecture.deb"
+        Set-EnvironmentVariable "secondary_artifact_name" $packageName
+        Set-EnvironmentVariable "secondary_artifact_path" "$packagesDir/$packageName"
+        tar -zcf $artifactPath -C "$packageParentDir/" "$artifactShortName"
+        ./build-package.sh --configuration $configuration --architecture $architecture
+    }
+
     if ($deployTo -ne "") {
-        if ($configuration -ne "Release") {
-            Write-Host "Deployment is only supported in Release configuration"
-            exit 1
-        }
-
-        if ($IsWindows) {
-            $thisArch = if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") { "x64" } else { "arm64" }
-        }
-        else {
-            $thisArch = if ((arch | Out-String).Trim() -eq "x86_64") { "x64" } else { "arm64" }
-        }
-
-        $deploySource = "$packageParentDir/bcad-$os-$thisArch"
-        $deployDestination = "$deployTo/bcad-$os-$thisArch"
+        $deploySource = "$packageParentDir/$artifactShortName"
+        $deployDestination = "$deployTo/$artifactShortName"
 
         if (Test-Path $deployDestination) {
             Remove-Item -Path $deployDestination -Recurse -Force

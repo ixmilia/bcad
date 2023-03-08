@@ -5,11 +5,10 @@ on: [push, pull_request]
 jobs:
 
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.value.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        configuration: [Debug, Release]
+        value: [{ os: windows-latest, architecture: x64 }, { os: windows-latest, architecture: arm64 }, { os: ubuntu-latest, architecture: x64 }]
     steps:
     - uses: actions/checkout@v3
       with:
@@ -20,15 +19,39 @@ jobs:
         node-version: 18
     - uses: actions/setup-go@v3
       with:
-        go-version: stable
+        go-version: 1.19
     - name: Build and test
       shell: pwsh
-      run: ./build-and-test.ps1 -configuration ${{ matrix.configuration }}
-
-    # save artifact on Release
-    - name: publish artifacts
+      run: ./build-and-test.ps1 -configuration Release -architecture ${{ matrix.value.architecture }}
+    - name: publish artifact
       uses: actions/upload-artifact@v3
-      if: matrix.configuration == 'Release'
       with:
         name: ${{ env.artifact_name }}
         path: ${{ env.artifact_path }}
+    - name: publish secondary artifact
+      uses: actions/upload-artifact@v3
+      if: env.secondary_artifact_name != ''
+      with:
+        name: ${{ env.secondary_artifact_name }}
+        path: ${{ env.secondary_artifact_path }}
+
+  cross_compile:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - uses: devcontainers/ci@v0.3
+      with:
+        push: never
+        runCmd: ./build-and-test.ps1 -configuration Release -architecture arm64
+    - name: publish artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: bcad-linux-arm64.tar.gz
+        path: ./artifacts/packages/Release/bcad-linux-arm64.tar.gz
+    - name: publish secondary artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: bcad_0.2.0_arm64.deb
+        path: ./artifacts/packages/Release/bcad_0.2.0_arm64.deb

@@ -4,22 +4,17 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ApplicationIcon>$(MSBuildThisFileDirectory)..\javascript-client\out\app.ico</ApplicationIcon>
+    <OutputType Condition="'$(IsWindows)' == 'true'">WinExe</OutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PublishSingleFile>true</PublishSingleFile>
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <OutputType>WinExe</OutputType>
-    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OS)' == 'Unix'">
-    <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
-  </PropertyGroup>
-
-  <!-- MacOS not currently supported -->
+  <ItemGroup>
+    <RdXmlFile Include="rd.xml" />
+  </ItemGroup>
 
   <!-- Include appropriate file dialog handler -->
   <ItemGroup>
@@ -34,7 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Photino.NET" Version="$(PhotinoNETPackageVersion)" />
+    <!-- <PackageReference Include="Photino.NET" Version="$(PhotinoNETPackageVersion)" /> -->
+    <ProjectReference Include="..\photino.NET\Photino.NET\Photino.NET.csproj" />
   </ItemGroup>
 
   <ItemGroup>

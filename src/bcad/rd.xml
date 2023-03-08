@@ -1,0 +1,40 @@
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <Assembly Name="IxMilia.BCad.Core" Dynamic="Required All" />
+    <Assembly Name="IxMilia.BCad.FileHandlers" Dynamic="Required All" />
+    <Assembly Name="IxMilia.BCad.Lisp" Dynamic="Required All" />
+    <Assembly Name="IxMilia.BCad.Rpc" Dynamic="Required All" />
+    <Assembly Name="IxMilia.Config">
+      <Type Name="IxMilia.Config.ConfigExtensions">
+        <Method Name="TryParseValue">
+          <GenericArgument Name="System.Boolean,mscorlib" />
+        </Method>
+        <Method Name="TryParseValue">
+          <GenericArgument Name="System.Double,mscorlib" />
+        </Method>
+        <Method Name="TryParseValue">
+          <GenericArgument Name="System.Double[],mscorlib" />
+        </Method>
+        <Method Name="TryParseValue">
+          <GenericArgument Name="System.Int32,mscorlib" />
+        </Method>
+        <Method Name="TryParseValue">
+          <GenericArgument Name="IxMilia.BCad.CadColor,IxMilia.BCad.Core" />
+        </Method>
+        <Method Name="TryParseValue">
+          <GenericArgument Name="IxMilia.BCad.UnitFormat,IxMilia.BCad.Core" />
+        </Method>
+      </Type>
+    </Assembly>
+    <Assembly Name="IxMilia.Lisp" Dynamic="Required All" />
+    <Assembly Name="mscorlib">
+      <Type Name="System.Collections.Generic.List`1[[IxMilia.BCad.Rpc.ClientPoint,IxMilia.BCad.Rpc]]" Dynamic="Required All" />
+      <Type Name="System.Collections.Generic.List`1[[IxMilia.BCad.Commands.CommandShortcut,IxMilia.BCad.Core]]" Dynamic="Required All" />
+      <!-- every `Task<T>` that might be invoked with JsonRpc needs to be here -->
+      <Type Name="System.Threading.Tasks.Task`1[System.Boolean]" Dynamic="Required All" />
+      <Type Name="System.Threading.Tasks.Task`1[System.String]" Dynamic="Required All" />
+      <Type Name="System.Threading.Tasks.Task`1[System.Nullable`1[[IxMilia.BCad.Rpc.ClientRectangle,IxMilia.BCad.Rpc]]]" Dynamic="Required All" />
+    </Assembly>
+    <Assembly Name="StreamJsonRpc" Dynamic="Required All" />
+  </Application>
+</Directives>

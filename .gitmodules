@@ -22,3 +22,7 @@
 	path = src/IxMilia.Stl
 	url = https://github.com/ixmilia/stl
 	branch = main
+[submodule "src/photino.NET"]
+	path = src/photino.NET
+	url = https://github.com/ixmilia/photino.NET
+	branch = master

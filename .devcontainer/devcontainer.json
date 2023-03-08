@@ -1,0 +1,20 @@
+{
+  "name": "crosscompile_linux_arm64",
+  "image": "mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-cross-arm64",
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:1": {
+      "version": "7"
+    },
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.19"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  "containerEnv": {
+    "CppCompilerAndLinker": "clang-9",
+    "ROOTFS_DIR": "/crossrootfs/arm64",
+    "SysRoot": "/crossrootfs/arm64"
+  }
+}
