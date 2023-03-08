@@ -59,14 +59,13 @@ namespace IxMilia.BCad.Utilities
 
             var normalizedLine1SelectionPoint = options.Line1.ClosestPoint(options.Line1SelectionPoint);
             var normalizedLine2SelectionPoint = options.Line2.ClosestPoint(options.Line2SelectionPoint);
+            var intersectionPoint = intersectionCandidate.Value;
+            var l1ReplaceP1 = IsPointBetween(intersectionPoint, options.Line1.P2, normalizedLine1SelectionPoint);
+            var l2ReplaceP1 = IsPointBetween(intersectionPoint, options.Line2.P2, normalizedLine2SelectionPoint);
 
             if (options.Radius == 0.0)
             {
                 // simple intersection and trim
-                var intersectionPoint = intersectionCandidate.Value;
-                var l1ReplaceP1 = IsPointBetween(intersectionPoint, options.Line1.P2, normalizedLine1SelectionPoint);
-                var l2ReplaceP1 = IsPointBetween(intersectionPoint, options.Line2.P2, normalizedLine2SelectionPoint);
-
                 var updatedL1 = l1ReplaceP1
                     ? options.Line1.Update(p1: intersectionPoint)
                     : options.Line1.Update(p2: intersectionPoint);
@@ -100,8 +99,6 @@ namespace IxMilia.BCad.Utilities
 
                 var l1Intersection = l1IntersectionCandidate.Value;
                 var l2Intersection = l2IntersectionCandidate.Value;
-                var l1ReplaceP1 = IsPointBetween(l1Intersection, options.Line1.P2, normalizedLine1SelectionPoint);
-                var l2ReplaceP1 = IsPointBetween(l2Intersection, options.Line2.P2, normalizedLine2SelectionPoint);
 
                 var updatedL1 = l1ReplaceP1
                     ? options.Line1.Update(p1: l1Intersection)
