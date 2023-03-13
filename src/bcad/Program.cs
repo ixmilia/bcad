@@ -135,6 +135,7 @@ namespace bcad
                         // don't let this die
                     }
                 });
+            SetTitle(window, server.Workspace);
 
             window.RegisterCustomSchemeHandler("app", (object sender, string scheme, string url, out string contentType) =>
             {
