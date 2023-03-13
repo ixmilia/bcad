@@ -35,6 +35,26 @@ namespace bcad
         static void Main(string[] args)
         {
             var arguments = CommandLineParser.Parse(args);
+            if (arguments.ErrorLog is { } )
+            {
+                if (File.Exists(arguments.ErrorLog.FullName))
+                {
+                    try
+                    {
+                        File.Delete(arguments.ErrorLog.FullName);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            AppDomain.CurrentDomain.FirstChanceException += (_sender, ev) =>
+            {
+                if (arguments.ErrorLog is { } && ev.Exception is not OperationCanceledException)
+                {
+                    File.AppendAllText(arguments.ErrorLog.FullName, ev.Exception.ToString() + Environment.NewLine);
+                }
+            };
 
             if (!arguments.ShowUI)
             {

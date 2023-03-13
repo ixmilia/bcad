@@ -1,5 +1,4 @@
-﻿using System.CommandLine.Parsing;
-using System.IO;
+﻿using System.IO;
 
 namespace IxMilia.BCad.CommandLine
 {
@@ -8,12 +7,14 @@ namespace IxMilia.BCad.CommandLine
         public bool ShowUI { get; }
         public FileInfo DrawingFile { get; }
         public FileInfo BatchFile { get; }
+        public FileInfo ErrorLog { get; }
 
-        public CadArguments(bool showUI, FileInfo drawingFile, FileInfo batchFile)
+        public CadArguments(bool showUI, FileInfo drawingFile, FileInfo batchFile, FileInfo errorLog)
         {
             ShowUI = showUI;
             DrawingFile = drawingFile;
             BatchFile = batchFile;
+            ErrorLog = errorLog;
         }
     }
 }

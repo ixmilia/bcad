@@ -26,14 +26,20 @@ namespace IxMilia.BCad.CommandLine
                 name: "/b",
                 getDefaultValue: () => null,
                 description: "File containing batch script commands");
+            var errorLogOption = new Option<FileInfo>(
+                name: "/e",
+                getDefaultValue: () => null,
+                description: "Location to write the error log");
             rootCommand.AddArgument(drawingArgument);
             rootCommand.AddOption(batchFileOption);
+            rootCommand.AddOption(errorLogOption);
             var parser = new CommandLineBuilder(rootCommand).Build();
             var parseResult = parser.Parse(args);
             return new CadArguments(
                 showUI: true,
                 drawingFile: parseResult.GetValueForArgument(drawingArgument),
-                batchFile: parseResult.GetValueForOption(batchFileOption));
+                batchFile: parseResult.GetValueForOption(batchFileOption),
+                errorLog: parseResult.GetValueForOption(errorLogOption));
         }
 
         private static CadArguments ParseFromConsoleArguments(string[] args)
@@ -47,14 +53,20 @@ namespace IxMilia.BCad.CommandLine
                 name: "/s",
                 getDefaultValue: () => null,
                 description: "File containing batch script commands");
+            var errorLogOption = new Option<FileInfo>(
+                name: "/e",
+                getDefaultValue: () => null,
+                description: "Location to write the error log");
             rootCommand.AddOption(drawingOption);
             rootCommand.AddOption(batchFileOption);
+            rootCommand.AddOption(errorLogOption);
             var parser = new CommandLineBuilder(rootCommand).Build();
             var parseResult = parser.Parse(args);
             return new CadArguments(
                 showUI: false,
                 drawingFile: parseResult.GetValueForOption(drawingOption),
-                batchFile: parseResult.GetValueForOption(batchFileOption));
+                batchFile: parseResult.GetValueForOption(batchFileOption),
+                errorLog: parseResult.GetValueForOption(errorLogOption));
         }
     }
 }
