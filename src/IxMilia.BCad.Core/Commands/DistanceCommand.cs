@@ -29,7 +29,7 @@ namespace IxMilia.BCad.Commands
 
         private string Format(DrawingSettings settings, double value)
         {
-            return DrawingSettings.FormatUnits(value, settings.UnitFormat, settings.UnitPrecision);
+            return DrawingSettings.FormatUnits(value, settings.DrawingUnits, settings.UnitFormat, settings.UnitPrecision);
         }
     }
 }

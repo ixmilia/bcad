@@ -252,10 +252,17 @@
         <div id="settingsRibbon" class="ribbon">
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">
-              <label for="drawing-units">Units</label>
+              <label for="drawing-units">Drawing Units</label>
               <select name="drawing-units" id="drawing-units">
-                <option value="0">Architectural</option>
+                <option value="0">English</option>
                 <option value="1">Metric</option>
+              </select>
+              <br />
+              <label for="unit-format">Unit Format</label>
+              <select name="unit-format" id="unit-format">
+                <option value="0">Architectural</option>
+                <option value="1">Fractional</option>
+                <option value="2">Decimal</option>
               </select>
               <br />
               <label for="drawing-units-precision">Precision</label>
@@ -266,7 +273,7 @@
               <select name="angle-units-precision" id="angle-units-precision">
               </select>
             </div>
-            <div class="ribbon-button-group-name">Drawing units</div>
+            <!-- <div class="ribbon-button-group-name">Drawing units</div> -->
           </div>
           <div class="ribbon-button-group">
             <div class="ribbon-button-group-content">

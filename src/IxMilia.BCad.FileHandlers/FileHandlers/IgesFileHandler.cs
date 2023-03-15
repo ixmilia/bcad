@@ -29,7 +29,7 @@ namespace IxMilia.BCad.FileHandlers
             }
 
             var drawing = new Drawing(
-                new DrawingSettings(fileName, UnitFormat.Architectural, 8, 0, layer.Name, 0.0, null),
+                new DrawingSettings(fileName, DrawingUnits.English, UnitFormat.Architectural, 8, 0, layer.Name, 0.0, null),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 new ReadOnlyTree<string, LineType>(),
                 file.Author);
@@ -51,7 +51,7 @@ namespace IxMilia.BCad.FileHandlers
             file.FullFileName = fileName;
             file.Identification = Path.GetFileName(fileName);
             file.Identifier = Path.GetFileName(fileName);
-            file.ModelUnits = drawing.Settings.UnitFormat.ToIgesUnits();
+            file.ModelUnits = drawing.Settings.DrawingUnits.ToIgesUnits();
             file.ModifiedTime = DateTime.Now;
             file.SystemIdentifier = "BCad";
             file.SystemVersion = "1.0";

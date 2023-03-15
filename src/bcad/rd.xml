@@ -22,6 +22,9 @@
           <GenericArgument Name="IxMilia.BCad.CadColor,IxMilia.BCad.Core" />
         </Method>
         <Method Name="TryParseValue">
+          <GenericArgument Name="IxMilia.BCad.DrawingUnits,IxMilia.BCad.Core" />
+        </Method>
+        <Method Name="TryParseValue">
           <GenericArgument Name="IxMilia.BCad.UnitFormat,IxMilia.BCad.Core" />
         </Method>
       </Type>

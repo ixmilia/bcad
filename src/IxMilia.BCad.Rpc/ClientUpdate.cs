@@ -424,7 +424,8 @@ namespace IxMilia.BCad.Rpc
         public bool Debug { get; }
         public int DrawingPrecision { get; }
         public int AnglePrecision { get; }
-        public UnitFormat DrawingUnits { get; }
+        public DrawingUnits DrawingUnits { get; }
+        public UnitFormat UnitFormat { get; }
         public double EntitySelectionRadius { get; }
         public CadColor HotPointColor { get; }
         public double HotPointSize { get; }
@@ -444,7 +445,8 @@ namespace IxMilia.BCad.Rpc
             Debug = workspace.SettingsService.GetValue<bool>(DefaultSettingsNames.Debug);
             DrawingPrecision = workspace.SettingsService.GetValue<int>(DefaultSettingsNames.DrawingPrecision);
             AnglePrecision = workspace.SettingsService.GetValue<int>(DefaultSettingsNames.AnglePrecision);
-            DrawingUnits = workspace.SettingsService.GetValue<UnitFormat>(DefaultSettingsNames.DrawingUnits);
+            DrawingUnits = workspace.SettingsService.GetValue<DrawingUnits>(DefaultSettingsNames.DrawingUnits);
+            UnitFormat = workspace.SettingsService.GetValue<UnitFormat>(DefaultSettingsNames.UnitFormat);
             EntitySelectionRadius = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.EntitySelectionRadius);
             HotPointColor = workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.HotPointColor);
             HotPointSize = workspace.SettingsService.GetValue<double>(DisplaySettingsNames.HotPointSize);

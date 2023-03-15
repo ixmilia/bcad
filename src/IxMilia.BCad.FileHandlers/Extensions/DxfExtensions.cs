@@ -470,16 +470,44 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return entity;
         }
 
+        public static DxfDrawingUnits ToDxfDrawingUnits(this DrawingUnits units)
+        {
+            switch (units)
+            {
+                case DrawingUnits.English:
+                    return DxfDrawingUnits.English;
+                case DrawingUnits.Metric:
+                    return DxfDrawingUnits.Metric;
+                default:
+                    throw new ArgumentException(nameof(units), "Unsupported unit format");
+            }
+        }
+
         public static DxfUnitFormat ToDxfUnitFormat(this UnitFormat format)
         {
             switch (format)
             {
                 case UnitFormat.Architectural:
                     return DxfUnitFormat.Architectural;
-                case UnitFormat.Metric:
+                case UnitFormat.Fractional:
+                    return DxfUnitFormat.Fractional;
+                case UnitFormat.Decimal:
                     return DxfUnitFormat.Decimal;
                 default:
-                    throw new ArgumentException("Unsupported unit format");
+                    throw new ArgumentException(nameof(format), "Unsupported unit format");
+            }
+        }
+
+        public static DrawingUnits ToDrawingUnits(this DxfDrawingUnits units)
+        {
+            switch (units)
+            {
+                case DxfDrawingUnits.English:
+                    return DrawingUnits.English;
+                case DxfDrawingUnits.Metric:
+                    return DrawingUnits.Metric;
+                default:
+                    throw new ArgumentException(nameof(units), "Unsupported unit format");
             }
         }
 
@@ -489,15 +517,16 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             {
                 case DxfUnitFormat.Architectural:
                 case DxfUnitFormat.ArchitecturalStacked:
+                    return UnitFormat.Architectural;
                 case DxfUnitFormat.Fractional:
                 case DxfUnitFormat.FractionalStacked:
-                    return UnitFormat.Architectural;
+                    return UnitFormat.Fractional;
                 case DxfUnitFormat.Decimal:
                 case DxfUnitFormat.Engineering:
                 case DxfUnitFormat.Scientific:
-                    return UnitFormat.Metric;
+                    return UnitFormat.Decimal;
                 default:
-                    throw new ArgumentException("Unsupported unit format");
+                    throw new ArgumentException(nameof(format), "Unsupported unit format");
             }
         }
     }

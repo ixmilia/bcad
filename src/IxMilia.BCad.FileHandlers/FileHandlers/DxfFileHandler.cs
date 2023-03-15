@@ -107,6 +107,7 @@ namespace IxMilia.BCad.FileHandlers
             var drawing = new Drawing(
                 settings: new DrawingSettings(
                     fileName,
+                    file.Header.DrawingUnits.ToDrawingUnits(),
                     file.Header.UnitFormat.ToUnitFormat(),
                     file.Header.UnitPrecision,
                     file.Header.AngleUnitPrecision,
@@ -160,6 +161,7 @@ namespace IxMilia.BCad.FileHandlers
             file.Header.CurrentLayer = drawing.Settings.CurrentLayerName;
             file.Header.CurrentEntityLineType = drawing.Settings.CurrentLineTypeSpecification?.Name;
             file.Header.CurrentEntityLineTypeScale = drawing.Settings.CurrentLineTypeSpecification?.Scale ?? 1.0;
+            file.Header.DrawingUnits = drawing.Settings.DrawingUnits.ToDxfDrawingUnits();
             file.Header.UnitFormat = drawing.Settings.UnitFormat.ToDxfUnitFormat();
             file.Header.UnitPrecision = (short)drawing.Settings.UnitPrecision;
             file.Header.AngleUnitPrecision = (short)drawing.Settings.AnglePrecision;

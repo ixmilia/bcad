@@ -192,7 +192,7 @@ namespace IxMilia.BCad
         /// <summary>
         /// Formats the specified unit as the appropriate format.
         /// </summary>
-        public static string FormatUnits(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, drawing.Settings.UnitFormat, drawing.Settings.UnitPrecision);
+        public static string FormatUnits(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, drawing.Settings.DrawingUnits, drawing.Settings.UnitFormat, drawing.Settings.UnitPrecision);
 
         /// <summary>
         /// Formats the specified angle as the appropriate format.
@@ -202,7 +202,7 @@ namespace IxMilia.BCad
         /// <summary>
         /// Formats the specified scalar value as the appropriate format.
         /// </summary>
-        public static string FormatScalar(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, UnitFormat.Metric, drawing.Settings.UnitPrecision);
+        public static string FormatScalar(this Drawing drawing, double value) => DrawingSettings.FormatUnits(value, drawing.Settings.DrawingUnits, UnitFormat.Decimal, drawing.Settings.UnitPrecision);
 
         /// <summary>
         /// Formats the specified vector as the appropriate format.

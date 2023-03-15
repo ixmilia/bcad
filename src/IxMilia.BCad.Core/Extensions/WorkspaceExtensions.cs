@@ -122,7 +122,7 @@ namespace IxMilia.BCad
         /// <returns>The formatted value.</returns>
         public static string Format(this IWorkspace workspace, double value)
         {
-            return DrawingSettings.FormatUnits(value, workspace.Drawing.Settings.UnitFormat, workspace.Drawing.Settings.UnitPrecision);
+            return DrawingSettings.FormatUnits(value, workspace.Drawing.Settings.DrawingUnits, workspace.Drawing.Settings.UnitFormat, workspace.Drawing.Settings.UnitPrecision);
         }
 
         /// <summary>

@@ -150,8 +150,8 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'8\""), propertyMap["ny"]);
             Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'9\""), propertyMap["nz"]);
             Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'10\""), propertyMap["t"]);
-            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Start Point", "(0'4-7/16\",0'0-7/8\",0'5-3/16\")"), propertyMap["Start Point"]);
-            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("End Point", "(0'4-7/16\",0'1\",0'5-3/16\")"), propertyMap["End Point"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Start Point", "(0'4-7/16\",0'0-15/16\",0'5-3/16\")"), propertyMap["Start Point"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("End Point", "(0'4-7/16\",0'1\",0'5-1/4\")"), propertyMap["End Point"]);
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Total Angle", "1"), propertyMap["Total Angle"]);
             Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Arc Length", "0'0-1/16\""), propertyMap["Arc Length"]);
             Assert.Equal(new ClientPropertyPaneValue(false, true, "cc", "Convert to circle", null), propertyMap["cc"]);
@@ -193,7 +193,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("ny", "Y", "0'6\""), propertyMap["ny"]);
             Assert.Equal(new ClientPropertyPaneValue("nz", "Z", "0'7\""), propertyMap["nz"]);
             Assert.Equal(new ClientPropertyPaneValue("t", "Thickness", "0'8\""), propertyMap["t"]);
-            Assert.Equal(new ClientPropertyPaneValue("a", "Area", "50.2654824574368"), propertyMap["a"]);
+            Assert.Equal(new ClientPropertyPaneValue("a", "Area", "50.2655"), propertyMap["a"]);
             Assert.Equal(new ClientPropertyPaneValue("d", "Diameter", "0'8\""), propertyMap["d"]);
             Assert.Equal(new ClientPropertyPaneValue("c", "Circumference", "2'1-1/8\""), propertyMap["c"]);
             Assert.Equal(new ClientPropertyPaneValue(false, true, "ca", "Convert to arc", null), propertyMap["ca"]);

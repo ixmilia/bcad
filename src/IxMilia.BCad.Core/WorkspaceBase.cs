@@ -97,7 +97,8 @@ namespace IxMilia.BCad
             SettingsService.RegisterSetting(DefaultSettingsNames.Debug, typeof(bool), false);
             SettingsService.RegisterSetting(DefaultSettingsNames.DrawingPrecision, typeof(int), 16);
             SettingsService.RegisterSetting(DefaultSettingsNames.AnglePrecision, typeof(int), 0);
-            SettingsService.RegisterSetting(DefaultSettingsNames.DrawingUnits, typeof(UnitFormat), UnitFormat.Architectural);
+            SettingsService.RegisterSetting(DefaultSettingsNames.DrawingUnits, typeof(DrawingUnits), DrawingUnits.English);
+            SettingsService.RegisterSetting(DefaultSettingsNames.UnitFormat, typeof(UnitFormat), UnitFormat.Architectural);
             SettingsService.RegisterSetting(DisplaySettingsNames.AngleSnap, typeof(bool), true);
             SettingsService.RegisterSetting(DisplaySettingsNames.BackgroundColor, typeof(CadColor), "#FF2F2F2F");
             SettingsService.RegisterSetting(DisplaySettingsNames.CursorSize, typeof(int), 60);
@@ -127,6 +128,9 @@ namespace IxMilia.BCad
                         newSettings = Drawing.Settings.Update(unitPrecision: SettingsService.GetValue<int>(e.SettingName));
                         break;
                     case DefaultSettingsNames.DrawingUnits:
+                        newSettings = Drawing.Settings.Update(drawingUnits: SettingsService.GetValue<DrawingUnits>(e.SettingName));
+                        break;
+                    case DefaultSettingsNames.UnitFormat:
                         newSettings = Drawing.Settings.Update(unitFormat: SettingsService.GetValue<UnitFormat>(e.SettingName));
                         break;
                 }

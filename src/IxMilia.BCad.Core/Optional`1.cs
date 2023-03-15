@@ -2,28 +2,17 @@ namespace IxMilia.BCad
 {
     public struct Optional<T>
     {
-        private bool hasValue;
-        private T value;
+        public bool HasValue { get; }
+        public T Value { get; }
 
         public Optional(T value)
         {
-            this.hasValue = true;
-            this.value = value;
+            HasValue = true;
+            Value = value;
         }
 
-        public bool HasValue
-        {
-            get { return this.hasValue; }
-        }
+        public static implicit operator Optional<T>(T value) => new Optional<T>(value);
 
-        public T Value
-        {
-            get { return this.value; }
-        }
-
-        public static implicit operator Optional<T>(T value)
-        {
-            return new Optional<T>(value);
-        }
+        public T GetValue(T fallback) => HasValue ? Value : fallback;
     }
 }

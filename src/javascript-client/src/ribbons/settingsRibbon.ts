@@ -1,18 +1,23 @@
-import { UnitFormat } from "../contracts.generated";
+import { DrawingUnits, UnitFormat } from "../contracts.generated";
 import { Client } from "../client";
 
 export class SettingsRibbon {
     private unitElement: HTMLSelectElement;
+    private formatElement: HTMLSelectElement;
     private precisionElement: HTMLSelectElement;
     private anglePrecisionElement: HTMLSelectElement;
 
     constructor(client: Client) {
         this.unitElement = <HTMLSelectElement>document.getElementById("drawing-units");
+        this.formatElement = <HTMLSelectElement>document.getElementById("unit-format");
         this.precisionElement = <HTMLSelectElement>document.getElementById('drawing-units-precision');
         this.anglePrecisionElement = <HTMLSelectElement>document.getElementById('angle-units-precision');
 
         this.unitElement.addEventListener("change", (ev) => {
             client.setSetting('DrawingUnits', (<any>ev.target).value.toString());
+        });
+        this.formatElement.addEventListener("change", (ev) => {
+            client.setSetting('UnitFormat', (<any>ev.target).value.toString());
         });
         this.precisionElement.addEventListener('change', (ev) => {
             client.setSetting('DrawingPrecision', (<any>ev.target).value.toString());
@@ -73,22 +78,36 @@ export class SettingsRibbon {
         client.subscribeToClientUpdates((clientUpdate) => {
             if (clientUpdate.Settings !== undefined) {
                 // drawing units and precision
-                let selectedUnits = 0;
-                let availablePrecisions: [string, number][] = [];
+                let selectedDrawingUnits = 0;
                 switch (clientUpdate.Settings.DrawingUnits) {
-                    case UnitFormat.Architectural:
-                        selectedUnits = 0;
-                        availablePrecisions = [
-                            ['1"', 1],
-                            ['1/2"', 2],
-                            ['1/4"', 4],
-                            ['1/8"', 8],
-                            ['1/16"', 16],
-                            ['1/32"', 32],
-                        ];
+                    case DrawingUnits.English:
+                        selectedDrawingUnits = 0;
                         break;
-                    case UnitFormat.Metric:
-                        selectedUnits = 1;
+                    case DrawingUnits.Metric:
+                        selectedDrawingUnits = 1;
+                        break;
+                }
+                let selectedUnitFormat = 0;
+                let availablePrecisions: [string, number][] = [
+                    ['1"', 0],
+                    ['1/2"', 1],
+                    ['1/4"', 2],
+                    ['1/8"', 3],
+                    ['1/16"', 4],
+                    ['1/32"', 5],
+                    ['1/64"', 6],
+                    ['1/128"', 7],
+                    ['1/256"', 8],
+                ];
+                switch (clientUpdate.Settings.UnitFormat) {
+                    case UnitFormat.Architectural:
+                        selectedUnitFormat = 0;
+                        break;
+                    case UnitFormat.Fractional:
+                        selectedUnitFormat = 1;
+                        break;
+                    case UnitFormat.Decimal:
+                        selectedUnitFormat = 2;
                         availablePrecisions = [
                             ['0', 0],
                             ['1', 1],
@@ -119,7 +138,8 @@ export class SettingsRibbon {
                     }
                     return option;
                 });
-                this.unitElement.item(selectedUnits)!.selected = true;
+                this.unitElement.item(selectedDrawingUnits)!.selected = true;
+                this.formatElement.item(selectedUnitFormat)!.selected = true;
                 this.precisionElement.replaceChildren(...optionElements);
 
                 // angle precision

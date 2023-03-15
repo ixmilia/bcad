@@ -9,6 +9,7 @@ namespace IxMilia.BCad
     public class DrawingSettings
     {
         public string FileName { get; private set; }
+        public DrawingUnits DrawingUnits { get; private set; }
         public UnitFormat UnitFormat { get; private set; }
         public int UnitPrecision { get; private set; }
         public int AnglePrecision { get; private set; }
@@ -16,16 +17,15 @@ namespace IxMilia.BCad
         public double FilletRadius { get; private set; }
         public LineTypeSpecification CurrentLineTypeSpecification { get; private set; }
 
-        private static int[] AllowedArchitecturalPrecisions = new[] { 0, 2, 4, 8, 16, 32 };
-
         public DrawingSettings()
-            : this(null, UnitFormat.Architectural, 16, 0, "0", 0.0, null)
+            : this(null, DrawingUnits.English, UnitFormat.Architectural, 4, 0, "0", 0.0, null)
         {
         }
 
-        public DrawingSettings(string path, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, double filletRadius, LineTypeSpecification currentLineTypeSpecification)
+        public DrawingSettings(string path, DrawingUnits drawingUnits, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, double filletRadius, LineTypeSpecification currentLineTypeSpecification)
         {
             FileName = path;
+            DrawingUnits = drawingUnits;
             UnitFormat = unitFormat;
             UnitPrecision = unitPrecision < 0 ? 0 : unitPrecision;
             AnglePrecision = anglePrecision < 0 ? 0 : anglePrecision;
@@ -36,10 +36,10 @@ namespace IxMilia.BCad
             switch (unitFormat)
             {
                 case UnitFormat.Architectural:
-                    // only allowable values are 0, 2, 4, 8, 16, 32
-                    UnitPrecision = AllowedArchitecturalPrecisions.Where(x => x <= UnitPrecision).Max();
+                    // only allowable values are [0-8]
+                    UnitPrecision = Math.Min(Math.Max(0, UnitPrecision), 8);
                     break;
-                case UnitFormat.Metric:
+                case UnitFormat.Decimal:
                     // only allowable values are [0, 16]
                     UnitPrecision = Math.Max(0, UnitPrecision);
                     UnitPrecision = Math.Min(16, UnitPrecision);
@@ -54,6 +54,7 @@ namespace IxMilia.BCad
 
         public DrawingSettings Update(
             string fileName = null,
+            Optional<DrawingUnits> drawingUnits = default,
             Optional<UnitFormat> unitFormat = default,
             Optional<int> unitPrecision = default,
             Optional<int> anglePrecision = default,
@@ -62,14 +63,16 @@ namespace IxMilia.BCad
             Optional<LineTypeSpecification> currentLineTypeSpecification = default)
         {
             var newFileName = fileName ?? FileName;
-            var newUnitFormat = unitFormat.HasValue ? unitFormat.Value : UnitFormat;
-            var newUnitPrecision = unitPrecision.HasValue ? unitPrecision.Value : UnitPrecision;
-            var newAnglePrecision = anglePrecision.HasValue ? anglePrecision.Value : AnglePrecision;
-            var newCurrentLayerName = currentLayerName.HasValue ? currentLayerName.Value : CurrentLayerName;
-            var newFilletRadius = filletRadius.HasValue ? filletRadius.Value : FilletRadius;
-            var newCurrentLineTypeSpecification = currentLineTypeSpecification.HasValue ? currentLineTypeSpecification.Value : CurrentLineTypeSpecification;
+            var newDrawingUnits = drawingUnits.GetValue(DrawingUnits);
+            var newUnitFormat = unitFormat.GetValue(UnitFormat);
+            var newUnitPrecision = unitPrecision.GetValue(UnitPrecision);
+            var newAnglePrecision = anglePrecision.GetValue(AnglePrecision);
+            var newCurrentLayerName = currentLayerName.GetValue(CurrentLayerName);
+            var newFilletRadius = filletRadius.GetValue(FilletRadius);
+            var newCurrentLineTypeSpecification = currentLineTypeSpecification.GetValue(CurrentLineTypeSpecification);
 
             if (newFileName == FileName &&
+                newDrawingUnits == DrawingUnits &&
                 newUnitFormat == UnitFormat &&
                 newUnitPrecision == UnitPrecision &&
                 newAnglePrecision == AnglePrecision &&
@@ -80,12 +83,12 @@ namespace IxMilia.BCad
                 return this;
             }
 
-            return new DrawingSettings(newFileName, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newFilletRadius, newCurrentLineTypeSpecification);
+            return new DrawingSettings(newFileName, newDrawingUnits, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newFilletRadius, newCurrentLineTypeSpecification);
         }
 
         public static string FormatAngle(double value, int anglePrecision) => FormatScalar(value, anglePrecision);
 
-        public static string FormatUnits(double value, UnitFormat unitFormat, int unitPrecision)
+        public static string FormatUnits(double value, DrawingUnits drawingUnits, UnitFormat unitFormat, int unitPrecision)
         {
             var prefix = Math.Sign(value) < 0 ? "-" : "";
             value = Math.Abs(value);
@@ -93,7 +96,9 @@ namespace IxMilia.BCad
             {
                 case UnitFormat.Architectural:
                     return string.Concat(prefix, FormatArchitectural(value, unitPrecision));
-                case UnitFormat.Metric:
+                case UnitFormat.Fractional:
+                    return string.Concat(prefix, FormatFractional(value, unitPrecision));
+                case UnitFormat.Decimal:
                     return string.Concat(prefix, FormatScalar(value, unitPrecision));
                 default:
                     throw new ArgumentException("value");
@@ -178,52 +183,37 @@ namespace IxMilia.BCad
         private static string FormatArchitectural(double value, int precision)
         {
             var feet = (int)value / 12;
-            var inches = (int)value % 12;
-            var frac = value - ((double)(int)value);
+            var inches = value - (feet * 12.0);
+            var fractional = FormatFractional(inches, precision);
+            return $"{feet}'{fractional}";
+        }
 
-            int numerator = 0, denominator = 0;
-            switch (precision)
+        private static string FormatFractional(double value, int precision)
+        {
+            if (value < 0.0)
             {
-                case 2: // 1/2
-                case 4: // 1/4
-                case 8: // 1/8
-                case 16: // 1/16
-                case 32: // 1/32
-                    int i = 0;
-                    for (i = 0; i < precision; i++)
-                    {
-                        var limit = (double)i / precision;
-                        if (frac < limit)
-                        {
-                            i--;
-                            break;
-                        }
-                    }
-                    numerator = i;
-                    denominator = precision;
-                    if (numerator == denominator)
-                    {
-                        numerator = denominator = 0;
-                        inches++;
-                    }
-                    break;
-                default:
-                    // unsupported fractional part
-                    break;
+                throw new ArgumentOutOfRangeException(nameof(value), "Value must be positive");
             }
 
-            while (inches >= 12)
+            var roundingAmount = Math.Pow(2.0, -(precision + 1));
+            var normalizedValue = value + roundingAmount;
+            var whole = (int)normalizedValue;
+            var fractionalPart = normalizedValue - whole;
+
+            var denominator = (int)Math.Pow(2.0, precision);
+            var numerator = (int)(fractionalPart * denominator);
+
+            if (numerator == denominator)
             {
-                inches -= 12;
-                feet++;
+                numerator = denominator = 0;
             }
 
             ReduceFraction(ref numerator, ref denominator);
-            string fractional = string.Empty;
-            if (numerator != 0 && denominator != 0)
-                fractional = string.Format("-{0}/{1}", numerator, denominator);
+            var fractional = numerator != 0
+                ? $"-{numerator}/{denominator}"
+                : string.Empty;
 
-            string formatted = string.Format("{0}'{1}{2}\"", feet, inches, fractional);
+            var formatted = $"{whole}{fractional}\"";
             return formatted;
         }
 
@@ -237,6 +227,10 @@ namespace IxMilia.BCad
                 denominator /= 2;
             }
         }
+
+        private static int MaxFractionalPrecision = 8;
+
+        private static double[] PrecisionLimits = Enumerable.Range(1, MaxFractionalPrecision).Select(p => Math.Pow(2.0, -p)).ToArray();
 
         private static string[] decimalFormats = new string[]
         {

@@ -2,7 +2,8 @@ namespace IxMilia.BCad
 {
     public enum UnitFormat
     {
-        Architectural,
-        Metric
+        Architectural = 0,
+        Fractional = 1,
+        Decimal = 2,
     }
 }

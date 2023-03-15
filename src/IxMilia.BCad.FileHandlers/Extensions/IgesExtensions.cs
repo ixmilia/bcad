@@ -99,16 +99,16 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return new IgesPoint(point.X, point.Y, point.Z);
         }
 
-        public static IgesUnits ToIgesUnits(this UnitFormat unitFormat)
+        public static IgesUnits ToIgesUnits(this DrawingUnits drawingUnits)
         {
-            switch (unitFormat)
+            switch (drawingUnits)
             {
-                case UnitFormat.Architectural:
+                case DrawingUnits.English:
                     return IgesUnits.Inches;
-                case UnitFormat.Metric:
+                case DrawingUnits.Metric:
                     return IgesUnits.Millimeters;
                 default:
-                    throw new Exception("Unsupported unit type: " + unitFormat);
+                    throw new ArgumentException(nameof(drawingUnits), "Unsupported unit type: " + drawingUnits);
             }
         }
 

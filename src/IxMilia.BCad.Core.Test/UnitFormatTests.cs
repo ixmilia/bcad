@@ -4,53 +4,38 @@ namespace IxMilia.BCad.Core.Test
 {
     public class UnitFormatTests
     {
-        [Fact]
-        public void MetricFormatTest()
+        [Theory]
+        [InlineData(3.0, "3", 0, DrawingUnits.English, UnitFormat.Decimal)] // nearest whole number
+        [InlineData(3.4, "3", 0, DrawingUnits.English, UnitFormat.Decimal)]
+        [InlineData(3.5, "4", 0, DrawingUnits.English, UnitFormat.Decimal)]
+        [InlineData(3.0, "3", 3, DrawingUnits.English, UnitFormat.Decimal)] // 3 decimal places
+        [InlineData(3.14159, "3.142", 3, DrawingUnits.English, UnitFormat.Decimal)]
+        [InlineData(3.14159, "3.1416", 4, DrawingUnits.English, UnitFormat.Decimal)] // 4 decimal places
+        [InlineData(-3.0, "-3", 4, DrawingUnits.English, UnitFormat.Decimal)] // negative value
+        [InlineData(1.578E-12, "0", 4, DrawingUnits.English, UnitFormat.Decimal)] // really close to zero
+        [InlineData(0.0, "0'0\"", 0, DrawingUnits.English, UnitFormat.Architectural)] // nearest inch
+        [InlineData(15.2, "1'3\"", 0, DrawingUnits.English, UnitFormat.Architectural)]
+        [InlineData(0.0, "0'0\"", 3, DrawingUnits.English, UnitFormat.Architectural)] // nearest eighth inch
+        [InlineData(15.2, "1'3-1/4\"", 3, DrawingUnits.English, UnitFormat.Architectural)]
+        [InlineData(24.0, "2'0\"", 4, DrawingUnits.English, UnitFormat.Architectural)] // even feet
+        [InlineData(0.125, "0'0-1/8\"", 4, DrawingUnits.English, UnitFormat.Architectural)] // only fractional inches
+        [InlineData(36.625, "3'0-5/8\"", 4, DrawingUnits.English, UnitFormat.Architectural)] // feet and fractional inches, no whole inches
+        [InlineData(15.99999999, "1'4\"", 4, DrawingUnits.English, UnitFormat.Architectural)] // near the upper limit
+        [InlineData(-18.5, "-1'6-1/2\"", 4, DrawingUnits.English, UnitFormat.Architectural)] // negative value
+        [InlineData(0.0, "0\"", 0, DrawingUnits.English, UnitFormat.Fractional)] // nearest inch
+        [InlineData(15.2, "15\"", 0, DrawingUnits.English, UnitFormat.Fractional)]
+        [InlineData(0.0, "0\"", 3, DrawingUnits.English, UnitFormat.Fractional)] // nearest eighth inch
+        [InlineData(15.2, "15-1/4\"", 3, DrawingUnits.English, UnitFormat.Fractional)]
+        [InlineData(24.0, "24\"", 4, DrawingUnits.English, UnitFormat.Fractional)] // even feet
+        [InlineData(0.125, "0-1/8\"", 4, DrawingUnits.English, UnitFormat.Fractional)] // only fractional inches
+        [InlineData(0.625, "0-5/8\"", 4, DrawingUnits.English, UnitFormat.Fractional)]
+        [InlineData(36.625, "36-5/8\"", 4, DrawingUnits.English, UnitFormat.Fractional)] // feet and fractional inches, no whole inches
+        [InlineData(15.99999999, "16\"", 4, DrawingUnits.English, UnitFormat.Fractional)] // near the upper limit
+        [InlineData(-18.5, "-18-1/2\"", 4, DrawingUnits.English, UnitFormat.Fractional)] // negative value
+        public void FormatTests(double value, string expected, int precision, DrawingUnits drawingUnits, UnitFormat unitFormat)
         {
-            // nearest whole number
-            TestMetric(3.0, "3", 0);
-            TestMetric(3.4, "3", 0);
-            TestMetric(3.5, "4", 0);
-
-            // 3 decimal places
-            TestMetric(3.0, "3", 3);
-            TestMetric(3.14159, "3.142", 3);
-
-            // 4 decimal places
-            TestMetric(3.14159, "3.1416", 4);
-
-            // negative value
-            TestMetric(-3.0, "-3", 4);
-
-            // really close to zero
-            TestMetric(1.578E-12, "0", 4);
-        }
-
-        [Fact]
-        public void ArchitecturalFormatTest()
-        {
-            // nearest inch
-            TestArch(0.0, "0'0\"", 0); // 0'0"
-            TestArch(15.2, "1'3\"", 0); // 1'3"
-
-            // nearest eighth inch
-            TestArch(0.0, "0'0\"", 8); // 0'0"
-            TestArch(15.2, "1'3-1/8\"", 8); // 1'3-1/8"
-
-            // even feet
-            TestArch(24.0, "2'0\"", 16); // 2'
-
-            // only fractional inches
-            TestArch(0.125, "0'0-1/8\"", 16); // 1/8"
-
-            // feet and fractional inches, no whole inches
-            TestArch(36.625, "3'0-5/8\"", 16); // 3'5/8"
-
-            // near the upper limit
-            TestArch(15.99999999, "1'4\"", 16);
-
-            // negative value
-            TestArch(-18.5, "-1'6-1/2\"", 16);
+            var actual = DrawingSettings.FormatUnits(value, drawingUnits, unitFormat, precision);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -101,16 +86,6 @@ namespace IxMilia.BCad.Core.Test
         {
             double temp;
             Assert.False(DrawingSettings.TryParseUnits(text, out temp));
-        }
-
-        private void TestMetric(double value, string expected, int precision)
-        {
-            Assert.Equal(expected, DrawingSettings.FormatUnits(value, UnitFormat.Metric, precision));
-        }
-
-        private void TestArch(double value, string expected, int precision)
-        {
-            Assert.Equal(expected, DrawingSettings.FormatUnits(value, UnitFormat.Architectural, precision));
         }
     }
 }
