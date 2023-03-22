@@ -28,7 +28,7 @@ namespace IxMilia.BCad.FileHandlers
 
             var layer = new Layer(file.SolidName ?? "stl", lines);
             var drawing = new Drawing(
-                new DrawingSettings(fileName, DrawingUnits.English, UnitFormat.Architectural, -1, -1, layer.Name, 0.0, null),
+                new DrawingSettings().Update(fileName: fileName, currentLayerName: layer.Name),
                 new ReadOnlyTree<string, Layer>().Insert(layer.Name, layer),
                 new ReadOnlyTree<string, LineType>());
             drawing.Tag = file;

@@ -42,8 +42,8 @@ namespace IxMilia.BCad.Commands
                 }
             }
 
-            var primitive1 = entity1.Value.Entity.GetPrimitives().First() as PrimitiveLine;
-            var primitive2 = secondEntity.Entity.GetPrimitives().First() as PrimitiveLine;
+            var primitive1 = entity1.Value.Entity.GetPrimitives(workspace.Drawing.Settings).First() as PrimitiveLine;
+            var primitive2 = secondEntity.Entity.GetPrimitives(workspace.Drawing.Settings).First() as PrimitiveLine;
             if (primitive1 is null || primitive2 is null)
             {
                 workspace.OutputService.WriteLine("Expected only lines");

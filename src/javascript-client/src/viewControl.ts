@@ -136,6 +136,8 @@ export class ViewControl {
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
             ImageElements: [],
+            CurrentDimensionStyle: '',
+            DimensionStyles: [''],
         };
         this.selectedEntitiesDrawing = {
             CurrentLayer: "0",
@@ -147,6 +149,8 @@ export class ViewControl {
             Ellipses: [],
             Text: [],
             Images: [],
+            CurrentDimensionStyle: '',
+            DimensionStyles: [''],
         };
         this.rubberBandDrawing = {
             CurrentLayer: "",
@@ -169,6 +173,8 @@ export class ViewControl {
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
             ImageElements: [],
+            CurrentDimensionStyle: '',
+            DimensionStyles: [''],
         };
         this.identity = [
             1, 0, 0, 0,

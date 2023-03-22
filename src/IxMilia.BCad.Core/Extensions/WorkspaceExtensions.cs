@@ -94,6 +94,17 @@ namespace IxMilia.BCad
         }
 
         /// <summary>
+        /// Sets the current dimension style by name.
+        /// </summary>
+        /// <param name="workspace">The workspace containing the drawing.</param>
+        /// <param name="dimensionStyleName">The name of the desired current dimension style.</param>
+        public static void SetCurrentDimensionStyle(this IWorkspace workspace, string dimensionStyleName)
+        {
+            if (workspace.Drawing.Settings.CurrentDimensionStyleName != dimensionStyleName)
+                workspace.Update(drawing: workspace.Drawing.Update(settings: workspace.Drawing.Settings.Update(currentDimensionStyleName: dimensionStyleName)));
+        }
+
+        /// <summary>
         /// Sets the current layer by name.
         /// </summary>
         /// <param name="workspace">The workspace containing the drawing.</param>

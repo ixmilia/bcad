@@ -84,20 +84,26 @@ namespace IxMilia.BCad.Rpc
             });
         }
 
-        private static ClientPropertyPaneValue GetEntityColorValue(CadColor? currentColor, bool isUnrepresentable = false)
+        private static ClientPropertyPaneValue GetEntityColorValue<TEntity>(string name, string displayName, CadColor? currentColor, Func<TEntity, CadColor?, Entity> updateColor, bool isUnrepresentable = false)
+            where TEntity: Entity
         {
-            return ClientPropertyPaneValue.CreateForEntity<Entity>("color", "Color", currentColor.ToPropertyColorString(), (entity, colorString) =>
+            return ClientPropertyPaneValue.CreateForEntity<TEntity>(name, displayName, currentColor.ToPropertyColorString(), (entity, colorString) =>
             {
                 CadColor? newColor = colorString == null ? null : CadColor.Parse(colorString);
-                if (entity.Color == newColor)
+                if (currentColor == newColor)
                 {
                     // no change
                     return null;
                 }
 
-                var updatedEntity = entity.WithColor(newColor);
+                var updatedEntity = updateColor(entity, newColor);
                 return updatedEntity;
             }, isUnrepresentable: isUnrepresentable);
+        }
+
+        private static ClientPropertyPaneValue GetEntityColorValue(CadColor? currentColor, bool isUnrepresentable = false)
+        {
+            return GetEntityColorValue<Entity>("color", "Color", currentColor, (entity, newColor) => entity.WithColor(newColor), isUnrepresentable);
         }
 
         public static IEnumerable<ClientPropertyPaneValue> GetPropertyPaneValues(this IWorkspace workspace)
@@ -242,6 +248,26 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateReadOnly("Length", drawing.FormatUnits(line.Length())),
                     ClientPropertyPaneValue.CreateReadOnly("Delta", drawing.FormatVector(line.Delta())),
                     ClientPropertyPaneValue.CreateReadOnly("Angle", drawing.FormatAngle(line.AngleInDegrees())),
+                },
+                linearDimension => new[]
+                {
+                    ClientPropertyPaneValue.CreateForEntity<LinearDimension>("ds", "Dimension Style", linearDimension.DimensionStyleName, (linearDimension, value) => linearDimension.Update(dimensionStyleName: value), drawing.Settings.DimensionStyles.Select(d => d.Name)),
+                    ClientPropertyPaneValue.CreateForEntity<LinearDimension>("a", "Kind", linearDimension.IsAligned ? "Aligned" : "Non-Aligned", (linearDimension, value) => linearDimension.Update(isAligned: value == "Aligned"), new[] { "Aligned", "Non-Aligned" }),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("x1", "Definition Point 1 X", drawing.FormatUnits(linearDimension.DefinitionPoint1.X), (linearDimension, value) => linearDimension.Update(definitionPoint1: linearDimension.DefinitionPoint1.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("y1", "Y", drawing.FormatUnits(linearDimension.DefinitionPoint1.Y), (linearDimension, value) => linearDimension.Update(definitionPoint1: linearDimension.DefinitionPoint1.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("z1", "Z", drawing.FormatUnits(linearDimension.DefinitionPoint1.Z), (linearDimension, value) => linearDimension.Update(definitionPoint1: linearDimension.DefinitionPoint1.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("x2", "Definition Point 2 X", drawing.FormatUnits(linearDimension.DefinitionPoint2.X), (linearDimension, value) => linearDimension.Update(definitionPoint2: linearDimension.DefinitionPoint2.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("y2", "Y", drawing.FormatUnits(linearDimension.DefinitionPoint2.Y), (linearDimension, value) => linearDimension.Update(definitionPoint2: linearDimension.DefinitionPoint2.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("z2", "Z", drawing.FormatUnits(linearDimension.DefinitionPoint2.Z), (linearDimension, value) => linearDimension.Update(definitionPoint2: linearDimension.DefinitionPoint2.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("x3", "Line Location X", drawing.FormatUnits(linearDimension.DimensionLineLocation.X), (linearDimension, value) => linearDimension.Update(dimensionLineLocation: linearDimension.DimensionLineLocation.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("y3", "Y", drawing.FormatUnits(linearDimension.DimensionLineLocation.Y), (linearDimension, value) => linearDimension.Update(dimensionLineLocation: linearDimension.DimensionLineLocation.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("z3", "Z", drawing.FormatUnits(linearDimension.DimensionLineLocation.Z), (linearDimension, value) => linearDimension.Update(dimensionLineLocation: linearDimension.DimensionLineLocation.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("tx", "Text Midpoint X", drawing.FormatUnits(linearDimension.TextMidPoint.X), (linearDimension, value) => linearDimension.Update(textMidPoint: linearDimension.TextMidPoint.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("ty", "Y", drawing.FormatUnits(linearDimension.TextMidPoint.Y), (linearDimension, value) => linearDimension.Update(textMidPoint: linearDimension.TextMidPoint.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<LinearDimension>("tz", "Z", drawing.FormatUnits(linearDimension.TextMidPoint.Z), (linearDimension, value) => linearDimension.Update(textMidPoint: linearDimension.TextMidPoint.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntity<LinearDimension>("to", "Text Override", linearDimension.TextOverride, (linearDimension, value) => linearDimension.Update(textOverride: string.IsNullOrEmpty(value) || value == "<>" ? null : string.IsNullOrWhiteSpace(value) ? string.Empty : value)),
+                    GetEntityColorValue<LinearDimension>("t-color", "Text Color", linearDimension.TextColor, (linearDimension, value) => linearDimension.Update(textColor: value)),
+                    ClientPropertyPaneValue.CreateReadOnly("Actual Measurement", drawing.FormatUnits(linearDimension.ActualMeasurement)),
                 },
                 location => new[]
                 {

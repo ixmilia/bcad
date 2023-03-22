@@ -119,6 +119,7 @@ namespace IxMilia.BCad.FileHandlers
                             jsonLine.Points.Add(line.P2);
                             modelSpace.Entities.Add(jsonLine);
                         },
+                        linearDimension => { },
                         location => { },
                         polyline => { },
                         spline => { },

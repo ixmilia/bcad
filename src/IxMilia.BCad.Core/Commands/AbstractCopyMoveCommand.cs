@@ -31,7 +31,7 @@ namespace IxMilia.BCad.Commands
                 return false;
             }
 
-            var primitives = entities.Value.SelectMany(e => e.GetPrimitives());
+            var primitives = entities.Value.SelectMany(e => e.GetPrimitives(workspace.Drawing.Settings));
 
             do
             {

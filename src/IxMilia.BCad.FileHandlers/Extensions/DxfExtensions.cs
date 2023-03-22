@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IxMilia.BCad.Collections;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 using IxMilia.BCad.Helpers;
@@ -238,6 +240,53 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.GetEntityColor(), circle.GetLineTypeSpecification(), circle, circle.Thickness);
         }
 
+        public static LinearDimension ToDimension(this DxfDimensionBase dim)
+        {
+            Point firstPoint, secondPoint, selectedDimensionLineLocation, textMidPoint;
+            bool isAligned;
+            switch (dim.DimensionType)
+            {
+                case DxfDimensionType.Aligned:
+                    var aligned = (DxfAlignedDimension)dim;
+                    firstPoint = aligned.DefinitionPoint2.ToPoint();
+                    secondPoint = aligned.DefinitionPoint3.ToPoint();
+                    selectedDimensionLineLocation = aligned.DefinitionPoint1.ToPoint();
+                    textMidPoint = aligned.TextMidPoint.ToPoint();
+                    isAligned = true;
+                    break;
+                case DxfDimensionType.RotatedHorizontalOrVertical:
+                    var rotated = (DxfRotatedDimension)dim;
+                    firstPoint = rotated.DefinitionPoint2.ToPoint();
+                    secondPoint = rotated.DefinitionPoint3.ToPoint();
+                    selectedDimensionLineLocation = rotated.DefinitionPoint1.ToPoint();
+                    textMidPoint = rotated.TextMidPoint.ToPoint();
+                    isAligned = false;
+                    break;
+                default:
+                    return null;
+            }
+
+            var textOverride = dim.Text is null || dim.Text == "<>"
+                ? null
+                : dim.Text == " "
+                    ? string.Empty
+                    : dim.Text;
+            var dimension = new LinearDimension(
+                firstPoint,
+                secondPoint,
+                selectedDimensionLineLocation,
+                isAligned,
+                textMidPoint,
+                dim.DimensionStyleName,
+                textOverride,
+                null,
+                dim.GetEntityColor(),
+                dim.GetLineTypeSpecification(),
+                dim);
+
+            return dimension;
+        }
+
         public static Arc ToArc(this DxfArc arc)
         {
             return new Arc(arc.Center.ToPoint(), arc.Radius, arc.StartAngle, arc.EndAngle, arc.Normal.ToVector(), arc.GetEntityColor(), arc.GetLineTypeSpecification(), arc, arc.Thickness);
@@ -258,6 +307,14 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return image;
         }
 
+        public static async Task<AggregateEntity> ToAggregate(this DxfInsert i, Func<string, Task<byte[]>> contentResolver, Dictionary<string, IEnumerable<DxfEntity>> blockMap)
+        {
+            var children = await Task.WhenAll(blockMap[i.Name].Select(e => e.ToEntity(contentResolver, blockMap)));
+            var childrenList = ReadOnlyList<Entity>.Create(children);
+            var aggregate = new AggregateEntity(i.Location.ToPoint(), childrenList);
+            return aggregate;
+        }
+
         public static Text ToText(this DxfText text)
         {
             return new Text(text.Value ?? string.Empty, text.Location.ToPoint(), text.Normal.ToVector(), text.TextHeight, text.Rotation, text.GetEntityColor(), text.GetLineTypeSpecification(), text);
@@ -271,7 +328,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 : null;
         }
 
-        public static async Task<Entity> ToEntity(this DxfEntity item, Func<string, Task<byte[]>> contentResolver)
+        public static async Task<Entity> ToEntity(this DxfEntity item, Func<string, Task<byte[]>> contentResolver, Dictionary<string, IEnumerable<DxfEntity>> blockMap)
         {
             Entity entity = null;
             switch (item.EntityType)
@@ -282,11 +339,17 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 case DxfEntityType.Circle:
                     entity = ((DxfCircle)item).ToCircle();
                     break;
+                case DxfEntityType.Dimension:
+                    entity = ((DxfDimensionBase)item).ToDimension();
+                    break;
                 case DxfEntityType.Ellipse:
                     entity = ((DxfEllipse)item).ToEllipse();
                     break;
                 case DxfEntityType.Image:
                     entity = await ((DxfImage)item).ToImage(contentResolver);
+                    break;
+                case DxfEntityType.Insert:
+                    entity = await ((DxfInsert)item).ToAggregate(contentResolver, blockMap);
                     break;
                 case DxfEntityType.Leader:
                     entity = ((DxfLeader)item).ToPolyline();
@@ -327,85 +390,101 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return entity;
         }
 
-        public static DxfModelPoint ToDxfLocation(this Location location, Layer layer)
+        public static DxfModelPoint ToDxfLocation(this Location location)
         {
-            return new DxfModelPoint(location.Point.ToDxfPoint())
-            {
-                Layer = layer.Name
-            };
+            return new DxfModelPoint(location.Point.ToDxfPoint());
         }
 
-        public static DxfLine ToDxfLine(this Line line, Layer layer)
+        public static DxfLine ToDxfLine(this Line line)
         {
             return new DxfLine(line.P1.ToDxfPoint(), line.P2.ToDxfPoint())
             {
-                Layer = layer.Name,
                 Thickness = line.Thickness
             };
         }
 
-        public static DxfPolyline ToDxfPolyline(this Polyline poly, Layer layer)
+        public static DxfDimensionBase ToDxfDimension(this LinearDimension linearDimension)
+        {
+            var textValue = linearDimension.TextOverride is null
+                ? "<>"
+                : string.IsNullOrWhiteSpace(linearDimension.TextOverride)
+                    ? " "
+                    : linearDimension.TextOverride;
+            DxfDimensionBase dimension = linearDimension.IsAligned
+                ? new DxfAlignedDimension()
+                    {
+                        DefinitionPoint2 = linearDimension.DefinitionPoint1.ToDxfPoint(),
+                        DefinitionPoint3 = linearDimension.DefinitionPoint2.ToDxfPoint(),
+                        DefinitionPoint1 = linearDimension.DimensionLineLocation.ToDxfPoint(),
+                    }
+                : new DxfRotatedDimension()
+                    {
+                        DefinitionPoint2 = linearDimension.DefinitionPoint1.ToDxfPoint(),
+                        DefinitionPoint3 = linearDimension.DefinitionPoint2.ToDxfPoint(),
+                        DefinitionPoint1 = linearDimension.DimensionLineLocation.ToDxfPoint(),
+                    };
+            dimension.DimensionStyleName = linearDimension.DimensionStyleName;
+            dimension.TextMidPoint = linearDimension.TextMidPoint.ToDxfPoint();
+            dimension.Text = textValue;
+            return dimension;
+        }
+
+        public static DxfPolyline ToDxfPolyline(this Polyline poly)
         {
             var dp = new DxfPolyline(poly.Vertices.Select(v => v.ToDxfVertex()))
             {
                 Elevation = poly.Vertices.Any() ? poly.Vertices.First().Location.Z : 0.0,
-                Layer = layer.Name,
                 Normal = DxfVector.ZAxis
             };
 
             return dp;
         }
 
-        public static DxfCircle ToDxfCircle(this Circle circle, Layer layer)
+        public static DxfCircle ToDxfCircle(this Circle circle)
         {
             return new DxfCircle(circle.Center.ToDxfPoint(), circle.Radius)
             {
                 Normal = circle.Normal.ToDxfVector(),
-                Layer = layer.Name,
                 Thickness = circle.Thickness
             };
         }
 
-        public static DxfArc ToDxfArc(this Arc arc, Layer layer)
+        public static DxfArc ToDxfArc(this Arc arc)
         {
             return new DxfArc(arc.Center.ToDxfPoint(), arc.Radius, arc.StartAngle, arc.EndAngle)
             {
                 Normal = arc.Normal.ToDxfVector(),
-                Layer = layer.Name,
                 Thickness = arc.Thickness
             };
         }
 
-        public static DxfEllipse ToDxfEllipse(this Ellipse el, Layer layer)
+        public static DxfEllipse ToDxfEllipse(this Ellipse el)
         {
             return new DxfEllipse(el.Center.ToDxfPoint(), el.MajorAxis.ToDxfVector(), el.MinorAxisRatio)
             {
                 StartParameter = el.StartAngle * MathHelper.DegreesToRadians,
                 EndParameter = el.EndAngle * MathHelper.DegreesToRadians,
                 Normal = el.Normal.ToDxfVector(),
-                Layer = layer.Name
             };
         }
 
-        public static DxfText ToDxfText(this Text text, Layer layer)
+        public static DxfText ToDxfText(this Text text)
         {
             return new DxfText(text.Location.ToDxfPoint(), text.Height, text.Value)
             {
-                Layer = layer.Name,
                 Normal = text.Normal.ToDxfVector(),
                 Rotation = text.Rotation
             };
         }
 
-        public static DxfSpline ToDxfSpline(this Spline spline, Layer layer)
+        public static DxfSpline ToDxfSpline(this Spline spline, DrawingSettings settings)
         {
             var dxfSpline = new DxfSpline()
             {
                 DegreeOfCurve = 3,
-                Layer = layer.Name
             };
 
-            var beziers = spline.GetPrimitives().OfType<PrimitiveBezier>().ToArray();
+            var beziers = spline.GetPrimitives(settings).OfType<PrimitiveBezier>().ToArray();
             var knotDelta = 1.0 / beziers.Length;
             dxfSpline.KnotValues.Add(0.0);
             dxfSpline.KnotValues.Add(0.0);
@@ -428,11 +507,10 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return dxfSpline;
         }
 
-        public static DxfImage ToDxfImage(this Image image, Layer layer)
+        public static DxfImage ToDxfImage(this Image image)
         {
             var (pixelWidth, pixelHeight) = ImageHelpers.GetImageDimensions(image.Path, image.ImageData);
             var dxfImage = new DxfImage(image.Path, image.Location.ToDxfPoint(), pixelWidth, pixelHeight, DxfVector.XAxis);
-            dxfImage.Layer = layer.Name;
             var radians = image.Rotation * MathHelper.DegreesToRadians;
             var uVector = new DxfVector(Math.Cos(radians), Math.Sin(radians), 0.0);
             var vVector = new DxfVector(-Math.Sin(radians), Math.Cos(radians), 0.0);
@@ -445,21 +523,22 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return dxfImage;
         }
 
-        public static DxfEntity ToDxfEntity(this Entity item, Layer layer)
+        public static DxfEntity ToDxfEntity(this Entity item, DrawingSettings settings)
         {
             var entity = item.MapEntity<DxfEntity>(
                 aggregate => null, // no-op, handled elsewhere
                 arc => arc.StartAngle == 0.0 && arc.EndAngle == 360.0
-                    ? new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle(layer)
-                    : arc.ToDxfArc(layer),
-                circle => circle.ToDxfCircle(layer),
-                ellipse => ellipse.ToDxfEllipse(layer),
-                image => image.ToDxfImage(layer),
-                line => line.ToDxfLine(layer),
-                location => location.ToDxfLocation(layer),
-                polyline => polyline.ToDxfPolyline(layer),
-                spline => spline.ToDxfSpline(layer),
-                text => text.ToDxfText(layer)
+                    ? new Circle(arc.Center, arc.Radius, arc.Normal, arc.Color).ToDxfCircle()
+                    : arc.ToDxfArc(),
+                circle => circle.ToDxfCircle(),
+                ellipse => ellipse.ToDxfEllipse(),
+                image => image.ToDxfImage(),
+                line => line.ToDxfLine(),
+                linearDimension => linearDimension.ToDxfDimension(),
+                location => location.ToDxfLocation(),
+                polyline => polyline.ToDxfPolyline(),
+                spline => spline.ToDxfSpline(settings),
+                text => text.ToDxfText()
             );
 
             if (entity != null)

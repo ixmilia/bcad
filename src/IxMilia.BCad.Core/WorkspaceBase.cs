@@ -50,6 +50,8 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Draw.Ellipse", "ELLIPSE", new DrawEllipseCommand(), "ellipse", "el"));
             RegisterCommand(new CadCommandInfo("Draw.Image", "IMAGE", new DrawImageCommand(), "image", "i"));
             RegisterCommand(new CadCommandInfo("Draw.Line", "LINE", new DrawLineCommand(), "line", "l"));
+            RegisterCommand(new CadCommandInfo("Draw.AlignedDimension", "DIM", new DrawAlignedDimensionCommand(), "dim"));
+            RegisterCommand(new CadCommandInfo("Draw.LinearDimension", "DIMLINEAR", new DrawLinearDimensionCommand(), "dimlinear", "diml"));
             RegisterCommand(new CadCommandInfo("Draw.Point", "POINT", new DrawPointCommand(), "point", "p"));
             RegisterCommand(new CadCommandInfo("Draw.Polygon", "POLYGON", new DrawPolygonCommand(), "polygon", "pg"));
             RegisterCommand(new CadCommandInfo("Draw.PolyLine", "POLYLINE", new DrawPolyLineCommand(), "polyline", "pl"));
@@ -60,6 +62,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Edit.Fillet", "FILLET", new FilletCommand(), "fillet", "f"));
             RegisterCommand(new CadCommandInfo("Edit.Intersection", "INTERSECTION", new IntersectionCommand(), "intersection", "int"));
             RegisterCommand(new CadCommandInfo("Edit.JoinPolyline", "PJOIN", new JoinPolylineCommand(), "pjoin"));
+            RegisterCommand(new CadCommandInfo("Edit.DimensionStyles", "DIMSTYLES", new DimensionStylesCommand(), "dimstyles"));
             RegisterCommand(new CadCommandInfo("Edit.Layers", "LAYERS", new LayersCommand(), ModifierKeys.Control, Key.L, "layers", "layer", "la"));
             RegisterCommand(new CadCommandInfo("Edit.LineTypes", "LTYPE", new LineTypeCommand(), "ltype"));
             RegisterCommand(new CadCommandInfo("Edit.Move", "MOVE", new MoveCommand(), "move", "mov", "m"));

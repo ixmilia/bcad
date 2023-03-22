@@ -61,7 +61,7 @@ namespace IxMilia.BCad.Entities
             BoundingBox = BoundingBox.FromPoints(points);
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings _settings)
         {
             return _primitives;
         }

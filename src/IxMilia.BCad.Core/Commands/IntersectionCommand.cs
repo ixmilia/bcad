@@ -6,9 +6,9 @@ namespace IxMilia.BCad.Commands
 {
     public class IntersectionCommand : CombinePolylinesCommandBase
     {
-        protected override IEnumerable<Entity> Combine(IEnumerable<Entity> entities)
+        protected override IEnumerable<Entity> Combine(IEnumerable<Entity> entities, DrawingSettings settings)
         {
-            return entities.Intersect();
+            return entities.Intersect(settings);
         }
     }
 }

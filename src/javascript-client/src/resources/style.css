@@ -197,7 +197,16 @@ body {
     display: inline-block;
 }
 
+.settings-input {
+    width: 96px;
+}
+
 #current-layer-selector {
+    vertical-align: top;
+    width: 150px;
+}
+
+#current-dimension-style-selector {
     vertical-align: top;
     width: 150px;
 }
@@ -231,6 +240,12 @@ body {
 .modal-dialog {
     display: none;
     position: relative;
+}
+
+/* dimension style dialog */
+.dimension-style-dialog {
+    width: 350px;
+    height: 300px;
 }
 
 /* layer dialog */

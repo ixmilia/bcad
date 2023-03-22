@@ -1,6 +1,8 @@
 import { Client } from '../client';
 import { SettingsRibbon } from './settingsRibbon';
 import { DebugRibbon } from './debugRibbon';
+import { InputConsole } from '../inputConsole'
+import { AnnotationRibbon } from './annotationRibbon';
 
 export class Ribbon {
     private debugRibbon: DebugRibbon;
@@ -19,6 +21,7 @@ export class Ribbon {
         var tabs = [
             "file",
             "draw",
+            "annotate",
             "view",
             "settings",
             "debug",
@@ -51,6 +54,7 @@ export class Ribbon {
 
         new SettingsRibbon(client);
         this.debugRibbon = new DebugRibbon(client);
+        new AnnotationRibbon(client);
     }
 
     public reportFps(fps: number) {

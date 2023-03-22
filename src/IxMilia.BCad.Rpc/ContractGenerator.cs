@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Commands;
+using IxMilia.BCad.Dialogs;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.FileHandlers;
 using Newtonsoft.Json.Linq;
@@ -91,6 +92,7 @@ namespace IxMilia.BCad.Rpc
             AddInterface(typeof(ClientLayerParameters));
             AddInterface(typeof(ClientLayerResult));
             AddInterface(typeof(ClientUpdate));
+            AddInterface(typeof(DimensionStylesDialogParameters));
             AddInterface(typeof(DwgFileSettings));
             AddInterface(typeof(DxfFileSettings));
 

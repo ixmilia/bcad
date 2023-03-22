@@ -46,7 +46,7 @@ export class PropertyPane {
                                 });
                             });
                             valueCell.appendChild(button);
-                        } else if (value.Name === 'color') {
+                        } else if (value.Name === 'color' || value.Name.endsWith('-color')) {
                             // special handling for colors
                             valueCell.setAttribute('align', 'left');
                             const colorPickerDiv = document.createElement('div');

@@ -21,11 +21,12 @@ namespace IxMilia.BCad.Core.Test
             // (     c1    )           (           )
             //  (         )             (         )
             //   \_______/               \_______/
+            var drawingSettings = new DrawingSettings();
             var c1 = new Circle(Point.Origin, 1.0, Vector.ZAxis);
             var c2 = c1.Update(center: new Point(1, 1, 0));
-            var union = new[] { c1, c2 }.Union();
+            var union = new[] { c1, c2 }.Union(drawingSettings);
             var polyline = (Polyline)union.Single();
-            var arcs = polyline.GetPrimitives().Cast<PrimitiveEllipse>().OrderBy(e => e.Center.X).ToList();
+            var arcs = polyline.GetPrimitives(drawingSettings).Cast<PrimitiveEllipse>().OrderBy(e => e.Center.X).ToList();
 
             Assert.Equal(2, arcs.Count());
             var leftArc = arcs.First();
@@ -57,7 +58,7 @@ namespace IxMilia.BCad.Core.Test
                 new Vertex(new Point(0.0, 0.0, 0.0), 180.0, VertexDirection.Clockwise),
                 new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.Clockwise)
             });
-            var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
+            var arc = (PrimitiveEllipse)poly.GetPrimitives(new DrawingSettings()).Single();
             AssertClose(90.0, arc.StartAngle);
             AssertClose(270.0, arc.EndAngle);
             AssertClose(new Point(-1.0, 1.0, 0.0), arc.MidPoint());
@@ -78,7 +79,7 @@ namespace IxMilia.BCad.Core.Test
                 new Vertex(new Point(0.0, 0.0, 0.0), 180.0, VertexDirection.CounterClockwise),
                 new Vertex(new Point(0.0, 2.0, 0.0), 180.0, VertexDirection.CounterClockwise)
             });
-            var arc = (PrimitiveEllipse)poly.GetPrimitives().Single();
+            var arc = (PrimitiveEllipse)poly.GetPrimitives(new DrawingSettings()).Single();
             AssertClose(270.0, arc.StartAngle);
             AssertClose(90.0, arc.EndAngle);
             AssertClose(new Point(1.0, 1.0, 0.0), arc.MidPoint());
@@ -94,7 +95,7 @@ namespace IxMilia.BCad.Core.Test
                 new Vertex(new Point(2.0, 1.0, 0.0), 90.0, VertexDirection.CounterClockwise),
             };
             var poly = new Polyline(vertices);
-            var primitives = poly.GetPrimitives().ToList();
+            var primitives = poly.GetPrimitives(new DrawingSettings()).ToList();
             Assert.Equal(2, primitives.Count);
             
             var line = (PrimitiveLine)primitives[0];
@@ -136,7 +137,7 @@ namespace IxMilia.BCad.Core.Test
                     new Point(59.1, 66.8, 0.0)
                 },
                 new[] { 0.0, 0.0, 0.0, 0.0, 0.36, 0.65, 1.0, 1.0, 1.0, 1.0 });
-            var beziers = spline.GetPrimitives().Cast<PrimitiveBezier>().ToList();
+            var beziers = spline.GetPrimitives(new DrawingSettings()).Cast<PrimitiveBezier>().ToList();
 
             Assert.Equal(3, beziers.Count);
 
@@ -185,7 +186,7 @@ namespace IxMilia.BCad.Core.Test
             });
             var line = new Line(new Point(3.0, 3.0, 0.0), new Point(4.0, 4.0, 0.0));
             var agg = new AggregateEntity(new Point(10.0, 10.0, 0.0), ReadOnlyList<Entity>.Create(new Entity[] { poly, line }));
-            Assert.True(agg.TryExplodeEntity(out var exploded));
+            Assert.True(agg.TryExplodeEntity(new DrawingSettings(), out var exploded));
             var explodedList = exploded.ToList();
             Assert.Equal(3, explodedList.Count);
 

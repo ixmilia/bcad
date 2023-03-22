@@ -40,7 +40,7 @@ namespace IxMilia.BCad.Commands
                     continue;
                 }
 
-                if (!drawingPlane.Contains(ent))
+                if (!drawingPlane.Contains(ent, workspace.Drawing.Settings))
                 {
                     workspace.OutputService.WriteLine("Entity must be entirely on the drawing plane to offset");
                     selection = await workspace.InputService.GetEntity(new UserDirective("Select entity"));

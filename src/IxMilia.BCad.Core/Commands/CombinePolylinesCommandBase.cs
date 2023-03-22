@@ -7,7 +7,7 @@ namespace IxMilia.BCad.Commands
 {
     public abstract class CombinePolylinesCommandBase : ICadCommand
     {
-        protected abstract IEnumerable<Entity> Combine(IEnumerable<Entity> entities);
+        protected abstract IEnumerable<Entity> Combine(IEnumerable<Entity> entities, DrawingSettings settings);
 
         public async Task<bool> Execute(IWorkspace workspace, object arg = null)
         {
@@ -30,7 +30,7 @@ namespace IxMilia.BCad.Commands
                 drawing = drawing.Remove(poly);
             }
 
-            var result = Combine(polys);
+            var result = Combine(polys, drawing.Settings);
             foreach (var line in result)
             {
                 drawing = drawing.AddToCurrentLayer(line);

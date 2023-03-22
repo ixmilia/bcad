@@ -167,7 +167,7 @@ namespace IxMilia.BCad.Commands
                         if (secondEntity.Cancel || !secondEntity.HasValue)
                             break;
                         var radius = await workspace.InputService.GetDistance();
-                        var ellipse = EditUtilities.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value);
+                        var ellipse = EditUtilities.Ttr(drawingPlane, firstEntity.Value, secondEntity.Value, radius.Value, workspace.Drawing.Settings);
                         if (ellipse != null)
                         {
                             circle = ellipse.ToEntity(lineTypeSpecification);

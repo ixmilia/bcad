@@ -16,7 +16,7 @@ namespace IxMilia.BCad.Commands
                 return false;
             }
 
-            var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives());
+            var boundaryPrimitives = boundaries.Value.SelectMany(b => b.GetPrimitives(workspace.Drawing.Settings));
 
             var directive = new UserDirective(GetTrimExtendText());
             var selected = await workspace.InputService.GetEntity(directive);
@@ -27,7 +27,7 @@ namespace IxMilia.BCad.Commands
             {
                 var drawing = workspace.Drawing;
                 entityLayerName = drawing.ContainingLayer(selected.Value.Entity).Name;
-                DoTrimExtend(selected.Value, boundaryPrimitives, out removed, out added);
+                DoTrimExtend(selected.Value, boundaryPrimitives, workspace.Drawing.Settings, out removed, out added);
 
                 foreach (var ent in removed)
                     drawing = drawing.Remove(ent);
@@ -48,6 +48,6 @@ namespace IxMilia.BCad.Commands
 
         protected abstract string GetBoundsText();
         protected abstract string GetTrimExtendText();
-        protected abstract void DoTrimExtend(SelectedEntity selectedEntity, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added);
+        protected abstract void DoTrimExtend(SelectedEntity selectedEntity, IEnumerable<IPrimitive> boundaryPrimitives, DrawingSettings settings, out IEnumerable<Entity> removed, out IEnumerable<Entity> added);
     }
 }

@@ -61,7 +61,8 @@ namespace IxMilia.BCad.Core.Test
                 Workspace.DrawingPlane,
                 new SelectedEntity(new Line(Point.Origin, new Point(3, 0, 0)), new Point(1, 0, 0)),
                 new SelectedEntity(new Line(Point.Origin, new Point(0, 3, 0)), new Point(0, 1, 0)),
-                1.0);
+                1.0,
+                new DrawingSettings());
             Assert.Equal(1.0, ellipse.MinorAxisRatio);
             Assert.Equal(1.0, ellipse.MajorAxis.Length);
             Assert.Equal(new Point(1, 1, 0), ellipse.Center);
@@ -76,7 +77,8 @@ namespace IxMilia.BCad.Core.Test
                 Workspace.DrawingPlane,
                 new SelectedEntity(new Circle(new Point(100, 0, 0), 50, Vector.ZAxis), new Point(140, 30, 0)),
                 new SelectedEntity(new Circle(new Point(100, 100, 0), 50, Vector.ZAxis), new Point(140, 70, 0)),
-                30.0);
+                30.0,
+                new DrawingSettings());
             Assert.Equal(1.0, el.MinorAxisRatio);
             Assert.Equal(30, el.MajorAxis.Length);
             AssertClose(new Point(162.449979983983, 50, 0), el.Center);

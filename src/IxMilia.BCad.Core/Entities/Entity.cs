@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using IxMilia.BCad.Primitives;
 using IxMilia.BCad.SnapPoints;
@@ -6,11 +7,10 @@ namespace IxMilia.BCad.Entities
 {
     public abstract class Entity
     {
-        public abstract IEnumerable<IPrimitive> GetPrimitives();
+        public abstract IEnumerable<IPrimitive> GetPrimitives(DrawingSettings settings);
         public abstract IEnumerable<SnapPoint> GetSnapPoints();
         public abstract EntityKind Kind { get; }
         public abstract BoundingBox BoundingBox { get; }
-        public virtual int PrimitiveCount { get { return 1; } }
 
         private readonly CadColor? color;
         private readonly LineTypeSpecification lineTypeSpecification;
@@ -35,6 +35,23 @@ namespace IxMilia.BCad.Entities
         public override int GetHashCode()
         {
             return (int)this.Id;
+        }
+
+        private object _cachedPrimitivesGate = new object();
+        private DrawingSettings _cachedSettingsKey;
+        private IEnumerable<IPrimitive> _cachedPrimitives;
+        protected IEnumerable<IPrimitive> GetOrCreatePrimitives(DrawingSettings settings, Func<IEnumerable<IPrimitive>> creator)
+        {
+            lock (_cachedPrimitivesGate)
+            {
+                if (_cachedPrimitives is null || !ReferenceEquals(settings, _cachedSettingsKey))
+                {
+                    _cachedPrimitives = creator();
+                    _cachedSettingsKey = settings;
+                }
+            }
+
+            return _cachedPrimitives;
         }
     }
 }

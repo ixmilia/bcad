@@ -8,6 +8,10 @@ namespace IxMilia.BCad.FileHandlers.Test
     {
         public override IFileHandler FileHandler => new JsonFileHandler();
 
+        private DrawingSettings DrawingSettings { get; } = new DrawingSettings();
+
+        private Task VerifyRoundTrip(Entity entity) => VerifyRoundTrip(entity, DrawingSettings);
+
         [Fact]
         public async Task RoundTripLayerTest()
         {

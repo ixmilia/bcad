@@ -680,7 +680,7 @@ namespace IxMilia.BCad.Display
 
         private IEnumerable<Point> ProjectedChain(Entity entity)
         {
-            return entity.GetPrimitives().SelectMany(p => p.GetProjectedVerticies(transformationMatrix));
+            return entity.GetPrimitives(_workspace.Drawing.Settings).SelectMany(p => p.GetProjectedVerticies(transformationMatrix));
         }
 
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
@@ -705,7 +705,7 @@ namespace IxMilia.BCad.Display
 
         private Tuple<double, Point> ClosestPoint(Entity entity, Point screenPoint)
         {
-            return entity.GetPrimitives()
+            return entity.GetPrimitives(_workspace.Drawing.Settings)
                 .Select(prim => ClosestPoint(prim, screenPoint))
                 .OrderBy(p => p.Item1)
                 .FirstOrDefault();
@@ -792,7 +792,7 @@ namespace IxMilia.BCad.Display
             }
 
             var hotPoints = new List<Point>();
-            foreach (var primitive in _workspace.SelectedEntities.SelectMany(entity => entity.GetPrimitives()))
+            foreach (var primitive in _workspace.SelectedEntities.SelectMany(entity => entity.GetPrimitives(_workspace.Drawing.Settings)))
             {
                 hotPoints.AddRange(primitive.MapPrimitive<Point[]>(
                     ellipse => ellipse.IsClosed

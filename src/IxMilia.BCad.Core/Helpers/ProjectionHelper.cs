@@ -42,6 +42,7 @@ namespace IxMilia.BCad.Helpers
                 ellipse => null,
                 image => null,
                 line => Project(line, layer, transform),
+                linearDimension => null,
                 location => null,
                 polyline => null,
                 spline => null,

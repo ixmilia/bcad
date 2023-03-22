@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
@@ -15,11 +17,16 @@ namespace IxMilia.BCad.FileHandlers.Test
     {
         public override IFileHandler FileHandler => new DxfFileHandler();
 
-        protected override Task<Entity> RoundTripEntity(Entity entity)
+        private DrawingSettings DrawingSettings { get; } = new DrawingSettings();
+
+        protected override Task<Entity> RoundTripEntity(Entity entity, DrawingSettings drawingSettings = null)
         {
             // shortcut to avoid file writing/reading
-            return entity.ToDxfEntity(new Layer("layer")).ToEntity(Workspace.FileSystemService.ReadAllBytesAsync);
+            drawingSettings ??= new DrawingSettings();
+            return entity.ToDxfEntity(drawingSettings).ToEntity(Workspace.FileSystemService.ReadAllBytesAsync, new Dictionary<string, IEnumerable<DxfEntity>>());
         }
+
+        private Task VerifyRoundTrip(Entity entity) => VerifyRoundTrip(entity, DrawingSettings);
 
         private async Task<DxfFile> WriteToFile(Drawing drawing)
         {
@@ -27,6 +34,44 @@ namespace IxMilia.BCad.FileHandlers.Test
             {
                 return DxfFile.Load(stream);
             }
+        }
+
+        private static string CreateDxfContent(params (string, string)[] pairs)
+        {
+            var dxfContent = string.Join("\r\n", pairs.Select(pair => $"{pair.Item1}\r\n{pair.Item2}"));
+            return dxfContent;
+        }
+
+        private async Task<Drawing> ReadFromDxfContent(params (string, string)[] pairs)
+        {
+            var dxfContent = CreateDxfContent(pairs);
+            using (var ms = new MemoryStream())
+            using (var writer = new StreamWriter(ms, new UTF8Encoding(false)))
+            {
+                writer.WriteLine(dxfContent);
+                writer.Flush();
+                ms.Seek(0, SeekOrigin.Begin);
+                var drawing = await ReadFromStream(ms);
+                return drawing;
+            }
+        }
+
+        private async Task<(string, string)[]> GetDxfCodePairs(Drawing drawing)
+        {
+            var pairs = new List<(string, string)>();
+            var stream = await WriteToStream(drawing);
+            using (var reader = new StreamReader(stream))
+            {
+                var code = await reader.ReadLineAsync();
+                while (code != null)
+                {
+                    var value = await reader.ReadLineAsync();
+                    pairs.Add((code, value));
+                    code = await reader.ReadLineAsync();
+                }
+            }
+
+            return pairs.ToArray();
         }
 
         [Fact]
@@ -98,38 +143,239 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
+        public async Task ReadAlignedDimensionTest()
+        {
+            var drawing = await ReadFromDxfContent(
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "DIMENSION"),
+                (" 10", "3.7567067079130281"), // dimension line location
+                (" 20", "3.4324699690652278"),
+                (" 30", "0.0"),
+                (" 11", "2.2567067079130281"), // text midpoint
+                (" 21", "1.4324699690652281"),
+                (" 31", "0.0"),
+                (" 70", "     1"), // aligned = true
+                (" 13", "0.0"), // definition point 1
+                (" 23", "0.0"),
+                (" 33", "0.0"),
+                (" 14", "3.0"), // definition point 2
+                (" 24", "4.0"),
+                (" 34", "0.0"),
+                ("  0", "ENDSEC"),
+                ("  0", "EOF")
+            );
+            var dim = (LinearDimension)drawing.GetEntities().Single();
+            Assert.True(dim.IsAligned);
+            AssertClose(new Point(0.0, 0.0, 0.0), dim.DefinitionPoint1);
+            AssertClose(new Point(3.0, 4.0, 0.0), dim.DefinitionPoint2);
+            AssertClose(new Point(3.756706707913028, 3.4324699690652278, 0.0), dim.DimensionLineLocation);
+            AssertClose(new Point(2.2567067079130281, 1.4324699690652281, 0.0), dim.TextMidPoint);
+        }
+
+        [Fact]
+        public async Task WriteAlignedDimensionTest()
+        {
+            var drawing = new Drawing();
+            drawing = drawing.Update(settings: drawing.Settings.Update(dimStyles: drawing.Settings.DimensionStyles.Add(new DimensionStyle("my-dimension-style"))));
+            drawing = drawing
+                .AddToCurrentLayer(new LinearDimension(
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(3.0, 4.0, 0.0),
+                    new Point(0.7567067079130286, -0.5675300309347714, 0.0),
+                    true,
+                    new Point(1.0, 2.0, 0.0),
+                    "my-dimension-style"));
+            var actual = await GetDxfCodePairs(drawing);
+            var expected = new[]
+            {
+                (" 10", "0.756706707913029"),
+                (" 20", "-0.567530030934771"),
+                (" 30", "0.0"),
+                (" 11", "1.0"),
+                (" 21", "2.0"),
+                (" 31", "0.0"),
+                (" 70", "     1"), // aligned = true
+                ("  1", "<>"), // auto-text
+                ("  3", "my-dimension-style"),
+                (" 13", "0.0"),
+                (" 23", "0.0"),
+                (" 33", "0.0"),
+                (" 14", "3.0"),
+                (" 24", "4.0"),
+                (" 34", "0.0"),
+            };
+            AssertContains(expected, actual);
+        }
+
+        [Fact]
+        public async Task ReadLinearDimensionTest()
+        {
+            var drawing = await ReadFromDxfContent(
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "DIMENSION"),
+                (" 10", "3.0"), // dimension line location
+                (" 20", "5.0636363959996498"),
+                (" 30", "0.0"),
+                (" 11", "1.5"), // text midpoint
+                (" 21", "5.0636363959996498"),
+                (" 31", "0.0"),
+                (" 70", "     0"), // aligned = false
+                (" 13", "0.0"), // definition point 1
+                (" 23", "0.0"),
+                (" 33", "0.0"),
+                (" 14", "3.0"), // definition point 2
+                (" 24", "4.0"),
+                (" 34", "0.0"),
+                ("  0", "ENDSEC"),
+                ("  0", "EOF")
+            );
+            var dim = (LinearDimension)drawing.GetEntities().Single();
+            Assert.False(dim.IsAligned);
+            AssertClose(new Point(0.0, 0.0, 0.0), dim.DefinitionPoint1);
+            AssertClose(new Point(3.0, 4.0, 0.0), dim.DefinitionPoint2);
+            AssertClose(new Point(3.0, 5.06363639599965, 0.0), dim.DimensionLineLocation);
+            AssertClose(new Point(1.5, 5.06363639599965, 0.0), dim.TextMidPoint);
+        }
+
+        [Fact]
+        public async Task WriteLinearDimensionTest()
+        {
+            var drawing = new Drawing();
+            drawing = drawing.Update(settings: drawing.Settings.Update(dimStyles: drawing.Settings.DimensionStyles.Add(new DimensionStyle("my-dimension-style"))));
+            drawing = drawing
+                .AddToCurrentLayer(new LinearDimension(
+                    new Point(0.0, 0.0, 0.0),
+                    new Point(3.0, 4.0, 0.0),
+                    new Point(0.0, 5.06363639599965, 0.0),
+                    false,
+                    new Point(1.0, 2.0, 0.0),
+                    "my-dimension-style"));
+            var actual = await GetDxfCodePairs(drawing);
+            var expected = new[]
+            {
+                (" 10", "0.0"),
+                (" 20", "5.06363639599965"),
+                (" 30", "0.0"),
+                (" 11", "1.0"),
+                (" 21", "2.0"),
+                (" 31", "0.0"),
+                (" 70", "     0"), // aligned = false
+                ("  1", "<>"), // auto-text
+                ("  3", "my-dimension-style"),
+                (" 13", "0.0"),
+                (" 23", "0.0"),
+                (" 33", "0.0"),
+                (" 14", "3.0"),
+                (" 24", "4.0"),
+                (" 34", "0.0"),
+                (" 50", "0.0"), // rotation angle 0
+            };
+            AssertContains(expected, actual);
+        }
+
+        [Theory]
+        [InlineData(null, null)] // auto-set
+        [InlineData("<>", null)]
+        [InlineData(" ", "")] // suppressed
+        [InlineData("123", "123")] // set specific
+        public async Task ReadDimensionTextTests(string dxfTextSpecification, string expectedTextOverride)
+        {
+            var pairs = new List<(string, string)>()
+            {
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "DIMENSION"),
+                (" 70", "     1"), // aligned = true
+            };
+            if (dxfTextSpecification != null)
+            {
+                pairs.Add(("  1", dxfTextSpecification));
+            }
+
+            pairs.Add(("  0", "ENDSEC"));
+            pairs.Add(("  0", "EOF"));
+            var drawing = await ReadFromDxfContent(pairs.ToArray());
+            var dim = (LinearDimension)drawing.GetEntities().Single();
+            Assert.Equal(expectedTextOverride, dim.TextOverride);
+        }
+
+        [Theory]
+        [InlineData(null, "<>")] // auto-set
+        [InlineData("", " ")] // suppressed
+        [InlineData("123", "123")] // set specific
+        public async Task WriteDimensionTextTests(string entityTextOverride, string expectedDxfText)
+        {
+            var drawing = new Drawing()
+                .AddToCurrentLayer(new LinearDimension(
+                    new Point(),
+                    new Point(),
+                    new Point(),
+                    true,
+                    new Point(),
+                    "STANDARD",
+                    entityTextOverride));
+            var actual = await GetDxfCodePairs(drawing);
+            var entitiesStartIndex = -1;
+            var entitiesEndIndex = -1;
+            for (int i = 0; i < actual.Length; i++)
+            {
+                var pair = actual[i];
+                if (entitiesStartIndex >= 0)
+                {
+                    // looking for end
+                    if (pair.Item1 == "  0" && pair.Item2 == "ENDSEC")
+                    {
+                        entitiesEndIndex = i;
+                        break;
+                    }
+                }
+                else
+                {
+                    // looking for start
+                    if (pair.Item1 == "  2" && pair.Item2 == "ENTITIES")
+                    {
+                        entitiesStartIndex = i;
+                    }
+                }
+            }
+            var actualTrimmed = actual.Skip(entitiesStartIndex).Take(entitiesEndIndex - entitiesStartIndex).ToArray();
+
+            // look for it specifically
+            var found = actualTrimmed.Single(pair => pair.Item1 == "  1" && pair.Item2 == expectedDxfText);
+        }
+
+        [Fact]
         public async Task ReadImageTest()
         {
             var pngPath = "test-image.png";
             var pngData = File.ReadAllBytes(pngPath);
-            var dxfContents = string.Join("\r\n",
-                new[]
-                {
-                    ("  0", "SECTION"),
-                    ("  2", "ENTITIES"),
-                    ("  0", "IMAGE"),
-                    (" 10", "1.0"), // location
-                    (" 20", "2.0"),
-                    (" 30", "3.0"),
-                    (" 11", "1.0"), // u vector
-                    (" 21", "0.0"),
-                    (" 31", "0.0"),
-                    (" 12", "0.0"), // v vector
-                    (" 22", "1.0"),
-                    (" 32", "0.0"),
-                    (" 13", "2.0"), // image size in pixels
-                    (" 23", "2.0"),
-                    ("340", "AAAA"), // imagedef handle
-                    ("  0", "ENDSEC"),
-                    ("  0", "SECTION"),
-                    ("  2", "OBJECTS"),
-                    ("  0", "IMAGEDEF"),
-                    ("  5", "AAAA"), // handle (corresponds to code 340 above)
-                    ("  1", "test-image.png"),
-                    (" 10", "2.0"), // size in pixels
-                    (" 20", "2.0"),
-                    ("  0", "ENDSEC"),
-                }.Select(pair => $"{pair.Item1}\r\n{pair.Item2}"));
+            var dxfContents = CreateDxfContent(
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "IMAGE"),
+                (" 10", "1.0"), // location
+                (" 20", "2.0"),
+                (" 30", "3.0"),
+                (" 11", "1.0"), // u vector
+                (" 21", "0.0"),
+                (" 31", "0.0"),
+                (" 12", "0.0"), // v vector
+                (" 22", "1.0"),
+                (" 32", "0.0"),
+                (" 13", "2.0"), // image size in pixels
+                (" 23", "2.0"),
+                ("340", "AAAA"), // imagedef handle
+                ("  0", "ENDSEC"),
+                ("  0", "SECTION"),
+                ("  2", "OBJECTS"),
+                ("  0", "IMAGEDEF"),
+                ("  5", "AAAA"), // handle (corresponds to code 340 above)
+                ("  1", "test-image.png"),
+                (" 10", "2.0"), // size in pixels
+                (" 20", "2.0"),
+                ("  0", "ENDSEC"));
             using (var ms = new MemoryStream())
             using (var writer = new StreamWriter(ms, new UTF8Encoding(false)))
             {
@@ -138,7 +384,7 @@ namespace IxMilia.BCad.FileHandlers.Test
                 ms.Seek(0, SeekOrigin.Begin);
                 var dxfFile = DxfFile.Load(ms);
                 var dxfImage = (DxfImage)dxfFile.Entities.Single();
-                var image = (Image)(await dxfImage.ToEntity(Workspace.FileSystemService.ReadAllBytesAsync));
+                var image = (Image)await dxfImage.ToEntity(Workspace.FileSystemService.ReadAllBytesAsync, new Dictionary<string, IEnumerable<DxfEntity>>());
                 Assert.Equal(new Point(1.0, 2.0, 3.0), image.Location);
                 Assert.Equal(pngPath, image.Path);
                 Assert.Equal(pngData, image.ImageData);
@@ -161,6 +407,21 @@ namespace IxMilia.BCad.FileHandlers.Test
                 8.0,
                 8.0,
                 0.0));
+        }
+
+        [Fact]
+        public async Task RoundTripLinearDimensionTest()
+        {
+            await VerifyRoundTrip(new LinearDimension(
+                new Point(1.0, 2.0, 0.0),
+                new Point(3.0, 4.0, 0.0),
+                new Point(5.0, 6.0, 0.0),
+                true,
+                new Point(7.0, 8.0, 0.0),
+                "STANDARD",
+                "text-override",
+                CadColor.Green,
+                CadColor.Red));
         }
 
         [Fact]
@@ -261,7 +522,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             {
                 Elevation = 12.0
             };
-            var poly = (Polyline)(await lwpoly.ToEntity(Workspace.FileSystemService.ReadAllBytesAsync));
+            var poly = (Polyline)await lwpoly.ToEntity(Workspace.FileSystemService.ReadAllBytesAsync, new Dictionary<string, IEnumerable<DxfEntity>>());
             Assert.Equal(2, poly.Vertices.Count());
             Assert.Equal(new Point(1.0, 2.0, 12.0), poly.Vertices.First().Location);
             Assert.Equal(new Point(3.0, 4.0, 12.0), poly.Vertices.Last().Location);

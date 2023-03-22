@@ -103,6 +103,13 @@ namespace IxMilia.BCad.Helpers
             return Between(expected - epsilon, expected + epsilon, actual);
         }
 
+        public static bool CloseTo(Vector expected, Vector actual, double epsilon = Epsilon)
+        {
+            return CloseTo(expected.X, actual.X, epsilon)
+                && CloseTo(expected.Y, actual.Y, epsilon)
+                && CloseTo(expected.Z, actual.Z, epsilon);
+        }
+
         public static bool CloseTo(Matrix4 expected, Matrix4 actual, double epsilon = Epsilon)
         {
             return CloseTo(expected.M11, actual.M11, epsilon)

@@ -10,7 +10,7 @@ namespace IxMilia.BCad.Rpc.Test
 {
     public class PropertyPaneTests : TestBase
     {
-        private (Drawing, Dictionary<string, ClientPropertyPaneValue>) GetDrawingAndEntityProperties(params Entity[] entities)
+        private Drawing GetDrawing(params Entity[] entities)
         {
             var testLayer = new Layer("test-layer");
             foreach (var entity in entities)
@@ -18,7 +18,14 @@ namespace IxMilia.BCad.Rpc.Test
                 testLayer = testLayer.Add(entity);
             }
 
-            var drawing = new Drawing().Add(testLayer);
+            var drawing = new Drawing();
+            drawing = drawing.Update(settings: drawing.Settings.Update(dimStyles: drawing.Settings.DimensionStyles.Add(new DimensionStyle("NON-STANDARD"))));
+            drawing = drawing.Add(testLayer);
+            return drawing;
+        }
+
+        private Dictionary<string, ClientPropertyPaneValue> GetEntityProperties(Drawing drawing, params Entity[] entities)
+        {
             var propertyMap = drawing.GetPropertyPaneValues(entities).ToDictionary(cp => cp.Name);
 
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
@@ -33,6 +40,13 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal("Line Type Scale", propertyMap["lineTypeScale"].DisplayName);
             Assert.True(propertyMap.Remove("lineTypeScale"));
 
+            return propertyMap;
+        }
+
+        private (Drawing, Dictionary<string, ClientPropertyPaneValue>) GetDrawingAndEntityProperties(params Entity[] entities)
+        {
+            var drawing = GetDrawing(entities);
+            var propertyMap = GetEntityProperties(drawing, entities);
             return (drawing, propertyMap);
         }
 
@@ -102,7 +116,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", "test-layer", new[] { "0", "test-layer" }), propertyMap["layer"]);
             Assert.Equal(new ClientPropertyPaneValue("color", "Color", null), propertyMap["color"]);
             Assert.Equal(new ClientPropertyPaneValue("lineType", "Line Type", null, new[] { "(Auto)" }), propertyMap["lineType"]);
-            Assert.Equal(new ClientPropertyPaneValue("lineTypeScale", "Line Type Scale", "1"), propertyMap["lineTypeScale"]);
+            Assert.Equal(new ClientPropertyPaneValue("lineTypeScale", "Line Type Scale", "1.0000"), propertyMap["lineTypeScale"]);
         }
 
         [Fact]
@@ -132,7 +146,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("layer", "Layer", null, new[] { "0", "test-layer-1", "test-layer-2" }, isUnrepresentable: true), propertyMap["layer"]);
             Assert.Equal(new ClientPropertyPaneValue("color", "Color", null, isUnrepresentable: true), propertyMap["color"]);
             Assert.Equal(new ClientPropertyPaneValue("lineType", "Line Type", null, new[] { "(Auto)" }), propertyMap["lineType"]);
-            Assert.Equal(new ClientPropertyPaneValue("lineTypeScale", "Line Type Scale", "1"), propertyMap["lineTypeScale"]);
+            Assert.Equal(new ClientPropertyPaneValue("lineTypeScale", "Line Type Scale", "1.0000"), propertyMap["lineTypeScale"]);
         }
 
         [Fact]
@@ -229,7 +243,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("mx", "Major Axis X", "0'4\""), propertyMap["mx"]);
             Assert.Equal(new ClientPropertyPaneValue("my", "Y", "0'5\""), propertyMap["my"]);
             Assert.Equal(new ClientPropertyPaneValue("mz", "Z", "0'6\""), propertyMap["mz"]);
-            Assert.Equal(new ClientPropertyPaneValue("mr", "Minor Axis Ratio", "7"), propertyMap["mr"]);
+            Assert.Equal(new ClientPropertyPaneValue("mr", "Minor Axis Ratio", "7.0000"), propertyMap["mr"]);
             Assert.Equal(new ClientPropertyPaneValue("sa", "Start Angle", "8"), propertyMap["sa"]);
             Assert.Equal(new ClientPropertyPaneValue("ea", "End Angle", "9"), propertyMap["ea"]);
             Assert.Equal(new ClientPropertyPaneValue("nx", "Normal X", "0'10\""), propertyMap["nx"]);
@@ -296,6 +310,82 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(w, finalEntity.Width);
             Assert.Equal(h, finalEntity.Height);
             Assert.Equal(r, finalEntity.Rotation);
+        }
+
+        [Fact]
+        public void GetLinearDimensionPropertyPaneValue()
+        {
+            var entity = new LinearDimension(
+                new Point(1.0, 2.0, 0.0),
+                new Point(3.0, 4.0, 0.0),
+                new Point(5.0, 6.0, 0.0),
+                true,
+                new Point(7.0, 8.0, 0.0),
+                "NON-STANDARD",
+                "text-override",
+                CadColor.Green);
+            var drawing = GetDrawing(entity);
+            var _primitives = entity.GetPrimitives(drawing.Settings); // need to force this for certain computed properties
+            var propertyMap = GetEntityProperties(drawing, entity);
+            Assert.Equal(17, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("ds", "Dimension Style", "NON-STANDARD", new[] { "NON-STANDARD", "STANDARD" }), propertyMap["ds"]);
+            Assert.Equal(new ClientPropertyPaneValue("a", "Kind", "Aligned", new[] { "Aligned", "Non-Aligned" }), propertyMap["a"]);
+            Assert.Equal(new ClientPropertyPaneValue("x1", "Definition Point 1 X", "0'1\""), propertyMap["x1"]);
+            Assert.Equal(new ClientPropertyPaneValue("y1", "Y", "0'2\""), propertyMap["y1"]);
+            Assert.Equal(new ClientPropertyPaneValue("z1", "Z", "0'0\""), propertyMap["z1"]);
+            Assert.Equal(new ClientPropertyPaneValue("x2", "Definition Point 2 X", "0'3\""), propertyMap["x2"]);
+            Assert.Equal(new ClientPropertyPaneValue("y2", "Y", "0'4\""), propertyMap["y2"]);
+            Assert.Equal(new ClientPropertyPaneValue("z2", "Z", "0'0\""), propertyMap["z2"]);
+            Assert.Equal(new ClientPropertyPaneValue("x3", "Line Location X", "0'5\""), propertyMap["x3"]);
+            Assert.Equal(new ClientPropertyPaneValue("y3", "Y", "0'6\""), propertyMap["y3"]);
+            Assert.Equal(new ClientPropertyPaneValue("z3", "Z", "0'0\""), propertyMap["z3"]);
+            Assert.Equal(new ClientPropertyPaneValue("tx", "Text Midpoint X", "0'7\""), propertyMap["tx"]);
+            Assert.Equal(new ClientPropertyPaneValue("ty", "Y", "0'8\""), propertyMap["ty"]);
+            Assert.Equal(new ClientPropertyPaneValue("tz", "Z", "0'0\""), propertyMap["tz"]);
+            Assert.Equal(new ClientPropertyPaneValue("to", "Text Override", "text-override"), propertyMap["to"]);
+            Assert.Equal(new ClientPropertyPaneValue("t-color", "Text Color", "#00FF00"), propertyMap["t-color"]);
+            Assert.Equal(ClientPropertyPaneValue.CreateReadOnly("Actual Measurement", "0'2-13/16\""), propertyMap["Actual Measurement"]);
+        }
+
+        [Theory]
+        [InlineData("ds", "NON-STANDARD", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "NON-STANDARD", "text-override", "#FF0000")]
+        [InlineData("x1", "9", 9.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("y1", "9", 1.0, 9.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("z1", "9", 1.0, 2.0, 9.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("x2", "9", 1.0, 2.0, 0.0, 9.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("y2", "9", 1.0, 2.0, 0.0, 3.0, 9.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("z2", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 9.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("x3", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 9.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("y3", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 9.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("z3", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 9.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("a", "Non-Aligned", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, false, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("tx", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 9.0, 8.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("ty", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 9.0, 0.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("tz", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 9.0, "STANDARD", "text-override", "#FF0000")]
+        [InlineData("to", "new-text-override", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "new-text-override", "#FF0000")]
+        [InlineData("t-color", "#0000FF", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, true, 7.0, 8.0, 0.0, "STANDARD", "text-override", "#0000FF")]
+        public void SetLinearDimensionPropertyPaneValue(
+            string propertyName,
+            string propertyValue,
+            double dp1x, double dp1y, double dp1z,
+            double dp2x, double dp2y, double dp2z,
+            double dllx, double dlly, double dllz,
+            bool isAligned,
+            double tmpx, double tmpy, double tmpz,
+            string dimStyleName,
+            string textOverride,
+            string textColor)
+        {
+            var entity = new LinearDimension(new Point(1.0, 2.0, 0.0), new Point(3.0, 4.0, 0.0), new Point(5.0, 6.0, 0.0), true, new Point(7.0, 8.0, 0.0), "STANDARD", "text-override", textColor: CadColor.Red);
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
+            Assert.Equal(new Point(dp1x, dp1y, dp1z), finalEntity.DefinitionPoint1);
+            Assert.Equal(new Point(dp2x, dp2y, dp2z), finalEntity.DefinitionPoint2);
+            Assert.Equal(new Point(dllx, dlly, dllz), finalEntity.DimensionLineLocation);
+            Assert.Equal(isAligned, finalEntity.IsAligned);
+            Assert.Equal(new Point(tmpx, tmpy, tmpz), finalEntity.TextMidPoint);
+            Assert.Equal(dimStyleName, finalEntity.DimensionStyleName);
+            Assert.Equal(textOverride, finalEntity.TextOverride);
+            Assert.Equal(CadColor.Parse(textColor), finalEntity.TextColor);
         }
 
         [Fact]

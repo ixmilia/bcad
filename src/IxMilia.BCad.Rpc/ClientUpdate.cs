@@ -224,6 +224,8 @@ namespace IxMilia.BCad.Rpc
         public List<string> Layers { get; } = new List<string>();
         public string CurrentLineType { get; set; }
         public List<string> LineTypes { get; } = new List<string>();
+        public string CurrentDimensionStyle { get; set; }
+        public List<string> DimensionStyles { get; } = new List<string>();
         public string FileName { get; }
         public List<ClientPointLocation> Points { get; } = new List<ClientPointLocation>();
         public List<ClientLine> Lines { get; } = new List<ClientLine>();

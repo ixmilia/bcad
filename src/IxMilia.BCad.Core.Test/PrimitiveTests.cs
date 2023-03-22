@@ -842,7 +842,7 @@ namespace IxMilia.BCad.Core.Test
             var line = new PrimitiveLine(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0));
             var polylines = new[] { line }.GetPolylinesFromSegments();
             var poly = polylines.Single();
-            var primitive = (PrimitiveLine)poly.GetPrimitives().Single();
+            var primitive = (PrimitiveLine)poly.GetPrimitives(new DrawingSettings()).Single();
             Assert.Equal(line.P1, primitive.P1);
             Assert.Equal(line.P2, primitive.P2);
         }

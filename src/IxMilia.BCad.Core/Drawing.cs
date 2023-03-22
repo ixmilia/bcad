@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using IxMilia.BCad.Collections;
+using IxMilia.BCad.Entities;
 
 namespace IxMilia.BCad
 {
@@ -59,6 +60,17 @@ namespace IxMilia.BCad
                 !lineTypes.KeyExists(settings.CurrentLineTypeSpecification.Name))
             {
                 throw new InvalidOperationException("The current line type is not part of the line types collection.");
+            }
+
+            foreach (var entity in layers.GetValues().SelectMany(l => l.GetEntities()))
+            {
+                if (entity is AbstractDimension dim)
+                {
+                    if (!settings.DimensionStyles.ContainsStyle(dim.DimensionStyleName))
+                    {
+                        throw new InvalidOperationException($"An entity specified a dimension style of '{dim.DimensionStyleName}', but it was not found");
+                    }
+                }
             }
         }
 

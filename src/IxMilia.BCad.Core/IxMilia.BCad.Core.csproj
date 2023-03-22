@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\IxMilia.Converters\src\IxMilia.Converters\Dimensions\**\*.cs" Link="External\Dimensions\%(RecursiveDir)\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IxMilia.Config\src\IxMilia.Config\IxMilia.Config.csproj" />
   </ItemGroup>
 

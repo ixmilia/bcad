@@ -42,7 +42,7 @@ namespace IxMilia.BCad.Commands
                     return false;
                 }
 
-                var entityPrimitives = entities.SelectMany(e => e.GetPrimitives()).ToArray();
+                var entityPrimitives = entities.SelectMany(e => e.GetPrimitives(workspace.Drawing.Settings)).ToArray();
                 var secondDistanceValue = await workspace.InputService.GetDistance(
                     new UserDirective("Second scale distance"),
                     onCursorMove: distance =>

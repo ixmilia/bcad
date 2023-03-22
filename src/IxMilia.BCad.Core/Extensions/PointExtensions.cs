@@ -4,11 +4,16 @@ using System.Linq;
 using IxMilia.BCad.Collections;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Primitives;
+using C = IxMilia.Converters;
 
 namespace IxMilia.BCad.Extensions
 {
     public static class PointExtensions
     {
+        public static C.Vector ToConverterVector(this Point point) => new C.Vector(point.X, point.Y, point.Z);
+
+        public static Point ToPoint(this C.Vector v) => new Point(v.X, v.Y, v.Z);
+
         public static bool CloseTo(this Point expected, Point actual, double epsilon = MathHelper.Epsilon)
         {
             return MathHelper.CloseTo(expected.X, actual.X, epsilon)

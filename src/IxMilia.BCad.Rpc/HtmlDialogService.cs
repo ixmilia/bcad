@@ -32,6 +32,15 @@ namespace IxMilia.BCad.Rpc
             object result = null;
             switch (id)
             {
+                case "dimension-styles":
+                    var dimStylesParameters = (DimensionStylesDialogParameters)parameter;
+                    var dimStylesResult = await Agent.ShowDialog(id, dimStylesParameters);
+                    if (dimStylesResult != null)
+                    {
+                        var dimStylesResultObject = dimStylesResult.ToObject<DimensionStylesDialogParameters>();
+                        result = dimStylesResultObject;
+                    }
+                    break;
                 case "layer":
                     var layerParameters = (LayerDialogParameters)parameter;
                     var clientLayerParameters = new ClientLayerParameters(layerParameters);

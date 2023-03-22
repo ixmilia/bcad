@@ -2,12 +2,14 @@ import { DrawingUnits, UnitFormat } from "../contracts.generated";
 import { Client } from "../client";
 
 export class SettingsRibbon {
+    private settingsDiv: HTMLDivElement;
     private unitElement: HTMLSelectElement;
     private formatElement: HTMLSelectElement;
     private precisionElement: HTMLSelectElement;
     private anglePrecisionElement: HTMLSelectElement;
 
     constructor(client: Client) {
+        this.settingsDiv = <HTMLDivElement>document.getElementById("settingsRibbon");
         this.unitElement = <HTMLSelectElement>document.getElementById("drawing-units");
         this.formatElement = <HTMLSelectElement>document.getElementById("unit-format");
         this.precisionElement = <HTMLSelectElement>document.getElementById('drawing-units-precision');
@@ -168,7 +170,7 @@ export class SettingsRibbon {
 
     private getSnapAngleSelectors(): HTMLInputElement[] {
         let inputs: HTMLInputElement[] = [];
-        document.querySelectorAll(".snap-angle-selector").forEach(node => {
+        this.settingsDiv.querySelectorAll(".snap-angle-selector").forEach(node => {
             let input = <HTMLInputElement>node;
             inputs.push(input);
         });

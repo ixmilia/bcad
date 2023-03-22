@@ -16,6 +16,7 @@ namespace IxMilia.BCad.Utilities
         private static Vector cachedRotateOffset;
         private static double cachedRotateAngle;
         private static Matrix4 cachedRotateMatrix;
+
         private static Matrix4 GetRotateMatrix(Vector offset, double angleInDegrees)
         {
             lock (rotateCacheLock)
@@ -84,6 +85,11 @@ namespace IxMilia.BCad.Utilities
                 line => line.Update(
                     p1: transform.Transform(line.P1),
                     p2: transform.Transform(line.P2)),
+                linearDimension => linearDimension.Update(
+                    definitionPoint1: transform.Transform(linearDimension.DefinitionPoint1),
+                    definitionPoint2: transform.Transform(linearDimension.DefinitionPoint2),
+                    dimensionLineLocation: transform.Transform(linearDimension.DimensionLineLocation),
+                    textMidPoint: transform.Transform(linearDimension.TextMidPoint)),
                 location => location.Update(
                     point: transform.Transform(location.Point)),
                 polyline => polyline.Update(
@@ -96,9 +102,9 @@ namespace IxMilia.BCad.Utilities
             );
         }
 
-        public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        public static void Trim(SelectedEntity entityToTrim, IEnumerable<IPrimitive> boundaryPrimitives, DrawingSettings settings, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
-            var selectionPrimitives = entityToTrim.Entity.GetPrimitives();
+            var selectionPrimitives = entityToTrim.Entity.GetPrimitives(settings);
 
             // find all intersection points
             var intersectionPoints = boundaryPrimitives
@@ -122,11 +128,12 @@ namespace IxMilia.BCad.Utilities
                         TrimLine(line, entityToTrim.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
                         return (removedX, addedX);
                     },
+                    linearDimension => (null, null),
                     location => (null, null),
                     polyline => (null, null),
                     spline =>
                     {
-                        TrimSpline(spline, entityToTrim.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                        TrimSpline(spline, entityToTrim.SelectionPoint, intersectionPoints, settings, out var removedX, out var addedX);
                         return (removedX, addedX);
                     },
                     text => (null, null)
@@ -147,9 +154,9 @@ namespace IxMilia.BCad.Utilities
             }
         }
 
-        public static void Extend(SelectedEntity entityToExtend, IEnumerable<IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        public static void Extend(SelectedEntity entityToExtend, IEnumerable<IPrimitive> boundaryPrimitives, DrawingSettings settings, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
-            var selectionPrimitives = entityToExtend.Entity.GetPrimitives();
+            var selectionPrimitives = entityToExtend.Entity.GetPrimitives(settings);
 
             // find all intersection points on boundary primitives but not on the entity to extend
             var intersectionPoints = boundaryPrimitives
@@ -172,6 +179,7 @@ namespace IxMilia.BCad.Utilities
                         ExtendLine(line, entityToExtend.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
                         return (removedX, addedX);
                     },
+                    linearDimension => (null, null),
                     location => (null, null),
                     polyline => (null, null),
                     spline => (null, null),
@@ -189,7 +197,7 @@ namespace IxMilia.BCad.Utilities
 
             (IEnumerable<Entity>, IEnumerable<Entity>) DoExtendEllipse()
             {
-                ExtendEllipse(entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, out var removedX, out var addedX);
+                ExtendEllipse(entityToExtend.Entity, entityToExtend.SelectionPoint, intersectionPoints, settings, out var removedX, out var addedX);
                 return (removedX, addedX);
             }
         }
@@ -203,6 +211,7 @@ namespace IxMilia.BCad.Utilities
                 ellipse => true,
                 image => false,
                 line => true,
+                linearDimension => false,
                 location => false,
                 polyline => false,
                 spline => false,
@@ -292,6 +301,7 @@ namespace IxMilia.BCad.Utilities
                 ellipse => DoOffset(),
                 image => null,
                 line => DoOffset(),
+                linearDimension => null,
                 location => null,
                 polyline => null,
                 spline => null,
@@ -300,7 +310,7 @@ namespace IxMilia.BCad.Utilities
 
             Entity DoOffset()
             {
-                var primitive = entityToOffset.GetPrimitives().Single();
+                var primitive = entityToOffset.GetPrimitives(workspace.Drawing.Settings).Single();
                 var thickness = primitive.GetThickness();
                 var offset = Offset(
                     workspace.DrawingPlane,
@@ -317,25 +327,25 @@ namespace IxMilia.BCad.Utilities
             }
         }
 
-        public static PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius)
+        public static PrimitiveEllipse Ttr(Plane drawingPlane, SelectedEntity firstEntity, SelectedEntity secondEntity, double radius, DrawingSettings settings)
         {
             var first = firstEntity.Entity;
             var second = secondEntity.Entity;
             if (!CanOffsetEntity(first) || !CanOffsetEntity(second))
                 return null;
 
-            if (!drawingPlane.Contains(first) || !drawingPlane.Contains(second))
+            if (!drawingPlane.Contains(first, settings) || !drawingPlane.Contains(second, settings))
                 return null;
 
             // offset each entity both possible directions, intersect everything, and take the closest
             // point to be the center
             var firstOffsets = OffsetBothDirections(
                 drawingPlane: drawingPlane,
-                primitive: first.GetPrimitives().First(),
+                primitive: first.GetPrimitives(settings).First(),
                 distance: radius);
             var secondOffsets = OffsetBothDirections(
                 drawingPlane: drawingPlane,
-                primitive: second.GetPrimitives().First(),
+                primitive: second.GetPrimitives(settings).First(),
                 distance: radius);
 
             var candidatePoints = (from f in firstOffsets
@@ -367,6 +377,11 @@ namespace IxMilia.BCad.Utilities
                 ellipse => ellipse.Update(center: ellipse.Center + offset),
                 image => image.Update(location: image.Location + offset),
                 line => line.Update(p1: line.P1 + offset, p2: line.P2 + offset),
+                linearDimension => linearDimension.Update(
+                    definitionPoint1: linearDimension.DefinitionPoint1 + offset,
+                    definitionPoint2: linearDimension.DefinitionPoint2 + offset,
+                    dimensionLineLocation: linearDimension.DimensionLineLocation + offset,
+                    textMidPoint: linearDimension.TextMidPoint + offset),
                 location => location.Update(point: location.Point + offset),
                 polyline => polyline.Update(vertices: polyline.Vertices.Select(v => new Vertex(v.Location + offset, v.IncludedAngle, v.Direction))),
                 spline => spline.Update(controlPoints: spline.ControlPoints.Select(p => p + offset)),
@@ -422,6 +437,11 @@ namespace IxMilia.BCad.Utilities
                 line => line.Update(
                     p1: line.P1.ScaleFrom(basePoint, scaleFactor),
                     p2: line.P2.ScaleFrom(basePoint, scaleFactor)),
+                linearDimension => linearDimension.Update(
+                    definitionPoint1: linearDimension.DefinitionPoint1.ScaleFrom(basePoint, scaleFactor),
+                    definitionPoint2: linearDimension.DefinitionPoint2.ScaleFrom(basePoint, scaleFactor),
+                    dimensionLineLocation: linearDimension.DimensionLineLocation.ScaleFrom(basePoint, scaleFactor),
+                    textMidPoint: linearDimension.TextMidPoint.ScaleFrom(basePoint, scaleFactor)),
                 location => location.Update(
                     point: location.Point.ScaleFrom(basePoint, scaleFactor)),
                 polyline => polyline.Update(
@@ -476,6 +496,11 @@ namespace IxMilia.BCad.Utilities
                     p1: settings.Quantize(line.P1),
                     p2: settings.Quantize(line.P2),
                     thickness: settings.QuantizeDistance(line.Thickness)),
+                linearDimension => linearDimension.Update(
+                    definitionPoint1: settings.Quantize(linearDimension.DefinitionPoint1),
+                    definitionPoint2: settings.Quantize(linearDimension.DefinitionPoint2),
+                    dimensionLineLocation: settings.Quantize(linearDimension.DimensionLineLocation),
+                    textMidPoint: settings.Quantize(linearDimension.TextMidPoint)),
                 location => location.Update(
                     point: settings.Quantize(location.Point)),
                 polyline => polyline.Update(
@@ -689,6 +714,7 @@ namespace IxMilia.BCad.Utilities
                 },
                 image => throw new ArgumentException(nameof(entityToTrim)),
                 line => throw new ArgumentException(nameof(entityToTrim)),
+                linearDimension => throw new ArgumentException(nameof(entityToTrim)),
                 location => throw new ArgumentException(nameof(entityToTrim)),
                 polyline => throw new ArgumentException(nameof(entityToTrim)),
                 spline => throw new ArgumentException(nameof(entityToTrim)),
@@ -699,11 +725,11 @@ namespace IxMilia.BCad.Utilities
             removed = removedList;
         }
 
-        private static void TrimSpline(Spline entityToTrim, Point pivot, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        private static void TrimSpline(Spline entityToTrim, Point pivot, IEnumerable<Point> intersectionPoints, DrawingSettings settings, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var addedList = new List<Entity>();
             var currentBeziers = new List<PrimitiveBezier>();
-            var beziers = entityToTrim.GetPrimitives().Cast<PrimitiveBezier>();
+            var beziers = entityToTrim.GetPrimitives(settings).Cast<PrimitiveBezier>();
             foreach (var bezier in beziers)
             {
                 // split bezier at intersection points and the curve containing the pivot gets deleted, others are kept
@@ -803,13 +829,13 @@ namespace IxMilia.BCad.Utilities
             added = addedList;
         }
 
-        private static void ExtendEllipse(Entity ellipseToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        private static void ExtendEllipse(Entity ellipseToExtend, Point selectionPoint, IEnumerable<Point> intersectionPoints, DrawingSettings settings, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
             var removedList = new List<Entity>();
             var addedList = new List<Entity>();
 
             // get primitive ellipse object
-            var primitives = ellipseToExtend.GetPrimitives();
+            var primitives = ellipseToExtend.GetPrimitives(settings);
             Debug.Assert(primitives.Count() == 1);
             var primitive = primitives.Single();
             Debug.Assert(primitive.Kind == PrimitiveKind.Ellipse);

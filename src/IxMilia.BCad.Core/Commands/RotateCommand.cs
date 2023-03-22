@@ -25,7 +25,7 @@ namespace IxMilia.BCad.Commands
                 return false;
             }
 
-            var entityPrimitives = entities.Value.SelectMany(e => e.GetPrimitives()).ToArray();
+            var entityPrimitives = entities.Value.SelectMany(e => e.GetPrimitives(workspace.Drawing.Settings)).ToArray();
             var angleValue = await workspace.InputService.GetAngleInDegrees("Angle of rotation", onCursorMove: angleInDegrees => entityPrimitives.Select(p => EditUtilities.Rotate(p, origin.Value, angleInDegrees)));
             if (angleValue.Cancel || !angleValue.HasValue)
             {

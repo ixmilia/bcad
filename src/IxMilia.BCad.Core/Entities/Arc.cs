@@ -71,7 +71,7 @@ namespace IxMilia.BCad.Entities
             BoundingBox = BoundingBox.FromPoints(Circle.TransformedPoints(Center, Normal, right, Radius, Radius, 0, 90, 180, 270));
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings _settings)
         {
             return _primitives;
         }

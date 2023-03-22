@@ -21,6 +21,7 @@ namespace IxMilia.BCad.Core.Test
             bool expectTrim,
             IEnumerable<Entity> expectedAdded)
         {
+            var drawingSettings = new DrawingSettings();
             expectedAdded = expectedAdded ?? new Entity[0];
 
             // prepare the drawing
@@ -28,7 +29,7 @@ namespace IxMilia.BCad.Core.Test
             {
                 Workspace.AddToCurrentLayer(ent);
             }
-            var boundary = Workspace.Drawing.GetEntities().SelectMany(e => e.GetPrimitives());
+            var boundary = Workspace.Drawing.GetEntities().SelectMany(e => e.GetPrimitives(drawingSettings));
             Workspace.AddToCurrentLayer(entityToTrim);
 
             // trim
@@ -37,6 +38,7 @@ namespace IxMilia.BCad.Core.Test
             EditUtilities.Trim(
                 new SelectedEntity(entityToTrim, selectionPoint),
                 boundary,
+                drawingSettings,
                 out removed,
                 out added);
 
@@ -61,6 +63,7 @@ namespace IxMilia.BCad.Core.Test
             bool expectExtend,
             IEnumerable<Entity> expectedAdded)
         {
+            var drawingSettings = new DrawingSettings();
             expectedAdded = expectedAdded ?? new Entity[0];
 
             // prepare the drawing
@@ -68,7 +71,7 @@ namespace IxMilia.BCad.Core.Test
             {
                 Workspace.AddToCurrentLayer(ent);
             }
-            var boundary = Workspace.Drawing.GetEntities().SelectMany(e => e.GetPrimitives());
+            var boundary = Workspace.Drawing.GetEntities().SelectMany(e => e.GetPrimitives(drawingSettings));
             Workspace.AddToCurrentLayer(entityToExtend);
 
             // extend
@@ -77,6 +80,7 @@ namespace IxMilia.BCad.Core.Test
             EditUtilities.Extend(
                 new SelectedEntity(entityToExtend, selectionPoint),
                 boundary,
+                drawingSettings,
                 out removed,
                 out added);
 

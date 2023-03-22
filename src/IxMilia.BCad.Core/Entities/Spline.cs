@@ -56,10 +56,9 @@ namespace IxMilia.BCad.Entities
             BoundingBox = BoundingBox.Includes(_beziers.Select(b => b.GetBoundingBox()));
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives()
-        {
-            return _beziers;
-        }
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings _settings) => GetPrimitives();
+
+        private IEnumerable<IPrimitive> GetPrimitives() => _beziers;
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {

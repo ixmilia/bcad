@@ -50,7 +50,7 @@ namespace IxMilia.BCad.Entities
                 Location + right + up);
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings _settings)
         {
             return _primitives;
         }

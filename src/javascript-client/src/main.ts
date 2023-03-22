@@ -16,6 +16,7 @@ import { ScriptPane } from "./scriptPane";
 import { LogWriter } from "./logWriter";
 import { LineTypeDialog } from "./dialogs/lineTypeDialog";
 import { LineTypeSelector } from "./lineTypeSelector";
+import { DimensionStylesDialog } from "./dialogs/dimensionStylesDialog";
 
 enum HostType {
     Electron = 1,
@@ -137,6 +138,7 @@ async function start(argArray: string[]): Promise<void> {
 
     let dialogHandler = new DialogHandler(client);
     new FileSettingsDialog(dialogHandler);
+    new DimensionStylesDialog(dialogHandler, client);
     new LayerDialog(dialogHandler, client);
     new LineTypeDialog(dialogHandler);
     new PlotDialog(client, dialogHandler);

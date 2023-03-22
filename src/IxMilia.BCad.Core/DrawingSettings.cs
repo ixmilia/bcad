@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
+using IxMilia.BCad.Extensions;
 
 namespace IxMilia.BCad
 {
@@ -17,13 +17,25 @@ namespace IxMilia.BCad
         public double FilletRadius { get; private set; }
         public LineTypeSpecification CurrentLineTypeSpecification { get; private set; }
 
+        public string CurrentDimensionStyleName { get; private set; }
+        public DimensionStyleCollection DimensionStyles { get; private set; }
+
+        public DimensionStyle CurrentDimensionStyle => DimensionStyles[CurrentDimensionStyleName];
+
         public DrawingSettings()
-            : this(null, DrawingUnits.English, UnitFormat.Architectural, 4, 0, "0", 0.0, null)
+            : this(null, DrawingUnits.English, UnitFormat.Architectural, 4, 0, "0", 0.0, null,
+                  DimensionStyle.DefaultDimensionStyleName, new DimensionStyleCollection())
         {
         }
 
-        public DrawingSettings(string path, DrawingUnits drawingUnits, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, double filletRadius, LineTypeSpecification currentLineTypeSpecification)
+        public DrawingSettings(string path, DrawingUnits drawingUnits, UnitFormat unitFormat, int unitPrecision, int anglePrecision, string currentLayerName, double filletRadius, LineTypeSpecification currentLineTypeSpecification,
+            string currentDimensionStyleName, DimensionStyleCollection dimStyles)
         {
+            if (!dimStyles.ContainsStyle(currentDimensionStyleName))
+            {
+                throw new ArgumentException(nameof(currentDimensionStyleName), $"The dimension style '{currentDimensionStyleName}' is not part of the specified collection");
+            }
+
             FileName = path;
             DrawingUnits = drawingUnits;
             UnitFormat = unitFormat;
@@ -32,6 +44,8 @@ namespace IxMilia.BCad
             CurrentLayerName = currentLayerName;
             FilletRadius = filletRadius;
             CurrentLineTypeSpecification = currentLineTypeSpecification;
+            CurrentDimensionStyleName = currentDimensionStyleName;
+            DimensionStyles = dimStyles;
 
             switch (unitFormat)
             {
@@ -60,7 +74,9 @@ namespace IxMilia.BCad
             Optional<int> anglePrecision = default,
             Optional<string> currentLayerName = default,
             Optional<double> filletRadius = default,
-            Optional<LineTypeSpecification> currentLineTypeSpecification = default)
+            Optional<LineTypeSpecification> currentLineTypeSpecification = default,
+            Optional<string> currentDimensionStyleName = default,
+            Optional<DimensionStyleCollection> dimStyles = default)
         {
             var newFileName = fileName ?? FileName;
             var newDrawingUnits = drawingUnits.GetValue(DrawingUnits);
@@ -70,6 +86,8 @@ namespace IxMilia.BCad
             var newCurrentLayerName = currentLayerName.GetValue(CurrentLayerName);
             var newFilletRadius = filletRadius.GetValue(FilletRadius);
             var newCurrentLineTypeSpecification = currentLineTypeSpecification.GetValue(CurrentLineTypeSpecification);
+            var newCurrentDimensionStyleName = currentDimensionStyleName.GetValue(CurrentDimensionStyleName) ?? throw new ArgumentNullException(nameof(currentDimensionStyleName));
+            var newDimStyles = dimStyles.GetValue(DimensionStyles);
 
             if (newFileName == FileName &&
                 newDrawingUnits == DrawingUnits &&
@@ -78,31 +96,22 @@ namespace IxMilia.BCad
                 newAnglePrecision == AnglePrecision &&
                 newCurrentLayerName == CurrentLayerName &&
                 newFilletRadius == FilletRadius &&
-                newCurrentLineTypeSpecification == CurrentLineTypeSpecification)
+                newCurrentLineTypeSpecification == CurrentLineTypeSpecification &&
+                newCurrentDimensionStyleName == CurrentDimensionStyleName &&
+                ReferenceEquals(newDimStyles, DimensionStyles))
             {
                 return this;
             }
 
-            return new DrawingSettings(newFileName, newDrawingUnits, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newFilletRadius, newCurrentLineTypeSpecification);
+            return new DrawingSettings(newFileName, newDrawingUnits, newUnitFormat, newUnitPrecision, newAnglePrecision, newCurrentLayerName, newFilletRadius, newCurrentLineTypeSpecification,
+                newCurrentDimensionStyleName, newDimStyles);
         }
 
         public static string FormatAngle(double value, int anglePrecision) => FormatScalar(value, anglePrecision);
 
         public static string FormatUnits(double value, DrawingUnits drawingUnits, UnitFormat unitFormat, int unitPrecision)
         {
-            var prefix = Math.Sign(value) < 0 ? "-" : "";
-            value = Math.Abs(value);
-            switch (unitFormat)
-            {
-                case UnitFormat.Architectural:
-                    return string.Concat(prefix, FormatArchitectural(value, unitPrecision));
-                case UnitFormat.Fractional:
-                    return string.Concat(prefix, FormatFractional(value, unitPrecision));
-                case UnitFormat.Decimal:
-                    return string.Concat(prefix, FormatScalar(value, unitPrecision));
-                default:
-                    throw new ArgumentException("value");
-            }
+            return Converters.DimensionExtensions.GenerateLinearDimensionText(value, drawingUnits.ToConverterDrawingUnits(), unitFormat.ToConverterUnitFormat(), unitPrecision);
         }
 
         public static bool TryParseUnits(string text, out double value)
@@ -179,58 +188,6 @@ namespace IxMilia.BCad
                 ? "0"
                 : value.ToString(decimalFormats[precision]);
         }
-
-        private static string FormatArchitectural(double value, int precision)
-        {
-            var feet = (int)value / 12;
-            var inches = value - (feet * 12.0);
-            var fractional = FormatFractional(inches, precision);
-            return $"{feet}'{fractional}";
-        }
-
-        private static string FormatFractional(double value, int precision)
-        {
-            if (value < 0.0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), "Value must be positive");
-            }
-
-            var roundingAmount = Math.Pow(2.0, -(precision + 1));
-            var normalizedValue = value + roundingAmount;
-            var whole = (int)normalizedValue;
-            var fractionalPart = normalizedValue - whole;
-
-            var denominator = (int)Math.Pow(2.0, precision);
-            var numerator = (int)(fractionalPart * denominator);
-
-            if (numerator == denominator)
-            {
-                numerator = denominator = 0;
-            }
-
-            ReduceFraction(ref numerator, ref denominator);
-            var fractional = numerator != 0
-                ? $"-{numerator}/{denominator}"
-                : string.Empty;
-
-            var formatted = $"{whole}{fractional}\"";
-            return formatted;
-        }
-
-        private static void ReduceFraction(ref int numerator, ref int denominator)
-        {
-            if (numerator == 0 || denominator == 0)
-                return;
-            while (numerator % 2 == 0 && denominator % 2 == 0)
-            {
-                numerator /= 2;
-                denominator /= 2;
-            }
-        }
-
-        private static int MaxFractionalPrecision = 8;
-
-        private static double[] PrecisionLimits = Enumerable.Range(1, MaxFractionalPrecision).Select(p => Math.Pow(2.0, -p)).ToArray();
 
         private static string[] decimalFormats = new string[]
         {

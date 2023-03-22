@@ -99,7 +99,7 @@ namespace IxMilia.BCad.Rpc
             var fallBackColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
             foreach (var entity in selectedEntities)
             {
-                foreach (var primitive in entity.GetPrimitives())
+                foreach (var primitive in entity.GetPrimitives(Workspace.Drawing.Settings))
                 {
                     AddPrimitiveToDrawing(clientUpdate.SelectedEntitiesDrawing, primitive, null, fallBackColor);
                 }
@@ -245,6 +245,11 @@ namespace IxMilia.BCad.Rpc
         public void WriteOutputLine(string line)
         {
             Workspace.OutputService.WriteLine(line);
+        }
+
+        public void ChangeCurrentDimensionStyle(string currentDimensionStyle)
+        {
+            Workspace.SetCurrentDimensionStyle(currentDimensionStyle);
         }
 
         public void ChangeCurrentLayer(string currentLayer)
@@ -447,7 +452,7 @@ namespace IxMilia.BCad.Rpc
                         var entityLineTypePattern = entityLineType is not null
                             ? entityLineType.Pattern.Select(p => p * entity.LineTypeSpecification.Scale).ToArray()
                             : layerLineTypePattern;
-                        foreach (var primitive in entity.GetPrimitives())
+                        foreach (var primitive in entity.GetPrimitives(drawing.Settings))
                         {
                             AddPrimitiveToDrawing(clientDrawing, primitive, entityLineTypePattern, fallBackColor: entityColor);
                         }
@@ -457,6 +462,9 @@ namespace IxMilia.BCad.Rpc
 
             clientDrawing.CurrentLineType = drawing.Settings.CurrentLineTypeSpecification?.Name;
             clientDrawing.LineTypes.AddRange(drawing.GetLineTypes().Select(lt => lt.Name));
+
+            clientDrawing.CurrentDimensionStyle = drawing.Settings.CurrentDimensionStyleName;
+            clientDrawing.DimensionStyles.AddRange(drawing.Settings.DimensionStyles.Select(d => d.Name));
 
             clientDrawing.Layers.Sort();
             return clientDrawing;

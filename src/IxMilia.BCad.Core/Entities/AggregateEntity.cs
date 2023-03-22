@@ -12,7 +12,6 @@ namespace IxMilia.BCad.Entities
     {
         private readonly Point location;
         private readonly ReadOnlyList<Entity> children;
-        private readonly IPrimitive[] primitives;
         private readonly SnapPoint[] snapPoints;
         private readonly BoundingBox boundingBox;
 
@@ -36,14 +35,18 @@ namespace IxMilia.BCad.Entities
             if (children.Any(c => c.Kind == EntityKind.Aggregate))
                 throw new ArgumentOutOfRangeException("children", "Aggregate entities cannot contain other aggregate entities");
             var offset = (Vector)location;
-            this.primitives = children.SelectMany(c => c.GetPrimitives().Select(p => p.Move(offset))).ToArray();
             this.snapPoints = children.SelectMany(c => c.GetSnapPoints().Select(p => p.Move(offset))).ToArray();
             this.boundingBox = BoundingBox.Includes(children.Select(c => c.BoundingBox));
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives()
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings settings)
         {
-            return this.primitives;
+            return GetOrCreatePrimitives(settings, () =>
+            {
+                var offset = (Vector)Location;
+                var primitives = children.SelectMany(c => c.GetPrimitives(settings).Select(p => p.Move(offset))).ToArray();
+                return primitives;
+            });
         }
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
@@ -54,8 +57,6 @@ namespace IxMilia.BCad.Entities
         public override EntityKind Kind { get { return EntityKind.Aggregate; } }
 
         public override BoundingBox BoundingBox { get { return this.boundingBox; } }
-
-        public override int PrimitiveCount { get { return this.primitives.Count(); } }
 
         public AggregateEntity Update(
             Optional<Point> location = default,

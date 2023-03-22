@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using IxMilia.BCad.Entities;
 using IxMilia.BCad.Extensions;
 
 namespace IxMilia.BCad.Rpc
@@ -17,21 +19,49 @@ namespace IxMilia.BCad.Rpc
 
         public static Drawing UpdateColors(this Drawing drawing, PlotColorType colorType)
         {
-            switch (colorType)
+            return (colorType switch
             {
-                case PlotColorType.Exact:
-                    return drawing;
-                case PlotColorType.Contrast:
-                    return drawing.Map(
-                        l => l.Color.IsAutoOrWhite() ? l.Update(color: CadColor.Black) : l,
-                        e => e.Color.IsAutoOrWhite() ? e.WithColor(color: CadColor.Black) : e);
-                case PlotColorType.Black:
-                    return drawing.Map(
-                        l => l.Update(color: CadColor.Black),
-                        e => e.WithColor(color: CadColor.Black));
-                default:
-                    throw new InvalidOperationException($"Color type {colorType} not recognized");
-            }
+                PlotColorType.Exact => drawing,
+                _ => drawing.Map(
+                    l => l.Update(color: l.Color.UpdateColor(colorType)),
+                    e => e.UpdateColors(colorType)),
+            }).Update(settings: drawing.Settings.UpdateColors(colorType));
+        }
+
+        private static Entity UpdateColors(this Entity entity, PlotColorType colorType)
+        {
+            return entity switch
+            {
+                AbstractDimension dim => dim.WithTextColor(dim.TextColor.UpdateColor(colorType)).WithColor(dim.Color.UpdateColor(colorType)),
+                _ => entity.WithColor(entity.Color.UpdateColor(colorType)),
+            };
+        }
+
+        private static DrawingSettings UpdateColors(this DrawingSettings settings, PlotColorType colorType)
+        {
+            return colorType switch
+            {
+                PlotColorType.Exact => settings,
+                _ => settings.Update(dimStyles: DimensionStyleCollection.FromEnumerable(settings.DimensionStyles.Select(ds => ds.UpdateColors(colorType)))),
+            };
+        }
+
+        private static DimensionStyle UpdateColors(this DimensionStyle dimStyle, PlotColorType colorType)
+        {
+            return dimStyle.Update(
+                lineColor: dimStyle.LineColor.UpdateColor(colorType),
+                textColor: dimStyle.TextColor.UpdateColor(colorType));
+        }
+
+        private static CadColor? UpdateColor(this CadColor? color, PlotColorType colorType)
+        {
+            return colorType switch
+            {
+                PlotColorType.Exact => color,
+                PlotColorType.Contrast => color.IsAutoOrWhite() ? CadColor.Black : color,
+                PlotColorType.Black => CadColor.Black,
+                _ => throw new ArgumentOutOfRangeException(nameof(colorType))
+            };
         }
     }
 }

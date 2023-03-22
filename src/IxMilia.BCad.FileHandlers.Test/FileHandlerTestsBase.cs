@@ -12,7 +12,7 @@ namespace IxMilia.BCad.FileHandlers.Test
     {
         public abstract IFileHandler FileHandler { get; }
 
-        protected virtual async Task<Entity> RoundTripEntity(Entity entity)
+        protected virtual async Task<Entity> RoundTripEntity(Entity entity, DrawingSettings drawingSettings = null)
         {
             var drawing = new Drawing().Add(new Layer("layer").Add(entity));
             var result = await RoundTripDrawing(drawing);
@@ -20,9 +20,9 @@ namespace IxMilia.BCad.FileHandlers.Test
             return roundTrippedEntity;
         }
 
-        protected async Task VerifyRoundTrip(Entity entity)
+        protected async Task VerifyRoundTrip(Entity entity, DrawingSettings drawingSettings)
         {
-            var afterRoundTrip = await RoundTripEntity(entity);
+            var afterRoundTrip = await RoundTripEntity(entity, drawingSettings);
             Assert.True(entity.EquivalentTo(afterRoundTrip));
         }
 

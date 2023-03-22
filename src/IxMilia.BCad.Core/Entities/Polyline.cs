@@ -16,8 +16,6 @@ namespace IxMilia.BCad.Entities
 
         public override EntityKind Kind => EntityKind.Polyline;
 
-        public override int PrimitiveCount => _primitives.Count;
-
         public override BoundingBox BoundingBox { get; }
 
         public Polyline(IEnumerable<Vertex> vertices, CadColor? color = null, LineTypeSpecification lineTypeSpecification = null, object tag = null)
@@ -51,10 +49,9 @@ namespace IxMilia.BCad.Entities
             BoundingBox = BoundingBox.FromPoints(_snapPoints.Select(sp => sp.Point).ToArray());
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives()
-        {
-            return _primitives;
-        }
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings _settings) => GetPrimitives();
+
+        private IEnumerable<IPrimitive> GetPrimitives() => _primitives;
 
         public override IEnumerable<SnapPoint> GetSnapPoints()
         {

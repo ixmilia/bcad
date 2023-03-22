@@ -36,9 +36,9 @@ namespace IxMilia.BCad.Extensions
             );
         }
 
-        public static bool Contains(this Plane plane, Entity entity)
+        public static bool Contains(this Plane plane, Entity entity, DrawingSettings settings)
         {
-            return entity.GetPrimitives().All(p => plane.Contains(p));
+            return entity.GetPrimitives(settings).All(p => plane.Contains(p));
         }
 
         public static Matrix4 ToXYPlaneProjection(this Plane plane)

@@ -8,6 +8,7 @@ using IxMilia.BCad.Entities;
 using IxMilia.BCad.FileHandlers.Extensions;
 using IxMilia.Dxf;
 using IxMilia.Dxf.Blocks;
+using IxMilia.Dxf.Entities;
 
 namespace IxMilia.BCad.FileHandlers
 {
@@ -56,42 +57,57 @@ namespace IxMilia.BCad.FileHandlers
                 layers = layers.Insert(layer.Name, new Layer(layer.Name, color: layer.Color.ToColor(), lineTypeSpecification: layerLineTypeSpecification, isVisible: layer.IsLayerOn));
             }
 
+            var dimStyles = new DimensionStyleCollection();
+            foreach (var ds in file.DimensionStyles)
+            {
+                var dimStyle = new DimensionStyle(
+                    ds.Name,
+                    ds.DimensioningArrowSize,
+                    ds.DimensionExtensionLineOffset,
+                    ds.DimensionExtensionLineExtension,
+                    ds.DimensioningTextHeight,
+                    ds.DimensionLineGap,
+                    ds.DimensionLineColor.ToColor(),
+                    ds.DimensionTextColor.ToColor());
+                dimStyles = dimStyles.Replace(dimStyle); // using replace so duplicate names don't break anything
+            }
+
+            if (!dimStyles.ContainsStyle(file.Header.DimensionStyleName))
+            {
+                // this must exist
+                dimStyles = dimStyles.Add(new DimensionStyle(file.Header.DimensionStyleName));
+            }
+
+            var blockMap = new Dictionary<string, IEnumerable<DxfEntity>>();
+            foreach (var block in file.Blocks)
+            {
+                var layer = GetOrCreateLayer(ref layers, block.Layer);
+
+                // create the aggregate entity
+                blockMap[block.Name] = block.Entities;
+            }
+
             foreach (var item in file.Entities)
             {
                 var layer = GetOrCreateLayer(ref layers, item.Layer);
                 GetOrCreateLineType(ref lineTypes, item.LineTypeName);
 
                 // create the entity
-                var entity = await item.ToEntity(contentResolver);
+                var entity = await item.ToEntity(contentResolver, blockMap);
 
                 // add the entity to the appropriate layer
                 if (entity != null)
                 {
                     layer = layer.Add(entity);
                     layers = layers.Insert(layer.Name, layer);
-                }
-            }
 
-            foreach (var block in file.Blocks)
-            {
-                var layer = GetOrCreateLayer(ref layers, block.Layer);
-
-                // create the aggregate entity
-                var children = ReadOnlyList<Entity>.Empty();
-                foreach (var item in block.Entities)
-                {
-                    var tempEnt = await item.ToEntity(contentResolver);
-                    if (tempEnt != null)
+                    if (entity is AbstractDimension dim)
                     {
-                        children = children.Add(tempEnt);
+                        if (!dimStyles.ContainsStyle(dim.DimensionStyleName))
+                        {
+                            dimStyles = dimStyles.Add(new DimensionStyle(dim.DimensionStyleName));
+                        }
                     }
-                }
-
-                // add the entity to the appropriate layer
-                if (children.Count != 0)
-                {
-                    layer = layer.Add(new AggregateEntity(block.BasePoint.ToPoint(), children));
-                    layers = layers.Insert(layer.Name, layer);
                 }
             }
 
@@ -113,7 +129,9 @@ namespace IxMilia.BCad.FileHandlers
                     file.Header.AngleUnitPrecision,
                     currentLayerName,
                     file.Header.FilletRadius,
-                    lineTypeSpecification),
+                    lineTypeSpecification,
+                    file.Header.DimensionStyleName,
+                    dimStyles),
                 layers: layers,
                 lineTypes: lineTypes,
                 author: null);
@@ -167,6 +185,22 @@ namespace IxMilia.BCad.FileHandlers
             file.Header.AngleUnitPrecision = (short)drawing.Settings.AnglePrecision;
             file.Header.FilletRadius = drawing.Settings.FilletRadius;
 
+            file.DimensionStyles.Clear();
+            foreach (var ds in drawing.Settings.DimensionStyles)
+            {
+                var dimStyle = new DxfDimStyle(ds.Name)
+                {
+                    DimensioningArrowSize = ds.ArrowSize,
+                    DimensionExtensionLineOffset = ds.ExtensionLineOffset,
+                    DimensionExtensionLineExtension = ds.ExtensionLineExtension,
+                    DimensioningTextHeight = ds.TextHeight,
+                    DimensionLineGap = ds.LineGap,
+                    DimensionLineColor = ds.LineColor.ToDxfColor(),
+                    DimensionTextColor = ds.TextColor.ToDxfColor(),
+                };
+                file.DimensionStyles.Add(dimStyle);
+            }
+
             file.LineTypes.Clear();
             foreach (var lineType in drawing.GetLineTypes().OrderBy(x => x.Name))
             {
@@ -199,7 +233,7 @@ namespace IxMilia.BCad.FileHandlers
                         var agg = (AggregateEntity)item;
                         var block = new DxfBlock();
                         block.Layer = layer.Name;
-                        foreach (var child in agg.Children.Select(c => c.ToDxfEntity(layer)))
+                        foreach (var child in agg.Children.Select(c => c.ToDxfEntity(drawing.Settings)))
                         {
                             block.Entities.Add(child);
                         }
@@ -208,9 +242,10 @@ namespace IxMilia.BCad.FileHandlers
                     }
                     else
                     {
-                        var entity = item.ToDxfEntity(layer);
+                        var entity = item.ToDxfEntity(drawing.Settings);
                         if (entity != null)
                         {
+                            entity.Layer = layer.Name;
                             file.Entities.Add(entity);
                         }
                     }

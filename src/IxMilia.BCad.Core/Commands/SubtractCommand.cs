@@ -40,7 +40,7 @@ namespace IxMilia.BCad.Commands
             }
 
             // perform the subtraction and add the new entities
-            var result = original.Value.Entity.Subtract(others.Value);
+            var result = original.Value.Entity.Subtract(others.Value, drawing.Settings);
             foreach (var poly in result)
             {
                 drawing = drawing.AddToCurrentLayer(poly);

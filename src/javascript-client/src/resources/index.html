@@ -18,6 +18,7 @@
       <div style="display: inline">
         <button id="fileButton" class="ribbon-selector">File</button>
         <button id="drawButton" class="ribbon-selector ribbon-selector-active">Draw</button>
+        <button id="annotateButton" class="ribbon-selector">Annotate</button>
         <button id="viewButton" class="ribbon-selector">View</button>
         <button id="settingsButton" class="ribbon-selector">Settings</button>
         <button id="debugButton" class="ribbon-selector">Debug</button>
@@ -180,6 +181,64 @@
               <select id="current-line-type-selector"></select>
             </div>
             <div class="ribbon-button-group-name">Line Types</div>
+          </div>
+        </div>
+        <div id="annotateRibbon" class="ribbon">
+          <div class="ribbon-button-group">
+            <div class="ribbon-button-group-content">
+              <table cellspacing="0">
+                <tbody class="button-grid-item">
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Draw.AlignedDimension">
+                        <img class="icon-small" src="icons/draw.aligned-dimension.svg" />
+                        <div class="command-button-small-label">Aligned</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Draw.LinearDimension">
+                        <img class="icon-small" src="icons/draw.linear-dimension.svg" />
+                        <div class="command-button-small-label">Linear</div>
+                      </button>
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                  </tr>
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                  </tr>
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                    <td class="button-grid-item">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="ribbon-button-group-name">Dimensions</div>
+          </div>
+          <div class="ribbon-button-group">
+            <div class="ribbon-button-group-content">
+              <button class="command-button command-button-tiny" data-command-name="Edit.DimensionStyles">
+                <img class="icon-small" src="icons/edit.dimension-styles.svg" />
+              </button>
+              <select id="current-dimension-style-selector"></select>
+            </div>
+            <div class="ribbon-button-group-name">Dimension Styles</div>
           </div>
         </div>
         <div id="viewRibbon" class="ribbon">
@@ -542,6 +601,53 @@
         </div>
       </div>
       <div class="window-body">
+        <div id="modal-dialog-dimension-styles" class="modal-dialog dimension-style-dialog">
+          <select id="dimension-style-dialog-selector"></select>
+          <button id="dimension-style-dialog-add">Add</button>
+          <table>
+            <tr>
+              <td>Name</td>
+              <td><input type="text" id="dimension-style-dialog-name" /><button
+                  id="dimension-style-dialog-delete">Delete</button></td>
+            </tr>
+            <tr id="dimension-style-dialog-original-name-row">
+              <td>Original name</td>
+              <td><span id="dimension-style-dialog-original-name"></span></td>
+            </tr>
+            <tr>
+              <td>Arrow Size</td>
+              <td><input type="text" id="dimension-style-dialog-arrow-size" /></td>
+            </tr>
+            <tr>
+              <td>Extension Line Offset</td>
+              <td><input type="text" id="dimension-style-dialog-extension-line-offset" /></td>
+            </tr>
+            <tr>
+              <td>Extension Line Extension</td>
+              <td><input type="text" id="dimension-style-dialog-extension-line-extension" /></td>
+            </tr>
+            <tr>
+              <td>Text Height</td>
+              <td><input type="text" id="dimension-style-dialog-text-height" /></td>
+            </tr>
+            <tr>
+              <td>Line Gap</td>
+              <td><input type="text" id="dimension-style-dialog-line-gap" /></td>
+            </tr>
+            <tr>
+              <td>Line Color</td>
+              <td>
+                <div id="dimension-style-dialog-line-color"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>Text Color</td>
+              <td>
+                <div id="dimension-style-dialog-text-color"></div>
+              </td>
+            </tr>
+          </table>
+        </div>
         <div id="modal-dialog-layer" class="modal-dialog layer-dialog">
           <p>
             Layers<br />

@@ -237,7 +237,7 @@ namespace IxMilia.BCad
 
             // calculate intersections
             // TODO: can this be done in a meanintful way in a separate task?
-            var primitives = drawing.GetEntities().SelectMany(e => e.GetPrimitives()).ToList();
+            var primitives = drawing.GetEntities().SelectMany(e => e.GetPrimitives(drawing.Settings)).ToList();
             for (int startIndex = 0; startIndex < primitives.Count; startIndex++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -272,7 +272,7 @@ namespace IxMilia.BCad
                 drawing = drawing.Remove(entity);
             }
 
-            var primitives = entities.SelectMany(e => e.GetPrimitives());
+            var primitives = entities.SelectMany(e => e.GetPrimitives(drawing.Settings));
             var polylines = primitives.GetPolylinesFromSegments();
 
             var polyLayer = drawing.Layers.GetValue(layerName);
@@ -287,7 +287,7 @@ namespace IxMilia.BCad
 
         public static Rect GetExtents(this Drawing drawing, Vector sight)
         {
-            return drawing.GetEntities().SelectMany(e => e.GetPrimitives()).GetExtents(sight);
+            return drawing.GetEntities().SelectMany(e => e.GetPrimitives(drawing.Settings)).GetExtents(sight);
         }
 
         public static ViewPort ShowAllViewPort(this Drawing drawing, Vector sight, Vector up, double viewPortWidth, double viewPortHeight, double viewportBuffer = PrimitiveExtensions.DefaultViewportBuffer)
@@ -329,7 +329,7 @@ namespace IxMilia.BCad
             var result = drawing;
             foreach (var entity in entities)
             {
-                if (entity.TryExplodeEntity(out var exploded))
+                if (entity.TryExplodeEntity(drawing.Settings, out var exploded))
                 {
                     var originalLayer = result.ContainingLayer(entity);
                     var updatedLayer = originalLayer.Remove(entity);

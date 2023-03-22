@@ -156,6 +156,23 @@ namespace IxMilia.BCad.Extensions
             return false;
         }
 
+        public static bool EquivalentTo(this LinearDimension linearDimension, Entity entity)
+        {
+            if (entity is LinearDimension other)
+            {
+                return linearDimension.DefinitionPoint1 == other.DefinitionPoint1
+                    && linearDimension.DefinitionPoint2 == other.DefinitionPoint2
+                    && linearDimension.DimensionLineLocation == other.DimensionLineLocation
+                    && linearDimension.IsAligned == other.IsAligned
+                    && linearDimension.TextMidPoint == other.TextMidPoint
+                    && linearDimension.TextOverride == other.TextOverride
+                    && linearDimension.DimensionStyleName == other.DimensionStyleName
+                    && linearDimension.Color == other.Color;
+            }
+
+            return false;
+        }
+
         public static bool EquivalentTo(this Location location, Entity entity)
         {
             if (entity is Location other)
@@ -241,6 +258,7 @@ namespace IxMilia.BCad.Extensions
                 ellipse => ellipse.EquivalentTo(b),
                 image => image.EquivalentTo(b),
                 line => line.EquivalentTo(b),
+                linearDimension => linearDimension.EquivalentTo(b),
                 location => location.EquivalentTo(b),
                 polyline => polyline.EquivalentTo(b),
                 spline => spline.EquivalentTo(b),
@@ -257,6 +275,7 @@ namespace IxMilia.BCad.Extensions
                 ellipse => ellipse.FromUnitCircle,
                 image => throw new ArgumentException(nameof(entity)),
                 line => throw new ArgumentException(nameof(entity)),
+                linearDimension => throw new ArgumentException(nameof(entity)),
                 location => throw new ArgumentException(nameof(entity)),
                 polyline => throw new ArgumentException(nameof(entity)),
                 spline => throw new ArgumentException(nameof(entity)),
@@ -264,15 +283,16 @@ namespace IxMilia.BCad.Extensions
             );
         }
 
-        public static bool EnclosesPoint(this Entity entity, Point point)
+        public static bool EnclosesPoint(this Entity entity, Point point, DrawingSettings settings)
         {
             return entity.MapEntity<bool>(
                 aggregate => false,
-                arc => arc.GetPrimitives().PolygonContains(point),
-                circle => circle.GetPrimitives().PolygonContains(point),
+                arc => arc.GetPrimitives(settings).PolygonContains(point),
+                circle => circle.GetPrimitives(settings).PolygonContains(point),
                 ellipse => false, // TODO: if closed, check it
                 image => false, // TODO: this could be meaningful
                 line => false,
+                linearDimension => false,
                 location => false,
                 polyline => false,
                 spline => false,
@@ -294,11 +314,32 @@ namespace IxMilia.BCad.Extensions
                 ellipse => ellipse.Update(color: color),
                 image => image.Update(color: color),
                 line => line.Update(color: color),
+                linearDimension => linearDimension.Update(color: color),
                 location => location.Update(color: color),
                 polyline => polyline.Update(color: color),
                 spline => spline.Update(color: color),
                 text => text.Update(color: color)
             );
+        }
+
+        public static AbstractDimension WithTextColor(this AbstractDimension dim, CadColor? color)
+        {
+            return dim switch
+            {
+                LinearDimension l => l.Update(textColor: color),
+                _ => throw new ArgumentOutOfRangeException(nameof(dim)),
+            };
+        }
+
+        public static AbstractDimension WithDimensionStyleName(this AbstractDimension dim, string dimensionStyleName)
+        {
+            switch (dim)
+            {
+                case LinearDimension l:
+                    return l.Update(dimensionStyleName: dimensionStyleName);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(dim));
+            }
         }
 
         public static Entity WithLineTypeSpecification(this Entity entity, LineTypeSpecification lineTypeSpecification)
@@ -310,6 +351,7 @@ namespace IxMilia.BCad.Extensions
                 ellipse => ellipse.Update(lineTypeSpecification: lineTypeSpecification),
                 image => image.Update(lineTypeSpecification: lineTypeSpecification),
                 line => line.Update(lineTypeSpecification: lineTypeSpecification),
+                linearDimension => linearDimension.Update(lineTypeSpecification: lineTypeSpecification),
                 location => location.Update(lineTypeSpecification: lineTypeSpecification),
                 polyline => polyline.Update(lineTypeSpecification: lineTypeSpecification),
                 spline => spline.Update(lineTypeSpecification: lineTypeSpecification),
@@ -326,24 +368,25 @@ namespace IxMilia.BCad.Extensions
                 ellipse => ellipse.Update(thickness: thickness),
                 image => entity,
                 line => line.Update(thickness: thickness),
+                linearDimension => entity,
                 location => entity,
                 polyline => entity,
-                spline => spline,
-                text => text
+                spline => entity,
+                text => entity
             );
         }
 
-        public static IEnumerable<Entity> Union(this IEnumerable<Entity> entities)
+        public static IEnumerable<Entity> Union(this IEnumerable<Entity> entities, DrawingSettings settings)
         {
-            return CombineEntities(entities, doUnion: true);
+            return CombineEntities(entities, doUnion: true, settings: settings);
         }
 
-        public static IEnumerable<Entity> Intersect(this IEnumerable<Entity> entities)
+        public static IEnumerable<Entity> Intersect(this IEnumerable<Entity> entities, DrawingSettings settings)
         {
-            return CombineEntities(entities, doUnion: false);
+            return CombineEntities(entities, doUnion: false, settings: settings);
         }
 
-        public static IEnumerable<Entity> Subtract(this Entity original, IEnumerable<Entity> others)
+        public static IEnumerable<Entity> Subtract(this Entity original, IEnumerable<Entity> others, DrawingSettings settings)
         {
             if (original.Kind != EntityKind.Circle && original.Kind != EntityKind.Polyline)
             {
@@ -356,7 +399,7 @@ namespace IxMilia.BCad.Extensions
             }
 
             var all = new[] { original }.Concat(others);
-            var allLines = all.PerformAllIntersections();
+            var allLines = all.PerformAllIntersections(settings);
 
             var keptLines = new List<IPrimitive>();
             foreach (var kvp in allLines)
@@ -367,12 +410,12 @@ namespace IxMilia.BCad.Extensions
                 if (ReferenceEquals(container, original))
                 {
                     // if we're testing a line from the parent polyline, keep if not in any of the others
-                    keep = others.All(o => !o.EnclosesPoint(segment.MidPoint()));
+                    keep = others.All(o => !o.EnclosesPoint(segment.MidPoint(), settings));
                 }
                 else
                 {
                     // if we're testing a line from a subsequent polyline, keep if in the original
-                    keep = original.EnclosesPoint(segment.MidPoint());
+                    keep = original.EnclosesPoint(segment.MidPoint(), settings);
                 }
 
                 if (keep)
@@ -392,6 +435,7 @@ namespace IxMilia.BCad.Extensions
             Action<Ellipse> ellipseAction,
             Action<Image> imageAction,
             Action<Line> lineAction,
+            Action<LinearDimension> linearDimensionAction,
             Action<Location> locationAction,
             Action<Polyline> polylineAction,
             Action<Spline> splineAction,
@@ -416,6 +460,9 @@ namespace IxMilia.BCad.Extensions
                     break;
                 case Line line:
                     lineAction(line);
+                    break;
+                case LinearDimension linearDimension:
+                    linearDimensionAction(linearDimension);
                     break;
                 case Location location:
                     locationAction(location);
@@ -442,6 +489,7 @@ namespace IxMilia.BCad.Extensions
             Func<Ellipse, TResult> ellipseMapper,
             Func<Image, TResult> imageMapper,
             Func<Line, TResult> lineMapper,
+            Func<LinearDimension, TResult> linearDimensionMapper,
             Func<Location, TResult> locationMapper,
             Func<Polyline, TResult> polylineMapper,
             Func<Spline, TResult> splineMapper,
@@ -455,6 +503,7 @@ namespace IxMilia.BCad.Extensions
                 ellipse => result = ellipseMapper(ellipse),
                 image => result = imageMapper(image),
                 line => result = lineMapper(line),
+                linearDimension => result = linearDimensionMapper(linearDimension),
                 location => result = locationMapper(location),
                 polyline => result = polylineMapper(polyline),
                 spline => result = splineMapper(spline),
@@ -464,25 +513,26 @@ namespace IxMilia.BCad.Extensions
             return result;
         }
 
-        public static bool TryExplodeEntity(this Entity entity, out IEnumerable<Entity> exploded)
+        public static bool TryExplodeEntity(this Entity entity, DrawingSettings settings, out IEnumerable<Entity> exploded)
         {
             exploded = MapEntity(entity,
-                aggregate => aggregate.Children.SelectMany(e => e.GetPrimitives().Select(p => p.Move(aggregate.Location).ToEntity(e.LineTypeSpecification ?? aggregate.LineTypeSpecification))),
+                aggregate => aggregate.Children.SelectMany(e => e.GetPrimitives(settings).Select(p => p.Move(aggregate.Location).ToEntity(e.LineTypeSpecification ?? aggregate.LineTypeSpecification))),
                 arc => null,
                 circle => null,
                 ellipse => null,
                 image => null,
                 line => null,
+                linearDimension => linearDimension.GetPrimitives(settings).Select(p => p.ToEntity(linearDimension.LineTypeSpecification)),
                 location => null,
-                polyline => polyline.GetPrimitives().Select(p => p.ToEntity(polyline.LineTypeSpecification)),
+                polyline => polyline.GetPrimitives(settings).Select(p => p.ToEntity(polyline.LineTypeSpecification)),
                 spline => null,
                 text => null);
             return exploded is not null;
         }
 
-        private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion)
+        private static IEnumerable<Entity> CombineEntities(IEnumerable<Entity> entityCollection, bool doUnion, DrawingSettings settings)
         {
-            var allSegments = PerformAllIntersections(entityCollection);
+            var allSegments = PerformAllIntersections(entityCollection, settings);
 
             // only keep segments that aren't contained in the other entity
             var keptSegments = new List<IPrimitive>();
@@ -493,7 +543,7 @@ namespace IxMilia.BCad.Extensions
                 var contains = !doUnion;
                 foreach (var container in entityCollection.Where(p => !ReferenceEquals(poly, p)))
                 {
-                    var containsPoint = container.EnclosesPoint(segment.MidPoint());
+                    var containsPoint = container.EnclosesPoint(segment.MidPoint(), settings);
                     if (doUnion)
                     {
                         contains |= containsPoint;
@@ -513,7 +563,7 @@ namespace IxMilia.BCad.Extensions
             return keptSegments.GetPolylinesFromSegments();
         }
 
-        internal static Dictionary<IPrimitive, Entity> PerformAllIntersections(this IEnumerable<Entity> entityCollection)
+        internal static Dictionary<IPrimitive, Entity> PerformAllIntersections(this IEnumerable<Entity> entityCollection, DrawingSettings settings)
         {
             if (entityCollection == null)
             {
@@ -526,7 +576,7 @@ namespace IxMilia.BCad.Extensions
                 throw new InvalidOperationException("Must be performed on 2 or more entities");
             }
 
-            var segments = entities.Select(e => Tuple.Create(e, e.GetPrimitives().ToList())).ToList();
+            var segments = entities.Select(e => Tuple.Create(e, e.GetPrimitives(settings).ToList())).ToList();
             var intersections = new Dictionary<IPrimitive, HashSet<Point>>();
 
             // intersect all polygons

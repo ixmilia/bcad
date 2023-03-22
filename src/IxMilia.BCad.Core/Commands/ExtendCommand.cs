@@ -16,9 +16,9 @@ namespace IxMilia.BCad.Commands
             return "Entity to extend";
         }
 
-        protected override void DoTrimExtend(SelectedEntity selectedEntity, IEnumerable<Primitives.IPrimitive> boundaryPrimitives, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
+        protected override void DoTrimExtend(SelectedEntity selectedEntity, IEnumerable<Primitives.IPrimitive> boundaryPrimitives, DrawingSettings settings, out IEnumerable<Entity> removed, out IEnumerable<Entity> added)
         {
-            EditUtilities.Extend(selectedEntity, boundaryPrimitives, out removed, out added);
+            EditUtilities.Extend(selectedEntity, boundaryPrimitives, settings, out removed, out added);
         }
     }
 }

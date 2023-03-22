@@ -9,12 +9,14 @@ namespace IxMilia.BCad.FileHandlers.Test
     {
         public override IFileHandler FileHandler => new IgesFileHandler();
 
-        protected override Task<Entity> RoundTripEntity(Entity entity)
+        protected override Task<Entity> RoundTripEntity(Entity entity, DrawingSettings drawingSettings = null)
         {
             // shortcut to avoid file writing/reading
             var roundTripped = entity.ToIgesEntity().ToEntity();
             return Task.FromResult(roundTripped);
         }
+
+        private Task VerifyRoundTrip(Entity entity) => VerifyRoundTrip(entity, new DrawingSettings());
 
         [Fact]
         public async Task RoundTripColorTest()

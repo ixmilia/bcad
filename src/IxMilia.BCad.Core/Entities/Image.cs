@@ -46,7 +46,7 @@ namespace IxMilia.BCad.Entities
             BoundingBox = _image.GetBoundingBox();
         }
 
-        public override IEnumerable<IPrimitive> GetPrimitives() => _primitives;
+        public override IEnumerable<IPrimitive> GetPrimitives(DrawingSettings _settings) => _primitives;
 
         public override IEnumerable<SnapPoint> GetSnapPoints() => _snapPoints;
 
