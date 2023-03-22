@@ -34,18 +34,21 @@ namespace IxMilia.BCad.Core.Test
             for (int i = 0; i < actual.Length - expectedSubset.Length; i++)
             {
                 var candidateSubset = actual.Skip(i).Take(expectedSubset.Length).ToArray();
+                var foundMatch = true;
                 for (int j = 0; j < expectedSubset.Length; j++)
                 {
                     if (expectedSubset[j].CompareTo(candidateSubset[j]) != 0)
                     {
-                        goto loop_again;
+                        foundMatch = false;
+                        break;
                     }
                 }
 
-                // found a match, just quit
-                return;
-            loop_again:
-                var _ = 1; // need a garbage statement for the label to bind to
+                if (foundMatch)
+                {
+                    // found a match, just quit
+                    return;
+                }
             }
 
             Assert.Fail($"Unable to find subset {expectedSubset} in {actual}");
