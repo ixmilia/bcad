@@ -30,14 +30,24 @@ namespace IxMilia.BCad.Commands
                 File.Copy(fileName, backupFileName, true);
             }
 
-            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+            using (var ms = new MemoryStream())
             {
-                if (!await workspace.ReaderWriterService.TryWriteDrawing(fileName, workspace.Drawing, workspace.ActiveViewPort, stream, preserveSettings))
+                // first save to memory, just in case something goes wrong...
+                if (!await workspace.ReaderWriterService.TryWriteDrawing(fileName, workspace.Drawing, workspace.ActiveViewPort, ms, preserveSettings))
+                {
                     return false;
+                }
+
+                // ...then reset and save to file
+                await ms.FlushAsync();
+                ms.Seek(0, SeekOrigin.Begin);
+                using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                {
+                    await ms.CopyToAsync(fs);
+                }
             }
 
             UpdateDrawingFileName(workspace, fileName);
-
             return true;
         }
 
