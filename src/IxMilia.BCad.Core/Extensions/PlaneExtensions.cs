@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Primitives;
@@ -32,7 +31,11 @@ namespace IxMilia.BCad.Extensions
                     plane.Contains(bezier.P2) &&
                     plane.Contains(bezier.P3) &&
                     plane.Contains(bezier.P4),
-                image => plane.Contains(image.Location)
+                image => plane.Contains(image.Location),
+                triangle =>
+                    plane.Contains(triangle.P1) &&
+                    plane.Contains(triangle.P2) &&
+                    plane.Contains(triangle.P3)
             );
         }
 

@@ -194,6 +194,20 @@ namespace IxMilia.BCad.Extensions
             return false;
         }
 
+        public static bool EquivalentTo(this Solid solid, Entity entity)
+        {
+            if (entity is Solid other)
+            {
+                return solid.P1 == other.P1
+                    && solid.P2 == other.P2
+                    && solid.P3 == other.P3
+                    && solid.P4 == other.P4
+                    && solid.Color == other.Color;
+            }
+
+            return false;
+        }
+
         public static bool EquivalentTo(this Spline spline, Entity entity)
         {
             if (entity is Spline other)
@@ -261,6 +275,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => linearDimension.EquivalentTo(b),
                 location => location.EquivalentTo(b),
                 polyline => polyline.EquivalentTo(b),
+                solid => solid.EquivalentTo(b),
                 spline => spline.EquivalentTo(b),
                 text => text.EquivalentTo(b)
             );
@@ -278,6 +293,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => throw new ArgumentException(nameof(entity)),
                 location => throw new ArgumentException(nameof(entity)),
                 polyline => throw new ArgumentException(nameof(entity)),
+                solid => throw new ArgumentException(nameof(entity)),
                 spline => throw new ArgumentException(nameof(entity)),
                 text => throw new ArgumentException(nameof(entity))
             );
@@ -295,8 +311,9 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => false,
                 location => false,
                 polyline => false,
+                solid => solid.AsPointArray().PolygonContains(point),
                 spline => false,
-                tet => false
+                text => false
             );
         }
 
@@ -317,6 +334,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => linearDimension.Update(color: color),
                 location => location.Update(color: color),
                 polyline => polyline.Update(color: color),
+                solid => solid.Update(color: color),
                 spline => spline.Update(color: color),
                 text => text.Update(color: color)
             );
@@ -354,6 +372,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => linearDimension.Update(lineTypeSpecification: lineTypeSpecification),
                 location => location.Update(lineTypeSpecification: lineTypeSpecification),
                 polyline => polyline.Update(lineTypeSpecification: lineTypeSpecification),
+                solid => solid.Update(lineTypeSpecification: lineTypeSpecification),
                 spline => spline.Update(lineTypeSpecification: lineTypeSpecification),
                 text => text.Update(lineTypeSpecification: lineTypeSpecification)
             );
@@ -371,6 +390,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => entity,
                 location => entity,
                 polyline => entity,
+                solid => entity,
                 spline => entity,
                 text => entity
             );
@@ -438,6 +458,7 @@ namespace IxMilia.BCad.Extensions
             Action<LinearDimension> linearDimensionAction,
             Action<Location> locationAction,
             Action<Polyline> polylineAction,
+            Action<Solid> solidAction,
             Action<Spline> splineAction,
             Action<Text> textAction)
         {
@@ -470,6 +491,9 @@ namespace IxMilia.BCad.Extensions
                 case Polyline polyline:
                     polylineAction(polyline);
                     break;
+                case Solid solid:
+                    solidAction(solid);
+                    break;
                 case Spline spline:
                     splineAction(spline);
                     break;
@@ -492,6 +516,7 @@ namespace IxMilia.BCad.Extensions
             Func<LinearDimension, TResult> linearDimensionMapper,
             Func<Location, TResult> locationMapper,
             Func<Polyline, TResult> polylineMapper,
+            Func<Solid, TResult> solidMapper,
             Func<Spline, TResult> splineMapper,
             Func<Text, TResult> textMapper)
         {
@@ -506,6 +531,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => result = linearDimensionMapper(linearDimension),
                 location => result = locationMapper(location),
                 polyline => result = polylineMapper(polyline),
+                solid => result = solidMapper(solid),
                 spline => result = splineMapper(spline),
                 text => result = textMapper(text)
             );
@@ -525,6 +551,7 @@ namespace IxMilia.BCad.Extensions
                 linearDimension => linearDimension.GetPrimitives(settings).Select(p => p.ToEntity(linearDimension.LineTypeSpecification)),
                 location => null,
                 polyline => polyline.GetPrimitives(settings).Select(p => p.ToEntity(polyline.LineTypeSpecification)),
+                solid => solid.GetPrimitives(settings).Select(p => p.ToEntity(solid.LineTypeSpecification)),
                 spline => null,
                 text => null);
             return exploded is not null;
@@ -693,7 +720,8 @@ namespace IxMilia.BCad.Extensions
                     point => null,
                     text => null,
                     bezier => null,
-                    image => null
+                    image => null,
+                    triangle => null
                 ) ?? Array.Empty<IPrimitive>();
             }
         }

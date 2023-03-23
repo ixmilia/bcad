@@ -45,6 +45,7 @@ namespace IxMilia.BCad.Helpers
                 linearDimension => null,
                 location => null,
                 polyline => null,
+                solid => null, // TODO: this can probably be done
                 spline => null,
                 text => Project(text, layer, transform)
             );

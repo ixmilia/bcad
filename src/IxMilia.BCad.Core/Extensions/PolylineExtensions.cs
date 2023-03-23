@@ -143,7 +143,8 @@ namespace IxMilia.BCad.Extensions
                         point => throw new InvalidOperationException("Can only operate on lines and arcs"),
                         text => throw new InvalidOperationException("Can only operate on lines and arcs"),
                         bezier => throw new InvalidOperationException("Can only operate on lines and arcs"),
-                        image => throw new InvalidOperationException("Can only operate on lines and arcs")
+                        image => throw new InvalidOperationException("Can only operate on lines and arcs"),
+                        triangle => throw new InvalidOperationException("Can only operate on lines and arcs")
                     );
                 }
 

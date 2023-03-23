@@ -122,6 +122,7 @@ namespace IxMilia.BCad.FileHandlers
                         linearDimension => { },
                         location => { },
                         polyline => { },
+                        solid => { },
                         spline => { },
                         text => { }
                     );

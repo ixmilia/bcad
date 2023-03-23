@@ -680,7 +680,7 @@ namespace IxMilia.BCad.Display
 
         private IEnumerable<Point> ProjectedChain(Entity entity)
         {
-            return entity.GetPrimitives(_workspace.Drawing.Settings).SelectMany(p => p.GetProjectedVerticies(transformationMatrix));
+            return entity.GetPrimitives(_workspace.Drawing.Settings).SelectMany(p => p.GetProjectedVertices(transformationMatrix));
         }
 
         private IEnumerable<Entity> GetContainedEntities(Rect selectionRect, bool includePartial)
@@ -760,6 +760,21 @@ namespace IxMilia.BCad.Display
                     };
                     var closestBorderLine = borderLines.Select(l => ClosestPoint(l, screenPoint)).OrderBy(p => p.Item1).FirstOrDefault();
                     return closestBorderLine;
+                },
+                triangle =>
+                {
+                    var p1 = transformationMatrix.Transform(triangle.P1);
+                    var p2 = transformationMatrix.Transform(triangle.P2);
+                    var p3 = transformationMatrix.Transform(triangle.P3);
+                    var points = new[] { p1, p2, p3 };
+                    if (points.PolygonContains(screenPoint))
+                    {
+                        return Tuple.Create(0.0, screenPoint);
+                    }
+                    else
+                    {
+                        return ClosestPoint(points, screenPoint);
+                    }
                 }
             );
         }
@@ -802,7 +817,8 @@ namespace IxMilia.BCad.Display
                     point => new[] { point.Location },
                     text => new[] { text.Location },
                     bezier => new[] { bezier.P1, bezier.P2, bezier.P3, bezier.P4 },
-                    image => new[] { image.Location }
+                    image => new[] { image.Location },
+                    triangle => triangle.AsArray()
                 ));
             }
 

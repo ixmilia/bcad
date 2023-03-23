@@ -444,6 +444,54 @@ namespace IxMilia.BCad.Rpc.Test
         }
 
         [Fact]
+        public void GetSolidPropertyPaneValue()
+        {
+            var propertyMap = GetEntityProperties(new Solid(new Point(1.0, 2.0, 3.0), new Point(4.0, 5.0, 6.0), new Point(7.0, 8.0, 9.0), new Point(10.0, 11.0, 12.0)));
+            Assert.Equal(12, propertyMap.Count);
+            Assert.Equal(new ClientPropertyPaneValue("x1", "Point 1 X", "0'1\""), propertyMap["x1"]);
+            Assert.Equal(new ClientPropertyPaneValue("y1", "Y", "0'2\""), propertyMap["y1"]);
+            Assert.Equal(new ClientPropertyPaneValue("z1", "Z", "0'3\""), propertyMap["z1"]);
+            Assert.Equal(new ClientPropertyPaneValue("x2", "Point 2 X", "0'4\""), propertyMap["x2"]);
+            Assert.Equal(new ClientPropertyPaneValue("y2", "Y", "0'5\""), propertyMap["y2"]);
+            Assert.Equal(new ClientPropertyPaneValue("z2", "Z", "0'6\""), propertyMap["z2"]);
+            Assert.Equal(new ClientPropertyPaneValue("x3", "Point 3 X", "0'7\""), propertyMap["x3"]);
+            Assert.Equal(new ClientPropertyPaneValue("y3", "Y", "0'8\""), propertyMap["y3"]);
+            Assert.Equal(new ClientPropertyPaneValue("z3", "Z", "0'9\""), propertyMap["z3"]);
+            Assert.Equal(new ClientPropertyPaneValue("x4", "Point 4 X", "0'10\""), propertyMap["x4"]);
+            Assert.Equal(new ClientPropertyPaneValue("y4", "Y", "0'11\""), propertyMap["y4"]);
+            Assert.Equal(new ClientPropertyPaneValue("z4", "Z", "1'0\""), propertyMap["z4"]);
+        }
+
+        [Theory]
+        [InlineData("x1", "9", 9.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("y1", "9", 1.0, 9.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("z1", "9", 1.0, 2.0, 9.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("x2", "9", 1.0, 2.0, 0.0, 9.0, 4.0, 0.0, 5.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("y2", "9", 1.0, 2.0, 0.0, 3.0, 9.0, 0.0, 5.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("z2", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 9.0, 5.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("x3", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 9.0, 6.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("y3", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 9.0, 0.0, 7.0, 8.0, 0.0)]
+        [InlineData("z3", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 9.0, 7.0, 8.0, 0.0)]
+        [InlineData("x4", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, 9.0, 8.0, 0.0)]
+        [InlineData("y4", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, 7.0, 9.0, 0.0)]
+        [InlineData("z4", "9", 1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 5.0, 6.0, 0.0, 7.0, 8.0, 9.0)]
+        public void SetSolidPropertyPaneValue(
+            string propertyName,
+            string propertyValue,
+            double x1, double y1, double z1,
+            double x2, double y2, double z2,
+            double x3, double y3, double z3,
+            double x4, double y4, double z4)
+        {
+            var entity = new Solid(new Point(1.0, 2.0, 0.0), new Point(3.0, 4.0, 0.0), new Point(5.0, 6.0, 0.0), new Point(7.0, 8.0, 0.0));
+            var finalEntity = DoUpdate(entity, propertyName, propertyValue);
+            Assert.Equal(new Point(x1, y1, z1), finalEntity.P1);
+            Assert.Equal(new Point(x2, y2, z2), finalEntity.P2);
+            Assert.Equal(new Point(x3, y3, z3), finalEntity.P3);
+            Assert.Equal(new Point(x4, y4, z4), finalEntity.P4);
+        }
+
+        [Fact]
         public void GetTextPropertyPaneValue()
         {
             var propertyMap = GetEntityProperties(new Text("the-value", new Point(1.0, 2.0, 3.0), new Vector(0.0, 0.0, 1.0), 4.0, 5.0));

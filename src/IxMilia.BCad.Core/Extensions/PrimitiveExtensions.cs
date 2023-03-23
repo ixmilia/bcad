@@ -36,7 +36,8 @@ namespace IxMilia.BCad.Extensions
                 point => 0.0,
                 text => 0.0,
                 bezier => 0.0,
-                image => 0.0
+                image => 0.0,
+                triangle => 0.0
             );
         }
 
@@ -104,7 +105,8 @@ namespace IxMilia.BCad.Extensions
                 point => point.IntersectionPointsBetweenPointAndPrimitive(other, withinBounds),
                 text => Enumerable.Empty<Point>(),
                 bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(other),
-                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(other, withinBounds))
+                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(other, withinBounds)),
+                triangle => triangle.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(other, withinBounds))
             );
         }
 
@@ -118,7 +120,8 @@ namespace IxMilia.BCad.Extensions
                 otherPoint => point.IntersectionPointsBetweenPointAndPoint(otherPoint),
                 text => Enumerable.Empty<Point>(),
                 bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(point),
-                image => image.IntersectionPointsBetweenImageAndPoint(point)
+                image => image.IntersectionPointsBetweenImageAndPoint(point),
+                triangle => triangle.IntersectionPointsBetweenTriangleAndPoint(point)
             );
         }
 
@@ -148,7 +151,8 @@ namespace IxMilia.BCad.Extensions
                 point => line.IntersectionPointsBetweenLineAndPoint(point, withinBounds),
                 text => Enumerable.Empty<Point>(),
                 bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(line),
-                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(line, withinBounds))
+                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(line, withinBounds)),
+                triangle => triangle.GetBoundaryLines().SelectMany(l => l.IntersectionPoints(line, withinBounds))
             );
         }
 
@@ -314,7 +318,8 @@ namespace IxMilia.BCad.Extensions
                 point => ellipse.IntersectionPointsBetweenEllipseAndPoint(point, withinBounds),
                 text => Enumerable.Empty<Point>(),
                 bezier => bezier.IntersectionPointsBetweenBezierAndPrimitive(ellipse),
-                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPointsBetweenLineAndEllipse(ellipse))
+                image => image.GetBoundaryLines().SelectMany(l => l.IntersectionPointsBetweenLineAndEllipse(ellipse)),
+                triangle => triangle.GetBoundaryLines().SelectMany(l => l.IntersectionPointsBetweenLineAndEllipse(ellipse))
             );
         }
 
@@ -620,7 +625,8 @@ namespace IxMilia.BCad.Extensions
                 point => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other)),
                 text => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(other)),
                 otherBezier => bezier.IntersectionPrimitives.SelectMany(p1 => otherBezier.IntersectionPrimitives.SelectMany(p2 => p1.IntersectionPoints(p2))),
-                image => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(image))
+                image => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(image)),
+                triangle => bezier.IntersectionPrimitives.SelectMany(p => p.IntersectionPoints(triangle))
             );
         }
 
@@ -631,6 +637,18 @@ namespace IxMilia.BCad.Extensions
         private static IEnumerable<Point> IntersectionPointsBetweenImageAndPoint(this PrimitiveImage image, PrimitivePoint point)
         {
             if (image.GetBoundingBox().Contains(point.Location))
+            {
+                return new[] { point.Location };
+            }
+            else
+            {
+                return Enumerable.Empty<Point>();
+            }
+        }
+
+        private static IEnumerable<Point> IntersectionPointsBetweenTriangleAndPoint(this PrimitiveTriangle triangle, PrimitivePoint point)
+        {
+            if (triangle.ContainsPoint(point.Location))
             {
                 return new[] { point.Location };
             }
@@ -654,7 +672,8 @@ namespace IxMilia.BCad.Extensions
                 point => new Location(point, lineTypeSpecification: lineTypeSpecification),
                 text => new Text(text, lineTypeSpecification: lineTypeSpecification),
                 bezier => Spline.FromBezier(bezier, lineTypeSpecification: lineTypeSpecification),
-                image => new Image(image, lineTypeSpecification: lineTypeSpecification)
+                image => new Image(image, lineTypeSpecification: lineTypeSpecification),
+                triangle => new Solid(triangle.P1, triangle.P2, triangle.P3, triangle.P3, triangle.Color, lineTypeSpecification: lineTypeSpecification)
             );
         }
 
@@ -696,7 +715,12 @@ namespace IxMilia.BCad.Extensions
                     image.Width,
                     image.Height,
                     image.Rotation,
-                    image.Color)
+                    image.Color),
+                triangle => new PrimitiveTriangle(
+                    triangle.P1 + offset,
+                    triangle.P2 + offset,
+                    triangle.P3 + offset,
+                    triangle.Color)
             );
         }
 
@@ -708,7 +732,8 @@ namespace IxMilia.BCad.Extensions
                 otherPoint => otherPoint.Location.CloseTo(point, epsilon),
                 text => IsPointOnPrimitiveText(text, point),
                 bezier => IsPointOnPrimitiveBezier(bezier, point),
-                image => IsPointOnPrimitiveImage(image, point)
+                image => IsPointOnPrimitiveImage(image, point),
+                triangle => IsPointOnPrimitiveTriangle(triangle, point)
             );
         }
 
@@ -764,6 +789,11 @@ namespace IxMilia.BCad.Extensions
             return image.GetBoundingBox().Contains(point);
         }
 
+        private static bool IsPointOnPrimitiveTriangle(this PrimitiveTriangle triangle, Point point)
+        {
+            return triangle.ContainsPoint(point);
+        }
+
         public static double GetAngle(this PrimitiveEllipse ellipse, Point point)
         {
             var transform = ellipse.FromUnitCircle.Inverse();
@@ -813,7 +843,8 @@ namespace IxMilia.BCad.Extensions
                         image.Location + up,
                         image.Location
                     };
-                }
+                },
+                triangle => triangle.AsArray()
             );
         }
 
@@ -840,6 +871,11 @@ namespace IxMilia.BCad.Extensions
 
             points[i] = trans.Transform(new Point(Math.Cos(angle), Math.Sin(angle), 0.0));
             return points;
+        }
+
+        public static bool ContainsPoint(this PrimitiveTriangle triangle, Point point)
+        {
+            return triangle.AsArray().PolygonContains(point);
         }
 
         public static Rect GetExtents(this IEnumerable<IPrimitive> primitives, Vector sight)
@@ -958,7 +994,8 @@ namespace IxMilia.BCad.Extensions
                 point => point.Location,
                 text => text.Location,
                 bezier => bezier.P1,
-                image => image.Location
+                image => image.Location,
+                triangle => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
             );
         }
 
@@ -970,7 +1007,8 @@ namespace IxMilia.BCad.Extensions
                 point => point.Location,
                 text => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}"),
                 bezier => bezier.P4,
-                image => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
+                image => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}"),
+                triangle => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
             );
         }
 
@@ -991,11 +1029,12 @@ namespace IxMilia.BCad.Extensions
                 point => point.Location,
                 text => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}"),
                 bezier => bezier.ComputeParameterizedPoint(0.5), // find midpoint by length?
-                image => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
+                image => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}"),
+                triangle => throw new ArgumentException($"{nameof(primitive)}.{nameof(primitive.Kind)}")
             );
         }
 
-        public static IEnumerable<Point> GetProjectedVerticies(this IPrimitive primitive, Matrix4 transformationMatrix)
+        public static IEnumerable<Point> GetProjectedVertices(this IPrimitive primitive, Matrix4 transformationMatrix)
         {
             return primitive.MapPrimitive<IEnumerable<Point>>(
                 ellipse => ellipse.GetProjectedVerticies(transformationMatrix, 360),
@@ -1003,7 +1042,8 @@ namespace IxMilia.BCad.Extensions
                 point => point.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
                 text => text.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
                 bezier => bezier.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
-                image => image.GetInterestingPoints().Select(p => transformationMatrix.Transform(p))
+                image => image.GetInterestingPoints().Select(p => transformationMatrix.Transform(p)),
+                triangle => triangle.GetInterestingPoints().Select(p => transformationMatrix.Transform(p))
             );
         }
 
@@ -1064,7 +1104,8 @@ namespace IxMilia.BCad.Extensions
             Action<PrimitivePoint> pointAction,
             Action<PrimitiveText> textAction,
             Action<PrimitiveBezier> bezierAction,
-            Action<PrimitiveImage> imageAction)
+            Action<PrimitiveImage> imageAction,
+            Action<PrimitiveTriangle> triangleAction)
         {
             switch (primitive)
             {
@@ -1086,6 +1127,9 @@ namespace IxMilia.BCad.Extensions
                 case PrimitiveImage image:
                     imageAction(image);
                     break;
+                case PrimitiveTriangle triangle:
+                    triangleAction(triangle);
+                    break;
                 default:
                     throw new ArgumentException($"Unexpected primitive: {primitive.Kind}");
             }
@@ -1098,7 +1142,8 @@ namespace IxMilia.BCad.Extensions
             Func<PrimitivePoint, TResult> pointMapper,
             Func<PrimitiveText, TResult> textMapper,
             Func<PrimitiveBezier, TResult> bezierMapper,
-            Func<PrimitiveImage, TResult> imageMapper)
+            Func<PrimitiveImage, TResult> imageMapper,
+            Func<PrimitiveTriangle, TResult> triangleMapper)
         {
             TResult result = default;
             primitive.DoPrimitive(
@@ -1107,7 +1152,8 @@ namespace IxMilia.BCad.Extensions
                 point => result = pointMapper(point),
                 text => result = textMapper(text),
                 bezier => result = bezierMapper(bezier),
-                image => result = imageMapper(image)
+                image => result = imageMapper(image),
+                triangle => result = triangleMapper(triangle)
             );
 
             return result;

@@ -235,6 +235,15 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             return new Polyline(leader.Vertices.Select(v => new Vertex(v.ToPoint())), leader.GetEntityColor(), leader.GetLineTypeSpecification(), leader);
         }
 
+        public static Solid ToSolid(this DxfSolid solid)
+        {
+            return new Solid(
+                solid.FirstCorner.ToPoint(),
+                solid.SecondCorner.ToPoint(),
+                solid.FourthCorner.ToPoint(), // n.b., the dxf representation of a solid swaps the last two vertices
+                solid.ThirdCorner.ToPoint());
+        }
+
         public static Circle ToCircle(this DxfCircle circle)
         {
             return new Circle(circle.Center.ToPoint(), circle.Radius, circle.Normal.ToVector(), circle.GetEntityColor(), circle.GetLineTypeSpecification(), circle, circle.Thickness);
@@ -366,6 +375,9 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 case DxfEntityType.Polyline:
                     entity = ((DxfPolyline)item).ToPolyline();
                     break;
+                case DxfEntityType.Solid:
+                    entity = ((DxfSolid)item).ToSolid();
+                    break;
                 case DxfEntityType.Spline:
                     entity = ((DxfSpline)item).ToSpline();
                     break;
@@ -378,7 +390,6 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 case DxfEntityType.Ray:
                 case DxfEntityType.Region:
                 case DxfEntityType.Seqend:
-                case DxfEntityType.Solid:
                 case DxfEntityType.Tolerance:
                 case DxfEntityType.Trace:
                 case DxfEntityType.Vertex:
@@ -438,6 +449,17 @@ namespace IxMilia.BCad.FileHandlers.Extensions
             };
 
             return dp;
+        }
+
+        public static DxfSolid ToDxfSolid(this Solid solid)
+        {
+            return new DxfSolid()
+            {
+                FirstCorner = solid.P1.ToDxfPoint(),
+                SecondCorner = solid.P2.ToDxfPoint(),
+                ThirdCorner = solid.P4.ToDxfPoint(), // n.b., the dxf representation of a solid swaps the last two vertices
+                FourthCorner = solid.P3.ToDxfPoint(),
+            };
         }
 
         public static DxfCircle ToDxfCircle(this Circle circle)
@@ -537,6 +559,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 linearDimension => linearDimension.ToDxfDimension(),
                 location => location.ToDxfLocation(),
                 polyline => polyline.ToDxfPolyline(),
+                solid => solid.ToDxfSolid(),
                 spline => spline.ToDxfSpline(settings),
                 text => text.ToDxfText()
             );

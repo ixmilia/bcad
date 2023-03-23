@@ -218,6 +218,22 @@ namespace IxMilia.BCad.Rpc
         }
     }
 
+    public struct ClientTriangle
+    {
+        public ClientPoint P1 { get; }
+        public ClientPoint P2 { get; }
+        public ClientPoint P3 { get; }
+        public CadColor? Color { get; }
+
+        public ClientTriangle(Point p1, Point p2, Point p3, CadColor? color)
+        {
+            P1 = p1;
+            P2 = p2;
+            P3 = p3;
+            Color = color;
+        }
+    }
+
     public class ClientDrawing
     {
         public string CurrentLayer { get; set; }
@@ -232,6 +248,7 @@ namespace IxMilia.BCad.Rpc
         public List<ClientEllipse> Ellipses { get; } = new List<ClientEllipse>();
         public List<ClientText> Text { get; } = new List<ClientText>();
         public List<ClientImage> Images { get; } = new List<ClientImage>();
+        public List<ClientTriangle> Triangles { get; } = new List<ClientTriangle>();
 
         public ClientDrawing(string fileName)
         {

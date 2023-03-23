@@ -11,6 +11,7 @@ import {
     ClientSettings,
     ClientText,
     ClientTransform,
+    ClientTriangle,
     ClientUpdate,
     CursorState,
     DrawingUnits,
@@ -36,6 +37,13 @@ interface Drawing extends ClientDrawing {
 
     PointCountWithDefaultColor: number;
     PointLocationsWithDefaultColor: WebGLBuffer;
+
+    TriangleCount: number;
+    TriangleVertices: WebGLBuffer;
+    TriangleColors: WebGLBuffer;
+
+    TriangleCountWithDefaultColor: number;
+    TriangleVerticesWithDefaultColor: WebGLBuffer;
 
     ImageElements: [ClientImage, HTMLImageElement][];
 }
@@ -125,6 +133,7 @@ export class ViewControl {
             Ellipses: [],
             Text: [],
             Images: [],
+            Triangles: [],
             LineCount: 0,
             LineVertices: {},
             LineColors: {},
@@ -135,6 +144,11 @@ export class ViewControl {
             PointColors: {},
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
+            TriangleCount: 0,
+            TriangleVertices: {},
+            TriangleColors: {},
+            TriangleCountWithDefaultColor: 0,
+            TriangleVerticesWithDefaultColor: {},
             ImageElements: [],
             CurrentDimensionStyle: '',
             DimensionStyles: [''],
@@ -149,6 +163,7 @@ export class ViewControl {
             Ellipses: [],
             Text: [],
             Images: [],
+            Triangles: [],
             CurrentDimensionStyle: '',
             DimensionStyles: [''],
         };
@@ -162,6 +177,7 @@ export class ViewControl {
             Ellipses: [],
             Text: [],
             Images: [],
+            Triangles: [],
             LineCount: 0,
             LineVertices: {},
             LineColors: {},
@@ -172,6 +188,11 @@ export class ViewControl {
             PointColors: {},
             PointCountWithDefaultColor: 0,
             PointLocationsWithDefaultColor: {},
+            TriangleCount: 0,
+            TriangleVertices: {},
+            TriangleColors: {},
+            TriangleCountWithDefaultColor: 0,
+            TriangleVerticesWithDefaultColor: {},
             ImageElements: [],
             CurrentDimensionStyle: '',
             DimensionStyles: [''],
@@ -299,6 +320,7 @@ export class ViewControl {
         drawing.Lines = clientDrawing.Lines;
         drawing.Ellipses = clientDrawing.Ellipses;
         drawing.Text = clientDrawing.Text;
+        drawing.Triangles = clientDrawing.Triangles;
         drawing.Images = clientDrawing.Images;
         drawing.ImageElements = await Promise.all(clientDrawing.Images.map(async i => {
             const imageElement = await this.createImageElement(i);
@@ -709,6 +731,46 @@ export class ViewControl {
 
         drawing.PointCount = pointCount;
         drawing.PointCountWithDefaultColor = pointCountWithDefaultColor;
+
+        // triangles
+        const triangleVerts = [];
+        const triangleCols = [];
+        const triangleVertsWithDefaultColor = [];
+        let triangleCount = 0;
+        let triangleCountWithDefaultColor = 0;
+        for (const t of drawing.Triangles) {
+            if (t.Color) {
+                triangleVerts.push(t.P1.X, t.P1.Y, t.P1.Z);
+                triangleVerts.push(t.P2.X, t.P2.Y, t.P2.Z);
+                triangleVerts.push(t.P3.X, t.P3.Y, t.P3.Z);
+                triangleCols.push(t.Color.R, t.Color.G, t.Color.B);
+                triangleCount++;
+            } else {
+                triangleVertsWithDefaultColor.push(t.P1.X, t.P1.Y, t.P1.Z);
+                triangleVertsWithDefaultColor.push(t.P2.X, t.P2.Y, t.P2.Z);
+                triangleVertsWithDefaultColor.push(t.P3.X, t.P3.Y, t.P3.Z);
+                triangleCountWithDefaultColor++;
+            }
+        }
+
+        const triangleVertices = new Float32Array(triangleVerts);
+        const triangleColors = new Uint8Array(triangleCols);
+        const triangleVerticesWithDefaultColor = new Float32Array(triangleVertsWithDefaultColor);
+
+        drawing.TriangleVertices = this.gl.createBuffer() || throwError('Unable to create triangle locations buffer');
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVertices);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, triangleVertices, this.gl.STATIC_DRAW);
+
+        drawing.TriangleColors = this.gl.createBuffer() || throwError('Unable to create triangle colors buffer');
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleColors);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, triangleColors, this.gl.STATIC_DRAW);
+
+        drawing.TriangleVerticesWithDefaultColor = this.gl.createBuffer() || throwError('Unable to create triangle locations with default color buffer');
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVerticesWithDefaultColor);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, triangleVerticesWithDefaultColor, this.gl.STATIC_DRAW);
+
+        drawing.TriangleCount = triangleCount;
+        drawing.TriangleCountWithDefaultColor = triangleCountWithDefaultColor;
     }
 
     private populateHotPoints(points: Point[]) {
@@ -840,6 +902,37 @@ export class ViewControl {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
         //
+        // triangles
+        //
+        if (drawing.TriangleCount > 0) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVertices);
+            this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
+            this.gl.enableVertexAttribArray(this.coordinatesLocation!);
+
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleColors);
+            this.gl.vertexAttribPointer(this.colorLocation!, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
+            this.gl.enableVertexAttribArray(this.colorLocation!);
+
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, drawing.TriangleCount * 3); // 3 points per triangle
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        }
+
+        //
+        // default color triangles
+        //
+        if (drawing.TriangleCountWithDefaultColor > 0) {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVerticesWithDefaultColor);
+            this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
+            this.gl.enableVertexAttribArray(this.coordinatesLocation!);
+
+            this.gl.disableVertexAttribArray(this.colorLocation!);
+            this.gl.vertexAttrib3f(this.colorLocation!, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
+
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, drawing.TriangleCountWithDefaultColor * 3); // 3 points per triangle
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        }
+
+        //
         // points
         //
         let pointMarkerScale = this.createConstantScaleTransform(this.settings.PointDisplaySize, this.settings.PointDisplaySize);
@@ -901,6 +994,9 @@ export class ViewControl {
         for (const text of drawing.Text) {
             this.renderTextToCanvas2D(context, text);
         }
+        for (const triangle of drawing.Triangles) {
+            this.renderTriangleToCanvas2D(context, triangle);
+        }
     }
 
     private renderEllipseToCanvas2D(context: CanvasRenderingContext2D, el: ClientEllipse) {
@@ -957,6 +1053,20 @@ export class ViewControl {
         context.stroke();
     }
 
+    private renderTriangleToCanvas2D(context: CanvasRenderingContext2D, triangle: ClientTriangle) {
+        const p1Transformed = transform(this.transform.CanvasTransform, [triangle.P1.X, triangle.P1.Y, triangle.P1.Z, 1]);
+        const p2Transformed = transform(this.transform.CanvasTransform, [triangle.P2.X, triangle.P2.Y, triangle.P2.Z, 1]);
+        const p3Transformed = transform(this.transform.CanvasTransform, [triangle.P3.X, triangle.P3.Y, triangle.P3.Z, 1]);
+        context.fillStyle = ViewControl.colorToHex(triangle.Color || this.settings.AutoColor);
+        context.beginPath();
+        context.moveTo(p1Transformed[0], p1Transformed[1]);
+        context.lineTo(p2Transformed[0], p2Transformed[1]);
+        context.lineTo(p3Transformed[0], p3Transformed[1]);
+        context.closePath();
+        context.stroke();
+        context.fill();
+    }
+
     private renderHighlightLineToCanvas(context: CanvasRenderingContext2D, p1: ClientPoint, p2: ClientPoint, color: CadColor) {
         const p1Transformed = transform(this.transform.CanvasTransform, [p1.X, p1.Y, p1.Z, 1]);
         const p2Transformed = transform(this.transform.CanvasTransform, [p2.X, p2.Y, p2.Z, 1]);
@@ -978,6 +1088,10 @@ export class ViewControl {
 
         for (const el of drawing.Ellipses) {
             this.redrawEllipse(context, el);
+        }
+
+        for (const t of drawing.Triangles) {
+            this.redrawTriangle(context, t);
         }
 
         context.setLineDash([]);
@@ -1010,6 +1124,21 @@ export class ViewControl {
         context.setLineDash(el.LinePattern.map(p => p * this.transform.CanvasTransform[0]));
         context.ellipse(center[0], center[1], radiusX, radiusY, rotation, el.StartAngle * Math.PI / -180.0, el.EndAngle * Math.PI / -180.0, true);
         context.stroke();
+    }
+
+    private redrawTriangle(context: CanvasRenderingContext2D, triangle: ClientTriangle) {
+        const p1 = transform(this.transform.CanvasTransform, [triangle.P1.X, triangle.P1.Y, triangle.P1.Z, 1]);
+        const p2 = transform(this.transform.CanvasTransform, [triangle.P2.X, triangle.P2.Y, triangle.P2.Z, 1]);
+        const p3 = transform(this.transform.CanvasTransform, [triangle.P3.X, triangle.P3.Y, triangle.P3.Z, 1]);
+        context.beginPath();
+        context.fillStyle = ViewControl.colorToHex(triangle.Color || this.settings.AutoColor);
+        context.strokeStyle = ViewControl.colorToHex(triangle.Color || this.settings.AutoColor);
+        context.moveTo(p1[0], p1[1]);
+        context.lineTo(p2[0], p2[1]);
+        context.lineTo(p3[0], p3[1]);
+        context.closePath();
+        context.stroke();
+        context.fill();
     }
 
     private redrawPoint(context: CanvasRenderingContext2D, point: ClientPointLocation) {

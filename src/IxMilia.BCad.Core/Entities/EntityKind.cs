@@ -13,6 +13,7 @@ namespace IxMilia.BCad.Entities
         Spline = 1 << 8,
         Image = 1 << 9,
         LinearDimension = 1 << 10,
+        Solid = 1 << 11,
         All = int.MaxValue
     }
 }

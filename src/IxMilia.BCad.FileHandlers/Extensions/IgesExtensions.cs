@@ -23,6 +23,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 linearDimension => null,
                 location => location.ToIgesLocation(),
                 polyline => null,
+                solid => null,
                 spline => null,
                 text => null
             );
@@ -64,6 +65,7 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 linearDimension => throw new ArgumentException(nameof(entity)),
                 location => throw new ArgumentException(nameof(entity)),
                 polyline => throw new ArgumentException(nameof(entity)),
+                solid => throw new ArgumentException(nameof(entity)),
                 spline => throw new ArgumentException(nameof(entity)),
                 text => throw new ArgumentException(nameof(entity))
             );

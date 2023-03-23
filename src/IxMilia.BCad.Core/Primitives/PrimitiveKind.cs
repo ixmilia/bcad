@@ -8,5 +8,6 @@ namespace IxMilia.BCad.Primitives
         Text = 1 << 3,
         Bezier = 1 << 4,
         Image = 1 << 5,
+        Triangle = 1 << 6,
     }
 }

@@ -58,7 +58,11 @@ namespace IxMilia.BCad.Utilities
                     p4: transform.Transform(bezier.P4)),
                 image => image.Update(
                     location: transform.Transform(image.Location),
-                    rotation: image.Rotation + angleInDegrees)
+                    rotation: image.Rotation + angleInDegrees),
+                triangle => triangle.Update(
+                    p1: transform.Transform(triangle.P1),
+                    p2: transform.Transform(triangle.P2),
+                    p3: transform.Transform(triangle.P3))
             );
         }
 
@@ -94,6 +98,11 @@ namespace IxMilia.BCad.Utilities
                     point: transform.Transform(location.Point)),
                 polyline => polyline.Update(
                     vertices: polyline.Vertices.Select(v => new Vertex(transform.Transform(v.Location), v.IncludedAngle, v.Direction))),
+                solid => solid.Update(
+                    p1: transform.Transform(solid.P1),
+                    p2: transform.Transform(solid.P2),
+                    p3: transform.Transform(solid.P3),
+                    p4: transform.Transform(solid.P4)),
                 spline => spline.Update(
                     controlPoints: spline.ControlPoints.Select(cp => transform.Transform(cp))),
                 text => text.Update(
@@ -131,6 +140,7 @@ namespace IxMilia.BCad.Utilities
                     linearDimension => (null, null),
                     location => (null, null),
                     polyline => (null, null),
+                    solid => (null, null),
                     spline =>
                     {
                         TrimSpline(spline, entityToTrim.SelectionPoint, intersectionPoints, settings, out var removedX, out var addedX);
@@ -182,6 +192,7 @@ namespace IxMilia.BCad.Utilities
                     linearDimension => (null, null),
                     location => (null, null),
                     polyline => (null, null),
+                    solid => (null, null),
                     spline => (null, null),
                     text => (null, null)
                 );
@@ -214,6 +225,7 @@ namespace IxMilia.BCad.Utilities
                 linearDimension => false,
                 location => false,
                 polyline => false,
+                solid => false,
                 spline => false,
                 text => false
             );
@@ -288,7 +300,8 @@ namespace IxMilia.BCad.Utilities
                 },
                 text => null,
                 bezier => null,
-                image => null
+                image => null,
+                triangle => null
             );
         }
 
@@ -304,6 +317,7 @@ namespace IxMilia.BCad.Utilities
                 linearDimension => null,
                 location => null,
                 polyline => null,
+                solid => null,
                 spline => null,
                 text => null
             );
@@ -384,6 +398,7 @@ namespace IxMilia.BCad.Utilities
                     textMidPoint: linearDimension.TextMidPoint + offset),
                 location => location.Update(point: location.Point + offset),
                 polyline => polyline.Update(vertices: polyline.Vertices.Select(v => new Vertex(v.Location + offset, v.IncludedAngle, v.Direction))),
+                solid => solid.Update(p1: solid.P1 + offset, p2: solid.P2 + offset, p3: solid.P3 + offset, p4: solid.P4 + offset),
                 spline => spline.Update(controlPoints: spline.ControlPoints.Select(p => p + offset)),
                 text => text.Update(location: text.Location + offset)
             );
@@ -411,7 +426,11 @@ namespace IxMilia.BCad.Utilities
                 image => image.Update(
                     location: image.Location.ScaleFrom(basePoint, scaleFactor),
                     width: image.Width * scaleFactor,
-                    height: image.Height * scaleFactor)
+                    height: image.Height * scaleFactor),
+                triangle => triangle.Update(
+                    p1: triangle.P1.ScaleFrom(basePoint, scaleFactor),
+                    p2: triangle.P2.ScaleFrom(basePoint, scaleFactor),
+                    p3: triangle.P3.ScaleFrom(basePoint, scaleFactor))
             );
         }
 
@@ -446,6 +465,11 @@ namespace IxMilia.BCad.Utilities
                     point: location.Point.ScaleFrom(basePoint, scaleFactor)),
                 polyline => polyline.Update(
                     vertices: polyline.Vertices.Select(v => new Vertex(v.Location.ScaleFrom(basePoint, scaleFactor), v.IncludedAngle, v.Direction))),
+                solid => solid.Update(
+                    p1: solid.P1.ScaleFrom(basePoint, scaleFactor),
+                    p2: solid.P2.ScaleFrom(basePoint, scaleFactor),
+                    p3: solid.P3.ScaleFrom(basePoint, scaleFactor),
+                    p4: solid.P4.ScaleFrom(basePoint, scaleFactor)),
                 spline => spline.Update(
                     controlPoints: spline.ControlPoints.Select(p => p.ScaleFrom(basePoint, scaleFactor))),
                 text => text.Update(
@@ -506,6 +530,11 @@ namespace IxMilia.BCad.Utilities
                 polyline => polyline.Update(
                     vertices: polyline.Vertices.Select(
                         v => new Vertex(settings.Quantize(v.Location), settings.QuantizeAngle(v.IncludedAngle), v.Direction))),
+                solid => solid.Update(
+                    p1: settings.Quantize(solid.P1),
+                    p2: settings.Quantize(solid.P2),
+                    p3: settings.Quantize(solid.P3),
+                    p4: settings.Quantize(solid.P4)),
                 spline => spline.Update(
                     controlPoints: spline.ControlPoints.Select(cp => settings.Quantize(cp))),
                 text => text.Update(
@@ -538,7 +567,8 @@ namespace IxMilia.BCad.Utilities
                 point => null,
                 text => null,
                 bezier => null,
-                image => null
+                image => null,
+                triangle => null
             ) ?? Enumerable.Empty<IPrimitive>();
         }
 
@@ -717,6 +747,7 @@ namespace IxMilia.BCad.Utilities
                 linearDimension => throw new ArgumentException(nameof(entityToTrim)),
                 location => throw new ArgumentException(nameof(entityToTrim)),
                 polyline => throw new ArgumentException(nameof(entityToTrim)),
+                solid => throw new ArgumentException(nameof(entityToTrim)),
                 spline => throw new ArgumentException(nameof(entityToTrim)),
                 text => throw new ArgumentException(nameof(entityToTrim))
             );

@@ -276,6 +276,21 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Location>("z", "Z", drawing.FormatUnits(location.Point.Z), (location, value) => location.Update(point: location.Point.WithZ(value))),
                 },
                 polyline => new ClientPropertyPaneValue[0],
+                solid => new[]
+                {
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("x1", "Point 1 X", drawing.FormatUnits(solid.P1.X), (solid, value) => solid.Update(p1: solid.P1.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("y1", "Y", drawing.FormatUnits(solid.P1.Y), (solid, value) => solid.Update(p1: solid.P1.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("z1", "Z", drawing.FormatUnits(solid.P1.Z), (solid, value) => solid.Update(p1: solid.P1.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("x2", "Point 2 X", drawing.FormatUnits(solid.P2.X), (solid, value) => solid.Update(p2: solid.P2.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("y2", "Y", drawing.FormatUnits(solid.P2.Y), (solid, value) => solid.Update(p2: solid.P2.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("z2", "Z", drawing.FormatUnits(solid.P2.Z), (solid, value) => solid.Update(p2: solid.P2.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("x3", "Point 3 X", drawing.FormatUnits(solid.P3.X), (solid, value) => solid.Update(p3: solid.P3.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("y3", "Y", drawing.FormatUnits(solid.P3.Y), (solid, value) => solid.Update(p3: solid.P3.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("z3", "Z", drawing.FormatUnits(solid.P3.Z), (solid, value) => solid.Update(p3: solid.P3.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("x4", "Point 4 X", drawing.FormatUnits(solid.P4.X), (solid, value) => solid.Update(p4: solid.P4.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("y4", "Y", drawing.FormatUnits(solid.P4.Y), (solid, value) => solid.Update(p4: solid.P4.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("z4", "Z", drawing.FormatUnits(solid.P4.Z), (solid, value) => solid.Update(p4: solid.P4.WithZ(value))),
+                },
                 spline => new ClientPropertyPaneValue[0],
                 text => new[]
                 {

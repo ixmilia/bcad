@@ -410,6 +410,62 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
+        public async Task ReadSolidTest()
+        {
+            var drawing = await ReadFromDxfContent(
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "SOLID"),
+                (" 10", "1.0"),
+                (" 20", "2.0"),
+                (" 30", "0.0"),
+                (" 11", "3.0"),
+                (" 21", "4.0"),
+                (" 31", "0.0"),
+                (" 12", "7.0"), // n.b., the dxf representation of a solid swaps the last two vertices
+                (" 22", "8.0"),
+                (" 32", "0.0"),
+                (" 13", "5.0"),
+                (" 23", "6.0"),
+                (" 33", "0.0"),
+                ("  0", "ENDSEC"),
+                ("  0", "EOF"));
+            var solid = Assert.IsType<Solid>(drawing.GetEntities().Single());
+            Assert.Equal(new Point(1.0, 2.0, 0.0), solid.P1);
+            Assert.Equal(new Point(3.0, 4.0, 0.0), solid.P2);
+            Assert.Equal(new Point(5.0, 6.0, 0.0), solid.P3);
+            Assert.Equal(new Point(7.0, 8.0, 0.0), solid.P4);
+        }
+
+        [Fact]
+        public async Task WriteSolidTest()
+        {
+            var drawing = new Drawing()
+                .AddToCurrentLayer(new Solid(
+                    new Point(1.0, 2.0, 0.0),
+                    new Point(3.0, 4.0, 0.0),
+                    new Point(5.0, 6.0, 0.0),
+                    new Point(7.0, 8.0, 0.0)));
+            var actual = await GetDxfCodePairs(drawing);
+            var expected = new[]
+            {
+                (" 10", "1.0"),
+                (" 20", "2.0"),
+                (" 30", "0.0"),
+                (" 11", "3.0"),
+                (" 21", "4.0"),
+                (" 31", "0.0"),
+                (" 12", "7.0"), // n.b., the dxf representation of a solid swaps the last two vertices
+                (" 22", "8.0"),
+                (" 32", "0.0"),
+                (" 13", "5.0"),
+                (" 23", "6.0"),
+                (" 33", "0.0"),
+            };
+            AssertContains(expected, actual);
+        }
+
+        [Fact]
         public async Task RoundTripLinearDimensionTest()
         {
             await VerifyRoundTrip(new LinearDimension(
