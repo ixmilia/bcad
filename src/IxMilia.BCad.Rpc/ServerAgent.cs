@@ -500,8 +500,8 @@ namespace IxMilia.BCad.Rpc
                         last = next;
                     }
                 },
-                image => clientDrawing.Images.Add(new ClientImage(image.Location, Convert.ToBase64String(image.ImageData), image.Path, image.Width, image.Height, image.Rotation, image.Color)),
-                triangle => clientDrawing.Triangles.Add(new ClientTriangle(triangle.P1, triangle.P2, triangle.P3, triangle.Color))
+                image => clientDrawing.Images.Add(new ClientImage(image.Location, Convert.ToBase64String(image.ImageData), image.Path, image.Width, image.Height, image.Rotation, primitiveColor)),
+                triangle => clientDrawing.Triangles.Add(new ClientTriangle(triangle.P1, triangle.P2, triangle.P3, primitiveColor))
             );
         }
 
