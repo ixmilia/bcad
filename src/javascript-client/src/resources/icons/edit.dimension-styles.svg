@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <polygon points="3,0 15,0 12,5 0,5 3,0" style="fill: lavenderblush; stroke: black" />
-  <polygon points="3,5 15,5 12,10 0,10 3,5" style="fill: lightyellow; stroke: black" />
-  <polygon points="3,10 15,10 12,15 0,15 3,10" style="fill: lightblue; stroke: black" />
+  <path d="M 1,2.5 L 1,10 M 15,2.5 L 15,10 M 1,6 L 15,6" style="stroke: black" />
+  <text x="50%" y="70%" style="font: 12px serif" dominant-baseline="central" text-anchor="middle">??</text>
 </svg>
