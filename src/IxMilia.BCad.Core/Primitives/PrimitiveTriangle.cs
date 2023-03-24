@@ -14,7 +14,7 @@ namespace IxMilia.BCad.Primitives
         private Lazy<Point[]> _pointsAsArray;
         private Lazy<PrimitiveLine[]> _boundaryLines;
 
-        public PrimitiveTriangle(Point p1, Point p2, Point p3, CadColor? color)
+        public PrimitiveTriangle(Point p1, Point p2, Point p3, CadColor? color = null)
         {
             P1 = p1;
             P2 = p2;

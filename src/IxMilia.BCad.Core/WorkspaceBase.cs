@@ -56,6 +56,7 @@ namespace IxMilia.BCad
             RegisterCommand(new CadCommandInfo("Draw.Polygon", "POLYGON", new DrawPolygonCommand(), "polygon", "pg"));
             RegisterCommand(new CadCommandInfo("Draw.PolyLine", "POLYLINE", new DrawPolyLineCommand(), "polyline", "pl"));
             RegisterCommand(new CadCommandInfo("Draw.Rectangle", "RECTANGLE", new DrawRectangleCommand(), "rectangle", "rect"));
+            RegisterCommand(new CadCommandInfo("Draw.Solid", "SOLID", new DrawSolidCommand(), "solid"));
             RegisterCommand(new CadCommandInfo("Draw.Text", "TEXT", new DrawTextCommand(), "text", "t"));
             RegisterCommand(new CadCommandInfo("Edit.Explode", "EXPLODE", new ExplodeCommand(), "explode", "x"));
             RegisterCommand(new CadCommandInfo("Edit.Extend", "EXTEND", new ExtendCommand(), "extend", "ex"));

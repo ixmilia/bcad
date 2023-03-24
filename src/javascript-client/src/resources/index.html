@@ -58,10 +58,6 @@
                 <img class="icon-large" src="icons/draw.line.svg" />
                 Line
               </button>
-              <button class="command-button" data-command-name="Draw.PolyLine">
-                <img class="icon-large" src="icons/draw.polyline.svg" />
-                Polyline
-              </button>
               <button class="command-button" data-command-name="Draw.Circle">
                 <img class="icon-large" src="icons/draw.circle.svg" />
                 Circle
@@ -78,10 +74,34 @@
                 <img class="icon-large" src="icons/draw.text.svg" />
                 Text
               </button>
-              <button class="command-button" data-command-name="Draw.Point">
-                <img class="icon-large" src="icons/draw.point.svg" />
-                Point
-              </button>
+              <table cellspacing="0" style="display: inline; vertical-align: top;">
+                <tbody class="button-grid-item">
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Draw.Point">
+                        <img class="icon-small" src="icons/draw.point.svg" />
+                        <div class="command-button-small-label">Point</div>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Draw.PolyLine">
+                        <img class="icon-small" src="icons/draw.polyline.svg" />
+                        <div class="command-button-small-label">Polyline</div>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="button-grid-item">
+                    <td class="button-grid-item">
+                      <button class="command-button command-button-small" data-command-name="Draw.Solid">
+                        <img class="icon-small" src="icons/draw.solid.svg" />
+                        <div class="command-button-small-label">Solid</div>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div class="ribbon-button-group-name">Draw</div>
           </div>
