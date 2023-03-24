@@ -9,6 +9,7 @@ namespace IxMilia.BCad
         public string Name { get; }
 
         public double ArrowSize { get; }
+        public double TickSize { get; }
         public double ExtensionLineOffset { get; }
         public double ExtensionLineExtension { get; }
         public double TextHeight { get; }
@@ -19,6 +20,7 @@ namespace IxMilia.BCad
         public DimensionStyle(string name)
             : this(name,
                   arrowSize: 0.18,
+                  tickSize: 0.0,
                   extensionLineOffset: 0.0625,
                   extensionLineExtension: 0.18,
                   textHeight: 0.18,
@@ -31,6 +33,7 @@ namespace IxMilia.BCad
         public DimensionStyle(
             string name,
             double arrowSize,
+            double tickSize,
             double extensionLineOffset,
             double extensionLineExtension,
             double textHeight,
@@ -40,6 +43,7 @@ namespace IxMilia.BCad
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             ArrowSize = arrowSize;
+            TickSize = tickSize;
             ExtensionLineOffset = extensionLineOffset;
             ExtensionLineExtension = extensionLineExtension;
             TextHeight = textHeight;
@@ -51,6 +55,7 @@ namespace IxMilia.BCad
         public DimensionStyle Update(
             Optional<string> name = default,
             Optional<double> arrowSize = default,
+            Optional<double> tickSize = default,
             Optional<double> extensionLineOffset = default,
             Optional<double> extensionLineExtension = default,
             Optional<double> textHeight = default,
@@ -60,6 +65,7 @@ namespace IxMilia.BCad
         {
             var newName = name.GetValue(Name) ?? throw new ArgumentNullException(nameof(name));
             var newArrowSize = arrowSize.GetValue(ArrowSize);
+            var newTickSize = tickSize.GetValue(TickSize);
             var newExtensionLineOffset = extensionLineOffset.GetValue(ExtensionLineOffset);
             var newExtensionLineExtension = extensionLineExtension.GetValue(ExtensionLineExtension);
             var newTextHeight = textHeight.GetValue(TextHeight);
@@ -69,6 +75,7 @@ namespace IxMilia.BCad
 
             if (newName == Name &&
                 newArrowSize == ArrowSize &&
+                newTickSize == TickSize &&
                 newExtensionLineOffset == ExtensionLineOffset &&
                 newExtensionLineExtension == ExtensionLineExtension &&
                 newTextHeight == TextHeight &&
@@ -82,6 +89,7 @@ namespace IxMilia.BCad
             return new DimensionStyle(
                 name: newName,
                 arrowSize: newArrowSize,
+                tickSize: newTickSize,
                 extensionLineOffset: newExtensionLineOffset,
                 extensionLineExtension: newExtensionLineExtension,
                 textHeight: newTextHeight,

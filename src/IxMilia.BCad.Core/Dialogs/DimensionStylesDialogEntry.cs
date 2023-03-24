@@ -6,6 +6,7 @@
         public string OriginalName { get; }
         public string Name { get; }
         public double ArrowSize { get; }
+        public double TickSize { get; }
         public double ExtensionLineOffset { get; }
         public double ExtensionLineExtension { get; }
         public double TextHeight { get; }
@@ -18,6 +19,7 @@
             string originalName,
             string name,
             double arrowSize,
+            double tickSize,
             double extensionLineOffset,
             double extensionLineExtension,
             double textHeight,
@@ -29,6 +31,7 @@
             OriginalName = originalName;
             Name = name;
             ArrowSize = arrowSize;
+            TickSize = tickSize;
             ExtensionLineOffset = extensionLineOffset;
             ExtensionLineExtension = extensionLineExtension;
             TextHeight = textHeight;
@@ -42,6 +45,7 @@
             return new DimensionStyle(
                 name: Name,
                 arrowSize: ArrowSize,
+                tickSize: TickSize,
                 extensionLineOffset: ExtensionLineOffset,
                 extensionLineExtension: ExtensionLineExtension,
                 textHeight: TextHeight,
@@ -57,6 +61,7 @@
                 originalName: dimensionStyle.Name,
                 name: dimensionStyle.Name,
                 arrowSize: dimensionStyle.ArrowSize,
+                tickSize: dimensionStyle.TickSize,
                 extensionLineOffset: dimensionStyle.ExtensionLineOffset,
                 extensionLineExtension: dimensionStyle.ExtensionLineExtension,
                 textHeight: dimensionStyle.TextHeight,

@@ -28,10 +28,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "",
                         name: "new-dim-style",
                         arrowSize: 1.0,
-                        extensionLineOffset: 2.0,
-                        extensionLineExtension: 3.0,
-                        textHeight: 4.0,
-                        lineGap: 5.0,
+                        tickSize: 2.0,
+                        extensionLineOffset: 3.0,
+                        extensionLineExtension: 4.0,
+                        textHeight: 5.0,
+                        lineGap: 6.0,
                         lineColor: CadColor.Black,
                         textColor: CadColor.Blue),
                 });
@@ -39,10 +40,11 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal(new[] { "new-dim-style", "STANDARD" }, GetDimensionStyleNames(updatedDrawing));
             var dimStyle = updatedDrawing.Settings.DimensionStyles["new-dim-style"];
             Assert.Equal(1.0, dimStyle.ArrowSize);
-            Assert.Equal(2.0, dimStyle.ExtensionLineOffset);
-            Assert.Equal(3.0, dimStyle.ExtensionLineExtension);
-            Assert.Equal(4.0, dimStyle.TextHeight);
-            Assert.Equal(5.0, dimStyle.LineGap);
+            Assert.Equal(2.0, dimStyle.TickSize);
+            Assert.Equal(3.0, dimStyle.ExtensionLineOffset);
+            Assert.Equal(4.0, dimStyle.ExtensionLineExtension);
+            Assert.Equal(5.0, dimStyle.TextHeight);
+            Assert.Equal(6.0, dimStyle.LineGap);
             Assert.Equal(CadColor.Black, dimStyle.LineColor);
             Assert.Equal(CadColor.Blue, dimStyle.TextColor);
         }
@@ -52,7 +54,16 @@ namespace IxMilia.BCad.Core.Test
         {
             var drawing = new Drawing();
             drawing = drawing.Update(settings: drawing.Settings.Update(dimStyles: drawing.Settings.DimensionStyles.Add(
-                new DimensionStyle("my-dim-style", arrowSize: 1.0, extensionLineOffset: 2.0, extensionLineExtension: 3.0, textHeight: 4.0, lineGap: 5.0, lineColor: CadColor.Black, textColor: CadColor.Blue))));
+                new DimensionStyle(
+                    "my-dim-style",
+                    arrowSize: 1.0,
+                    tickSize: 2.0,
+                    extensionLineOffset: 3.0,
+                    extensionLineExtension: 4.0,
+                    textHeight: 5.0,
+                    lineGap: 6.0,
+                    lineColor: CadColor.Black,
+                    textColor: CadColor.Blue))));
             Assert.Equal(new[] { "my-dim-style", "STANDARD" }, GetDimensionStyleNames(drawing));
             var styleChanges = new DimensionStylesDialogParameters(
                 drawing.Settings.CurrentDimensionStyleName,
@@ -64,10 +75,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "my-dim-style",
                         name: "my-dim-style",
                         arrowSize: 1.0,
-                        extensionLineOffset: 2.0,
-                        extensionLineExtension: 3.0,
-                        textHeight: 4.0,
-                        lineGap: 5.0,
+                        tickSize: 2.0,
+                        extensionLineOffset: 3.0,
+                        extensionLineExtension: 4.0,
+                        textHeight: 5.0,
+                        lineGap: 6.0,
                         lineColor: CadColor.Black,
                         textColor: CadColor.Blue),
                 });
@@ -80,7 +92,16 @@ namespace IxMilia.BCad.Core.Test
         {
             var drawing = new Drawing();
             drawing = drawing.Update(settings: drawing.Settings.Update(dimStyles: drawing.Settings.DimensionStyles.Add(
-                new DimensionStyle("my-dim-style", arrowSize: 1.0, extensionLineOffset: 2.0, extensionLineExtension: 3.0, textHeight: 4.0, lineGap: 5.0, lineColor: CadColor.Black, textColor: CadColor.Blue))));
+                new DimensionStyle(
+                    "my-dim-style",
+                    arrowSize: 1.0,
+                    tickSize: 2.0,
+                    extensionLineOffset: 3.0,
+                    extensionLineExtension: 4.0,
+                    textHeight: 5.0,
+                    lineGap: 6.0,
+                    lineColor: CadColor.Black,
+                    textColor: CadColor.Blue))));
             drawing = drawing.AddToCurrentLayer(new LinearDimension(
                 new Point(),
                 new Point(),
@@ -98,10 +119,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "my-dim-style",
                         name: "renamed-dim-style",
                         arrowSize: 11.0,
-                        extensionLineOffset: 22.0,
-                        extensionLineExtension: 33.0,
-                        textHeight: 44.0,
-                        lineGap: 55.0,
+                        tickSize: 22.0,
+                        extensionLineOffset: 33.0,
+                        extensionLineExtension: 44.0,
+                        textHeight: 55.0,
+                        lineGap: 66.0,
                         lineColor: CadColor.Yellow,
                         textColor: CadColor.Red),
                 });
@@ -109,10 +131,11 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal(new[] { "renamed-dim-style", "STANDARD" }, updatedDrawing.Settings.DimensionStyles.Select(ds => ds.Name).OrderBy(name => name).ToArray());
             var dimStyle = updatedDrawing.Settings.DimensionStyles["renamed-dim-style"];
             Assert.Equal(11.0, dimStyle.ArrowSize);
-            Assert.Equal(22.0, dimStyle.ExtensionLineOffset);
-            Assert.Equal(33.0, dimStyle.ExtensionLineExtension);
-            Assert.Equal(44.0, dimStyle.TextHeight);
-            Assert.Equal(55.0, dimStyle.LineGap);
+            Assert.Equal(22.0, dimStyle.TickSize);
+            Assert.Equal(33.0, dimStyle.ExtensionLineOffset);
+            Assert.Equal(44.0, dimStyle.ExtensionLineExtension);
+            Assert.Equal(55.0, dimStyle.TextHeight);
+            Assert.Equal(66.0, dimStyle.LineGap);
             Assert.Equal(CadColor.Yellow, dimStyle.LineColor);
             Assert.Equal(CadColor.Red, dimStyle.TextColor);
             var dimension = Assert.IsType<LinearDimension>(updatedDrawing.GetEntities().Single());
@@ -124,7 +147,16 @@ namespace IxMilia.BCad.Core.Test
         {
             var drawing = new Drawing();
             drawing = drawing.Update(settings: drawing.Settings.Update(dimStyles: drawing.Settings.DimensionStyles.Add(
-                new DimensionStyle("my-dim-style", arrowSize: 1.0, extensionLineOffset: 2.0, extensionLineExtension: 3.0, textHeight: 4.0, lineGap: 5.0, lineColor: CadColor.Black, textColor: CadColor.Blue))));
+                new DimensionStyle(
+                    "my-dim-style",
+                    arrowSize: 1.0,
+                    tickSize: 2.0,
+                    extensionLineOffset: 3.0,
+                    extensionLineExtension: 4.0,
+                    textHeight: 5.0,
+                    lineGap: 6.0,
+                    lineColor: CadColor.Black,
+                    textColor: CadColor.Blue))));
             drawing = drawing.AddToCurrentLayer(new LinearDimension(
                 new Point(),
                 new Point(),
@@ -142,10 +174,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "my-dim-style",
                         name: "my-dim-style",
                         arrowSize: 11.0,
-                        extensionLineOffset: 22.0,
-                        extensionLineExtension: 33.0,
-                        textHeight: 44.0,
-                        lineGap: 55.0,
+                        tickSize: 22.0,
+                        extensionLineOffset: 33.0,
+                        extensionLineExtension: 44.0,
+                        textHeight: 55.0,
+                        lineGap: 66.0,
                         lineColor: CadColor.Yellow,
                         textColor: CadColor.Red),
                 });
@@ -168,10 +201,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "STANDARD",
                         name: "RENAMED-STANDARD",
                         arrowSize: 1.0,
-                        extensionLineOffset: 2.0,
-                        extensionLineExtension: 3.0,
-                        textHeight: 4.0,
-                        lineGap: 5.0,
+                        tickSize: 2.0,
+                        extensionLineOffset: 3.0,
+                        extensionLineExtension: 4.0,
+                        textHeight: 5.0,
+                        lineGap: 6.0,
                         lineColor: CadColor.Black,
                         textColor: CadColor.Blue),
                 });
@@ -186,10 +220,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "RENAMED-STANDARD",
                         name: "RENAMED-STANDARD",
                         arrowSize: 1.0,
-                        extensionLineOffset: 2.0,
-                        extensionLineExtension: 3.0,
-                        textHeight: 4.0,
-                        lineGap: 5.0,
+                        tickSize: 2.0,
+                        extensionLineOffset: 3.0,
+                        extensionLineExtension: 4.0,
+                        textHeight: 5.0,
+                        lineGap: 6.0,
                         lineColor: CadColor.Black,
                         textColor: CadColor.Blue),
                 });
@@ -211,10 +246,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "STANDARD",
                         name: "RENAMED-STANDARD",
                         arrowSize: 1.0,
-                        extensionLineOffset: 2.0,
-                        extensionLineExtension: 3.0,
-                        textHeight: 4.0,
-                        lineGap: 5.0,
+                        tickSize: 2.0,
+                        extensionLineOffset: 3.0,
+                        extensionLineExtension: 4.0,
+                        textHeight: 5.0,
+                        lineGap: 6.0,
                         lineColor: CadColor.Black,
                         textColor: CadColor.Blue),
                 });
@@ -236,10 +272,11 @@ namespace IxMilia.BCad.Core.Test
                         originalName: "RENAMED-STANDARD",
                         name: "RENAMED-STANDARD",
                         arrowSize: 1.0,
-                        extensionLineOffset: 2.0,
-                        extensionLineExtension: 3.0,
-                        textHeight: 4.0,
-                        lineGap: 5.0,
+                        tickSize: 2.0,
+                        extensionLineOffset: 3.0,
+                        extensionLineExtension: 4.0,
+                        textHeight: 5.0,
+                        lineGap: 6.0,
                         lineColor: CadColor.Black,
                         textColor: CadColor.Blue),
                 });

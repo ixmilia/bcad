@@ -159,6 +159,8 @@ namespace IxMilia.BCad.Entities
             var primitives = new List<IPrimitive>();
             primitives.AddRange(properties.DimensionLineSegments.Select(s =>
                 new PrimitiveLine(s.Start.ToPoint(), s.End.ToPoint(), lineColor ?? dimStyle.LineColor)));
+            primitives.AddRange(properties.DimensionTriangles.Select(t =>
+                new PrimitiveTriangle(t.P1.ToPoint(), t.P2.ToPoint(), t.P3.ToPoint(), lineColor ?? dimStyle.LineColor)));
             primitives.Add(
                 new PrimitiveText(
                     text,

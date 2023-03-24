@@ -63,6 +63,7 @@ namespace IxMilia.BCad.FileHandlers
                 var dimStyle = new DimensionStyle(
                     ds.Name,
                     ds.DimensioningArrowSize,
+                    ds.DimensioningTickSize,
                     ds.DimensionExtensionLineOffset,
                     ds.DimensionExtensionLineExtension,
                     ds.DimensioningTextHeight,
@@ -191,6 +192,7 @@ namespace IxMilia.BCad.FileHandlers
                 var dimStyle = new DxfDimStyle(ds.Name)
                 {
                     DimensioningArrowSize = ds.ArrowSize,
+                    DimensioningTickSize = ds.TickSize,
                     DimensionExtensionLineOffset = ds.ExtensionLineOffset,
                     DimensionExtensionLineExtension = ds.ExtensionLineExtension,
                     DimensioningTextHeight = ds.TextHeight,

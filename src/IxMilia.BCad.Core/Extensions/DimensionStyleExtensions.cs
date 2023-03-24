@@ -11,7 +11,8 @@ namespace IxMilia.BCad.Extensions
                 extensionLineOffset: dimStyle.ExtensionLineOffset,
                 extensionLineExtension: dimStyle.ExtensionLineExtension,
                 dimensionLineGap: dimStyle.LineGap,
-                arrowSize: dimStyle.ArrowSize);
+                arrowSize: dimStyle.ArrowSize,
+                tickSize: dimStyle.TickSize);
         }
     }
 }

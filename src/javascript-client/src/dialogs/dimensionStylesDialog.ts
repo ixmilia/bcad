@@ -14,6 +14,7 @@ export class DimensionStylesDialog extends DialogBase {
     private originalNameRow: HTMLTableRowElement;
     private originalName: HTMLSpanElement;
     private arrowSize: HTMLInputElement;
+    private tickSize: HTMLInputElement;
     private extensionLineOffset: HTMLInputElement;
     private extensionLineExtension: HTMLInputElement;
     private textHeight: HTMLInputElement;
@@ -33,6 +34,7 @@ export class DimensionStylesDialog extends DialogBase {
         this.originalNameRow = <HTMLTableRowElement>document.getElementById('dimension-style-dialog-original-name-row');
         this.originalName = <HTMLSpanElement>document.getElementById('dimension-style-dialog-original-name');
         this.arrowSize = <HTMLInputElement>document.getElementById('dimension-style-dialog-arrow-size');
+        this.tickSize = <HTMLInputElement>document.getElementById('dimension-style-dialog-tick-size');
         this.extensionLineOffset = <HTMLInputElement>document.getElementById('dimension-style-dialog-extension-line-offset');
         this.extensionLineExtension = <HTMLInputElement>document.getElementById('dimension-style-dialog-extension-line-extension');
         this.textHeight = <HTMLInputElement>document.getElementById('dimension-style-dialog-text-height');
@@ -73,6 +75,11 @@ export class DimensionStylesDialog extends DialogBase {
             style.ArrowSize = parseFloat(this.arrowSize.value);
             this.populateValues(this.selector.value);
         });
+        this.tickSize.addEventListener('change', () => {
+            const style = this.getDimStyle(this.selector.value);
+            style.TickSize = parseFloat(this.tickSize.value);
+            this.populateValues(this.selector.value);
+        });
         this.extensionLineOffset.addEventListener('change', () => {
             const style = this.getDimStyle(this.selector.value);
             style.ExtensionLineOffset = parseFloat(this.extensionLineOffset.value);
@@ -94,7 +101,7 @@ export class DimensionStylesDialog extends DialogBase {
             this.populateValues(this.selector.value);
         });
 
-        [this.name, this.arrowSize, this.extensionLineOffset, this.extensionLineExtension, this.textHeight, this.lineGap].forEach(input => {
+        [this.name, this.arrowSize, this.tickSize, this.extensionLineOffset, this.extensionLineExtension, this.textHeight, this.lineGap].forEach(input => {
             input.addEventListener('focus', () => {
                 input.select();
             });
@@ -107,6 +114,7 @@ export class DimensionStylesDialog extends DialogBase {
                 Name: newName,
                 OriginalName: '',
                 ArrowSize: 0.18,
+                TickSize: 0.0,
                 ExtensionLineOffset: 0.0625,
                 ExtensionLineExtension: 0.18,
                 TextHeight: 0.18,
@@ -169,6 +177,7 @@ export class DimensionStylesDialog extends DialogBase {
         this.originalName.innerText = style.OriginalName;
         this.originalNameRow.hidden = style.OriginalName === style.Name;
         this.arrowSize.value = style.ArrowSize.toString();
+        this.tickSize.value = style.TickSize.toString();
         this.extensionLineOffset.value = style.ExtensionLineOffset.toString();
         this.extensionLineExtension.value = style.ExtensionLineExtension.toString();
         this.textHeight.value = style.TextHeight.toString();
@@ -183,6 +192,7 @@ export class DimensionStylesDialog extends DialogBase {
             Name: name,
             OriginalName: name,
             ArrowSize: 0,
+            TickSize: 0,
             ExtensionLineOffset: 0,
             ExtensionLineExtension: 0,
             TextHeight: 0,
