@@ -31,13 +31,17 @@ namespace IxMilia.BCad.Extensions
         public static IEnumerable<PrimitiveLine> GetLinesFromPoints(this IEnumerable<Point> points)
         {
             var lines = new List<PrimitiveLine>();
-            var last = points.First();
+            var first = points.First();
+            var last = first;
             foreach (var point in points.Skip(1))
             {
                 var line = new PrimitiveLine(last, point);
                 lines.Add(line);
                 last = point;
             }
+
+            var lastLine = new PrimitiveLine(last, first);
+            lines.Add(lastLine);
 
             return lines;
         }

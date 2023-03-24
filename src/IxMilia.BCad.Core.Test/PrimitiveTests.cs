@@ -593,6 +593,18 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public void PolygonContainsTest()
+        {
+            var p1 = new Point(371.0, 218.0, 0.0);
+            var p2 = new Point(373.0, 208.0, 0.0);
+            var p3 = new Point(370.0, 208.0, 0.0);
+            var candidate = new Point(281, 218, 0);
+            var points = new[] { p1, p2, p3 };
+            var actual = points.PolygonContains(candidate);
+            Assert.False(actual);
+        }
+
+        [Fact]
         public void PointOnLineTest()
         {
             TestPointContainment(Line(new Point(0.0, 0.0, 0.0), new Point(1.0, 0.0, 0.0)),
