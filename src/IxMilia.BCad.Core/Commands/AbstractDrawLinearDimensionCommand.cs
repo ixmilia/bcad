@@ -75,7 +75,7 @@ namespace IxMilia.BCad.Commands
             var dimension = new LinearDimension(
                 first,
                 second,
-                dimensionProperties.DimensionLineStart.ToPoint(),
+                dimensionProperties.DimensionLineEnd.ToPoint(),
                 DrawAligned,
                 textMidPoint,
                 workspace.Drawing.Settings.CurrentDimensionStyleName);
