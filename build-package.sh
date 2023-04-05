@@ -47,7 +47,12 @@ esac
 
 # patch the control file
 size=$(du -s $destination/usr/share/bcad | cut -f1)
-version=$(cat $_SCRIPT_DIR/version.txt)
+versionPrefix=$(cat $_SCRIPT_DIR/version.txt)
+versionSuffix="0"
+if [ "$VERSION_SUFFIX" != "" ]; then
+    versionSuffix="$VERSION_SUFFIX"
+fi
+version="$versionPrefix.$versionSuffix"
 sed -i "s/%ARCHITECTURE%/$LINUX_ARCHITECTURE/" $destination/DEBIAN/control
 sed -i "s/%SIZE%/$size/" $destination/DEBIAN/control
 sed -i "s/%VERSION%/$version/" $destination/DEBIAN/control
