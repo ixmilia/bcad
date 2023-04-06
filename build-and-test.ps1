@@ -114,7 +114,7 @@ try {
         $packageVersion = "$packageVersionPrefix.$packageVersionSuffix"
         $packageArchitecture = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
         $packageName = "bcad_${packageVersion}_$packageArchitecture.deb"
-        Set-EnvironmentVariable "secondary_artifact_name" $packageName
+        Set-EnvironmentVariable "secondary_artifact_name" "deb"
         Set-EnvironmentVariable "secondary_artifact_path" "$packagesDir/$packageName"
         tar -zcf $artifactPath -C "$packageParentDir/" "$artifactShortName"
         ./build-package.sh --configuration $configuration --architecture $architecture

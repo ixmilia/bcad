@@ -83,3 +83,21 @@ jobs:
       with:
         name: ${{ env.secondary_artifact_name }}
         path: ${{ env.secondary_artifact_path }}
+
+  create_deb_package_feed:
+    runs-on: ubuntu-latest
+    needs: [build, cross_compile]
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: src
+    - uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+    - name: create package feed data
+      run: ./src/create-deb-package-feed.sh --deb-dir artifacts/deb --feed-path artifacts/deb-feed.tar.gz
+    - name: publish package feed artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: deb-feed
+        path: artifacts/deb-feed.tar.gz
