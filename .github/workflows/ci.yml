@@ -4,8 +4,20 @@ on: [push, pull_request]
 
 jobs:
 
+  create-version-suffix:
+    runs-on: ubuntu-latest
+    outputs:
+      version-suffix: ${{ steps.create-version-suffix.outputs.VERSION_SUFFIX }}
+    steps:
+    - id: create-version-suffix
+      shell: pwsh
+      run: |
+        $versionSuffix = [System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss")
+        Write-Output "VERSION_SUFFIX=$versionSuffix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
   build:
     runs-on: ${{ matrix.value.os }}
+    needs: create-version-suffix
     strategy:
       matrix:
         value: [{ os: windows-latest, architecture: x64 }, { os: windows-latest, architecture: arm64 }, { os: ubuntu-latest, architecture: x64 }]
@@ -20,6 +32,10 @@ jobs:
     - uses: actions/setup-go@v3
       with:
         go-version: 1.19
+    - name: promote version suffix
+      shell: pwsh
+      run: |
+        Write-Output "VERSION_SUFFIX=${{ needs.create-version-suffix.outputs.version-suffix }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     - name: Build and test
       shell: pwsh
       run: ./build-and-test.ps1 -configuration Release -architecture ${{ matrix.value.architecture }}
@@ -37,6 +53,7 @@ jobs:
 
   cross_compile:
     runs-on: ubuntu-latest
+    needs: create-version-suffix
     steps:
     - uses: actions/checkout@v3
       with:
@@ -45,13 +62,42 @@ jobs:
       with:
         push: never
         runCmd: ./build-and-test.ps1 -configuration Release -architecture arm64
+        env: |
+          VERSION_SUFFIX=${{ needs.create-version-suffix.outputs.version-suffix }}
+    - name: re-map path variables from container
+      shell: pwsh
+      run: |
+        foreach ($name in @("artifact_path", "secondary_artifact_path")) {
+          $existing = [System.Environment]::GetEnvironmentVariable($name)
+          $updated = $existing.Replace("/workspaces/bcad", "${{ github.workspace }}")
+          Write-Output "$name=$updated" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        }
     - name: publish artifact
       uses: actions/upload-artifact@v3
       with:
-        name: bcad-linux-arm64.tar.gz
-        path: ./artifacts/packages/Release/bcad-linux-arm64.tar.gz
+        name: ${{ env.artifact_name }}
+        path: ${{ env.artifact_path }}
     - name: publish secondary artifact
       uses: actions/upload-artifact@v3
+      if: env.secondary_artifact_name != ''
       with:
-        name: bcad_0.2.0_arm64.deb
-        path: ./artifacts/packages/Release/bcad_0.2.0_arm64.deb
+        name: ${{ env.secondary_artifact_name }}
+        path: ${{ env.secondary_artifact_path }}
+
+  create_deb_package_feed:
+    runs-on: ubuntu-latest
+    needs: [build, cross_compile]
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: src
+    - uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+    - name: create package feed data
+      run: ./src/create-deb-package-feed.sh --deb-dir artifacts/deb --feed-path artifacts/deb-feed.tar.gz
+    - name: publish package feed artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: deb-feed
+        path: artifacts/deb-feed.tar.gz

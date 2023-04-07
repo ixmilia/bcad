@@ -29,3 +29,14 @@ npm start
 Final app is placed in `artifacts/pack/bcad-[(linux|darwin|win32)]-x64`.
 
 See [README.md](src/bcad/electron/README.md) in `src/bcad/electron` for details on building/running via WSL that I needed on my local box.
+
+## Ubuntu packages
+
+``` bash
+echo "deb [arch=amd64] https://files.ixmilia.com/bcad/deb stable main" | sudo tee /etc/apt/sources.list.d/ixmilia.bcad.list
+```
+
+``` bash
+sudo apt update --allow-insecure-repositories
+sudo apt install bcad
+```
