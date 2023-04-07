@@ -33,6 +33,7 @@ See [README.md](src/bcad/electron/README.md) in `src/bcad/electron` for details 
 ## Ubuntu packages
 
 ``` bash
+# `[arch=arm64]` is also available
 echo "deb [arch=amd64] https://files.ixmilia.com/bcad/deb stable main" | sudo tee /etc/apt/sources.list.d/ixmilia.bcad.list
 ```
 
