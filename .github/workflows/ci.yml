@@ -13,7 +13,9 @@ jobs:
       shell: pwsh
       run: |
         $versionSuffix = [System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss")
-        Write-Output "VERSION_SUFFIX=$versionSuffix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        $versionString = "VERSION_SUFFIX=$versionSuffix"
+        Write-Host $versionString
+        Write-Output $versionString | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
   build:
     runs-on: ${{ matrix.value.os }}
