@@ -41,3 +41,9 @@ echo "deb [arch=amd64] https://pkgs.ixmilia.com/bcad/deb stable main" | sudo tee
 sudo apt update --allow-insecure-repositories
 sudo apt install bcad
 ```
+
+## Windows Installer
+
+``` cmd
+powershell -Command "iex (iwr 'https://pkgs.ixmilia.com/bcad/win/install.ps1').ToString()"
+```

@@ -107,6 +107,8 @@ try {
     Set-EnvironmentVariable "artifact_path" $artifactPath
     if ($IsWindows) {
         Compress-Archive -Path "$packageOutputDir" -DestinationPath $artifactPath -Force
+        Set-EnvironmentVariable "secondary_artifact_name" "win"
+        Set-EnvironmentVariable "secondary_artifact_path" $artifactPath
     }
     else {
         $packageVersionPrefix = (Get-Content "$PSScriptRoot/version.txt" | Out-String).Trim()
