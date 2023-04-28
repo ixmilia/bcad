@@ -5,7 +5,7 @@
     <MicrosoftNETTestSdkPackageVersion>17.4.0</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.1.1</MicrosoftSourceLinkGitHubPackageVersion>
     <NewtonsoftJsonPackageVersion>13.0.2</NewtonsoftJsonPackageVersion>
-    <PhotinoNETPackageVersion>2.3.0</PhotinoNETPackageVersion>
+    <PhotinoNETPackageVersion>2.4.0</PhotinoNETPackageVersion>
     <StreamJsonRpcPackageVersion>2.13.33</StreamJsonRpcPackageVersion>
     <SystemCommandLinePackageVersion>2.0.0-beta4.22272.1</SystemCommandLinePackageVersion>
     <xunitPackageVersion>2.4.2</xunitPackageVersion>

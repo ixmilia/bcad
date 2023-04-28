@@ -81,8 +81,7 @@ try {
     $unnecessaryFiles = @(
         "bcad.dbg",
         "bcad.pdb",
-        "IxMilia.Dxf.xml",
-        "Photino.NET.pdb"
+        "IxMilia.Dxf.xml"
     )
     foreach ($file in $unnecessaryFiles) {
         if (Test-Path "$packageOutputDir/$file") {

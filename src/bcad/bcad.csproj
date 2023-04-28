@@ -29,8 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- <PackageReference Include="Photino.NET" Version="$(PhotinoNETPackageVersion)" /> -->
-    <ProjectReference Include="..\photino.NET\Photino.NET\Photino.NET.csproj" />
+    <PackageReference Include="Photino.NET" Version="$(PhotinoNETPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
