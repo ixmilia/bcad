@@ -34,9 +34,11 @@ try {
     # remove archive
     Remove-Item $downloadPath -Force
 
-    Write-Host "BCad was installed to $installDir"
-    Write-Host "Press any key to continue"
-    $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown') | Out-Null
+    # launch
+    if ("$env:BCAD_INSTALL_QUIET" -eq "") {
+        $exePath = Join-Path $installDir "bcad.exe"
+        Start-Process $exePath
+    }
 }
 catch {
     Write-Host $_

@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad;
 using IxMilia.BCad.CommandLine;
+using IxMilia.BCad.Commands;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
@@ -139,9 +142,23 @@ namespace bcad
 
             window.RegisterCustomSchemeHandler("app", (object sender, string scheme, string url, out string contentType) =>
             {
-                contentType = "text/javascript";
-                var script = $"var clientArguments = [{string.Join(", ", clientArguments.Select(arg => $"\"{arg}\""))}];";
-                return new MemoryStream(Encoding.UTF8.GetBytes(script));
+                var content = "";
+                contentType = "text/plain";
+                switch (url)
+                {
+                    case "app://args.js":
+                        contentType = "text/javascript";
+                        content = $"var clientArguments = [{string.Join(", ", clientArguments.Select(arg => $"\"{arg}\""))}];";
+                        break;
+                    case "app://os-specific.css":
+                        contentType = "text/css";
+                        content = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                            ? "#update-group { display: inline-block; }"
+                            : "/* nothing */";
+                        break;
+                }
+
+                return new MemoryStream(Encoding.UTF8.GetBytes(content));
             });
 
             var fileSystemService = new FileSystemService(action =>
@@ -186,6 +203,11 @@ namespace bcad
                 window.Close();
             };
 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                server.Workspace.RegisterCommand(new CadCommandInfo("Program.Update", "UPDATE", new UpdateCommand(CloseApplication)));
+            }
+
             var _ = Task.Run(async () =>
             {
                 var reader = new StreamReader(clientStream, encoding);
@@ -228,6 +250,52 @@ namespace bcad
             var dirtyMarker = workspace.IsDirty ? " *" : "";
             var title = $"{WindowTitle} [{drawingName}]{dirtyMarker}";
             window.SetTitle(title);
+        }
+
+        private class UpdateCommand : ICadCommand
+        {
+            public Action CloseAction { get; set; }
+
+            public UpdateCommand(Action closeAction)
+            {
+                CloseAction = closeAction;
+            }
+
+            public async Task<bool> Execute(IWorkspace workspace, object arg = null)
+            {
+                var updateScriptPath = Path.Combine(AppContext.BaseDirectory, "update.ps1");
+                var updateContent = await File.ReadAllTextAsync(updateScriptPath);
+                var encodedContent = Convert.ToBase64String(Encoding.Unicode.GetBytes(updateContent));
+                var commandArgs = $"/c powershell -EncodedCommand {encodedContent}";
+                var psi = new ProcessStartInfo()
+                {
+                    FileName = "cmd.exe",
+                    Arguments = commandArgs,
+#if DEBUG
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+#endif
+                };
+                psi.Environment["BCAD_CURRENT_PROCESS_ID"] = Environment.ProcessId.ToString();
+                var proc = new Process()
+                {
+                    StartInfo = psi,
+                };
+#if DEBUG
+                var output = new StringBuilder();
+                proc.EnableRaisingEvents = true;
+                proc.OutputDataReceived += (sender, args) => { output.Append(args.Data); };
+                proc.ErrorDataReceived += (sender, args) => { output.Append(args.Data); };
+#endif
+                proc.Start();
+#if DEBUG
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
+#endif
+                CloseAction();
+                return true;
+            }
         }
     }
 }

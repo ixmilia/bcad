@@ -13,6 +13,10 @@ body {
     height: 100%;
 }
 
+#update-group {
+    display: none;
+}
+
 #output-row {
     display: flex;
     flex: 1;
