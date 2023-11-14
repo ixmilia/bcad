@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -261,40 +260,16 @@ namespace bcad
                 CloseAction = closeAction;
             }
 
-            public async Task<bool> Execute(IWorkspace workspace, object arg = null)
+            public Task<bool> Execute(IWorkspace workspace, object arg = null)
             {
-                var updateScriptPath = Path.Combine(AppContext.BaseDirectory, "update.ps1");
-                var updateContent = await File.ReadAllTextAsync(updateScriptPath);
-                var encodedContent = Convert.ToBase64String(Encoding.Unicode.GetBytes(updateContent));
-                var commandArgs = $"/c powershell -EncodedCommand {encodedContent}";
-                var psi = new ProcessStartInfo()
-                {
-                    FileName = "cmd.exe",
-                    Arguments = commandArgs,
-#if DEBUG
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-#endif
-                };
-                psi.Environment["BCAD_CURRENT_PROCESS_ID"] = Environment.ProcessId.ToString();
-                var proc = new Process()
-                {
-                    StartInfo = psi,
-                };
-#if DEBUG
-                var output = new StringBuilder();
-                proc.EnableRaisingEvents = true;
-                proc.OutputDataReceived += (sender, args) => { output.Append(args.Data); };
-                proc.ErrorDataReceived += (sender, args) => { output.Append(args.Data); };
-#endif
-                proc.Start();
-#if DEBUG
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
-#endif
+                ScriptUpdater.StartUpdate("bcad", "https://pkgs.ixmilia.com/bcad/win/install.ps1",
+                    new[]
+                    {
+                        ("BCAD_CURRENT_PROCESS_ID", Environment.ProcessId.ToString()),
+                        ("BCAD_INSTALL_QUIET", "1"),
+                    });
                 CloseAction();
-                return true;
+                return Task.FromResult(true);
             }
         }
     }

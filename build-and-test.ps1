@@ -89,6 +89,7 @@ try {
         }
     }
 
+    # create bccoreconsole
     Push-Location "$PSScriptRoot/src/bccoreconsole"
     $goarch = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
     $env:GOARCH = $goarch
