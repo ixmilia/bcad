@@ -42,6 +42,11 @@ sudo apt update --allow-insecure-repositories
 sudo apt install bcad
 ```
 
+Archives of Linux binaries can also be downloaded directly from:
+
+- `https://pkgs.ixmilia.com/bcad/bcad-linux-x64.tar.gz`
+- `https://pkgs.ixmilia.com/bcad/bcad-linux-arm64.tar.gz`
+
 ## Windows Installer
 
 ``` cmd
