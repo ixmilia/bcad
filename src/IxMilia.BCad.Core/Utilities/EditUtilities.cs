@@ -241,6 +241,7 @@ namespace IxMilia.BCad.Utilities
                 {
                     var projection = ellipse.FromUnitCircle.Inverse();
                     var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
+                    var normalizedOffsetDistance = isInside ? -offsetDistance : offsetDistance;
                     var majorLength = ellipse.MajorAxis.Length;
                     if (isInside && (offsetDistance > majorLength * ellipse.MinorAxisRatio)
                         || (offsetDistance >= majorLength))
@@ -249,20 +250,17 @@ namespace IxMilia.BCad.Utilities
                     }
                     else
                     {
-                        Vector newMajor;
-                        if (isInside)
-                        {
-                            newMajor = ellipse.MajorAxis.Normalize() * (majorLength - offsetDistance);
-                        }
-                        else
-                        {
-                            newMajor = ellipse.MajorAxis.Normalize() * (majorLength + offsetDistance);
-                        }
+                        var newMajor = ellipse.MajorAxis.Normalize() * (majorLength + normalizedOffsetDistance);
+                        var newMajorLength = newMajor.Length;
+                        var minorLength = majorLength * ellipse.MinorAxisRatio;
+                        var newMinorLength = minorLength + normalizedOffsetDistance;
+                        var newMinorAxisRatio = newMinorLength / newMajorLength;
+
                         return new PrimitiveEllipse(
                             center: ellipse.Center,
                             majorAxis: newMajor,
                             normal: ellipse.Normal,
-                            minorAxisRatio: ellipse.MinorAxisRatio,
+                            minorAxisRatio: newMinorAxisRatio,
                             startAngle: ellipse.StartAngle,
                             endAngle: ellipse.EndAngle,
                             color: ellipse.Color);

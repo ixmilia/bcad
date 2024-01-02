@@ -1,4 +1,5 @@
 using IxMilia.BCad.Entities;
+using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Utilities;
 using Xunit;
 
@@ -30,6 +31,32 @@ namespace IxMilia.BCad.Core.Test
                 1.0);
             Assert.Equal(Point.Origin, circle.Center);
             Assert.Equal(3.0, circle.Radius);
+        }
+
+        [Fact]
+        public void EllipseOffsetInsideTest()
+        {
+            var ellipse = (Ellipse)EditUtilities.Offset(
+                Workspace,
+                new Ellipse(Point.Origin, new Vector(3.0, 0.0, 0.0), 2.0 / 3.0, 0.0, MathHelper.PI * 2, Vector.ZAxis),
+                Point.Origin,
+                1.0);
+            Assert.Equal(Point.Origin, ellipse.Center);
+            Assert.Equal(new Vector(2.0, 0.0, 0.0), ellipse.MajorAxis);
+            Assert.Equal(0.5, ellipse.MinorAxisRatio);
+        }
+
+        [Fact]
+        public void EllipseOffsetOutsideTest()
+        {
+            var ellipse = (Ellipse)EditUtilities.Offset(
+                Workspace,
+                new Ellipse(Point.Origin, new Vector(3.0, 0.0, 0.0), 2.0 / 3.0, 0.0, MathHelper.PI * 2, Vector.ZAxis),
+                new Point(4, 0, 0),
+                1.0);
+            Assert.Equal(Point.Origin, ellipse.Center);
+            Assert.Equal(new Vector(4.0, 0.0, 0.0), ellipse.MajorAxis);
+            Assert.Equal(0.75, ellipse.MinorAxisRatio);
         }
 
         [Fact]
