@@ -332,6 +332,19 @@ namespace IxMilia.BCad.Core.Test
             Assert.Equal("test", actual.Value);
         }
 
+        [Fact]
+        public async Task DrawEllipseCorrectsForMinorAxisRatio()
+        {
+            // ellipse minor axis ratio should be (0, 1); when drawn incorrectly, normalize the entity
+            var result = await Workspace.ExecuteTokensFromScriptAsync(@"ELLIPSE 0,0 1,0 0,2");
+            Assert.True(result);
+            Assert.False(Workspace.IsCommandExecuting);
+            var actual = (Ellipse)Workspace.Drawing.GetEntities().Single();
+            Assert.Equal(new Point(0.0, 0.0, 0.0), actual.Center);
+            Assert.Equal(new Vector(0.0, 2.0, 0.0), actual.MajorAxis);
+            Assert.Equal(0.5, actual.MinorAxisRatio);
+        }
+
         protected async Task<bool> Execute(string command, params TestWorkspaceOperation[] workspaceOperations)
         {
             var operationIndex = 0;

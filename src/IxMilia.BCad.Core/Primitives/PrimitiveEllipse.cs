@@ -36,6 +36,7 @@ namespace IxMilia.BCad.Primitives
         {
             Debug.Assert(MathHelper.Between(0.0, 360.0, startAngle));
             Debug.Assert(MathHelper.Between(0.0, 360.0, endAngle));
+            Debug.Assert(MathHelper.Between(0.0, 1.0, minorAxisRatio));
             this.Center = center;
             this.MajorAxis = majorAxis;
             this.Normal = normal;

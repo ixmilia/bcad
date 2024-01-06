@@ -43,6 +43,16 @@ namespace IxMilia.BCad.Commands
                         var minorAxisRatio = minorAxis.Length / majorAxisLength;
                         if (!minorEnd.Cancel && minorEnd.HasValue)
                         {
+                            if (minorAxisRatio > 1.0)
+                            {
+                                // minor axis ratio must be (0, 1); correct if necessary
+                                var correctedMajorAxis = minorAxis;
+                                var correctedMinorAxis = majorAxis;
+                                majorAxis = correctedMajorAxis;
+                                minorAxis = correctedMinorAxis;
+                                minorAxisRatio = minorAxis.Length / majorAxis.Length;
+                            }
+
                             var el = new Ellipse(center.Value, majorAxis, minorAxisRatio, 0.0, 360.0, drawingPlane.Normal, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification);
                             workspace.AddToCurrentLayer(el);
                             return true;

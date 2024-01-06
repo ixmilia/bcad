@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Collections;
@@ -140,6 +139,31 @@ namespace IxMilia.BCad.FileHandlers.Test
                     1.0,
                     1.0,
                 }));
+        }
+
+        [Fact]
+        public async Task ReadEllipseWithIncorrectMinorAxisRatioTest()
+        {
+            var drawing = await ReadFromDxfContent(
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "ELLIPSE"),
+                (" 10", "0"), // center
+                (" 20", "0"),
+                (" 30", "0"),
+                (" 11", "1"), // major axis
+                (" 21", "0"),
+                (" 31", "0"),
+                (" 40", "2"), // minor axis ratio
+                (" 41", "0"), // start angle in radians (0 degrees)
+                (" 42", "1.5707963267948966") // end angle in radians (90 degrees)
+            );
+            var ellipse = (Ellipse)drawing.GetEntities().Single();
+            Assert.Equal(new Point(0.0, 0.0, 0.0), ellipse.Center);
+            Assert.Equal(new Vector(0.0, 2.0, 0.0), ellipse.MajorAxis);
+            Assert.Equal(0.5, ellipse.MinorAxisRatio);
+            AssertClose(270.0, ellipse.StartAngle);
+            AssertClose(360.0, ellipse.EndAngle);
         }
 
         [Fact]

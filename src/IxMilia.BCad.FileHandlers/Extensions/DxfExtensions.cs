@@ -303,7 +303,28 @@ namespace IxMilia.BCad.FileHandlers.Extensions
 
         public static Ellipse ToEllipse(this DxfEllipse el)
         {
-            return new Ellipse(el.Center.ToPoint(), el.MajorAxis.ToVector(), el.MinorAxisRatio, el.StartParameter * MathHelper.RadiansToDegrees, el.EndParameter * MathHelper.RadiansToDegrees, el.Normal.ToVector(), el.GetEntityColor(), el.GetLineTypeSpecification(), el);
+            var majorAxis = el.MajorAxis.ToVector();
+            var minorAxisRatio = el.MinorAxisRatio;
+            var startAngle = el.StartParameter * MathHelper.RadiansToDegrees;
+            var endAngle = el.EndParameter * MathHelper.RadiansToDegrees;
+            var normal = el.Normal.ToVector();
+
+            if (minorAxisRatio > 1.0)
+            {
+                // minor axis ratio must be (0, 1); correct and rotate if necessary
+                var majorAxisLength = majorAxis.Length;
+                var minorAxisLength = majorAxisLength * minorAxisRatio;
+                var minorAxis = normal.Cross(majorAxis).Normalize() * minorAxisLength;
+
+                var correctedMajorAxis = minorAxis;
+                var correctedMinorAxisRatio = majorAxisLength / minorAxisLength;
+                majorAxis = correctedMajorAxis;
+                minorAxisRatio = correctedMinorAxisRatio;
+                startAngle = MathHelper.CorrectAngleDegrees(startAngle - 90.0);
+                endAngle = MathHelper.CorrectAngleDegrees(endAngle - 90.0);
+            }
+
+            return new Ellipse(el.Center.ToPoint(), majorAxis, minorAxisRatio, startAngle, endAngle, normal, el.GetEntityColor(), el.GetLineTypeSpecification(), el);
         }
 
         public static async Task<Image> ToImage(this DxfImage i, Func<string, Task<byte[]>> contentResolver)
