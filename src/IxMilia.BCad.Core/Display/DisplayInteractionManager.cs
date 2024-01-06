@@ -201,8 +201,9 @@ namespace IxMilia.BCad.Display
                 {
                     snapPointsQuadTree = _workspace.Drawing.GetSnapPoints(transform, Width, Height, token);
                 }
-                catch (OperationCanceledException)
+                catch (Exception)
                 {
+                    // this is _usually_ OperationCanceledException, but if anything else happened, we don't want to crash
                     snapPointsQuadTree = new QuadTree<TransformedSnapPoint>(new Rect(), t => new Rect(t.ControlPoint.X, t.ControlPoint.Y, 0.0, 0.0));
                 }
             });
