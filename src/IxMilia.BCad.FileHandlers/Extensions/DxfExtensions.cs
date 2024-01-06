@@ -320,8 +320,13 @@ namespace IxMilia.BCad.FileHandlers.Extensions
                 var correctedMinorAxisRatio = majorAxisLength / minorAxisLength;
                 majorAxis = correctedMajorAxis;
                 minorAxisRatio = correctedMinorAxisRatio;
-                startAngle = MathHelper.CorrectAngleDegrees(startAngle - 90.0);
-                endAngle = MathHelper.CorrectAngleDegrees(endAngle - 90.0);
+
+                // correct angles if not a full ellipse
+                if (startAngle != 0.0 || !MathHelper.CloseTo(endAngle, MathHelper.ThreeSixty))
+                {
+                    startAngle = MathHelper.CorrectAngleDegrees(startAngle - 90.0);
+                    endAngle = MathHelper.CorrectAngleDegrees(endAngle - 90.0);
+                }
             }
 
             return new Ellipse(el.Center.ToPoint(), majorAxis, minorAxisRatio, startAngle, endAngle, normal, el.GetEntityColor(), el.GetLineTypeSpecification(), el);

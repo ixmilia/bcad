@@ -142,7 +142,30 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public async Task ReadEllipseWithIncorrectMinorAxisRatioTest()
+        public async Task ReadEllipseAndCorrectMinorAxisRatioTest_DefaultStartAndEndParameters()
+        {
+            var drawing = await ReadFromDxfContent(
+                ("  0", "SECTION"),
+                ("  2", "ENTITIES"),
+                ("  0", "ELLIPSE"),
+                (" 10", "0"), // center
+                (" 20", "0"),
+                (" 30", "0"),
+                (" 11", "1"), // major axis
+                (" 21", "0"),
+                (" 31", "0"),
+                (" 40", "2") // minor axis ratio
+            );
+            var ellipse = (Ellipse)drawing.GetEntities().Single();
+            Assert.Equal(new Point(0.0, 0.0, 0.0), ellipse.Center);
+            Assert.Equal(new Vector(0.0, 2.0, 0.0), ellipse.MajorAxis);
+            Assert.Equal(0.5, ellipse.MinorAxisRatio);
+            AssertClose(0.0, ellipse.StartAngle);
+            AssertClose(360.0, ellipse.EndAngle);
+        }
+
+        [Fact]
+        public async Task ReadEllipseAndCorrectMinorAxisRatioTest_CustomStartAndEndParameters()
         {
             var drawing = await ReadFromDxfContent(
                 ("  0", "SECTION"),
