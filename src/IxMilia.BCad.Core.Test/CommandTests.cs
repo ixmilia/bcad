@@ -291,6 +291,22 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public async Task InsertLineSegments_PointToTangent()
+        {
+            var circle = new Circle(new Point(1.0, 0.0, 0.0), 0.5, Vector.ZAxis);
+            Workspace.AddToCurrentLayer(circle);
+            var result = await Execute("LINE",
+                new PushPointOperation(new Point(0.0, 0.0, 0.0)), // start point
+                new PushDirectiveOperation("t"), // switch to tangent mode
+                new PushEntityOperation(new SelectedEntity(circle, new Point(0.74, 0.43, 0.0))), // the selection point
+                new PushNoneOperation() // done
+            );
+            Assert.True(result);
+            var actual = Workspace.Drawing.GetEntities().OfType<Line>().Single();
+            Assert.True(actual.EquivalentTo(new Line(new Point(0.0, 0.0, 0.0), new Point(0.75, 0.4330127018922193, 0.0))));
+        }
+
+        [Fact]
         public async Task InsertCircleWithTwoPointsScript()
         {
             var result = await Workspace.ExecuteTokensFromScriptAsync(@"CIRCLE 1,0 2,0");

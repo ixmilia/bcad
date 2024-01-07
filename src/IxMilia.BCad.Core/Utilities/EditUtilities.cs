@@ -380,6 +380,24 @@ namespace IxMilia.BCad.Utilities
             return null;
         }
 
+        public static (PrimitiveLine, PrimitiveLine)? TangentLine(Point point, PrimitiveEllipse ellipse)
+        {
+            if (!ellipse.IsCircle)
+            {
+                return null;
+            }
+
+            var connectingLine = new PrimitiveLine(point, ellipse.Center);
+            var constructionCircle = new PrimitiveEllipse(connectingLine.MidPoint(), connectingLine.Length / 2.0, ellipse.Normal);
+            var tangentEndPoints = constructionCircle.IntersectionPoints(ellipse).ToArray();
+            if (tangentEndPoints.Length != 2)
+            {
+                return null;
+            }
+
+            return (new PrimitiveLine(point, tangentEndPoints[0]), new PrimitiveLine(point, tangentEndPoints[1]));
+        }
+
         public static Entity Move(Entity entity, Vector offset)
         {
             return entity.MapEntity<Entity>(
