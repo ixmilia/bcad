@@ -113,7 +113,14 @@ namespace IxMilia.BCad.Core.Test
 
         private static PrimitiveEllipse Ellipse(Point center, double radiusX, double radiusY)
         {
-            return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360);
+            if (radiusX > radiusY)
+            {
+                return new PrimitiveEllipse(center, new Vector(radiusX, 0, 0), Vector.ZAxis, radiusY / radiusX, 0, 360);
+            }
+            else
+            {
+                return new PrimitiveEllipse(center, new Vector(0, radiusY, 0), Vector.ZAxis, radiusX / radiusY, 0, 360);
+            }
         }
 
         private static void TestPointContainment(IPrimitive primitive, IEnumerable<Point> contained = null, IEnumerable<Point> excluded = null, double epsilon = MathHelper.Epsilon)
