@@ -430,8 +430,10 @@ namespace IxMilia.BCad.Utilities
             else
             {
                 // more complicated case, generate line from center of ellipse1 to ellipse2; first, ensure ellipse1 is the smaller of the two
+                var swapped = false;
                 if (radius2 < radius1)
                 {
+                    swapped = true;
                     (ellipse1, ellipse2) = (ellipse2, ellipse1);
                     (radius1, radius2) = (radius2, radius1);
                 }
@@ -452,6 +454,12 @@ namespace IxMilia.BCad.Utilities
                 if (tangentPrimitive1 is not PrimitiveLine tangentLine1 || tangentPrimitive2 is not PrimitiveLine tangentLine2)
                 {
                     return null;
+                }
+
+                if (swapped)
+                {
+                    tangentLine1 = tangentLine1.Update(p1: tangentLine1.P2, p2: tangentLine1.P1);
+                    tangentLine2 = tangentLine2.Update(p1: tangentLine2.P2, p2: tangentLine2.P1);
                 }
 
                 return (tangentLine1, tangentLine2);
