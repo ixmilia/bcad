@@ -307,6 +307,41 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public async Task InsertLineSegments_TangentToPoint()
+        {
+            var circle = new Circle(new Point(1.0, 0.0, 0.0), 0.5, Vector.ZAxis);
+            Workspace.AddToCurrentLayer(circle);
+            var result = await Execute("LINE",
+                new PushDirectiveOperation("t"),  // enter tangent mode
+                new PushEntityOperation(new SelectedEntity(circle, new Point(0.74, 0.43, 0.0))), // the entity
+                new PushPointOperation(new Point(0.0, 0.0, 0.0)), // the point
+                new PushNoneOperation() // done
+            );
+            Assert.True(result);
+            var actual = Workspace.Drawing.GetEntities().OfType<Line>().Single();
+            Assert.True(actual.EquivalentTo(new Line(new Point(0.75, 0.4330127018922193, 0.0), new Point(0.0, 0.0, 0.0))));
+        }
+
+        [Fact]
+        public async Task InsertLineSegments_TangentToTangent()
+        {
+            var circle1 = new Circle(new Point(0.0, 0.0, 0.0), 1.0, Vector.ZAxis);
+            var circle2 = new Circle(new Point(3.0, 0.0, 0.0), 1.5, Vector.ZAxis);
+            Workspace.AddToCurrentLayer(circle1);
+            Workspace.AddToCurrentLayer(circle2);
+            var result = await Execute("LINE",
+                new PushDirectiveOperation("t"),  // enter tangent mode
+                new PushEntityOperation(new SelectedEntity(circle1, new Point(-0.15, 0.98, 0.0))), // first circle
+                new PushDirectiveOperation("t"), // remain in tangent mode
+                new PushEntityOperation(new SelectedEntity(circle2, new Point(2.75, 1.48, 0.0))), // second circle
+                new PushNoneOperation() // done
+            );
+            Assert.True(result);
+            var actual = Workspace.Drawing.GetEntities().OfType<Line>().Single();
+            Assert.True(actual.EquivalentTo(new Line(new Point(-0.1666666666674352, 0.9860132971831395, 0.0), new Point(2.7499999999985647, 1.4790199457769997, 0.0))));
+        }
+
+        [Fact]
         public async Task InsertCircleWithTwoPointsScript()
         {
             var result = await Workspace.ExecuteTokensFromScriptAsync(@"CIRCLE 1,0 2,0");

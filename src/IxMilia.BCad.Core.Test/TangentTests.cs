@@ -28,5 +28,33 @@ namespace IxMilia.BCad.Core.Test
             var tangentLines = EditUtilities.TangentLine(point, ellipse);
             Assert.Null(tangentLines);
         }
+
+        [Fact]
+        public void GenerateTangentLineBetweenTwoCircles_SameRadius()
+        {
+            var c1 = new PrimitiveEllipse(new Point(0.0, 0.0, 0.0), 1.0, Vector.ZAxis);
+            var c2 = new PrimitiveEllipse(new Point(3.0, 0.0, 0.0), 1.0, Vector.ZAxis);
+            var lines = EditUtilities.TangentLine(c1, c2);
+            var line1 = lines.Value.Item1;
+            var line2 = lines.Value.Item2;
+            Assert.Equal(new Point(0.0, -1.0, 0.0), line1.P1);
+            Assert.Equal(new Point(3.0, -1.0, 0.0), line1.P2);
+            Assert.Equal(new Point(0.0, 1.0, 0.0), line2.P1);
+            Assert.Equal(new Point(3.0, 1.0, 0.0), line2.P2);
+        }
+
+        [Fact]
+        public void GenerateTangentLineBetweenTwoCircles_DifferentRadius()
+        {
+            var c1 = new PrimitiveEllipse(new Point(0.0, 0.0, 0.0), 1.0, Vector.ZAxis);
+            var c2 = new PrimitiveEllipse(new Point(3.0, 0.0, 0.0), 1.5, Vector.ZAxis);
+            var lines = EditUtilities.TangentLine(c1, c2);
+            var line1 = lines.Value.Item1;
+            var line2 = lines.Value.Item2;
+            Assert.Equal(new Point(-0.1666666666674352, 0.9860132971831395, 0.0), line1.P1);
+            Assert.Equal(new Point(2.7499999999985647, 1.4790199457769997, 0.0), line1.P2);
+            Assert.Equal(new Point(-0.1666666666674352, -0.9860132971831395, 0.0), line2.P1);
+            Assert.Equal(new Point(2.7499999999985647, -1.4790199457769997, 0.0), line2.P2);
+        }
     }
 }

@@ -382,6 +382,7 @@ namespace IxMilia.BCad.Utilities
 
         public static (PrimitiveLine, PrimitiveLine)? TangentLine(Point point, PrimitiveEllipse ellipse)
         {
+            // https://www.mathopenref.com/consttangentsext.html
             if (!ellipse.IsCircle)
             {
                 return null;
@@ -396,6 +397,65 @@ namespace IxMilia.BCad.Utilities
             }
 
             return (new PrimitiveLine(point, tangentEndPoints[0]), new PrimitiveLine(point, tangentEndPoints[1]));
+        }
+
+        public static (PrimitiveLine, PrimitiveLine)? TangentLine(PrimitiveEllipse ellipse1, PrimitiveEllipse ellipse2)
+        {
+            // https://www.mathopenref.com/consttangentsext.html
+            if (!ellipse1.IsCircle || !ellipse2.IsCircle)
+            {
+                return null;
+            }
+
+            var plane = new Plane(ellipse1.Center, ellipse1.Normal);
+            var radius1 = ellipse1.MajorAxis.Length;
+            var radius2 = ellipse2.MajorAxis.Length;
+            if (radius1 == radius2)
+            {
+                // simple case, offset the connecting line
+                var connectingLine = new PrimitiveLine(ellipse1.Center, ellipse2.Center);
+                var offsetLines = OffsetBothDirections(plane, connectingLine, radius1).ToArray();
+                if (offsetLines.Length != 2)
+                {
+                    return null;
+                }
+
+                if (offsetLines[0] is not PrimitiveLine line1 || offsetLines[1] is not PrimitiveLine line2)
+                {
+                    return null;
+                }
+
+                return (line1, line2);
+            }
+            else
+            {
+                // more complicated case, generate line from center of ellipse1 to ellipse2; first, ensure ellipse1 is the smaller of the two
+                if (radius2 < radius1)
+                {
+                    (ellipse1, ellipse2) = (ellipse2, ellipse1);
+                    (radius1, radius2) = (radius2, radius1);
+                }
+
+                var radiusDiff = radius2 - radius1;
+                var tempCircle = new PrimitiveEllipse(ellipse2.Center, radiusDiff, ellipse2.Normal);
+                var tempTangentLines = TangentLine(ellipse1.Center, tempCircle);
+                if (tempTangentLines is null)
+                {
+                    return null;
+                }
+
+                var offsetVector1 = tempTangentLines.Value.Item1.P2 - ellipse2.Center;
+                var offsetVector2 = tempTangentLines.Value.Item2.P2 - ellipse2.Center;
+                var tangentPrimitive1 = Offset(plane, tempTangentLines.Value.Item1, tempTangentLines.Value.Item1.P2 + offsetVector1, radius1);
+                var tangentPrimitive2 = Offset(plane, tempTangentLines.Value.Item2, tempTangentLines.Value.Item2.P2 + offsetVector2, radius1);
+
+                if (tangentPrimitive1 is not PrimitiveLine tangentLine1 || tangentPrimitive2 is not PrimitiveLine tangentLine2)
+                {
+                    return null;
+                }
+
+                return (tangentLine1, tangentLine2);
+            }
         }
 
         public static Entity Move(Entity entity, Vector offset)
