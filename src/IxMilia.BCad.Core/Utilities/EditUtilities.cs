@@ -243,8 +243,8 @@ namespace IxMilia.BCad.Utilities
                     var isInside = projection.Transform((Vector)offsetDirection).LengthSquared <= 1.0;
                     var normalizedOffsetDistance = isInside ? -offsetDistance : offsetDistance;
                     var majorLength = ellipse.MajorAxis.Length;
-                    if (isInside && (offsetDistance > majorLength * ellipse.MinorAxisRatio)
-                        || (offsetDistance >= majorLength))
+                    if (isInside && ((offsetDistance > majorLength * ellipse.MinorAxisRatio)
+                        || (offsetDistance >= majorLength)))
                     {
                         return null;
                     }

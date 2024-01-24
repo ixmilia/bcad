@@ -86,6 +86,21 @@ namespace IxMilia.BCad.Core.Test
         }
 
         [Fact]
+        public void CircleTtrWhereOffsetEqualsOriginalRadiiTest()
+        {
+            var el = EditUtilities.Ttr(
+                Workspace.DrawingPlane,
+                new SelectedEntity(new Circle(new Point(0.0, 0.0, 0.0), 10.0, Vector.ZAxis), new Point(4.77, 8.49, 0.0)),
+                new SelectedEntity(new Circle(new Point(20.0, 0.0, 0.0), 10.0, Vector.ZAxis), new Point(14.61, 8.49, 0.0)),
+                10.0,
+                new DrawingSettings());
+            Assert.True(el.IsCircle);
+            AssertClose(new Point(10.0, 17.32050807568877, 0.0), el.Center);
+            AssertClose(10.0, el.MajorAxis.Length);
+            Assert.Equal(Workspace.DrawingPlane.Normal, el.Normal);
+        }
+
+        [Fact]
         public void ArcMidpointTests()
         {
             Action<double, Arc> TestMidpoint = (midPointAngle, arc) =>
