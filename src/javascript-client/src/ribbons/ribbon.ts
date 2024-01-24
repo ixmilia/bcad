@@ -1,7 +1,6 @@
 import { Client } from '../client';
 import { SettingsRibbon } from './settingsRibbon';
 import { DebugRibbon } from './debugRibbon';
-import { InputConsole } from '../inputConsole'
 import { AnnotationRibbon } from './annotationRibbon';
 
 export class Ribbon {

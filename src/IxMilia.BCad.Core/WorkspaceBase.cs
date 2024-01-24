@@ -40,6 +40,7 @@ namespace IxMilia.BCad
 
         private void RegisterDefaultCommands()
         {
+            RegisterCommand(new CadCommandInfo("Help.About", "ABOUT", new AboutCommand(), ModifierKeys.None, Key.F1));
             RegisterCommand(new CadCommandInfo("Edit.Copy", "COPY", new CopyCommand(), ModifierKeys.Control, Key.C, "copy", "co"));
             RegisterCommand(new CadCommandInfo("Debug.Dump", "DUMP", new DebugDumpCommand(), "dump"));
             RegisterCommand(new CadCommandInfo("Debug.Attach", "ATTACH", new DebuggerAttachCommand(), "attach"));

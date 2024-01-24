@@ -5,6 +5,7 @@ import { OutputConsole } from "./outputConsole";
 import { Ribbon } from "./ribbons/ribbon";
 import { ViewControl } from "./viewControl";
 import { DialogHandler } from "./dialogs/dialogHandler";
+import { AboutDialog } from "./dialogs/aboutDialog";
 import { LayerDialog } from "./dialogs/layerDialog";
 import { ShortcutHandler } from "./shortcutHandler";
 import { FileSettingsDialog } from "./dialogs/fileSettingsDialog";
@@ -136,7 +137,8 @@ async function start(argArray: string[]): Promise<void> {
     new ScriptPane(client);
     new PropertyPane(client);
 
-    let dialogHandler = new DialogHandler(client);
+    const dialogHandler = new DialogHandler(client);
+    new AboutDialog(dialogHandler, client);
     new FileSettingsDialog(dialogHandler);
     new DimensionStylesDialog(dialogHandler, client);
     new LayerDialog(dialogHandler, client);
