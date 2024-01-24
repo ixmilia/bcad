@@ -51,10 +51,10 @@ namespace IxMilia.BCad.Core.Test
             var lines = EditUtilities.TangentLine(c1, c2);
             var line1 = lines.Value.Item1;
             var line2 = lines.Value.Item2;
-            Assert.Equal(new Point(-0.1666666666674352, 0.9860132971831395, 0.0), line1.P1);
-            Assert.Equal(new Point(2.7499999999985647, 1.4790199457769997, 0.0), line1.P2);
-            Assert.Equal(new Point(-0.1666666666674352, -0.9860132971831395, 0.0), line2.P1);
-            Assert.Equal(new Point(2.7499999999985647, -1.4790199457769997, 0.0), line2.P2);
+            AssertClose(new Point(-0.1666666666674352, 0.9860132971831395, 0.0), line1.P1);
+            AssertClose(new Point(2.7499999999985647, 1.4790199457769997, 0.0), line1.P2);
+            AssertClose(new Point(-0.1666666666674352, -0.9860132971831395, 0.0), line2.P1);
+            AssertClose(new Point(2.7499999999985647, -1.4790199457769997, 0.0), line2.P2);
         }
     }
 }

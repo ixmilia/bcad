@@ -235,7 +235,7 @@ namespace IxMilia.BCad.Rpc.Test
         [Fact]
         public void GetEllipsePropertyPaneValue()
         {
-            var propertyMap = GetEntityProperties(new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 7.0, 8.0, 9.0, new Vector(10.0, 11.0, 12.0), thickness: 13));
+            var propertyMap = GetEntityProperties(new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 0.7, 8.0, 9.0, new Vector(10.0, 11.0, 12.0), thickness: 13));
             Assert.Equal(13, propertyMap.Count);
             Assert.Equal(new ClientPropertyPaneValue("cx", "Center X", "0'1\""), propertyMap["cx"]);
             Assert.Equal(new ClientPropertyPaneValue("cy", "Y", "0'2\""), propertyMap["cy"]);
@@ -243,7 +243,7 @@ namespace IxMilia.BCad.Rpc.Test
             Assert.Equal(new ClientPropertyPaneValue("mx", "Major Axis X", "0'4\""), propertyMap["mx"]);
             Assert.Equal(new ClientPropertyPaneValue("my", "Y", "0'5\""), propertyMap["my"]);
             Assert.Equal(new ClientPropertyPaneValue("mz", "Z", "0'6\""), propertyMap["mz"]);
-            Assert.Equal(new ClientPropertyPaneValue("mr", "Minor Axis Ratio", "7.0000"), propertyMap["mr"]);
+            Assert.Equal(new ClientPropertyPaneValue("mr", "Minor Axis Ratio", "0.7000"), propertyMap["mr"]);
             Assert.Equal(new ClientPropertyPaneValue("sa", "Start Angle", "8"), propertyMap["sa"]);
             Assert.Equal(new ClientPropertyPaneValue("ea", "End Angle", "9"), propertyMap["ea"]);
             Assert.Equal(new ClientPropertyPaneValue("nx", "Normal X", "0'10\""), propertyMap["nx"]);
@@ -253,22 +253,22 @@ namespace IxMilia.BCad.Rpc.Test
         }
 
         [Theory]
-        [InlineData("cx", "99", 99, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
-        [InlineData("cy", "99", 1, 99, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
-        [InlineData("cz", "99", 1, 2, 99, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
-        [InlineData("mx", "99", 1, 2, 3, 99, 5, 6, 7, 8, 9, 0, 0, 1, 0)]
-        [InlineData("my", "99", 1, 2, 3, 4, 99, 6, 7, 8, 9, 0, 0, 1, 0)]
-        [InlineData("mz", "99", 1, 2, 3, 4, 5, 99, 7, 8, 9, 0, 0, 1, 0)]
-        [InlineData("mr", "99", 1, 2, 3, 4, 5, 6, 99, 8, 9, 0, 0, 1, 0)]
-        [InlineData("sa", "99", 1, 2, 3, 4, 5, 6, 7, 99, 9, 0, 0, 1, 0)]
-        [InlineData("ea", "99", 1, 2, 3, 4, 5, 6, 7, 8, 99, 0, 0, 1, 0)]
-        [InlineData("nx", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 99, 0, 1, 0)]
-        [InlineData("ny", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 99, 1, 0)]
-        [InlineData("nz", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 99, 0)]
-        [InlineData("t", "99", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 99)]
+        [InlineData("cx", "99", 99, 2, 3, 4, 5, 6, 0.7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("cy", "99", 1, 99, 3, 4, 5, 6, 0.7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("cz", "99", 1, 2, 99, 4, 5, 6, 0.7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("mx", "99", 1, 2, 3, 99, 5, 6, 0.7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("my", "99", 1, 2, 3, 4, 99, 6, 0.7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("mz", "99", 1, 2, 3, 4, 5, 99, 0.7, 8, 9, 0, 0, 1, 0)]
+        [InlineData("mr", "0.99", 1, 2, 3, 4, 5, 6, 0.99, 8, 9, 0, 0, 1, 0)]
+        [InlineData("sa", "99", 1, 2, 3, 4, 5, 6, 0.7, 99, 9, 0, 0, 1, 0)]
+        [InlineData("ea", "99", 1, 2, 3, 4, 5, 6, 0.7, 8, 99, 0, 0, 1, 0)]
+        [InlineData("nx", "99", 1, 2, 3, 4, 5, 6, 0.7, 8, 9, 99, 0, 1, 0)]
+        [InlineData("ny", "99", 1, 2, 3, 4, 5, 6, 0.7, 8, 9, 0, 99, 1, 0)]
+        [InlineData("nz", "99", 1, 2, 3, 4, 5, 6, 0.7, 8, 9, 0, 0, 99, 0)]
+        [InlineData("t", "99", 1, 2, 3, 4, 5, 6, 0.7, 8, 9, 0, 0, 1, 99)]
         public void SetEllipsePropertyPaneValue(string propertyName, string propertyValue, double cx, double cy, double cz, double mx, double my, double mz, double ma, double sa, double ea, double nx, double ny, double nz, double t)
         {
-            var entity = new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 7.0, 8.0, 9.0, new Vector(0.0, 0.0, 1.0), thickness: t);
+            var entity = new Ellipse(new Point(1.0, 2.0, 3.0), new Vector(4.0, 5.0, 6.0), 0.7, 8.0, 9.0, new Vector(0.0, 0.0, 1.0), thickness: t);
             var finalEntity = DoUpdate(entity, propertyName, propertyValue);
             Assert.Equal(new Point(cx, cy, cz), finalEntity.Center);
             Assert.Equal(new Vector(mx, my, mz), finalEntity.MajorAxis);
