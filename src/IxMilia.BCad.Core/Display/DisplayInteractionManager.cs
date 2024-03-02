@@ -739,7 +739,19 @@ namespace IxMilia.BCad.Display
                         return Tuple.Create(0.0, screenPoint);
                     return ClosestPoint(borderPoints, screenPoint);
                 },
-                bezier => Tuple.Create(0.0, screenPoint), // TODO
+                bezier =>
+                {
+                    // TODO: make more accurate
+                    var lineSegments = 10;
+                    var points = new Point[lineSegments + 1];
+                    points[0] = bezier.P1;
+                    for (int i = 1; i <= lineSegments; i++)
+                    {
+                        var t = (double)i / lineSegments;
+                        points[i] = transformationMatrix.Transform(bezier.ComputeParameterizedPoint(t));
+                    }
+                    return ClosestPoint(points, screenPoint);
+                },
                 image =>
                 {
                     var rad = image.Rotation * MathHelper.DegreesToRadians;
