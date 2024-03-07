@@ -2,6 +2,7 @@ import { Client } from './client';
 import { ResizeObserver } from 'resize-observer';
 import {
     CadColor,
+    ClientBezier,
     ClientDrawing,
     ClientEllipse,
     ClientImage,
@@ -134,6 +135,7 @@ export class ViewControl {
             Text: [],
             Images: [],
             Triangles: [],
+            Beziers: [],
             LineCount: 0,
             LineVertices: {},
             LineColors: {},
@@ -164,6 +166,7 @@ export class ViewControl {
             Text: [],
             Images: [],
             Triangles: [],
+            Beziers: [],
             CurrentDimensionStyle: '',
             DimensionStyles: [''],
         };
@@ -178,6 +181,7 @@ export class ViewControl {
             Text: [],
             Images: [],
             Triangles: [],
+            Beziers: [],
             LineCount: 0,
             LineVertices: {},
             LineColors: {},
@@ -321,6 +325,7 @@ export class ViewControl {
         drawing.Ellipses = clientDrawing.Ellipses;
         drawing.Text = clientDrawing.Text;
         drawing.Triangles = clientDrawing.Triangles;
+        drawing.Beziers = clientDrawing.Beziers;
         drawing.Images = clientDrawing.Images;
         drawing.ImageElements = await Promise.all(clientDrawing.Images.map(async i => {
             const imageElement = await this.createImageElement(i);
@@ -657,6 +662,20 @@ export class ViewControl {
 
         for (let l of drawing.Lines) {
             addLine([l.P1.X, l.P1.Y, l.P1.Z], [l.P2.X, l.P2.Y, l.P2.Z], l.Color);
+        }
+        const bezierLineSegments = 20;
+        for (const b of drawing.Beziers) {
+            let last = [b.P1.X, b.P1.Y, b.P1.Z];
+            for (let i = 0; i <= bezierLineSegments; i++) {
+                const t = i / bezierLineSegments;
+                const tprime = 1 - t;
+                const next = [];
+                next[0] = tprime * tprime * tprime * b.P1.X + 3 * tprime * tprime * t * b.P2.X + 3 * tprime * t * t * b.P3.X + t * t * t * b.P4.X;
+                next[1] = tprime * tprime * tprime * b.P1.Y + 3 * tprime * tprime * t * b.P2.Y + 3 * tprime * t * t * b.P3.Y + t * t * t * b.P4.Y;
+                next[2] = tprime * tprime * tprime * b.P1.Z + 3 * tprime * tprime * t * b.P2.Z + 3 * tprime * t * t * b.P3.Z + t * t * t * b.P4.Z;
+                addLine([last[0], last[1], last[2]], [next[0], next[1], next[2]], b.Color);
+                last = next;
+            }
         }
 
         // ellipses with non-integral start- and end-angles
@@ -1090,6 +1109,10 @@ export class ViewControl {
             this.redrawEllipse(context, el);
         }
 
+        for (const b of drawing.Beziers) {
+            this.redrawBezier(context, b);
+        }
+
         for (const t of drawing.Triangles) {
             this.redrawTriangle(context, t);
         }
@@ -1123,6 +1146,19 @@ export class ViewControl {
         context.strokeStyle = ViewControl.colorToHex(el.Color || this.settings.AutoColor);
         context.setLineDash(el.LinePattern.map(p => p * this.transform.CanvasTransform[0]));
         context.ellipse(center[0], center[1], radiusX, radiusY, rotation, el.StartAngle * Math.PI / -180.0, el.EndAngle * Math.PI / -180.0, true);
+        context.stroke();
+    }
+
+    private redrawBezier(context: CanvasRenderingContext2D, b: ClientBezier) {
+        const p1 = transform(this.transform.CanvasTransform, [b.P1.X, b.P1.Y, b.P1.Z, 1.0]);
+        const p2 = transform(this.transform.CanvasTransform, [b.P2.X, b.P2.Y, b.P2.Z, 1.0]);
+        const p3 = transform(this.transform.CanvasTransform, [b.P3.X, b.P3.Y, b.P3.Z, 1.0]);
+        const p4 = transform(this.transform.CanvasTransform, [b.P4.X, b.P4.Y, b.P4.Z, 1.0]);
+        context.beginPath();
+        context.strokeStyle = ViewControl.colorToHex(b.Color || this.settings.AutoColor);
+        context.setLineDash(b.LinePattern.map(p => p * this.transform.CanvasTransform[0]));
+        context.moveTo(p1[0], p1[1]);
+        context.bezierCurveTo(p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
         context.stroke();
     }
 

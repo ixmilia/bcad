@@ -234,6 +234,26 @@ namespace IxMilia.BCad.Rpc
         }
     }
 
+    public struct ClientBezier
+    {
+        public ClientPoint P1 { get; }
+        public ClientPoint P2 { get; }
+        public ClientPoint P3 { get; }
+        public ClientPoint P4 { get; }
+        public CadColor? Color { get; }
+        public double[] LinePattern { get; }
+
+        public ClientBezier(Point p1, Point p2, Point p3, Point p4, CadColor? color, double[] linePattern)
+        {
+            P1 = p1;
+            P2 = p2;
+            P3 = p3;
+            P4 = p4;
+            Color = color;
+            LinePattern = linePattern;
+        }
+    }
+
     public class ClientDrawing
     {
         public string CurrentLayer { get; set; }
@@ -249,6 +269,7 @@ namespace IxMilia.BCad.Rpc
         public List<ClientText> Text { get; } = new List<ClientText>();
         public List<ClientImage> Images { get; } = new List<ClientImage>();
         public List<ClientTriangle> Triangles { get; } = new List<ClientTriangle>();
+        public List<ClientBezier> Beziers { get; } = new List<ClientBezier>();
 
         public ClientDrawing(string fileName)
         {

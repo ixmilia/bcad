@@ -147,7 +147,7 @@ namespace IxMilia.BCad.Rpc
             var fallBackColor = Workspace.SettingsService.GetValue<CadColor>(DisplaySettingsNames.BackgroundColor).GetAutoContrastingColor();
             foreach (var primitive in primitives)
             {
-                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, null, fallBackColor);
+                AddPrimitiveToDrawing(clientUpdate.RubberBandDrawing, primitive, Array.Empty<double>(), fallBackColor);
             }
 
             PushUpdate(clientUpdate);
@@ -444,7 +444,7 @@ namespace IxMilia.BCad.Rpc
                 var layerLineType = drawing.GetLineTypeFromLayer(layer);
                 var layerLineTypePattern = layerLineType is not null
                     ? layerLineType.Pattern.Select(p => p * layer.LineTypeSpecification.Scale).ToArray()
-                    : null;
+                    : Array.Empty<double>();
                 clientDrawing.Layers.Add(layer.Name);
                 if (layer.IsVisible)
                 {
@@ -491,18 +491,7 @@ namespace IxMilia.BCad.Rpc
                 line => clientDrawing.Lines.Add(new ClientLine(line.P1, line.P2, primitiveColor, linePattern)),
                 point => clientDrawing.Points.Add(new ClientPointLocation(point.Location, primitiveColor)),
                 text => clientDrawing.Text.Add(new ClientText(text.Value, text.Location, text.Height, text.Rotation, primitiveColor)),
-                bezier =>
-                {
-                    var lineSegments = 10;
-                    var last = bezier.P1;
-                    for (int i = 1; i <= lineSegments; i++)
-                    {
-                        var t = (double)i / lineSegments;
-                        var next = bezier.ComputeParameterizedPoint(t);
-                        clientDrawing.Lines.Add(new ClientLine(last, next, primitiveColor, linePattern));
-                        last = next;
-                    }
-                },
+                bezier => clientDrawing.Beziers.Add(new ClientBezier(bezier.P1, bezier.P2, bezier.P3, bezier.P4, primitiveColor, linePattern)),
                 image => clientDrawing.Images.Add(new ClientImage(image.Location, Convert.ToBase64String(image.ImageData), image.Path, image.Width, image.Height, image.Rotation, primitiveColor)),
                 triangle => clientDrawing.Triangles.Add(new ClientTriangle(triangle.P1, triangle.P2, triangle.P3, primitiveColor))
             );
