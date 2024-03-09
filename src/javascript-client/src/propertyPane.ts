@@ -4,6 +4,8 @@ import { InputConsole } from './inputConsole';
 import { LogWriter } from './logWriter';
 
 export class PropertyPane {
+    private _selectedPropertyPaneIndex: number | undefined;
+
     constructor(client: Client) {
         const propertyPane = <HTMLDivElement>document.getElementById("property-pane");
         InputConsole.ensureCapturedEvents(propertyPane, true);
@@ -128,6 +130,22 @@ export class PropertyPane {
                             valueCell.appendChild(text);
                         }
 
+                        // last child of `valueCell` is what we just added
+                        const currentRowCount = table.rows.length;
+                        valueCell.lastElementChild?.addEventListener('keydown', (e) => {
+                            if (e instanceof KeyboardEvent) {
+                                if (e.key === 'Tab') {
+                                    if (e.shiftKey) {
+                                        // select previous property
+                                        this._selectedPropertyPaneIndex = currentRowCount - 1;
+                                    } else {
+                                        // select next property
+                                        this._selectedPropertyPaneIndex = currentRowCount + 1;
+                                    }
+                                }
+                            }
+                        });
+
                         const row = <HTMLTableRowElement>document.createElement('tr');
                         row.appendChild(name);
                         row.appendChild(valueCell);
@@ -137,6 +155,16 @@ export class PropertyPane {
 
                     propertyPaneContents.appendChild(table);
                     propertyPane.style.display = 'block';
+
+                    if (this._selectedPropertyPaneIndex !== undefined && this._selectedPropertyPaneIndex < table.rows.length) {
+                        const selectedIndex = this._selectedPropertyPaneIndex;
+                        this._selectedPropertyPaneIndex = undefined;
+                        const row = table.rows[selectedIndex];
+                        if (row.cells.length > 1) {
+                            const cell = row.cells[1];
+                            cell.firstElementChild?.dispatchEvent(new Event('focus'));
+                        }
+                    }
                 }
             }
         });
