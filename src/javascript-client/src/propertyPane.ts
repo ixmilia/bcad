@@ -8,6 +8,11 @@ export class PropertyPane {
         const propertyPane = <HTMLDivElement>document.getElementById("property-pane");
         InputConsole.ensureCapturedEvents(propertyPane, true);
 
+        const closeButton = document.getElementById('property-close');
+        closeButton?.addEventListener('click', () => {
+            client.cancel();
+        });
+
         const propertyPaneContents = <HTMLDivElement>document.getElementById("property-pane-contents");
         client.subscribeToClientUpdates(clientUpdate => {
             if (clientUpdate.PropertyPane !== undefined) {
