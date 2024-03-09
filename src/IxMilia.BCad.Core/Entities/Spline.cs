@@ -15,6 +15,11 @@ namespace IxMilia.BCad.Entities
         public Point[] ControlPoints { get; }
         public double[] KnotValues { get; }
 
+        public Point P1 => ControlPoints[0];
+        public Point P2 => ControlPoints[1];
+        public Point P3 => ControlPoints[2];
+        public Point P4 => ControlPoints[3];
+
         public override EntityKind Kind => EntityKind.Spline;
 
         public override BoundingBox BoundingBox { get; }
@@ -91,6 +96,28 @@ namespace IxMilia.BCad.Entities
             }
 
             return new Spline(newDegree, newControlPoints, newKnotValues, newColor, newLineTypeSpecification, newTag);
+        }
+
+        public Spline Update(
+            Optional<Point> p1 = default,
+            Optional<Point> p2 = default,
+            Optional<Point> p3 = default,
+            Optional<Point> p4 = default)
+        {
+            var newP1 = p1.HasValue ? p1.Value : P1;
+            var newP2 = p2.HasValue ? p2.Value : P2;
+            var newP3 = p3.HasValue ? p3.Value : P3;
+            var newP4 = p4.HasValue ? p4.Value : P4;
+
+            if (newP1 == P1 &&
+                newP2 == P2 &&
+                newP3 == P3 &&
+                newP4 == P4)
+            {
+                return this;
+            }
+
+            return Update(controlPoints: new[] { newP1, newP2, newP3, newP4 });
         }
 
         public override string ToString()

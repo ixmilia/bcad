@@ -85,7 +85,7 @@ namespace IxMilia.BCad.Rpc
         }
 
         private static ClientPropertyPaneValue GetEntityColorValue<TEntity>(string name, string displayName, CadColor? currentColor, Func<TEntity, CadColor?, Entity> updateColor, bool isUnrepresentable = false)
-            where TEntity: Entity
+            where TEntity : Entity
         {
             return ClientPropertyPaneValue.CreateForEntity<TEntity>(name, displayName, currentColor.ToPropertyColorString(), (entity, colorString) =>
             {
@@ -291,7 +291,21 @@ namespace IxMilia.BCad.Rpc
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("y4", "Y", drawing.FormatUnits(solid.P4.Y), (solid, value) => solid.Update(p4: solid.P4.WithY(value))),
                     ClientPropertyPaneValue.CreateForEntityWithUnits<Solid>("z4", "Z", drawing.FormatUnits(solid.P4.Z), (solid, value) => solid.Update(p4: solid.P4.WithZ(value))),
                 },
-                spline => new ClientPropertyPaneValue[0],
+                spline => new[]
+                {
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("x1", "Point 1 X", drawing.FormatUnits(spline.P1.X), (spline, value) => spline.Update(p1: spline.P1.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("y1", "Y", drawing.FormatUnits(spline.P1.Y), (spline, value) => spline.Update(p1: spline.P1.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("z1", "Z", drawing.FormatUnits(spline.P1.Z), (spline, value) => spline.Update(p1: spline.P1.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("x2", "Point 2 X", drawing.FormatUnits(spline.P2.X), (spline, value) => spline.Update(p2: spline.P2.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("y2", "Y", drawing.FormatUnits(spline.P2.Y), (spline, value) => spline.Update(p2: spline.P2.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("z2", "Z", drawing.FormatUnits(spline.P2.Z), (spline, value) => spline.Update(p2: spline.P2.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("x3", "Point 3 X", drawing.FormatUnits(spline.P3.X), (spline, value) => spline.Update(p3: spline.P3.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("y3", "Y", drawing.FormatUnits(spline.P3.Y), (spline, value) => spline.Update(p3: spline.P3.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("z3", "Z", drawing.FormatUnits(spline.P3.Z), (spline, value) => spline.Update(p3: spline.P3.WithZ(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("x4", "Point 4 X", drawing.FormatUnits(spline.P4.X), (spline, value) => spline.Update(p4: spline.P4.WithX(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("y4", "Y", drawing.FormatUnits(spline.P4.Y), (spline, value) => spline.Update(p4: spline.P4.WithY(value))),
+                    ClientPropertyPaneValue.CreateForEntityWithUnits<Spline>("z4", "Z", drawing.FormatUnits(spline.P4.Z), (spline, value) => spline.Update(p4: spline.P4.WithZ(value))),
+                },
                 text => new[]
                 {
                     ClientPropertyPaneValue.CreateForEntity<Text>("v", "Value", text.Value, (text, value) => text.Update(value: value)),
