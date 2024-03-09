@@ -1007,6 +1007,9 @@ export class ViewControl {
         for (const line of drawing.Lines) {
             this.renderLineToCanvas2D(context, line);
         }
+        for (const bezier of drawing.Beziers) {
+            this.renderBezierToCanvas2D(context, bezier);
+        }
         for (const point of drawing.Points) {
             this.renderPointToCanvas2D(context, point);
         }
@@ -1033,6 +1036,10 @@ export class ViewControl {
 
     private renderLineToCanvas2D(context: CanvasRenderingContext2D, line: ClientLine) {
         this.renderHighlightLineToCanvas(context, line.P1, line.P2, this.settings.AutoColor);
+    }
+
+    private renderBezierToCanvas2D(context: CanvasRenderingContext2D, bezier: ClientBezier) {
+        this.renderHighlightBezierToCanvas(context, bezier, this.settings.AutoColor);
     }
 
     private renderPointToCanvas2D(context: CanvasRenderingContext2D, point: ClientPointLocation) {
@@ -1093,6 +1100,18 @@ export class ViewControl {
         this.setContextHighlightStroke(context, color);
         context.moveTo(p1Transformed[0], p1Transformed[1]);
         context.lineTo(p2Transformed[0], p2Transformed[1]);
+        context.stroke();
+    }
+
+    private renderHighlightBezierToCanvas(context: CanvasRenderingContext2D, bezier: ClientBezier, color: CadColor) {
+        const p1 = transform(this.transform.CanvasTransform, [bezier.P1.X, bezier.P1.Y, bezier.P1.Z, 1.0]);
+        const p2 = transform(this.transform.CanvasTransform, [bezier.P2.X, bezier.P2.Y, bezier.P2.Z, 1.0]);
+        const p3 = transform(this.transform.CanvasTransform, [bezier.P3.X, bezier.P3.Y, bezier.P3.Z, 1.0]);
+        const p4 = transform(this.transform.CanvasTransform, [bezier.P4.X, bezier.P4.Y, bezier.P4.Z, 1.0]);
+        context.beginPath();
+        this.setContextHighlightStroke(context, color);
+        context.moveTo(p1[0], p1[1]);
+        context.bezierCurveTo(p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
         context.stroke();
     }
 
