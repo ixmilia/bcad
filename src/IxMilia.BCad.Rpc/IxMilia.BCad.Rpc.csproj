@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <NoWarn>VSTHRD200;$(NoWarn)</NoWarn><!-- Use "Async" suffix in names of methods that return an awaitable type. -->
   </PropertyGroup>
 

@@ -3,6 +3,7 @@
   <Import Project="Packages.props" />
 
   <PropertyGroup>
+    <AppTargetFramework>net9.0</AppTargetFramework>
     <AssemblySearchPaths>{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName}</AssemblySearchPaths>
     <RepoRoot>$(MSBuildThisFileDirectory)..</RepoRoot>
     <_VersionSuffix>$(VERSION_SUFFIX)</_VersionSuffix>

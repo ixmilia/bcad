@@ -49,6 +49,11 @@ try {
     Push-Location "$PSScriptRoot/src/javascript-client"
     npm i
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    if ($IsLinux -And $architecture -eq "arm64") {
+        # when cross-compiling for linux arm64, we specifically need the x64 version of icon-gen
+        npm install --platform=linux --arch=x64 icon-gen
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    }
     npm run compile
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Pop-Location
@@ -107,7 +112,7 @@ try {
     Set-EnvironmentVariable "artifact_path" $artifactPath
     if ($IsWindows) {
         Compress-Archive -Path "$packageOutputDir" -DestinationPath $artifactPath -Force
-        Set-EnvironmentVariable "secondary_artifact_name" "win"
+        Set-EnvironmentVariable "secondary_artifact_name" "win-$architecture"
         Set-EnvironmentVariable "secondary_artifact_path" $artifactPath
     }
     else {
@@ -116,7 +121,7 @@ try {
         $packageVersion = "$packageVersionPrefix.$packageVersionSuffix"
         $packageArchitecture = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
         $packageName = "bcad_${packageVersion}_$packageArchitecture.deb"
-        Set-EnvironmentVariable "secondary_artifact_name" "deb"
+        Set-EnvironmentVariable "secondary_artifact_name" "deb-$architecture"
         Set-EnvironmentVariable "secondary_artifact_path" "$packagesDir/$packageName"
         tar -zcf $artifactPath -C "$packageParentDir/" "$artifactShortName"
         ./build-package.sh --configuration $configuration --architecture $architecture

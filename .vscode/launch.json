@@ -6,9 +6,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/artifacts/bin/bcad/Debug/net7.0/bcad.exe",
+      "program": "${workspaceFolder}/artifacts/bin/bcad/Debug/net9.0/bcad.exe",
       "args": [],
-      "cwd": "${workspaceFolder}/artifacts/bin/bcad/Debug/net7.0",
+      "cwd": "${workspaceFolder}/artifacts/bin/bcad/Debug/net9.0",
       "console": "internalConsole",
       "stopAtEntry": false
     },

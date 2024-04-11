@@ -2,14 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <ApplicationIcon>$(MSBuildThisFileDirectory)..\javascript-client\out\app.ico</ApplicationIcon>
+    <NoWarn>$(NoWarn);IL2026</NoWarn> <!-- {0}: Using member '{1}}' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. -->
+    <NoWarn>$(NoWarn);IL2104</NoWarn> <!-- Assembly '{0}}' produced trim warnings. -->
+    <NoWarn>$(NoWarn);IL3000</NoWarn> <!-- {0}: 'System.Reflection.Assembly.Location.get' always returns an empty string for assemblies embedded in a single-file app. If the path to the app directory is needed, consider calling 'System.AppContext.BaseDirectory'. -->
+    <NoWarn>$(NoWarn);IL3053</NoWarn> <!-- Assembly '{0}' produced AOT analysis warnings. -->
     <OutputType Condition="'$(OS)' == 'Windows_NT'">WinExe</OutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishAot>true</PublishAot>
-    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
   <ItemGroup>

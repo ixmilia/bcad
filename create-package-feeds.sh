@@ -2,27 +2,22 @@
 
 _SCRIPT_DIR="$( cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P )"
 
-DEB_DIR="."
+ARTIFACTS_DIRECTORY="."
 DEB_FEED_PATH="."
-WIN_DIR="."
 WIN_FEED_PATH="."
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --artifacts-directory)
+      ARTIFACTS_DIRECTORY=$2
+      shift
+      ;;
     --deb-feed-path)
       DEB_FEED_PATH=$2
       shift
       ;;
-    --deb-dir)
-      DEB_DIR=$2
-      shift
-      ;;
     --win-feed-path)
       WIN_FEED_PATH=$2
-      shift
-      ;;
-    --win-dir)
-      WIN_DIR=$2
       shift
       ;;
     *)
@@ -44,7 +39,8 @@ echo "package feed location: $destination"
 packagesDir="$destination/deb"
 poolMainDir="$packagesDir/pool/main"
 mkdir -p "$poolMainDir"
-cp -r $DEB_DIR/*.deb "$poolMainDir"
+cp $ARTIFACTS_DIRECTORY/deb-x64/*.deb "$poolMainDir"
+cp $ARTIFACTS_DIRECTORY/deb-arm64/*.deb "$poolMainDir"
 
 # create Packages files
 architectures='amd64 arm64'
@@ -72,7 +68,8 @@ tar -zcf $DEB_FEED_PATH -C "$destination/" deb
 # copy in packages
 winPackagesDir="$destination/win"
 mkdir -p "$winPackagesDir"
-cp -r $WIN_DIR/*.zip "$winPackagesDir"
+cp $ARTIFACTS_DIRECTORY/win-x64/*.zip "$winPackagesDir"
+cp $ARTIFACTS_DIRECTORY/win-arm64/*.zip "$winPackagesDir"
 
 # copy install script
 cp $_SCRIPT_DIR/install.ps1 "$winPackagesDir"
