@@ -50,9 +50,11 @@ try {
     npm i
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     if ($IsLinux -And $architecture -eq "arm64") {
-        # when cross-compiling for linux arm64, we specifically need the x64 version of icon-gen
-        npm install --platform=linux --arch=x64 icon-gen
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        # when cross-compiling for linux arm64, we specifically need the x64 version of icon-gen and sharp
+        foreach ($package in @("icon-gen", "sharp")) {
+            npm install --platform=linux --arch=x64 $package
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        }
     }
     npm run compile
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
