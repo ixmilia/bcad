@@ -35,8 +35,7 @@ namespace IxMilia.BCad.Commands
             var defaultRotation = 0;
             var imageRotationInput = await workspace.InputService.GetText($"Rotation [{defaultRotation}]");
             if (imageRotationInput.Cancel) return false;
-            var rawRotationInput = imageRotationInput.HasValue ? imageRotationInput.Value : defaultRotation.ToString();
-            if (string.IsNullOrWhiteSpace(rawRotationInput)) return false;
+            var rawRotationInput = imageRotationInput.HasValue && !string.IsNullOrWhiteSpace(imageRotationInput.Value) ? imageRotationInput.Value : defaultRotation.ToString();
             if (!double.TryParse(rawRotationInput, out var imageRotation)) return false;
 
             var image = new Image(location, imagePath, imageData, imageWidth, imageHeight, imageRotation, lineTypeSpecification: workspace.Drawing.Settings.CurrentLineTypeSpecification);
