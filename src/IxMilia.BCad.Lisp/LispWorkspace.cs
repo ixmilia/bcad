@@ -14,7 +14,7 @@ namespace IxMilia.BCad.Lisp
             _lispHostTask = new Lazy<Task<LispHost>>(async () =>
             {
                 var writer = new OutputForwardingTextWriter(this);
-                var configuration = new LispHostConfiguration(output: writer);
+                var configuration = new LispHostConfiguration(output: writer, readerType: LispReaderType.NoReaderMacros);
                 var host = await LispHost.CreateAsync(configuration);
                 host.AddContextObject(new BCadContext(this));
                 return host;
