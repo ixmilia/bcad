@@ -392,18 +392,44 @@ namespace IxMilia.BCad.Rpc
 
         public async Task InputChanged(string value)
         {
-            if ((Workspace.InputService.AllowedInputTypes & InputType.Text) != InputType.Text &&
-                value.EndsWith(" "))
+            if ((Workspace.InputService.AllowedInputTypes & InputType.Text) != InputType.Text)
             {
-                // if the user typed a space in non-text mode, process it
-                await SubmitInput(value.Substring(0, value.Length - 1));
-                await _jsonRpc.InvokeAsync<JObject>("clearInput");
+                // if not inputting text (because it allows spaces)
+                if (value.StartsWith("("))
+                {
+                    // lisp-like input, don't do anything until the user manually submits it
+                    return;
+                }
+                else if (value.EndsWith(" "))
+                {
+                    // space is a completion character
+                    await SubmitInput(value.Substring(0, value.Length - 1));
+                    if (_jsonRpc is not null)
+                    {
+                        // null check allows for unit tests to be happy
+                        await _jsonRpc.InvokeAsync<JObject>("clearInput");
+                    }
+                }
             }
         }
 
-        public Task SubmitInput(string value)
+        public async Task SubmitInput(string value)
         {
-            return _dim.SubmitInputAsync(value);
+            if ((Workspace.InputService.AllowedInputTypes & InputType.Text) != InputType.Text &&
+                value.StartsWith("("))
+            {
+                // if not inputting text and it looks like a lisp expression, evaluate it then submit that
+                var result = await Workspace.EvaluateAsync(value);
+                var submitValue = result is LispString s
+                    ? s.Value
+                    : result.ToString();
+                await _dim.SubmitInputAsync(submitValue);
+            }
+            else
+            {
+                // otherwise just submit it directly
+                await _dim.SubmitInputAsync(value);
+            }
         }
 
         public void SetPropertyPaneValue(ClientPropertyPaneValue propertyPaneValue)
