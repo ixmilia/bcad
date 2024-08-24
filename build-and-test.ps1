@@ -4,6 +4,7 @@
 param (
     [string][Alias('c')]$configuration = "Debug",
     [string][Alias('a')]$architecture,
+    [switch]$ci,
     [switch]$noTest,
     [string]$deployTo
 )
@@ -20,6 +21,12 @@ function Set-EnvironmentVariable([string]$name, [string]$value) {
 
 try {
     $runTests = -Not $noTest
+
+    if ($ci) {
+        $env:VERSION_SUFFIX = ./build/make-version.ps1 -suffix beta
+    }
+
+    Write-Host "Using VERSION_SUFFIX=$env:VERSION_SUFFIX"
 
     # assign architecture
     if ($architecture -eq '') {
@@ -119,8 +126,11 @@ try {
     }
     else {
         $packageVersionPrefix = (Get-Content "$PSScriptRoot/version.txt" | Out-String).Trim()
-        $packageVersionSuffix = if ("$env:VERSION_SUFFIX" -eq "") { "0" } else { $env:VERSION_SUFFIX }
-        $packageVersion = "$packageVersionPrefix.$packageVersionSuffix"
+        $packageVersionSuffix = "$env:VERSION_SUFFIX"
+        if ($packageVersionSuffix -ne "") {
+            $packageVersionSuffix = ".$packageVersionSuffix"
+        }
+        $packageVersion = "$packageVersionPrefix$packageVersionSuffix"
         $packageArchitecture = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
         $packageName = "bcad_${packageVersion}_$packageArchitecture.deb"
         Set-EnvironmentVariable "secondary_artifact_name" "deb-$architecture"
