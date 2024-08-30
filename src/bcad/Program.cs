@@ -102,9 +102,9 @@ namespace bcad
                 server.Workspace.SettingsService.LoadFromLines(settingsLines);
                 server.Workspace.Update(isDirty: false);
             }
-            catch
+            catch (Exception ex)
             {
-                // don't really care if it failed
+                server.Workspace.OutputService.WriteLine(ex.ToString());
             }
 
 #if DEBUG

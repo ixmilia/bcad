@@ -4,33 +4,9 @@
     <Assembly Name="IxMilia.BCad.FileHandlers" Dynamic="Required All" />
     <Assembly Name="IxMilia.BCad.Lisp" Dynamic="Required All" />
     <Assembly Name="IxMilia.BCad.Rpc" Dynamic="Required All" />
-    <Assembly Name="IxMilia.Config">
-      <Type Name="IxMilia.Config.ConfigExtensions">
-        <Method Name="TryParseValue">
-          <GenericArgument Name="System.Boolean,mscorlib" />
-        </Method>
-        <Method Name="TryParseValue">
-          <GenericArgument Name="System.Double,mscorlib" />
-        </Method>
-        <Method Name="TryParseValue">
-          <GenericArgument Name="System.Double[],mscorlib" />
-        </Method>
-        <Method Name="TryParseValue">
-          <GenericArgument Name="System.Int32,mscorlib" />
-        </Method>
-        <Method Name="TryParseValue">
-          <GenericArgument Name="IxMilia.BCad.CadColor,IxMilia.BCad.Core" />
-        </Method>
-        <Method Name="TryParseValue">
-          <GenericArgument Name="IxMilia.BCad.DrawingUnits,IxMilia.BCad.Core" />
-        </Method>
-        <Method Name="TryParseValue">
-          <GenericArgument Name="IxMilia.BCad.UnitFormat,IxMilia.BCad.Core" />
-        </Method>
-      </Type>
-    </Assembly>
     <Assembly Name="IxMilia.Lisp" Dynamic="Required All" />
     <Assembly Name="mscorlib">
+      <!-- used to build `ClientPoint[]` and `CommandShortcut[]` collections in IxMilia.BCad.Rpc.ClientUpdate.cs -->
       <Type Name="System.Collections.Generic.List`1[[IxMilia.BCad.Rpc.ClientPoint,IxMilia.BCad.Rpc]]" Dynamic="Required All" />
       <Type Name="System.Collections.Generic.List`1[[IxMilia.BCad.Commands.CommandShortcut,IxMilia.BCad.Core]]" Dynamic="Required All" />
       <!-- every `Task<T>` that might be invoked with JsonRpc needs to be here -->

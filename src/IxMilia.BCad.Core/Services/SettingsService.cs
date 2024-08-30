@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using IxMilia.BCad.Settings;
 using IxMilia.Config;
 
@@ -9,12 +9,29 @@ namespace IxMilia.BCad.Services
 {
     internal class SettingsService : ISettingsService
     {
+        private delegate object ValueReader(string value);
+        private delegate string ValueWriter(object value);
+
         private IWorkspace _workspace;
-        private Dictionary<string, Tuple<Type, object>> _settings = new Dictionary<string, Tuple<Type, object>>();
+        private Dictionary<string, Tuple<Type, object>> _settings = new();
+        private Dictionary<Type, Tuple<ValueReader, ValueWriter>> _typeConverters = new();
 
         public event SettingChangedEventHandler SettingChanged;
 
+        private SettingsService()
+        {
+            _typeConverters.Add(typeof(bool), Tuple.Create<ValueReader, ValueWriter>(BoolReader, BoolWriter));
+            _typeConverters.Add(typeof(CadColor), Tuple.Create<ValueReader, ValueWriter>(CadColorReader, CadColorWriter));
+            _typeConverters.Add(typeof(double), Tuple.Create<ValueReader, ValueWriter>(DoubleReader, DoubleWriter));
+            _typeConverters.Add(typeof(double[]), Tuple.Create(CreateArrayReader<double>(DoubleReader), CreateArrayWriter(DoubleWriter)));
+            _typeConverters.Add(typeof(DrawingUnits), Tuple.Create<ValueReader, ValueWriter>(DrawingUnitsReader, DrawingUnitsWriter));
+            _typeConverters.Add(typeof(int), Tuple.Create<ValueReader, ValueWriter>(IntReader, IntWriter));
+            _typeConverters.Add(typeof(string), Tuple.Create<ValueReader, ValueWriter>(StringReader, StringWriter));
+            _typeConverters.Add(typeof(UnitFormat), Tuple.Create<ValueReader, ValueWriter>(UnitFormatReader, UnitFormatWriter));
+        }
+
         public SettingsService(IWorkspace workspace)
+            : this()
         {
             _workspace = workspace;
         }
@@ -28,8 +45,32 @@ namespace IxMilia.BCad.Services
             else
             {
                 _settings[name] = Tuple.Create(type, (object)null);
-                SetValue(name, value, ignoreTypeCheck: true);
+                SetValue(name, value);
             }
+        }
+
+        public string ValueToString(Type type, object value)
+        {
+            if (!_typeConverters.TryGetValue(type, out var pair))
+            {
+                throw new InvalidOperationException($"No type converter for {type.Name}");
+            }
+
+            var writer = pair.Item2;
+            var s = writer(value);
+            return s;
+        }
+
+        public object StringToValue(Type type, string value)
+        {
+            if (!_typeConverters.TryGetValue(type, out var pair))
+            {
+                throw new InvalidOperationException($"No type converter for {type.Name}");
+            }
+
+            var reader = pair.Item1;
+            var o = reader(value);
+            return o;
         }
 
         public T GetValue<T>(string settingName)
@@ -50,45 +91,35 @@ namespace IxMilia.BCad.Services
 
         public void SetValue<T>(string settingName, T value)
         {
-            SetValue(settingName, value, ignoreTypeCheck: false);
-        }
-
-        private void SetValue<T>(string settingName, T value, bool ignoreTypeCheck = false)
-        {
             if (!_settings.TryGetValue(settingName, out var pair))
             {
+                // no such setting
                 return;
             }
 
             var type = pair.Item1;
             var oldValue = pair.Item2;
             object valueToSet = value;
-            if (value is string && type != typeof(string))
-            {
-                // a terrible hack to get the appropriate parse method
-                var tryParseFunction = typeof(ConfigExtensions).GetRuntimeMethods()
-                    .Single(m => m.Name == nameof(ConfigExtensions.TryParseValue) && m.GetParameters().Length == 2);
-                tryParseFunction = tryParseFunction.MakeGenericMethod(type);
-                var parameters = new object[] { value, null };
-                if (!(bool)tryParseFunction.Invoke(null, parameters))
-                {
-                    return;
-                }
-
-                valueToSet = parameters[1];
-            }
-            else if (!ignoreTypeCheck && type != typeof(T))
-            {
-                return;
-            }
-
             if (Equals(pair.Item2, valueToSet))
             {
+                // no change
                 return;
             }
 
             _settings[settingName] = Tuple.Create(type, valueToSet);
             SettingChanged?.Invoke(this, new SettingChangedEventArgs(settingName, type, oldValue, value));
+        }
+
+        public void SetValueFromString(string settingName, string value)
+        {
+            if (!_settings.TryGetValue(settingName, out var pair))
+            {
+                // no such setting
+                return;
+            }
+
+            var nativeValue = StringToValue(pair.Item1, value);
+            SetValue(settingName, nativeValue);
         }
 
         public void LoadFromLines(string[] lines)
@@ -97,7 +128,14 @@ namespace IxMilia.BCad.Services
             fileValues.ParseConfig(lines);
             foreach (var kvp in fileValues)
             {
-                SetValue(kvp.Key, kvp.Value);
+                if (!_settings.TryGetValue(kvp.Key, out var pair))
+                {
+                    // no such setting
+                    continue;
+                }
+
+                var v = StringToValue(pair.Item1, kvp.Value);
+                SetValue(kvp.Key, v);
             }
         }
 
@@ -106,7 +144,8 @@ namespace IxMilia.BCad.Services
             var values = new Dictionary<string, string>();
             foreach (var kvp in _settings)
             {
-                values[kvp.Key] = kvp.Value.Item2.ToConfigString();
+                var s = ValueToString(kvp.Value.Item1, kvp.Value.Item2);
+                values[kvp.Key] = s;
             }
 
             var newContent = values.WriteConfig(existingLines);
@@ -125,6 +164,43 @@ namespace IxMilia.BCad.Services
                 Type = type;
                 Value = value;
             }
+        }
+
+        private static object BoolReader(string value) => bool.Parse(value);
+        private static string BoolWriter(object value) => ((bool)value).ToString(CultureInfo.InvariantCulture);
+
+        private static object CadColorReader(string value) => CadColor.Parse(value);
+        private static string CadColorWriter(object value) => ((CadColor)value).ToString();
+
+        private static object DoubleReader(string value) => double.Parse(value, CultureInfo.InvariantCulture);
+        private static string DoubleWriter(object value) => ((double)value).ToString(CultureInfo.InvariantCulture);
+
+        private static object DrawingUnitsReader(string value) => Enum.Parse(typeof(DrawingUnits), value);
+        private static string DrawingUnitsWriter(object value) => ((DrawingUnits)value).ToString();
+
+        private static object IntReader(string value) => int.Parse(value, CultureInfo.InvariantCulture);
+        private static string IntWriter(object value) => ((int)value).ToString(CultureInfo.InvariantCulture);
+
+        private static object StringReader(string value) => value;
+        private static string StringWriter(object value) => value.ToString();
+
+        private static object UnitFormatReader(string value) => Enum.Parse(typeof(UnitFormat), value);
+        private static string UnitFormatWriter(object value) => ((UnitFormat)value).ToString();
+
+        private static ValueReader CreateArrayReader<T>(Func<string, object> elementReader) => value => value.Split(';').Select(elementReader).Cast<T>().ToArray();
+        private static ValueWriter CreateArrayWriter(Func<object, string> elementWriter)
+        {
+            return value =>
+            {
+                var array = (Array)value;
+                var values = new List<object>();
+                foreach (var x in array)
+                {
+                    values.Add(elementWriter(x));
+                }
+
+                return string.Join(";", values);
+            };
         }
     }
 }

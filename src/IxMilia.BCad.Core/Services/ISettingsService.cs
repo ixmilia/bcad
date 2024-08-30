@@ -9,8 +9,14 @@ namespace IxMilia.BCad.Services
     {
         event SettingChangedEventHandler SettingChanged;
         void RegisterSetting(string name, Type type, object value);
+
+        string ValueToString(Type type, object value);
+        object StringToValue(Type type, string value);
+
         T GetValue<T>(string settingName);
         void SetValue<T>(string settingName, T value);
+        void SetValueFromString(string settinggName, string value);
+
         void LoadFromLines(string[] lines);
         string WriteWithLines(string[] existingLines);
     }

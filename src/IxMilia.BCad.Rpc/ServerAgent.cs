@@ -542,7 +542,7 @@ namespace IxMilia.BCad.Rpc
 
         public void SetSetting(string name, string value)
         {
-            Workspace.SettingsService.SetValue(name, value);
+            Workspace.SettingsService.SetValueFromString(name, value);
         }
 
         public string GetVersionInformation()
