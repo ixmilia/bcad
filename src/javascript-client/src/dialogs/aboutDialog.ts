@@ -8,9 +8,9 @@ export class AboutDialog extends DialogBase {
     constructor(dialogHandler: DialogHandler, readonly client: Client) {
         super(dialogHandler, "about");
         this.content = <HTMLDivElement>document.getElementById('about-content');
-        this.client.getVersionInformation().then(aboutHtml => {
+        this.client.getVersionInformation().then(versionInformation => {
             // preload this once
-            this.content.innerHTML = aboutHtml;
+            this.content.innerHTML = versionInformation.AboutString;
         })
     }
 

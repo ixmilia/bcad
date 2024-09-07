@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using IxMilia.BCad.Display;
@@ -34,7 +35,6 @@ namespace IxMilia.BCad.Rpc
 
         private bool _readyEventFired;
         public event EventHandler IsReady;
-        private string _versionHtml = null;
 
         public ServerAgent(LispWorkspace workspace, JsonRpc rpc)
         {
@@ -545,30 +545,55 @@ namespace IxMilia.BCad.Rpc
             Workspace.SettingsService.SetValueFromString(name, value);
         }
 
-        public string GetVersionInformation()
+        public async Task<VersionInformation> GetVersionInformation()
         {
-            if (_versionHtml is null)
+            // get currently running version
+            var candidateAssemblyNames = new[]
             {
-                // published app names
-                var candidateAssemblyNames = new[]
-                {
-                    "bcad.exe",
-                    "bcad.dll",
-                    "bcad"
-                };
-                var assemblyPath = candidateAssemblyNames
-                    .Select(name => Path.Combine(AppContext.BaseDirectory, name))
-                    .FirstOrDefault(File.Exists)
-                    ?? Assembly.GetExecutingAssembly().Location; // fall back to using reflection
-                var versionString = assemblyPath is { }
-                    ? FileVersionInfo.GetVersionInfo(assemblyPath).ProductVersion
-                    : "<unknown>";
-                _versionHtml = $"""
-                    Version: {versionString}<br />
+                "bcad.exe",
+                "bcad.dll",
+                "bcad"
+            };
+            var assemblyPath = candidateAssemblyNames
+                .Select(name => Path.Combine(AppContext.BaseDirectory, name))
+                .FirstOrDefault(File.Exists)
+                ?? Assembly.GetExecutingAssembly().Location; // fall back to using reflection
+            var versionString = assemblyPath is { }
+                ? FileVersionInfo.GetVersionInfo(assemblyPath).ProductVersion
+                : "<unknown>";
+            var plusIndex = versionString.IndexOf('+');
+            var versionShortString = plusIndex >= 0
+                ? versionString.Substring(0, plusIndex)
+                : versionString;
+
+            // get available version
+            var versionUrl = "https://pkgs.ixmilia.com/bcad/version.txt";
+            using var httpClient = new HttpClient();
+            string availableVersion = null;
+            try
+            {
+                availableVersion = (await httpClient.GetStringAsync(versionUrl)).Trim();
+            }
+            catch (Exception)
+            {
+                // couldn't query
+            }
+
+            string upgradeString = null;
+            if (availableVersion is not null && availableVersion != versionShortString)
+            {
+                upgradeString = $"""
+                    New version available: {availableVersion}</br />
+                    Please click "Close and update" to get the latest version.
                     """;
             }
 
-            return _versionHtml;
+            var aboutString = $"""
+                Version: {versionString}<br />
+                {upgradeString}
+                """;
+            var information = new VersionInformation(aboutString, versionShortString, availableVersion);
+            return information;
         }
     }
 }

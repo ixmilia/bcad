@@ -95,6 +95,7 @@ namespace IxMilia.BCad.Rpc
             AddInterface(typeof(DimensionStylesDialogParameters));
             AddInterface(typeof(DwgFileSettings));
             AddInterface(typeof(DxfFileSettings));
+            AddInterface(typeof(VersionInformation));
 
             // emit types
             var sb = new StringBuilder();
