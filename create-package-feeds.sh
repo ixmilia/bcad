@@ -77,5 +77,15 @@ cp $_SCRIPT_DIR/install.ps1 "$winPackagesDir"
 # create archive of the entire thing
 tar -zcf $WIN_FEED_PATH -C "$destination/" win
 
+#
+# version
+#
+pushd "$_SCRIPT_DIR/build"
+# get version prefix from version.txt file
+VERSION_PREFIX=$(cat $_SCRIPT_DIR/version.txt)
+VERSION_SUFFIX=$(pwsh ./make-version.ps1 -suffix beta)
+popd
+echo "${VERSION_PREFIX}-${VERSION_SUFFIX}" | tee $ARTIFACTS_DIRECTORY/version.txt
+
 # clean up
 rm -rf $destination

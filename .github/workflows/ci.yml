@@ -84,12 +84,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        fetch-depth: 99
         path: src
     - uses: actions/download-artifact@v4
       with:
         path: artifacts
     - name: create package feed data
       run: ./src/create-package-feeds.sh --artifacts-directory artifacts --deb-feed-path artifacts/deb-feed.tar.gz --win-feed-path artifacts/win-feed.tar.gz
+    - name: publish version artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: version.txt
+        path: artifacts/version.txt
     - name: publish deb package feed artifact
       uses: actions/upload-artifact@v4
       with:
