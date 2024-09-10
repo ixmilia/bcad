@@ -5,7 +5,7 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/dotnet:2": {
-      "version": "9.0.100-preview.7.24407.12",
+      "version": "9.0.100-rc.1.24452.12",
       "additionalVersions": "8.0"
     },
     "ghcr.io/devcontainers/features/go:1": {
