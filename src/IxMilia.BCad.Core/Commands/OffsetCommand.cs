@@ -27,7 +27,7 @@ namespace IxMilia.BCad.Commands
                 dist = lastOffsetDistance;
             }
 
-            workspace.OutputService.WriteLine("Using offset distance of {0}", dist);
+            workspace.OutputService.WriteLine("Using offset distance of {0}", workspace.Format(dist));
             lastOffsetDistance = dist;
             var selection = await workspace.InputService.GetEntity(new UserDirective("Select entity"));
             while (!selection.Cancel && selection.HasValue)
