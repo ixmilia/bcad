@@ -23,6 +23,9 @@ namespace IxMilia.BCad.Core.Test
             TestParse("2'3\"", 27.0); // feet and inches, with specifier
             TestParse("2'3", 27.0); // feet and inches, no specifier
 
+            TestParse("3/4\"", 0.75); // fractional inches, with specifier
+            TestParse("3/4", 0.75); // fractional inches, no specifier
+
             TestParse("1'3-5/8\"", 15.625); // feet and whole and fractional inches
             TestParse("1'5/8\"", 12.625); // feet and fractional inches
 

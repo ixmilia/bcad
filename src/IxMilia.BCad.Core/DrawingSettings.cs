@@ -165,7 +165,7 @@ namespace IxMilia.BCad
             return false;
         }
 
-        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?"")?\s*$");
+        private static Regex FullArchitecturalPattern = new Regex(@"^\s*((\d+)')?(\d+)?((-?(\d+)/(\d+))?""?)?\s*$");
         //                                                              12       3     45  6     7
         //                                                               feet '  inches  -  num /denom  "
 
