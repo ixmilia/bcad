@@ -1,5 +1,4 @@
-﻿using System;
-using C = IxMilia.Converters;
+﻿using C = IxMilia.Converters;
 
 namespace IxMilia.BCad.Extensions
 {
@@ -11,7 +10,7 @@ namespace IxMilia.BCad.Extensions
             {
                 DrawingUnits.English => C.DrawingUnits.English,
                 DrawingUnits.Metric => C.DrawingUnits.Metric,
-                _ => throw new ArgumentOutOfRangeException(nameof(drawingUnits)),
+                _ => C.DrawingUnits.Metric,
             };
         }
 
@@ -22,7 +21,7 @@ namespace IxMilia.BCad.Extensions
                 UnitFormat.Architectural => C.UnitFormat.Architectural,
                 UnitFormat.Decimal => C.UnitFormat.Decimal,
                 UnitFormat.Fractional => C.UnitFormat.Fractional,
-                _ => throw new ArgumentOutOfRangeException(nameof(unitFormat)),
+                _ => C.UnitFormat.Decimal,
             };
         }
     }
