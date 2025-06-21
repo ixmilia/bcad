@@ -1,3 +1,4 @@
+# tags listed here: https://mcr.microsoft.com/v2/dotnet-buildtools/prereqs/tags/list
 FROM mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-cross-arm64
 
 # the base image needs updated keys
