@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.Core.Test;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Plotting;
@@ -17,12 +18,12 @@ namespace IxMilia.BCad.FileHandlers.Test
             PlotterFactory = new PdfPlotterFactory(Workspace);
         }
 
-        private string PlotToString(PdfPlotterViewModel viewModel)
+        private async Task<string> PlotToStringAsync(PdfPlotterViewModel viewModel)
         {
             using (var ms = new MemoryStream())
             {
                 var plotter = PlotterFactory.CreatePlotter(viewModel);
-                plotter.Plot(Workspace.Drawing, Workspace.ActiveViewPort, ms, Workspace.FileSystemService.ReadAllBytesAsync);
+                await plotter.Plot(Workspace.Drawing, Workspace.ActiveViewPort, ms, Workspace.FileSystemService.ReadAllBytesAsync);
                 ms.Seek(0, SeekOrigin.Begin);
                 using (var reader = new StreamReader(ms))
                 {
@@ -38,7 +39,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void SimplePlotTest()
+        public async Task SimplePlotTest()
         {
             var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
             Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(8.5, 11.0, 0.0))));
@@ -47,7 +48,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.DisplayUnit = PdfMeasurementType.Inch;
             vm.ScalingType = PlotScalingType.Absolute;
             vm.ViewPortType = PlotViewPortType.Extents;
-            var actual = PlotToString(vm);
+            var actual = await PlotToStringAsync(vm);
 
             // line should be scaled to (8.5 * 72, 11 * 72)
             Assert.Contains(NormalizeToCrLf(@"
@@ -57,7 +58,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void PlotDrawingExtentsToFitTest()
+        public async Task PlotDrawingExtentsToFitTest()
         {
             //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
             //    /             # 33 = 11 * 2 + 11
@@ -71,7 +72,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.DisplayUnit = PdfMeasurementType.Inch;
             vm.ScalingType = PlotScalingType.ToFit;
             vm.ViewPortType = PlotViewPortType.Extents;
-            var actual = PlotToString(vm);
+            var actual = await PlotToStringAsync(vm);
 
             // line should be scaled to (8.5 * 72, 11 * 72)
             Assert.Contains(NormalizeToCrLf(@"
@@ -81,7 +82,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void PlotWindowToFitTest()
+        public async Task PlotWindowToFitTest()
         {
             //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
             //    /             # 33 = 11 * 2 + 11
@@ -96,7 +97,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.ScalingType = PlotScalingType.ToFit;
             vm.ViewPortType = PlotViewPortType.Window;
             vm.UpdateViewWindow(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0));
-            var actual = PlotToString(vm);
+            var actual = await PlotToStringAsync(vm);
 
             // line should be scaled to (8.5 * 72, 11 * 72)
             Assert.Contains(NormalizeToCrLf(@"
@@ -106,7 +107,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void PlotDrawingExtentsToScaleTest()
+        public async Task PlotDrawingExtentsToScaleTest()
         {
             //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
             //    /             # 33 = 11 * 2 + 11
@@ -122,7 +123,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.ScaleA = 1.0;
             vm.ScaleB = 2.0;
             vm.ViewPortType = PlotViewPortType.Extents;
-            var actual = PlotToString(vm);
+            var actual = await PlotToStringAsync(vm);
 
             // line should be scaled to (8.5 * 72, 11 * 72)
             Assert.Contains(NormalizeToCrLf(@"
@@ -132,7 +133,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void PlotWindowToScaleTest()
+        public async Task PlotWindowToScaleTest()
         {
             //     / (25.5, 33) # 25.5 = 8.5 * 2 + 8.5
             //    /             # 33 = 11 * 2 + 11
@@ -149,7 +150,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.ScaleB = 2.0;
             vm.ViewPortType = PlotViewPortType.Window;
             vm.UpdateViewWindow(new Point(8.5, 11.0, 0.0), new Point(25.5, 33.0, 0.0));
-            var actual = PlotToString(vm);
+            var actual = await PlotToStringAsync(vm);
 
             // line should be scaled to (8.5 * 72, 11 * 72)
             Assert.Contains(NormalizeToCrLf(@"
@@ -159,7 +160,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void PlotWithMarginTest()
+        public async Task PlotWithMarginTest()
         {
             var vm = (PdfPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
             Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(4.0, 5.25, 0.0))));
@@ -172,7 +173,7 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.Margin = 0.25;
             vm.MarginUnit = PdfMeasurementType.Inch;
             vm.ViewPortType = PlotViewPortType.Extents;
-            var actual = PlotToString(vm);
+            var actual = await PlotToStringAsync(vm);
 
             Assert.Contains(NormalizeToCrLf(@"
 18.00 18.00 m

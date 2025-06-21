@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using IxMilia.BCad.Core.Test;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.Plotting;
@@ -17,12 +18,12 @@ namespace IxMilia.BCad.FileHandlers.Test
             PlotterFactory = new SvgPlotterFactory(Workspace);
         }
 
-        private string PlotToString(SvgPlotterViewModel viewModel)
+        private async Task<string> PlotToStringAsync(SvgPlotterViewModel viewModel)
         {
             using (var ms = new MemoryStream())
             {
                 var plotter = PlotterFactory.CreatePlotter(viewModel);
-                plotter.Plot(Workspace.Drawing, Workspace.ActiveViewPort, ms, Workspace.FileSystemService.ReadAllBytesAsync);
+                await plotter.Plot(Workspace.Drawing, Workspace.ActiveViewPort, ms, Workspace.FileSystemService.ReadAllBytesAsync);
                 ms.Seek(0, SeekOrigin.Begin);
                 using (var reader = new StreamReader(ms))
                 {
@@ -38,7 +39,7 @@ namespace IxMilia.BCad.FileHandlers.Test
         }
 
         [Fact]
-        public void PlotWithMarginTest()
+        public async Task PlotWithMarginTest()
         {
             var vm = (SvgPlotterViewModel)PlotterFactory.CreatePlotterViewModel();
             Workspace.Update(drawing: Workspace.Drawing.AddToCurrentLayer(new Line(new Point(0.0, 0.0, 0.0), new Point(600.0, 440.0, 0.0))));
@@ -49,7 +50,8 @@ namespace IxMilia.BCad.FileHandlers.Test
             vm.ScaleB = 1.0;
             vm.Margin = 20.0;
             vm.ViewPortType = PlotViewPortType.Extents;
-            var actual = NormalizeToLf(PlotToString(vm));
+            var actual = await PlotToStringAsync(vm);
+            actual = NormalizeToLf(actual);
 
             Assert.Contains(@"viewBox=""0 0 640.0 480.0""", actual);
             Assert.Contains(NormalizeToLf(@"
