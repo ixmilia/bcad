@@ -17,7 +17,6 @@ import {
     CursorState,
     DrawingUnits,
     MouseButton,
-    Point,
     SelectionMode,
     SelectionState,
     SnapPointKind,
@@ -25,27 +24,6 @@ import {
 } from './contracts.generated';
 
 interface Drawing extends ClientDrawing {
-    LineCount: number;
-    LineVertices: WebGLBuffer;
-    LineColors: WebGLBuffer;
-
-    LineCountWithDefaultColor: number;
-    LineVerticesWithDefaultColor: WebGLBuffer;
-
-    PointCount: number;
-    PointLocations: WebGLBuffer;
-    PointColors: WebGLBuffer;
-
-    PointCountWithDefaultColor: number;
-    PointLocationsWithDefaultColor: WebGLBuffer;
-
-    TriangleCount: number;
-    TriangleVertices: WebGLBuffer;
-    TriangleColors: WebGLBuffer;
-
-    TriangleCountWithDefaultColor: number;
-    TriangleVerticesWithDefaultColor: WebGLBuffer;
-
     ImageElements: [ClientImage, HTMLImageElement][];
 }
 
@@ -65,26 +43,13 @@ export class ViewControl {
     private flatContext: CanvasRenderingContext2D;
     private rubberBandFlatContext: CanvasRenderingContext2D;
 
-    // webgl
-    private gl: WebGLRenderingContext;
-    private glAngle: ANGLE_instanced_arrays;
+    // renderer
     private imageTwoD: CanvasRenderingContext2D;
     private rubberBandImageTwoD: CanvasRenderingContext2D;
     private twod: CanvasRenderingContext2D;
     private selectionTwod: CanvasRenderingContext2D;
     private textCtx: CanvasRenderingContext2D;
     private rubberTextCtx: CanvasRenderingContext2D;
-    private viewTransformLocation: WebGLUniformLocation = {};
-    private objectWorldTransformLocation: WebGLUniformLocation = {};
-    private objectScaleTransformLocation: WebGLUniformLocation = {};
-    private pointMarkBuffer: WebGLBuffer = {};
-    private ellipseBuffer: WebGLBuffer = {};
-    private hotPointMarkBuffer: WebGLBuffer = {};
-    private hotPointLocations: WebGLBuffer = {};
-    private hotPointCount: number = 0;
-    private coordinatesLocation: number = 0;
-    private translationLocation: number = 0;
-    private colorLocation: number = 0;
     private identity: number[];
     private transform: ClientTransform;
 
@@ -123,7 +88,6 @@ export class ViewControl {
         this.cursorState = CursorState.Object | CursorState.Point;
         this.selectionState = undefined;
         this.snapPointKind = SnapPointKind.None;
-        this.hotPointCount = 0;
         this.entityDrawing = {
             CurrentLayer: "0",
             Layers: ["0"],
@@ -136,21 +100,6 @@ export class ViewControl {
             Images: [],
             Triangles: [],
             Beziers: [],
-            LineCount: 0,
-            LineVertices: {},
-            LineColors: {},
-            LineCountWithDefaultColor: 0,
-            LineVerticesWithDefaultColor: {},
-            PointCount: 0,
-            PointLocations: {},
-            PointColors: {},
-            PointCountWithDefaultColor: 0,
-            PointLocationsWithDefaultColor: {},
-            TriangleCount: 0,
-            TriangleVertices: {},
-            TriangleColors: {},
-            TriangleCountWithDefaultColor: 0,
-            TriangleVerticesWithDefaultColor: {},
             ImageElements: [],
             CurrentDimensionStyle: '',
             DimensionStyles: [''],
@@ -182,21 +131,6 @@ export class ViewControl {
             Images: [],
             Triangles: [],
             Beziers: [],
-            LineCount: 0,
-            LineVertices: {},
-            LineColors: {},
-            LineCountWithDefaultColor: 0,
-            LineVerticesWithDefaultColor: {},
-            PointCount: 0,
-            PointLocations: {},
-            PointColors: {},
-            PointCountWithDefaultColor: 0,
-            PointLocationsWithDefaultColor: {},
-            TriangleCount: 0,
-            TriangleVertices: {},
-            TriangleColors: {},
-            TriangleCountWithDefaultColor: 0,
-            TriangleVerticesWithDefaultColor: {},
             ImageElements: [],
             CurrentDimensionStyle: '',
             DimensionStyles: [''],
@@ -225,7 +159,7 @@ export class ViewControl {
             EntitySelectionRadius: 3,
             HotPointColor: { A: 255, R: 0, G: 0, B: 255 },
             HotPointSize: 10,
-            RenderId: 'webgl',
+            RenderId: 'canvas',
             SnapAngles: [0, 90, 180, 270],
             SnapPointColor: { A: 255, R: 255, G: 255, B: 0 },
             SnapPointSize: 15,
@@ -236,8 +170,6 @@ export class ViewControl {
         };
 
         // render
-        this.gl = this.drawingCanvas.getContext('webgl') || throwError('Unable to get webgl context');
-        this.glAngle = this.gl.getExtension('ANGLE_instanced_arrays') || throwError('Unable to get ANGLE_instanced_arrays extension');
         this.imageTwoD = this.imageCanvas.getContext('2d') || throwError('Unable to get image canvas 2d context');
         this.rubberBandImageTwoD = this.rubberBandImageCanvas.getContext('2d') || throwError('Unable to get rubber band image canvas 2d context');
         this.twod = this.cursorCanvas.getContext("2d") || throwError('Unable to get cursor canvas 2d context');
@@ -246,11 +178,6 @@ export class ViewControl {
         this.rubberTextCtx = this.rubberBandTextCanvas.getContext("2d") || throwError('Unable to get rubber text context');
         this.flatContext = this.flatCanvas.getContext('2d') || throwError('Unable to get flat canvas 2d context');
         this.rubberBandFlatContext = this.rubberBandFlatCanvas.getContext('2d') || throwError('Unable to get rubber band flat canvas 2d context');
-        this.prepareCanvas();
-        this.populateStaticVertices();
-        this.populateVertices(this.entityDrawing);
-        this.populateVertices(this.rubberBandDrawing);
-        this.populateHotPoints([]);
         this.prepareEvents();
         this.redraw();
 
@@ -290,7 +217,6 @@ export class ViewControl {
             redrawCursor = true;
         }
         if (clientUpdate.HotPoints !== undefined) {
-            this.populateHotPoints(clientUpdate.HotPoints);
             redraw = true;
         }
         if (clientUpdate.HasSelectionStateUpdate) {
@@ -332,7 +258,6 @@ export class ViewControl {
             const result: [ClientImage, HTMLImageElement] = [i, imageElement];
             return result;
         }));
-        this.populateVertices(drawing);
     }
 
     private createImageElement(clientImage: ClientImage): Promise<HTMLImageElement> {
@@ -477,52 +402,6 @@ export class ViewControl {
         }
     }
 
-    private prepareCanvas() {
-        let vertCode = `
-            attribute vec3 vCoords;
-            attribute vec3 vTrans;
-            attribute vec3 vColor;
-
-            uniform mat4 objectScaleTransform;
-            uniform mat4 objectWorldTransform;
-            uniform mat4 viewTransform;
-            varying vec3 fColor;
-
-            void main(void) {
-                vec4 scaled = objectScaleTransform * vec4(vCoords, 1.0);
-                vec4 moved = scaled + vec4(vTrans, 0.0);
-                gl_Position = viewTransform * objectWorldTransform * moved;
-                fColor = vColor;
-            }`;
-
-        let vertShader = this.gl.createShader(this.gl.VERTEX_SHADER)!;
-        this.gl.shaderSource(vertShader, vertCode);
-        this.gl.compileShader(vertShader);
-
-        let fragCode = `
-            precision mediump float;
-            varying vec3 fColor;
-            void main(void) {
-                gl_FragColor = vec4(fColor, 255.0) / 255.0;
-            }`;
-        let fragShader = this.gl.createShader(this.gl.FRAGMENT_SHADER)!;
-        this.gl.shaderSource(fragShader, fragCode);
-        this.gl.compileShader(fragShader);
-
-        let program = this.gl.createProgram()!;
-        this.gl.attachShader(program, vertShader);
-        this.gl.attachShader(program, fragShader);
-        this.gl.linkProgram(program);
-        this.gl.useProgram(program);
-
-        this.coordinatesLocation = this.gl.getAttribLocation(program, "vCoords");
-        this.translationLocation = this.gl.getAttribLocation(program, "vTrans");
-        this.colorLocation = this.gl.getAttribLocation(program, "vColor");
-        this.objectScaleTransformLocation = this.gl.getUniformLocation(program, "objectScaleTransform") || throwError('Unable to get object scale transform location');
-        this.objectWorldTransformLocation = this.gl.getUniformLocation(program, "objectWorldTransform") || throwError('Unable to get object world transform location');
-        this.viewTransformLocation = this.gl.getUniformLocation(program, "viewTransform") || throwError('Unable to get view transform location');
-    }
-
     private prepareEvents() {
         this.cursorCanvas.addEventListener('wheel', (ev) => {
             this.client.zoom(ev.offsetX, ev.offsetY, -ev.deltaY);
@@ -590,240 +469,16 @@ export class ViewControl {
         });
     }
 
-    private populateStaticVertices() {
-        // ellipse
-        let verts = [];
-        for (let n = 0; n <= 720; n++) {
-            const point = pointFromAngle(n);
-            verts.push(point[0], point[1], 0.0);
-        }
-        let vertices = new Float32Array(verts);
-
-        this.ellipseBuffer = this.gl.createBuffer() || throwError('Unable to create ellipse buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
-        // point marker
-        verts = [];
-        verts.push(-0.5, 0.0, 0.0);
-        verts.push(0.5, 0.0, 0.0);
-        verts.push(0.0, -0.5, 0.0);
-        verts.push(0.0, 0.5, 0.0);
-        let pointMarkVertices = new Float32Array(verts);
-
-        this.pointMarkBuffer = this.gl.createBuffer() || throwError('Unable to create point mark buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.pointMarkBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointMarkVertices, this.gl.STATIC_DRAW);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
-        // hot points
-        verts = [];
-        verts.push(-0.5, -0.5, 0.0);
-        verts.push(0.5, -0.5, 0.0);
-        verts.push(0.5, -0.5, 0.0);
-        verts.push(0.5, 0.5, 0.0);
-        verts.push(0.5, 0.5, 0.0);
-        verts.push(-0.5, 0.5, 0.0);
-        verts.push(-0.5, 0.5, 0.0);
-        verts.push(-0.5, -0.5, 0.0);
-        let hotPointVertices = new Float32Array(verts);
-
-        this.hotPointMarkBuffer = this.gl.createBuffer() || throwError('Unable to create hot point mark buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointMarkBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, hotPointVertices, this.gl.STATIC_DRAW);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-    }
-
-    private populateVertices(drawing: Drawing) {
-        // lines
-        let lineVerts: number[] = [];
-        let lineCols: number[] = [];
-        let lineVertsWithDefaultColor: number[] = [];
-        let lineCount = 0;
-        let lineCountWithDefaultColor = 0;
-
-        function addLine(p1: number[], p2: number[], color?: CadColor) {
-            if (color) {
-                lineVerts.push(p1[0], p1[1], p1[2]);
-                lineVerts.push(p2[0], p2[1], p2[2]);
-                lineCols.push(color.R, color.G, color.B);
-                lineCols.push(color.R, color.G, color.B);
-                lineCount++;
-            } else {
-                lineVertsWithDefaultColor.push(p1[0], p1[1], p1[2]);
-                lineVertsWithDefaultColor.push(p2[0], p2[1], p2[2]);
-                lineCountWithDefaultColor++;
-            }
-        }
-
-        for (let l of drawing.Lines) {
-            addLine([l.P1.X, l.P1.Y, l.P1.Z], [l.P2.X, l.P2.Y, l.P2.Z], l.Color);
-        }
-        const bezierLineSegments = 20;
-        for (const b of drawing.Beziers) {
-            let last = [b.P1.X, b.P1.Y, b.P1.Z];
-            for (let i = 0; i <= bezierLineSegments; i++) {
-                const t = i / bezierLineSegments;
-                const tprime = 1 - t;
-                const next = [];
-                next[0] = tprime * tprime * tprime * b.P1.X + 3 * tprime * tprime * t * b.P2.X + 3 * tprime * t * t * b.P3.X + t * t * t * b.P4.X;
-                next[1] = tprime * tprime * tprime * b.P1.Y + 3 * tprime * tprime * t * b.P2.Y + 3 * tprime * t * t * b.P3.Y + t * t * t * b.P4.Y;
-                next[2] = tprime * tprime * tprime * b.P1.Z + 3 * tprime * tprime * t * b.P2.Z + 3 * tprime * t * t * b.P3.Z + t * t * t * b.P4.Z;
-                addLine([last[0], last[1], last[2]], [next[0], next[1], next[2]], b.Color);
-                last = next;
-            }
-        }
-
-        // ellipses with non-integral start- and end-angles
-        for (const el of drawing.Ellipses) {
-            let startAngleTruncated = Math.trunc(el.StartAngle);
-            const endAngleTruncated = Math.trunc(el.EndAngle);
-            if (startAngleTruncated !== el.StartAngle) {
-                startAngleTruncated++;
-                const startLineA = transform(el.Transform, pointFromAngle(startAngleTruncated));
-                const startLineB = transform(el.Transform, pointFromAngle(el.StartAngle));
-                addLine(startLineA, startLineB, el.Color);
-            }
-
-            if (endAngleTruncated !== el.EndAngle) {
-                const endLineA = transform(el.Transform, pointFromAngle(endAngleTruncated));
-                const endLineB = transform(el.Transform, pointFromAngle(el.EndAngle));
-                addLine(endLineA, endLineB, el.Color);
-            }
-        }
-
-        let lineVertices = new Float32Array(lineVerts);
-        let lineColors = new Uint8Array(lineCols);
-        let lineVerticesWithDefaultColor = new Float32Array(lineVertsWithDefaultColor);
-
-        drawing.LineVertices = this.gl.createBuffer() || throwError('Unable to create line vertices buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, lineVertices, this.gl.STATIC_DRAW);
-
-        drawing.LineColors = this.gl.createBuffer() || throwError('Unable to create line colors buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineColors);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, lineColors, this.gl.STATIC_DRAW);
-
-        drawing.LineVerticesWithDefaultColor = this.gl.createBuffer() || throwError('Unable to create line vertices with default color buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVerticesWithDefaultColor);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, lineVerticesWithDefaultColor, this.gl.STATIC_DRAW);
-
-        drawing.LineCount = lineCount;
-        drawing.LineCountWithDefaultColor = lineCountWithDefaultColor;
-
-        // points
-        let pointVerts = [];
-        let pointCols = [];
-        let pointVertsWithDefaultColor = [];
-        let pointCount = 0;
-        let pointCountWithDefaultColor = 0;
-        for (let p of drawing.Points) {
-            if (p.Color) {
-                pointVerts.push(p.Location.X, p.Location.Y, p.Location.Z);
-                pointCols.push(p.Color.R, p.Color.G, p.Color.B);
-                pointCount++;
-            } else {
-                pointVertsWithDefaultColor.push(p.Location.X, p.Location.Y, p.Location.Z);
-                pointCountWithDefaultColor++;
-            }
-        }
-
-        let pointVertices = new Float32Array(pointVerts);
-        let pointColors = new Uint8Array(pointCols);
-        let pointVerticesWithDefaultColor = new Float32Array(pointVertsWithDefaultColor);
-
-        drawing.PointLocations = this.gl.createBuffer() || throwError('Unable to create point locations buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocations);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointVertices, this.gl.STATIC_DRAW);
-
-        drawing.PointColors = this.gl.createBuffer() || throwError('Unable to create point colors buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointColors);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointColors, this.gl.STATIC_DRAW);
-
-        drawing.PointLocationsWithDefaultColor = this.gl.createBuffer() || throwError('Unable to create point locations with default color buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocationsWithDefaultColor);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, pointVerticesWithDefaultColor, this.gl.STATIC_DRAW);
-
-        drawing.PointCount = pointCount;
-        drawing.PointCountWithDefaultColor = pointCountWithDefaultColor;
-
-        // triangles
-        const triangleVerts = [];
-        const triangleCols = [];
-        const triangleVertsWithDefaultColor = [];
-        let triangleCount = 0;
-        let triangleCountWithDefaultColor = 0;
-        for (const t of drawing.Triangles) {
-            if (t.Color) {
-                triangleVerts.push(t.P1.X, t.P1.Y, t.P1.Z);
-                triangleVerts.push(t.P2.X, t.P2.Y, t.P2.Z);
-                triangleVerts.push(t.P3.X, t.P3.Y, t.P3.Z);
-                triangleCols.push(t.Color.R, t.Color.G, t.Color.B);
-                triangleCount++;
-            } else {
-                triangleVertsWithDefaultColor.push(t.P1.X, t.P1.Y, t.P1.Z);
-                triangleVertsWithDefaultColor.push(t.P2.X, t.P2.Y, t.P2.Z);
-                triangleVertsWithDefaultColor.push(t.P3.X, t.P3.Y, t.P3.Z);
-                triangleCountWithDefaultColor++;
-            }
-        }
-
-        const triangleVertices = new Float32Array(triangleVerts);
-        const triangleColors = new Uint8Array(triangleCols);
-        const triangleVerticesWithDefaultColor = new Float32Array(triangleVertsWithDefaultColor);
-
-        drawing.TriangleVertices = this.gl.createBuffer() || throwError('Unable to create triangle locations buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVertices);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, triangleVertices, this.gl.STATIC_DRAW);
-
-        drawing.TriangleColors = this.gl.createBuffer() || throwError('Unable to create triangle colors buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleColors);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, triangleColors, this.gl.STATIC_DRAW);
-
-        drawing.TriangleVerticesWithDefaultColor = this.gl.createBuffer() || throwError('Unable to create triangle locations with default color buffer');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVerticesWithDefaultColor);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, triangleVerticesWithDefaultColor, this.gl.STATIC_DRAW);
-
-        drawing.TriangleCount = triangleCount;
-        drawing.TriangleCountWithDefaultColor = triangleCountWithDefaultColor;
-    }
-
-    private populateHotPoints(points: Point[]) {
-        this.hotPointCount = points.length;
-        let verts = [];
-        for (let p of points) {
-            verts.push(p.X, p.Y, p.Z);
-        }
-        let vertices = new Float32Array(verts);
-        this.hotPointLocations = this.gl.createBuffer() || throwError('Unable to create hot point locations');
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointLocations);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-    }
-
     private redraw() {
         this.measureFrameTime(() => {
             // clear flat renderer
             this.flatContext.clearRect(0, 0, this.flatContext.canvas.width, this.flatContext.canvas.height);
             this.rubberBandFlatContext.clearRect(0, 0, this.rubberBandFlatContext.canvas.width, this.rubberBandFlatContext.canvas.height);
-            // clear gl renderer
-            this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-            this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
             switch (this.settings.RenderId) {
                 case 'canvas':
                     this.redraw2d(this.flatContext, this.entityDrawing);
                     this.redraw2d(this.rubberBandFlatContext, this.rubberBandDrawing);
-                    break;
-                case 'webgl':
-                    this.redrawSpecific(this.entityDrawing);
-                    this.redrawSpecific(this.rubberBandDrawing);
                     break;
             }
 
@@ -831,7 +486,6 @@ export class ViewControl {
             this.redrawText(this.rubberTextCtx, this.rubberBandDrawing);
             this.redrawImages(this.imageTwoD, this.entityDrawing);
             this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing);
-            this.redrawHotPoints();
         });
 
         if (this.frameTimes.length > 0) {
@@ -850,150 +504,6 @@ export class ViewControl {
         if (this.frameTimes.length > this.maxFrameTimes) {
             this.frameTimes.shift();
         }
-    }
-
-    private resetRenderer() {
-        this.gl.disableVertexAttribArray(this.colorLocation!);
-        this.gl.disableVertexAttribArray(this.translationLocation!);
-        this.gl.vertexAttrib3f(this.translationLocation!, 0.0, 0.0, 0.0);
-        this.gl.uniformMatrix4fv(this.viewTransformLocation, false, this.transform.Transform!);
-        this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
-        this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, this.identity);
-        this.glAngle.vertexAttribDivisorANGLE(this.colorLocation!, 0);
-        this.glAngle.vertexAttribDivisorANGLE(this.translationLocation!, 0);
-    }
-
-    private redrawSpecific(drawing: Drawing) {
-        this.resetRenderer();
-
-        //
-        // lines
-        //
-        if (drawing.LineCount > 0) {
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVertices);
-            this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-            this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineColors);
-            this.gl.vertexAttribPointer(this.colorLocation!, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
-            this.gl.enableVertexAttribArray(this.colorLocation!);
-
-            this.gl.drawArrays(this.gl.LINES, 0, drawing.LineCount * 2); // 2 points per line
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-        }
-
-        //
-        // default color lines
-        //
-        if (drawing.LineCountWithDefaultColor > 0) {
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.LineVerticesWithDefaultColor);
-            this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-            this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-
-            this.gl.disableVertexAttribArray(this.colorLocation!);
-            this.gl.vertexAttrib3f(this.colorLocation!, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
-
-            this.gl.drawArrays(this.gl.LINES, 0, drawing.LineCountWithDefaultColor * 2); // 2 points per line
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-        }
-
-        //
-        // ellipses (with specified and default colors)
-        //
-        this.gl.disableVertexAttribArray(this.colorLocation!);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.ellipseBuffer);
-        this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-        for (let el of drawing.Ellipses) {
-            this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, el.Transform);
-            let startAngle = Math.trunc(el.StartAngle);
-            let endAngle = Math.trunc(el.EndAngle);
-            if (startAngle !== el.StartAngle) {
-                // start on next whole degree
-                startAngle++;
-            }
-
-            let ellipseColor = el.Color || this.settings.AutoColor;
-            this.gl.vertexAttrib3f(this.colorLocation!, ellipseColor.R, ellipseColor.G, ellipseColor.B);
-            this.gl.drawArrays(this.gl.LINE_STRIP, startAngle, endAngle - startAngle + 1); // + 1 to account for end angle
-        }
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
-        //
-        // triangles
-        //
-        if (drawing.TriangleCount > 0) {
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVertices);
-            this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-            this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleColors);
-            this.gl.vertexAttribPointer(this.colorLocation!, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
-            this.gl.enableVertexAttribArray(this.colorLocation!);
-
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, drawing.TriangleCount * 3); // 3 points per triangle
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-        }
-
-        //
-        // default color triangles
-        //
-        if (drawing.TriangleCountWithDefaultColor > 0) {
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.TriangleVerticesWithDefaultColor);
-            this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-            this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-
-            this.gl.disableVertexAttribArray(this.colorLocation!);
-            this.gl.vertexAttrib3f(this.colorLocation!, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
-
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, drawing.TriangleCountWithDefaultColor * 3); // 3 points per triangle
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-        }
-
-        //
-        // points
-        //
-        let pointMarkerScale = this.createConstantScaleTransform(this.settings.PointDisplaySize, this.settings.PointDisplaySize);
-        this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, pointMarkerScale);
-        this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
-
-        // draw point mark repeatedly...
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.pointMarkBuffer);
-        this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-
-        // ...for each point location
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocations);
-        this.gl.vertexAttribPointer(this.translationLocation!, 3, this.gl.FLOAT, false, 0, 0);
-        this.glAngle.vertexAttribDivisorANGLE(this.translationLocation!, 1);
-        this.gl.enableVertexAttribArray(this.translationLocation!);
-
-        // ...and each color
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointColors);
-        this.gl.vertexAttribPointer(this.colorLocation!, 3, this.gl.UNSIGNED_BYTE, false, 0, 0);
-        this.glAngle.vertexAttribDivisorANGLE(this.colorLocation!, 1);
-        this.gl.enableVertexAttribArray(this.colorLocation!);
-
-        let vertsPerPoint = 2 * 2; // 2 segments, 2 verts per segment
-        this.glAngle.drawArraysInstancedANGLE(this.gl.LINES, 0, vertsPerPoint, drawing.PointCount);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
-        //
-        // default color points
-        //
-        // ...for each point location
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, drawing.PointLocationsWithDefaultColor);
-        this.gl.vertexAttribPointer(this.translationLocation!, 3, this.gl.FLOAT, false, 0, 0);
-        this.glAngle.vertexAttribDivisorANGLE(this.translationLocation!, 1);
-        this.gl.enableVertexAttribArray(this.translationLocation!);
-
-        // ...with a static color
-        this.gl.disableVertexAttribArray(this.colorLocation!);
-        this.gl.vertexAttrib3f(this.colorLocation!, this.settings.AutoColor.R, this.settings.AutoColor.G, this.settings.AutoColor.B);
-
-        this.glAngle.drawArraysInstancedANGLE(this.gl.LINES, 0, vertsPerPoint, drawing.PointCountWithDefaultColor);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
     private renderHighlightToCanvas2D(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
@@ -1248,48 +758,6 @@ export class ViewControl {
             context.drawImage(img, 0, 0, width, height);
             context.restore();
         }
-    }
-
-    private redrawHotPoints() {
-        if (this.hotPointCount == 0) {
-            return;
-        }
-
-        this.resetRenderer();
-
-        let hotPointScale = this.createConstantScaleTransform(this.settings.HotPointSize, this.settings.HotPointSize);
-        this.gl.uniformMatrix4fv(this.objectScaleTransformLocation, false, hotPointScale);
-        this.gl.uniformMatrix4fv(this.objectWorldTransformLocation, false, this.identity);
-
-        // draw hot point repeatedly...
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointMarkBuffer);
-        this.gl.vertexAttribPointer(this.coordinatesLocation!, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.coordinatesLocation!);
-
-        // ...with a constant color
-        this.gl.vertexAttrib3f(this.colorLocation!, this.settings.HotPointColor.R, this.settings.HotPointColor.G, this.settings.HotPointColor.B);
-
-        // ...for each hot point location
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.hotPointLocations);
-        this.gl.vertexAttribPointer(this.translationLocation!, 3, this.gl.FLOAT, false, 0, 0);
-        this.glAngle.vertexAttribDivisorANGLE(this.translationLocation!, 1);
-        this.gl.enableVertexAttribArray(this.translationLocation!);
-
-        let vertsPerPoint = 4 * 2; // 4 segments, 2 verts per segment
-        this.glAngle.drawArraysInstancedANGLE(this.gl.LINES, 0, vertsPerPoint, this.hotPointCount);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-    }
-
-    private createConstantScaleTransform(x: number, y: number): number[] {
-        let sfx = this.transform.DisplayXTransform * x;
-        let sfy = this.transform.DisplayYTransform * y;
-        let scale = [
-            sfx, 0.0, 0.0, 0.0,
-            0.0, sfy, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 1.0,
-        ];
-        return scale;
     }
 
     private static getMouseButton(button: number) {
