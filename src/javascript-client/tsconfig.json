@@ -4,11 +4,11 @@
     "noImplicitAny": true,
     "inlineSourceMap": true,
     "outDir": "out",
-    "baseUrl": ".",
     "strict": true,
     "paths": {
       "*": [
-        "node_modules/*"
+        "./*",
+        "./node_modules/*"
       ]
     },
     "target": "ES2019"
