@@ -67,8 +67,11 @@ export class ViewControl {
     private frameTimes: number[] = [];
     private maxFrameTimes: number = 10;
 
+    private renderController: AbortController;
+
     constructor(client: Client, private reportFps: (fps: number) => void) {
         this.client = client;
+        this.renderController = new AbortController();
 
         // DOM
         this.cursorCanvas = <HTMLCanvasElement>document.getElementById('cursorCanvas');
@@ -179,13 +182,18 @@ export class ViewControl {
         this.flatContext = this.flatCanvas.getContext('2d') || throwError('Unable to get flat canvas 2d context');
         this.rubberBandFlatContext = this.rubberBandFlatCanvas.getContext('2d') || throwError('Unable to get rubber band flat canvas 2d context');
         this.prepareEvents();
-        this.redraw();
-
-        this.client.subscribeToClientUpdates(clientUpdate => this.update(clientUpdate));
-        this.client.ready(this.outputPane.clientWidth, this.outputPane.clientHeight);
+        this.redraw(this.renderController.signal).then(() => {
+            this.client.subscribeToClientUpdates(clientUpdate => this.update(clientUpdate));
+            this.client.ready(this.outputPane.clientWidth, this.outputPane.clientHeight);
+        });
     }
 
     private async update(clientUpdate: ClientUpdate): Promise<void> {
+        this.renderController.abort();
+        const controller = new AbortController();
+        const signal = controller.signal;
+        this.renderController = controller;
+
         let redraw = false;
         let redrawCursor = false;
         let redrawSelected = false;
@@ -235,13 +243,17 @@ export class ViewControl {
         }
 
         if (redraw) {
-            this.redraw();
+            await this.redraw(signal);
         }
         if (redrawSelected) {
-            this.renderHighlightToCanvas2D(this.selectionTwod, this.selectedEntitiesDrawing);
+            this.renderHighlightToCanvas2D(this.selectionTwod, this.selectedEntitiesDrawing, signal);
         }
         if (redrawCursor) {
             this.drawCursor();
+        }
+
+        if (signal.aborted) {
+            console.log('aborted update redraw');
         }
     }
 
@@ -469,7 +481,7 @@ export class ViewControl {
         });
     }
 
-    private redraw() {
+    private async redraw(signal: AbortSignal): Promise<void> {
         this.measureFrameTime(() => {
             // clear flat renderer
             this.flatContext.clearRect(0, 0, this.flatContext.canvas.width, this.flatContext.canvas.height);
@@ -477,15 +489,15 @@ export class ViewControl {
 
             switch (this.settings.RenderId) {
                 case 'canvas':
-                    this.redraw2d(this.flatContext, this.entityDrawing);
-                    this.redraw2d(this.rubberBandFlatContext, this.rubberBandDrawing);
+                    this.redraw2d(this.flatContext, this.entityDrawing, signal);
+                    this.redraw2d(this.rubberBandFlatContext, this.rubberBandDrawing, signal);
                     break;
             }
 
-            this.redrawText(this.textCtx, this.entityDrawing);
-            this.redrawText(this.rubberTextCtx, this.rubberBandDrawing);
-            this.redrawImages(this.imageTwoD, this.entityDrawing);
-            this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing);
+            this.redrawText(this.textCtx, this.entityDrawing, signal);
+            this.redrawText(this.rubberTextCtx, this.rubberBandDrawing, signal);
+            this.redrawImages(this.imageTwoD, this.entityDrawing, signal);
+            this.redrawImages(this.rubberBandImageTwoD, this.rubberBandDrawing, signal);
         });
 
         if (this.frameTimes.length > 0) {
@@ -501,42 +513,75 @@ export class ViewControl {
         const now = performance.now();
         const diff = now - start;
         this.frameTimes.push(diff);
-        if (this.frameTimes.length > this.maxFrameTimes) {
+        while (this.frameTimes.length > this.maxFrameTimes) {
             this.frameTimes.shift();
         }
     }
 
-    private renderHighlightToCanvas2D(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
+    private renderHighlightToCanvas2D(context: CanvasRenderingContext2D, drawing: ClientDrawing, signal: AbortSignal) {
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         context.lineWidth = 8;
         context.font = '10px monospace'; // no text drawn; used for text metrics
 
         for (const el of drawing.Ellipses) {
-            this.renderEllipseToCanvas2D(context, el);
+            if (signal.aborted) {
+                return;
+            }
+
+            this.renderEllipseToCanvas2D(context, el, signal);
         }
+
         for (const line of drawing.Lines) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.renderLineToCanvas2D(context, line);
         }
+
         for (const bezier of drawing.Beziers) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.renderBezierToCanvas2D(context, bezier);
         }
+
         for (const point of drawing.Points) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.renderPointToCanvas2D(context, point);
         }
+
         for (const text of drawing.Text) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.renderTextToCanvas2D(context, text);
         }
+
         for (const triangle of drawing.Triangles) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.renderTriangleToCanvas2D(context, triangle);
         }
     }
 
-    private renderEllipseToCanvas2D(context: CanvasRenderingContext2D, el: ClientEllipse) {
+    private renderEllipseToCanvas2D(context: CanvasRenderingContext2D, el: ClientEllipse, signal: AbortSignal) {
         context.beginPath();
         this.setContextHighlightStroke(context, this.settings.AutoColor);
         const start = transform(this.transform.CanvasTransform, transform(el.Transform, pointFromAngle(el.StartAngle)));
         context.moveTo(start[0], start[1]);
         for (let angle = el.StartAngle + 1; angle <= el.EndAngle; angle++) {
+            if (signal.aborted) {
+                break;
+            }
+
             const point = transform(this.transform.CanvasTransform, transform(el.Transform, pointFromAngle(angle)));
             context.lineTo(point[0], point[1]);
         }
@@ -629,25 +674,45 @@ export class ViewControl {
         context.strokeStyle = `${ViewControl.colorToHex(color)}40`; // default color, partial alpha
     }
 
-    private redraw2d(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
+    private redraw2d(context: CanvasRenderingContext2D, drawing: ClientDrawing, signal: AbortSignal) {
         for (const line of drawing.Lines) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.redrawLine(context, line);
         }
 
         for (const el of drawing.Ellipses) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.redrawEllipse(context, el);
         }
 
         for (const b of drawing.Beziers) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.redrawBezier(context, b);
         }
 
         for (const t of drawing.Triangles) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.redrawTriangle(context, t);
         }
 
         context.setLineDash([]);
         for (const point of drawing.Points) {
+            if (signal.aborted) {
+                return;
+            }
+
             this.redrawPoint(context, point);
         }
     }
@@ -718,12 +783,16 @@ export class ViewControl {
         context.stroke();
     }
 
-    private redrawText(context: CanvasRenderingContext2D, drawing: ClientDrawing) {
+    private redrawText(context: CanvasRenderingContext2D, drawing: ClientDrawing, signal: AbortSignal) {
         context.setTransform(1, 0, 0, 1, 0, 0); // reset to identity
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         const yscale = this.transform.CanvasTransform[5];
 
         for (let text of drawing.Text) {
+            if (signal.aborted) {
+                return;
+            }
+
             // this is only correct in very simple cases, but should be >90% of the time
             const location = transform(this.transform.CanvasTransform, [text.Location.X, text.Location.Y, text.Location.Z, 1]);
             const x = location[0];
@@ -739,10 +808,14 @@ export class ViewControl {
         }
     }
 
-    private redrawImages(context: CanvasRenderingContext2D, drawing: Drawing) {
+    private redrawImages(context: CanvasRenderingContext2D, drawing: Drawing, signal: AbortSignal) {
         const scale = this.transform.CanvasTransform[0];
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         for (const [image, img] of drawing.ImageElements) {
+            if (signal.aborted) {
+                return;
+            }
+
             const radians = image.Rotation * Math.PI / 180.0;
             const upVectorWorld = [-Math.sin(radians) * image.Height, Math.cos(radians) * image.Height];
             const topLeftWorld = [image.Location.X + upVectorWorld[0], image.Location.Y + upVectorWorld[1], image.Location.Z, 1];
