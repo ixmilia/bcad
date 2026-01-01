@@ -205,6 +205,10 @@ body {
     display: inline-block;
 }
 
+.settings-button-narrow {
+    min-width: 32px;
+}
+
 .settings-input {
     width: 96px;
 }
