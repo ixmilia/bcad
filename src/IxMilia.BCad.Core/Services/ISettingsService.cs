@@ -15,7 +15,7 @@ namespace IxMilia.BCad.Services
 
         T GetValue<T>(string settingName);
         void SetValue<T>(string settingName, T value);
-        void SetValueFromString(string settinggName, string value);
+        void SetValueFromString(string settingName, string value);
 
         void LoadFromLines(string[] lines);
         string WriteWithLines(string[] existingLines);

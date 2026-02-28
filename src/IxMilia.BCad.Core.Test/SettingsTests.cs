@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 
 namespace IxMilia.BCad.Core.Test
 {
@@ -121,6 +122,29 @@ namespace IxMilia.BCad.Core.Test
 
             var finalCursorSize = Workspace.SettingsService.GetValue<int>("Display.CursorSize");
             Assert.Equal(4242, finalCursorSize);
+        }
+
+        [Theory]
+        [InlineData(typeof(bool), "TRUE", "True")] // boolean - valid
+        [InlineData(typeof(bool), "indeed", "False")] // boolean - invalid
+        [InlineData(typeof(int), "42", "42")] // int - valid
+        [InlineData(typeof(int), "not-an-int", "0")] // int - invalid
+        [InlineData(typeof(double), "3.5", "3.5")] // double - valid
+        [InlineData(typeof(double), "not-a-double", "0")] // double - invalid
+        [InlineData(typeof(string), "a string value", "a string value")] // string - valid
+        [InlineData(typeof(CadColor), "#FF2F2F2F", "#FF2F2F2F")] // CadColor - valid
+        [InlineData(typeof(CadColor), "a-beautiful-color", "#00000000")] // CadColor - invalid
+        [InlineData(typeof(DrawingUnits), "Metric", "Metric")] // DrawingUnits - valid
+        [InlineData(typeof(DrawingUnits), "2", "English")] // DrawingUnits - invalid
+        [InlineData(typeof(UnitFormat), "Decimal", "Decimal")] // UnitFormat - valid
+        [InlineData(typeof(UnitFormat), "not-a-unit-format", "Architectural")] // UnitFormat - invalid
+        [InlineData(typeof(double[]), "0;90;180;270", "0;90;180;270")] // double[] - valid
+        [InlineData(typeof(double[]), "not-an-array", "0")] // double[] - invalid
+        public void SetInvalidValueFromStringSetsReasonableDefault(Type valueType, string originalValue, string expectedString)
+        {
+            var parsedValue = Workspace.SettingsService.StringToValue(valueType, originalValue);
+            var actualString = Workspace.SettingsService.ValueToString(valueType, parsedValue);
+            Assert.Equal(expectedString, actualString);
         }
     }
 }

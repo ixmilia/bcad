@@ -166,26 +166,66 @@ namespace IxMilia.BCad.Services
             }
         }
 
-        private static object BoolReader(string value) => bool.Parse(value);
+        private static object BoolReader(string value)
+        {
+            if (bool.TryParse(value, out var result))
+            {
+                return result;
+            }
+
+            return default(bool);
+        }
+
         private static string BoolWriter(object value) => ((bool)value).ToString(CultureInfo.InvariantCulture);
 
         private static object CadColorReader(string value) => CadColor.Parse(value);
         private static string CadColorWriter(object value) => ((CadColor)value).ToString();
 
-        private static object DoubleReader(string value) => double.Parse(value, CultureInfo.InvariantCulture);
+        private static object DoubleReader(string value)
+        {
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+
+            return default(double);
+        }
+
         private static string DoubleWriter(object value) => ((double)value).ToString(CultureInfo.InvariantCulture);
 
-        private static object DrawingUnitsReader(string value) => Enum.Parse(typeof(DrawingUnits), value);
+        private static object DrawingUnitsReader(string value) => EnumReader<DrawingUnits>(value);
         private static string DrawingUnitsWriter(object value) => ((DrawingUnits)value).ToString();
 
-        private static object IntReader(string value) => int.Parse(value, CultureInfo.InvariantCulture);
+        private static object IntReader(string value)
+        {
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+
+            return default(int);
+        }
+
         private static string IntWriter(object value) => ((int)value).ToString(CultureInfo.InvariantCulture);
 
         private static object StringReader(string value) => value;
         private static string StringWriter(object value) => value.ToString();
 
-        private static object UnitFormatReader(string value) => Enum.Parse(typeof(UnitFormat), value);
+        private static object UnitFormatReader(string value) => EnumReader<UnitFormat>(value);
         private static string UnitFormatWriter(object value) => ((UnitFormat)value).ToString();
+
+        private static object EnumReader<T>(string value) where T : struct
+        {
+            if (Enum.TryParse<T>(value, out var result))
+            {
+                if (Enum.IsDefined(typeof(T), result))
+                {
+                    return result;
+                }
+            }
+
+            return default(T);
+        }
 
         private static ValueReader CreateArrayReader<T>(Func<string, object> elementReader) => value => value.Split(';').Select(elementReader).Cast<T>().ToArray();
         private static ValueWriter CreateArrayWriter(Func<object, string> elementWriter)
