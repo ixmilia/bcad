@@ -123,6 +123,26 @@ async function start(argArray: string[]): Promise<void> {
         client.handleMessage(message);
     });
 
+    window.addEventListener('paste', (ev: ClipboardEvent) => {
+        // if pasting text, not in a command, and the text parses as JSON, send it to the client for processing
+        const text = ev.clipboardData?.getData('text');
+        if (typeof text === 'string') {
+            const isCommandActive = document.getElementById("prompt")?.innerText !== "Command";
+            let isValidJson = false;
+            try {
+                JSON.parse(text);
+                isValidJson = true;
+            } catch {
+                // not valid JSON
+            }
+
+            if (!isCommandActive && isValidJson) {
+                ev.preventDefault();
+                client.pasteJson(text);
+            }
+        }
+    });
+
     if (args.isDebug) {
         LogWriter.init(client);
     }

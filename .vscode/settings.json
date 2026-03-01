@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^powershell -File build-contracts-files\\.ps1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Entities;
 using IxMilia.BCad.EventArguments;
 using IxMilia.BCad.Extensions;
+using IxMilia.BCad.FileHandlers;
 using IxMilia.BCad.Helpers;
 using IxMilia.BCad.Lisp;
 using IxMilia.BCad.Plotting.Svg;
@@ -538,6 +540,46 @@ namespace IxMilia.BCad.Rpc
         {
             var result = await _jsonRpc.InvokeAsync<JObject>("ShowDialog", new { id, parameter });
             return result;
+        }
+
+        public async Task PasteJson(string text)
+        {
+            // check if the text is valid JSON
+            try
+            {
+                JToken.Parse(text);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            var handler = new JsonFileHandler();
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
+            var result = await handler.ReadDrawing("paste.json", stream, _ => Task.FromResult(Array.Empty<byte>()));
+            if (!result.Success)
+            {
+                return;
+            }
+
+            var drawing = Workspace.Drawing;
+            var currentLayerName = drawing.Settings.CurrentLayerName;
+            var currentLayer = drawing.Layers.GetValue(currentLayerName);
+
+            foreach (var layer in result.Drawing.GetLayers())
+            {
+                foreach (var entity in layer.GetEntities())
+                {
+                    if (entity is Line line)
+                    {
+                        var newLine = new Line(line.P1, line.P2, line.Color, line.LineTypeSpecification, thickness: line.Thickness);
+                        currentLayer = currentLayer.Add(newLine);
+                    }
+                }
+            }
+
+            drawing = drawing.Update(layers: drawing.Layers.Insert(currentLayerName, currentLayer));
+            Workspace.Update(drawing: drawing);
         }
 
         public void SetSetting(string name, string value)
