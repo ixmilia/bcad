@@ -25,7 +25,7 @@
     "@typescript/native-preview": "^7.0.0-dev.20251010.1",
     "copyfiles": "2.4.1",
     "css-loader": "6.7.1",
-    "icon-gen": "4.0.0",
+    "icon-gen": "^4.0.0",
     "rimraf": "3.0.2",
     "source-map-loader": "4.0.1",
     "style-loader": "3.3.1",
@@ -38,6 +38,7 @@
     "7.css": "0.11.0",
     "monaco-editor": "0.34.1",
     "resize-observer": "1.0.4",
+    "sharp": "^0.35.2",
     "xp.css": "0.2.6"
   }
 }

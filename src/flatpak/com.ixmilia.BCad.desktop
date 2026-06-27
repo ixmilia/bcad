@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=BCad
+Comment=A graphical CAD editor
+Exec=bcad %f
+Icon=com.ixmilia.BCad
+Terminal=false
+Categories=Graphics;Engineering;
+MimeType=image/vnd.dxf;model/iges;

@@ -124,7 +124,7 @@ try {
         Set-EnvironmentVariable "secondary_artifact_name" "win-$architecture"
         Set-EnvironmentVariable "secondary_artifact_path" $artifactPath
     }
-    else {
+    elseif ($IsLinux) {
         $packageVersionPrefix = (Get-Content "$PSScriptRoot/version.txt" | Out-String).Trim()
         $packageVersionSuffix = "$env:VERSION_SUFFIX"
         if ($packageVersionSuffix -ne "") {
@@ -135,8 +135,11 @@ try {
         $packageName = "bcad_${packageVersion}_$packageArchitecture.deb"
         Set-EnvironmentVariable "secondary_artifact_name" "deb-$architecture"
         Set-EnvironmentVariable "secondary_artifact_path" "$packagesDir/$packageName"
+        Set-EnvironmentVariable "tertiary_artifact_name" "bcad-$architecture.flatpak"
+        Set-EnvironmentVariable "tertiary_artifact_path" "$packagesDir/bcad-$architecture.flatpak"
         tar -zcf $artifactPath -C "$packageParentDir/" "$artifactShortName"
         ./build-package.sh --configuration $configuration --architecture $architecture
+        ./build-flatpak.sh --configuration $configuration --architecture $architecture
     }
 
     if ($deployTo -ne "") {

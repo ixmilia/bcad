@@ -47,6 +47,20 @@ Archives of Linux binaries can also be downloaded directly from:
 - `https://pkgs.ixmilia.com/bcad/bcad-linux-x64.tar.gz`
 - `https://pkgs.ixmilia.com/bcad/bcad-linux-arm64.tar.gz`
 
+## Flatpak
+
+Install the bundle (the GNOME runtime dependency is pulled from Flathub automatically):
+
+``` bash
+flatpak install --user ./bcad-x64.flatpak
+```
+
+Run the application:
+
+``` bash
+flatpak run com.ixmilia.BCad
+```
+
 ## Windows Installer
 
 ``` cmd

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.ixmilia.BCad</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>BCad</name>
+  <summary>A graphical CAD editor</summary>
+  <description>
+    <p>
+      BCad is a graphical CAD editor for creating and editing 2D drawings with
+      support for common interchange formats such as DXF and IGES.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.ixmilia.BCad.desktop</launchable>
+  <url type="homepage">https://github.com/ixmilia/bcad</url>
+  <developer id="com.ixmilia">
+    <name>IxMilia</name>
+  </developer>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="%VERSION%" date="%RELEASE_DATE%" />
+  </releases>
+</component>

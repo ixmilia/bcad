@@ -10,7 +10,7 @@ using IxMilia.BCad.Commands;
 using IxMilia.BCad.Display;
 using IxMilia.BCad.Rpc;
 using Nerdbank.Streams;
-using PhotinoNET;
+using Photino.NET;
 using StreamJsonRpc;
 
 namespace bcad
@@ -37,7 +37,7 @@ namespace bcad
         static void Main(string[] args)
         {
             var arguments = CommandLineParser.Parse(args);
-            if (arguments.ErrorLog is { } )
+            if (arguments.ErrorLog is { })
             {
                 if (File.Exists(arguments.ErrorLog.FullName))
                 {
@@ -215,7 +215,7 @@ namespace bcad
                     try
                     {
                         var line = await reader.ReadLineAsync();
-                        window.SendWebMessage(line);
+                        await window.SendWebMessageAsync(line);
                     }
                     catch
                     {

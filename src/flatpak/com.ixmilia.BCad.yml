@@ -1,0 +1,44 @@
+app-id: com.ixmilia.BCad
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: bcad
+
+finish-args:
+  # windowing system access
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  # BCad uses a WebKitGTK (Photino) window
+  - --talk-name=org.freedesktop.portal.*
+  # allow opening/saving drawings the user selects
+  - --filesystem=home
+  # network access for any update/telemetry style checks
+  - --share=network
+
+modules:
+  - name: bcad
+    buildsystem: simple
+    build-commands:
+      # install the self-contained, prebuilt application payload
+      - mkdir -p /app/bcad
+      - cp -r bcad-publish/. /app/bcad/
+      - chmod +x /app/bcad/bcad
+      # expose the launcher on the path
+      - mkdir -p /app/bin
+      - ln -s /app/bcad/bcad /app/bin/bcad
+      # desktop integration files
+      - install -Dm644 com.ixmilia.BCad.desktop /app/share/applications/com.ixmilia.BCad.desktop
+      - install -Dm644 com.ixmilia.BCad.metainfo.xml /app/share/metainfo/com.ixmilia.BCad.metainfo.xml
+      - install -Dm644 bcad.svg /app/share/icons/hicolor/scalable/apps/com.ixmilia.BCad.svg
+    sources:
+      - type: dir
+        path: bcad-publish
+        dest: bcad-publish
+      - type: file
+        path: com.ixmilia.BCad.desktop
+      - type: file
+        path: com.ixmilia.BCad.metainfo.xml
+      - type: file
+        path: bcad.svg

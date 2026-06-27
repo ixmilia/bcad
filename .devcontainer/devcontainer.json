@@ -1,8 +1,14 @@
 {
-  "name": "crosscompile_linux_arm64",
+  "name": "linux_x64_and_arm64",
   "build": {
     "dockerfile": "Dockerfile"
   },
+  // flatpak-builder requires user namespaces / bubblewrap which need a
+  // privileged container to function; --privileged is also required to mount
+  // binfmt_misc so the aarch64 qemu handler can be registered (see below)
+  "runArgs": [
+    "--privileged"
+  ],
   "features": {
     "ghcr.io/devcontainers/features/dotnet:2": {
       "version": "10.0.100",
@@ -13,11 +19,25 @@
     },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "24"
-    }
+    },
+    "ghcr.io/devcontainers/features/powershell:2": {}
   },
+  // NativeAOT settings shared by both "dotnet publish -r linux-x64" (built
+  // natively on this x86_64 host) and "-r linux-arm64" (cross-compiled). clang
+  // drives every native link; for the arm64 image the arm64 toolchain/libs come
+  // from the Ubuntu arm64 multiarch packages installed in the Dockerfile
+  // (default '/' sysroot), so no separate /crossrootfs is needed. ObjCopyName
+  // points the post-link debuginfo split at the multi-target llvm-objcopy, which
+  // handles both x86_64 and aarch64 images, so a single value works for both.
   "containerEnv": {
-    "CppCompilerAndLinker": "clang-9",
-    "ROOTFS_DIR": "/crossrootfs/arm64",
-    "SysRoot": "/crossrootfs/arm64"
-  }
+    "CppCompilerAndLinker": "clang-18",
+    "ObjCopyName": "llvm-objcopy-18"
+  },
+  // on each container start (idempotent): start the system D-Bus bus that the
+  // sandboxed org.flatpak.Builder talks to, and register the aarch64 qemu
+  // binfmt handler so the GNOME aarch64 SDK's build commands can run while
+  // building the aarch64 flatpak on this x86_64 host. See post-start.sh for the
+  // details (the registration uses a static qemu interpreter with the "F"
+  // fix-binary flag so it works inside the flatpak/bubblewrap sandbox).
+  "postStartCommand": "sh .devcontainer/post-start.sh"
 }

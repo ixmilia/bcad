@@ -15,3 +15,9 @@ AppPackages/
 **/.vs
 *project.lock.json
 NuGet.exe
+
+# flatpak-builder local build cache/working directory
+.flatpak-builder/
+
+# .NET SDK file-based app ("run file") discovery cache
+/dotnet/
