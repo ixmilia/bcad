@@ -1,4 +1,0 @@
-#!/bin/sh -e
-
-# remove the symlink
-rm /usr/bin/bcad

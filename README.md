@@ -30,16 +30,13 @@ Final app is placed in `artifacts/pack/bcad-[(linux|darwin|win32)]-x64`.
 
 See [README.md](src/bcad/electron/README.md) in `src/bcad/electron` for details on building/running via WSL that I needed on my local box.
 
-## Ubuntu packages
+## Flatpak
+
+Add the IxMilia Flatpak repository and install:
 
 ``` bash
-# `[arch=arm64]` is also available
-echo "deb [arch=amd64] https://pkgs.ixmilia.com/bcad/deb stable main" | sudo tee /etc/apt/sources.list.d/ixmilia.bcad.list
-```
-
-``` bash
-sudo apt update --allow-insecure-repositories
-sudo apt install bcad
+flatpak remote-add --if-not-exists --no-gpg-verify ixmilia-bcad https://pkgs.ixmilia.com/bcad/flatpak
+flatpak install ixmilia-bcad com.ixmilia.BCad
 ```
 
 Archives of Linux binaries can also be downloaded directly from:
@@ -47,9 +44,7 @@ Archives of Linux binaries can also be downloaded directly from:
 - `https://pkgs.ixmilia.com/bcad/bcad-linux-x64.tar.gz`
 - `https://pkgs.ixmilia.com/bcad/bcad-linux-arm64.tar.gz`
 
-## Flatpak
-
-Install the bundle (the GNOME runtime dependency is pulled from Flathub automatically):
+Alternatively, install a downloaded bundle directly (the GNOME runtime dependency is pulled from Flathub automatically):
 
 ``` bash
 flatpak install --user ./bcad-x64.flatpak

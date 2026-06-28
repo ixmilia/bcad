@@ -54,7 +54,7 @@ try {
 
     # build js client
     Push-Location "$PSScriptRoot/src/javascript-client"
-    npm i
+    npm ci
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     if ($IsLinux -And $architecture -eq "arm64") {
         # when cross-compiling for linux arm64, we specifically need the x64 version of icon-gen and sharp
@@ -125,20 +125,9 @@ try {
         Set-EnvironmentVariable "secondary_artifact_path" $artifactPath
     }
     elseif ($IsLinux) {
-        $packageVersionPrefix = (Get-Content "$PSScriptRoot/version.txt" | Out-String).Trim()
-        $packageVersionSuffix = "$env:VERSION_SUFFIX"
-        if ($packageVersionSuffix -ne "") {
-            $packageVersionSuffix = ".$packageVersionSuffix"
-        }
-        $packageVersion = "$packageVersionPrefix$packageVersionSuffix"
-        $packageArchitecture = if ($architecture -eq "x64") { "amd64" } else { "arm64" }
-        $packageName = "bcad_${packageVersion}_$packageArchitecture.deb"
-        Set-EnvironmentVariable "secondary_artifact_name" "deb-$architecture"
-        Set-EnvironmentVariable "secondary_artifact_path" "$packagesDir/$packageName"
-        Set-EnvironmentVariable "tertiary_artifact_name" "bcad-$architecture.flatpak"
-        Set-EnvironmentVariable "tertiary_artifact_path" "$packagesDir/bcad-$architecture.flatpak"
+        Set-EnvironmentVariable "secondary_artifact_name" "flatpak-$architecture"
+        Set-EnvironmentVariable "secondary_artifact_path" "$packagesDir/bcad-$architecture.flatpak"
         tar -zcf $artifactPath -C "$packageParentDir/" "$artifactShortName"
-        ./build-package.sh --configuration $configuration --architecture $architecture
         ./build-flatpak.sh --configuration $configuration --architecture $architecture
     }
 

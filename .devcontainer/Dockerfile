@@ -73,10 +73,15 @@ RUN apt-get update \
     fuse3 \
     # eu-strip/eu-elfcompress (debuginfo handling) used during the flatpak build
     elfutils \
+    # ostree provides the CLI used to initialize the archive-z2 repository that
+    # the flatpak package feed is built from (flatpak only pulls in libostree,
+    # not the `ostree` command itself)
+    ostree \
+    # appstream provides `appstreamcli compose`, invoked by `flatpak
+    # build-update-repo` to aggregate the feed's AppStream catalog metadata
+    appstream \
     # gdk-pixbuf SVG loader so the .svg app icon can be validated
     librsvg2-common \
-    # dpkg-dev (dpkg-deb/dpkg-architecture) for the .deb packaging scripts
-    dpkg-dev \
     # binfmt-support provides update-binfmts, used by post-start.sh to register
     # the static aarch64 qemu interpreter copied in above (see that COPY)
     binfmt-support \

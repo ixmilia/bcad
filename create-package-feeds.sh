@@ -3,7 +3,7 @@
 _SCRIPT_DIR="$( cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P )"
 
 ARTIFACTS_DIRECTORY="."
-DEB_FEED_PATH="."
+FLATPAK_FEED_PATH="."
 WIN_FEED_PATH="."
 
 while [ $# -gt 0 ]; do
@@ -12,8 +12,8 @@ while [ $# -gt 0 ]; do
       ARTIFACTS_DIRECTORY=$2
       shift
       ;;
-    --deb-feed-path)
-      DEB_FEED_PATH=$2
+    --flatpak-feed-path)
+      FLATPAK_FEED_PATH=$2
       shift
       ;;
     --win-feed-path)
@@ -32,34 +32,28 @@ destination=`mktemp -d`
 echo "package feed location: $destination"
 
 #
-# deb
+# flatpak
 #
 
-# copy in packages
-packagesDir="$destination/deb"
-poolMainDir="$packagesDir/pool/main"
-mkdir -p "$poolMainDir"
-cp $ARTIFACTS_DIRECTORY/deb-x64/*.deb "$poolMainDir"
-cp $ARTIFACTS_DIRECTORY/deb-arm64/*.deb "$poolMainDir"
+# import the per-architecture bundles into a single flatpak (ostree) repository
+# that can be served over HTTP and added as a remote with `flatpak remote-add`
+flatpakDir="$destination/flatpak"
+flatpakRepoDir="$flatpakDir/repo"
+mkdir -p "$flatpakDir"
 
-# create Packages files
-architectures='amd64 arm64'
-for architecture in $architectures; do
-    distsDir="$packagesDir/dists/stable/main/binary-$architecture"
-    mkdir -p "$distsDir"
-    pushd "$packagesDir"
-    dpkg-scanpackages --arch $architecture "pool/" > "$distsDir/Packages"
-    cat "$distsDir/Packages" | gzip -9 > "$distsDir/Packages.gz"
-    popd
+# initialize the repository; `archive-z2` is the mode used for repositories
+# served over plain HTTP (`flatpak build-import-bundle` requires an existing repo)
+ostree --repo="$flatpakRepoDir" init --mode=archive-z2
+
+for bundle in $ARTIFACTS_DIRECTORY/flatpak-x64/*.flatpak $ARTIFACTS_DIRECTORY/flatpak-arm64/*.flatpak; do
+    flatpak build-import-bundle --no-update-summary "$flatpakRepoDir" "$bundle"
 done
 
-# create Release file
-pushd "$packagesDir/dists/stable"
-$_SCRIPT_DIR/generate-release.sh > Release
-popd
+# generate the repository metadata (summary/appstream) consumed by clients
+flatpak build-update-repo "$flatpakRepoDir"
 
 # create archive of the entire thing
-tar -zcf $DEB_FEED_PATH -C "$destination/" deb
+tar -zcf $FLATPAK_FEED_PATH -C "$destination/" flatpak
 
 #
 # win
@@ -80,11 +74,15 @@ tar -zcf $WIN_FEED_PATH -C "$destination/" win
 #
 # version
 #
-pushd "$_SCRIPT_DIR/build"
 # get version prefix from version.txt file
 VERSION_PREFIX=$(cat $_SCRIPT_DIR/version.txt)
-VERSION_SUFFIX=$(pwsh ./make-version.ps1 -suffix beta)
-popd
+# VERSION_SUFFIX is normally computed on the host (where git works reliably) and
+# passed in via the environment; fall back to computing it here if unset
+if [ -z "$VERSION_SUFFIX" ]; then
+    pushd "$_SCRIPT_DIR/build"
+    VERSION_SUFFIX=$(pwsh ./make-version.ps1 -suffix beta)
+    popd
+fi
 echo "${VERSION_PREFIX}-${VERSION_SUFFIX}" | tee $ARTIFACTS_DIRECTORY/version.txt
 
 # clean up
