@@ -52,7 +52,7 @@ namespace IxMilia.BCad.Core.Test
             Assert.True(Workspace.SettingsService.GetValue<bool>("Display.PointSnap"));
             Assert.Equal("canvas", Workspace.SettingsService.GetValue<string>("Display.RenderId"));
             Assert.Equal(30.0, Workspace.SettingsService.GetValue<double>("Display.SnapAngleDistance"));
-            Assert.Equal([0.0, 90.0, 180.0, 270.0], Workspace.SettingsService.GetValue<double[]>("Display.SnapAngles"));
+            Assert.Equal(new[] { 0.0, 90.0, 180.0, 270.0 }, Workspace.SettingsService.GetValue<double[]>("Display.SnapAngles"));
             Assert.Equal(CadColor.FromUInt32(0xFFFFFF00), Workspace.SettingsService.GetValue<CadColor>("Display.SnapPointColor"));
             Assert.Equal(15.0, Workspace.SettingsService.GetValue<double>("Display.SnapPointDistance"));
             Assert.Equal(15.0, Workspace.SettingsService.GetValue<double>("Display.SnapPointSize"));

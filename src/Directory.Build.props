@@ -1,7 +1,5 @@
 <Project>
 
-  <Import Project="Packages.props" />
-
   <PropertyGroup>
     <AppTargetFramework>net10.0</AppTargetFramework>
     <AssemblySearchPaths>{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName}</AssemblySearchPaths>

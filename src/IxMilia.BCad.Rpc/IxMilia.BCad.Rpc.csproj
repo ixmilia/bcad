@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StreamJsonRpc" Version="$(StreamJsonRpcPackageVersion)" />
+    <PackageReference Include="StreamJsonRpc" />
   </ItemGroup>
 
 </Project>

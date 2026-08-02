@@ -233,7 +233,7 @@ namespace IxMilia.BCad.FileHandlers
                     {
                         // dxf files treat aggregate entities as separate items
                         var agg = (AggregateEntity)item;
-                        var block = new DxfBlock();
+                        var block = new DxfBlock(string.Empty, layer.Name);
                         block.Layer = layer.Name;
                         foreach (var child in agg.Children.Select(c => c.ToDxfEntity(drawing.Settings)))
                         {
