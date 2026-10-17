@@ -1,6 +1,10 @@
 # tags listed here: https://mcr.microsoft.com/v2/dotnet-buildtools/prereqs/tags/list
 FROM mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-26.04-amd64
 
+# Use the public registry instead of the base image's Azure npm feed, which
+# rejects the Node feature's yarn/pnpm installs with authentication errors.
+RUN npm config set registry https://registry.npmjs.org/
+
 # pull the statically linked aarch64 qemu interpreter from the multiarch image.
 # Ubuntu 26.04 no longer ships qemu-user-static, and the dynamically linked
 # qemu-user can't run inside the flatpak/bubblewrap sandbox (its libraries
