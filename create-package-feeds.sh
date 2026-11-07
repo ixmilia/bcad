@@ -52,6 +52,8 @@ done
 # generate the repository metadata (summary/appstream) consumed by clients
 flatpak build-update-repo "$flatpakRepoDir"
 
+cp "$_SCRIPT_DIR/src/flatpak/com.ixmilia.BCad.flatpakref" "$flatpakDir/"
+
 # create archive of the entire thing
 tar -zcf $FLATPAK_FEED_PATH -C "$destination/" flatpak
 

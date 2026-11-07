@@ -1,0 +1,9 @@
+[Flatpak Ref]
+Version=1
+Name=com.ixmilia.BCad
+Title=BCad
+Branch=master
+Url=https://pkgs.ixmilia.com/bcad/flatpak/repo
+IsRuntime=false
+RuntimeRepo=https://flathub.org/repo/flathub.flatpakrepo
+SuggestRemoteName=ixmilia-bcad

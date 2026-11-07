@@ -32,11 +32,20 @@ See [README.md](src/bcad/electron/README.md) in `src/bcad/electron` for details 
 
 ## Flatpak
 
-Add the IxMilia Flatpak repository and install:
+Install from the IxMilia Flatpak repository:
 
 ``` bash
-flatpak remote-add --if-not-exists --no-gpg-verify ixmilia-bcad https://pkgs.ixmilia.com/bcad/flatpak
-flatpak install ixmilia-bcad com.ixmilia.BCad
+flatpak install --user https://pkgs.ixmilia.com/bcad/flatpak/com.ixmilia.BCad.flatpakref
+```
+
+Flatpak will offer to add the application repository and Flathub, then install
+BCad and its required GNOME runtime. The application repository is currently
+unsigned; Flathub uses its own signing key.
+
+Once installed, the application can be run with:
+
+``` bash
+flatpak run com.ixmilia.BCad
 ```
 
 Archives of Linux binaries can also be downloaded directly from:
